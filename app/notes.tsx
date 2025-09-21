@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function CalendarScreen() {
+export default function Notes() {
 	return (
 		<SafeAreaView style={styles.root}>
 			<View style={{ padding: 16 }}></View>

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, FlatList, Pressable } from 'react-native';
+import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function MessageScreen() {
 	const [text, setText] = useState('');
-	const [messages, setMessages] = useState<string[]>([]);
 	const [error, setError] = useState<string | null>(null);
 
 	function addMessage() {
@@ -14,46 +14,83 @@ export default function MessageScreen() {
 			return;
 		}
 		setError(null);
-		setMessages((prev) => [value, ...prev]);
 		setText('');
 	}
 
 	return (
-		<SafeAreaView style={{ flex: 1 }}>
-			<View style={{ padding: 16, gap: 12 }}>
-				<Text style={{ fontSize: 22, fontWeight: '700' }}>Add a Message</Text>
-
+		<SafeAreaView style={styles.root}>
+			<View style={styles.container}>
 				<TextInput
-					placeholder="Type your message"
+					placeholder="What do you need to think and between now and your next session?"
 					value={text}
 					onChangeText={setText}
-					style={{ borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 12 }}
+					multiline
+					numberOfLines={6}
+					style={[styles.input, styles.textArea, styles.inputCentered]}
 				/>
 
-				{error ? <Text style={{ color: 'red' }}>{error}</Text> : null}
+				{error ? <Text style={styles.error}>{error}</Text> : null}
 
 				<Pressable
 					onPress={addMessage}
-					style={{
-						backgroundColor: '#111',
-						borderRadius: 8,
-						paddingVertical: 10,
-						alignItems: 'center',
-					}}
+					style={styles.button}
+					accessibilityRole="button"
+					accessibilityLabel="Add note"
+					hitSlop={12}
 				>
-					<Text style={{ color: '#fff', fontWeight: '600' }}>Add</Text>
+					<Ionicons name="add" size={28} color="#fff" />
 				</Pressable>
-
-				<Text style={{ marginTop: 8, fontWeight: '700' }}>Messages:</Text>
-				<FlatList
-					data={messages}
-					keyExtractor={(item, idx) => `${item}-${idx}`}
-					renderItem={({ item }) => <Text style={{ paddingVertical: 8 }}>• {item}</Text>}
-					ItemSeparatorComponent={() => (
-						<View style={{ height: 1, backgroundColor: '#eee' }} />
-					)}
-				/>
 			</View>
 		</SafeAreaView>
 	);
 }
+
+const styles = StyleSheet.create({
+	root: { flex: 1, backgroundColor: 'transparent' },
+	container: {
+		flex: 1,
+		justifyContent: 'center',
+		alignItems: 'center',
+		padding: 16,
+		gap: 12,
+	},
+	inputCentered: { width: '90%', maxWidth: 560 },
+	title: { fontSize: 22, fontWeight: '700' },
+	input: {
+		borderWidth: 1,
+		borderColor: '#E9BFCB',
+		borderRadius: 16,
+		paddingHorizontal: 12,
+	},
+	textArea: {
+		minHeight: 200,
+		paddingTop: 12,
+		paddingBottom: 44,
+		fontSize: 16,
+		textAlignVertical: 'top',
+	},
+	error: { color: 'green' },
+	primaryBtn: {
+		backgroundColor: '#111',
+		borderRadius: 8,
+		paddingVertical: 10,
+		alignItems: 'center',
+	},
+	primaryBtnText: { color: '#fff', fontWeight: '600' },
+	sectionTitle: { marginTop: 8, fontWeight: '700' },
+	listItem: { paddingVertical: 8 },
+	separator: { height: 1, backgroundColor: '#eee' },
+	button: {
+		width: 56,
+		height: 56,
+		borderRadius: 28,
+		backgroundColor: '#111',
+		alignItems: 'center',
+		justifyContent: 'center',
+		shadowColor: '#E9BFCB',
+		shadowOpacity: 0.78,
+		shadowRadius: 10,
+		shadowOffset: { width: 0, height: 3 },
+		elevation: 4,
+	},
+});
