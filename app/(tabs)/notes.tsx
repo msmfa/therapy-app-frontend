@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useHeaderHeight } from '@react-navigation/elements';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useNotes } from '../src/hooks/useNotes';
+import { useNotes } from '../../src/hooks/useNotes';
 
 const PINK_SOLID = '#F7E4EAFF'; // your pink
 const PINK_CLEAR = '#F7E4EA00';
