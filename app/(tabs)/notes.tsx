@@ -5,9 +5,8 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNotes } from '../../src/hooks/useNotes';
+import { PINK_CLEAR, PINK_SOLID } from '../../src/const';
 
-const PINK_SOLID = '#F7E4EAFF'; // your pink
-const PINK_CLEAR = '#F7E4EA00';
 const TOP_OVERLAY = 48; // visual fade height at top
 const BOTTOM_FADE = 96; // fade height at bottom (mask)
 

@@ -105,14 +105,6 @@ export default function LoginScreen() {
 									style={[styles.input, { flex: 1 }]}
 									textContentType="password"
 								/>
-								<TouchableOpacity
-									onPress={() => setShowPw((s) => !s)}
-									style={styles.toggleBtn}
-								>
-									<Text style={styles.toggleText}>
-										{showPw ? 'Hide' : 'Show'}
-									</Text>
-								</TouchableOpacity>
 							</View>
 
 							<TouchableOpacity
@@ -126,17 +118,6 @@ export default function LoginScreen() {
 									<Text style={styles.buttonText}>Log in</Text>
 								)}
 							</TouchableOpacity>
-
-							<TouchableOpacity
-								onPress={onLogout}
-								style={[styles.buttonGhost, { marginTop: 8 }]}
-							>
-								<Text style={styles.buttonGhostText}>Log out</Text>
-							</TouchableOpacity>
-
-							<Text style={styles.hint}>
-								Server: {BASE_URL.replace(/^https?:\/\//, '')}
-							</Text>
 						</>
 					)}
 				</View>
@@ -148,7 +129,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
 	root: { flex: 1, backgroundColor: 'transparent' },
 	kav: { flex: 1, justifyContent: 'center', paddingHorizontal: 20 },
-	card: { backgroundColor: 'rgba(255,255,255,0.9)', borderRadius: 16, padding: 16, gap: 10 },
+	card: { backgroundColor: 'transparent', padding: 16, gap: 10 },
 	title: { fontSize: 24, fontWeight: '700', textAlign: 'center', marginBottom: 4 },
 	subtitle: { textAlign: 'center', color: '#555' },
 	userEmail: { textAlign: 'center', fontWeight: '700', marginBottom: 8 },

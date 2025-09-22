@@ -1,277 +1,286 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import {
-	View,
-	Text,
-	StyleSheet,
-	TouchableOpacity,
-	Platform,
-	ActivityIndicator,
-	Alert,
-} from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { View, Text, StyleSheet, Alert, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import { createTherapySession, listTherapySessions, TherapySession } from '../../src/api/therapy';
+import { Calendar } from 'react-native-calendars';
+import { useAuth } from '../../src/auth/AuthContext';
+import {
+	listTherapySessions,
+	createTherapySession,
+	deleteTherapySession,
+	TherapySession,
+} from '../../src/api/therapy';
+import { PINK_CLEAR, PINK_DARK, PINK_SOLID } from '../../src/const';
 
-type Props = {
-	/** JWT from your login flow */
-	authToken: string;
-	/** Optional default duration to save with new sessions */
-	defaultDurationMin?: number;
+/* ---------------- utils (tiny + timezone-safe) ---------------- */
+const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`);
+const ymd = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const monthStart = (y: number, m1: number) => new Date(y, m1 - 1, 1, 0, 0, 0, 0);
+const nextMonthStart = (y: number, m1: number) => new Date(y, m1, 1, 0, 0, 0, 0);
+// create sessions at *local noon* to avoid UTC day shift
+const localNoonFromYMD = (dateYMD: string) => {
+	const [y, m, d] = dateYMD.split('-').map(Number);
+	return new Date(y, (m as number) - 1, d as number, 12, 0, 0, 0);
 };
+// shapes from Calendar (don’t import types from the lib for version safety)
+type MarkedDates = NonNullable<React.ComponentProps<typeof Calendar>['markedDates']>;
+type DayObj = { dateString: string; day: number; month: number; year: number };
 
-export default function CalendarScreen({ authToken, defaultDurationMin = 50 }: Props) {
-	const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-	const [showAndroidPicker, setShowAndroidPicker] = useState(false);
+/* ---------------- component ---------------- */
+export default function CalendarScreen() {
+	const { token } = useAuth();
+
+	const now = new Date();
+	const [visible, setVisible] = useState<{ year: number; month: number }>({
+		year: now.getFullYear(),
+		month: now.getMonth() + 1,
+	});
+
+	// Backend truth for *this month*: map YYYY-MM-DD -> session id
+	const [savedMap, setSavedMap] = useState<Record<string, string>>({});
+	// User’s current selection for this month
+	const [selected, setSelected] = useState<Set<string>>(new Set());
+
 	const [loading, setLoading] = useState(false);
-	const [weekSessions, setWeekSessions] = useState<TherapySession[]>([]);
 	const [saving, setSaving] = useState(false);
 
-	const startOfWeek = (date: string | number | Date) => {
-		const d = new Date(date);
-		d.setHours(0, 0, 0, 0);
-		const day = d.getDay(); // 0=Sun...6=Sat
-		const mondayOffset = (day + 6) % 7; // Monday as first day
-		d.setDate(d.getDate() - mondayOffset);
-		return d;
-	};
+	const from = useMemo(() => monthStart(visible.year, visible.month), [visible]);
+	const to = useMemo(() => nextMonthStart(visible.year, visible.month), [visible]);
 
-	const endOfWeek = (weekStart: Date) => {
-		const d = new Date(weekStart);
-		d.setDate(d.getDate() + 7); // exclusive upper bound
-		return d;
-	};
+	const fetchMonth = useCallback(async () => {
+		if (!token) return;
+		setLoading(true);
+		try {
+			const data = await listTherapySessions(token, from, to);
+			const map: Record<string, string> = {};
+			(data as TherapySession[]).forEach((s) => {
+				map[ymd(new Date(s.startsAtUtc))] = s._id;
+			});
+			setSavedMap(map);
+			// On month load, mirror selection to saved state (no unsaved changes initially)
+			setSelected(new Set(Object.keys(map)));
+		} catch (e: any) {
+			console.warn('Load sessions failed:', e?.message ?? e);
+		} finally {
+			setLoading(false);
+		}
+	}, [token, from, to]);
 
-	const isSameDay = (a: Date, b: Date) =>
-		a.getFullYear() === b.getFullYear() &&
-		a.getMonth() === b.getMonth() &&
-		a.getDate() === b.getDate();
+	useEffect(() => {
+		fetchMonth();
+	}, [fetchMonth]);
 
-	const weekStart = useMemo(() => startOfWeek(selectedDate), [selectedDate]);
-	const weekEnd = useMemo(() => endOfWeek(weekStart), [weekStart]);
+	// Unsaved changes = selection differs from saved
+	const unsaved = useMemo(() => {
+		const savedSet = new Set(Object.keys(savedMap));
+		if (savedSet.size !== selected.size) return true;
+		for (const k of selected) if (!savedSet.has(k)) return true;
+		return false;
+	}, [savedMap, selected]);
 
-	const weekDays = useMemo(
-		() =>
-			Array.from({ length: 7 }, (_, i) => {
-				const d = new Date(weekStart);
-				d.setDate(weekStart.getDate() + i);
-				return d;
-			}),
-		[weekStart],
-	);
+	const DAY_SIZE = 32; // circle size inside each day cell
+	const RING_OFFSET_Y = 2;
 
-	const weekdayShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+	const marked: MarkedDates = useMemo(() => {
+		const m: MarkedDates = {};
 
-	// Use API sessions instead of a hardcoded list
-	const hasSessionOn = (date: Date) =>
-		weekSessions.some((s) => {
-			const d = new Date(s.startsAtUtc);
-			return isSameDay(d, date);
+		// saved = red ring
+		Object.keys(savedMap).forEach((key) => {
+			m[key] = {
+				...(m[key] || {}),
+				customStyles: {
+					...(m[key]?.customStyles || {}),
+					container: {
+						...(m[key]?.customStyles?.container || {}),
+						width: DAY_SIZE,
+						height: DAY_SIZE,
+						borderRadius: DAY_SIZE / 2,
+						alignItems: 'center',
+						justifyContent: 'center',
+						borderWidth: 2,
+						borderColor: PINK_DARK,
+						backgroundColor: 'transparent',
+						marginTop: RING_OFFSET_Y, // 👈 nudge down
+					},
+					text: {
+						...(m[key]?.customStyles?.text || {}),
+						color: '#111',
+						fontWeight: '600',
+					},
+				},
+			} as any;
 		});
 
-	const onChangePicker = (event: DateTimePickerEvent, date?: Date) => {
-		if (Platform.OS === 'android') setShowAndroidPicker(false);
-		if (date) setSelectedDate(date);
+		// selected = filled dark (keeps ring if present)
+		selected.forEach((key) => {
+			const prev = m[key]?.customStyles || {};
+			m[key] = {
+				customStyles: {
+					container: {
+						...prev.container,
+						width: DAY_SIZE,
+						height: DAY_SIZE,
+						borderRadius: DAY_SIZE / 2,
+						alignItems: 'center',
+						justifyContent: 'center',
+						backgroundColor: 'transparent',
+						marginTop: RING_OFFSET_Y, // 👈 same nudge
+					},
+					text: {
+						...prev.text,
+						color: PINK_DARK,
+						fontWeight: '700',
+					},
+				},
+			} as any;
+		});
+
+		return m;
+	}, [savedMap, selected]);
+
+	/* ---------------- interactions ---------------- */
+	const onDayPress = (day: DayObj) => {
+		// Only toggle days shown in current month grid (react-native-calendars handles month bounds)
+		const next = new Set(selected);
+		next.has(day.dateString) ? next.delete(day.dateString) : next.add(day.dateString);
+		setSelected(next);
 	};
 
-	// Load sessions whenever the selected week changes
-	useEffect(() => {
-		let cancelled = false;
-		(async () => {
-			try {
-				setLoading(true);
-				const data = await listTherapySessions(authToken, weekStart, weekEnd);
-				if (!cancelled) setWeekSessions(data);
-			} catch (e: any) {
-				console.warn('Failed to load sessions:', e?.message ?? e);
-			} finally {
-				if (!cancelled) setLoading(false);
-			}
-		})();
-		return () => {
-			cancelled = true;
-		};
-	}, [authToken, weekStart, weekEnd]);
+	const onMonthChange = (m: DayObj) => {
+		// Only reachable when next/prev arrows are enabled (we disable right when unsaved)
+		setVisible({ year: m.year, month: m.month });
+	};
 
-	// Save the selected date as a therapy session (UTC)
-	const onSaveTherapySession = async () => {
+	const discard = () => setSelected(new Set(Object.keys(savedMap)));
+
+	const saveThisMonth = async () => {
+		if (!token) {
+			Alert.alert('Not logged in', 'Please log in first.');
+			return;
+		}
 		try {
 			setSaving(true);
+			const savedSet = new Set(Object.keys(savedMap));
+			const toCreate = [...selected].filter((d) => !savedSet.has(d));
+			const toDeleteIds = [...savedSet]
+				.filter((d) => !selected.has(d))
+				.map((d) => savedMap[d])
+				.filter(Boolean) as string[];
 
-			// Optimistic UI: add a temporary item so the ring appears immediately
-			const optimisticId = `optimistic-${Date.now()}`;
-			const optimistic: TherapySession = {
-				_id: optimisticId,
-				userId: 'me',
-				startsAtUtc: selectedDate.toISOString(),
-				durationMin: defaultDurationMin,
-				createdAt: new Date().toISOString(),
-				updatedAt: new Date().toISOString(),
-			};
-			setWeekSessions((prev) => [...prev, optimistic]);
+			await Promise.all([
+				...toDeleteIds.map((id) => deleteTherapySession(token, id)),
+				...toCreate.map((d) => createTherapySession(token, localNoonFromYMD(d), 50)),
+			]);
 
-			const saved = await createTherapySession(authToken, selectedDate, defaultDurationMin);
-
-			// Replace optimistic with server doc
-			setWeekSessions((prev) => prev.map((s) => (s._id === optimisticId ? saved : s)));
+			// Refresh month, then snapshot selection to saved state so arrows re-enable
+			await fetchMonth();
+			Alert.alert('Saved', 'This month’s therapy dates have been updated.');
 		} catch (e: any) {
-			// Roll back optimistic add
-			setWeekSessions((prev) => prev.filter((s) => !s._id.startsWith('optimistic-')));
 			Alert.alert('Save failed', e?.message ?? 'Please try again.');
+			await fetchMonth();
 		} finally {
 			setSaving(false);
 		}
 	};
 
+	/* ---------------- render ---------------- */
 	return (
 		<SafeAreaView style={styles.root}>
-			<View style={{ padding: 16 }}>
-				<Text style={styles.title}>Calendar</Text>
-				<Text style={styles.subtitle}>
-					Tap a day to select. Red ring = therapy session.
-				</Text>
+			<View style={{ paddingTop: 36, paddingLeft: 10, paddingRight: 10 }}>
+				<Text style={styles.subtitle}>Select your therapy sessions</Text>
 
-				{/* Week strip with therapy markers */}
-				<View style={styles.weekStrip}>
-					{weekDays.map((d) => {
-						const selected = isSameDay(d, selectedDate);
-						const hasSession = hasSessionOn(d);
-						return (
-							<TouchableOpacity
-								key={d.toDateString()}
-								style={styles.dayCell}
-								onPress={() => setSelectedDate(new Date(d))}
-								accessibilityRole="button"
-								accessibilityLabel={`${weekdayShort[d.getDay()]} ${d.getDate()}. ${hasSession ? 'Therapy session.' : ''} ${selected ? 'Selected.' : ''}`}
-							>
-								<Text style={styles.weekday}>{weekdayShort[d.getDay()]}</Text>
-								<View
-									style={[
-										styles.dayBubble,
-										selected && styles.dayBubbleSelected,
-										hasSession && styles.dayBubbleHasSession, // red circle ring
-									]}
-								>
-									<Text
-										style={[
-											styles.dayNumber,
-											selected && styles.dayNumberSelected,
-										]}
-									>
-										{d.getDate()}
-									</Text>
-								</View>
-							</TouchableOpacity>
-						);
-					})}
-				</View>
+				<Calendar
+					style={styles.calendar}
+					enableSwipeMonths={false} // prevent bypassing arrow lock
+					disableArrowRight={unsaved} // lock NEXT until saved
+					onMonthChange={onMonthChange}
+					onDayPress={onDayPress}
+					markingType="custom"
+					markedDates={marked}
+					hideExtraDays={false}
+					theme={{
+						calendarBackground: 'transparent',
+						backgroundColor: 'transparent',
+						selectedDayBackgroundColor: '#111',
+						selectedDayTextColor: '#fff',
+						todayTextColor: '#111',
+						arrowColor: unsaved ? '#E11900' : '#111',
+						monthTextColor: '#111',
+						textDayFontWeight: '600',
+						textMonthFontWeight: '700',
+					}}
+				/>
 
-				{/* Actions */}
-				<View
-					style={{ marginTop: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }}
-				>
-					{Platform.OS === 'ios' ? (
-						<DateTimePicker
-							value={selectedDate}
-							mode="date"
-							display="inline" // iOS 14+ inline calendar
-							onChange={onChangePicker}
-							style={{ alignSelf: 'stretch' }}
-						/>
-					) : (
-						<>
-							<TouchableOpacity
-								onPress={() => setShowAndroidPicker(true)}
-								style={styles.openPickerBtn}
-							>
-								<Text style={styles.openPickerText}>Open calendar</Text>
-							</TouchableOpacity>
-							{showAndroidPicker && (
-								<DateTimePicker
-									value={selectedDate}
-									mode="date"
-									display="calendar" // Android calendar UI
-									onChange={onChangePicker}
-								/>
-							)}
-						</>
-					)}
+				{/* {(loading || saving) && (
+					<View style={styles.statusRow}>
+						<ActivityIndicator />
+						<Text style={styles.statusText}>{loading ? 'Loading…' : 'Saving…'}</Text>
+					</View>
+				)} */}
 
+				{unsaved && (
+					<View style={styles.banner}>
+						<Text style={styles.bannerText}>
+							You have unsaved changes for this month.
+						</Text>
+					</View>
+				)}
+
+				<View style={styles.actions}>
+					<TouchableOpacity onPress={discard} style={[styles.btn, styles.btnGhost]}>
+						<Text style={styles.btnGhostText}>Discard</Text>
+					</TouchableOpacity>
 					<TouchableOpacity
-						onPress={onSaveTherapySession}
-						style={[styles.openPickerBtn, saving && { opacity: 0.6 }]}
-						disabled={saving}
+						onPress={saveThisMonth}
+						disabled={!unsaved || saving}
+						style={[
+							styles.btn,
+							!unsaved || saving ? styles.btnDisabled : styles.btnPrimary,
+						]}
 					>
-						<Text style={styles.openPickerText}>
-							{saving ? 'Saving...' : 'Save therapy session'}
+						<Text
+							style={
+								!unsaved || saving ? styles.btnDisabledText : styles.btnPrimaryText
+							}
+						>
+							{saving ? 'Saving…' : 'Save this month'}
 						</Text>
 					</TouchableOpacity>
 				</View>
-
-				{/* Loading indicator for week fetch */}
-				{loading && (
-					<View
-						style={{ marginTop: 8, flexDirection: 'row', alignItems: 'center', gap: 8 }}
-					>
-						<ActivityIndicator />
-						<Text>Loading this week…</Text>
-					</View>
-				)}
 			</View>
 		</SafeAreaView>
 	);
 }
 
+/* ---------------- styles ---------------- */
 const styles = StyleSheet.create({
 	root: { flex: 1, backgroundColor: 'transparent' },
-	container: { flex: 1, padding: 16, alignItems: 'center', justifyContent: 'center' },
 	title: { fontSize: 22, fontWeight: '700' },
-	subtitle: { marginTop: 8, color: '#666' },
-
-	weekStrip: {
-		marginTop: 16,
-		flexDirection: 'row',
-		justifyContent: 'space-between',
+	subtitle: { marginTop: 8, color: '#666', marginBottom: 12 },
+	calendar: { backgroundColor: 'transparent' },
+	statusRow: { marginTop: 12, flexDirection: 'row', alignItems: 'center', gap: 8 },
+	statusText: { marginLeft: 8 },
+	banner: {
+		marginTop: 12,
+		padding: 10,
+		borderRadius: 10,
+		backgroundColor: 'rgba(225,25,0,0.08)',
+		borderWidth: 1,
+		borderColor: '#E7B0AA',
 	},
-	dayCell: {
-		alignItems: 'center',
-		width: `${100 / 7}%`,
-	},
-	weekday: {
-		fontSize: 12,
-		color: '#666',
-		marginBottom: 6,
-	},
-	dayBubble: {
-		height: 40,
-		width: 40,
-		borderRadius: 20,
+	bannerText: { color: '#7A3026', fontWeight: '600' },
+	actions: { marginTop: 16, flexDirection: 'row', gap: 12 },
+	btn: {
+		flex: 1,
+		paddingVertical: 12,
+		paddingHorizontal: 14,
+		borderRadius: 12,
 		alignItems: 'center',
 		justifyContent: 'center',
-		borderWidth: 0, // default no ring
 	},
-	dayBubbleSelected: {
-		backgroundColor: '#111',
-	},
-	dayBubbleHasSession: {
-		borderWidth: 2,
-		borderColor: '#E11900', // red circle ring for therapy day
-	},
-	dayNumber: {
-		fontSize: 16,
-		fontWeight: '600',
-		color: '#111',
-	},
-	dayNumberSelected: {
-		color: '#fff',
-	},
-
-	openPickerBtn: {
-		paddingVertical: 10,
-		paddingHorizontal: 14,
-		borderRadius: 10,
-		borderWidth: 1,
-		borderColor: '#ddd',
-		alignSelf: 'flex-start',
-	},
-	openPickerText: { fontWeight: '600' },
+	btnGhost: { borderWidth: 1, borderColor: '#ddd' },
+	btnGhostText: { fontWeight: '700', color: '#444' },
+	btnPrimary: { backgroundColor: '#111' },
+	btnPrimaryText: { color: '#fff', fontWeight: '700' },
+	btnDisabled: { backgroundColor: '#eee' },
+	btnDisabledText: { color: '#aaa', fontWeight: '700' },
 });
