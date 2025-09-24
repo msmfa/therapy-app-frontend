@@ -8,7 +8,7 @@ export default function SettingsScreen() {
 
 	const onLogout = async () => {
 		try {
-			await signOut(); // clears SecureStore + context
+			await signOut();
 		} catch (e: any) {
 			Alert.alert('Error', e?.message ?? 'Could not log out. Try again.');
 		}
@@ -17,8 +17,6 @@ export default function SettingsScreen() {
 	return (
 		<SafeAreaView style={styles.root}>
 			<View style={styles.container}>
-				<Text style={styles.title}>Settings</Text>
-
 				<View style={styles.section}>
 					<Text style={styles.label}>Signed in as</Text>
 					<Text style={styles.value}>{user?.email ?? '—'}</Text>
