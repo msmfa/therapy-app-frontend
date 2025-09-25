@@ -1,476 +1,1010 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, Text, StyleSheet, Alert, ActivityIndicator, TouchableOpacity } from 'react-native';
+import {
+	View,
+	Text,
+	StyleSheet,
+	TouchableOpacity,
+	ScrollView,
+	ActivityIndicator,
+	Modal,
+	Alert,
+	Platform,
+	KeyboardAvoidingView,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { Calendar } from 'react-native-calendars';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useAuth } from '../../src/auth/AuthContext';
 import {
 	listTherapySessions,
 	createTherapySession,
 	deleteTherapySession,
+	updateTherapySession,
 	TherapySession,
 } from '../../src/api/therapy';
-import { PINK_CLEAR, PINK_DARK, PINK_SOLID } from '../../src/const';
 
-/* ---------------- Constants ---------------- */
-const DAY_SIZE = 32;
-const THERAPY_DURATION_MINUTES = 50;
-
-/* ---------------- Utils ---------------- */
-const pad = (n: number): string => (n < 10 ? `0${n}` : `${n}`);
-
-const ymd = (d: Date): string => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-
-const monthStart = (y: number, m1: number): Date => new Date(y, m1 - 1, 1, 0, 0, 0, 0);
-
-const nextMonthStart = (y: number, m1: number): Date => new Date(y, m1, 1, 0, 0, 0, 0);
-
-// Create sessions at local noon to avoid UTC day shift
-const localNoonFromYMD = (dateYMD: string): Date => {
-	const [y, m, d] = dateYMD.split('-').map(Number);
-	return new Date(y, m - 1, d, 12, 0, 0, 0);
+/* ---------------- Design System ---------------- */
+const colors = {
+	background: '#FAFBFC',
+	surface: '#FFFFFF',
+	surfaceAlt: '#F8F9FA',
+	text: {
+		primary: '#111111',
+		secondary: '#666666',
+		muted: '#9CA3AF',
+		inverse: '#FFFFFF',
+	},
+	primary: '#0066CC',
+	primaryLight: '#E8F4FD',
+	success: '#059669',
+	danger: '#DC2626',
+	dangerLight: '#FEE2E2',
+	border: '#E5E7EB',
+	overlay: 'rgba(0, 0, 0, 0.5)',
 };
 
-// Check if a date string is before today
-const isPastDate = (dateString: string): boolean => {
-	const today = new Date();
-	today.setHours(0, 0, 0, 0);
-	const checkDate = new Date(dateString + 'T00:00:00');
-	return checkDate < today;
+const typography = {
+	h1: { fontSize: 28, fontWeight: '700' as const },
+	h2: { fontSize: 20, fontWeight: '600' as const },
+	h3: { fontSize: 16, fontWeight: '600' as const },
+	body: { fontSize: 14, fontWeight: '400' as const },
+	caption: { fontSize: 12, fontWeight: '500' as const },
+	button: { fontSize: 14, fontWeight: '600' as const },
 };
 
-/* ---------------- Types ---------------- */
-type MarkedDates = NonNullable<React.ComponentProps<typeof Calendar>['markedDates']>;
-type DayObj = { dateString: string; day: number; month: number; year: number };
-type SessionMap = Record<string, string>; // dateString -> sessionId
+const spacing = {
+	xs: 4,
+	sm: 8,
+	md: 12,
+	lg: 16,
+	xl: 24,
+	xxl: 32,
+};
 
-/* ---------------- Component ---------------- */
+const radius = {
+	sm: 6,
+	md: 10,
+	lg: 14,
+	xl: 20,
+};
+
+interface Session {
+	id: string;
+	date: string;
+	time: Date;
+}
+
+type ScheduleMode = 'single' | 'weekly_pattern';
+
+const ScheduleModal: React.FC<{
+	visible: boolean;
+	selectedDate: string | null;
+	existingSession: Session | null;
+	defaultTime: Date;
+	onConfirm: (mode: ScheduleMode, time: Date) => void;
+	onDelete: () => void;
+	onCancel: () => void;
+}> = ({ visible, selectedDate, existingSession, defaultTime, onConfirm, onDelete, onCancel }) => {
+	const [time, setTime] = useState(defaultTime);
+	const [scheduleMode, setScheduleMode] = useState<ScheduleMode>('single');
+	const [showPicker, setShowPicker] = useState(false);
+
+	useEffect(() => {
+		if (visible) {
+			setTime(existingSession?.time || defaultTime);
+			setScheduleMode('single');
+		}
+	}, [visible, existingSession, defaultTime]);
+
+	const handleTimeChange = (event: any, selectedTime?: Date) => {
+		if (Platform.OS === 'android') {
+			setShowPicker(false);
+			if (event.type === 'dismissed') return;
+		}
+		if (selectedTime && !isNaN(selectedTime.getTime())) {
+			setTime(selectedTime);
+		}
+	};
+
+	const handleConfirm = () => {
+		onConfirm(scheduleMode, time);
+	};
+
+	const formatDate = (dateString: string | null) => {
+		if (!dateString) return '';
+		const [year, month, day] = dateString.split('-').map(Number);
+		const date = new Date(year, month - 1, day);
+		return date.toLocaleDateString(undefined, {
+			weekday: 'long',
+			month: 'long',
+			day: 'numeric',
+			year: 'numeric',
+		});
+	};
+
+	const formatTime = (date: Date) => {
+		return date.toLocaleTimeString([], {
+			hour: 'numeric',
+			minute: '2-digit',
+			hour12: true,
+		});
+	};
+
+	const getSelectedDayName = () => {
+		if (!selectedDate) return '';
+		const [year, month, day] = selectedDate.split('-').map(Number);
+		const date = new Date(year, month - 1, day);
+		const weekDays = [
+			'Sunday',
+			'Monday',
+			'Tuesday',
+			'Wednesday',
+			'Thursday',
+			'Friday',
+			'Saturday',
+		];
+		return weekDays[date.getDay()];
+	};
+
+	const isEdit = !!existingSession;
+
+	if (!visible) return null;
+
+	return (
+		<Modal visible={visible} transparent animationType="slide" onRequestClose={onCancel}>
+			<View style={styles.modalOverlay}>
+				<TouchableOpacity
+					style={styles.modalBackdrop}
+					activeOpacity={1}
+					onPress={onCancel}
+				/>
+				<KeyboardAvoidingView
+					behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+					style={styles.modalContainer}
+				>
+					<View style={styles.modalContent}>
+						<View style={styles.modalHandle} />
+						<View style={styles.modalHeader}>
+							<Text style={styles.modalTitle}>
+								{isEdit ? 'Edit Session' : 'Schedule Session'}
+							</Text>
+							<TouchableOpacity onPress={onCancel} style={styles.modalCloseButton}>
+								<Ionicons name="close" size={24} color={colors.text.secondary} />
+							</TouchableOpacity>
+						</View>
+						<ScrollView
+							style={styles.modalScroll}
+							showsVerticalScrollIndicator={false}
+							contentContainerStyle={styles.modalScrollContent}
+						>
+							<Text style={styles.modalDateDisplay}>{formatDate(selectedDate)}</Text>
+							<View style={styles.timeSection}>
+								<Text style={styles.sectionLabel}>Session Time</Text>
+								{Platform.OS === 'ios' ? (
+									<DateTimePicker
+										value={time}
+										mode="time"
+										display="spinner"
+										onChange={handleTimeChange}
+										style={styles.iosTimePicker}
+									/>
+								) : (
+									<>
+										<TouchableOpacity
+											onPress={() => setShowPicker(true)}
+											style={styles.androidTimeButton}
+										>
+											<Ionicons
+												name="time-outline"
+												size={20}
+												color={colors.primary}
+											/>
+											<Text style={styles.androidTimeText}>
+												{formatTime(time)}
+											</Text>
+										</TouchableOpacity>
+
+										{showPicker && (
+											<DateTimePicker
+												value={time}
+												mode="time"
+												display="default"
+												onChange={handleTimeChange}
+											/>
+										)}
+									</>
+								)}
+							</View>
+
+							{/* Schedule Options - Only show for new sessions */}
+							{!isEdit && selectedDate && (
+								<>
+									<Text style={styles.sectionLabel}>Apply To</Text>
+									<View style={styles.scheduleModeOptions}>
+										<TouchableOpacity
+											onPress={() => setScheduleMode('single')}
+											style={[
+												styles.scheduleModeOption,
+												scheduleMode === 'single' &&
+													styles.scheduleModeOptionSelected,
+											]}
+										>
+											<View style={styles.radioButton}>
+												{scheduleMode === 'single' && (
+													<View style={styles.radioButtonInner} />
+												)}
+											</View>
+											<View style={styles.scheduleModeTextContainer}>
+												<Text style={styles.scheduleModeTitle}>
+													This day only
+												</Text>
+												<Text style={styles.scheduleModeDescription}>
+													Schedule just for selected date
+												</Text>
+											</View>
+										</TouchableOpacity>
+
+										<TouchableOpacity
+											onPress={() => setScheduleMode('weekly_pattern')}
+											style={[
+												styles.scheduleModeOption,
+												scheduleMode === 'weekly_pattern' &&
+													styles.scheduleModeOptionSelected,
+											]}
+										>
+											<View style={styles.radioButton}>
+												{scheduleMode === 'weekly_pattern' && (
+													<View style={styles.radioButtonInner} />
+												)}
+											</View>
+											<View style={styles.scheduleModeTextContainer}>
+												<Text style={styles.scheduleModeTitle}>
+													Weekly pattern
+												</Text>
+												<Text style={styles.scheduleModeDescription}>
+													Schedule every {getSelectedDayName()} for the
+													next 2 months
+												</Text>
+											</View>
+										</TouchableOpacity>
+									</View>
+
+									{scheduleMode === 'weekly_pattern' && (
+										<View style={styles.weeklyPatternInfo}>
+											<Ionicons
+												name="information-circle"
+												size={18}
+												color={colors.primary}
+											/>
+											<Text style={styles.weeklyPatternInfoText}>
+												This will create sessions every{' '}
+												{getSelectedDayName()} at {formatTime(time)} for the
+												next two months
+											</Text>
+										</View>
+									)}
+								</>
+							)}
+						</ScrollView>
+
+						<View style={styles.modalActions}>
+							{isEdit && (
+								<TouchableOpacity
+									onPress={onDelete}
+									style={[styles.modalButton, styles.deleteButton]}
+								>
+									<Ionicons
+										name="trash-outline"
+										size={18}
+										color={colors.danger}
+									/>
+									<Text style={styles.deleteButtonText}>Delete</Text>
+								</TouchableOpacity>
+							)}
+
+							<TouchableOpacity
+								onPress={onCancel}
+								style={[
+									styles.modalButton,
+									styles.cancelButton,
+									isEdit && { flex: 1 },
+								]}
+							>
+								<Text style={styles.cancelButtonText}>Cancel</Text>
+							</TouchableOpacity>
+
+							<TouchableOpacity
+								onPress={handleConfirm}
+								style={[
+									styles.modalButton,
+									styles.confirmButton,
+									isEdit && { flex: 2 },
+								]}
+							>
+								<Text style={styles.confirmButtonText}>
+									{isEdit ? 'Update' : 'Schedule'}
+								</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				</KeyboardAvoidingView>
+			</View>
+		</Modal>
+	);
+};
+
+/* ---------------- Main Component ---------------- */
 export default function CalendarScreen() {
 	const { token } = useAuth();
-
-	const now = useMemo(() => new Date(), []);
-	const todayString = useMemo(() => ymd(now), [now]);
-
-	const [visible, setVisible] = useState<{ year: number; month: number }>({
-		year: now.getFullYear(),
-		month: now.getMonth() + 1,
+	const [sessions, setSessions] = useState<Map<string, Session>>(new Map());
+	const [loading, setLoading] = useState(false);
+	const [selectedDate, setSelectedDate] = useState<string | null>(null);
+	const [showScheduleModal, setShowScheduleModal] = useState(false);
+	const [currentMonth, setCurrentMonth] = useState({
+		month: new Date().getMonth(),
+		year: new Date().getFullYear(),
+	});
+	const [defaultTime, setDefaultTime] = useState(() => {
+		const time = new Date();
+		time.setHours(10, 0, 0, 0);
+		return time;
 	});
 
-	// Backend truth for this month: map YYYY-MM-DD -> session id (excluding past dates)
-	const [savedMap, setSavedMap] = useState<SessionMap>({});
-	// User's current selection for this month
-	const [selected, setSelected] = useState<Set<string>>(new Set());
+	// Computed values for calendar
+	const markedDates = useMemo(() => {
+		const marks: any = {};
 
-	const [loading, setLoading] = useState(false);
-	const [saving, setSaving] = useState(false);
+		const today = new Date();
+		today.setHours(0, 0, 0, 0);
 
-	const from = useMemo(() => monthStart(visible.year, visible.month), [visible]);
-	const to = useMemo(() => nextMonthStart(visible.year, visible.month), [visible]);
+		sessions.forEach((session, dateString) => {
+			const sessionDate = new Date(dateString);
+			const isPast = sessionDate < today;
 
-	const fetchMonth = useCallback(async () => {
+			marks[dateString] = {
+				marked: true,
+				dotColor: isPast ? colors.text.muted : colors.primary,
+				selected: selectedDate === dateString,
+				selectedColor: isPast ? colors.text.muted : colors.primary,
+				disabled: isPast,
+				disableTouchEvent: isPast,
+			};
+		});
+
+		if (selectedDate && !marks[selectedDate]) {
+			marks[selectedDate] = {
+				selected: true,
+				selectedColor: colors.primary,
+			};
+		}
+
+		return marks;
+	}, [sessions, selectedDate]);
+
+	const selectedSession: Session | null = useMemo(
+		() => (selectedDate ? (sessions.get(selectedDate) ?? null) : null),
+		[selectedDate, sessions],
+	);
+
+	const fetchSessions = useCallback(async () => {
 		if (!token) return;
 
 		setLoading(true);
 		try {
-			const data = (await listTherapySessions(token, from, to)) as TherapySession[];
-			const map: SessionMap = {};
+			const startDate = new Date();
+			startDate.setMonth(startDate.getMonth() - 3);
+			const endDate = new Date();
+			endDate.setMonth(endDate.getMonth() + 3);
 
+			const data = (await listTherapySessions(token, startDate, endDate)) as TherapySession[];
+
+			const sessionsMap = new Map<string, Session>();
 			data.forEach((session) => {
-				const dateStr = ymd(new Date(session.startsAtUtc));
-				// Only include future dates and today in the saved map
-				if (!isPastDate(dateStr)) {
-					map[dateStr] = session._id;
-				}
+				const sessionDate = new Date(session.startsAtUtc);
+				const year = sessionDate.getFullYear();
+				const month = String(sessionDate.getMonth() + 1).padStart(2, '0');
+				const day = String(sessionDate.getDate()).padStart(2, '0');
+				const dateString = `${year}-${month}-${day}`;
+
+				sessionsMap.set(dateString, {
+					id: session._id,
+					date: dateString,
+					time: sessionDate,
+				});
 			});
 
-			setSavedMap(map);
-			// Mirror selection to saved state (no unsaved changes initially)
-			setSelected(new Set(Object.keys(map)));
+			setSessions(sessionsMap);
 		} catch (error) {
-			const message = error instanceof Error ? error.message : 'Unknown error';
-			console.warn('fetchMonth failed:', message);
-			Alert.alert('Error loading sessions', 'Please try refreshing the page.');
+			console.error('Failed to fetch sessions:', error);
+			Alert.alert('Error', 'Failed to load sessions');
 		} finally {
 			setLoading(false);
 		}
-	}, [token, from, to]);
+	}, [token]);
 
 	useEffect(() => {
-		fetchMonth();
-	}, [fetchMonth]);
+		fetchSessions();
+	}, [fetchSessions]);
 
-	// Calculate changes
-	const changeSummary = useMemo(() => {
-		const savedSet = new Set(Object.keys(savedMap));
-		const toAdd = Array.from(selected).filter((d) => !savedSet.has(d));
-		const toRemove = Array.from(savedSet).filter((d) => !selected.has(d));
-		return { toAdd, toRemove };
-	}, [savedMap, selected]);
+	const handleDayPress = (day: any) => {
+		setSelectedDate(day.dateString);
+		setShowScheduleModal(true);
+	};
 
-	// Check for unsaved changes
-	const hasUnsavedChanges = useMemo(() => {
-		return changeSummary.toAdd.length > 0 || changeSummary.toRemove.length > 0;
-	}, [changeSummary]);
+	const handleScheduleConfirm = async (mode: ScheduleMode, time: Date) => {
+		if (!token) return;
 
-	// Generate marked dates for calendar
-	const markedDates: MarkedDates = useMemo(() => {
-		const marks: MarkedDates = {};
+		setShowScheduleModal(false);
+		setLoading(true);
 
-		// Mark all selected dates
-		selected.forEach((dateString) => {
-			const isSaved = dateString in savedMap;
+		setDefaultTime(time);
 
-			marks[dateString] = {
-				customStyles: {
-					container: {
-						width: DAY_SIZE,
-						height: DAY_SIZE,
-						borderRadius: DAY_SIZE / 2,
-						alignItems: 'center',
-						justifyContent: 'center',
-						backgroundColor: PINK_DARK,
-						// Add border for saved sessions
-						...(isSaved && {
-							borderWidth: 2,
-							borderColor: '#111',
-						}),
-					},
-					text: {
-						color: '#fff',
-						fontWeight: '700',
-					},
-				},
-			} as any;
-		});
+		let datesToSchedule: string[] = [];
 
-		return marks;
-	}, [savedMap, selected]);
+		switch (mode) {
+			case 'single':
+				if (selectedDate) {
+					datesToSchedule = [selectedDate];
+				}
+				break;
 
-	/* ---------------- Event Handlers ---------------- */
-	const handleDayPress = useCallback((day: DayObj) => {
-		// Toggle selection
-		setSelected((prev) => {
-			const next = new Set(prev);
-			if (next.has(day.dateString)) {
-				next.delete(day.dateString);
-			} else {
-				next.add(day.dateString);
-			}
-			return next;
-		});
-	}, []);
+			case 'weekly_pattern':
+				if (!selectedDate) return;
 
-	const handleMonthChange = useCallback(
-		(month: DayObj) => {
-			if (hasUnsavedChanges) {
-				Alert.alert(
-					'Unsaved Changes',
-					'Please save or discard your changes before navigating to another month.',
-					[{ text: 'OK' }],
-				);
-				return;
-			}
-			setVisible({ year: month.year, month: month.month });
-		},
-		[hasUnsavedChanges],
-	);
+				const [selectedYear, selectedMonth, selectedDay] = selectedDate
+					.split('-')
+					.map(Number);
+				const selectedDateObj = new Date(selectedYear, selectedMonth - 1, selectedDay);
+				const targetDayOfWeek = selectedDateObj.getDay();
 
-	const handleDiscard = useCallback(() => {
-		setSelected(new Set(Object.keys(savedMap)));
-	}, [savedMap]);
+				const patternStart = new Date(selectedYear, selectedMonth - 1, selectedDay);
+				const patternEnd = new Date(selectedYear, selectedMonth - 1 + 2, selectedDay);
 
-	const handleSave = useCallback(async () => {
-		if (!token) {
-			Alert.alert('Not logged in', 'Please log in first.');
+				for (let d = new Date(patternStart); d <= patternEnd; d.setDate(d.getDate() + 1)) {
+					const year = d.getFullYear();
+					const month = String(d.getMonth() + 1).padStart(2, '0');
+					const day = String(d.getDate()).padStart(2, '0');
+					const dateStr = `${year}-${month}-${day}`;
+
+					if (d.getDay() === targetDayOfWeek && !sessions.has(dateStr)) {
+						datesToSchedule.push(dateStr);
+					}
+				}
+				break;
+		}
+
+		if (datesToSchedule.length === 0) {
+			setLoading(false);
+			setSelectedDate(null);
 			return;
 		}
 
-		setSaving(true);
+		let successCount = 0;
+		let errorCount = 0;
+
 		try {
-			const { toAdd, toRemove } = changeSummary;
+			for (const dateString of datesToSchedule) {
+				try {
+					const [year, month, day] = dateString.split('-').map(Number);
+					const date = new Date(year, month - 1, day);
+					date.setHours(time.getHours(), time.getMinutes(), 0, 0);
 
-			// Get session IDs to delete
-			const toDeleteIds = toRemove
-				.map((dateStr) => savedMap[dateStr])
-				.filter(Boolean) as string[];
+					const existingSession = sessions.get(dateString);
 
-			// Execute all operations in parallel
-			await Promise.all([
-				...toDeleteIds.map((id) => deleteTherapySession(token, id)),
-				...toAdd.map((dateStr) =>
-					createTherapySession(
-						token,
-						localNoonFromYMD(dateStr),
-						THERAPY_DURATION_MINUTES,
-					),
-				),
-			]);
+					if (existingSession) {
+						await updateTherapySession(token, existingSession.id, date, 50);
+					} else {
+						await createTherapySession(token, date, 50);
+					}
 
-			// Refresh month data
-			await fetchMonth();
-
-			// Show success message
-			const message = (() => {
-				if (toAdd.length > 0 && toDeleteIds.length > 0) {
-					return `Added ${toAdd.length} session(s), removed ${toDeleteIds.length} session(s).`;
-				} else if (toAdd.length > 0) {
-					return `Added ${toAdd.length} session(s).`;
-				} else {
-					return `Removed ${toDeleteIds.length} session(s).`;
+					successCount++;
+				} catch (error) {
+					console.error(`Failed to schedule for ${dateString}:`, error);
+					errorCount++;
 				}
-			})();
+			}
 
-			Alert.alert('Success', message);
+			await fetchSessions();
+
+			const fmtTime = (date: Date) =>
+				date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+
+			if (mode === 'weekly_pattern') {
+				const weekDayNames = [
+					'Sunday',
+					'Monday',
+					'Tuesday',
+					'Wednesday',
+					'Thursday',
+					'Friday',
+					'Saturday',
+				];
+				const [yy, mm, dd] = selectedDate!.split('-').map(Number);
+				const selectedDateObj2 = new Date(yy, mm - 1, dd);
+				const dayName = weekDayNames[selectedDateObj2.getDay()];
+
+				Alert.alert(
+					'Success',
+					`Scheduled ${successCount} sessions on ${dayName}s at ${fmtTime(time)} for the next 2 months`,
+				);
+			} else if (successCount > 0) {
+				Alert.alert('Success', `Session scheduled for ${fmtTime(time)}`);
+			}
+
+			if (errorCount > 0) {
+				Alert.alert('Warning', `Failed to schedule ${errorCount} session(s)`);
+			}
 		} catch (error) {
-			const message = error instanceof Error ? error.message : 'Unknown error';
-			Alert.alert('Save failed', message);
-			// Refresh to ensure UI is in sync
-			await fetchMonth();
+			console.error('Error in scheduling:', error);
+			Alert.alert('Error', 'Failed to schedule sessions');
 		} finally {
-			setSaving(false);
+			setLoading(false);
+			setSelectedDate(null);
 		}
-	}, [token, changeSummary, savedMap, fetchMonth]);
+	};
 
-	// Generate save button text
-	const getSaveButtonText = useCallback((): string => {
-		if (saving) return 'Saving…';
+	const handleDelete = async () => {
+		if (!token || !selectedDate || !selectedSession) return;
 
-		const { toAdd, toRemove } = changeSummary;
+		Alert.alert('Delete Session', 'Are you sure you want to delete this session?', [
+			{ text: 'Cancel', style: 'cancel' },
+			{
+				text: 'Delete',
+				style: 'destructive',
+				onPress: async () => {
+					setShowScheduleModal(false);
+					setLoading(true);
 
-		if (toAdd.length > 0 && toRemove.length > 0) {
-			return `Add ${toAdd.length} / Remove ${toRemove.length}`;
+					try {
+						await deleteTherapySession(token, selectedSession.id);
+						await fetchSessions();
+						Alert.alert('Success', 'Session deleted');
+					} catch (error) {
+						Alert.alert('Error', 'Failed to delete session');
+					} finally {
+						setLoading(false);
+						setSelectedDate(null);
+					}
+				},
+			},
+		]);
+	};
+
+	const handleClearMonth = async () => {
+		if (!token) return;
+
+		const monthSessions = Array.from(sessions.entries()).filter(([dateStr]) => {
+			const [year, month] = dateStr.split('-').map(Number);
+			return month === currentMonth.month + 1 && year === currentMonth.year;
+		});
+
+		if (monthSessions.length === 0) {
+			Alert.alert('No Sessions', 'No sessions to delete in this month');
+			return;
 		}
-		if (toAdd.length > 0) {
-			return `Add ${toAdd.length} session${toAdd.length !== 1 ? 's' : ''}`;
-		}
-		if (toRemove.length > 0) {
-			return `Remove ${toRemove.length} session${toRemove.length !== 1 ? 's' : ''}`;
-		}
-		return 'Save changes';
-	}, [saving, changeSummary]);
 
-	const isCurrentMonth =
-		visible.year === now.getFullYear() && visible.month === now.getMonth() + 1;
+		Alert.alert('Clear Month', `Delete all ${monthSessions.length} sessions in this month?`, [
+			{ text: 'Cancel', style: 'cancel' },
+			{
+				text: 'Delete All',
+				style: 'destructive',
+				onPress: async () => {
+					setLoading(true);
+					let deletedCount = 0;
 
-	/* ---------------- Render ---------------- */
+					for (const [_, session] of monthSessions) {
+						try {
+							await deleteTherapySession(token, session.id);
+							deletedCount++;
+						} catch (error) {
+							console.error('Failed to delete session:', error);
+						}
+					}
+
+					await fetchSessions();
+					Alert.alert('Success', `Deleted ${deletedCount} sessions`);
+					setLoading(false);
+				},
+			},
+		]);
+	};
+
+	const todayYMD = useMemo(() => {
+		const t = new Date();
+		const y = t.getFullYear();
+		const m = String(t.getMonth() + 1).padStart(2, '0');
+		const d = String(t.getDate()).padStart(2, '0');
+		return `${y}-${m}-${d}`;
+	}, []);
+
 	return (
-		<SafeAreaView style={styles.root}>
-			<View style={styles.container}>
-				<Text style={styles.title}>Therapy Sessions</Text>
-				<Text style={styles.subtitle}>Tap dates to add or remove sessions</Text>
+		<View style={styles.container}>
+			<SafeAreaView style={styles.safeArea} edges={['top']}>
+				<ScrollView
+					style={styles.scrollView}
+					contentInsetAdjustmentBehavior="automatic" // ✅ helps on iOS with translucent headers
+					contentContainerStyle={[
+						styles.scrollContent,
+						{ paddingTop: 20 }, // ✅ give room under the nav header
+					]}
+					showsVerticalScrollIndicator={false}
+				>
+					<View style={styles.calendarContainer}>
+						<Calendar
+							onDayPress={handleDayPress}
+							onMonthChange={(date) => {
+								setCurrentMonth({ month: date.month - 1, year: date.year });
+							}}
+							markedDates={markedDates}
+							markingType={'dot'}
+							hideExtraDays
+							minDate={String(new Date())}
+							theme={{
+								backgroundColor: colors.surface,
+								calendarBackground: colors.surface,
+								textSectionTitleColor: colors.text.muted,
+								selectedDayBackgroundColor: colors.primary,
+								selectedDayTextColor: colors.text.inverse,
+								todayTextColor: colors.primary,
+								dayTextColor: colors.text.primary,
+								textDisabledColor: '#d9e1e8',
+								dotColor: colors.primary,
+								selectedDotColor: colors.text.inverse,
+								arrowColor: colors.primary,
+								monthTextColor: colors.text.primary,
+								textDayFontWeight: '400',
+								textMonthFontWeight: '600',
+								textDayHeaderFontWeight: '600',
+								textDayFontSize: 14,
+								textMonthFontSize: 16,
+								textDayHeaderFontSize: 12,
+							}}
+						/>
+					</View>
 
-				<Calendar
-					style={styles.calendar}
-					enableSwipeMonths={false}
-					disableArrowRight={hasUnsavedChanges}
-					disableArrowLeft={hasUnsavedChanges || isCurrentMonth}
-					onMonthChange={handleMonthChange}
-					onDayPress={handleDayPress}
-					markingType="custom"
-					markedDates={markedDates}
-					hideExtraDays={false}
-					current={todayString}
-					minDate={todayString}
-					theme={{
-						calendarBackground: 'transparent',
-						backgroundColor: 'transparent',
-						selectedDayBackgroundColor: '#111',
-						selectedDayTextColor: '#fff',
-						todayTextColor: PINK_DARK,
-						todayBackgroundColor: '#fef2f2',
-						arrowColor: hasUnsavedChanges ? '#E11900' : '#111',
-						monthTextColor: '#111',
-						textDayFontWeight: '600',
-						textMonthFontWeight: '700',
-						textMonthFontSize: 18,
-						textDisabledColor: '#d4d4d4',
-					}}
-				/>
+					<View style={styles.actionButtons}>
+						<TouchableOpacity
+							style={styles.actionButton}
+							onPress={() => {
+								const today = new Date();
+								const year = today.getFullYear();
+								const month = String(today.getMonth() + 1).padStart(2, '0');
+								const day = String(today.getDate()).padStart(2, '0');
+								setSelectedDate(`${year}-${month}-${day}`);
+								setShowScheduleModal(true);
+							}}
+						>
+							<Ionicons name="add-circle-outline" size={20} color={colors.primary} />
+							<Text style={styles.actionButtonText}>Add Session</Text>
+						</TouchableOpacity>
+
+						<TouchableOpacity
+							style={[styles.actionButton, styles.dangerButton]}
+							onPress={handleClearMonth}
+						>
+							<Ionicons name="trash-outline" size={20} color={colors.danger} />
+							<Text style={[styles.actionButtonText, styles.dangerText]}>
+								Clear Month
+							</Text>
+						</TouchableOpacity>
+					</View>
+
+					<View style={styles.infoCard}>
+						<Text style={styles.infoText}>
+							💡 Tap any date to schedule. Use weekly pattern to automatically
+							schedule that day of the week for the next 2 months.
+						</Text>
+					</View>
+				</ScrollView>
 
 				{loading && (
-					<View style={styles.statusRow}>
-						<ActivityIndicator color={PINK_DARK} />
-						<Text style={styles.statusText}>Loading sessions...</Text>
+					<View style={styles.loadingOverlay}>
+						<ActivityIndicator size="large" color={colors.primary} />
 					</View>
 				)}
 
-				{hasUnsavedChanges && !loading && (
-					<View style={styles.banner}>
-						<Text style={styles.bannerText}>
-							You have unsaved changes. Save or discard before leaving this month.
-						</Text>
-					</View>
+				{selectedDate && (
+					<ScheduleModal
+						visible={showScheduleModal}
+						selectedDate={selectedDate}
+						existingSession={selectedSession}
+						defaultTime={defaultTime}
+						onConfirm={handleScheduleConfirm}
+						onDelete={handleDelete}
+						onCancel={() => {
+							setShowScheduleModal(false);
+							setSelectedDate(null);
+						}}
+					/>
 				)}
-
-				{!loading && (
-					<View style={styles.legend}>
-						<View style={styles.legendItem}>
-							<View style={[styles.legendDot, styles.legendDotNew]} />
-							<Text style={styles.legendText}>New session</Text>
-						</View>
-						<View style={styles.legendItem}>
-							<View style={[styles.legendDot, styles.legendDotSaved]} />
-							<Text style={styles.legendText}>Saved session</Text>
-						</View>
-					</View>
-				)}
-
-				<View style={styles.actions}>
-					<TouchableOpacity
-						onPress={handleDiscard}
-						disabled={!hasUnsavedChanges}
-						style={[
-							styles.btn,
-							styles.btnGhost,
-							!hasUnsavedChanges && styles.btnGhostDisabled,
-						]}
-					>
-						<Text
-							style={[
-								styles.btnGhostText,
-								!hasUnsavedChanges && styles.btnGhostTextDisabled,
-							]}
-						>
-							Discard
-						</Text>
-					</TouchableOpacity>
-					<TouchableOpacity
-						onPress={handleSave}
-						disabled={!hasUnsavedChanges || saving}
-						style={[
-							styles.btn,
-							!hasUnsavedChanges || saving ? styles.btnDisabled : styles.btnPrimary,
-						]}
-					>
-						<Text
-							style={
-								!hasUnsavedChanges || saving
-									? styles.btnDisabledText
-									: styles.btnPrimaryText
-							}
-						>
-							{getSaveButtonText()}
-						</Text>
-					</TouchableOpacity>
-				</View>
-			</View>
-		</SafeAreaView>
+			</SafeAreaView>
+		</View>
 	);
 }
 
-/* ---------------- Styles ---------------- */
 const styles = StyleSheet.create({
-	root: {
-		flex: 1,
-		backgroundColor: 'transparent',
-	},
 	container: {
-		paddingTop: 36,
-		paddingHorizontal: 10,
-	},
-	title: {
-		fontSize: 24,
-		fontWeight: '700',
-		marginBottom: 4,
-	},
-	subtitle: {
-		color: '#666',
-		marginBottom: 16,
-		fontSize: 14,
-	},
-	calendar: {
-		backgroundColor: 'transparent',
-	},
-	statusRow: {
-		marginTop: 12,
-		flexDirection: 'row',
-		alignItems: 'center',
-		gap: 8,
-		justifyContent: 'center',
-	},
-	statusText: {
-		color: '#666',
-		fontSize: 14,
-	},
-	banner: {
-		marginTop: 12,
-		padding: 12,
-		borderRadius: 10,
-		backgroundColor: 'rgba(225,25,0,0.08)',
-		borderWidth: 1,
-		borderColor: '#E7B0AA',
-	},
-	bannerText: {
-		color: '#7A3026',
-		fontWeight: '600',
-		fontSize: 14,
-	},
-	legend: {
-		flexDirection: 'row',
-		gap: 20,
-		marginTop: 16,
-		justifyContent: 'center',
-	},
-	legendItem: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		gap: 8,
-	},
-	legendDot: {
-		width: 16,
-		height: 16,
-		borderRadius: 8,
-		backgroundColor: PINK_DARK,
-	},
-	legendDotNew: {
-		// Base styles already in legendDot
-	},
-	legendDotSaved: {
-		borderWidth: 2,
-		borderColor: '#111',
-	},
-	legendText: {
-		fontSize: 13,
-		color: '#666',
-	},
-	actions: {
-		marginTop: 20,
-		flexDirection: 'row',
-		gap: 12,
-	},
-	btn: {
 		flex: 1,
-		paddingVertical: 14,
-		paddingHorizontal: 14,
-		borderRadius: 12,
+		backgroundColor: colors.background,
+	},
+	safeArea: {
+		flex: 1,
+	},
+	scrollView: {
+		flex: 1,
+	},
+	scrollContent: {
+		paddingBottom: spacing.xs,
+	},
+	backButton: {
+		padding: spacing.sm,
+	},
+	headerTitle: {
+		...typography.h3,
+		color: colors.text.primary,
+	},
+	calendarContainer: {
+		margin: spacing.lg,
+		borderRadius: radius.lg,
+		overflow: 'hidden',
+		backgroundColor: colors.surface,
+		elevation: 2,
+		shadowColor: '#000',
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.05,
+		shadowRadius: 4,
+	},
+	actionButtons: {
+		flexDirection: 'row',
+		gap: spacing.md,
+		marginHorizontal: spacing.lg,
+		marginTop: spacing.lg,
+	},
+	actionButton: {
+		flex: 1,
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'center',
+		gap: spacing.sm,
+		padding: spacing.md,
+		backgroundColor: colors.surface,
+		borderRadius: radius.md,
+		borderWidth: 1,
+		borderColor: colors.primary,
+	},
+	dangerButton: {
+		borderColor: colors.danger,
+		backgroundColor: colors.dangerLight,
+	},
+	actionButtonText: {
+		...typography.button,
+		color: colors.primary,
+	},
+	dangerText: {
+		color: colors.danger,
+	},
+	infoCard: {
+		margin: spacing.lg,
+		padding: spacing.md,
+		backgroundColor: colors.primaryLight,
+		borderRadius: radius.md,
+		borderWidth: 1,
+		borderColor: colors.primary,
+	},
+	infoText: {
+		...typography.body,
+		color: colors.text.secondary,
+		lineHeight: 20,
+	},
+	loadingOverlay: {
+		position: 'absolute',
+		top: 0,
+		left: 0,
+		right: 0,
+		bottom: 0,
+		backgroundColor: 'rgba(255, 255, 255, 0.9)',
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	modalOverlay: {
+		flex: 1,
+		backgroundColor: colors.overlay,
+		justifyContent: 'flex-end',
+	},
+	modalBackdrop: {
+		position: 'absolute',
+		top: 0,
+		left: 0,
+		right: 0,
+		bottom: 0,
+	},
+	modalContainer: {
+		maxHeight: '80%',
+		justifyContent: 'flex-end',
+	},
+	modalContent: {
+		backgroundColor: colors.surface,
+		borderTopLeftRadius: radius.xl,
+		borderTopRightRadius: radius.xl,
+		paddingTop: spacing.sm,
+		maxHeight: '100%',
+	},
+	modalScroll: {
+		maxHeight: 400,
+	},
+	modalScrollContent: {
+		paddingHorizontal: spacing.xl,
+		paddingBottom: spacing.md,
+	},
+	modalHandle: {
+		width: 40,
+		height: 4,
+		backgroundColor: colors.border,
+		borderRadius: 2,
+		alignSelf: 'center',
+		marginBottom: spacing.lg,
+	},
+	modalHeader: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'space-between',
+		marginBottom: spacing.sm,
+		paddingHorizontal: spacing.xl,
+	},
+	modalTitle: {
+		...typography.h2,
+		color: colors.text.primary,
+	},
+	modalCloseButton: {
+		padding: spacing.xs,
+	},
+	modalDateDisplay: {
+		...typography.body,
+		color: colors.text.secondary,
+		marginBottom: spacing.xl,
+	},
+	sectionLabel: {
+		...typography.caption,
+		color: colors.text.muted,
+		textTransform: 'uppercase',
+		letterSpacing: 1,
+		marginBottom: spacing.md,
+	},
+	timeSection: {
+		marginBottom: spacing.xl,
+	},
+	iosTimePicker: {
+		height: 180,
+		marginHorizontal: -spacing.lg,
+	},
+	androidTimeButton: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: spacing.md,
+		padding: spacing.lg,
+		backgroundColor: colors.primaryLight,
+		borderRadius: radius.md,
+		borderWidth: 1,
+		borderColor: colors.primary,
+	},
+	androidTimeText: {
+		...typography.h3,
+		color: colors.primary,
+	},
+	scheduleModeOptions: {
+		gap: spacing.md,
+		marginBottom: spacing.xl,
+	},
+	scheduleModeOption: {
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: spacing.md,
+		padding: spacing.md,
+		borderRadius: radius.md,
+		borderWidth: 1,
+		borderColor: colors.border,
+		backgroundColor: colors.surfaceAlt,
+	},
+	scheduleModeOptionSelected: {
+		borderColor: colors.primary,
+		backgroundColor: colors.primaryLight,
+	},
+	radioButton: {
+		width: 20,
+		height: 20,
+		borderRadius: 10,
+		borderWidth: 2,
+		borderColor: colors.border,
 		alignItems: 'center',
 		justifyContent: 'center',
 	},
-	btnGhost: {
-		borderWidth: 1.5,
-		borderColor: '#333',
+	radioButtonInner: {
+		width: 10,
+		height: 10,
+		borderRadius: 5,
+		backgroundColor: colors.primary,
 	},
-	btnGhostDisabled: {
-		borderColor: '#ddd',
+	scheduleModeTextContainer: {
+		flex: 1,
 	},
-	btnGhostText: {
-		fontWeight: '700',
-		color: '#333',
+	scheduleModeTitle: {
+		...typography.body,
+		fontWeight: '600',
+		color: colors.text.primary,
 	},
-	btnGhostTextDisabled: {
-		color: '#bbb',
+	scheduleModeDescription: {
+		...typography.caption,
+		color: colors.text.secondary,
+		marginTop: 2,
 	},
-	btnPrimary: {
-		backgroundColor: '#111',
+	weeklyPatternInfo: {
+		flexDirection: 'row',
+		alignItems: 'flex-start',
+		gap: spacing.sm,
+		padding: spacing.md,
+		backgroundColor: colors.primaryLight,
+		borderRadius: radius.md,
+		borderWidth: 1,
+		borderColor: colors.primary,
+		marginTop: spacing.md,
+		marginBottom: spacing.xl,
 	},
-	btnPrimaryText: {
-		color: '#fff',
-		fontWeight: '700',
+	weeklyPatternInfoText: {
+		...typography.caption,
+		color: colors.text.secondary,
+		flex: 1,
+		lineHeight: 18,
 	},
-	btnDisabled: {
-		backgroundColor: '#f0f0f0',
+	modalActions: {
+		flexDirection: 'row',
+		gap: spacing.md,
+		paddingHorizontal: spacing.xl,
+		paddingVertical: spacing.lg,
+		paddingBottom: spacing.xxl,
+		borderTopWidth: 1,
+		borderTopColor: colors.border,
+		backgroundColor: colors.surface,
 	},
-	btnDisabledText: {
-		color: '#aaa',
-		fontWeight: '700',
+	modalButton: {
+		flex: 1,
+		paddingVertical: spacing.md,
+		borderRadius: radius.md,
+		alignItems: 'center',
+		justifyContent: 'center',
+		flexDirection: 'row',
+		gap: spacing.xs,
+	},
+	deleteButton: {
+		flex: 0,
+		paddingHorizontal: spacing.lg,
+		backgroundColor: colors.dangerLight,
+		borderWidth: 1,
+		borderColor: colors.danger,
+	},
+	deleteButtonText: {
+		...typography.button,
+		color: colors.danger,
+	},
+	cancelButton: {
+		backgroundColor: colors.surfaceAlt,
+		borderWidth: 1,
+		borderColor: colors.border,
+	},
+	cancelButtonText: {
+		...typography.button,
+		color: colors.text.secondary,
+	},
+	confirmButton: {
+		backgroundColor: colors.primary,
+		flex: 2,
+	},
+	confirmButtonText: {
+		...typography.button,
+		color: colors.text.inverse,
+	},
+
+	disabledButton: {
+		opacity: 0.5,
 	},
 });

@@ -10,6 +10,27 @@ export type TherapySession = {
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
 
+export const updateTherapySession = async (
+	token: string,
+	sessionId: string,
+	startsAtUtc: Date,
+	durationMinutes: number,
+): Promise<TherapySession> => {
+	// Implementation to update session time
+	const response = await fetch(`/api/therapy-sessions/${sessionId}`, {
+		method: 'PUT',
+		headers: {
+			Authorization: `Bearer ${token}`,
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			startsAtUtc: startsAtUtc.toISOString(),
+			durationMinutes,
+		}),
+	});
+	return response.json();
+};
+
 export async function createTherapySession(
 	token: string,
 	startsAt: Date,

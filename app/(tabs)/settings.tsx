@@ -21,6 +21,16 @@ export default function SettingsScreen() {
 					<Text style={styles.label}>Signed in as</Text>
 					<Text style={styles.value}>{user?.email ?? '—'}</Text>
 				</View>
+				<View style={styles.section}>
+					{/* todo: add the science */}
+					<Text style={styles.label}>
+						Link to The science behind our reminder intervals
+					</Text>
+				</View>
+				<View style={styles.section}>
+					{/* todo: add the science */}
+					<Text style={styles.label}>Link to update your therapy dates</Text>
+				</View>
 
 				<TouchableOpacity onPress={onLogout} style={styles.logoutBtn}>
 					<Text style={styles.logoutText}>Log out</Text>
