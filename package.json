@@ -8,7 +8,8 @@
 		"ios": "expo start --ios",
 		"web": "expo start --web",
 		"test": "jest",
-		"test:watch": "jest --watch"
+		"test:watch": "jest --watch",
+		"clean:functions": "npx ts-prune -p tsconfig.json | grep -vE '^app/|/index\\\\.ts$'"
 	},
 	"dependencies": {
 		"@react-native-async-storage/async-storage": "2.2.0",
