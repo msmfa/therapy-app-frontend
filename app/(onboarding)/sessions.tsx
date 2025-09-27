@@ -1,30 +1,52 @@
-// app/(onboarding)/sessions.tsx
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import TherapyCalendar from '../../src/components/therapy-calendar/therapy-calendar';
+import { useTherapySessions } from '../../src/context/TherapySessionsContext';
+import Loading from '../../src/components/loading';
 
 export default function SessionsScreen() {
 	const router = useRouter();
+	const { addSession } = useTherapySessions();
+	const [isSaving, setIsSaving] = useState(false);
+
+	const handleSave = async (sessions: { [date: string]: Date }) => {
+		const sessionCount = Object.keys(sessions).length;
+
+		// Check minimum sessions
+		if (sessionCount < 4) {
+			Alert.alert('Not Enough Sessions', 'Please add at least 4 therapy sessions.', [
+				{ text: 'OK', style: 'default' },
+			]);
+			return;
+		}
+
+		setIsSaving(true);
+		try {
+			for (const time of Object.values(sessions)) {
+				await addSession(time, 50);
+			}
+			router.push('/(onboarding)/reminders');
+		} catch (error) {
+			Alert.alert('Error', 'Failed to save sessions. Please try again.');
+			console.error(error);
+		} finally {
+			setIsSaving(false);
+		}
+	};
 
 	return (
 		<SafeAreaView style={styles.container}>
 			<View style={styles.content}>
-				<Text style={styles.title}>Pick Your Sessions</Text>
-				<Text style={styles.subtitle}>How many sessions would you like per week?</Text>
-				{/* Add your session picker UI here */}
-				<Text style={styles.placeholder}>[Session options will go here]</Text>
+				<Text style={styles.title}>
+					Tell us your therapy sessions so we can work out when to remind you
+				</Text>
+				<SafeAreaView>
+					<TherapyCalendar onSave={handleSave} buttonAtBottom={true} />
+				</SafeAreaView>
 			</View>
-			<View style={styles.buttons}>
-				<Pressable style={[styles.button, styles.backButton]} onPress={() => router.back()}>
-					<Text style={styles.backButtonText}>Back</Text>
-				</Pressable>
-				<Pressable
-					style={styles.button}
-					onPress={() => router.push('/(onboarding)/reminders')}
-				>
-					<Text style={styles.buttonText}>Next</Text>
-				</Pressable>
-			</View>
+			{isSaving && <Loading />}
 		</SafeAreaView>
 	);
 }
@@ -37,47 +59,9 @@ const styles = StyleSheet.create({
 	},
 	content: {
 		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
 	},
 	title: {
-		fontSize: 32,
 		fontWeight: 'bold',
 		marginBottom: 10,
-	},
-	subtitle: {
-		fontSize: 18,
-		color: '#666',
-		textAlign: 'center',
-		marginBottom: 40,
-	},
-	placeholder: {
-		fontSize: 16,
-		color: '#999',
-		fontStyle: 'italic',
-	},
-	buttons: {
-		flexDirection: 'row',
-		gap: 10,
-	},
-	button: {
-		flex: 1,
-		backgroundColor: '#007AFF',
-		padding: 16,
-		borderRadius: 8,
-		alignItems: 'center',
-	},
-	backButton: {
-		backgroundColor: '#f0f0f0',
-	},
-	buttonText: {
-		color: '#fff',
-		fontSize: 18,
-		fontWeight: '600',
-	},
-	backButtonText: {
-		color: '#333',
-		fontSize: 18,
-		fontWeight: '600',
 	},
 });

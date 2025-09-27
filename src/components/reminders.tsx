@@ -6,7 +6,7 @@ import { useLocalSearchParams, useRouter, useNavigation } from 'expo-router';
 
 import { useNotes } from '../../src/hooks/useNotes';
 import { useAuth } from '../context/AuthContext';
-import { listTherapySessions, TherapySession } from '../../src/api/therapy';
+import { getTherapySessions, TherapySession } from '../../src/api/therapy';
 import { InfoBlock } from '../../src/components/infoBlock';
 
 import dayjs from 'dayjs';
@@ -65,7 +65,7 @@ async function getNextSession(token: string): Promise<Date | null> {
 	const now = new Date();
 	const to = new Date(now.getFullYear(), now.getMonth() + 2, now.getDate());
 	try {
-		const data = (await listTherapySessions(token, now, to)) as TherapySession[];
+		const data = (await getTherapySessions(token, now, to)) as TherapySession[];
 		const nextSession = data
 			.map((s) => new Date(s.startsAtUtc))
 			.filter((x) => x.getTime() > Date.now())

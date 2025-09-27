@@ -2,9 +2,11 @@
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTherapySessions } from '../../src/context/TherapySessionsContext';
 
 export default function RemindersScreen() {
 	const router = useRouter();
+	const { sessions, loading, refreshSessions } = useTherapySessions();
 
 	return (
 		<SafeAreaView style={styles.container}>

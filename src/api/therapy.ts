@@ -45,7 +45,7 @@ export async function createTherapySession(
 	return (await res.json()) as TherapySession;
 }
 
-export async function listTherapySessions(
+export async function getTherapySessions(
 	token: string,
 	from: Date,
 	to: Date,

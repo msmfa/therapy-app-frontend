@@ -46,6 +46,7 @@ export default function TabsLayout() {
 			<Tabs.Screen
 				name="calendar"
 				options={{
+					headerShown: false,
 					title: 'Calendar',
 					tabBarIcon: ({ color, size, focused }) => (
 						<Ionicons

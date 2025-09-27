@@ -1,4 +1,4 @@
-import { listTherapySessions, TherapySession } from '../api/therapy';
+import { getTherapySessions, TherapySession } from '../api/therapy';
 
 export async function getNextSession(token: string): Promise<Date | null> {
 	const now = new Date();
@@ -6,11 +6,7 @@ export async function getNextSession(token: string): Promise<Date | null> {
 	twoMonthsLater.setMonth(now.getMonth() + 2);
 
 	try {
-		const sessions = (await listTherapySessions(
-			token,
-			now,
-			twoMonthsLater,
-		)) as TherapySession[];
+		const sessions = (await getTherapySessions(token, now, twoMonthsLater)) as TherapySession[];
 
 		// Find the earliest future session
 		const futureSessions = sessions
