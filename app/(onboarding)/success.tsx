@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useOnboarding } from '../../src/context/OnboardingContext';
 
-export default function SuccessScreen() {
+export function SuccessScreen() {
 	const router = useRouter();
 	const { finishOnboarding } = useOnboarding();
 

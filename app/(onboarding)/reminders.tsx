@@ -11,7 +11,7 @@ enum ReminderType {
 	ScienceBacked = 'science-backed',
 }
 
-export default function RemindersScreen() {
+export function RemindersScreen() {
 	const [reminderType, setReminderType] = useState<ReminderType>(ReminderType.ScienceBacked);
 	const router = useRouter();
 	const { sessions } = useTherapySessions();

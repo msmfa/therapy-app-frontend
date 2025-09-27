@@ -89,7 +89,7 @@ async function savePreference(timingId: string): Promise<void> {
 	console.log('Saving preference:', timingId);
 }
 
-export default function ReminderScreen() {
+export function ReminderScreen() {
 	const router = useRouter();
 	const navigation = useNavigation();
 	const { text, nextSession } = useLocalSearchParams<{ text?: string; nextSession?: string }>();

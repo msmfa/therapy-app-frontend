@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
 // new screen
-export default function NewNoteScreen() {
+export function NewNoteScreen() {
 	const router = useRouter();
 
 	const [text, setText] = useState('');

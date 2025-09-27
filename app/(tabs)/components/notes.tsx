@@ -9,7 +9,7 @@ type Note = {
 	text: string;
 };
 
-export default function NoteContainer({ createdAt, text }: Note) {
+export function NoteContainer({ createdAt, text }: Note) {
 	const d = dayjs(createdAt).format('ddd Do'); // "wed 14th"
 
 	return (

@@ -1,8 +1,7 @@
 // app/(onboarding)/_layout.tsx
 import { Stack } from 'expo-router';
 
-export default function OnboardingLayout() {
-	console.log('test');
+export function OnboardingLayout() {
 	return (
 		<Stack
 			screenOptions={{

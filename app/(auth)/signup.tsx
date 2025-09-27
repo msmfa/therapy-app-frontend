@@ -36,7 +36,7 @@ const validateEmail = (email: string) => {
 	return re.test(email.toLowerCase());
 };
 
-export default function SignUpScreen() {
+export function SignUpScreen() {
 	const router = useRouter();
 	const { setAuth } = useAuth();
 

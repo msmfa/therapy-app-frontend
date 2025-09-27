@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../src/auth/AuthContext';
 
-export default function SettingsScreen() {
+export function SettingsScreen() {
 	const { user, signOut } = useAuth();
 
 	const onLogout = async () => {

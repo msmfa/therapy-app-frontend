@@ -3,7 +3,7 @@ import { useNotes } from '../../src/hooks/useNotes';
 import EmptyNotesScreen from '../../src/components/notes/EmptyNotesScreen';
 import NotesListScreen from '../../src/components/notes/NotesListScreen';
 
-export default function NotesScreen() {
+export function NotesScreen() {
 	const { notes, loading, refresh } = useNotes();
 	console.log('notes', notes);
 

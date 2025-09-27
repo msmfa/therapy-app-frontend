@@ -4,88 +4,74 @@ import { Session } from './types';
  * Converts a JavaScript Date object to a string in YYYY-MM-DD format
  * Example: new Date(2024, 2, 15) becomes "2024-03-15"
  */
-export function convertDateObjectToYYYYMMDDString(dateObjectToConvert: Date): string {
-	const fourDigitYear = dateObjectToConvert.getFullYear();
-	const monthNumberStartingFromOne = dateObjectToConvert.getMonth() + 1; // JS months are 0-11
-	const monthWithLeadingZeroIfNeeded = String(monthNumberStartingFromOne).padStart(2, '0');
-	const dayOfMonthWithLeadingZeroIfNeeded = String(dateObjectToConvert.getDate()).padStart(
-		2,
-		'0',
-	);
+// export function convertDateObjectToYYYYMMDDString(dateObjectToConvert: Date): string {
+// 	const fourDigitYear = dateObjectToConvert.getFullYear();
+// 	const monthNumberStartingFromOne = dateObjectToConvert.getMonth() + 1; // JS months are 0-11
+// 	const monthWithLeadingZeroIfNeeded = String(monthNumberStartingFromOne).padStart(2, '0');
+// 	const dayOfMonthWithLeadingZeroIfNeeded = String(dateObjectToConvert.getDate()).padStart(
+// 		2,
+// 		'0',
+// 	);
 
-	const finalYYYYMMDDString = `${fourDigitYear}-${monthWithLeadingZeroIfNeeded}-${dayOfMonthWithLeadingZeroIfNeeded}`;
+// 	const finalYYYYMMDDString = `${fourDigitYear}-${monthWithLeadingZeroIfNeeded}-${dayOfMonthWithLeadingZeroIfNeeded}`;
 
-	return finalYYYYMMDDString;
-}
+// 	return finalYYYYMMDDString;
+// }
 
 /**
  * Generates all dates for a weekly recurring pattern
  * Example: If user selects Tuesday March 5th, this generates all Tuesdays for the next 8 weeks
  * But skips any Tuesdays that already have sessions scheduled
  */
-export function generateAllWeeklyRecurringDatesFromSelectedDate(
-	selectedDateAsYYYYMMDDString: string,
-	mapOfExistingSessionsByDate: Map<string, Session>,
-	numberOfWeeksToScheduleIntoTheFuture: number = 8,
-): string[] {
-	// Step 1: Parse the selected date string into numbers
-	const [yearFromString, monthFromStringStartingAt1, dayOfMonthFromString] =
-		selectedDateAsYYYYMMDDString.split('-').map(Number);
+// export function generateAllWeeklyRecurringDatesFromSelectedDate(
+// 	selectedDateAsYYYYMMDDString: string,
+// 	mapOfExistingSessionsByDate: Map<string, Session>,
+// 	numberOfWeeksToScheduleIntoTheFuture: number = 8,
+// ): string[] {
+// 	// Step 1: Parse the selected date string into numbers
+// 	const [yearFromString, monthFromStringStartingAt1, dayOfMonthFromString] =
+// 		selectedDateAsYYYYMMDDString.split('-').map(Number);
 
-	// Step 2: Create a Date object from the parsed numbers (subtract 1 from month for JS Date)
-	const selectedDateAsJavaScriptDateObject = new Date(
-		yearFromString,
-		monthFromStringStartingAt1 - 1,
-		dayOfMonthFromString,
-	);
+// 	// Step 2: Create a Date object from the parsed numbers (subtract 1 from month for JS Date)
+// 	const selectedDateAsJavaScriptDateObject = new Date(
+// 		yearFromString,
+// 		monthFromStringStartingAt1 - 1,
+// 		dayOfMonthFromString,
+// 	);
 
-	// Step 3: Calculate when to stop creating recurring dates
-	const finalDateToCreateSessionFor = new Date(selectedDateAsJavaScriptDateObject);
-	const totalDaysToAddForAllWeeks = numberOfWeeksToScheduleIntoTheFuture * 7;
-	finalDateToCreateSessionFor.setDate(
-		finalDateToCreateSessionFor.getDate() + totalDaysToAddForAllWeeks,
-	);
+// 	// Step 3: Calculate when to stop creating recurring dates
+// 	const finalDateToCreateSessionFor = new Date(selectedDateAsJavaScriptDateObject);
+// 	const totalDaysToAddForAllWeeks = numberOfWeeksToScheduleIntoTheFuture * 7;
+// 	finalDateToCreateSessionFor.setDate(
+// 		finalDateToCreateSessionFor.getDate() + totalDaysToAddForAllWeeks,
+// 	);
 
-	// Step 4: Generate all the recurring dates
-	const allRecurringDateStringsToSchedule: string[] = [];
-	const currentDateWeAreCheckingInLoop = new Date(selectedDateAsJavaScriptDateObject);
+// 	// Step 4: Generate all the recurring dates
+// 	const allRecurringDateStringsToSchedule: string[] = [];
+// 	const currentDateWeAreCheckingInLoop = new Date(selectedDateAsJavaScriptDateObject);
 
-	while (currentDateWeAreCheckingInLoop <= finalDateToCreateSessionFor) {
-		// Convert current date to string format
-		const currentDateAsYYYYMMDDString = convertDateObjectToYYYYMMDDString(
-			currentDateWeAreCheckingInLoop,
-		);
+// 	while (currentDateWeAreCheckingInLoop <= finalDateToCreateSessionFor) {
+// 		// Convert current date to string format
+// 		const currentDateAsYYYYMMDDString = convertDateObjectToYYYYMMDDString(
+// 			currentDateWeAreCheckingInLoop,
+// 		);
 
-		// Check if a session already exists on this date
-		const sessionAlreadyExistsOnThisDate = mapOfExistingSessionsByDate.has(
-			currentDateAsYYYYMMDDString,
-		);
+// 		// Check if a session already exists on this date
+// 		const sessionAlreadyExistsOnThisDate = mapOfExistingSessionsByDate.has(
+// 			currentDateAsYYYYMMDDString,
+// 		);
 
-		// Only add this date if there's no existing session
-		if (!sessionAlreadyExistsOnThisDate) {
-			allRecurringDateStringsToSchedule.push(currentDateAsYYYYMMDDString);
-		}
+// 		// Only add this date if there's no existing session
+// 		if (!sessionAlreadyExistsOnThisDate) {
+// 			allRecurringDateStringsToSchedule.push(currentDateAsYYYYMMDDString);
+// 		}
 
-		// Move to the same day next week (add 7 days)
-		const moveToNextWeekByAdding7Days = 7;
-		currentDateWeAreCheckingInLoop.setDate(
-			currentDateWeAreCheckingInLoop.getDate() + moveToNextWeekByAdding7Days,
-		);
-	}
+// 		// Move to the same day next week (add 7 days)
+// 		const moveToNextWeekByAdding7Days = 7;
+// 		currentDateWeAreCheckingInLoop.setDate(
+// 			currentDateWeAreCheckingInLoop.getDate() + moveToNextWeekByAdding7Days,
+// 		);
+// 	}
 
-	return allRecurringDateStringsToSchedule;
-}
-
-/**
- * Formats a time for display to the user
- * Example: Date object with time 19:30 becomes "7:30 PM"
- */
-export function formatTimeForHumanReadableDisplay(dateObjectContainingTime: Date): string {
-	const formattedTimeString = dateObjectContainingTime.toLocaleTimeString([], {
-		hour: 'numeric', // Show hour without leading zero
-		minute: '2-digit', // Always show two digits for minutes
-		hour12: true, // Use 12-hour format with AM/PM
-	});
-
-	return formattedTimeString;
-}
+// 	return allRecurringDateStringsToSchedule;
+// }

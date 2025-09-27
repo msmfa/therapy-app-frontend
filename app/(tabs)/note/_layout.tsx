@@ -2,7 +2,7 @@
 import React from 'react';
 import { Stack } from 'expo-router';
 
-export default function NoteStackLayout() {
+export function NoteStackLayout() {
 	return (
 		<Stack
 			screenOptions={{

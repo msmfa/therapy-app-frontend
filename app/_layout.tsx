@@ -9,35 +9,18 @@ function Gate() {
 	const { user, hydrated } = useAuth();
 	const { hasOnboarded } = useOnboarding();
 
-	console.log('Gate render:', {
-		user: !!user,
-		hasOnboarded,
-		hydrated,
-	});
-
-	// Wait for auth to hydrate
 	if (!hydrated) {
-		return null; // Or a loading screen
+		return null;
 	}
 	return (
 		<Stack screenOptions={{ headerShown: false }}>
-			<Stack.Protected guard={(console.log('Auth guard:', !user), !user)}>
+			<Stack.Protected guard={!user}>
 				<Stack.Screen name="(auth)" />
 			</Stack.Protected>
-			<Stack.Protected
-				guard={
-					(console.log('Onboarding guard:', Boolean(user) && !hasOnboarded),
-					Boolean(user) && !hasOnboarded)
-				}
-			>
+			<Stack.Protected guard={Boolean(user) && !hasOnboarded}>
 				<Stack.Screen name="(onboarding)" />
 			</Stack.Protected>
-			<Stack.Protected
-				guard={
-					(console.log('Tabs guard:', Boolean(user) && hasOnboarded),
-					Boolean(user) && hasOnboarded)
-				}
-			>
+			<Stack.Protected guard={Boolean(user) && hasOnboarded}>
 				<Stack.Screen name="(tabs)" />
 				<Stack.Protected guard={true}>
 					<Stack.Screen name="index" />
@@ -47,7 +30,7 @@ function Gate() {
 	);
 }
 
-export default function RootLayout() {
+export function RootLayout() {
 	return (
 		<AuthProvider>
 			<TherapySessionsProvider>

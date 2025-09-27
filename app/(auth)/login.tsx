@@ -17,7 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
 
-export default function LoginScreen() {
+export function LoginScreen() {
 	const router = useRouter();
 	const { setAuth, signOut, isAuthenticated, user } = useAuth();
 

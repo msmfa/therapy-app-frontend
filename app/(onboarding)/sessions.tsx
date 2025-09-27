@@ -6,7 +6,7 @@ import TherapyCalendar from '../../src/components/therapy-calendar/therapy-calen
 import { useTherapySessions } from '../../src/context/TherapySessionsContext';
 import Loading from '../../src/components/loading';
 
-export default function SessionsScreen() {
+export function SessionsScreen() {
 	const router = useRouter();
 	const { addSession } = useTherapySessions();
 	const [isSaving, setIsSaving] = useState(false);

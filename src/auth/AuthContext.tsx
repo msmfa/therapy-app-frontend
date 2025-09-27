@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import * as SecureStore from 'expo-secure-store';
 
-export type AuthUser = { id: string; email: string } | null;
+type AuthUser = { id: string; email: string } | null;
 
-export type AuthContextValue = {
+type AuthContextValue = {
 	token: string | null;
 	user: AuthUser;
 	isAuthenticated: boolean;

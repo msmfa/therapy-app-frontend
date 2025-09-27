@@ -2,7 +2,7 @@ import * as React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { scheduleNoteReminder, cancelReminder } from '../utils/schedule-reminders';
 
-export type Note = {
+type Note = {
 	id: string;
 	text: string;
 	createdAt: number;

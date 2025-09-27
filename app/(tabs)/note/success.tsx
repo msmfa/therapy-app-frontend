@@ -3,7 +3,7 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
-export default function SuccessScreen() {
+export function SuccessScreen() {
 	const router = useRouter();
 
 	return (

@@ -25,7 +25,7 @@ import { REMINDER_TIMINGS } from '../../../src/const';
 dayjs.extend(advancedFormat);
 dayjs.extend(relativeTime);
 
-export default function ReminderScreen() {
+export function ReminderScreen() {
 	const router = useRouter();
 	const navigation = useNavigation();
 	const { text } = useLocalSearchParams<{ text?: string }>();
@@ -159,7 +159,7 @@ export default function ReminderScreen() {
 	);
 }
 
-export const styles = StyleSheet.create({
+const styles = StyleSheet.create({
 	root: {
 		flex: 1,
 		backgroundColor: 'transparent',
