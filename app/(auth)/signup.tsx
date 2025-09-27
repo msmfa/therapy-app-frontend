@@ -121,7 +121,7 @@ export default function SignUpScreen() {
 				await setAuth(signupData.token, signupData.user);
 
 				// 👇 Send first-time users to schedule their therapy sessions
-				router.replace('/onboarding/welcome'); // Go to welcome screen
+				// router.replace('/onboarding/welcome'); // Go to welcome screen
 			} else {
 				Alert.alert(
 					'Success',

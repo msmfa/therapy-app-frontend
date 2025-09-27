@@ -1,28 +1,41 @@
 // app/_layout.tsx
-import React from 'react';
-import { Slot } from 'expo-router';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { View } from 'react-native';
+import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { ThemeProvider, DefaultTheme } from '@react-navigation/native';
-import { AuthProvider } from '../src/auth/AuthContext';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-const TransparentTheme = {
-	...DefaultTheme,
-	colors: { ...DefaultTheme.colors, background: 'transparent', card: 'transparent' },
-};
+import { AuthProvider, useAuth } from '../src/auth/AuthContext';
+import { OnboardingProvider, useOnboarding } from '../src/context/OnboardingContext';
+
+function Gate() {
+	const { user } = useAuth();
+	const { hasOnboarded } = useOnboarding();
+	console.log('hasOnboarded', hasOnboarded);
+	return (
+		<Stack screenOptions={{ headerShown: false }}>
+			<Stack.Protected guard={!user}>
+				<Stack.Screen name="(auth)" />
+			</Stack.Protected>
+			<Stack.Protected guard={Boolean(user) && !hasOnboarded}>
+				<Stack.Screen name="(onboarding)" />
+			</Stack.Protected>
+
+			<Stack.Protected guard={Boolean(user)}>
+				<Stack.Screen name="(tabs)" />
+			</Stack.Protected>
+
+			<Stack.Screen name="index" />
+		</Stack>
+	);
+}
 
 export default function RootLayout() {
 	return (
-		<SafeAreaProvider style={{ flex: 1, backgroundColor: 'transparent' }}>
-			<View style={{ flex: 1 }}>
-				<AuthProvider>
-					<ThemeProvider value={TransparentTheme}>
-						<Slot />
-					</ThemeProvider>
-				</AuthProvider>
-				<StatusBar translucent backgroundColor="transparent" style="dark" />
-			</View>
-		</SafeAreaProvider>
+		<AuthProvider>
+			<OnboardingProvider>
+				<SafeAreaProvider>
+					<Gate />
+				</SafeAreaProvider>
+			</OnboardingProvider>
+		</AuthProvider>
 	);
 }
