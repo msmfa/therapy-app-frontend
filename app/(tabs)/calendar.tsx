@@ -9,13 +9,11 @@ import {
 	Modal,
 	Alert,
 	Platform,
-	KeyboardAvoidingView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Calendar } from 'react-native-calendars';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { useAuth } from '../../src/auth/AuthContext';
 import {
 	listTherapySessions,
 	createTherapySession,
@@ -23,10 +21,13 @@ import {
 	updateTherapySession,
 	TherapySession,
 } from '../../src/api/therapy';
+import { InfoBlock } from '../../src/components/infoBlock';
+import { Palette } from '../../src/const';
+import { useAuth } from '../../src/auth/AuthContext';
 
 /* ---------------- Design System ---------------- */
 const colors = {
-	background: '#FAFBFC',
+	background: Palette.background.base,
 	surface: '#FFFFFF',
 	surfaceAlt: '#F8F9FA',
 	text: {
@@ -87,13 +88,13 @@ const ScheduleModal: React.FC<{
 	onCancel: () => void;
 }> = ({ visible, selectedDate, existingSession, defaultTime, onConfirm, onDelete, onCancel }) => {
 	const [time, setTime] = useState(defaultTime);
-	const [scheduleMode, setScheduleMode] = useState<ScheduleMode>('single');
+	const [scheduleMode, setScheduleMode] = useState<ScheduleMode>('weekly_pattern');
 	const [showPicker, setShowPicker] = useState(false);
 
 	useEffect(() => {
 		if (visible) {
 			setTime(existingSession?.time || defaultTime);
-			setScheduleMode('single');
+			setScheduleMode('weekly_pattern');
 		}
 	}, [visible, existingSession, defaultTime]);
 
@@ -159,176 +160,147 @@ const ScheduleModal: React.FC<{
 					activeOpacity={1}
 					onPress={onCancel}
 				/>
-				<KeyboardAvoidingView
-					behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-					style={styles.modalContainer}
-				>
-					<View style={styles.modalContent}>
-						<View style={styles.modalHandle} />
-						<View style={styles.modalHeader}>
-							<Text style={styles.modalTitle}>
-								{isEdit ? 'Edit Session' : 'Schedule Session'}
-							</Text>
-							<TouchableOpacity onPress={onCancel} style={styles.modalCloseButton}>
-								<Ionicons name="close" size={24} color={colors.text.secondary} />
-							</TouchableOpacity>
-						</View>
-						<ScrollView
-							style={styles.modalScroll}
-							showsVerticalScrollIndicator={false}
-							contentContainerStyle={styles.modalScrollContent}
-						>
-							<Text style={styles.modalDateDisplay}>{formatDate(selectedDate)}</Text>
-							<View style={styles.timeSection}>
-								<Text style={styles.sectionLabel}>Session Time</Text>
-								{Platform.OS === 'ios' ? (
+
+				<View style={styles.modalContent}>
+					<View style={styles.modalHandle} />
+					<View style={styles.modalHeader}>
+						<Text style={styles.modalTitle}>
+							{isEdit ? 'Edit Session' : 'Schedule Session'}
+						</Text>
+					</View>
+					<Text style={styles.modalDateDisplay}>{formatDate(selectedDate)}</Text>
+					<View style={styles.timeSection}>
+						<Text style={styles.sectionLabel}>Session Time</Text>
+						{Platform.OS === 'ios' ? (
+							<DateTimePicker
+								value={time}
+								mode="time"
+								display="spinner"
+								onChange={handleTimeChange}
+								style={styles.iosTimePicker}
+							/>
+						) : (
+							<>
+								<TouchableOpacity
+									onPress={() => setShowPicker(true)}
+									style={styles.androidTimeButton}
+								>
+									<Ionicons
+										name="time-outline"
+										size={20}
+										color={colors.primary}
+									/>
+									<Text style={styles.androidTimeText}>{formatTime(time)}</Text>
+								</TouchableOpacity>
+
+								{showPicker && (
 									<DateTimePicker
 										value={time}
 										mode="time"
-										display="spinner"
+										display="default"
 										onChange={handleTimeChange}
-										style={styles.iosTimePicker}
 									/>
-								) : (
-									<>
-										<TouchableOpacity
-											onPress={() => setShowPicker(true)}
-											style={styles.androidTimeButton}
-										>
-											<Ionicons
-												name="time-outline"
-												size={20}
-												color={colors.primary}
-											/>
-											<Text style={styles.androidTimeText}>
-												{formatTime(time)}
-											</Text>
-										</TouchableOpacity>
-
-										{showPicker && (
-											<DateTimePicker
-												value={time}
-												mode="time"
-												display="default"
-												onChange={handleTimeChange}
-											/>
-										)}
-									</>
 								)}
+							</>
+						)}
+					</View>
+
+					{/* Schedule Options - Only show for new sessions */}
+					{!isEdit && selectedDate && (
+						<>
+							<Text style={styles.sectionLabel}>Apply To</Text>
+							<View style={styles.scheduleModeOptions}>
+								<TouchableOpacity
+									onPress={() => setScheduleMode('weekly_pattern')}
+									style={[
+										styles.scheduleModeOption,
+										scheduleMode === 'weekly_pattern' &&
+											styles.scheduleModeOptionSelected,
+									]}
+								>
+									<View style={styles.radioButton}>
+										{scheduleMode === 'weekly_pattern' && (
+											<View style={styles.radioButtonInner} />
+										)}
+									</View>
+									<View style={styles.scheduleModeTextContainer}>
+										<Text style={styles.scheduleModeTitle}>Every week</Text>
+										<Text style={styles.scheduleModeDescription}>
+											Schedule every {getSelectedDayName()} for the next 2
+											months
+										</Text>
+									</View>
+								</TouchableOpacity>
+								<TouchableOpacity
+									onPress={() => setScheduleMode('single')}
+									style={[
+										styles.scheduleModeOption,
+										scheduleMode === 'single' &&
+											styles.scheduleModeOptionSelected,
+									]}
+								>
+									<View style={styles.radioButton}>
+										{scheduleMode === 'single' && (
+											<View style={styles.radioButtonInner} />
+										)}
+									</View>
+									<View style={styles.scheduleModeTextContainer}>
+										<Text style={styles.scheduleModeTitle}>This day only</Text>
+										<Text style={styles.scheduleModeDescription}>
+											Schedule just for selected date
+										</Text>
+									</View>
+								</TouchableOpacity>
 							</View>
 
-							{/* Schedule Options - Only show for new sessions */}
-							{!isEdit && selectedDate && (
-								<>
-									<Text style={styles.sectionLabel}>Apply To</Text>
-									<View style={styles.scheduleModeOptions}>
-										<TouchableOpacity
-											onPress={() => setScheduleMode('single')}
-											style={[
-												styles.scheduleModeOption,
-												scheduleMode === 'single' &&
-													styles.scheduleModeOptionSelected,
-											]}
-										>
-											<View style={styles.radioButton}>
-												{scheduleMode === 'single' && (
-													<View style={styles.radioButtonInner} />
-												)}
-											</View>
-											<View style={styles.scheduleModeTextContainer}>
-												<Text style={styles.scheduleModeTitle}>
-													This day only
-												</Text>
-												<Text style={styles.scheduleModeDescription}>
-													Schedule just for selected date
-												</Text>
-											</View>
-										</TouchableOpacity>
-
-										<TouchableOpacity
-											onPress={() => setScheduleMode('weekly_pattern')}
-											style={[
-												styles.scheduleModeOption,
-												scheduleMode === 'weekly_pattern' &&
-													styles.scheduleModeOptionSelected,
-											]}
-										>
-											<View style={styles.radioButton}>
-												{scheduleMode === 'weekly_pattern' && (
-													<View style={styles.radioButtonInner} />
-												)}
-											</View>
-											<View style={styles.scheduleModeTextContainer}>
-												<Text style={styles.scheduleModeTitle}>
-													Weekly pattern
-												</Text>
-												<Text style={styles.scheduleModeDescription}>
-													Schedule every {getSelectedDayName()} for the
-													next 2 months
-												</Text>
-											</View>
-										</TouchableOpacity>
-									</View>
-
-									{scheduleMode === 'weekly_pattern' && (
-										<View style={styles.weeklyPatternInfo}>
-											<Ionicons
-												name="information-circle"
-												size={18}
-												color={colors.primary}
-											/>
-											<Text style={styles.weeklyPatternInfoText}>
-												This will create sessions every{' '}
-												{getSelectedDayName()} at {formatTime(time)} for the
-												next two months
-											</Text>
-										</View>
-									)}
-								</>
-							)}
-						</ScrollView>
-
-						<View style={styles.modalActions}>
-							{isEdit && (
-								<TouchableOpacity
-									onPress={onDelete}
-									style={[styles.modalButton, styles.deleteButton]}
-								>
+							{scheduleMode === 'weekly_pattern' && (
+								<View style={styles.weeklyPatternInfo}>
 									<Ionicons
-										name="trash-outline"
+										name="information-circle"
 										size={18}
-										color={colors.danger}
+										color={colors.primary}
 									/>
-									<Text style={styles.deleteButtonText}>Delete</Text>
-								</TouchableOpacity>
+									<Text style={styles.weeklyPatternInfoText}>
+										This will create sessions every {getSelectedDayName()} at{' '}
+										{formatTime(time)} for the next two months
+									</Text>
+								</View>
 							)}
+						</>
+					)}
 
+					<View style={styles.modalActions}>
+						{isEdit && (
 							<TouchableOpacity
-								onPress={onCancel}
-								style={[
-									styles.modalButton,
-									styles.cancelButton,
-									isEdit && { flex: 1 },
-								]}
+								onPress={onDelete}
+								style={[styles.modalButton, styles.deleteButton]}
 							>
-								<Text style={styles.cancelButtonText}>Cancel</Text>
+								<Ionicons name="trash-outline" size={18} color={colors.danger} />
+								<Text style={styles.deleteButtonText}>Delete</Text>
 							</TouchableOpacity>
+						)}
 
-							<TouchableOpacity
-								onPress={handleConfirm}
-								style={[
-									styles.modalButton,
-									styles.confirmButton,
-									isEdit && { flex: 2 },
-								]}
-							>
-								<Text style={styles.confirmButtonText}>
-									{isEdit ? 'Update' : 'Schedule'}
-								</Text>
-							</TouchableOpacity>
-						</View>
+						<TouchableOpacity
+							onPress={onCancel}
+							style={[styles.modalButton, styles.cancelButton, isEdit && { flex: 1 }]}
+						>
+							<Text style={styles.cancelButtonText}>Cancel</Text>
+						</TouchableOpacity>
+
+						<TouchableOpacity
+							onPress={handleConfirm}
+							style={[
+								styles.modalButton,
+								styles.confirmButton,
+								isEdit && { flex: 2 },
+							]}
+						>
+							<Text style={styles.confirmButtonText}>
+								{isEdit ? 'Update' : 'Schedule'}
+							</Text>
+						</TouchableOpacity>
 					</View>
-				</KeyboardAvoidingView>
+				</View>
 			</View>
 		</Modal>
 	);
@@ -351,14 +323,13 @@ export default function CalendarScreen() {
 		return time;
 	});
 
-	// Computed values for calendar
 	const markedDates = useMemo(() => {
 		const marks: any = {};
 
 		const today = new Date();
 		today.setHours(0, 0, 0, 0);
 
-		sessions.forEach((session, dateString) => {
+		sessions.forEach((_, dateString) => {
 			const sessionDate = new Date(dateString);
 			const isPast = sessionDate < today;
 
@@ -610,14 +581,14 @@ export default function CalendarScreen() {
 		]);
 	};
 
-	const todayYMD = useMemo(() => {
-		const t = new Date();
-		const y = t.getFullYear();
-		const m = String(t.getMonth() + 1).padStart(2, '0');
-		const d = String(t.getDate()).padStart(2, '0');
-		return `${y}-${m}-${d}`;
-	}, []);
-
+	function AddSession() {
+		const today = new Date();
+		const year = today.getFullYear();
+		const month = String(today.getMonth() + 1).padStart(2, '0');
+		const day = String(today.getDate()).padStart(2, '0');
+		setSelectedDate(`${year}-${month}-${day}`);
+		setShowScheduleModal(true);
+	}
 	return (
 		<View style={styles.container}>
 			<SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -664,17 +635,7 @@ export default function CalendarScreen() {
 					</View>
 
 					<View style={styles.actionButtons}>
-						<TouchableOpacity
-							style={styles.actionButton}
-							onPress={() => {
-								const today = new Date();
-								const year = today.getFullYear();
-								const month = String(today.getMonth() + 1).padStart(2, '0');
-								const day = String(today.getDate()).padStart(2, '0');
-								setSelectedDate(`${year}-${month}-${day}`);
-								setShowScheduleModal(true);
-							}}
-						>
+						<TouchableOpacity style={styles.actionButton} onPress={AddSession}>
 							<Ionicons name="add-circle-outline" size={20} color={colors.primary} />
 							<Text style={styles.actionButtonText}>Add Session</Text>
 						</TouchableOpacity>
@@ -689,13 +650,12 @@ export default function CalendarScreen() {
 							</Text>
 						</TouchableOpacity>
 					</View>
-
-					<View style={styles.infoCard}>
-						<Text style={styles.infoText}>
-							💡 Tap any date to schedule. Use weekly pattern to automatically
-							schedule that day of the week for the next 2 months.
-						</Text>
-					</View>
+					<InfoBlock
+						text={
+							' Tap on a date in the Calendar to add a therapy session. You can add dates up to 2 months in the future by clicking the weekly pattern box.'
+						}
+						icon={'💡'}
+					/>
 				</ScrollView>
 
 				{loading && (
@@ -726,7 +686,7 @@ export default function CalendarScreen() {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: colors.background,
+		backgroundColor: 'transparent',
 	},
 	safeArea: {
 		flex: 1,
@@ -745,7 +705,7 @@ const styles = StyleSheet.create({
 		color: colors.text.primary,
 	},
 	calendarContainer: {
-		margin: spacing.lg,
+		// margin: spacing.lg,
 		borderRadius: radius.lg,
 		overflow: 'hidden',
 		backgroundColor: colors.surface,
@@ -758,8 +718,9 @@ const styles = StyleSheet.create({
 	actionButtons: {
 		flexDirection: 'row',
 		gap: spacing.md,
-		marginHorizontal: spacing.lg,
+		// marginHorizontal: spacing.lg,
 		marginTop: spacing.lg,
+		marginBottom: spacing.lg,
 	},
 	actionButton: {
 		flex: 1,
@@ -785,8 +746,8 @@ const styles = StyleSheet.create({
 		color: colors.danger,
 	},
 	infoCard: {
-		margin: spacing.lg,
-		padding: spacing.md,
+		// margin: spacing.lg,
+		// padding: spacing.md,
 		backgroundColor: colors.primaryLight,
 		borderRadius: radius.md,
 		borderWidth: 1,
@@ -821,7 +782,8 @@ const styles = StyleSheet.create({
 	},
 	modalContainer: {
 		maxHeight: '80%',
-		justifyContent: 'flex-end',
+		justifyContent: 'center',
+		alignItems: 'center',
 	},
 	modalContent: {
 		backgroundColor: colors.surface,
@@ -829,6 +791,9 @@ const styles = StyleSheet.create({
 		borderTopRightRadius: radius.xl,
 		paddingTop: spacing.sm,
 		maxHeight: '100%',
+		alignItems: 'center',
+		justifyContent: 'center',
+		padding: 20,
 	},
 	modalScroll: {
 		maxHeight: 400,
@@ -870,6 +835,7 @@ const styles = StyleSheet.create({
 		textTransform: 'uppercase',
 		letterSpacing: 1,
 		marginBottom: spacing.md,
+		// marginHorizontal: 20,
 	},
 	timeSection: {
 		marginBottom: spacing.xl,
@@ -895,6 +861,7 @@ const styles = StyleSheet.create({
 	scheduleModeOptions: {
 		gap: spacing.md,
 		marginBottom: spacing.xl,
+		alignItems: 'center',
 	},
 	scheduleModeOption: {
 		flexDirection: 'row',

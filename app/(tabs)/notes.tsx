@@ -5,11 +5,8 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useNotes } from '../../src/hooks/useNotes';
-import { PINK_CLEAR, PINK_SOLID } from '../../src/const';
-import { NoteContainer } from './components/notes';
 import { useRouter } from 'expo-router';
 
-const TOP_OVERLAY = 48; // visual fade height at top
 const BOTTOM_FADE = 96; // fade height at bottom (mask)
 
 // Color palette from reminder screen
@@ -173,16 +170,6 @@ export default function NotesScreen() {
 					/>
 				</MaskedView>
 
-				{/* Fixed pink overlay at the very top */}
-				<LinearGradient
-					pointerEvents="none"
-					colors={[PINK_SOLID, PINK_CLEAR]}
-					start={{ x: 0, y: 0 }}
-					end={{ x: 0, y: 1 }}
-					style={[styles.topOverlay, { height: headerHeight + TOP_OVERLAY }]}
-				/>
-
-				{/* Floating Action Button */}
 				{notes.length > 0 && (
 					<Pressable style={styles.fab} onPress={() => router.push('/(tabs)/note/new')}>
 						<Text style={styles.fabText}>+</Text>

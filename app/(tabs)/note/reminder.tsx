@@ -1,15 +1,22 @@
 // app/(tabs)/note/reminder.tsx
 import React, { useEffect, useState, useLayoutEffect } from 'react';
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, useNavigation } from 'expo-router';
+
 import { useNotes } from '../../../src/hooks/useNotes';
 import { useAuth } from '../../../src/auth/AuthContext';
 import { listTherapySessions, TherapySession } from '../../../src/api/therapy';
-import { GradientScreenBackground } from '../../../src/components/gradient-screen-background';
+import { InfoBlock } from '../../../src/components/infoBlock';
+
 import dayjs from 'dayjs';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { Button } from '../../../src/components/button';
+import { NextSessionCard } from '../../../src/components/reminders/next-session-card';
+import { TimingOptions } from '../../../src/components/reminders/timing-card';
+import { getNextSession } from '../../../src/utils/sessions';
+import ScienceBackedCard from '../../../src/components/reminders/science-backed-card';
 
 dayjs.extend(advancedFormat);
 dayjs.extend(relativeTime);
@@ -47,16 +54,6 @@ const REMINDER_TIMINGS = [
 		},
 	},
 	{
-		id: 'midweek',
-		label: 'Midweek only',
-		description: 'Single reminder between sessions',
-		icon: '📅',
-		calculate: (now: Date, next: Date) => {
-			const diff = next.getTime() - now.getTime();
-			return new Date(now.getTime() + diff / 2);
-		},
-	},
-	{
 		id: 'day-before',
 		label: 'Day before',
 		description: '24 hours before next session',
@@ -66,22 +63,6 @@ const REMINDER_TIMINGS = [
 		},
 	},
 ];
-
-// Fetch next therapy session
-async function getNextSession(token: string): Promise<Date | null> {
-	const now = new Date();
-	const to = new Date(now.getFullYear(), now.getMonth() + 2, now.getDate());
-	try {
-		const data = (await listTherapySessions(token, now, to)) as TherapySession[];
-		const nextSession = data
-			.map((s) => new Date(s.startsAtUtc))
-			.filter((x) => x.getTime() > Date.now())
-			.sort((a, b) => a.getTime() - b.getTime())[0];
-		return nextSession ?? null;
-	} catch {
-		return null;
-	}
-}
 
 // Get user's saved preference
 async function getSavedPreference(): Promise<string> {
@@ -99,7 +80,7 @@ async function savePreference(timingId: string): Promise<void> {
 export default function ReminderScreen() {
 	const router = useRouter();
 	const navigation = useNavigation();
-	const { text, nextSession } = useLocalSearchParams<{ text?: string; nextSession?: string }>();
+	const { text } = useLocalSearchParams<{ text?: string }>();
 	const { addNoteWithReminder } = useNotes();
 	const { token } = useAuth();
 
@@ -109,7 +90,6 @@ export default function ReminderScreen() {
 	const [savedPreference, setSavedPreference] = useState<string>('smart-pattern');
 	const [error, setError] = useState<string | null>(null);
 
-	// Hide the header title
 	useLayoutEffect(() => {
 		navigation.setOptions({
 			headerTitle: '',
@@ -123,23 +103,30 @@ export default function ReminderScreen() {
 		(async () => {
 			if (!token) return;
 
-			// Load next session and saved preference
-			const [session, preference] = await Promise.all([
-				nextSession ? Promise.resolve(new Date(nextSession)) : getNextSession(token),
-				getSavedPreference(),
-			]);
+			try {
+				// Load next session and saved preference
+				const [session, preference] = await Promise.all([
+					getNextSession(token),
+					getSavedPreference(),
+				]);
 
-			if (alive) {
-				setNextSessionDate(session);
-				setSelectedTiming(preference);
-				setSavedPreference(preference);
-				setLoading(false);
+				if (alive) {
+					setNextSessionDate(session);
+					setSelectedTiming(preference);
+					setSavedPreference(preference);
+					setLoading(false);
+				}
+			} catch (err) {
+				if (alive) {
+					setError('Failed to load session data');
+					setLoading(false);
+				}
 			}
 		})();
 		return () => {
 			alive = false;
 		};
-	}, [token, nextSession]);
+	}, [token]);
 
 	const calculateReminderTime = (
 		timingId: string,
@@ -236,236 +223,50 @@ export default function ReminderScreen() {
 	};
 
 	if (loading) {
-		return (
-			<SafeAreaView style={styles.root}>
-				<GradientScreenBackground>
-					<View style={styles.loadingContainer}>
-						<ActivityIndicator size="large" color="#111" />
-						<Text style={styles.loadingText}>Setting up your reminder...</Text>
-					</View>
-				</GradientScreenBackground>
-			</SafeAreaView>
-		);
-	}
-
-	if (!nextSessionDate) {
-		return (
-			<SafeAreaView style={styles.root}>
-				<GradientScreenBackground>
-					<View style={styles.container}>
-						<Text style={styles.title}>No upcoming session</Text>
-						<View style={styles.noSessionCard}>
-							<Text style={styles.noSessionEmoji}>📅</Text>
-							<Text style={styles.noSessionText}>
-								Schedule your next therapy session first
-							</Text>
-							<Text style={styles.noSessionSubtext}>
-								We'll remind you to review this note before your next session
-							</Text>
-						</View>
-						<Pressable onPress={() => router.back()} style={styles.primaryBtn}>
-							<Text style={styles.primaryBtnText}>Go back</Text>
-						</Pressable>
-					</View>
-				</GradientScreenBackground>
-			</SafeAreaView>
-		);
+		return <View>Loading</View>;
 	}
 
 	const sessionInterval = getSessionInterval();
 
+	const handleTimingSelection = (timingId: string) => {
+		setSelectedTiming(timingId);
+		setError(null);
+	};
+
+	const infoBlockText =
+		'Research shows daily practice between sessions strengthens neural pathways and improves outcomes';
+	const reminderText = 'When to remind you?';
+	const reminderSubtext = 'Choose reminder timing';
+
+	if (!nextSessionDate) return;
+
 	return (
 		<SafeAreaView style={styles.root} edges={['left', 'right', 'bottom']}>
-			<GradientScreenBackground>
-				<ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-					<View style={styles.contentWrapper}>
-						<Text style={styles.title}>When to remind you?</Text>
-						<Text style={styles.subtitle}>
-							We'll send your note as a reminder before your next session
-						</Text>
-
-						{/* Next Session Info */}
-						<View style={styles.sessionInfoCard}>
-							<View style={styles.sessionInfoRow}>
-								<Text style={styles.sessionInfoLabel}>Next session</Text>
-								<Text style={styles.sessionInfoValue}>
-									{dayjs(nextSessionDate).format('ddd, MMM D [at] h:mm A')}
-								</Text>
-							</View>
-							{sessionInterval && (
-								<Text style={styles.sessionInterval}>{sessionInterval}</Text>
-							)}
-						</View>
-
-						{/* Timing Options */}
-						<Text style={styles.sectionTitle}>Choose reminder timing</Text>
-
-						{/* Science callout */}
-						<View style={styles.scienceCallout}>
-							<Text style={styles.scienceIcon}>💡</Text>
-							<Text style={styles.scienceText}>
-								Research shows daily practice between sessions strengthens neural
-								pathways and improves outcomes
-							</Text>
-						</View>
-
-						<View style={styles.timingOptions}>
-							{REMINDER_TIMINGS.map((timing) => {
-								const isSelected = selectedTiming === timing.id;
-								const isPreviousDefault =
-									savedPreference === timing.id && !isSelected;
-								const reminderData = calculateReminderTime(timing.id);
-								const isValid = timing.isMultiple
-									? reminderData &&
-										Array.isArray(reminderData) &&
-										reminderData.length > 0
-									: reminderData &&
-										!Array.isArray(reminderData) &&
-										reminderData.getTime() > Date.now();
-
-								return (
-									<Pressable
-										key={timing.id}
-										onPress={() => setSelectedTiming(timing.id)}
-										style={[
-											styles.timingCard,
-											isSelected && styles.timingCardActive,
-											!isValid && styles.timingCardDisabled,
-											timing.badge && styles.timingCardRecommended,
-										]}
-										disabled={!isValid}
-									>
-										<View style={styles.timingHeader}>
-											<Text style={styles.timingIcon}>{timing.icon}</Text>
-											<View style={styles.timingInfo}>
-												<View style={styles.timingTitleRow}>
-													<Text
-														style={[
-															styles.timingLabel,
-															isSelected && styles.timingLabelActive,
-														]}
-													>
-														{timing.label}
-													</Text>
-													{timing.badge && (
-														<Text style={styles.recommendedBadge}>
-															{timing.badge}
-														</Text>
-													)}
-													{isPreviousDefault && (
-														<Text style={styles.previousBadge}>
-															Your usual
-														</Text>
-													)}
-												</View>
-												<Text
-													style={[
-														styles.timingDescription,
-														isSelected &&
-															styles.timingDescriptionActive,
-													]}
-												>
-													{timing.description}
-												</Text>
-											</View>
-										</View>
-										{isValid && !timing.isMultiple && (
-											<Text
-												style={[
-													styles.timingTime,
-													isSelected && styles.timingTimeActive,
-												]}
-											>
-												{formatReminderTime(reminderData as Date)}
-											</Text>
-										)}
-										{isValid &&
-											timing.isMultiple &&
-											Array.isArray(reminderData) && (
-												<View style={styles.multipleReminders}>
-													{reminderData.map((reminder, index) => (
-														<Text
-															key={index}
-															style={[
-																styles.multipleReminderTime,
-																isSelected &&
-																	styles.timingTimeActive,
-															]}
-														>
-															• {formatReminderTime(reminder.time)}
-														</Text>
-													))}
-												</View>
-											)}
-									</Pressable>
-								);
-							})}
-						</View>
-
-						{/* Preview */}
-						{(() => {
-							const reminderData = calculateReminderTime(selectedTiming);
-							const selectedOption = REMINDER_TIMINGS.find(
-								(t) => t.id === selectedTiming,
-							);
-
-							if (!reminderData) return null;
-
-							if (Array.isArray(reminderData)) {
-								return (
-									<View style={styles.previewCard}>
-										<Text style={styles.previewTitle}>
-											📱 Reminder schedule
-										</Text>
-										{reminderData.map((reminder, index) => (
-											<View key={index} style={styles.previewContent}>
-												<Text style={styles.previewTime}>
-													{formatReminderTime(reminder.time)}
-												</Text>
-												<Text style={styles.previewNote}>
-													"{reminder.message}"
-												</Text>
-											</View>
-										))}
-										<Text style={styles.previewHint}>
-											3 reminders to maximize your progress
-										</Text>
-									</View>
-								);
-							} else {
-								return (
-									<View style={styles.previewCard}>
-										<Text style={styles.previewTitle}>📱 Reminder preview</Text>
-										<View style={styles.previewContent}>
-											<Text style={styles.previewTime}>
-												{formatReminderTime(reminderData)}
-											</Text>
-											<Text style={styles.previewNote}>
-												"{text?.trim() || 'Your therapy note'}"
-											</Text>
-										</View>
-										<Text style={styles.previewHint}>
-											{dayjs(reminderData).fromNow()} from now
-										</Text>
-									</View>
-								);
-							}
-						})()}
-
-						{error && <Text style={styles.error}>{error}</Text>}
-
-						{/* Actions */}
-						<View style={styles.actions}>
-							<Pressable onPress={() => router.back()} style={styles.secondaryBtn}>
-								<Text style={styles.secondaryBtnText}>Cancel</Text>
-							</Pressable>
-							<Pressable onPress={onSave} style={styles.primaryBtn}>
-								<Text style={styles.primaryBtnText}>Set reminder</Text>
-							</Pressable>
-						</View>
+			<ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+				<View style={styles.contentWrapper}>
+					<Text style={styles.title}>{reminderText}</Text>
+					<NextSessionCard
+						timestamp={dayjs(nextSessionDate).format('ddd, MMM D [at] h:mm A')}
+						sessionInterval={sessionInterval}
+					/>
+					<Text style={styles.sectionTitle}>{reminderSubtext}</Text>
+					<InfoBlock text={infoBlockText} icon={'💡'} />
+					<View style={styles.timingOptions}>
+						<ScienceBackedCard
+							isSelected={false}
+							nextSession={nextSessionDate}
+							onPress={function (): void {
+								throw new Error('Function not implemented.');
+							}}
+						/>
 					</View>
-				</ScrollView>
-			</GradientScreenBackground>
+					{error && <Text style={styles.error}>{error}</Text>}
+					<View style={styles.buttonsContainer}>
+						<Button label="Cancel" onPress={() => router.back()} />
+						<Button label="Add" onPress={onSave} />
+					</View>
+				</View>
+			</ScrollView>
 		</SafeAreaView>
 	);
 }
@@ -479,285 +280,28 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 	contentWrapper: {
-		paddingTop: 100, // Account for transparent header + gradient
+		paddingTop: 100,
 		paddingHorizontal: 20,
 		paddingBottom: 40,
 	},
-	loadingContainer: {
-		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
-		gap: 16,
-	},
-	loadingText: {
-		fontSize: 16,
-		color: '#666',
-	},
-
-	// Header
 	title: {
 		fontSize: 28,
 		fontWeight: '700',
 		marginBottom: 8,
 	},
-	subtitle: {
-		fontSize: 16,
-		color: '#666',
-		lineHeight: 22,
-		marginBottom: 24,
-	},
-
-	// Session Info Card
-	sessionInfoCard: {
-		backgroundColor: '#f8f9fa',
-		padding: 16,
-		borderRadius: 12,
-		marginBottom: 24,
-		borderWidth: 1,
-		borderColor: '#e9ecef',
-	},
-	sessionInfoRow: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'center',
-	},
-	sessionInfoLabel: {
-		fontSize: 14,
-		color: '#666',
-		fontWeight: '500',
-	},
-	sessionInfoValue: {
-		fontSize: 14,
-		color: '#111',
-		fontWeight: '600',
-	},
-	sessionInterval: {
-		fontSize: 12,
-		color: '#28a745',
-		marginTop: 8,
-		fontWeight: '600',
-		textTransform: 'uppercase',
-		letterSpacing: 0.5,
-	},
-
-	// Section
 	sectionTitle: {
 		fontSize: 18,
 		fontWeight: '600',
 		marginBottom: 12,
 		color: '#111',
 	},
-
-	// Science callout
-	scienceCallout: {
-		flexDirection: 'row',
-		backgroundColor: '#e8f4fd',
-		padding: 12,
-		borderRadius: 10,
-		marginBottom: 16,
-		alignItems: 'center',
-		gap: 10,
-	},
-	scienceIcon: {
-		fontSize: 20,
-	},
-	scienceText: {
-		flex: 1,
-		fontSize: 13,
-		color: '#0066cc',
-		lineHeight: 18,
-	},
-
-	// Timing Options
 	timingOptions: {
-		gap: 12,
 		marginBottom: 24,
 	},
-	timingCard: {
-		backgroundColor: '#fff',
-		padding: 16,
-		borderRadius: 12,
-		borderWidth: 2,
-		borderColor: '#e9ecef',
-		marginBottom: 12,
-	},
-	timingCardActive: {
-		borderColor: '#111',
-		backgroundColor: '#f8f9fa',
-	},
-	timingCardDisabled: {
-		opacity: 0.4,
-	},
-	timingCardRecommended: {
-		borderColor: '#0066cc',
-		backgroundColor: '#f8fbff',
-	},
-	timingHeader: {
+	buttonsContainer: {
+		width: '100%',
 		flexDirection: 'row',
-		gap: 12,
-		marginBottom: 8,
-	},
-	timingIcon: {
-		fontSize: 24,
-	},
-	timingInfo: {
-		flex: 1,
-	},
-	timingTitleRow: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		gap: 8,
-	},
-	timingLabel: {
-		fontSize: 16,
-		fontWeight: '600',
-		color: '#111',
-	},
-	timingLabelActive: {
-		color: '#111',
-	},
-	previousBadge: {
-		fontSize: 11,
-		color: '#6c757d',
-		backgroundColor: '#e9ecef',
-		paddingHorizontal: 8,
-		paddingVertical: 2,
-		borderRadius: 4,
-		fontWeight: '600',
-	},
-	recommendedBadge: {
-		fontSize: 10,
-		color: '#0066cc',
-		backgroundColor: '#e8f4fd',
-		paddingHorizontal: 6,
-		paddingVertical: 2,
-		borderRadius: 4,
-		fontWeight: '700',
-		textTransform: 'uppercase',
-	},
-	timingDescription: {
-		fontSize: 14,
-		color: '#666',
-		marginTop: 2,
-	},
-	timingDescriptionActive: {
-		color: '#495057',
-	},
-	timingTime: {
-		fontSize: 13,
-		color: '#495057',
-		fontWeight: '500',
-	},
-	timingTimeActive: {
-		color: '#111',
-		fontWeight: '600',
-	},
-	multipleReminders: {
 		marginTop: 8,
-		gap: 4,
-	},
-	multipleReminderTime: {
-		fontSize: 12,
-		color: '#495057',
-		fontWeight: '500',
-	},
-
-	// Preview Card
-	previewCard: {
-		backgroundColor: '#e7f3ff',
-		padding: 16,
-		borderRadius: 12,
-		marginBottom: 24,
-		borderWidth: 1,
-		borderColor: '#bee5eb',
-	},
-	previewTitle: {
-		fontSize: 14,
-		fontWeight: '600',
-		color: '#004085',
-		marginBottom: 12,
-	},
-	previewContent: {
-		backgroundColor: '#fff',
-		padding: 12,
-		borderRadius: 8,
-		marginBottom: 8,
-	},
-	previewTime: {
-		fontSize: 13,
-		fontWeight: '600',
-		color: '#004085',
-		marginBottom: 4,
-	},
-	previewNote: {
-		fontSize: 14,
-		color: '#495057',
-		fontStyle: 'italic',
-	},
-	previewHint: {
-		fontSize: 12,
-		color: '#6c757d',
-		textAlign: 'center',
-	},
-
-	// No Session
-	noSessionCard: {
-		backgroundColor: '#fff3cd',
-		padding: 32,
-		borderRadius: 12,
-		alignItems: 'center',
-		marginVertical: 32,
-		borderWidth: 1,
-		borderColor: '#ffeeba',
-	},
-	noSessionEmoji: {
-		fontSize: 48,
-		marginBottom: 16,
-	},
-	noSessionText: {
-		fontSize: 18,
-		fontWeight: '600',
-		color: '#856404',
-		marginBottom: 8,
-		textAlign: 'center',
-	},
-	noSessionSubtext: {
-		fontSize: 14,
-		color: '#856404',
-		textAlign: 'center',
-		lineHeight: 20,
-	},
-
-	// Actions
-	actions: {
-		flexDirection: 'row',
-		gap: 12,
-		marginTop: 8,
-	},
-	secondaryBtn: {
-		flex: 1,
-		paddingVertical: 16,
-		borderRadius: 12,
-		borderWidth: 2,
-		borderColor: '#dee2e6',
-		alignItems: 'center',
-	},
-	secondaryBtnText: {
-		fontSize: 16,
-		fontWeight: '600',
-		color: '#495057',
-	},
-	primaryBtn: {
-		flex: 1,
-		backgroundColor: '#111',
-		borderRadius: 12,
-		paddingVertical: 16,
-		alignItems: 'center',
-	},
-	primaryBtnText: {
-		fontSize: 16,
-		color: '#fff',
-		fontWeight: '700',
 	},
 	error: {
 		color: '#dc3545',

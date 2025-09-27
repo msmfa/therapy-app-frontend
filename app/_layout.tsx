@@ -5,7 +5,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { ThemeProvider, DefaultTheme } from '@react-navigation/native';
-import FullAppBackground from '../src/components/full-app-background';
 import { AuthProvider } from '../src/auth/AuthContext';
 
 const TransparentTheme = {
@@ -17,7 +16,6 @@ export default function RootLayout() {
 	return (
 		<SafeAreaProvider style={{ flex: 1, backgroundColor: 'transparent' }}>
 			<View style={{ flex: 1 }}>
-				<FullAppBackground />
 				<AuthProvider>
 					<ThemeProvider value={TransparentTheme}>
 						<Slot />
