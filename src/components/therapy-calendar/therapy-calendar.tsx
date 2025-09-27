@@ -160,9 +160,5 @@ const styles = StyleSheet.create({
 	},
 	buttonAtBottom: {
 		paddingTop: 10,
-		// position: 'absolute',
-		// bottom: 0,
-		// left: 0,
-		// right: 0,
 	},
 });

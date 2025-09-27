@@ -1,12 +1,9 @@
-// app/_layout.tsx
 import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AuthProvider, useAuth } from '../src/auth/AuthContext';
 import { OnboardingProvider, useOnboarding } from '../src/context/OnboardingContext';
 import { TherapySessionsProvider } from '../src/context/TherapySessionsContext';
-import { View } from 'react-native';
 
 function Gate() {
 	const { user, hydrated } = useAuth();

@@ -111,10 +111,10 @@ export default function ReminderScreen() {
 		}
 	}
 
-	const handleTimingSelection = (timingId: string) => {
-		setSelectedTiming(timingId);
-		setError(null);
-	};
+	// const handleTimingSelection = (timingId: string) => {
+	// 	setSelectedTiming(timingId);
+	// 	setError(null);
+	// };
 
 	if (loading) {
 		return <Loading />;

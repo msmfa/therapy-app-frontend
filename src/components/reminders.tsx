@@ -5,7 +5,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, useNavigation } from 'expo-router';
 
 import { useNotes } from '../../src/hooks/useNotes';
-import { useAuth } from '../context/AuthContext';
 import { getTherapySessions, TherapySession } from '../../src/api/therapy';
 import { InfoBlock } from '../../src/components/infoBlock';
 
@@ -13,6 +12,7 @@ import dayjs from 'dayjs';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { Button } from '../../src/components/button';
+import { useAuth } from '../auth/AuthContext';
 
 dayjs.extend(advancedFormat);
 dayjs.extend(relativeTime);

@@ -1,7 +1,6 @@
 import React from 'react';
 
 import TherapyCalendar from '../../src/components/therapy-calendar/therapy-calendar';
-import { View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CalendarScreen() {

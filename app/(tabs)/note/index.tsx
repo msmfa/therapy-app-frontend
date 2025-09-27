@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useHeaderHeight } from '@react-navigation/elements';
 import { useRouter } from 'expo-router';
 
-const TOP_OVERLAY = 48; // visual fade height at top, same as Notes screen
 // new screen
 export default function NewNoteScreen() {
 	const router = useRouter();
-	const headerHeight = useHeaderHeight();
 
 	const [text, setText] = useState('');
 	const [error, setError] = useState<string | null>(null);

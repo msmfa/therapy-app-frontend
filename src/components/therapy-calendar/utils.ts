@@ -89,39 +89,3 @@ export function formatTimeForHumanReadableDisplay(dateObjectContainingTime: Date
 
 	return formattedTimeString;
 }
-
-/**
- * Gets the name of the day of the week from a date string
- * Example: "2024-03-15" returns "Friday"
- */
-export function getDayOfWeekNameFromDateString(dateInYYYYMMDDFormat: string): string {
-	const allDayNamesInOrderStartingFromSunday = [
-		'Sunday', // 0
-		'Monday', // 1
-		'Tuesday', // 2
-		'Wednesday', // 3
-		'Thursday', // 4
-		'Friday', // 5
-		'Saturday', // 6
-	];
-
-	// Parse the date string
-	const [yearFromString, monthFromStringStartingAt1, dayOfMonthFromString] = dateInYYYYMMDDFormat
-		.split('-')
-		.map(Number);
-
-	// Create Date object (remember to subtract 1 from month)
-	const dateObjectFromParsedString = new Date(
-		yearFromString,
-		monthFromStringStartingAt1 - 1,
-		dayOfMonthFromString,
-	);
-
-	// Get day of week as number (0-6)
-	const dayOfWeekAsNumberFrom0To6 = dateObjectFromParsedString.getDay();
-
-	// Use the number to get the day name from our array
-	const dayNameForThisDate = allDayNamesInOrderStartingFromSunday[dayOfWeekAsNumberFrom0To6];
-
-	return dayNameForThisDate;
-}
