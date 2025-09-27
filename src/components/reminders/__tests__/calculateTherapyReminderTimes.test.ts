@@ -171,18 +171,6 @@ describe('calculateTherapyReminderTimes', () => {
 			expect(reminders).toHaveLength(0);
 		});
 
-		it('handles invalid reminder hour gracefully', () => {
-			const lastSession = new Date('2024-01-15T14:00:00');
-			const nextSession = new Date('2024-01-19T14:00:00');
-
-			// Test with invalid hours
-			const reminders1 = calculateTherapyReminderTimes(lastSession, nextSession, 25);
-			const reminders2 = calculateTherapyReminderTimes(lastSession, nextSession, -1);
-
-			// Should either throw error or default to valid hour
-			// Depends on your implementation
-		});
-
 		it('handles sessions crossing daylight saving time', () => {
 			// Spring forward (lose an hour) - March 10, 2024
 			const lastSession = new Date('2024-03-09T14:00:00');
