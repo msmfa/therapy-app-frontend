@@ -12,7 +12,7 @@ export default function SuccessScreen() {
 		await finishOnboarding();
 		// Navigation will be handled automatically by the Stack.Protected guards
 		// The app will redirect to (tabs) once hasOnboarded becomes true
-		router.replace('/(tabs)/notes');
+		router.push('/(tabs)/notes');
 	};
 
 	return (

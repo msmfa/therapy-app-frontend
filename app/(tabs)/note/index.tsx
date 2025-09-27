@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useHeaderHeight } from '@react-navigation/elements';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { PINK_CLEAR, PINK_SOLID } from '../../../src/const';
 
 const TOP_OVERLAY = 48; // visual fade height at top, same as Notes screen
 // new screen
@@ -52,13 +50,6 @@ export default function NewNoteScreen() {
 			</View>
 
 			{/* Fixed pink overlay at the very top; purely visual under the transparent header */}
-			<LinearGradient
-				pointerEvents="none"
-				colors={[PINK_SOLID, PINK_CLEAR]}
-				start={{ x: 0, y: 0 }}
-				end={{ x: 0, y: 1 }}
-				style={[styles.topOverlay, { height: headerHeight + TOP_OVERLAY }]}
-			/>
 		</SafeAreaView>
 	);
 }

@@ -68,7 +68,7 @@ export default function NotesScreen() {
 				</View>
 			</View>
 
-			<Pressable style={styles.createButton} onPress={() => router.push('/(tabs)/note/new')}>
+			<Pressable style={styles.createButton} onPress={() => router.push('/(tabs)/note')}>
 				<Text style={styles.createButtonText}>Create your first note</Text>
 			</Pressable>
 		</View>
