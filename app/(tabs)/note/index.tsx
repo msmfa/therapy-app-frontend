@@ -21,7 +21,8 @@ export default function NewNoteScreen() {
 		}
 		setError(null);
 		// pass the text to the reminder picker (step 2)
-		router.push({ pathname: '/(tabs)/note/reminder', params: { text: value } });
+
+		router.push({ pathname: '/(tabs)/notes' });
 	}
 
 	return (

@@ -17,6 +17,7 @@ import { NextSessionCard } from '../../../src/components/reminders/next-session-
 import { TimingOptions } from '../../../src/components/reminders/timing-card';
 import { getNextSession } from '../../../src/utils/sessions';
 import ScienceBackedCard from '../../../src/components/reminders/science-backed-card';
+import Loading from '../../../src/components/loading';
 
 dayjs.extend(advancedFormat);
 dayjs.extend(relativeTime);
@@ -223,7 +224,7 @@ export default function ReminderScreen() {
 	};
 
 	if (loading) {
-		return <View>Loading</View>;
+		return <Loading />;
 	}
 
 	const sessionInterval = getSessionInterval();
