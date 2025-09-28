@@ -14,7 +14,7 @@ Notifications.setNotificationHandler({
 });
 
 // todo: add this
-export async function initNotifications() {
+export default async function initNotifications() {
     if (Platform.OS === 'android') {
         await Notifications.setNotificationChannelAsync('default', {
             name: 'Default',

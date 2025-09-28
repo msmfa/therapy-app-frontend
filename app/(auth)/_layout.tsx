@@ -7,6 +7,7 @@ export default function AuthLayout() {
     const { hydrated, isAuthenticated } = useAuth();
     if (!hydrated) return null;
     if (isAuthenticated) return <Redirect href="/" />;
+
     return (
         <Stack screenOptions={ { headerShown: false } }>
             <Stack.Screen name="login" />

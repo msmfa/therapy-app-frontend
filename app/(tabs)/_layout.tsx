@@ -30,7 +30,6 @@ export default function TabsLayout() {
                 tabBarShowLabel: false,
             } }
         >
-            { /* 1) New Note (your 3-step flow in /(tabs)/note) */ }
             <Tabs.Screen
                 name="note"
                 options={ {
@@ -42,7 +41,7 @@ export default function TabsLayout() {
                 } }
             />
 
-            { /* 2) Calendar */ }
+
             <Tabs.Screen
                 name="calendar"
                 options={ {
@@ -57,8 +56,6 @@ export default function TabsLayout() {
                     ),
                 } }
             />
-
-            { /* 3) Notes list */ }
             <Tabs.Screen
                 name="notes"
                 options={ {
@@ -68,8 +65,6 @@ export default function TabsLayout() {
                     ),
                 } }
             />
-
-            { /* 4) Settings */ }
             <Tabs.Screen
                 name="settings"
                 options={ {

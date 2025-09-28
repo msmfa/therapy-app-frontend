@@ -1,31 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { useNotes } from '../../../src/hooks/useNotes';
 
-// new screen
 export default function NewNoteScreen() {
     const router = useRouter();
-
+    const { addNote } = useNotes();
     const [text, setText] = useState('');
     const [error, setError] = useState<string | null>(null);
 
-    function goNext() {
+    const handleNext = useCallback(async () => {
         const value = text.trim();
         if (!value) {
             setError('Please enter a message');
             return;
         }
-        setError(null);
-        // pass the text to the reminder picker (step 2)
 
-        router.push({ pathname: '/(tabs)/notes' });
-    }
+        try {
+            await addNote(value);
+            setText('');
+            setError(null);
+            router.replace('/(tabs)/notes');
+        } catch (err) {
+            console.error('addNote failed', err);
+            setError('Unable to save note right now.');
+        }
+    }, [addNote, router, text]);
+
+    const isDisabled = text.trim().length === 0;
 
     return (
         <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom'] }>
             <View style={ styles.fillCenter }>
-                { /* Card-style input area matching your border + transparency */ }
                 <View style={ [styles.card, styles.inputCentered] }>
                     <TextInput
                         placeholder="Thoughts?"
@@ -42,21 +49,21 @@ export default function NewNoteScreen() {
 
                 { error ? <Text style={ styles.error }>{ error }</Text> : null }
 
-                <Pressable onPress={ goNext } style={ styles.primaryBtn } accessibilityRole="button">
+                <Pressable
+                    onPress={ handleNext }
+                    style={ [styles.primaryBtn, isDisabled && styles.primaryBtnDisabled] }
+                    accessibilityRole="button"
+                    disabled={ isDisabled }
+                >
                     <Text style={ styles.primaryBtnText }>Next</Text>
                 </Pressable>
             </View>
-
-            { /* Fixed pink overlay at the very top; purely visual under the transparent header */ }
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-    // keep the same root/background approach as your Notes screen
     root: { flex: 1, backgroundColor: 'transparent' },
-
-    // centers the content similarly to your previous new-note layout
     fillCenter: {
         flex: 1,
         justifyContent: 'center',
@@ -64,8 +71,6 @@ const styles = StyleSheet.create({
         padding: 16,
         gap: 12,
     },
-
-    // reuse your card look (border + transparent bg)
     card: {
         padding: 12,
         borderRadius: 10,
@@ -73,28 +78,25 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#E9BFCB',
     },
-
     inputCentered: { width: '90%', maxWidth: 560 },
-
-    // text input area — top-aligned placeholder/content
     textInput: {
         minHeight: 140,
         paddingTop: 12,
         paddingBottom: 12,
-        paddingHorizontal: 0, // padding handled by card
+        paddingHorizontal: 0,
         fontSize: 16,
         lineHeight: 22,
         textAlignVertical: 'top',
     },
-
     error: { color: 'red', textAlign: 'center' },
-
-    // keep button styling consistent with prior screens you shared
     primaryBtn: {
         backgroundColor: '#111',
         borderRadius: 8,
         paddingVertical: 12,
         paddingHorizontal: 16,
+    },
+    primaryBtnDisabled: {
+        opacity: 0.5,
     },
     primaryBtnText: { color: '#fff', fontWeight: '700' },
 });

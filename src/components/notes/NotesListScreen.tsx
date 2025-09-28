@@ -26,8 +26,6 @@ const colors = {
     primaryBtn: '#111',
 };
 
-
-
 interface NotesListScreenProps {
 	notes: Note[];
 	loading: boolean;
@@ -37,7 +35,6 @@ interface NotesListScreenProps {
 export default function NotesListScreen({ notes, loading, refresh }: NotesListScreenProps) {
     const router = useRouter();
     const headerHeight = useHeaderHeight();
-
     const nominal = 600;
     const bottomStart = Math.max(0, 1 - BOTTOM_FADE / nominal);
 

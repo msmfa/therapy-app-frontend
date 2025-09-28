@@ -1,13 +1,13 @@
 import { BASE_URL } from "../const";
 
 
-export type TherapySessionSyncPayload = {
+type TherapySessionSyncPayload = {
     id?: string;
     startsAtUtc: string;
     durationMin?: number;
 };
 
-export type TherapySessionSyncResult = {
+type TherapySessionSyncResult = {
     created: number;
     updated: number;
     deleted: number;

@@ -13,7 +13,6 @@ function Gate() {
         return null;
     }
 
-
     return (
         <Stack screenOptions={ { headerShown: false } }>
             <Stack.Protected guard={ !user }>
@@ -22,9 +21,6 @@ function Gate() {
             <Stack.Protected guard={ Boolean(user) && !hasOnboarded }>
                 <Stack.Screen name="(onboarding)" />
             </Stack.Protected>
-            { /* <Stack.Protected guard={ Boolean(user) && hasOnboarded }>
-                <Stack.Screen name="(tabs)" />
-            </Stack.Protected> */ }
             <Stack.Protected guard={ Boolean(user) && hasOnboarded }>
                 <Stack.Screen name="index" />
             </Stack.Protected>
