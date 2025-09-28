@@ -2,6 +2,7 @@ import dayjs from 'dayjs';
 
 const REMINDER_SCHEDULE: Record<number, number[]> = {
     // 1-2 days gap
+    0: [0],
     1: [0],
     2: [0],
 
@@ -49,13 +50,17 @@ export function calculateTherapyReminderTimes(
     reminderHour = 20,
 ): Date[] {
     const daysBetween = dayjs(nextSession).diff(lastSession, 'day');
+    console.log("nextSession", nextSession)
+    console.log("lastSession", lastSession)
+
+    console.log("daysBetween", daysBetween)
 
     // Only handle 1-31 days
     if (daysBetween > 31) return [];
 
     const scheduledDays = REMINDER_SCHEDULE[daysBetween];
     if (!scheduledDays) return [];
-
+    console.log("scheduledDays", scheduledDays)
     const reminderTimes = scheduledDays.map((day) =>
         day === 0
             ? dayjs(lastSession).add(1, 'hour').toDate()

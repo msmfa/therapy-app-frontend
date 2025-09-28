@@ -35,7 +35,6 @@ interface NotesListScreenProps {
 }
 
 export default function NotesListScreen({ notes, loading, refresh }: NotesListScreenProps) {
-    console.log('notes', notes);
     const router = useRouter();
     const headerHeight = useHeaderHeight();
 

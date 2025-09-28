@@ -5,26 +5,41 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 // import { useTherapySessions } from '../../src/context/TherapySessionsContext';
 import ReminderOptionCard from '../../src/components/reminders/reminder-card';
+import { useTherapySessions } from '../../src/context/TherapySessionsContext';
+import { calculateTherapyReminderTimes } from '../../src/components/reminders/reminder-schedule-algo';
+import dayjs from 'dayjs'
 
 enum ReminderType {
 	Custom = 'custom',
 	ScienceBacked = 'science-backed',
 }
 
+
 export default function RemindersScreen() {
     const [reminderType, setReminderType] = useState<ReminderType>(ReminderType.ScienceBacked);
     const router = useRouter();
-    // const { sessions } = useTherapySessions();
+    const { sessions } = useTherapySessions();
+    const defaultTimeForReminders = 20; // 8:00 PM
+    const today = new Date();
 
-    // Get the next upcoming session
-    // const nextSession = useMemo(() => {
-    //     const now = new Date();
-    //     const upcomingSessions = sessions
-    //         .filter((session) => new Date(session.startsAtUtc) > now)
-    //         .sort((a, b) => new Date(a.startsAtUtc).getTime() - new Date(b.startsAtUtc).getTime());
 
-    //     return upcomingSessions.length > 0 ? new Date(upcomingSessions[0].startsAtUtc) : null;
-    // }, [sessions]);
+    const dates = sessions.map(session => session.startsAtUtc);
+    const nextSession = dates[0];
+    console.log("dates", dates);
+
+    // const daysBetween = dayjs(sessionAfterNextSession).diff(dayjs(nextSession), 'day');
+
+    const therapyReminderTime = calculateTherapyReminderTimes(new Date(dates[0]), new Date(dates[1]), defaultTimeForReminders);
+    console.log("test!", therapyReminderTime);
+
+    if (!nextSession) return null;
+
+    const nextSessionText = `Your next session is in ${dayjs(nextSession).diff(dayjs(today), 'day')} day(s). At the end of your session we'll send you a note to remind you to log your insights.`;
+
+    // we will have no notes to show them until their next session so actually we don/t need to do anything.
+    // instead we will show a message saying your next session is in 1 day. At the end of your session we'll send you a note
+    // to remind you to log your insights.  this will be start at + duration?
+
 
     const handleNext = () => {
         // You can save the reminder preference here
@@ -35,9 +50,20 @@ export default function RemindersScreen() {
         <SafeAreaView style={ styles.container }>
             <ScrollView style={ styles.scrollContent }>
                 <View style={ styles.header }>
-                    <Text style={ styles.title }>Pick Reminder Type</Text>
-                    <Text style={ styles.subtitle }>How would you like to be reminded?</Text>
+                    <Text style={ styles.title }>Your reminders</Text>
+                    <Text style={ styles.subtitle }>
+                        We place reminders at specific points between your therapy sessions. This schedule is based on a combination of memory science, neuroplasticity research, and psychotherapy studies.
+                    </Text>
+                    <Pressable onPress={ () => router.push('/(onboarding)/why-reminders') }>
+                        <Text style={ { color: '#007AFF', marginTop: 8 } }>Read more about the science behind your reminders here</Text>
+                    </Pressable>
+
+                    <Text style={ styles.subtitle }>
+                        Based on your therapy schedule the best schedule is as follow:
+                    </Text>
                 </View>
+
+
 
                 <View style={ styles.options }>
                     <ReminderOptionCard
@@ -51,11 +77,13 @@ export default function RemindersScreen() {
                             'Mid-week - Reinforce when memory fades',
                             'Day before - Prepare for next session',
                         ] }
-                        badge="RECOMMENDED"
-                        recommendedStyle={ true }
                     />
 
-                    <ReminderOptionCard
+                    <Text style={ styles.subtitle }>
+                        { nextSessionText }
+                    </Text>
+
+                    { /* <ReminderOptionCard
                         isSelected={ reminderType === ReminderType.Custom }
                         onPress={ () => setReminderType(ReminderType.Custom) }
                         icon="📅"
@@ -66,7 +94,7 @@ export default function RemindersScreen() {
                             'Set one-time or recurring reminders',
                             'Full flexibility over your schedule',
                         ] }
-                    />
+                    /> */ }
                 </View>
             </ScrollView>
 
@@ -132,3 +160,15 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
 });
+
+export type TherapySessionSyncPayload = {
+    id?: string;
+    startsAtUtc: string;
+    durationMin?: number;
+};
+
+export type TherapySessionSyncResult = {
+    created: number;
+    updated: number;
+    deleted: number;
+};

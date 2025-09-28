@@ -1,164 +1,190 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { View, Alert, StyleSheet } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { InfoBlock } from '../infoBlock';
 import { Button } from '../button';
 import ScheduleModal from './schedule-modal';
 
+type SelectedSessions = Record<string, Date>;
+type ScheduleMode = 'single' | 'weekly_pattern';
+
 interface TherapyCalendarProps {
-	buttonAtBottom?: boolean;
-	onSave: (sessions: { [date: string]: Date }) => void;
+    initialSessions: SelectedSessions;
+    buttonAtBottom?: boolean;
+    onSave: (sessions: SelectedSessions) => void;
 }
 
-export default function TherapyCalendar({ buttonAtBottom, onSave }: TherapyCalendarProps) {
-	const [selectedSessions, setSelectedSessions] = useState<{ [date: string]: Date }>({});
-	const [selectedDate, setSelectedDate] = useState<string | null>(null);
-	const [showModal, setShowModal] = useState(false);
+const WEEKLY_REPEAT_COUNT = 8;
+const DEFAULT_TIME = new Date(2024, 0, 1, 9, 0, 0);
 
-	const markedDates = useMemo(() => {
-		const marks: any = {};
-		Object.keys(selectedSessions).forEach((date) => {
-			marks[date] = { marked: true, selected: selectedDate === date };
-		});
-		if (selectedDate && !marks[selectedDate]) {
-			marks[selectedDate] = { selected: true };
-		}
-		return marks;
-	}, [selectedSessions, selectedDate]);
+const formatDateKey = (date: Date) =>
+    `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
-	const handleDayPress = (day: any) => {
-		setSelectedDate(day.dateString);
-		setShowModal(true);
-	};
+const createDateFromKey = (dateKey: string) => {
+    const [year, month, day] = dateKey.split('-').map(Number);
+    return new Date(year, month - 1, day);
+};
 
-	const handleSchedule = (mode: string, time: Date) => {
-		if (!selectedDate) return;
+export default function TherapyCalendar({ buttonAtBottom, onSave, initialSessions }: TherapyCalendarProps) {
+    const [selectedSessions, setSelectedSessions] = useState<SelectedSessions>({});
+    const [activeDateKey, setActiveDateKey] = useState<string | null>(null);
+    const [isModalVisible, setIsModalVisible] = useState(false);
 
-		const sessions = { ...selectedSessions };
+    useEffect(() => {
+        if (initialSessions) {
+            setSelectedSessions(initialSessions);
+        }
+    }, [initialSessions]);
 
-		if (mode === 'single') {
-			const [year, month, day] = selectedDate.split('-').map(Number);
-			const dateTime = new Date(year, month - 1, day);
-			dateTime.setHours(time.getHours(), time.getMinutes());
-			sessions[selectedDate] = dateTime;
-		} else {
-			// Weekly pattern - add 8 weeks
-			const [year, month, day] = selectedDate.split('-').map(Number);
-			const startDate = new Date(year, month - 1, day);
+    const markedDates = useMemo(() => {
+        return Object.keys(selectedSessions).reduce<Record<string, { marked: true; selected: boolean }>>(
+            (acc, dateKey) => {
+                acc[dateKey] = { marked: true, selected: activeDateKey === dateKey };
+                return acc;
+            },
+            activeDateKey && !selectedSessions[activeDateKey]
+                ? { [activeDateKey]: { marked: true, selected: true } }
+                : {},
+        );
+    }, [selectedSessions, activeDateKey]);
 
-			for (let i = 0; i < 8; i++) {
-				const date = new Date(startDate);
-				date.setDate(date.getDate() + i * 7);
-				date.setHours(time.getHours(), time.getMinutes());
+    const openModalForDate = useCallback((dateKey: string) => {
+        setActiveDateKey(dateKey);
+        setIsModalVisible(true);
+    }, []);
 
-				const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-				sessions[dateString] = date;
-			}
-		}
+    const closeModal = useCallback(() => {
+        setIsModalVisible(false);
+        setActiveDateKey(null);
+    }, []);
 
-		setSelectedSessions(sessions);
-		setShowModal(false);
-		setSelectedDate(null);
-	};
+    const handleDayPress = useCallback(
+        (day: { dateString: string }) => {
+            openModalForDate(day.dateString);
+        },
+        [openModalForDate],
+    );
 
-	const handleDelete = () => {
-		if (!selectedDate) return;
-		const sessions = { ...selectedSessions };
-		delete sessions[selectedDate];
-		setSelectedSessions(sessions);
-		setShowModal(false);
-		setSelectedDate(null);
-	};
+    const applySession = useCallback(
+        (mode: ScheduleMode, time: Date) => {
+            if (!activeDateKey) return;
 
-	const handleSave = () => {
-		const count = Object.keys(selectedSessions).length;
-		if (count === 0) {
-			Alert.alert('No Sessions', 'Please add at least one session');
-			return;
-		}
-		onSave(selectedSessions);
-	};
+            setSelectedSessions((prev) => {
+                const next: SelectedSessions = { ...prev };
 
-	const sessionCount = Object.keys(selectedSessions).length;
+                const applyTimeToDate = (dateKey: string, baseDate: Date) => {
+                    const sessionDate = new Date(baseDate);
+                    sessionDate.setHours(time.getHours(), time.getMinutes(), 0, 0);
+                    next[dateKey] = sessionDate;
+                };
 
-	return (
-  <>
-    <View style={ styles.container }>
-      <Calendar
-        onDayPress={ handleDayPress }
-        markedDates={ markedDates }
-        markingType={ 'dot' }
-        hideExtraDays
-        minDate={ new Date().toISOString().split('T')[0] }
-				/>
-      <InfoBlock
-        text={ `${sessionCount} sessions selected. Tap dates to add sessions, then save.` }
-        icon="💡"
-				/>
-      <View style={ styles.buttons }>
-        <Button
-          label="Clear All"
-          onPress={ () => setSelectedSessions({}) }
-          disabled={ sessionCount === 0 }
-					/>
+                if (mode === 'single') {
+                    const baseDate = createDateFromKey(activeDateKey);
+                    applyTimeToDate(activeDateKey, baseDate);
+                } else if (mode === 'weekly_pattern') {
+                    const startDate = createDateFromKey(activeDateKey);
+                    for (let index = 0; index < WEEKLY_REPEAT_COUNT; index += 1) {
+                        const date = new Date(startDate);
+                        date.setDate(startDate.getDate() + index * 7);
+                        const dateKey = formatDateKey(date);
+                        applyTimeToDate(dateKey, date);
+                    }
+                }
 
-        { !buttonAtBottom && (
-        <Button
-          label={ `Save (${sessionCount})` }
-          onPress={ handleSave }
-          disabled={ sessionCount === 0 }
-						/>
-					) }
-      </View>
+                return next;
+            });
 
-      { buttonAtBottom && (
-      <View style={ styles.buttonAtBottom }>
-        <Button
-          label={ `Add Sessions` }
-          onPress={ handleSave }
-          disabled={ sessionCount === 0 }
-						/>
-      </View>
-				) }
-    </View>
+            closeModal();
+        },
+        [activeDateKey, closeModal],
+    );
 
-    { selectedDate && (
-    <ScheduleModal
-      visible={ showModal }
-      selectedDate={ selectedDate }
-      existingSession={
-						selectedSessions[selectedDate]
-							? {
-									id: selectedDate,
-									date: selectedDate,
-									time: selectedSessions[selectedDate],
-								}
-							: null
-					}
-      defaultTime={ new Date() }
-      onConfirm={ handleSchedule }
-      onDelete={ handleDelete }
-      onCancel={ () => {
-						setShowModal(false);
-						setSelectedDate(null);
-					} }
-				/>
-			) }
-  </>
-	);
+    const handleDelete = useCallback(() => {
+        if (!activeDateKey) return;
+        setSelectedSessions((prev) => {
+            const next = { ...prev };
+            delete next[activeDateKey];
+            return next;
+        });
+        closeModal();
+    }, [activeDateKey, closeModal]);
+
+    const handleSave = useCallback(() => {
+        const count = Object.keys(selectedSessions).length;
+        if (count === 0) {
+            Alert.alert('No Sessions', 'Please add at least one session');
+            return;
+        }
+        onSave(selectedSessions);
+    }, [onSave, selectedSessions]);
+
+    const sessionCount = Object.keys(selectedSessions).length;
+
+    return (
+        <>
+            <View style={styles.container}>
+                <Calendar
+                    onDayPress={handleDayPress}
+                    markedDates={markedDates}
+                    markingType="dot"
+                    hideExtraDays
+                    minDate={formatDateKey(new Date())}
+                />
+
+                <InfoBlock
+                    text={`${sessionCount} sessions selected. Tap dates to add sessions, then save.`}
+                    icon="💡"
+                />
+
+                <View style={styles.buttons}>
+                    <Button label="Clear All" onPress={() => setSelectedSessions({})} disabled={sessionCount === 0} />
+
+                    {!buttonAtBottom && (
+                        <Button label={`Save (${sessionCount})`} onPress={handleSave} disabled={sessionCount === 0} />
+                    )}
+                </View>
+
+                {buttonAtBottom && (
+                    <View style={styles.buttonAtBottom}>
+                        <Button label="Add Sessions" onPress={handleSave} disabled={sessionCount === 0} />
+                    </View>
+                )}
+            </View>
+
+            {isModalVisible && activeDateKey && (
+                <ScheduleModal
+                    visible={isModalVisible}
+                    selectedDate={activeDateKey}
+                    existingSession={
+                        selectedSessions[activeDateKey]
+                            ? {
+                                    id: activeDateKey,
+                                    date: activeDateKey,
+                                    time: selectedSessions[activeDateKey],
+                                }
+                            : null
+                    }
+                    defaultTime={DEFAULT_TIME}
+                    onConfirm={applySession}
+                    onDelete={handleDelete}
+                    onCancel={closeModal}
+                />
+            )}
+        </>
+    );
 }
 
 const styles = StyleSheet.create({
-	container: {
-		height: '100%',
-		position: 'relative',
-	},
-	buttons: {
-		// flexDirection: 'row',
-		// padding: 10,
-		// gap: 10,
-	},
-	buttonAtBottom: {
-		paddingTop: 10,
-	},
+    container: {
+        height: '100%',
+        position: 'relative',
+    },
+    buttons: {
+        // flexDirection: 'row',
+        // padding: 10,
+        // gap: 10,
+    },
+    buttonAtBottom: {
+        paddingTop: 10,
+    },
 });

@@ -3,7 +3,7 @@ import { Tabs, Redirect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../src/auth/AuthContext';
 
-export function TabsLayout() {
+export default function TabsLayout() {
     const { hydrated, isAuthenticated } = useAuth();
 
     if (!hydrated) return null;

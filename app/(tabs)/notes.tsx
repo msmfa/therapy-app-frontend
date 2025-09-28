@@ -5,14 +5,11 @@ import NotesListScreen from '../../src/components/notes/NotesListScreen';
 
 export default function NotesScreen() {
     const { notes, loading, refresh } = useNotes();
-    console.log('notes', notes);
 
     // Clean conditional render
     if (notes.length === 0) {
         return <EmptyNotesScreen />;
     }
-
-    console.log('notes', notes);
 
     return <NotesListScreen notes={ notes } loading={ loading } refresh={ refresh } />;
 }

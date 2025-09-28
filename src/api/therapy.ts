@@ -1,5 +1,18 @@
 import { BASE_URL } from "../const";
 
+
+export type TherapySessionSyncPayload = {
+    id?: string;
+    startsAtUtc: string;
+    durationMin?: number;
+};
+
+export type TherapySessionSyncResult = {
+    created: number;
+    updated: number;
+    deleted: number;
+};
+
 // src/api/therapy.ts
 export type TherapySession = {
 	_id: string;
@@ -36,6 +49,7 @@ export async function createTherapySession(
     startsAt: Date,
     durationMin?: number,
 ): Promise<TherapySession> {
+    console.log(startsAt.toISOString(), 'test1');
     const res = await fetch(`${BASE_URL}/api/therapy-sessions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -50,12 +64,36 @@ export async function getTherapySessions(
     from: Date,
     to: Date,
 ): Promise<TherapySession[]> {
-    const qs = new URLSearchParams({ from: from.toISOString(), to: to.toISOString() });
+    // Convert to UTC start of day for 'from'
+    const fromUTC = new Date(Date.UTC(
+        from.getUTCFullYear(),
+        from.getUTCMonth(),
+        from.getUTCDate(),
+        0, 0, 0, 0
+    ));
+
+    // Convert to UTC end of day for 'to'
+    const toUTC = new Date(Date.UTC(
+        to.getUTCFullYear(),
+        to.getUTCMonth(),
+        to.getUTCDate(),
+        23, 59, 59, 999
+    ));
+
+    const qs = new URLSearchParams({
+        from: fromUTC.toISOString(),
+        to: toUTC.toISOString()
+    });
+
     const res = await fetch(`${BASE_URL}/api/therapy-sessions?${qs}`, {
         headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) throw new Error(await res.text());
-    return (await res.json()) as TherapySession[];
+    const response = await res.json() as TherapySession[];
+
+    // console.log("Fetched therapy sessions:", response);
+
+    return response;
 }
 
 export async function deleteTherapySession(token: string, id: string): Promise<void> {
@@ -64,4 +102,20 @@ export async function deleteTherapySession(token: string, id: string): Promise<v
         headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) throw new Error(await res.text());
+}
+
+export async function syncTherapySessions(
+    token: string,
+    payload: TherapySessionSyncPayload[],
+): Promise<TherapySessionSyncResult> {
+    const res = await fetch(`${BASE_URL}/api/therapy-sessions/sync`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ sessions: payload }),
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return (await res.json()) as TherapySessionSyncResult;
 }

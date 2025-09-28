@@ -8,7 +8,6 @@ interface ReminderOptionCardProps {
 	title: string;
 	description: string;
 	options: string[];
-	badge?: string;
 	recommendedStyle?: boolean;
 }
 
@@ -19,7 +18,6 @@ export default function ReminderOptionCard({
     title,
     description,
     options,
-    badge,
 }: ReminderOptionCardProps) {
     return (
         <Pressable onPress={ onPress } style={ [styles.card, isSelected && styles.cardRecommended] }>
@@ -30,7 +28,6 @@ export default function ReminderOptionCard({
                         <Text style={ [styles.label, isSelected && styles.labelActive] }>
                             { title }
                         </Text>
-                        { badge && <Text style={ styles.badge }>{ badge }</Text> }
                     </View>
                     <Text style={ [styles.description, isSelected && styles.descriptionActive] }>
                         { description }
@@ -88,16 +85,6 @@ const styles = StyleSheet.create({
     },
     labelActive: {
         color: '#111',
-    },
-    badge: {
-        fontSize: 10,
-        color: '#0066cc',
-        backgroundColor: '#e8f4fd',
-        paddingHorizontal: 6,
-        paddingVertical: 2,
-        borderRadius: 4,
-        fontWeight: '700',
-        textTransform: 'uppercase',
     },
     description: {
         fontSize: 14,

@@ -1,4 +1,3 @@
-// app/signup.tsx
 import React, { useState } from 'react';
 import {
     View,
@@ -18,9 +17,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { BASE_URL } from '../../src/const';
 import { RegisterError, RegisterSuccess } from '../../src/api/signup';
 
-// usage
-//   const data = await json<SignupResponse>(signupRes);
-// Password validation rules
 const validatePassword = (password: string) => {
     const errors = [];
     if (password.length < 8) errors.push('At least 8 characters');
@@ -31,7 +27,7 @@ const validatePassword = (password: string) => {
     return errors;
 };
 
-// Email validation
+
 const validateEmail = (email: string) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email.toLowerCase());
@@ -41,13 +37,10 @@ export default function SignUpScreen() {
     const router = useRouter();
     const { setAuth } = useAuth();
 
-    // Form state
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [name, setName] = useState('');
-
-    // UI state
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -55,7 +48,7 @@ export default function SignUpScreen() {
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
 
-    // Validate form on change
+
     const validateForm = () => {
         const newErrors: Record<string, string> = {};
 
@@ -110,14 +103,11 @@ export default function SignUpScreen() {
             });
 
             if (signupRes.ok) {
-                // success shape
                 const { token, user } = (await signupRes.json()) as unknown as RegisterSuccess;
                 await setAuth(token, user);
-                // router.replace("/onboarding/welcome");
                 return;
             }
 
-            // error shape
             const { error } = (await signupRes.json()) as unknown as RegisterError;
             throw new Error(error ?? "Signup failed");
         } catch (e) {
@@ -163,7 +153,6 @@ export default function SignUpScreen() {
                         </View>
                     </View>
 
-                    { /* Email */ }
                     <View>
                         <Text style={ styles.label }>Email</Text>
                         <TextInput
@@ -182,7 +171,6 @@ export default function SignUpScreen() {
                         { errors.email && <Text style={ styles.errorText }>{ errors.email }</Text> }
                     </View>
 
-                    { /* Password */ }
                     <View>
                         <Text style={ styles.label }>Password</Text>
                         <View style={ styles.passwordRow }>
@@ -213,7 +201,6 @@ export default function SignUpScreen() {
                             </TouchableOpacity>
                         </View>
 
-                        { /* Password requirements */ }
                         { password.length > 0 && (
                             <View style={ styles.requirements }>
                                 { [
@@ -248,7 +235,6 @@ export default function SignUpScreen() {
                         ) }
                     </View>
 
-                    { /* Confirm Password */ }
                     <View>
                         <Text style={ styles.label }>Confirm Password</Text>
                         <View style={ styles.passwordRow }>
@@ -280,7 +266,6 @@ export default function SignUpScreen() {
                         ) }
                     </View>
 
-                    { /* Terms */ }
                     <TouchableOpacity
                         onPress={ () => setAcceptedTerms(!acceptedTerms) }
                         style={ styles.termsRow }
@@ -299,7 +284,6 @@ export default function SignUpScreen() {
                     </TouchableOpacity>
                     { errors.terms && <Text style={ styles.errorText }>{ errors.terms }</Text> }
 
-                    { /* Submit */ }
                     <TouchableOpacity
                         disabled={ loading }
                         onPress={ onSubmit }
@@ -312,7 +296,6 @@ export default function SignUpScreen() {
                         ) }
                     </TouchableOpacity>
 
-                    { /* Footer */ }
                     <View style={ styles.footer }>
                         <Text style={ styles.footerText }>Already have an account?</Text>
                         <TouchableOpacity onPress={ () => router.replace('/login') }>
