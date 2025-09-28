@@ -14,10 +14,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/auth/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
+import { BASE_URL } from '../../src/const';
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
-
-export function LoginScreen() {
+export default function LoginScreen() {
 	const router = useRouter();
 	const { setAuth, signOut, isAuthenticated, user } = useAuth();
 
@@ -55,117 +54,117 @@ export function LoginScreen() {
 	};
 
 	return (
-		<SafeAreaView style={styles.root}>
-			<KeyboardAvoidingView
-				behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-				style={styles.kav}
+  <SafeAreaView style={ styles.root }>
+    <KeyboardAvoidingView
+      behavior={ Platform.OS === 'ios' ? 'padding' : undefined }
+      style={ styles.kav }
 			>
-				<View style={styles.card}>
-					<Text style={styles.title}>Welcome back</Text>
-					<Text style={styles.subtitle}>Sign in to continue</Text>
+      <View style={ styles.card }>
+        <Text style={ styles.title }>Welcome back</Text>
+        <Text style={ styles.subtitle }>Sign in to continue</Text>
 
-					{isAuthenticated ? (
-						<>
-							<View style={styles.authenticatedContainer}>
-								<Text style={styles.authenticatedText}>Signed in as</Text>
-								<Text style={styles.userEmail}>{user?.email}</Text>
-							</View>
+        { isAuthenticated ? (
+          <>
+            <View style={ styles.authenticatedContainer }>
+              <Text style={ styles.authenticatedText }>Signed in as</Text>
+              <Text style={ styles.userEmail }>{ user?.email }</Text>
+            </View>
 
-							<TouchableOpacity
-								onPress={() => router.replace('/')}
-								style={styles.button}
+            <TouchableOpacity
+              onPress={ () => router.replace('/') }
+              style={ styles.button }
 							>
-								<Text style={styles.buttonText}>Go to Home</Text>
-							</TouchableOpacity>
+              <Text style={ styles.buttonText }>Go to Home</Text>
+            </TouchableOpacity>
 
-							<TouchableOpacity
-								onPress={onLogout}
-								style={[styles.buttonOutline, { marginTop: 8 }]}
+            <TouchableOpacity
+              onPress={ onLogout }
+              style={ [styles.buttonOutline, { marginTop: 8 }] }
 							>
-								<Text style={styles.buttonOutlineText}>Log out</Text>
-							</TouchableOpacity>
-						</>
+              <Text style={ styles.buttonOutlineText }>Log out</Text>
+            </TouchableOpacity>
+          </>
 					) : (
-						<>
-							<View style={styles.formContainer}>
-								<View style={styles.inputGroup}>
-									<Text style={styles.label}>Email</Text>
-									<TextInput
-										value={email}
-										onChangeText={setEmail}
-										autoCapitalize="none"
-										autoCorrect={false}
-										keyboardType="email-address"
-										placeholder="you@example.com"
-										style={styles.input}
-										textContentType="username"
+  <>
+    <View style={ styles.formContainer }>
+      <View style={ styles.inputGroup }>
+        <Text style={ styles.label }>Email</Text>
+        <TextInput
+          value={ email }
+          onChangeText={ setEmail }
+          autoCapitalize="none"
+          autoCorrect={ false }
+          keyboardType="email-address"
+          placeholder="you@example.com"
+          style={ styles.input }
+          textContentType="username"
 									/>
-								</View>
+      </View>
 
-								<View style={styles.inputGroup}>
-									<Text style={styles.label}>Password</Text>
-									<View style={styles.passwordRow}>
-										<TextInput
-											value={password}
-											onChangeText={setPassword}
-											secureTextEntry={!showPw}
-											placeholder="••••••••"
-											style={[styles.input, styles.passwordInput]}
-											textContentType="password"
+      <View style={ styles.inputGroup }>
+        <Text style={ styles.label }>Password</Text>
+        <View style={ styles.passwordRow }>
+          <TextInput
+            value={ password }
+            onChangeText={ setPassword }
+            secureTextEntry={ !showPw }
+            placeholder="••••••••"
+            style={ [styles.input, styles.passwordInput] }
+            textContentType="password"
 										/>
-										<TouchableOpacity
-											onPress={() => setShowPw(!showPw)}
-											style={styles.eyeButton}
+          <TouchableOpacity
+            onPress={ () => setShowPw(!showPw) }
+            style={ styles.eyeButton }
 										>
-											<Ionicons
-												name={showPw ? 'eye-off' : 'eye'}
-												size={20}
-												color="#666"
+            <Ionicons
+              name={ showPw ? 'eye-off' : 'eye' }
+              size={ 20 }
+              color="#666"
 											/>
-										</TouchableOpacity>
-									</View>
-								</View>
+          </TouchableOpacity>
+        </View>
+      </View>
 
-								{/* Forgot Password Link */}
-								<TouchableOpacity
-									onPress={() => router.push('/forgot-password')}
-									style={styles.forgotPassword}
+      { /* Forgot Password Link */ }
+      <TouchableOpacity
+        onPress={ () => router.push('/forgot-password') }
+        style={ styles.forgotPassword }
 								>
-									<Text style={styles.forgotPasswordText}>Forgot password?</Text>
-								</TouchableOpacity>
+        <Text style={ styles.forgotPasswordText }>Forgot password?</Text>
+      </TouchableOpacity>
 
-								<TouchableOpacity
-									disabled={loading}
-									onPress={onSubmit}
-									style={[styles.button, loading && styles.buttonDisabled]}
+      <TouchableOpacity
+        disabled={ loading }
+        onPress={ onSubmit }
+        style={ [styles.button, loading && styles.buttonDisabled] }
 								>
-									{loading ? (
-										<ActivityIndicator color="white" />
+        { loading ? (
+          <ActivityIndicator color="white" />
 									) : (
-										<Text style={styles.buttonText}>Sign in</Text>
-									)}
-								</TouchableOpacity>
+  <Text style={ styles.buttonText }>Sign in</Text>
+									) }
+      </TouchableOpacity>
 
-								{/* Divider */}
-								<View style={styles.dividerContainer}>
-									<View style={styles.divider} />
-									<Text style={styles.dividerText}>OR</Text>
-									<View style={styles.divider} />
-								</View>
+      { /* Divider */ }
+      <View style={ styles.dividerContainer }>
+        <View style={ styles.divider } />
+        <Text style={ styles.dividerText }>OR</Text>
+        <View style={ styles.divider } />
+      </View>
 
-								{/* Sign Up Button */}
-								<TouchableOpacity
-									onPress={() => router.push('/signup')}
-									style={styles.buttonOutline}
+      { /* Sign Up Button */ }
+      <TouchableOpacity
+        onPress={ () => router.push('/signup') }
+        style={ styles.buttonOutline }
 								>
-									<Text style={styles.buttonOutlineText}>Create New Account</Text>
-								</TouchableOpacity>
-							</View>
-						</>
-					)}
-				</View>
-			</KeyboardAvoidingView>
-		</SafeAreaView>
+        <Text style={ styles.buttonOutlineText }>Create New Account</Text>
+      </TouchableOpacity>
+    </View>
+  </>
+					) }
+      </View>
+    </KeyboardAvoidingView>
+  </SafeAreaView>
 	);
 }
 

@@ -4,105 +4,97 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
 // new screen
-export function NewNoteScreen() {
-	const router = useRouter();
+export default function NewNoteScreen() {
+    const router = useRouter();
 
-	const [text, setText] = useState('');
-	const [error, setError] = useState<string | null>(null);
+    const [text, setText] = useState('');
+    const [error, setError] = useState<string | null>(null);
 
-	function goNext() {
-		const value = text.trim();
-		if (!value) {
-			setError('Please enter a message');
-			return;
-		}
-		setError(null);
-		// pass the text to the reminder picker (step 2)
+    function goNext() {
+        const value = text.trim();
+        if (!value) {
+            setError('Please enter a message');
+            return;
+        }
+        setError(null);
+        // pass the text to the reminder picker (step 2)
 
-		router.push({ pathname: '/(tabs)/notes' });
-	}
+        router.push({ pathname: '/(tabs)/notes' });
+    }
 
-	return (
-		<SafeAreaView style={styles.root} edges={['left', 'right', 'bottom']}>
-			<View style={styles.fillCenter}>
-				{/* Card-style input area matching your border + transparency */}
-				<View style={[styles.card, styles.inputCentered]}>
-					<TextInput
-						placeholder="Thoughts?"
-						value={text}
-						onChangeText={setText}
-						multiline
-						numberOfLines={6}
-						underlineColorAndroid="transparent"
-						style={styles.textInput}
-						placeholderTextColor="#A97C8C"
-						selectionColor="#9E3D5E"
-					/>
-				</View>
+    return (
+        <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom'] }>
+            <View style={ styles.fillCenter }>
+                { /* Card-style input area matching your border + transparency */ }
+                <View style={ [styles.card, styles.inputCentered] }>
+                    <TextInput
+                        placeholder="Thoughts?"
+                        value={ text }
+                        onChangeText={ setText }
+                        multiline
+                        numberOfLines={ 6 }
+                        underlineColorAndroid="transparent"
+                        style={ styles.textInput }
+                        placeholderTextColor="#A97C8C"
+                        selectionColor="#9E3D5E"
+                    />
+                </View>
 
-				{error ? <Text style={styles.error}>{error}</Text> : null}
+                { error ? <Text style={ styles.error }>{ error }</Text> : null }
 
-				<Pressable onPress={goNext} style={styles.primaryBtn} accessibilityRole="button">
-					<Text style={styles.primaryBtnText}>Next</Text>
-				</Pressable>
-			</View>
+                <Pressable onPress={ goNext } style={ styles.primaryBtn } accessibilityRole="button">
+                    <Text style={ styles.primaryBtnText }>Next</Text>
+                </Pressable>
+            </View>
 
-			{/* Fixed pink overlay at the very top; purely visual under the transparent header */}
-		</SafeAreaView>
-	);
+            { /* Fixed pink overlay at the very top; purely visual under the transparent header */ }
+        </SafeAreaView>
+    );
 }
 
 const styles = StyleSheet.create({
-	// keep the same root/background approach as your Notes screen
-	root: { flex: 1, backgroundColor: 'transparent' },
+    // keep the same root/background approach as your Notes screen
+    root: { flex: 1, backgroundColor: 'transparent' },
 
-	// centers the content similarly to your previous new-note layout
-	fillCenter: {
-		flex: 1,
-		justifyContent: 'center',
-		alignItems: 'center',
-		padding: 16,
-		gap: 12,
-	},
+    // centers the content similarly to your previous new-note layout
+    fillCenter: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 16,
+        gap: 12,
+    },
 
-	// reuse your card look (border + transparent bg)
-	card: {
-		padding: 12,
-		borderRadius: 10,
-		backgroundColor: 'transparent',
-		borderWidth: 1,
-		borderColor: '#E9BFCB',
-	},
+    // reuse your card look (border + transparent bg)
+    card: {
+        padding: 12,
+        borderRadius: 10,
+        backgroundColor: 'transparent',
+        borderWidth: 1,
+        borderColor: '#E9BFCB',
+    },
 
-	inputCentered: { width: '90%', maxWidth: 560 },
+    inputCentered: { width: '90%', maxWidth: 560 },
 
-	// text input area — top-aligned placeholder/content
-	textInput: {
-		minHeight: 140,
-		paddingTop: 12,
-		paddingBottom: 12,
-		paddingHorizontal: 0, // padding handled by card
-		fontSize: 16,
-		lineHeight: 22,
-		textAlignVertical: 'top',
-	},
+    // text input area — top-aligned placeholder/content
+    textInput: {
+        minHeight: 140,
+        paddingTop: 12,
+        paddingBottom: 12,
+        paddingHorizontal: 0, // padding handled by card
+        fontSize: 16,
+        lineHeight: 22,
+        textAlignVertical: 'top',
+    },
 
-	error: { color: 'red', textAlign: 'center' },
+    error: { color: 'red', textAlign: 'center' },
 
-	// keep button styling consistent with prior screens you shared
-	primaryBtn: {
-		backgroundColor: '#111',
-		borderRadius: 8,
-		paddingVertical: 12,
-		paddingHorizontal: 16,
-	},
-	primaryBtnText: { color: '#fff', fontWeight: '700' },
-
-	// same overlay key as Notes screen
-	topOverlay: {
-		position: 'absolute',
-		left: 0,
-		right: 0,
-		top: 0,
-	},
+    // keep button styling consistent with prior screens you shared
+    primaryBtn: {
+        backgroundColor: '#111',
+        borderRadius: 8,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+    },
+    primaryBtnText: { color: '#fff', fontWeight: '700' },
 });

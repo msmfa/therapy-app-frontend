@@ -82,51 +82,51 @@ export default function TherapyCalendar({ buttonAtBottom, onSave }: TherapyCalen
 	const sessionCount = Object.keys(selectedSessions).length;
 
 	return (
-		<>
-			<View style={styles.container}>
-				<Calendar
-					onDayPress={handleDayPress}
-					markedDates={markedDates}
-					markingType={'dot'}
-					hideExtraDays
-					minDate={new Date().toISOString().split('T')[0]}
+  <>
+    <View style={ styles.container }>
+      <Calendar
+        onDayPress={ handleDayPress }
+        markedDates={ markedDates }
+        markingType={ 'dot' }
+        hideExtraDays
+        minDate={ new Date().toISOString().split('T')[0] }
 				/>
-				<InfoBlock
-					text={`${sessionCount} sessions selected. Tap dates to add sessions, then save.`}
-					icon="💡"
+      <InfoBlock
+        text={ `${sessionCount} sessions selected. Tap dates to add sessions, then save.` }
+        icon="💡"
 				/>
-				<View style={styles.buttons}>
-					<Button
-						label="Clear All"
-						onPress={() => setSelectedSessions({})}
-						disabled={sessionCount === 0}
+      <View style={ styles.buttons }>
+        <Button
+          label="Clear All"
+          onPress={ () => setSelectedSessions({}) }
+          disabled={ sessionCount === 0 }
 					/>
 
-					{!buttonAtBottom && (
-						<Button
-							label={`Save (${sessionCount})`}
-							onPress={handleSave}
-							disabled={sessionCount === 0}
+        { !buttonAtBottom && (
+        <Button
+          label={ `Save (${sessionCount})` }
+          onPress={ handleSave }
+          disabled={ sessionCount === 0 }
 						/>
-					)}
-				</View>
+					) }
+      </View>
 
-				{buttonAtBottom && (
-					<View style={styles.buttonAtBottom}>
-						<Button
-							label={`Add Sessions`}
-							onPress={handleSave}
-							disabled={sessionCount === 0}
+      { buttonAtBottom && (
+      <View style={ styles.buttonAtBottom }>
+        <Button
+          label={ `Add Sessions` }
+          onPress={ handleSave }
+          disabled={ sessionCount === 0 }
 						/>
-					</View>
-				)}
-			</View>
+      </View>
+				) }
+    </View>
 
-			{selectedDate && (
-				<ScheduleModal
-					visible={showModal}
-					selectedDate={selectedDate}
-					existingSession={
+    { selectedDate && (
+    <ScheduleModal
+      visible={ showModal }
+      selectedDate={ selectedDate }
+      existingSession={
 						selectedSessions[selectedDate]
 							? {
 									id: selectedDate,
@@ -135,16 +135,16 @@ export default function TherapyCalendar({ buttonAtBottom, onSave }: TherapyCalen
 								}
 							: null
 					}
-					defaultTime={new Date()}
-					onConfirm={handleSchedule}
-					onDelete={handleDelete}
-					onCancel={() => {
+      defaultTime={ new Date() }
+      onConfirm={ handleSchedule }
+      onDelete={ handleDelete }
+      onCancel={ () => {
 						setShowModal(false);
 						setSelectedDate(null);
-					}}
+					} }
 				/>
-			)}
-		</>
+			) }
+  </>
 	);
 }
 

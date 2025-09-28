@@ -15,187 +15,188 @@ import { getNextSession } from '../../../src/utils/sessions';
 import ScienceBackedCard from '../../../src/components/reminders/science-backed-card';
 import Loading from '../../../src/components/loading';
 import {
-	getSavedPreference,
-	calculateReminderTime,
-	savePreference,
-	getSessionInterval,
+    getSavedPreference,
+    calculateReminderTime,
+    savePreference,
+    getSessionInterval,
 } from '../../../src/components/reminders/utils';
 import { REMINDER_TIMINGS } from '../../../src/const';
+import { handleError } from '../../../src/utils/utils';
 
 dayjs.extend(advancedFormat);
 dayjs.extend(relativeTime);
 
-export function ReminderScreen() {
-	const router = useRouter();
-	const navigation = useNavigation();
-	const { text } = useLocalSearchParams<{ text?: string }>();
-	const { addNoteWithReminder } = useNotes();
-	const { token } = useAuth();
+export default function ReminderScreen() {
+    const router = useRouter();
+    const navigation = useNavigation();
+    const { text } = useLocalSearchParams<{ text?: string }>();
+    const { addNoteWithReminder } = useNotes();
+    const { token } = useAuth();
 
-	const [loading, setLoading] = useState(true);
-	const [nextSessionDate, setNextSessionDate] = useState<Date | null>(null);
-	const [selectedTiming, setSelectedTiming] = useState<string>('smart-pattern');
-	const [savedPreference, setSavedPreference] = useState<string>('smart-pattern');
-	const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [nextSessionDate, setNextSessionDate] = useState<Date | null>(null);
+    const [selectedTiming, setSelectedTiming] = useState<string>('smart-pattern');
+    const [savedPreference, setSavedPreference] = useState<string>('smart-pattern');
+    const [error, setError] = useState<string | null>(null);
 
-	useLayoutEffect(() => {
-		navigation.setOptions({
-			headerTitle: '',
-			headerTransparent: true,
-			headerBackTitleVisible: false,
-		});
-	}, [navigation]);
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            headerTitle: '',
+            headerTransparent: true,
+            headerBackTitleVisible: false,
+        });
+    }, [navigation]);
 
-	useEffect(() => {
-		let alive = true;
-		(async () => {
-			if (!token) return;
+    useEffect(() => {
+        let alive = true;
+        (async () => {
+            if (!token) return;
 
-			try {
-				const [session, preference] = await Promise.all([
-					getNextSession(token),
-					getSavedPreference(),
-				]);
+            try {
+                const [session, preference] = await Promise.all([
+                    getNextSession(token),
+                    getSavedPreference(),
+                ]);
 
-				if (alive) {
-					setNextSessionDate(session);
-					setSelectedTiming(preference);
-					setSavedPreference(preference);
-					setLoading(false);
-				}
-			} catch (err) {
-				if (alive) {
-					setError('Failed to load session data');
-					setLoading(false);
-				}
-			}
-		})();
-		return () => {
-			alive = false;
-		};
-	}, [token]);
+                if (alive) {
+                    setNextSessionDate(session);
+                    setSelectedTiming(preference);
+                    setSavedPreference(preference);
+                    setLoading(false);
+                }
+            } catch (err) {
+                if (alive) {
+                    setError(`Failed to load session data: ${handleError(err)}`);
+                    setLoading(false);
+                }
+            }
+        })();
+        return () => {
+            alive = false;
+        };
+    }, [token]);
 
-	async function onSave() {
-		if (!text || !text.trim()) {
-			setError('Missing note text');
-			return;
-		}
+    async function onSave() {
+        if (!text || !text.trim()) {
+            setError('Missing note text');
+            return;
+        }
 
-		const reminderData = calculateReminderTime(
-			selectedTiming,
-			nextSessionDate,
-			REMINDER_TIMINGS,
-		);
-		if (!reminderData) {
-			setError('Could not calculate reminder time');
-			return;
-		}
+        const reminderData = calculateReminderTime(
+            selectedTiming,
+            nextSessionDate,
+            REMINDER_TIMINGS,
+        );
+        if (!reminderData) {
+            setError('Could not calculate reminder time');
+            return;
+        }
 
-		setError(null);
-		try {
-			if (Array.isArray(reminderData)) {
-				const primaryReminder = reminderData[1] || reminderData[0];
-				await addNoteWithReminder(text.trim(), primaryReminder.time);
-				console.log('Multi-reminder pattern selected:', reminderData);
-			} else {
-				await addNoteWithReminder(text.trim(), reminderData);
-			}
+        setError(null);
+        try {
+            if (Array.isArray(reminderData)) {
+                const primaryReminder = reminderData[1] || reminderData[0];
+                await addNoteWithReminder(text.trim(), primaryReminder.time);
+                console.log('Multi-reminder pattern selected:', reminderData);
+            } else {
+                await addNoteWithReminder(text.trim(), reminderData);
+            }
 
-			if (selectedTiming !== savedPreference) {
-				await savePreference(selectedTiming);
-			}
+            if (selectedTiming !== savedPreference) {
+                await savePreference(selectedTiming);
+            }
 
-			router.replace('/(tabs)/note/success');
-		} catch (err) {
-			setError('Failed to save reminder. Please try again.');
-		}
-	}
+            router.replace('/(tabs)/note/success');
+        } catch (err: unknown) {
+            setError(`Failed to save reminder: ${handleError(err)}`);
+        }
+    }
 
-	// const handleTimingSelection = (timingId: string) => {
-	// 	setSelectedTiming(timingId);
-	// 	setError(null);
-	// };
+    // const handleTimingSelection = (timingId: string) => {
+    // 	setSelectedTiming(timingId);
+    // 	setError(null);
+    // };
 
-	if (loading) {
-		return <Loading />;
-	}
+    if (loading) {
+        return <Loading />;
+    }
 
-	if (!nextSessionDate) return null;
+    if (!nextSessionDate) return null;
 
-	const sessionInterval = getSessionInterval(nextSessionDate);
-	const infoBlockText =
+    const sessionInterval = getSessionInterval(nextSessionDate);
+    const infoBlockText =
 		'Research shows daily practice between sessions strengthens neural pathways and improves outcomes';
-	const reminderText = 'When to remind you?';
-	const reminderSubtext = 'Choose reminder timing';
+    const reminderText = 'When to remind you?';
+    const reminderSubtext = 'Choose reminder timing';
 
-	return (
-		<SafeAreaView style={styles.root} edges={['left', 'right', 'bottom']}>
-			<ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-				<View style={styles.contentWrapper}>
-					<Text style={styles.title}>{reminderText}</Text>
-					<NextSessionCard
-						timestamp={dayjs(nextSessionDate).format('ddd, MMM D [at] h:mm A')}
-						sessionInterval={sessionInterval}
-					/>
-					<Text style={styles.sectionTitle}>{reminderSubtext}</Text>
-					<InfoBlock text={infoBlockText} icon={'💡'} />
-					<View style={styles.timingOptions}>
-						<ScienceBackedCard
-							isSelected={false}
-							nextSession={nextSessionDate}
-							onPress={() => {
-								throw new Error('Function not implemented.');
-							}}
-						/>
-					</View>
-					{error && <Text style={styles.error}>{error}</Text>}
-					<View style={styles.buttonsContainer}>
-						<Button label="Cancel" onPress={() => router.back()} />
-						<Button label="Add" onPress={onSave} />
-					</View>
-				</View>
-			</ScrollView>
-		</SafeAreaView>
-	);
+    return (
+        <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom'] }>
+            <ScrollView style={ styles.container } showsVerticalScrollIndicator={ false }>
+                <View style={ styles.contentWrapper }>
+                    <Text style={ styles.title }>{ reminderText }</Text>
+                    <NextSessionCard
+                        timestamp={ dayjs(nextSessionDate).format('ddd, MMM D [at] h:mm A') }
+                        sessionInterval={ sessionInterval }
+                    />
+                    <Text style={ styles.sectionTitle }>{ reminderSubtext }</Text>
+                    <InfoBlock text={ infoBlockText } icon={ '💡' } />
+                    <View style={ styles.timingOptions }>
+                        <ScienceBackedCard
+                            isSelected={ false }
+                            nextSession={ nextSessionDate }
+                            onPress={ () => {
+                                throw new Error('Function not implemented.');
+                            } }
+                        />
+                    </View>
+                    { error && <Text style={ styles.error }>{ error }</Text> }
+                    <View style={ styles.buttonsContainer }>
+                        <Button label="Cancel" onPress={ () => router.back() } />
+                        <Button label="Add" onPress={ onSave } />
+                    </View>
+                </View>
+            </ScrollView>
+        </SafeAreaView>
+    );
 }
 
 const styles = StyleSheet.create({
-	root: {
-		flex: 1,
-		backgroundColor: 'transparent',
-	},
-	container: {
-		flex: 1,
-	},
-	contentWrapper: {
-		paddingTop: 100,
-		paddingHorizontal: 20,
-		paddingBottom: 40,
-	},
-	title: {
-		fontSize: 28,
-		fontWeight: '700',
-		marginBottom: 8,
-	},
-	sectionTitle: {
-		fontSize: 18,
-		fontWeight: '600',
-		marginBottom: 12,
-		color: '#111',
-	},
-	timingOptions: {
-		marginBottom: 24,
-	},
-	buttonsContainer: {
-		width: '100%',
-		flexDirection: 'row',
-		marginTop: 8,
-	},
-	error: {
-		color: '#dc3545',
-		textAlign: 'center',
-		marginBottom: 16,
-		fontSize: 14,
-		fontWeight: '500',
-	},
+    root: {
+        flex: 1,
+        backgroundColor: 'transparent',
+    },
+    container: {
+        flex: 1,
+    },
+    contentWrapper: {
+        paddingTop: 100,
+        paddingHorizontal: 20,
+        paddingBottom: 40,
+    },
+    title: {
+        fontSize: 28,
+        fontWeight: '700',
+        marginBottom: 8,
+    },
+    sectionTitle: {
+        fontSize: 18,
+        fontWeight: '600',
+        marginBottom: 12,
+        color: '#111',
+    },
+    timingOptions: {
+        marginBottom: 24,
+    },
+    buttonsContainer: {
+        width: '100%',
+        flexDirection: 'row',
+        marginTop: 8,
+    },
+    error: {
+        color: '#dc3545',
+        textAlign: 'center',
+        marginBottom: 16,
+        fontSize: 14,
+        fontWeight: '500',
+    },
 });

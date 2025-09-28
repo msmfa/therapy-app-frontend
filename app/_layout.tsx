@@ -6,40 +6,40 @@ import { OnboardingProvider, useOnboarding } from '../src/context/OnboardingCont
 import { TherapySessionsProvider } from '../src/context/TherapySessionsContext';
 
 function Gate() {
-	const { user, hydrated } = useAuth();
-	const { hasOnboarded } = useOnboarding();
+    const { user, hydrated } = useAuth();
+    const { hasOnboarded } = useOnboarding();
 
-	if (!hydrated) {
-		return null;
-	}
-	return (
-		<Stack screenOptions={{ headerShown: false }}>
-			<Stack.Protected guard={!user}>
-				<Stack.Screen name="(auth)" />
-			</Stack.Protected>
-			<Stack.Protected guard={Boolean(user) && !hasOnboarded}>
-				<Stack.Screen name="(onboarding)" />
-			</Stack.Protected>
-			<Stack.Protected guard={Boolean(user) && hasOnboarded}>
+    if (!hydrated) {
+        return null;
+    }
+    return (
+        <Stack screenOptions={ { headerShown: false } }>
+            <Stack.Protected guard={ !user }>
+                <Stack.Screen name="(auth)" />
+            </Stack.Protected>
+            <Stack.Protected guard={ Boolean(user) && !hasOnboarded }>
+                <Stack.Screen name="(onboarding)" />
+            </Stack.Protected>
+            { /* <Stack.Protected guard={Boolean(user) && hasOnboarded}>
 				<Stack.Screen name="(tabs)" />
-				<Stack.Protected guard={true}>
-					<Stack.Screen name="index" />
-				</Stack.Protected>
-			</Stack.Protected>
-		</Stack>
-	);
+			</Stack.Protected> */ }
+            <Stack.Protected guard={ true }>
+                <Stack.Screen name="index" />
+            </Stack.Protected>
+        </Stack>
+    );
 }
 
-export function RootLayout() {
-	return (
-		<AuthProvider>
-			<TherapySessionsProvider>
-				<OnboardingProvider>
-					<SafeAreaProvider>
-						<Gate />
-					</SafeAreaProvider>
-				</OnboardingProvider>
-			</TherapySessionsProvider>
-		</AuthProvider>
-	);
+export default function RootLayout() {
+    return (
+        <AuthProvider>
+            <TherapySessionsProvider>
+                <OnboardingProvider>
+                    <SafeAreaProvider>
+                        <Gate />
+                    </SafeAreaProvider>
+                </OnboardingProvider>
+            </TherapySessionsProvider>
+        </AuthProvider>
+    );
 }

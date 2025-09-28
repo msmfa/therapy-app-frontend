@@ -97,133 +97,133 @@ export default function ScheduleModal({
 	if (!visible) return null;
 
 	return (
-		<Modal visible={visible} transparent animationType="slide" onRequestClose={onCancel}>
-			<View style={styles.modalOverlay}>
-				<TouchableOpacity
-					style={styles.modalBackdrop}
-					activeOpacity={1}
-					onPress={onCancel}
+  <Modal visible={ visible } transparent animationType="slide" onRequestClose={ onCancel }>
+    <View style={ styles.modalOverlay }>
+      <TouchableOpacity
+        style={ styles.modalBackdrop }
+        activeOpacity={ 1 }
+        onPress={ onCancel }
 				/>
 
-				<View style={styles.modalContent}>
-					<Text style={styles.modalTitle}>
-						{isEdit ? 'Edit Session' : 'Schedule Session'}
-					</Text>
-					<Text style={styles.modalDate}>{formatDate(selectedDate)}</Text>
+      <View style={ styles.modalContent }>
+        <Text style={ styles.modalTitle }>
+          { isEdit ? 'Edit Session' : 'Schedule Session' }
+        </Text>
+        <Text style={ styles.modalDate }>{ formatDate(selectedDate) }</Text>
 
-					<View style={styles.section}>
-						<Text style={styles.label}>Session Time</Text>
-						{Platform.OS === 'ios' ? (
-							<DateTimePicker
-								value={time}
-								mode="time"
-								display="spinner"
-								onChange={handleTimeChange}
+        <View style={ styles.section }>
+          <Text style={ styles.label }>Session Time</Text>
+          { Platform.OS === 'ios' ? (
+            <DateTimePicker
+              value={ time }
+              mode="time"
+              display="spinner"
+              onChange={ handleTimeChange }
 							/>
 						) : (
-							<>
-								<TouchableOpacity
-									style={styles.timeButton}
-									onPress={() => setShowPicker(true)}
+  <>
+    <TouchableOpacity
+      style={ styles.timeButton }
+      onPress={ () => setShowPicker(true) }
 								>
-									<Ionicons name="time-outline" size={20} />
-									<Text>{formatTime(time)}</Text>
-								</TouchableOpacity>
+      <Ionicons name="time-outline" size={ 20 } />
+      <Text>{ formatTime(time) }</Text>
+    </TouchableOpacity>
 
-								{showPicker && (
-									<DateTimePicker
-										value={time}
-										mode="time"
-										display="default"
-										onChange={handleTimeChange}
+    { showPicker && (
+    <DateTimePicker
+      value={ time }
+      mode="time"
+      display="default"
+      onChange={ handleTimeChange }
 									/>
-								)}
-							</>
-						)}
-					</View>
+								) }
+  </>
+						) }
+        </View>
 
-					{!isEdit && selectedDate && (
-						<>
-							<Text style={styles.label}>Apply To</Text>
-							<View style={styles.radioGroup}>
-								<TouchableOpacity
-									style={[
+        { !isEdit && selectedDate && (
+        <>
+          <Text style={ styles.label }>Apply To</Text>
+          <View style={ styles.radioGroup }>
+            <TouchableOpacity
+              style={ [
 										styles.radioOption,
 										scheduleMode === 'weekly_pattern' && styles.radioSelected,
-									]}
-									onPress={() => setScheduleMode('weekly_pattern')}
+									] }
+              onPress={ () => setScheduleMode('weekly_pattern') }
 								>
-									<View style={styles.radio}>
-										{scheduleMode === 'weekly_pattern' && (
-											<View style={styles.radioDot} />
-										)}
-									</View>
-									<View>
-										<Text>Every week</Text>
-										<Text style={styles.subtext}>
-											Schedule every {getSelectedDayName()} for the next 2
-											months
-										</Text>
-									</View>
-								</TouchableOpacity>
+              <View style={ styles.radio }>
+                { scheduleMode === 'weekly_pattern' && (
+                <View style={ styles.radioDot } />
+										) }
+              </View>
+              <View>
+                <Text>Every week</Text>
+                <Text style={ styles.subtext }>
+                  Schedule every { getSelectedDayName() } for the next 2
+                  months
+        </Text>
+              </View>
+            </TouchableOpacity>
 
-								<TouchableOpacity
-									style={[
+            <TouchableOpacity
+              style={ [
 										styles.radioOption,
 										scheduleMode === 'single' && styles.radioSelected,
-									]}
-									onPress={() => setScheduleMode('single')}
+									] }
+              onPress={ () => setScheduleMode('single') }
 								>
-									<View style={styles.radio}>
-										{scheduleMode === 'single' && (
-											<View style={styles.radioDot} />
-										)}
-									</View>
-									<View>
-										<Text>This day only</Text>
-										<Text style={styles.subtext}>
-											Schedule just for selected date
-										</Text>
-									</View>
-								</TouchableOpacity>
-							</View>
+              <View style={ styles.radio }>
+                { scheduleMode === 'single' && (
+                <View style={ styles.radioDot } />
+										) }
+              </View>
+              <View>
+                <Text>This day only</Text>
+                <Text style={ styles.subtext }>
+                  Schedule just for selected date
+        </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
 
-							{scheduleMode === 'weekly_pattern' && (
-								<View style={styles.infoBox}>
-									<InfoBlock
-										text={`This will create sessions every ${getSelectedDayName()} at ${formatTime(time)} for the next two months`}
-										icon={'!'}
+          { scheduleMode === 'weekly_pattern' && (
+          <View style={ styles.infoBox }>
+            <InfoBlock
+              text={ `This will create sessions every ${getSelectedDayName()} at ${formatTime(time)} for the next two months` }
+              icon={ '!' }
 									/>
-								</View>
-							)}
-						</>
-					)}
+          </View>
+							) }
+        </>
+					) }
 
-					<View style={styles.buttonRow}>
-						{isEdit && (
-							<TouchableOpacity
-								style={[styles.button, styles.deleteButton]}
-								onPress={onDelete}
+        <View style={ styles.buttonRow }>
+          { isEdit && (
+          <TouchableOpacity
+            style={ [styles.button, styles.deleteButton] }
+            onPress={ onDelete }
 							>
-								<Ionicons name="trash-outline" size={18} />
-								<Text>Delete</Text>
-							</TouchableOpacity>
-						)}
+            <Ionicons name="trash-outline" size={ 18 } />
+            <Text>Delete</Text>
+          </TouchableOpacity>
+						) }
 
-						<TouchableOpacity style={styles.button} onPress={onCancel}>
-							<Text>Cancel</Text>
-						</TouchableOpacity>
+          <TouchableOpacity style={ styles.button } onPress={ onCancel }>
+            <Text>Cancel</Text>
+          </TouchableOpacity>
 
-						<TouchableOpacity
-							style={[styles.button, styles.primaryButton]}
-							onPress={handleConfirm}
+          <TouchableOpacity
+            style={ [styles.button, styles.primaryButton] }
+            onPress={ handleConfirm }
 						>
-							<Text style={styles.primaryText}>{isEdit ? 'Update' : 'Schedule'}</Text>
-						</TouchableOpacity>
-					</View>
-				</View>
-			</View>
-		</Modal>
+            <Text style={ styles.primaryText }>{ isEdit ? 'Update' : 'Schedule' }</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  </Modal>
 	);
 }
 

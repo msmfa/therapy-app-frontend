@@ -9,25 +9,25 @@ type Note = {
 	text: string;
 };
 
-export function NoteContainer({ createdAt, text }: Note) {
-	const d = dayjs(createdAt).format('ddd Do'); // "wed 14th"
+export default function NoteContainer({ createdAt, text }: Note) {
+    const d = dayjs(createdAt).format('ddd Do'); // "wed 14th"
 
-	return (
-		<View style={styles.card}>
-			<Text style={styles.date}>{d}</Text>
-			<Text style={styles.text}>{text}</Text>
-		</View>
-	);
+    return (
+        <View style={ styles.card }>
+            <Text style={ styles.date }>{ d }</Text>
+            <Text style={ styles.text }>{ text }</Text>
+        </View>
+    );
 }
 
 const styles = StyleSheet.create({
-	card: {
-		padding: 12,
-		borderRadius: 10,
-		backgroundColor: 'transparent',
-		borderWidth: 1,
-		borderColor: '#E9BFCB',
-	},
-	date: { fontSize: 12, opacity: 0.7, marginBottom: 6 },
-	text: { fontSize: 16, lineHeight: 22 },
+    card: {
+        padding: 12,
+        borderRadius: 10,
+        backgroundColor: 'transparent',
+        borderWidth: 1,
+        borderColor: '#E9BFCB',
+    },
+    date: { fontSize: 12, opacity: 0.7, marginBottom: 6 },
+    text: { fontSize: 16, lineHeight: 22 },
 });

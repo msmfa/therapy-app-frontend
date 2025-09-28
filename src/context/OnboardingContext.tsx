@@ -55,11 +55,11 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
 	};
 
 	return (
-		<OnboardingContext.Provider
-			value={{ hydrated, hasOnboarded, finishOnboarding, resetOnboarding }}
+  <OnboardingContext.Provider
+    value={ { hydrated, hasOnboarded, finishOnboarding, resetOnboarding } }
 		>
-			{children}
-		</OnboardingContext.Provider>
+    { children }
+  </OnboardingContext.Provider>
 	);
 }
 
