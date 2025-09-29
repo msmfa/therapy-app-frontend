@@ -15,7 +15,11 @@ const STORAGE_KEY = '@session_notes_v1';
 
 const sortNotes = (items: Note[]) => [...items].sort((a, b) => b.createdAt - a.createdAt);
 
-export function useNotes(storageKey: string = STORAGE_KEY) {
+export function useNotes(userId: string | undefined) {
+    const storageKey = React.useMemo(
+        () => (userId ? `${STORAGE_KEY}:${userId}` : STORAGE_KEY),
+        [userId],
+    );
     const [notes, setNotes] = React.useState<Note[]>([]);
     const [loading, setLoading] = React.useState<boolean>(true);
     const [error, setError] = React.useState<string | null>(null);
@@ -47,6 +51,11 @@ export function useNotes(storageKey: string = STORAGE_KEY) {
         } finally {
             setLoading(false);
         }
+    }, [storageKey]);
+
+    React.useEffect(() => {
+        setNotes([]);
+        setError(null);
     }, [storageKey]);
 
     React.useEffect(() => {

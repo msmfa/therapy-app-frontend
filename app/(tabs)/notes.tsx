@@ -2,13 +2,12 @@ import React from 'react';
 import { useNotes } from '../../src/hooks/useNotes';
 import EmptyNotesScreen from '../../src/components/notes/EmptyNotesScreen';
 import NotesListScreen from '../../src/components/notes/NotesListScreen';
+import { useAuth } from '../../src/auth/AuthContext';
 
 export default function NotesScreen() {
-    const { notes, loading, refresh } = useNotes();
+    const { user } = useAuth();
+    const { notes, loading, refresh } = useNotes(user?.id);
 
-    console.log("NotesScreen render:", notes, "loading:", loading);
-
-    // Clean conditional render
     if (notes.length === 0) {
         return <EmptyNotesScreen />;
     }
