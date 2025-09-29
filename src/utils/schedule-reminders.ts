@@ -6,15 +6,25 @@ import { SchedulableTriggerInputTypes } from 'expo-notifications';
 Notifications.setNotificationHandler({
     handleNotification: async (): Promise<Notifications.NotificationBehavior> => ({
         shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: false,
         shouldShowBanner: true,
         shouldShowList: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
     }),
 });
 
-// todo: add this
-export default async function initNotifications() {
+export async function ensureNotificationPermissions(): Promise<boolean> {
+    if (!Device.isDevice) return false;
+
+    let { status } = await Notifications.getPermissionsAsync();
+    if (status !== 'granted') {
+        const request = await Notifications.requestPermissionsAsync();
+        status = request.status;
+    }
+    return status === 'granted';
+}
+
+export async function initNotifications(): Promise<void> {
     if (Platform.OS === 'android') {
         await Notifications.setNotificationChannelAsync('default', {
             name: 'Default',
@@ -23,12 +33,8 @@ export default async function initNotifications() {
         });
     }
 
-    if (!Device.isDevice) return;
-
-    const { status } = await Notifications.getPermissionsAsync();
-    if (status !== 'granted') {
-        await Notifications.requestPermissionsAsync();
-    }
+    const granted = await ensureNotificationPermissions();
+    if (!granted) throw new Error('Notification permissions not granted');
 }
 
 export async function scheduleNoteReminder(
@@ -36,16 +42,14 @@ export async function scheduleNoteReminder(
     body: string,
     when: Date,
 ): Promise<string> {
-    if (when.getTime() <= Date.now()) {
-        throw new Error('Pick a future date & time');
-    }
+    if (when.getTime() <= Date.now()) throw new Error('Pick a future date & time');
 
     const trigger: Notifications.DateTriggerInput = {
         type: SchedulableTriggerInputTypes.DATE,
         date: when,
     };
 
-    const id = await Notifications.scheduleNotificationAsync({
+    return Notifications.scheduleNotificationAsync({
         content: {
             title: 'Note reminder',
             body,
@@ -53,10 +57,12 @@ export async function scheduleNoteReminder(
         },
         trigger,
     });
-
-    return id;
 }
 
-export async function cancelReminder(notificationId: string) {
-    await Notifications.cancelScheduledNotificationAsync(notificationId).catch(() => {});
+export async function cancelReminder(notificationId: string): Promise<void> {
+    try {
+        await Notifications.cancelScheduledNotificationAsync(notificationId);
+    } catch (err) {
+        console.warn('cancelReminder failed', err);
+    }
 }

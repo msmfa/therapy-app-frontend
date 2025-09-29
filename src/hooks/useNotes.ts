@@ -13,18 +13,32 @@ export type Note = {
 
 const STORAGE_KEY = '@session_notes_v1';
 
+const sortNotes = (items: Note[]) => [...items].sort((a, b) => b.createdAt - a.createdAt);
+
 export function useNotes(storageKey: string = STORAGE_KEY) {
     const [notes, setNotes] = React.useState<Note[]>([]);
     const [loading, setLoading] = React.useState<boolean>(true);
     const [error, setError] = React.useState<string | null>(null);
 
+    const persist = React.useCallback(
+        (updater: (prev: Note[]) => Note[]) => {
+            setNotes((prev) => {
+                const next = sortNotes(updater(prev));
+                AsyncStorage.setItem(storageKey, JSON.stringify(next)).catch((err) =>
+                    console.warn('useNotes.persist', err),
+                );
+                return next;
+            });
+        },
+        [storageKey],
+    );
+
     const refresh = React.useCallback(async () => {
         try {
             setLoading(true);
             const raw = await AsyncStorage.getItem(storageKey);
-            const parsed: Note[] = raw ? JSON.parse(raw) as Note[] : [];
-            parsed.sort((a, b) => b.createdAt - a.createdAt);
-            setNotes(parsed);
+            const parsed = raw ? (JSON.parse(raw) as Note[]) : [];
+            setNotes(sortNotes(parsed));
             setError(null);
         } catch (e) {
             console.warn('useNotes.refresh', e);
@@ -38,20 +52,6 @@ export function useNotes(storageKey: string = STORAGE_KEY) {
     React.useEffect(() => {
         refresh();
     }, [refresh]);
-
-    const persist = React.useCallback(
-        (updater: (prev: Note[]) => Note[]) => {
-            setNotes((prev) => {
-                const next = updater(prev);
-                next.sort((a, b) => b.createdAt - a.createdAt);
-                AsyncStorage.setItem(storageKey, JSON.stringify(next)).catch((err) =>
-                    console.warn('useNotes.persist', err),
-                );
-                return next;
-            });
-        },
-        [storageKey],
-    );
 
     const addNote = React.useCallback(
         async (text: string) => {
@@ -93,20 +93,13 @@ export function useNotes(storageKey: string = STORAGE_KEY) {
 
     const deleteNote = React.useCallback(
         async (id: string) => {
-            setNotes((prev) => {
-                const target = prev.find((n) => n.id === id);
-                if (target?.notifId) {
-                    cancelReminder(target.notifId).catch(() => {});
-                }
-                const next = prev.filter((n) => n.id !== id);
-                next.sort((a, b) => b.createdAt - a.createdAt);
-                AsyncStorage.setItem(storageKey, JSON.stringify(next)).catch((err) =>
-                    console.warn('useNotes.deleteNote', err),
-                );
-                return next;
-            });
+            const target = notes.find((n) => n.id === id);
+            if (target?.notifId) {
+                cancelReminder(target.notifId).catch(() => {});
+            }
+            persist((prev) => prev.filter((n) => n.id !== id));
         },
-        [storageKey],
+        [notes, persist],
     );
 
     const setReminder = React.useCallback(
@@ -116,11 +109,7 @@ export function useNotes(storageKey: string = STORAGE_KEY) {
             if (!current) throw new Error('Note not found');
 
             if (current.notifId) {
-                try {
-                    await cancelReminder(current.notifId);
-                } catch {
-                    // Ignore cancellation errors
-                }
+                await cancelReminder(current.notifId).catch(() => {});
             }
 
             const notifId = await scheduleNoteReminder(id, current.text, when);
@@ -135,11 +124,7 @@ export function useNotes(storageKey: string = STORAGE_KEY) {
         async (id: string) => {
             const current = notes.find((n) => n.id === id);
             if (current?.notifId) {
-                try {
-                    await cancelReminder(current.notifId);
-                } catch {
-                    // ignore
-                }
+                await cancelReminder(current.notifId).catch(() => {});
             }
             persist((prev) =>
                 prev.map((n) =>
@@ -151,15 +136,9 @@ export function useNotes(storageKey: string = STORAGE_KEY) {
     );
 
     const clearAll = React.useCallback(async () => {
-        for (const n of notes) {
-            if (n.notifId) {
-                try {
-                    await cancelReminder(n.notifId);
-                } catch {
-                    // ignore
-                }
-            }
-        }
+        await Promise.all(
+            notes.map((n) => (n.notifId ? cancelReminder(n.notifId).catch(() => {}) : null)),
+        );
         await AsyncStorage.removeItem(storageKey).catch(() => {});
         setNotes([]);
     }, [notes, storageKey]);

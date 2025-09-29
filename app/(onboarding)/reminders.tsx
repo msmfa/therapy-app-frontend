@@ -1,50 +1,72 @@
-// app/(onboarding)/reminders.tsx
-import React, { useState } from 'react';
+import React, { JSX, useMemo } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-// import { useTherapySessions } from '../../src/context/TherapySessionsContext';
-import ReminderOptionCard from '../../src/components/reminders/reminder-card';
+import dayjs from 'dayjs';
+import advancedFormat from 'dayjs/plugin/advancedFormat';
+import isBetween from 'dayjs/plugin/isBetween';
 import { useTherapySessions } from '../../src/context/TherapySessionsContext';
-import { calculateTherapyReminderTimes } from '../../src/components/reminders/reminder-schedule-algo';
-import dayjs from 'dayjs'
+import { scheduleNeuroplasticityReminders } from '../../src/components/reminders/reminder-schedule-v2';
 
-enum ReminderType {
-	Custom = 'custom',
-	ScienceBacked = 'science-backed',
-}
+const LENGTH_OF_DAYS_TO_SHOW = 7;
+
+dayjs.extend(advancedFormat);
+dayjs.extend(isBetween);
+
+const keyToTextDictionary = {
+    post_session: {
+        time: "Evening of your session",
+        reason: "Right after therapy your brain starts forming new pathways. A reminder this evening strengthens those fresh changes before they fade (early consolidation)."
+    },
+    post_sleep: {
+        time: "Morning after your session",
+        reason: "During sleep your brain replays what it learned. A reminder the next morning helps those pathways settle in and grow stronger (sleep-dependent consolidation)."
+    },
+    mid_session: {
+        time: "Between your sessions",
+        reason: "New brain pathways need to be reactivated to grow stronger. Our algorithm calculates the best times between sessions to remind you, so the circuits keep firing instead of weakening (spaced reactivation / systems consolidation)."
+    },
+    pre_session: {
+        time: "Evening before your next session",
+        reason: "Bringing the insight back the night before therapy reactivates the pathway, so the next session builds on it instead of starting fresh (state reinstatement)."
+    }
+} as const;
 
 
-export default function RemindersScreen() {
-    const [reminderType, setReminderType] = useState<ReminderType>(ReminderType.ScienceBacked);
+export default function RemindersScreen(): JSX.Element | null {
     const router = useRouter();
     const { sessions } = useTherapySessions();
-    const defaultTimeForReminders = 20; // 8:00 PM
-    const today = new Date();
 
-
-    const dates = sessions.map(session => session.startsAtUtc);
-    const nextSession = dates[0];
-    console.log("dates", dates);
-
-    // const daysBetween = dayjs(sessionAfterNextSession).diff(dayjs(nextSession), 'day');
-
-    const therapyReminderTime = calculateTherapyReminderTimes(new Date(dates[0]), new Date(dates[1]), defaultTimeForReminders);
-    console.log("test!", therapyReminderTime);
-
-    if (!nextSession) return null;
-
-    const nextSessionText = `Your next session is in ${dayjs(nextSession).diff(dayjs(today), 'day')} day(s). At the end of your session we'll send you a note to remind you to log your insights.`;
-
-    // we will have no notes to show them until their next session so actually we don/t need to do anything.
-    // instead we will show a message saying your next session is in 1 day. At the end of your session we'll send you a note
-    // to remind you to log your insights.  this will be start at + duration?
-
+    const orderedSessionDates = useMemo(() => {
+        return [...sessions]
+            .sort(
+                (a, b) =>
+                    new Date(a.startsAtUtc).getTime() - new Date(b.startsAtUtc).getTime(),
+            )
+            .map((session) => new Date(session.startsAtUtc))
+            .filter((date) => !Number.isNaN(date.getTime()));
+    }, [sessions]);
 
     const handleNext = () => {
-        // You can save the reminder preference here
         router.push('/(onboarding)/success');
     };
+
+    const reminders = scheduleNeuroplasticityReminders({
+        nowUtc: new Date().toISOString(),
+        sessionsUtc: orderedSessionDates.map((date) => date.toISOString()),
+        reflectionHour: 20,
+        morningHour: 7,
+        startAfterDays: 3,
+        cadenceDays: 4,
+    });
+
+    const remindersLimitedToOneWeek = useMemo(() => {
+        const windowStart = dayjs();
+        const windowEnd = windowStart.add(LENGTH_OF_DAYS_TO_SHOW, 'day');
+        return reminders.filter(({ atUtc }) =>
+            dayjs(atUtc).isBetween(windowStart, windowEnd, undefined, '[]'),
+        );
+    }, [reminders]);
 
     return (
         <SafeAreaView style={ styles.container }>
@@ -52,52 +74,29 @@ export default function RemindersScreen() {
                 <View style={ styles.header }>
                     <Text style={ styles.title }>Your reminders</Text>
                     <Text style={ styles.subtitle }>
-                        We place reminders at specific points between your therapy sessions. This schedule is based on a combination of memory science, neuroplasticity research, and psychotherapy studies.
+                        We place reminders at specific points between your therapy sessions. This
+                        schedule is based on a combination of memory science, neuroplasticity
+                        research, and psychotherapy studies.
                     </Text>
+
                     <Pressable onPress={ () => router.push('/(onboarding)/why-reminders') }>
-                        <Text style={ { color: '#007AFF', marginTop: 8 } }>Read more about the science behind your reminders here</Text>
+                        <Text style={ styles.link }>
+                            Read more about the science behind your reminders here
+                        </Text>
                     </Pressable>
 
-                    <Text style={ styles.subtitle }>
-                        Based on your therapy schedule the best schedule is as follow:
-                    </Text>
-                </View>
-
-
-
-                <View style={ styles.options }>
-                    <ReminderOptionCard
-                        isSelected={ reminderType === ReminderType.ScienceBacked }
-                        onPress={ () => setReminderType(ReminderType.ScienceBacked) }
-                        icon="🧠"
-                        title="Science-based pattern"
-                        description="Multiple reminders for optimal neuroplasticity"
-                        options={ [
-                            'Day after session - Practice while fresh',
-                            'Mid-week - Reinforce when memory fades',
-                            'Day before - Prepare for next session',
-                        ] }
-                    />
-
-                    <Text style={ styles.subtitle }>
-                        { nextSessionText }
+                    <Text style={ [styles.subtitle, styles.sectionTitle] }>
+                        Based on your therapy schedule the best schedule is as follows:
                     </Text>
 
-                    { /* <ReminderOptionCard
-                        isSelected={ reminderType === ReminderType.Custom }
-                        onPress={ () => setReminderType(ReminderType.Custom) }
-                        icon="📅"
-                        title="Custom schedule"
-                        description="Pick your own reminder times"
-                        options={ [
-                            'Choose specific days and times',
-                            'Set one-time or recurring reminders',
-                            'Full flexibility over your schedule',
-                        ] }
-                    /> */ }
+                    { remindersLimitedToOneWeek.map(({ atUtc, reason }) => (
+                        <Text key={ atUtc } style={ styles.reminderRow }>
+                            • { dayjs(atUtc).format('dddd Do MMM [at] h:mm A') } { keyToTextDictionary[reason].time }{ "\n" }
+                            • { keyToTextDictionary[reason].reason }{ "\n" }
+                        </Text>
+                    )) }
                 </View>
             </ScrollView>
-
             <View style={ styles.buttons }>
                 <Pressable style={ [styles.button, styles.backButton] } onPress={ () => router.back() }>
                     <Text style={ styles.backButtonText }>Back</Text>
@@ -110,6 +109,7 @@ export default function RemindersScreen() {
     );
 }
 
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -121,18 +121,28 @@ const styles = StyleSheet.create({
     },
     header: {
         marginBottom: 30,
+        gap: 16,
     },
     title: {
         fontSize: 32,
         fontWeight: 'bold',
-        marginBottom: 10,
     },
     subtitle: {
         fontSize: 18,
         color: '#666',
     },
-    options: {
-        marginBottom: 20,
+    sectionTitle: {
+        marginTop: 12,
+        fontWeight: '600',
+        color: '#333',
+    },
+    link: {
+        color: '#007AFF',
+        marginTop: 8,
+    },
+    reminderRow: {
+        fontSize: 16,
+        color: '#333',
     },
     buttons: {
         flexDirection: 'row',
@@ -160,15 +170,3 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
 });
-
-export type TherapySessionSyncPayload = {
-    id?: string;
-    startsAtUtc: string;
-    durationMin?: number;
-};
-
-export type TherapySessionSyncResult = {
-    created: number;
-    updated: number;
-    deleted: number;
-};
