@@ -6,6 +6,7 @@ import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { Note } from '../../hooks/useNotes';
+import { NotePreviewModal } from './NotesListScreenModal';
 
 const BOTTOM_FADE = 96; // fade height at bottom (mask)
 
@@ -37,9 +38,12 @@ export default function NotesListScreen({ notes, loading, refresh }: NotesListSc
     const headerHeight = useHeaderHeight();
     const nominal = 600;
     const bottomStart = Math.max(0, 1 - BOTTOM_FADE / nominal);
+    const [previewNote, setPreviewNote] = React.useState<Note | null>(null);
+    const isPreviewVisible = Boolean(previewNote?.id);
 
     const NoteCard = ({ item, index }: { item: Note; index: number }) => (
         <Pressable
+            onPress={ () => setPreviewNote(item) }
             style={ ({ pressed }) => [
                 styles.noteCard,
                 pressed && styles.noteCardPressed,
@@ -131,9 +135,16 @@ export default function NotesListScreen({ notes, loading, refresh }: NotesListSc
                     <Text style={ styles.fabText }>+</Text>
                 </Pressable>
             </View>
+            <NotePreviewModal
+                visible={ isPreviewVisible }
+                note={ previewNote }
+                onClose={ () => setPreviewNote(null) }
+            />
         </SafeAreaView>
     );
 }
+
+
 
 const styles = StyleSheet.create({
     root: {
