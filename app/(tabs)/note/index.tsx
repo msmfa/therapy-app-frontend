@@ -3,10 +3,13 @@ import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useNotes } from '../../../src/hooks/useNotes';
+import { useAuth } from '../../../src/auth/AuthContext';
 
 export default function NewNoteScreen() {
     const router = useRouter();
-    const { addNote } = useNotes();
+    const { user } = useAuth();
+
+    const { addNote } = useNotes(user?.id);
     const [text, setText] = useState('');
     const [error, setError] = useState<string | null>(null);
 

@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react';
 import {
-    SafeAreaView,
     ScrollView,
     View,
     Text,
@@ -17,6 +16,7 @@ import { useAuth } from '../../src/auth/AuthContext';
 import { BASE_URL } from '../../src/const';
 import { RegisterError, RegisterSuccess } from '../../src/api/signup';
 import { handleError } from '../../src/utils/utils';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -120,6 +120,7 @@ export default function SignUpScreen() {
                             secureTextEntry
                             autoCapitalize="none"
                             autoCorrect={ false }
+                            textContentType='newPassword'
                             placeholder="••••••••"
                             style={ [styles.input, errors.password && styles.inputError] }
                         />

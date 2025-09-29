@@ -13,9 +13,7 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "plugins": [
-      "expo-router",
-      "expo-notifications",
-      "expo-secure-store"
+      "expo-sqlite"
     ],
     "splash": {
       "image": "./assets/splash-icon.png",
