@@ -22,12 +22,12 @@ export const COLORS = {
     instructionText: 'rgba(75, 69, 169, 1)',
     legendLabel: 'rgba(53, 31, 31, 1)',
     maroon: 'rgba(117, 42, 42, 1)',
-    scheduledBackground: 'rgba(251, 186, 188, 1)',
+    scheduledBackground: 'rgba(247, 162, 164, 1)',
     scheduledBorder: 'rgba(250, 169, 169, 1)',
     scheduledText: 'rgba(226, 61, 61, 1)',
     todayBackground: 'rgba(0, 0, 0, 1)',
     todayText: 'rgba(255, 255, 255, 1)',
-    unscheduledBackground: 'rgba(239, 208, 208, 1)',
+    unscheduledBackground: 'rgba(253, 166, 166, 1)',
     wrapperShadow: 'rgba(0, 0, 0, 0.15)',
     white: 'rgba(255, 255, 255, 1)',
 };
@@ -36,8 +36,8 @@ type SelectedSessions = Record<string, Date>;
 type ScheduleMode = 'single' | 'weekly_pattern';
 
 interface TherapyCalendarProps {
-    buttonAtBottom?: boolean;
     initialSessions: SelectedSessions;
+    isOnboarding?: boolean;
     onSave: (sessions: SelectedSessions) => void;
 }
 
@@ -52,7 +52,7 @@ const createDateFromKey = (dateKey: string) => {
     return new Date(year, month - 1, day);
 };
 
-export default function TherapyCalendar({ buttonAtBottom, onSave, initialSessions }: TherapyCalendarProps) {
+export default function TherapyCalendar({ isOnboarding, onSave, initialSessions }: TherapyCalendarProps) {
     const [selectedSessions, setSelectedSessions] = useState<SelectedSessions>({});
     const [activeDateKey, setActiveDateKey] = useState<string | null>(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -82,12 +82,12 @@ export default function TherapyCalendar({ buttonAtBottom, onSave, initialSession
                         ...circleBaseStyle,
                         backgroundColor: isActive ? COLORS.activeSessionBackground : COLORS.scheduledBackground,
                         borderColor: COLORS.activeSessionBorder,
-                        borderWidth: isActive ? 0 : 1,
+                        borderWidth: isActive ? 1 : 1,
                     },
                     text: {
                         color: isActive ? COLORS.activeSessionText : COLORS.scheduledText,
                         fontWeight: '600',
-                        marginTop: 0,
+                        marginTop: -2,
                     },
                 },
             };
@@ -212,7 +212,7 @@ export default function TherapyCalendar({ buttonAtBottom, onSave, initialSession
         dayTextColor: COLORS.calendarDayDefault, // Default day numbers
         monthTextColor: COLORS.calendarMonthText, // Month title text
         selectedDayBackgroundColor: COLORS.calendarSelectedBackground, // Selected day circle fill
-        selectedDayTextColor: COLORS.white, // Selected day number color
+        selectedDayTextColor: COLORS.activeSessionBorder, // Selected day number color
         textDayFontFamily: 'System', // Day numbers font family
         textDayFontSize: 15, // Day numbers font size
         textDayHeaderFontFamily: 'System', // Weekday headers font family
@@ -236,20 +236,19 @@ export default function TherapyCalendar({ buttonAtBottom, onSave, initialSession
                     theme={ calendarTheme }
                 />
                 <View style={ styles.keyAndButtons }>
-                    <GradientRow >
+                    <InfoBlock text={isOnboarding ? `Press on a date on the calendar to update your therapy session. \nAdd at least two weeks of sessions. \nOnce you're done press the button below to save them.` : `Press on a date on the calendar to update your therapy session. Then press the update button below to save them.`} />
+
+                     { !isOnboarding &&
+                     <GradientRow >
                         <View style={styles.legendItem}>
                             <View style={styles.legendCircleTherapy} />
                             <Text style={styles.legendLabel}>Therapy session</Text>
                         </View>
                     </GradientRow>
-                    <InfoBlock text={'Press on a date on the calendar to update your therapy session. Then press the update button below to save them.'} />
+                    }
                     <View style={ styles.buttons }>
-                        <Button
-                            disabled={ sessionCount === 0 }
-                            label="Clear All"
-                            onPress={ () => setSelectedSessions({}) }
-                        />
-                        { buttonAtBottom ? (
+
+                        { !isOnboarding ? (
                             <View style={ styles.buttonAtBottom }>
                                 <Button
                                     disabled={ sessionCount === 0 }
@@ -260,10 +259,16 @@ export default function TherapyCalendar({ buttonAtBottom, onSave, initialSession
                         ) : (
                             <Button
                                 disabled={ sessionCount === 0 }
-                                label={ `Save (${sessionCount})` }
+                                label={ 'Add Sessions' }
                                 onPress={ handleSave }
                             />
                         ) }
+                         <Button
+                            disabled={ sessionCount === 0 }
+                            label="Clear All"
+                            transparent
+                            onPress={ () => setSelectedSessions({}) }
+                        />
                     </View>
                 </View>
             </View>

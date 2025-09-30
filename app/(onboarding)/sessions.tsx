@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TherapyCalendar from '../../src/components/therapy-calendar/therapy-calendar';
@@ -46,16 +46,11 @@ export default function SessionsScreen() {
         <SafeAreaView style={ styles.root }>
             <GradientUpwards />
             <View style={ styles.content }>
-                <Text style={ styles.title }>
-                    Tell us your therapy sessions so we can work out when to remind you
-                </Text>
-
                 <TherapyCalendar
                     onSave={ handleSave }
-                    buttonAtBottom={ true }
                     initialSessions={ initialSessions } // Pass the sessions here
+                    isOnboarding={ true }
                 />
-
             </View>
             { isSaving && <Loading /> }
         </SafeAreaView>
@@ -71,8 +66,5 @@ const styles = StyleSheet.create({
     content: {
         flex: 1,
     },
-    title: {
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
+
 });

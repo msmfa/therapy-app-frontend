@@ -9,9 +9,7 @@ export function GradientRow({ children }: Prop) {
     return (
         <View style={ styles.legendWrapper }>
             <View style={ styles.legendCard }>
-                <View>
-                    { children }
-                </View>
+                { children }
             </View>
         </View>
     )

@@ -8,12 +8,17 @@ interface Props {
 	icon?: React.ReactNode;
 	onPress: () => void;
 	disabled?: boolean;
+	transparent?: boolean;
 }
 
-export function Button({ label, icon, onPress, disabled = false }: Props) {
+export function Button({ label, icon, onPress, disabled = false, transparent = false }: Props) {
     return (
         <TouchableOpacity
-            style={ [styles.actionButton, disabled && styles.actionButtonDisabled] }
+            style={ [
+                styles.actionButton,
+                transparent && styles.actionButtonTransparent,
+                disabled && styles.actionButtonDisabled,
+            ] }
             onPress={ onPress }
             disabled={ disabled }
             activeOpacity={ disabled ? 1 : 0.8 }
@@ -24,7 +29,11 @@ export function Button({ label, icon, onPress, disabled = false }: Props) {
                 <View style={ [styles.iconWrapper, disabled && styles.iconDisabled] }>{ icon }</View>
             ) : null }
             <Text
-                style={ [styles.actionButtonText, disabled && styles.actionButtonTextDisabled] }
+                style={ [
+                    styles.actionButtonText,
+                    transparent && styles.actionButtonTextTransparent,
+                    disabled && styles.actionButtonTextDisabled,
+                ] }
                 numberOfLines={ 1 }
             >
                 { label }
@@ -47,9 +56,12 @@ const styles = StyleSheet.create({
         backgroundColor: 'black',
         width: '100%',
     },
+    actionButtonTransparent: {
+        backgroundColor: 'transparent',
+    },
     actionButtonDisabled: {
-        backgroundColor: 'rgba(0,0,0,0.03)', // subtle fill
-        borderColor: 'rgba(0,0,0,0.10)', // muted border
+        backgroundColor: 'rgba(245, 195, 195, 0.03)', // subtle fill
+        borderColor: 'rgba(110, 110, 110, 0.1)', // muted border
     },
     iconWrapper: {
         marginRight: spacing.sm,
@@ -61,7 +73,10 @@ const styles = StyleSheet.create({
         ...typography.button,
         color: Palette.white,
     },
+    actionButtonTextTransparent: {
+        color: Palette.black,
+    },
     actionButtonTextDisabled: {
-        color: 'rgba(0,0,0,0.45)', // muted label
+        color: 'rgba(92, 92, 92, 0.45)', // muted label
     },
 });

@@ -2,15 +2,17 @@ import { View, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '../../src/components/ui/button';
+import { GradientUpwards } from '../../src/components/GradientUpwards';
 
 export default function WelcomeScreen() {
     const router = useRouter();
 
     return (
         <SafeAreaView style={ styles.container }>
+            <GradientUpwards />
             <View style={ styles.content }>
-                <Text style={ styles.title }>Welcome!</Text>
-                <Text style={ styles.subtitle }>Let's get you set up in just a few steps</Text>
+                <Text style={ styles.title }>Welcome</Text>
+                <Text style={ styles.subtitle }>Let's get you set up. On the next screen you can add your weekly therapy sessions so we can calcuate when the best time to notify you is.</Text>
             </View>
             <Button label={ 'Get Started' } onPress={ () => router.push('/(onboarding)/sessions') }  />
         </SafeAreaView>

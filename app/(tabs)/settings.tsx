@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../src/auth/AuthContext';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
+import { GradientRow } from '../../src/components/ui/GradientRow';
 
 export default function SettingsScreen() {
     const { user, signOut } = useAuth();
@@ -18,11 +19,18 @@ export default function SettingsScreen() {
     return (
         <SafeAreaView style={ styles.root }>
             <GradientUpwards />
+            <View style={ styles.accountInfoContainer }>
+                <GradientRow>
+                    { /* todo: change to real name */ }
+                    <Text>{ 'Michael' }</Text>
+                    <Text>{ user?.email }</Text>
+                </GradientRow>
+            </View>
+            <Text>{ 'read more rows thats dif with arrow right' }</Text>
+
+
             <View style={ styles.container }>
-                <View style={ styles.section }>
-                    <Text style={ styles.label }>Signed in as</Text>
-                    <Text style={ styles.value }>{ user?.email ?? '—' }</Text>
-                </View>
+
                 <View style={ styles.section }>
                     { /* todo: add the science */ }
                     <Text style={ styles.label }>
@@ -48,7 +56,6 @@ const styles = StyleSheet.create({
     container: { flex: 1, padding: 16, gap: 16, justifyContent: 'space-between' },
     section: { gap: 4 },
     label: { color: '#666', fontWeight: '600' },
-    value: { fontSize: 16, fontWeight: '600' },
     logoutBtn: {
         marginTop: 'auto',
         paddingVertical: 14,
@@ -58,4 +65,10 @@ const styles = StyleSheet.create({
     },
     logoutText: { color: '#fff', fontWeight: '700' },
     footer: { textAlign: 'center', color: '#888', marginTop: 12 },
+
+    // new
+    accountInfoContainer: {
+        marginHorizontal: 12,
+        padding: 12,
+    }
 });

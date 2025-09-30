@@ -33,7 +33,6 @@ export default function CalendarScreen() {
             <GradientUpwards />
             <TherapyCalendar
                 initialSessions={ initialSessions }
-                buttonAtBottom={ true }
                 onSave={ handleSave }
             />
         </SafeAreaView>

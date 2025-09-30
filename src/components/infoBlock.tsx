@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     },
     text: {
         flex: 1,
-        fontSize: 13,
+        fontSize: 16,
         color: '#0066cc',
         lineHeight: 18,
     },
