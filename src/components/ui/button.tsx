@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, View, ViewStyle, StyleProp } from 'react-native';
 import { spacing, typography } from '../../const';
 import { Palette } from '../../../design';
 
@@ -9,15 +9,17 @@ interface Props {
 	onPress: () => void;
 	disabled?: boolean;
 	transparent?: boolean;
+    addedStyles?: StyleProp<ViewStyle>;
 }
 
-export function Button({ label, icon, onPress, disabled = false, transparent = false }: Props) {
+export function Button({ label, icon, onPress, disabled = false, transparent = false, addedStyles }: Props) {
     return (
         <TouchableOpacity
             style={ [
                 styles.actionButton,
                 transparent && styles.actionButtonTransparent,
                 disabled && styles.actionButtonDisabled,
+                addedStyles && addedStyles,
             ] }
             onPress={ onPress }
             disabled={ disabled }
