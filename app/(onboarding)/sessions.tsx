@@ -4,8 +4,9 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TherapyCalendar from '../../src/components/therapy-calendar/therapy-calendar';
 import { useTherapySessions } from '../../src/context/TherapySessionsContext';
-import Loading from '../../src/components/loading';
-import { convertSessionsToCalendarFormat } from '../(tabs)/components/calendar';
+import Loading from '../../src/components/ui/loading';
+import { convertSessionsToCalendarFormat } from '../../src/utils/calendar';
+import { GradientUpwards } from '../../src/components/GradientUpwards';
 
 export default function SessionsScreen() {
     const router = useRouter();
@@ -42,18 +43,19 @@ export default function SessionsScreen() {
     );
 
     return (
-        <SafeAreaView style={ styles.container }>
+        <SafeAreaView style={ styles.root }>
+            <GradientUpwards />
             <View style={ styles.content }>
                 <Text style={ styles.title }>
                     Tell us your therapy sessions so we can work out when to remind you
                 </Text>
-                <SafeAreaView>
-                    <TherapyCalendar
-                        onSave={ handleSave }
-                        buttonAtBottom={ true }
-                        initialSessions={ initialSessions } // Pass the sessions here
-                    />
-                </SafeAreaView>
+
+                <TherapyCalendar
+                    onSave={ handleSave }
+                    buttonAtBottom={ true }
+                    initialSessions={ initialSessions } // Pass the sessions here
+                />
+
             </View>
             { isSaving && <Loading /> }
         </SafeAreaView>
@@ -61,10 +63,10 @@ export default function SessionsScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: {
+    root: {
         flex: 1,
         backgroundColor: '#fff',
-        padding: 20,
+        padding: 4,
     },
     content: {
         flex: 1,

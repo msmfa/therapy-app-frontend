@@ -93,6 +93,7 @@ export default function SignUpScreen() {
                             autoCapitalize="words"
                             autoCorrect={ false }
                             placeholder="Jane Doe"
+                            textContentType='newPassword'
                             style={ [styles.input, errors.name && styles.inputError] }
                         />
                         { errors.name && <Text style={ styles.error }>{ errors.name }</Text> }

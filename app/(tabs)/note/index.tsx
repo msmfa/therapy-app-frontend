@@ -1,9 +1,12 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
+import { View, TextInput, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, Pressable, Keyboard } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Feather } from '@expo/vector-icons';
 import { useNotes } from '../../../src/hooks/useNotes';
 import { useAuth } from '../../../src/auth/AuthContext';
+import ErrorMessage from '../../../src/components/ui/error';
 
 export default function NewNoteScreen() {
     const router = useRouter();
@@ -16,7 +19,6 @@ export default function NewNoteScreen() {
     const handleNext = useCallback(async () => {
         const value = text.trim();
         if (!value) {
-            setError('Please enter a message');
             return;
         }
 
@@ -24,7 +26,9 @@ export default function NewNoteScreen() {
             await addNote(value);
             setText('');
             setError(null);
-            router.replace('/(tabs)/notes');
+            Keyboard.dismiss();
+
+            requestAnimationFrame(() => router.replace('/(tabs)/notes'));
         } catch (err) {
             console.error('addNote failed', err);
             setError('Unable to save note right now.');
@@ -34,72 +38,118 @@ export default function NewNoteScreen() {
     const isDisabled = text.trim().length === 0;
 
     return (
-        <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom'] }>
-            <View style={ styles.fillCenter }>
-                <View style={ [styles.card, styles.inputCentered] }>
-                    <TextInput
-                        placeholder="Thoughts?"
-                        value={ text }
-                        onChangeText={ setText }
-                        multiline
-                        numberOfLines={ 6 }
-                        underlineColorAndroid="transparent"
-                        style={ styles.textInput }
-                        placeholderTextColor="#A97C8C"
-                        selectionColor="#9E3D5E"
-                    />
-                </View>
+        <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] }>
+            <LinearGradient
+                colors={ ['#ff777c', '#f6b7b9ff', '#f0c7caff', '#e1e6ea', '#e1e6ea', '#dbe0e4'] }
+                start={ { x: 0.5, y: 0 } }
+                end={ { x: 0.5, y: 1 } }
+                style={ styles.backgroundGradient }
+            />
+            <KeyboardAvoidingView
+                style={ styles.screen }
+                behavior={ Platform.OS === 'ios' ? 'padding' : 'height' }
+                keyboardVerticalOffset={ Platform.OS === 'ios' ? 0 : 0 }
+            >
+                <Pressable style={ styles.content } onPress={ Keyboard.dismiss }>
+                    <View style={ styles.body }>
+                        <View style={ styles.cardWrapper }>
+                            <View style={ styles.cardOverlay }>
+                                <TextInput
+                                    placeholder="Add your notes here..."
+                                    value={ text }
+                                    onChangeText={ setText }
+                                    multiline
+                                    numberOfLines={ 10 }
+                                    underlineColorAndroid="transparent"
+                                    style={ styles.textInput }
+                                    placeholderTextColor="rgba(40,48,74,0.35)"
+                                    selectionColor="#FF7B9B"
+                                />
+                                <TouchableOpacity
+                                    onPress={ handleNext }
+                                    disabled={ isDisabled }
+                                    style={ [styles.plusButton, isDisabled && styles.plusButtonDisabled] }
+                                >
+                                    <Feather name="plus" size={ 44 } color="#6a4d50ff" />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                        { error ? <ErrorMessage message={ error } /> : null }
+                    </View>
 
-                { error ? <Text style={ styles.error }>{ error }</Text> : null }
-
-                <Pressable
-                    onPress={ handleNext }
-                    style={ [styles.primaryBtn, isDisabled && styles.primaryBtnDisabled] }
-                    accessibilityRole="button"
-                    disabled={ isDisabled }
-                >
-                    <Text style={ styles.primaryBtnText }>Next</Text>
+                    <View style={ styles.footer }>
+                    </View>
                 </Pressable>
-            </View>
+            </KeyboardAvoidingView>
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-    root: { flex: 1, backgroundColor: 'transparent' },
-    fillCenter: {
+    root: { flex: 1, position: 'relative' },
+    backgroundGradient: StyleSheet.absoluteFillObject,
+    screen: {
+        flex: 1,
+        paddingTop: 16,
+        paddingHorizontal: 24,
+        paddingBottom: Platform.select({ ios: 0, android: 0 }),
+    },
+    content: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center',
-        padding: 16,
-        gap: 12,
     },
-    card: {
-        padding: 12,
-        borderRadius: 10,
+    body: {
+        flex: 1,
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'stretch',
+    },
+    cardWrapper: {
+        flex: 1,
+        borderRadius: 30,
+        backgroundColor: 'rgba(255,255,255,0.22)',
+        shadowColor: 'rgba(86, 168, 255, 0.45)',
+        shadowOffset: { width: 0, height: 22 },
+        shadowOpacity: 0.5,
+        shadowRadius: 40,
+        elevation: 24,
+        alignSelf: 'stretch',
+    },
+    cardOverlay: {
+        flex: 1,
+        borderRadius: 26,
+        paddingVertical: 22,
+        paddingHorizontal: 28,
         backgroundColor: 'transparent',
-        borderWidth: 1,
-        borderColor: '#E9BFCB',
+        overflow: 'hidden',
+        position: 'relative',
     },
-    inputCentered: { width: '90%', maxWidth: 560 },
     textInput: {
-        minHeight: 140,
-        paddingTop: 12,
-        paddingBottom: 12,
-        paddingHorizontal: 0,
-        fontSize: 16,
-        lineHeight: 22,
+        flex: 1,
+        fontSize: 18,
+        lineHeight: 26,
+        color: '#1F2538',
         textAlignVertical: 'top',
+        padding: 0,
+        paddingBottom: 70,
     },
-    error: { color: 'red', textAlign: 'center' },
-    primaryBtn: {
-        backgroundColor: '#111',
-        borderRadius: 8,
-        paddingVertical: 12,
-        paddingHorizontal: 16,
+    plusButton: {
+        position: 'absolute',
+        right: 16,
+        bottom: 16,
+        padding: 4,
+        shadowColor: 'rgba(140, 172, 232, 0.25)',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.4,
+        shadowRadius: 12,
+        elevation: 10,
     },
-    primaryBtnDisabled: {
+    plusButtonDisabled: {
         opacity: 0.5,
     },
-    primaryBtnText: { color: '#fff', fontWeight: '700' },
+    footer: {
+        alignItems: 'center',
+        marginTop: 24,
+        marginBottom: 12,
+    },
 });

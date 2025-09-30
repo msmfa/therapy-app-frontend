@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button } from '../../src/components/button';
+import { Button } from '../../src/components/ui/button';
 
 export default function WelcomeScreen() {
     const router = useRouter();

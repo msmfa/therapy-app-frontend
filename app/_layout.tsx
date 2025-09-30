@@ -1,11 +1,25 @@
 import { Stack } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useEffect } from 'react';
+import { ThemeProvider, DefaultTheme, Theme } from '@react-navigation/native';
 
 import { AuthProvider, useAuth } from '../src/auth/AuthContext';
 import { OnboardingProvider, useOnboarding } from '../src/context/OnboardingContext';
 import { TherapySessionsProvider } from '../src/context/TherapySessionsContext';
 import { initNotifications } from '../src/utils/schedule-reminders';
+import { Palette } from '../design';
+import { StatusBar } from 'react-native';
+
+
+const theme: Theme = {
+    ...DefaultTheme,
+    colors: {
+        ...DefaultTheme.colors,
+        background:'#DBE0E4', // screen backgrounds
+        card: '#DBE0E4', // headers & tab bar
+        text: Palette.black,
+    },
+};
 
 function Gate() {
     const { user, hydrated } = useAuth();
@@ -32,16 +46,19 @@ function Gate() {
 
 export default function RootLayout() {
     return (
-        <AuthProvider>
-            <TherapySessionsProvider>
-                <OnboardingProvider>
-                    <SafeAreaProvider>
-                        <Initializer />
-                        <Gate />
-                    </SafeAreaProvider>
-                </OnboardingProvider>
-            </TherapySessionsProvider>
-        </AuthProvider>
+        <ThemeProvider value={ theme }>
+            <AuthProvider>
+                <TherapySessionsProvider>
+                    <OnboardingProvider>
+                        <SafeAreaProvider>
+                            <Initializer />
+                            <Gate />
+                        </SafeAreaProvider>
+                    </OnboardingProvider>
+                </TherapySessionsProvider>
+            </AuthProvider>
+            <StatusBar barStyle="dark-content" backgroundColor={ theme.colors.background } />
+        </ThemeProvider>
     );
 }
 

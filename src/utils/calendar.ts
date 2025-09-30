@@ -1,4 +1,4 @@
-import { TherapySession } from "../../../src/api/therapy";
+import { TherapySession } from "../api/therapy";
 
 export function convertSessionsToCalendarFormat(sessions: TherapySession[]): { [date: string]: Date } {
     const sessionMap: { [date: string]: Date } = {};

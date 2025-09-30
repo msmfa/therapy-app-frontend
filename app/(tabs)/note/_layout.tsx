@@ -7,6 +7,7 @@ export default function NoteStackLayout() {
         <Stack
             screenOptions={ {
                 // keep your transparent look
+                headerShown: false,
                 headerTransparent: true,
                 headerStyle: { backgroundColor: 'transparent' },
                 headerShadowVisible: false,
@@ -23,6 +24,7 @@ export default function NoteStackLayout() {
             <Stack.Screen
                 name="index"
                 options={ {
+                    headerShown: false,
                     title: 'New note',
                     animation: 'none', // or 'none' to eliminate flash entirely
                 } }

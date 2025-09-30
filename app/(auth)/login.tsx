@@ -143,7 +143,6 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
     root: {
         flex: 1,
-        backgroundColor: 'transparent',
     },
     kav: {
         flex: 1,
@@ -151,7 +150,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
     },
     card: {
-        backgroundColor: 'transparent',
         padding: 16,
     },
     title: {

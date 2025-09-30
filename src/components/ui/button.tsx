@@ -1,6 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
-import { Colors, radius, spacing, typography } from '../const';
+import { spacing, typography } from '../../const';
+import { Palette } from '../../../design';
 
 interface Props {
 	label: string;
@@ -39,11 +40,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingVertical: spacing.md,
         paddingHorizontal: spacing.lg,
-        borderRadius: radius.md,
+        borderRadius: 12,
         borderWidth: 1,
-        borderColor: Colors.DarkBlue,
+        borderColor: Palette.black,
         minHeight: 44,
-        backgroundColor: 'transparent',
+        backgroundColor: 'black',
+        width: '100%',
     },
     actionButtonDisabled: {
         backgroundColor: 'rgba(0,0,0,0.03)', // subtle fill
@@ -57,7 +59,7 @@ const styles = StyleSheet.create({
     },
     actionButtonText: {
         ...typography.button,
-        color: Colors.DarkBlue,
+        color: Palette.white,
     },
     actionButtonTextDisabled: {
         color: 'rgba(0,0,0,0.45)', // muted label

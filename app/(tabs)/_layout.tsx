@@ -2,6 +2,7 @@ import React from 'react';
 import { Tabs, Redirect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../src/auth/AuthContext';
+import { Palette } from '../../design';
 
 export default function TabsLayout() {
     const { hydrated, isAuthenticated } = useAuth();
@@ -13,20 +14,29 @@ export default function TabsLayout() {
         <Tabs
             initialRouteName="note"
             screenOptions={ {
+                animation: 'shift', // or 'shift'
+                transitionSpec: {
+                    animation: 'timing',
+                    config: {
+                        duration: 250,
+                    },
+                },
+                headerShown: false,
                 headerTitleAlign: 'center',
                 headerTransparent: true,
                 headerStyle: { backgroundColor: 'transparent' },
                 headerShadowVisible: false,
                 tabBarStyle: {
-                    backgroundColor: 'transparent',
                     borderTopWidth: 0,
                     elevation: 0,
                     shadowOpacity: 0,
-                    paddingVertical: 6,
-                    height: 56,
+                    paddingVertical: 16,
+                    height: 76,
+                    // make the tab completely transparent
+                    backgroundColor: '#DBE0E4',
                 },
-                tabBarActiveTintColor: '#111',
-                tabBarInactiveTintColor: '#888',
+                tabBarActiveTintColor: Palette.maroon,
+                // tabBarInactiveTintColor: '#888',
                 tabBarShowLabel: false,
             } }
         >
@@ -35,8 +45,8 @@ export default function TabsLayout() {
                 options={ {
                     headerShown: false, // 👈 hide tab header to prevent overlap
                     title: 'New Note',
-                    tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="add" color={ color } size={ size ?? 24 } />
+                    tabBarIcon: ({ color }) => (
+                        <Ionicons name="add" color={ color } size={ 24 } />
                     ),
                 } }
             />
@@ -47,11 +57,11 @@ export default function TabsLayout() {
                 options={ {
                     headerShown: false,
                     title: 'Calendar',
-                    tabBarIcon: ({ color, size, focused }) => (
+                    tabBarIcon: ({ color }) => (
                         <Ionicons
-                            name={ focused ? 'calendar' : 'calendar-outline' }
+                            name={ 'calendar-clear-outline' }
                             color={ color }
-                            size={ size ?? 24 }
+                            size={ 24 }
                         />
                     ),
                 } }
@@ -59,18 +69,20 @@ export default function TabsLayout() {
             <Tabs.Screen
                 name="notes"
                 options={ {
+                    headerShown: false,
                     title: 'Notes',
-                    tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="book-outline" color={ color } size={ size ?? 24 } />
+                    tabBarIcon: ({ color }) => (
+                        <Ionicons name="book-outline" color={ color } size={ 24 } />
                     ),
                 } }
             />
             <Tabs.Screen
                 name="settings"
                 options={ {
+                    headerShown: false,
                     title: 'Settings',
-                    tabBarIcon: ({ color, size }) => (
-                        <Ionicons name="settings-outline" color={ color } size={ size ?? 24 } />
+                    tabBarIcon: ({ color }) => (
+                        <Ionicons name="settings-outline" color={ color } size={ 24 } />
                     ),
                 } }
             />

@@ -1,6 +1,8 @@
-import { Modal, ScrollView, View, TouchableOpacity, Text, StyleSheet } from "react-native";
+import { Modal, ScrollView, View, Text, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Note } from "../../hooks/useNotes";
+import { GradientUpwards } from "../GradientUpwards";
+import { Button } from "../ui/button";
 
 type NotePreviewModalProps = {
     visible: boolean;
@@ -17,6 +19,7 @@ export function NotePreviewModal({ visible, note, onClose }: NotePreviewModalPro
             onRequestClose={ onClose }
         >
             <SafeAreaView style={ styles.modalRoot }>
+                <GradientUpwards />
                 <ScrollView contentContainerStyle={ styles.modalContent }>
                     <View>
                         <Text style={ styles.modalDate }>
@@ -33,14 +36,9 @@ export function NotePreviewModal({ visible, note, onClose }: NotePreviewModalPro
                         <Text style={ styles.modalText }>{ note?.text }</Text>
                     </View>
                 </ScrollView>
-
-                <TouchableOpacity
-                    style={ styles.modalClose }
-                    onPress={ onClose }
-                    hitSlop={ { top: 12, right: 12, bottom: 12, left: 12 } }
-                >
-                    <Text style={ styles.modalCloseText }>Close</Text>
-                </TouchableOpacity>
+                <View style={ styles.modalClose }>
+                    <Button label="Close" onPress={ onClose } />
+                </View>
             </SafeAreaView>
         </Modal>
     );
@@ -54,15 +52,10 @@ const styles = StyleSheet.create({
         left: 24,
         right: 24,
         bottom: 24,
-        borderRadius: 16,
+        borderRadius: 25,
         backgroundColor: '#111',
         paddingVertical: 12,
         alignItems: 'center',
-    },
-    modalCloseText: {
-        color: '#fff',
-        fontSize: 14,
-        fontWeight: '600',
     },
     modalDate: {
         fontSize: 14,

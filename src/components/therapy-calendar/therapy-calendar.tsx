@@ -1,16 +1,42 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { View, Alert, StyleSheet } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 import { Calendar } from 'react-native-calendars';
-import { InfoBlock } from '../infoBlock';
-import { Button } from '../button';
 import ScheduleModal from './schedule-modal';
+import { Button } from '../ui/button';
+import { InfoBlock } from '../infoBlock';
+
+export const COLORS = {
+    activeSessionBackground: 'rgba(211, 85, 85, 1)',
+    activeSessionBorder: 'rgba(250, 169, 169, 1)',
+    activeSessionText: 'rgba(255, 255, 255, 1)',
+    calendarDayDefault: 'rgba(142, 105, 105, 1)',
+    calendarDayDisabled: 'rgba(202, 164, 164, 1)',
+    calendarMonthText: 'rgba(77, 49, 49, 1)',
+    calendarSelectedBackground: 'rgba(76, 110, 245, 1)',
+    calendarWeekdayHeader: 'rgba(162, 135, 135, 1)',
+    glassBackground: 'rgba(255, 255, 255, 0.29)',
+    glassBorder: 'rgba(255, 255, 255, 0.21)',
+    instructionBackground: 'rgba(241, 241, 254, 0.32)',
+    instructionBorder: 'rgba(75, 69, 169, 0.35)',
+    instructionText: 'rgba(75, 69, 169, 1)',
+    legendLabel: 'rgba(53, 31, 31, 1)',
+    maroon: 'rgba(117, 42, 42, 1)',
+    scheduledBackground: 'rgba(251, 186, 188, 1)',
+    scheduledBorder: 'rgba(250, 169, 169, 1)',
+    scheduledText: 'rgba(226, 61, 61, 1)',
+    todayBackground: 'rgba(0, 0, 0, 1)',
+    todayText: 'rgba(255, 255, 255, 1)',
+    unscheduledBackground: 'rgba(239, 208, 208, 1)',
+    wrapperShadow: 'rgba(0, 0, 0, 0.15)',
+    white: 'rgba(255, 255, 255, 1)',
+};
 
 type SelectedSessions = Record<string, Date>;
 type ScheduleMode = 'single' | 'weekly_pattern';
 
 interface TherapyCalendarProps {
-    initialSessions: SelectedSessions;
     buttonAtBottom?: boolean;
+    initialSessions: SelectedSessions;
     onSave: (sessions: SelectedSessions) => void;
 }
 
@@ -37,15 +63,73 @@ export default function TherapyCalendar({ buttonAtBottom, onSave, initialSession
     }, [initialSessions]);
 
     const markedDates = useMemo(() => {
-        return Object.keys(selectedSessions).reduce<Record<string, { marked: true; selected: boolean }>>(
-            (acc, dateKey) => {
-                acc[dateKey] = { marked: true, selected: activeDateKey === dateKey };
-                return acc;
-            },
-            activeDateKey && !selectedSessions[activeDateKey]
-                ? { [activeDateKey]: { marked: true, selected: true } }
-                : {},
-        );
+        const circleBaseStyle = {
+            alignItems: 'center',
+            borderRadius: 18,
+            height: 36,
+            justifyContent: 'center',
+            marginTop: -2,
+            paddingTop: 5,
+            width: 36,
+        };
+
+        const entries = Object.keys(selectedSessions).reduce<Record<string, any>>((acc, dateKey) => {
+            const isActive = activeDateKey === dateKey;
+            acc[dateKey] = {
+                customStyles: {
+                    container: {
+                        ...circleBaseStyle,
+                        backgroundColor: isActive ? COLORS.activeSessionBackground : COLORS.scheduledBackground,
+                        borderColor: COLORS.activeSessionBorder,
+                        borderWidth: isActive ? 0 : 1,
+                    },
+                    text: {
+                        color: isActive ? COLORS.activeSessionText : COLORS.scheduledText,
+                        fontWeight: '600',
+                        marginTop: 0,
+                    },
+                },
+            };
+            return acc;
+        }, {});
+
+        if (activeDateKey && !entries[activeDateKey]) {
+            entries[activeDateKey] = {
+                customStyles: {
+                    container: {
+                        ...circleBaseStyle,
+                        backgroundColor: COLORS.unscheduledBackground,
+                        borderColor: COLORS.scheduledText,
+                        borderWidth: 1,
+                    },
+                    text: {
+                        color: COLORS.maroon,
+                        fontWeight: '600',
+                        marginTop: 0,
+                    },
+                },
+            };
+        }
+
+        const todayKey = formatDateKey(new Date());
+        if (!entries[todayKey]) {
+            entries[todayKey] = {
+                customStyles: {
+                    container: {
+                        ...circleBaseStyle,
+                        backgroundColor: COLORS.todayBackground,
+                        borderWidth: 0,
+                    },
+                    text: {
+                        color: COLORS.todayText,
+                        fontWeight: '600',
+                        marginTop: 0,
+                    },
+                },
+            };
+        }
+
+        return entries;
     }, [selectedSessions, activeDateKey]);
 
     const openModalForDate = useCallback((dateKey: string) => {
@@ -120,71 +204,170 @@ export default function TherapyCalendar({ buttonAtBottom, onSave, initialSession
 
     const sessionCount = Object.keys(selectedSessions).length;
 
+    const calendarTheme = {
+        arrowColor: COLORS.maroon, // Month navigation arrows
+        backgroundColor: 'transparent', // Calendar root background
+        calendarBackground: 'transparent', // Calendar month panel background
+        dayTextColor: COLORS.calendarDayDefault, // Default day numbers
+        monthTextColor: COLORS.calendarMonthText, // Month title text
+        selectedDayBackgroundColor: COLORS.calendarSelectedBackground, // Selected day circle fill
+        selectedDayTextColor: COLORS.white, // Selected day number color
+        textDayFontFamily: 'System', // Day numbers font family
+        textDayFontSize: 15, // Day numbers font size
+        textDayHeaderFontFamily: 'System', // Weekday headers font family
+        textDayHeaderFontSize: 15, // Weekday headers font size
+        textDisabledColor: COLORS.calendarDayDisabled, // Disabled day numbers
+        textMonthFontFamily: 'System', // Month title font family
+        textMonthFontSize: 20, // Month title font size
+        textSectionTitleColor: COLORS.calendarWeekdayHeader, // Weekday header text color
+        todayTextColor: COLORS.scheduledText, // Today's date number color
+    };
+
     return (
         <>
-            <View style={styles.container}>
+            <View style={ styles.content }>
                 <Calendar
-                    onDayPress={handleDayPress}
-                    markedDates={markedDates}
-                    markingType="dot"
                     hideExtraDays
-                    minDate={formatDateKey(new Date())}
+                    markedDates={ markedDates }
+                    markingType="custom"
+                    minDate={ formatDateKey(new Date()) }
+                    onDayPress={ handleDayPress }
+                    theme={ calendarTheme }
                 />
-
-                <InfoBlock
-                    text={`${sessionCount} sessions selected. Tap dates to add sessions, then save.`}
-                    icon="💡"
-                />
-
-                <View style={styles.buttons}>
-                    <Button label="Clear All" onPress={() => setSelectedSessions({})} disabled={sessionCount === 0} />
-
-                    {!buttonAtBottom && (
-                        <Button label={`Save (${sessionCount})`} onPress={handleSave} disabled={sessionCount === 0} />
-                    )}
-                </View>
-
-                {buttonAtBottom && (
-                    <View style={styles.buttonAtBottom}>
-                        <Button label="Add Sessions" onPress={handleSave} disabled={sessionCount === 0} />
+                <View style={ styles.keyAndButtons }>
+                    <View style={ styles.legendWrapper }>
+                        <View style={ styles.legendCard }>
+                            <View>
+                                <View style={ styles.legendItem }>
+                                    <View style={ styles.legendCircleTherapy } />
+                                    <Text style={ styles.legendLabel }>Therapy session</Text>
+                                </View>
+                            </View>
+                        </View>
                     </View>
-                )}
+                    <InfoBlock text={'Press on a date on the calendar to update your therapy session. Then press the update button below to save them.'} />
+                    <View style={ styles.buttons }>
+                        <Button
+                            disabled={ sessionCount === 0 }
+                            label="Clear All"
+                            onPress={ () => setSelectedSessions({}) }
+                        />
+                        { buttonAtBottom ? (
+                            <View style={ styles.buttonAtBottom }>
+                                <Button
+                                    disabled={ sessionCount === 0 }
+                                    label="Update"
+                                    onPress={ handleSave }
+                                />
+                            </View>
+                        ) : (
+                            <Button
+                                disabled={ sessionCount === 0 }
+                                label={ `Save (${sessionCount})` }
+                                onPress={ handleSave }
+                            />
+                        ) }
+                    </View>
+                </View>
             </View>
 
-            {isModalVisible && activeDateKey && (
+            { isModalVisible && activeDateKey && (
                 <ScheduleModal
-                    visible={isModalVisible}
-                    selectedDate={activeDateKey}
+                    defaultTime={ DEFAULT_TIME }
                     existingSession={
                         selectedSessions[activeDateKey]
                             ? {
-                                    id: activeDateKey,
-                                    date: activeDateKey,
-                                    time: selectedSessions[activeDateKey],
-                                }
+                                  date: activeDateKey,
+                                  id: activeDateKey,
+                                  time: selectedSessions[activeDateKey],
+                              }
                             : null
                     }
-                    defaultTime={DEFAULT_TIME}
-                    onConfirm={applySession}
-                    onDelete={handleDelete}
-                    onCancel={closeModal}
+                    onCancel={ closeModal }
+                    onConfirm={ applySession }
+                    onDelete={ handleDelete }
+                    selectedDate={ activeDateKey }
+                    visible={ isModalVisible }
                 />
-            )}
+            ) }
         </>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        height: '100%',
-        position: 'relative',
+    buttonAtBottom: {
+        gap: 0,
     },
     buttons: {
-        // flexDirection: 'row',
-        // padding: 10,
-        // gap: 10,
+        alignSelf: 'stretch',
+        gap: 12,
     },
-    buttonAtBottom: {
-        paddingTop: 10,
+    content: {
+        flex: 1,
+        paddingTop: 20,
+        position: 'relative',
+    },
+    keyAndButtons: {
+        bottom: 20,
+        gap: 12,
+        paddingHorizontal: 18,
+        left: 0,
+        position: 'absolute',
+        right: 0,
+    },
+    legendCard: {
+        backgroundColor: COLORS.glassBackground,
+        borderColor: COLORS.glassBorder,
+        borderRadius: 16,
+        borderWidth: 1,
+        paddingHorizontal: 20,
+        paddingVertical: 18,
+    },
+    legendCardInstruction: {
+        backgroundColor: COLORS.instructionBackground,
+        borderColor: COLORS.instructionBorder,
+    },
+    legendCircleTherapy: {
+        backgroundColor: COLORS.unscheduledBackground,
+        borderColor: COLORS.scheduledText,
+        borderRadius: 10,
+        borderWidth: 1,
+        height: 20,
+        width: 20,
+    },
+    legendCircleToday: {
+        backgroundColor: COLORS.todayBackground,
+        borderRadius: 10,
+        height: 20,
+        width: 20,
+    },
+    legendInstruction: {
+        color: COLORS.instructionText,
+        fontSize: 14,
+        fontWeight: '600',
+        letterSpacing: 0.2,
+    },
+    legendItem: {
+        alignItems: 'center',
+        flexDirection: 'row',
+        gap: 8,
+    },
+    legendLabel: {
+        color: COLORS.legendLabel,
+        fontSize: 14,
+        fontWeight: '600',
+        letterSpacing: 0.2,
+    },
+    legendWrapper: {
+        borderRadius: 16,
+        elevation: 12,
+        shadowColor: COLORS.wrapperShadow,
+        shadowOffset: { height: 4, width: 0 },
+        shadowOpacity: 0.3,
+        shadowRadius: 30,
+    },
+    root: {
+        backgroundColor: 'transparent',
+        flex: 1,
     },
 });

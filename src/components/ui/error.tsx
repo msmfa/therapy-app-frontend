@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '../const';
 
 type Props = {
 	message: string | null;
@@ -16,7 +15,7 @@ const RED_SOFT = '#FEE2E2'; // dangerLight
 export function ErrorMessage({ message, onDismiss, style, testID }: Props) {
     return (
         <View style={ [styles.container, style] } testID={ testID }>
-            <Ionicons name="alert-circle" size={ 18 } color={ Colors.Red } style={ styles.icon } />
+            <Ionicons name="alert-circle" size={ 18 } color={ 'red' } style={ styles.icon } />
             <Text style={ styles.text }>{ message }</Text>
 
             { onDismiss ? (
@@ -27,7 +26,7 @@ export function ErrorMessage({ message, onDismiss, style, testID }: Props) {
                     hitSlop={ 8 }
                     style={ styles.close }
                 >
-                    <Ionicons name="close" size={ 18 } color={ Colors.PaleRed } />
+                    <Ionicons name="close" size={ 18 } color={ 'red' } />
                 </Pressable>
             ) : null }
         </View>

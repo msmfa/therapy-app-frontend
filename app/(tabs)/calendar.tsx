@@ -1,10 +1,11 @@
 import React, { useMemo, useCallback } from 'react';
-import { Alert } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 
 import TherapyCalendar from '../../src/components/therapy-calendar/therapy-calendar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTherapySessions } from '../../src/context/TherapySessionsContext';
-import { convertSessionsToCalendarFormat } from './components/calendar';
+import { convertSessionsToCalendarFormat } from '../../src/utils/calendar';
+import { GradientUpwards } from '../../src/components/GradientUpwards';
 
 
 export default function CalendarScreen() {
@@ -28,7 +29,8 @@ export default function CalendarScreen() {
     );
 
     return (
-        <SafeAreaView>
+        <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] }>
+            <GradientUpwards />
             <TherapyCalendar
                 initialSessions={ initialSessions }
                 buttonAtBottom={ true }
@@ -37,3 +39,10 @@ export default function CalendarScreen() {
         </SafeAreaView>
     );
 }
+
+const styles = StyleSheet.create({
+    root: {
+        flex: 1,
+        backgroundColor: 'transparent',
+    },
+});

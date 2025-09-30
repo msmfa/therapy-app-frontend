@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../src/auth/AuthContext';
+import { GradientUpwards } from '../../src/components/GradientUpwards';
 
 export default function SettingsScreen() {
     const { user, signOut } = useAuth();
@@ -16,6 +17,7 @@ export default function SettingsScreen() {
 
     return (
         <SafeAreaView style={ styles.root }>
+            <GradientUpwards />
             <View style={ styles.container }>
                 <View style={ styles.section }>
                     <Text style={ styles.label }>Signed in as</Text>
