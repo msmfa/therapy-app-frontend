@@ -32,22 +32,6 @@ export function calculateReminderTime(
     return result;
 }
 
-// export function formatReminderTime(date: Date | null): string {
-// 	if (!date) return '';
-// 	const now = new Date();
-// 	const isToday = date.toDateString() === now.toDateString();
-// 	const isTomorrow =
-// 		date.toDateString() === new Date(now.getTime() + 24 * 60 * 60 * 1000).toDateString();
-
-// 	if (isToday) {
-// 		return `Today at ${dayjs(date).format('h:mm A')}`;
-// 	} else if (isTomorrow) {
-// 		return `Tomorrow at ${dayjs(date).format('h:mm A')}`;
-// 	} else {
-// 		return dayjs(date).format('ddd, MMM D [at] h:mm A');
-// 	}
-// }
-
 export function getSessionInterval(nextSessionDate: Date | null): string {
     if (!nextSessionDate) return '';
     const now = new Date();

@@ -78,7 +78,7 @@ export default function RemindersScreen(): JSX.Element | null {
                         schedule is based on a combination of memory science, neuroplasticity
                         research, and psychotherapy studies.
                     </Text>
-
+                    { /* // fix this link */ }
                     <Pressable onPress={ () => router.push('/(onboarding)/why-reminders') }>
                         <Text style={ styles.link }>
                             Read more about the science behind your reminders here

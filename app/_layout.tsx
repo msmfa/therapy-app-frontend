@@ -38,13 +38,14 @@ function Gate() {
                 <Stack.Screen name="(onboarding)" />
             </Stack.Protected>
             <Stack.Protected guard={ Boolean(user) && hasOnboarded }>
-                <Stack.Screen name="index" />
+                <Stack.Screen name="(tabs)" options={ { headerShown: false } } />
             </Stack.Protected>
         </Stack>
     );
 }
 
 export default function RootLayout() {
+
     return (
         <ThemeProvider value={ theme }>
             <AuthProvider>

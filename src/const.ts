@@ -1,5 +1,3 @@
-import { ReminderTiming } from './components/reminders/utils';
-
 export enum Colors {
 	White = '#FFFFFF',
 	LightBlue = '#E8F4FD',
@@ -62,43 +60,5 @@ export const typography = {
     caption: { fontSize: 12, fontWeight: '500' as const },
     button: { fontSize: 16, fontWeight: '600' as const },
 };
-
-export const REMINDER_TIMINGS: ReminderTiming[] = [
-    {
-        id: 'smart-pattern',
-        label: 'Science-based pattern',
-        description: 'Multiple reminders for optimal neuroplasticity',
-        icon: '🧠',
-        badge: 'RECOMMENDED',
-        isMultiple: true,
-        calculate: (now: Date, next: Date) => {
-            const reminders = [];
-
-            const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-            tomorrow.setHours(19, 0, 0, 0);
-            reminders.push({ time: tomorrow, message: 'Practice what you learned yesterday' });
-
-            const diff = next.getTime() - now.getTime();
-            const midweek = new Date(now.getTime() + diff / 2);
-            midweek.setHours(19, 0, 0, 0);
-            reminders.push({ time: midweek, message: 'Review your therapy insights' });
-
-            const dayBefore = new Date(next.getTime() - 24 * 60 * 60 * 1000);
-            dayBefore.setHours(19, 0, 0, 0);
-            reminders.push({ time: dayBefore, message: "Prepare for tomorrow's session" });
-
-            return reminders;
-        },
-    },
-    {
-        id: 'day-before',
-        label: 'Day before',
-        description: '24 hours before next session',
-        icon: '🔔',
-        calculate: (__, next: Date) => {
-            return new Date(next.getTime() - 24 * 60 * 60 * 1000);
-        },
-    },
-];
 
 export const BASE_URL = (process.env.EXPO_PUBLIC_API_URL as string) ?? 'http://localhost:3000';

@@ -49,7 +49,6 @@ export async function createTherapySession(
     startsAt: Date,
     durationMin?: number,
 ): Promise<TherapySession> {
-    console.log(startsAt.toISOString(), 'test1');
     const res = await fetch(`${BASE_URL}/api/therapy-sessions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -90,8 +89,6 @@ export async function getTherapySessions(
     });
     if (!res.ok) throw new Error(await res.text());
     const response = await res.json() as TherapySession[];
-
-    // console.log("Fetched therapy sessions:", response);
 
     return response;
 }

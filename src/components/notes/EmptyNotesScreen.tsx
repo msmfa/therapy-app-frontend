@@ -30,9 +30,9 @@ export default function EmptyNotesScreen() {
                     </Text>
                 </View>
                 <View>
-                    <InfoBlock text={ 'Add notes right after your therapy session while insights are fresh' } icon={ '💡' } />
+                    <InfoBlock text={ 'Add notes right after your therapy session while insights are fresh' } />
                 </View>
-                <Button label="Create your first note" onPress={ () => router.push('/(tabs)/note') } />
+                <Button label="Create your first note" onPress={ () => router.push('/(tabs)') } />
             </View>
         </SafeAreaView>
     );

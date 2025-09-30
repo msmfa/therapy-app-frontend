@@ -55,7 +55,7 @@ export function calculateTherapyReminderTimes(
 
     const scheduledDays = REMINDER_SCHEDULE[daysBetween];
     if (!scheduledDays) return [];
-    console.log("scheduledDays", scheduledDays)
+
     const reminderTimes = scheduledDays.map((day) =>
         day === 0
             ? dayjs(lastSession).add(1, 'hour').toDate()

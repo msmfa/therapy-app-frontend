@@ -8,11 +8,11 @@ export default function TabsLayout() {
     const { hydrated, isAuthenticated } = useAuth();
 
     if (!hydrated) return null;
-    if (!isAuthenticated) return <Redirect href="/login" />;
+    if (!isAuthenticated) return <Redirect href="/(auth)/login" />;
 
     return (
         <Tabs
-            initialRouteName="note"
+            initialRouteName="index"
             screenOptions={ {
                 animation: 'shift', // or 'shift'
                 transitionSpec: {
@@ -41,7 +41,7 @@ export default function TabsLayout() {
             } }
         >
             <Tabs.Screen
-                name="note"
+                name="index"
                 options={ {
                     headerShown: false, // 👈 hide tab header to prevent overlap
                     title: 'New Note',

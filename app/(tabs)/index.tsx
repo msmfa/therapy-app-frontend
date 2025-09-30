@@ -4,9 +4,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
-import { useNotes } from '../../../src/hooks/useNotes';
-import { useAuth } from '../../../src/auth/AuthContext';
-import ErrorMessage from '../../../src/components/ui/error';
+import { useAuth } from '../../src/auth/AuthContext';
+import { useNotes } from '../../src/hooks/useNotes';
+import ErrorMessage from '../../src/components/ui/error';
+
 
 export default function NewNoteScreen() {
     const router = useRouter();

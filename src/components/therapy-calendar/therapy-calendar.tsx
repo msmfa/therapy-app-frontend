@@ -4,6 +4,7 @@ import { Calendar } from 'react-native-calendars';
 import ScheduleModal from './schedule-modal';
 import { Button } from '../ui/button';
 import { InfoBlock } from '../infoBlock';
+import { GradientRow } from '../ui/GradientRow';
 
 export const COLORS = {
     activeSessionBackground: 'rgba(211, 85, 85, 1)',
@@ -235,16 +236,12 @@ export default function TherapyCalendar({ buttonAtBottom, onSave, initialSession
                     theme={ calendarTheme }
                 />
                 <View style={ styles.keyAndButtons }>
-                    <View style={ styles.legendWrapper }>
-                        <View style={ styles.legendCard }>
-                            <View>
-                                <View style={ styles.legendItem }>
-                                    <View style={ styles.legendCircleTherapy } />
-                                    <Text style={ styles.legendLabel }>Therapy session</Text>
-                                </View>
-                            </View>
+                    <GradientRow >
+                        <View style={styles.legendItem}>
+                            <View style={styles.legendCircleTherapy} />
+                            <Text style={styles.legendLabel}>Therapy session</Text>
                         </View>
-                    </View>
+                    </GradientRow>
                     <InfoBlock text={'Press on a date on the calendar to update your therapy session. Then press the update button below to save them.'} />
                     <View style={ styles.buttons }>
                         <Button
@@ -371,3 +368,5 @@ const styles = StyleSheet.create({
         flex: 1,
     },
 });
+
+
