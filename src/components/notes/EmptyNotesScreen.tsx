@@ -1,9 +1,8 @@
-import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { Button } from '../ui/button';
-import { InfoBlock } from '../infoBlock';
+import dayjs from 'dayjs';
+import { GradientUpwards } from '../GradientUpwards';
+import { useTherapySessions } from '../../context/TherapySessionsContext';
 
 // Color palette
 const colors = {
@@ -17,22 +16,32 @@ const colors = {
 };
 
 export default function EmptyNotesScreen() {
-    const router = useRouter();
+    const { nextSession } = useTherapySessions();
+
+    if (!nextSession) {
+        console.error("No session logged in EmptyNotesScreen");
+        return null;
+    }
+
+    const nextSessionDate = dayjs(nextSession.startsAtUtc).format('dddd, MMM D [at] h:mm A')
 
     return (
-        <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom'] }>
+        <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] }>
+            <GradientUpwards />
             <View style={ styles.emptyContainer }>
                 <View style={ styles.emptyCard }>
-                    <Text style={ styles.emptyEmoji }>📝</Text>
-                    <Text style={ styles.emptyTitle }>No therapy notes yet</Text>
+                    <Text style={ styles.emptyTitle }>Nothing logged yet</Text>
                     <Text style={ styles.emptySubtext }>
-                        Start capturing insights from your sessions to track your journey
+                        Your next session is { nextSessionDate }.
+                    </Text>
+                    <Text style={ styles.emptySubtext }>
+                        We'll send you a notification shortly afterwards so you can take down your first note!
+                    </Text>
+
+                    <Text style={ styles.emptySubtext }>
+                        If you want to get started now, you can create your first note by tapping the + icon in the bottom left
                     </Text>
                 </View>
-                <View>
-                    <InfoBlock text={ 'Add notes right after your therapy session while insights are fresh' } />
-                </View>
-                <Button label="Create your first note" onPress={ () => router.push('/(tabs)') } />
             </View>
         </SafeAreaView>
     );
@@ -44,35 +53,33 @@ const styles = StyleSheet.create({
     },
     emptyContainer: {
         flex: 1,
+        gap: 16,
+        // alignItems: 'center',
         justifyContent: 'center',
-        alignItems: 'center',
         paddingHorizontal: 20,
     },
     emptyCard: {
         backgroundColor: colors.warningBg,
         padding: 32,
         borderRadius: 12,
-        alignItems: 'center',
+        gap: 12,
+        // alignItems: 'center',
         borderWidth: 1,
         borderColor: colors.warningBorder,
         marginBottom: 24,
         width: '100%',
     },
-    emptyEmoji: {
-        fontSize: 48,
-        marginBottom: 16,
-    },
     emptyTitle: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: '600',
         color: colors.warningText,
         marginBottom: 8,
-        textAlign: 'center',
+        // textAlign: 'center',
     },
     emptySubtext: {
-        fontSize: 14,
+        fontSize: 16,
         color: colors.warningText,
-        textAlign: 'center',
+        // textAlign: 'center',
         lineHeight: 20,
         opacity: 0.9,
     },

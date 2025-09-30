@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import {
     getTherapySessions,
@@ -19,6 +19,7 @@ interface TherapySessionsContextType {
 	updateSession: (id: string, date: Date, duration: number) => Promise<void>;
 	deleteSession: (id: string) => Promise<void>;
 	hasUpcomingSessions: () => boolean;
+	nextSession: TherapySession | null;
 }
 
 const TherapySessionsContext = createContext<TherapySessionsContextType | undefined>(undefined);
@@ -133,6 +134,22 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
         return sessions.some((session) => new Date(session.startsAtUtc) > now);
     }, [sessions]);
 
+    const nextSession = useMemo(() => {
+        const now = Date.now();
+        let earliest: TherapySession | null = null;
+        let earliestStart = Number.POSITIVE_INFINITY;
+
+        sessions.forEach((session) => {
+            const start = new Date(session.startsAtUtc).getTime();
+            if (start > now && start < earliestStart) {
+                earliest = session;
+                earliestStart = start;
+            }
+        });
+
+        return earliest;
+    }, [sessions]);
+
     useEffect(() => {
         if (token) {
             refreshSessions();
@@ -151,6 +168,7 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
                 updateSession,
                 deleteSession,
                 hasUpcomingSessions,
+                nextSession,
             } }
         >
             { children }

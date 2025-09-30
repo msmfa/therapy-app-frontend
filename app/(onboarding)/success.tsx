@@ -5,10 +5,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useOnboarding } from '../../src/context/OnboardingContext';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
 import { Button } from '../../src/components/ui/button';
+import { useTherapySessions } from '../../src/context/TherapySessionsContext';
+import dayjs from 'dayjs';
 
 export default function SuccessScreen() {
     const router = useRouter();
     const { finishOnboarding } = useOnboarding();
+    const { nextSession } = useTherapySessions();
 
     const handleComplete = async () => {
         await finishOnboarding();
@@ -16,7 +19,8 @@ export default function SuccessScreen() {
     };
 
     // TODO: add a icon or image here in the background
-    const nextSessionDate = '10am on tuesday'
+    console.log("next session", nextSession);
+    const nextSessionDate = nextSession ? dayjs(nextSession.startsAtUtc).format('h:mm A [on] dddd') : 'Unknown';
     const logNoteReminderTime = '8pm'
     return (
         <SafeAreaView style={ styles.container }>
