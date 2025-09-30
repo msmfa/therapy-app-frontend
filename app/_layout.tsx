@@ -1,14 +1,14 @@
-import { Stack } from 'expo-router';
+import { ErrorBoundaryProps, Stack } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useEffect } from 'react';
 import { ThemeProvider, DefaultTheme, Theme } from '@react-navigation/native';
-
 import { AuthProvider, useAuth } from '../src/auth/AuthContext';
 import { OnboardingProvider, useOnboarding } from '../src/context/OnboardingContext';
 import { TherapySessionsProvider } from '../src/context/TherapySessionsContext';
 import { initNotifications } from '../src/utils/schedule-reminders';
 import { Palette } from '../design';
 import { StatusBar } from 'react-native';
+import { ErrorBoundaryUI } from '../src/components/ErrorBoundary';
 
 
 const theme: Theme = {
@@ -69,4 +69,11 @@ function Initializer() {
     }, []);
 
     return null;
+}
+
+
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+    return (
+        <ErrorBoundaryUI error={ error } retry={ retry } />
+    );
 }

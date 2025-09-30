@@ -10,22 +10,22 @@ import {
 } from '../api/therapy';
 
 interface TherapySessionsContextType {
-	sessions: TherapySession[];
-	loading: boolean;
-	error: string | null;
-	refreshSessions: () => Promise<void>;
-	addSession: (date: Date, duration: number) => Promise<void>;
-	syncSessions: (selected: Record<string, Date>, duration: number) => Promise<void>;
-	updateSession: (id: string, date: Date, duration: number) => Promise<void>;
-	deleteSession: (id: string) => Promise<void>;
-	hasUpcomingSessions: () => boolean;
-	nextSession: TherapySession | null;
+    sessions: TherapySession[];
+    loading: boolean;
+    error: string | null;
+    refreshSessions: () => Promise<void>;
+    addSession: (date: Date, duration: number) => Promise<void>;
+    syncSessions: (selected: Record<string, Date>, duration: number) => Promise<void>;
+    updateSession: (id: string, date: Date, duration: number) => Promise<void>;
+    deleteSession: (id: string) => Promise<void>;
+    hasUpcomingSessions: () => boolean;
+    nextSession: TherapySession | null;
 }
 
 const TherapySessionsContext = createContext<TherapySessionsContextType | undefined>(undefined);
 
 interface TherapySessionsProviderProps {
-	children: React.ReactNode;
+    children: React.ReactNode;
 }
 
 export function TherapySessionsProvider({ children }: TherapySessionsProviderProps) {
@@ -41,11 +41,11 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
         setError(null);
         try {
             const from = new Date();
-            from.setHours(0, 0, 0, 0); // Today at midnight
+            from.setUTCHours(0, 0, 0, 0); // Today at midnight UTC
 
             const to = new Date();
             to.setFullYear(to.getFullYear() + 1); // One year from today
-            to.setHours(23, 59, 59, 999);
+            to.setUTCHours(23, 59, 59, 999);
 
             const data = await getTherapySessions(token, from, to);
             setSessions(data);
@@ -67,8 +67,7 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
             );
 
             if (exists) {
-                console.log("Session already exists at this time");
-                return; // Or show an alert
+                throw new Error('Session already exists at this time');
             }
 
             await createTherapySession(token, date, duration);
@@ -110,8 +109,7 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
             );
 
             if (exists) {
-                console.error('Time Conflict: Another session already exists at this time');
-                return;
+                throw new Error('Another session already exists at this time');
             }
 
             await updateTherapySession(token, id, date, duration);
@@ -119,6 +117,7 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
         },
         [token, sessions, refreshSessions],
     );
+
     const deleteSession = useCallback(
         async (id: string) => {
             if (!token) throw new Error('Not authenticated');
@@ -130,8 +129,8 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
     );
 
     const hasUpcomingSessions = useCallback(() => {
-        const now = new Date();
-        return sessions.some((session) => new Date(session.startsAtUtc) > now);
+        const now = Date.now();
+        return sessions.some((session) => new Date(session.startsAtUtc).getTime() > now);
     }, [sessions]);
 
     const nextSession = useMemo(() => {
@@ -153,6 +152,11 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
     useEffect(() => {
         if (token) {
             refreshSessions();
+        } else {
+            // Clear all data when user logs out
+            setSessions([]);
+            setError(null);
+            setLoading(false);
         }
     }, [token, refreshSessions]);
 

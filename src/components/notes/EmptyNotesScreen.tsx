@@ -16,14 +16,11 @@ const colors = {
 };
 
 export default function EmptyNotesScreen() {
-    const { nextSession } = useTherapySessions();
+    const { nextSession, loading } = useTherapySessions();
 
-    if (!nextSession) {
-        console.error("No session logged in EmptyNotesScreen");
-        return null;
-    }
-
-    const nextSessionDate = dayjs(nextSession.startsAtUtc).format('dddd, MMM D [at] h:mm A')
+    const nextSessionDate = nextSession
+        ? dayjs(nextSession.startsAtUtc).format('dddd, MMM D [at] h:mm A')
+        : null;
 
     return (
         <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] }>
@@ -31,9 +28,17 @@ export default function EmptyNotesScreen() {
             <View style={ styles.emptyContainer }>
                 <View style={ styles.emptyCard }>
                     <Text style={ styles.emptyTitle }>Nothing logged yet</Text>
-                    <Text style={ styles.emptySubtext }>
-                        Your next session is { nextSessionDate }.
-                    </Text>
+                    { nextSessionDate ? (
+                        <Text style={ styles.emptySubtext }>
+                            Your next session is { nextSessionDate }.
+                        </Text>
+                    ) : (
+                        <Text style={ styles.emptySubtext }>
+                            { loading
+                                ? 'We are fetching your upcoming sessions…'
+                                : 'Your next session will appear here once you add it.' }
+                        </Text>
+                    ) }
                     <Text style={ styles.emptySubtext }>
                         We'll send you a notification shortly afterwards so you can take down your first note!
                     </Text>

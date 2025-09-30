@@ -4,6 +4,7 @@ import { useAuth } from '../../src/auth/AuthContext';
 import { useNotes } from '../../src/hooks/useNotes';
 import EmptyNotesScreen from '../../src/components/notes/EmptyNotesScreen';
 import NotesListScreen from '../../src/components/notes/NotesListScreen';
+import Loading from '../../src/components/ui/loading';
 
 export default function NotesScreen() {
     const { user } = useAuth();
@@ -15,7 +16,9 @@ export default function NotesScreen() {
         }, [refresh]),
     );
 
-    if (!user?.id) return null;
+    if (!user?.id) {
+        return <Loading />;
+    }
 
     if (notes.length === 0) {
         return <EmptyNotesScreen />;

@@ -27,8 +27,7 @@ export const updateTherapySession = async (
     startsAtUtc: Date,
     durationMinutes: number,
 ): Promise<TherapySession> => {
-    // Implementation to update session time
-    const response = await fetch(`/api/therapy-sessions/${sessionId}`, {
+    const response = await fetch(`${BASE_URL}/api/therapy-sessions/${sessionId}`, {
         method: 'PUT',
         headers: {
             Authorization: `Bearer ${token}`,
@@ -39,6 +38,9 @@ export const updateTherapySession = async (
             durationMinutes,
         }),
     });
+
+    if (!response.ok) throw new Error(await response.text());
+
     return (await response.json()) as TherapySession;
 };
 
