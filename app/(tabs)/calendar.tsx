@@ -6,10 +6,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTherapySessions } from '../../src/context/TherapySessionsContext';
 import { convertSessionsToCalendarFormat } from '../../src/utils/calendar';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
+import SuccessScreenModal from '../../src/components/ui/SuccessScreenModal';
 
 
 export default function CalendarScreen() {
     const { sessions, syncSessions } = useTherapySessions();
+    const [showSuccessModal, setShowSuccessModal] = React.useState(false);
     const initialSessions = useMemo(
         () => convertSessionsToCalendarFormat(sessions),
         [sessions],
@@ -19,6 +21,7 @@ export default function CalendarScreen() {
         async (selected: { [date: string]: Date }) => {
             try {
                 await syncSessions(selected, 50);
+                setShowSuccessModal(true)
                 Alert.alert('Saved', 'Therapy sessions updated.');
             } catch (error) {
                 console.error('syncSessions failed', error);
@@ -35,6 +38,7 @@ export default function CalendarScreen() {
                 initialSessions={ initialSessions }
                 onSave={ handleSave }
             />
+            <SuccessScreenModal isVisible={ showSuccessModal } onClose={ () => setShowSuccessModal(false) } />
         </SafeAreaView>
     );
 }

@@ -1,4 +1,5 @@
 import { BASE_URL } from "../const";
+import { readApiError } from './utils';
 
 const normalizeToken = (token: string): string => {
     const normalized = token.trim().replace(/^bearer\s+/i, '').trim();
@@ -50,7 +51,7 @@ export const updateTherapySession = async (
         }),
     });
 
-    if (!response.ok) throw new Error(await response.text());
+    if (!response.ok) throw new Error(await readApiError(response));
 
     return (await response.json()) as TherapySession;
 };
@@ -65,7 +66,7 @@ export async function createTherapySession(
         headers: { 'Content-Type': 'application/json', Authorization: buildAuthHeader(token) },
         body: JSON.stringify({ startsAtUtc: startsAt.toISOString(), durationMin }),
     });
-    if (!res.ok) throw new Error(await res.text());
+    if (!res.ok) throw new Error(await readApiError(res));
     return (await res.json()) as TherapySession;
 }
 
@@ -98,7 +99,7 @@ export async function getTherapySessions(
     const res = await fetch(`${BASE_URL}/api/therapy-sessions?${qs}`, {
         headers: { Authorization: buildAuthHeader(token) },
     });
-    if (!res.ok) throw new Error(await res.text());
+    if (!res.ok) throw new Error(await readApiError(res));
     const response = await res.json() as TherapySession[];
 
     return response;
@@ -109,7 +110,7 @@ export async function deleteTherapySession(token: string, id: string): Promise<v
         method: 'DELETE',
         headers: { Authorization: buildAuthHeader(token) },
     });
-    if (!res.ok) throw new Error(await res.text());
+    if (!res.ok) throw new Error(await readApiError(res));
 }
 
 export async function syncTherapySessions(
@@ -124,7 +125,7 @@ export async function syncTherapySessions(
         },
         body: JSON.stringify({ sessions: payload }),
     });
-    if (!res.ok) throw new Error(await res.text());
+    if (!res.ok) throw new Error(await readApiError(res));
     return (await res.json()) as TherapySessionSyncResult;
 }
 
