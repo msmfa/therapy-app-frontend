@@ -18,17 +18,16 @@ export default function SuccessScreen() {
         router.push('/(tabs)/notes');
     };
 
-    // TODO: add a icon or image here in the background
-    console.log("next session", nextSession);
+
     const nextSessionDate = nextSession ? dayjs(nextSession.startsAtUtc).format('h:mm A [on] dddd') : 'Unknown';
-    const logNoteReminderTime = '8pm'
+    const nextSessionPlusOneHour = nextSession ? dayjs(nextSession.startsAtUtc).add(1, 'hour').format('h:mm A') : 'Unknown';
     return (
         <SafeAreaView style={ styles.container }>
             <GradientUpwards />
             <View style={ styles.content }>
                 <Text style={ styles.title }>All Set</Text>
                 <Text style={ styles.subtitle }>Your next session is at { nextSessionDate }. </Text>
-                <Text style={ styles.subtitle }>We'll send you a reminder after your session at { logNoteReminderTime } to remind you to write down your session notes.</Text>
+                <Text style={ styles.subtitle }>We'll send you a reminder after your session at { nextSessionPlusOneHour } to remind you to write down your session notes.</Text>
             </View>
             <View style={ styles.buttons }>
                 <Button label='Done' onPress={ handleComplete }  />

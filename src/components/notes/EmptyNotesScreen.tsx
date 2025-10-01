@@ -42,7 +42,9 @@ export default function EmptyNotesScreen() {
                     <Text style={ styles.emptySubtext }>
                         We'll send you a notification shortly afterwards so you can take down your first note!
                     </Text>
-
+                    <Text style={ styles.emptySubtext }>
+                        If you like you can read a little about what kind of note taking is best for therapy sessions
+                    </Text>
                     <Text style={ styles.emptySubtext }>
                         If you want to get started now, you can create your first note by tapping the + icon in the bottom left
                     </Text>
