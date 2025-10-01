@@ -25,6 +25,25 @@ export interface Reminder {
   gapIndex: number;
 }
 
+export interface PostSessionNoteReminder {
+  sessionId?: string;
+  sessionStartsAtUtc: string;
+  remindAtUtc: string;
+}
+
+interface RawSessionLike {
+  _id?: string;
+  id?: string;
+  startsAtUtc?: string;
+  durationMin?: number | null;
+}
+
+export interface PostSessionNoteParams {
+  sessions: RawSessionLike[];
+  nowUtc: string;
+  minutesAfterSession: number;
+}
+
 export interface ScheduleParams {
   nowUtc: string;
   sessionsUtc: string[];
@@ -202,6 +221,48 @@ export function scheduleNeuroplasticityReminders(params: ScheduleParams): Remind
             reason: draft.reason,
             gapIndex: draft.gapIndex,
         }));
+}
+
+export function getPostSessionNoteReminders(params: PostSessionNoteParams): PostSessionNoteReminder[] {
+    const { sessions, nowUtc, minutesAfterSession } = params;
+    if (!Array.isArray(sessions) || sessions.length === 0) return [];
+    if (minutesAfterSession < 0) return [];
+
+    const now = toUtcMinute(nowUtc);
+    if (!now) return [];
+
+    const reminders: PostSessionNoteReminder[] = [];
+
+    for (const session of sessions) {
+        const startsAtUtc = session?.startsAtUtc;
+        if (!startsAtUtc) continue;
+
+        const start = toUtcMinute(startsAtUtc);
+        if (!start) continue;
+
+        const duration = typeof session?.durationMin === 'number' && session.durationMin > 0
+            ? session.durationMin
+            : 0;
+
+        const remindAt = start
+            .add(duration + minutesAfterSession, 'minute')
+            .second(0)
+            .millisecond(0);
+
+        if (!remindAt.isAfter(now)) continue;
+
+        const sessionId = session?._id ?? session?.id;
+
+        reminders.push({
+            sessionId: sessionId ?? undefined,
+            sessionStartsAtUtc: start.toISOString(),
+            remindAtUtc: remindAt.toISOString(),
+        });
+    }
+
+    reminders.sort((a, b) => dayjs(a.remindAtUtc).valueOf() - dayjs(b.remindAtUtc).valueOf());
+
+    return reminders;
 }
 
 /* ---------- Helpers ---------- */

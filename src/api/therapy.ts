@@ -1,5 +1,16 @@
 import { BASE_URL } from "../const";
 
+const normalizeToken = (token: string): string => {
+    const normalized = token.trim().replace(/^bearer\s+/i, '').trim();
+    return normalized;
+};
+
+const buildAuthHeader = (token: string): string => {
+    const normalized = normalizeToken(token);
+    if (!normalized) throw new Error('Missing authentication token');
+    return `Bearer ${normalized}`;
+};
+
 type TherapySessionSyncPayload = {
     id?: string;
     startsAtUtc: string;
@@ -30,7 +41,7 @@ export const updateTherapySession = async (
     const response = await fetch(`${BASE_URL}/api/therapy-sessions/${sessionId}`, {
         method: 'PUT',
         headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: buildAuthHeader(token),
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -51,7 +62,7 @@ export async function createTherapySession(
 ): Promise<TherapySession> {
     const res = await fetch(`${BASE_URL}/api/therapy-sessions`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', Authorization: buildAuthHeader(token) },
         body: JSON.stringify({ startsAtUtc: startsAt.toISOString(), durationMin }),
     });
     if (!res.ok) throw new Error(await res.text());
@@ -85,7 +96,7 @@ export async function getTherapySessions(
     });
 
     const res = await fetch(`${BASE_URL}/api/therapy-sessions?${qs}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: buildAuthHeader(token) },
     });
     if (!res.ok) throw new Error(await res.text());
     const response = await res.json() as TherapySession[];
@@ -96,7 +107,7 @@ export async function getTherapySessions(
 export async function deleteTherapySession(token: string, id: string): Promise<void> {
     const res = await fetch(`${BASE_URL}/api/therapy-sessions/${id}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: buildAuthHeader(token) },
     });
     if (!res.ok) throw new Error(await res.text());
 }
@@ -109,7 +120,7 @@ export async function syncTherapySessions(
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
+            Authorization: buildAuthHeader(token),
         },
         body: JSON.stringify({ sessions: payload }),
     });

@@ -8,18 +8,22 @@ import {
     TherapySession,
     syncTherapySessions as syncTherapySessionsApi,
 } from '../api/therapy';
+import { scheduleTherapySessionNotifications } from '../utils/schedule-reminders';
+
+const POST_SESSION_NOTIFICATION_ID = 'post-session-note';
+const POST_SESSION_NOTIFICATION_MESSAGE = 'Take a quick note about your therapy session';
 
 interface TherapySessionsContextType {
     sessions: TherapySession[];
     loading: boolean;
     error: string | null;
+    nextSession: TherapySession | null;
     refreshSessions: () => Promise<void>;
     addSession: (date: Date, duration: number) => Promise<void>;
     syncSessions: (selected: Record<string, Date>, duration: number) => Promise<void>;
     updateSession: (id: string, date: Date, duration: number) => Promise<void>;
     deleteSession: (id: string) => Promise<void>;
     hasUpcomingSessions: () => boolean;
-    nextSession: TherapySession | null;
 }
 
 const TherapySessionsContext = createContext<TherapySessionsContextType | undefined>(undefined);
@@ -29,7 +33,7 @@ interface TherapySessionsProviderProps {
 }
 
 export function TherapySessionsProvider({ children }: TherapySessionsProviderProps) {
-    const { token } = useAuth();
+    const { token, signOut } = useAuth();
     const [sessions, setSessions] = useState<TherapySession[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -49,13 +53,26 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
 
             const data = await getTherapySessions(token, from, to);
             setSessions(data);
+
+            await scheduleTherapySessionNotifications(
+                POST_SESSION_NOTIFICATION_ID,
+                POST_SESSION_NOTIFICATION_MESSAGE,
+                data,
+            );
         } catch (err) {
-            setError('Failed to load sessions');
+            const message = err instanceof Error ? err.message : String(err);
+            const invalidToken = /invalid token/i.test(message);
+
+            setError(invalidToken ? 'Session expired. Please sign in again.' : 'Failed to load sessions');
             console.error('Error loading sessions:', err);
+
+            if (invalidToken) {
+                await signOut();
+            }
         } finally {
             setLoading(false);
         }
-    }, [token]);
+    }, [token, signOut]);
 
     const addSession = useCallback(
         async (date: Date, duration: number) => {

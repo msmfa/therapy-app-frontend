@@ -2,6 +2,8 @@ import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 import { SchedulableTriggerInputTypes } from 'expo-notifications';
+import { getPostSessionNoteReminders } from '../components/reminders/reminder-schedule-v2';
+import type { TherapySession } from '../api/therapy';
 
 Notifications.setNotificationHandler({
     handleNotification: async (): Promise<Notifications.NotificationBehavior> => ({
@@ -37,7 +39,10 @@ export async function initNotifications(): Promise<void> {
     if (!granted) throw new Error('Notification permissions not granted');
 }
 
-export async function scheduleNoteReminder(
+/**
+ * Schedule notifications to be sent to the users phone to remind the user about a note at a specific date & time.
+ */
+export async function scheduleNoteNotification(
     noteId: string,
     body: string,
     when: Date,
@@ -59,10 +64,29 @@ export async function scheduleNoteReminder(
     });
 }
 
-export async function cancelReminder(notificationId: string): Promise<void> {
+export async function cancelScheduledNotification(notificationId: string): Promise<void> {
     try {
         await Notifications.cancelScheduledNotificationAsync(notificationId);
     } catch (err) {
-        console.warn('cancelReminder failed', err);
+        console.warn('cancelScheduledNotification failed', err);
     }
+}
+
+export async function scheduleTherapySessionNotifications(
+    noteId: string,
+    message: string,
+    sessions: Array<Pick<TherapySession, '_id' | 'startsAtUtc' | 'durationMin'>>,
+    minutesAfterSession = 10,
+): Promise<void> {
+    const plan = getPostSessionNoteReminders({
+        sessions,
+        nowUtc: new Date().toISOString(),
+        minutesAfterSession,
+    });
+
+    if (!plan.length) return;
+
+    await Promise.all(
+        plan.map(({ remindAtUtc }) => scheduleNoteNotification(noteId, message, new Date(remindAtUtc))),
+    );
 }

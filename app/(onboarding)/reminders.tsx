@@ -45,8 +45,7 @@ const keyToTextDictionary = {
 export default function RemindersScreen(): JSX.Element | null {
     const router = useRouter();
     const { sessions } = useTherapySessions();
-
-    console.log("test")
+    console.log("sessions", sessions);
 
     const orderedSessionDates = useMemo(() => {
         return [...sessions]

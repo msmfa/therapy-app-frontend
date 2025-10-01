@@ -1,6 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import * as SecureStore from 'expo-secure-store';
 
+const normalizeToken = (value: string | null | undefined): string | null => {
+    if (!value) return null;
+    const normalized = value.replace(/^Bearer\s+/i, '').trim();
+    return normalized.length ? normalized : null;
+};
+
 type AuthUser = { id: string; email: string } | null;
 
 type AuthContextValue = {
@@ -24,7 +30,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             try {
                 const t = await SecureStore.getItemAsync('token');
                 const u = await SecureStore.getItemAsync('user');
-                if (t) setToken(t);
+
+                if (t) {
+                    const normalized = normalizeToken(t);
+                    if (normalized) {
+                        setToken(normalized);
+                        if (normalized !== t) {
+                            await SecureStore.setItemAsync('token', normalized);
+                        }
+                    } else {
+                        setToken(null);
+                        await SecureStore.deleteItemAsync('token');
+                    }
+                }
                 if (u) setUser(JSON.parse(u));
             } finally {
                 setHydrated(true);
@@ -33,9 +51,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     const setAuth = async (t: string, u: AuthUser) => {
-        setToken(t);
+        const normalizedToken = normalizeToken(t);
+
+        setToken(normalizedToken);
         setUser(u);
-        await SecureStore.setItemAsync('token', t);
+        if (normalizedToken) {
+            await SecureStore.setItemAsync('token', normalizedToken);
+        } else {
+            await SecureStore.deleteItemAsync('token');
+        }
         await SecureStore.setItemAsync('user', JSON.stringify(u));
     };
 
