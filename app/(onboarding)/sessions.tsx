@@ -28,7 +28,7 @@ export default function SessionsScreen() {
 
         try {
             await syncSessions(selectedSessions, 50);
-            router.push('/(onboarding)/reminders');
+            router.push('/(onboarding)/explanation');
         } catch (error) {
             Alert.alert('Error', 'Failed to save sessions. Please try again.');
             console.error(error);

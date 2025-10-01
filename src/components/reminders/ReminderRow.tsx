@@ -14,6 +14,7 @@ type Props = {
 
 export function ReminderRow ({ date, description, link }: Props) {
     const [openModal, setOpenModal] = useState<ReminderType | null>(null);
+    console.log("props", { date, description, link });
     return (
         <GradientRow>
             <View style={ styles.container }>

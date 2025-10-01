@@ -45,7 +45,6 @@ const keyToTextDictionary = {
 export default function RemindersScreen(): JSX.Element | null {
     const router = useRouter();
     const { sessions } = useTherapySessions();
-    console.log("sessions", sessions);
 
     const orderedSessionDates = useMemo(() => {
         return [...sessions]
@@ -70,32 +69,39 @@ export default function RemindersScreen(): JSX.Element | null {
         cadenceDays: 4,
     });
 
-    const remindersLimitedToOneWeek = useMemo(() => {
-        const windowStart = dayjs();
-        const windowEnd = windowStart.add(LENGTH_OF_DAYS_TO_SHOW, 'day');
-        return reminders.filter(({ atUtc }) =>
-            dayjs(atUtc).isBetween(windowStart, windowEnd, undefined, '[]'),
-        );
-    }, [reminders]);
+    const nextSessionDate = useMemo(() => {
+        const now = Date.now();
+        return orderedSessionDates.find((date) => date.getTime() >= now) ?? null;
+    }, [orderedSessionDates]);
 
+    const getRemindersForWeek = useMemo(() => {
+        if (nextSessionDate) {
+            const windowStart = dayjs(nextSessionDate);
+            const windowEnd = windowStart.add(LENGTH_OF_DAYS_TO_SHOW, 'day');
+            return reminders.filter(({ atUtc }) =>
+                dayjs(atUtc).isBetween(windowStart, windowEnd, undefined, '[]'),
+            );
+        }
+
+        const fallbackStart = dayjs();
+        const fallbackEnd = fallbackStart.add(LENGTH_OF_DAYS_TO_SHOW, 'day');
+        return reminders.filter(({ atUtc }) =>
+            dayjs(atUtc).isBetween(fallbackStart, fallbackEnd, undefined, '[]'),
+        );
+    }, [reminders, nextSessionDate]);
+
+    const remindersToShow = getRemindersForWeek;
     return (
         <SafeAreaView style={ styles.container }>
             <GradientUpwards />
             <ScrollView style={ styles.scrollContent }>
                 <View style={ styles.header }>
-                    { /* <Text style={ styles.title }>Your reminders</Text> */ }
-                    { /* move this to a new screen before it */ }
-                    { /* <Text style={ styles.subtitle }>
-                        We place your reminders at set times between sessions, based on memory science, neuroplasticity, and psychotherapy research. Click on a row below to read more.
-                    </Text> */ }
-                    { /* // fix this link */ }
-
 
                     <Text style={ [styles.subtitle, styles.sectionTitle] }>
                         Your tailored plan
                     </Text>
 
-                    { remindersLimitedToOneWeek.map(({ atUtc, reason }) => (
+                    { remindersToShow.map(({ atUtc, reason }) => (
                         <ReminderRow
                             key={ atUtc }
                             date={ dayjs(atUtc).format('dddd Do [at] h:mm A') }

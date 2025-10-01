@@ -11,6 +11,7 @@ export default function OnboardingLayout() {
         } } >
             <Stack.Screen name="index" />
             <Stack.Screen name="sessions" />
+            <Stack.Screen name="explanation" />
             <Stack.Screen name="reminders" />
             <Stack.Screen name="success" />
         </Stack>
