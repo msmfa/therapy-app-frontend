@@ -1,8 +1,28 @@
 {
-	"extends": "expo/tsconfig.base",
-	"compilerOptions": {
-		"strict": true,
-		"noUnusedLocals": true,
-		"noUnusedParameters": true
-	}
+        "extends": "expo/tsconfig.base",
+        "compilerOptions": {
+                "strict": true,
+                "noUnusedLocals": true,
+                "noUnusedParameters": true,
+                "baseUrl": ".",
+                "paths": {
+                        "expo-apple-authentication": [
+                                "types/expo-apple-authentication"
+                        ],
+                        "expo-auth-session": [
+                                "types/expo-auth-session"
+                        ],
+                        "expo-auth-session/providers/google": [
+                                "types/expo-auth-session"
+                        ],
+                        "expo-web-browser": [
+                                "types/expo-web-browser"
+                        ]
+                }
+        },
+        "include": [
+                "**/*.ts",
+                "**/*.tsx",
+                "types/**/*.d.ts"
+        ]
 }

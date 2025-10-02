@@ -1,21 +1,16 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, Platform } from 'react-native';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
+import * as AuthSession from 'expo-auth-session';
 
 import { useAuth } from './AuthContext';
-import {
-    APPLE_REDIRECT_URI,
-    APPLE_SERVICE_ID,
-    BASE_URL,
-    GOOGLE_CLIENT_IDS,
-} from '../const';
+import { APPLE_REDIRECT_URI, APPLE_SERVICE_ID, GOOGLE_CLIENT_IDS } from '../const';
 import { handleError } from '../utils/utils';
+import { exchangeOAuthToken, OAuthPayloadMap, OAuthProvider } from '../api/auth';
 
 WebBrowser.maybeCompleteAuthSession();
-
-type OAuthProvider = 'google' | 'apple';
 
 interface UseOAuthLoginResult {
     appleAvailable: boolean;
@@ -32,6 +27,16 @@ export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
 
     const [appleAvailable, setAppleAvailable] = useState(false);
     const [loadingProvider, setLoadingProvider] = useState<OAuthProvider | null>(null);
+
+    const shouldUseProxy = Platform.OS !== 'web';
+
+    const redirectUri = useMemo(
+        () =>
+            AuthSession.makeRedirectUri({
+                useProxy: shouldUseProxy,
+            }),
+        [shouldUseProxy],
+    );
 
     useEffect(() => {
         AppleAuthentication.isAvailableAsync()
@@ -53,23 +58,14 @@ export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
         androidClientId: GOOGLE_CLIENT_IDS.android,
         expoClientId: GOOGLE_CLIENT_IDS.expo,
         webClientId: GOOGLE_CLIENT_IDS.web,
+        redirectUri,
         extraParams: { prompt: 'select_account' },
     });
 
     const exchangeToken = useCallback(
-        async (provider: OAuthProvider, payload: Record<string, unknown>) => {
+        async <P extends OAuthProvider>(provider: P, payload: OAuthPayloadMap[P]) => {
             try {
-                const response = await fetch(`${BASE_URL}/api/auth/oauth/${provider}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                });
-
-                const data = await response.json();
-                if (!response.ok) {
-                    throw new Error(data?.error ?? data?.message ?? 'Unable to authenticate');
-                }
-
+                const data = await exchangeOAuthToken(provider, payload);
                 await setAuth(data.token, data.user);
                 onSuccess?.();
             } catch (error) {
@@ -121,7 +117,7 @@ export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
 
         try {
             setLoadingProvider('google');
-            const result = await promptGoogle();
+            const result = await promptGoogle({ useProxy: shouldUseProxy, showInRecents: true });
 
             if (!result || result.type !== 'success') {
                 setLoadingProvider(null);
@@ -137,7 +133,7 @@ export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
             setLoadingProvider(null);
             Alert.alert('Google sign-in failed', handleError(error));
         }
-    }, [googleConfigured, googleRequest, promptGoogle]);
+    }, [googleConfigured, googleRequest, promptGoogle, shouldUseProxy]);
 
     const signInWithApple = useCallback(async () => {
         if (!appleAvailable) {
@@ -155,12 +151,11 @@ export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
                 ],
             };
 
-            if (APPLE_SERVICE_ID && Platform.OS !== 'ios') {
-                appleOptions.clientId = APPLE_SERVICE_ID;
-            }
-
-            if (APPLE_REDIRECT_URI && Platform.OS !== 'ios') {
-                appleOptions.redirectUri = APPLE_REDIRECT_URI;
+            if (Platform.OS !== 'ios') {
+                if (APPLE_SERVICE_ID) {
+                    appleOptions.clientId = APPLE_SERVICE_ID;
+                }
+                appleOptions.redirectUri = APPLE_REDIRECT_URI ?? redirectUri;
             }
 
             const credential = await AppleAuthentication.signInAsync(appleOptions);
@@ -169,12 +164,23 @@ export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
                 throw new Error('Missing Apple identity token.');
             }
 
+            const fullName = credential.fullName
+                ? {
+                      givenName: credential.fullName.givenName ?? null,
+                      familyName: credential.fullName.familyName ?? null,
+                      middleName: credential.fullName.middleName ?? null,
+                      namePrefix: credential.fullName.namePrefix ?? null,
+                      nameSuffix: credential.fullName.nameSuffix ?? null,
+                      nickname: credential.fullName.nickname ?? null,
+                  }
+                : null;
+
             await exchangeToken('apple', {
                 identityToken: credential.identityToken,
                 authorizationCode: credential.authorizationCode,
                 email: credential.email,
                 user: credential.user,
-                fullName: credential.fullName,
+                fullName,
             });
         } catch (error: any) {
             if (error?.code === 'ERR_REQUEST_CANCELED') {
@@ -185,7 +191,7 @@ export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
             setLoadingProvider(null);
             Alert.alert('Apple sign-in failed', handleError(error));
         }
-    }, [appleAvailable, exchangeToken]);
+    }, [appleAvailable, exchangeToken, redirectUri]);
 
     return {
         appleAvailable,
