@@ -13,7 +13,8 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "plugins": [
-      "expo-sqlite"
+      "expo-sqlite",
+      "expo-apple-authentication"
     ],
     "splash": {
       "image": "./assets/splash-brain.png",
@@ -21,7 +22,8 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "usesAppleSignIn": true
     },
     "android": {
       "adaptiveIcon": {

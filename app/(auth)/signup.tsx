@@ -17,6 +17,7 @@ import { BASE_URL } from '../../src/const';
 import { RegisterError, RegisterSuccess } from '../../src/api/signup';
 import { handleError } from '../../src/utils/utils';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import SocialAuthButtons from '../../src/components/auth/SocialAuthButtons';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -156,6 +157,16 @@ export default function SignUpScreen() {
                         ) }
                     </TouchableOpacity>
 
+                    <View style={ styles.oauthSection }>
+                        <View style={ styles.dividerContainer }>
+                            <View style={ styles.divider } />
+                            <Text style={ styles.dividerText }>Or sign up with</Text>
+                            <View style={ styles.divider } />
+                        </View>
+
+                        <SocialAuthButtons onSuccess={ () => router.replace('/') } />
+                    </View>
+
                     <TouchableOpacity onPress={ () => router.replace('/(auth)/login') } style={ styles.loginLink }>
                         <Text style={ styles.loginText }>Already have an account? Sign in</Text>
                     </TouchableOpacity>
@@ -194,6 +205,20 @@ const styles = StyleSheet.create({
     },
     buttonDisabled: { opacity: 0.6 },
     buttonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+    oauthSection: { marginTop: 24, marginBottom: 24 },
+    dividerContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    divider: { flex: 1, height: 1, backgroundColor: '#e5e7eb' },
+    dividerText: {
+        marginHorizontal: 12,
+        fontSize: 13,
+        fontWeight: '600',
+        color: '#6b7280',
+        textTransform: 'uppercase',
+    },
     loginLink: { marginTop: 24, alignItems: 'center' },
     loginText: { color: '#0a6cff', fontSize: 14, fontWeight: '600' },
 });

@@ -15,6 +15,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/auth/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import { BASE_URL } from '../../src/const';
+import SocialAuthButtons from '../../src/components/auth/SocialAuthButtons';
 
 export default function LoginScreen() {
     const router = useRouter();
@@ -119,13 +120,21 @@ export default function LoginScreen() {
                                 onPress={onSubmit}
                                 style={[styles.button, loading && styles.buttonDisabled]}
                             >
-                                {loading ? <ActivityIndicator color="white" /> : <Text style={styles.buttonText}>Sign in</Text>}
+                                {loading ? (
+                                    <ActivityIndicator color="white" />
+                                ) : (
+                                    <Text style={styles.buttonText}>Sign in</Text>
+                                )}
                             </TouchableOpacity>
 
-                            <View style={styles.dividerContainer}>
-                                <View style={styles.divider} />
-                                <Text style={styles.dividerText}>OR</Text>
-                                <View style={styles.divider} />
+                            <View style={styles.oauthSection}>
+                                <View style={styles.dividerContainer}>
+                                    <View style={styles.divider} />
+                                    <Text style={styles.dividerText}>Or continue with</Text>
+                                    <View style={styles.divider} />
+                                </View>
+
+                                <SocialAuthButtons onSuccess={() => router.replace('/')} />
                             </View>
 
                             <TouchableOpacity onPress={() => router.push('/(auth)/signup')} style={styles.buttonOutline}>
@@ -267,4 +276,19 @@ const styles = StyleSheet.create({
         fontSize: 13,
         fontWeight: '600',
     },
+    oauthSection: {
+        marginTop: 24,
+        marginBottom: 24,
+    },
+    toggleBtn: {
+        paddingHorizontal: 10,
+        paddingVertical: 8,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: '#ddd',
+    },
+    toggleText: { fontWeight: '600' },
+    buttonGhost: { paddingVertical: 10, borderRadius: 10, alignItems: 'center' },
+    buttonGhostText: { color: '#666', fontWeight: '600' },
+    hint: { marginTop: 8, textAlign: 'center', color: '#666' },
 });
