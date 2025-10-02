@@ -267,15 +267,4 @@ const styles = StyleSheet.create({
         fontSize: 13,
         fontWeight: '600',
     },
-    toggleBtn: {
-        paddingHorizontal: 10,
-        paddingVertical: 8,
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: '#ddd',
-    },
-    toggleText: { fontWeight: '600' },
-    buttonGhost: { paddingVertical: 10, borderRadius: 10, alignItems: 'center' },
-    buttonGhostText: { color: '#666', fontWeight: '600' },
-    hint: { marginTop: 8, textAlign: 'center', color: '#666' },
 });

@@ -1,13 +1,14 @@
 import { ReactNode } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, StyleProp, ViewStyle } from "react-native";
 
 type Prop = {
     children: ReactNode;
+    addedStyles?: StyleProp<ViewStyle>;
 }
 
-export function GradientRow({ children }: Prop) {
+export function GradientRow({ children, addedStyles }: Prop) {
     return (
-        <View style={ styles.legendWrapper }>
+        <View style={ [styles.legendWrapper, addedStyles] }>
             <View style={ styles.legendCard }>
                 { children }
             </View>

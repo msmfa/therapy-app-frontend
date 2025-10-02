@@ -17,15 +17,16 @@ export default function SettingsScreen() {
         }
     };
 
+    console.log('user', user);
+
     return (
         <SafeAreaView style={ styles.root }>
             <GradientUpwards />
             <View>
                 <View style={ styles.accountInfoContainer }>
                     <GradientRow>
-                        { /* todo: change to real name */ }
                         <View style={ styles.user } >
-                            <Text style={ styles.name }>{ 'Michaeljarfle Sydney Moore' }</Text>
+                            <Text style={ styles.name }>{ user?.name }</Text>
                             <Text style={ styles.email }  numberOfLines={ 1 }>{ user?.email }</Text>
                         </View>
                     </GradientRow>
@@ -52,13 +53,12 @@ export default function SettingsScreen() {
                 </View>
             </View>
             <Text style={ styles.footer }>v1.0.0</Text>
-
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-    root: { flex: 1, backgroundColor: 'transparent', ...StyleSheet.absoluteFillObject },
+    root: { flex: 1, backgroundColor: 'transparent' },
     accountInfoContainer: {
         marginHorizontal: 12,
         padding: 12,

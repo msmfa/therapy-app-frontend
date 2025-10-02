@@ -7,7 +7,11 @@ const normalizeToken = (value: string | null | undefined): string | null => {
     return normalized.length ? normalized : null;
 };
 
-type AuthUser = { id: string; email: string } | null;
+type AuthUser = {
+    id: string;
+    email: string;
+    name: string;
+} | null;
 
 type AuthContextValue = {
 	token: string | null;

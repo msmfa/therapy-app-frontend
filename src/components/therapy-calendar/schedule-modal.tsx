@@ -90,15 +90,31 @@ export default function ScheduleModal({
 
                     <View style={styles.datePicker}>
                         {Platform.OS === 'ios' ? (
-                            <DateTimePicker value={time} mode="time" display="spinner" onChange={handleTimeChange} />
+                            <View style={styles.iosPickerWrapper}>
+                                <DateTimePicker
+                                    value={time}
+                                    mode="time"
+                                    display="spinner"
+                                    onChange={handleTimeChange}
+                                    textColor="#282525"
+                                    themeVariant="light"
+                                    style={styles.iosPicker}
+                                />
+                            </View>
                         ) : (
                             <>
                                 <TouchableOpacity style={styles.timeButton} onPress={() => setShowPicker(true)}>
                                     <Ionicons name="time-outline" size={20} />
-                                    <Text>{dayjs(time).format('h:mm A')}</Text>
+                                    <Text style={styles.timeLabel}>{dayjs(time).format('h:mm A')}</Text>
                                 </TouchableOpacity>
                                 {showPicker && (
-                                    <DateTimePicker value={time} mode="time" display="default" onChange={handleTimeChange} />
+                                    <DateTimePicker
+                                        value={time}
+                                        mode="time"
+                                        display="default"
+                                        onChange={handleTimeChange}
+                                        themeVariant="light"
+                                    />
                                 )}
                             </>
                         )}
@@ -166,17 +182,11 @@ const styles = StyleSheet.create({
     badgeText: {
         color: 'rgba(226, 61, 61, 1)',
     },
-    button: {
-        width: '50%',
-    },
     buttonRow: {
         alignItems: 'center',
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginTop: 20,
-    },
-    buttonSpacing: {
-        marginRight: 12,
     },
     actionButtonsRow: {
         alignItems: 'center',
@@ -187,12 +197,6 @@ const styles = StyleSheet.create({
     actionButtonWrapper: {
         flex: 1,
         minWidth: 0,
-    },
-    deleteButton: {
-        borderColor: '#ff3b30',
-        flex: 0,
-        marginRight: 12,
-        paddingHorizontal: 15,
     },
     sectionApplyTo: {
         gap: 10,
@@ -206,67 +210,32 @@ const styles = StyleSheet.create({
         top: 0,
     },
     modalContent: {
-        backgroundColor: '#DBE0E4',
+        backgroundColor: '#eef3f7ff',
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         padding: 20,
         paddingBottom: 40,
         paddingTop: 65,
     },
-    modalDate: {
-        color: '#666',
-        marginBottom: 20,
-    },
     modalOverlay: {
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
         flex: 1,
         justifyContent: 'flex-end',
     },
-    modalTitle: {
-        fontSize: 20,
-        marginBottom: 2,
-    },
-    primaryButton: {
-        backgroundColor: '#007AFF',
-        borderColor: '#007AFF',
-    },
-    primaryText: {
-        color: 'white',
-    },
-    radio: {
-        alignItems: 'center',
-        borderColor: '#ccc',
-        borderRadius: 10,
-        borderWidth: 2,
-        height: 20,
-        justifyContent: 'center',
-        width: 20,
-    },
-    radioDot: {
-        backgroundColor: '#007AFF',
-        borderRadius: 5,
-        height: 10,
-        width: 10,
-    },
-    radioGroup: {
-        marginBottom: 20,
-    },
-    radioOption: {
-        borderColor: '#ccc',
-        borderRadius: 5,
-        borderWidth: 1,
-        flexDirection: 'row',
-        gap: 10,
-        marginBottom: 10,
-        padding: 10,
-    },
-    radioSelected: {
-        backgroundColor: '#f0f8ff',
-        borderColor: '#007AFF',
-    },
     datePicker: {
         marginBottom: 20,
         alignItems: 'center',
+    },
+    iosPickerWrapper: {
+        backgroundColor: '#fff',
+        borderRadius: 18,
+        overflow: 'hidden',
+        paddingVertical: 12,
+        paddingHorizontal: 10,
+        width: '100%',
+    },
+    iosPicker: {
+        width: '100%',
     },
     subtext: {
         color: '#666',
@@ -280,5 +249,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         gap: 10,
         padding: 10,
+    },
+    timeLabel: {
+        color: '#282525',
     },
 });

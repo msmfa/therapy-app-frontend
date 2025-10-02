@@ -16,9 +16,9 @@
       "expo-sqlite"
     ],
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/splash-brain.png",
       "resizeMode": "contain",
-      "backgroundColor": "transparent"
+      "backgroundColor": "#ffffff"
     },
     "ios": {
       "supportsTablet": true
