@@ -61,7 +61,7 @@ export default function LoginScreen() {
                 style={styles.kav}
             >
                 <View style={styles.card}>
-                    <Text style={styles.title}>Welcome back</Text>
+                    <Text style={styles.title}>Welcome</Text>
                     <Text style={styles.subtitle}>Sign in to continue</Text>
 
                     {isAuthenticated ? (
