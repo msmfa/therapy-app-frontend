@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, View, ViewStyle, StyleProp } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, View, ViewStyle, StyleProp, ActivityIndicator } from 'react-native';
 import { spacing, typography } from '../../const';
 import { Palette } from '../../../design';
 
@@ -10,36 +10,50 @@ interface Props {
 	disabled?: boolean;
 	transparent?: boolean;
     addedStyles?: StyleProp<ViewStyle>;
+    loading?: boolean;
 }
 
-export function Button({ label, icon, onPress, disabled = false, transparent = false, addedStyles }: Props) {
+export function Button({
+    label,
+    icon,
+    onPress,
+    disabled = false,
+    transparent = false,
+    addedStyles,
+    loading = false,
+}: Props) {
+    const isDisabled = disabled || loading;
     return (
         <TouchableOpacity
             style={ [
                 styles.actionButton,
                 transparent && styles.actionButtonTransparent,
-                disabled && styles.actionButtonDisabled,
+                isDisabled && styles.actionButtonDisabled,
                 addedStyles && addedStyles,
             ] }
             onPress={ onPress }
-            disabled={ disabled }
-            activeOpacity={ disabled ? 1 : 0.8 }
+            disabled={ isDisabled }
+            activeOpacity={ isDisabled ? 1 : 0.8 }
             accessibilityRole="button"
-            accessibilityState={ { disabled } }
+            accessibilityState={ { disabled: isDisabled } }
         >
-            { icon ? (
-                <View style={ [styles.iconWrapper, disabled && styles.iconDisabled] }>{ icon }</View>
+            { loading ? (
+                <ActivityIndicator color={ transparent ? Palette.black : Palette.white } />
+            ) : icon ? (
+                <View style={ [styles.iconWrapper, isDisabled && styles.iconDisabled] }>{ icon }</View>
             ) : null }
-            <Text
-                style={ [
-                    styles.actionButtonText,
-                    transparent && styles.actionButtonTextTransparent,
-                    disabled && styles.actionButtonTextDisabled,
-                ] }
-                numberOfLines={ 1 }
-            >
-                { label }
-            </Text>
+            { !loading ? (
+                <Text
+                    style={ [
+                        styles.actionButtonText,
+                        transparent && styles.actionButtonTextTransparent,
+                        isDisabled && styles.actionButtonTextDisabled,
+                    ] }
+                    numberOfLines={ 1 }
+                >
+                    { label }
+                </Text>
+            ) : null }
         </TouchableOpacity>
     );
 }

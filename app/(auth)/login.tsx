@@ -2,20 +2,21 @@ import React, { useState } from 'react';
 import {
     View,
     Text,
-    TextInput,
     TouchableOpacity,
     StyleSheet,
     KeyboardAvoidingView,
     Platform,
-    ActivityIndicator,
     Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { useAuth } from '../../src/auth/AuthContext';
-import { Ionicons } from '@expo/vector-icons';
 import { BASE_URL } from '../../src/const';
 import SocialAuthButtons from '../../src/components/auth/SocialAuthButtons';
+import { Button } from 'src/components/ui/button';
+import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
+import TextField from 'src/components/ui/TextField';
+import PasswordField from 'src/components/ui/PasswordField';
 
 export default function LoginScreen() {
     const router = useRouter();
@@ -24,7 +25,6 @@ export default function LoginScreen() {
     const [email, setEmail] = useState<string>('test@example.com');
     const [password, setPassword] = useState<string>('Passw0rd!');
     const [loading, setLoading] = useState<boolean>(false);
-    const [showPw, setShowPw] = useState<boolean>(false);
 
     const onSubmit = async () => {
         if (!email || !password) {
@@ -62,70 +62,47 @@ export default function LoginScreen() {
             >
                 <View style={styles.card}>
                     <Text style={styles.title}>Welcome</Text>
-                    <Text style={styles.subtitle}>Sign in to continue</Text>
-
+                    <Spacer/>
                     {isAuthenticated ? (
                         <>
                             <View style={styles.authenticatedContainer}>
                                 <Text style={styles.authenticatedText}>Signed in as</Text>
                                 <Text style={styles.userEmail}>{user?.email}</Text>
                             </View>
-
-                            <TouchableOpacity onPress={() => router.replace('/')} style={styles.button}>
-                                <Text style={styles.buttonText}>Go to Home</Text>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity onPress={onLogout} style={[styles.buttonOutline, { marginTop: 8 }]}>
-                                <Text style={styles.buttonOutlineText}>Log out</Text>
-                            </TouchableOpacity>
+                            <Button label="Go to Home" onPress={() => router.replace('/')} />
+                            <Spacer />
+                            <Button label="Log out" onPress={onLogout} transparent />
                         </>
                     ) : (
                         <View style={styles.formContainer}>
-                            <View style={styles.inputGroup}>
-                                <Text style={styles.label}>Email</Text>
-                                <TextInput
-                                    value={email}
-                                    onChangeText={setEmail}
-                                    autoCapitalize="none"
-                                    autoCorrect={false}
-                                    keyboardType="email-address"
-                                    placeholder="you@example.com"
-                                    style={styles.input}
-                                    textContentType="username"
-                                />
-                            </View>
+                            <TextField
+                                label="Email"
+                                value={email}
+                                onChangeText={setEmail}
+                                autoCapitalize="none"
+                                autoCorrect={false}
+                                keyboardType="email-address"
+                                placeholder="you@example.com"
+                                textContentType="username"
+                                returnKeyType="next"
+                            />
 
-                            <View style={styles.inputGroup}>
-                                <Text style={styles.label}>Password</Text>
-                                <View style={styles.passwordRow}>
-                                    <TextInput
-                                        value={password}
-                                        onChangeText={setPassword}
-                                        secureTextEntry={!showPw}
-                                        placeholder="••••••••"
-                                        style={[styles.input, styles.passwordInput]}
-                                        textContentType="password"
-                                    />
-                                    <TouchableOpacity onPress={() => setShowPw(!showPw)} style={styles.eyeButton}>
-                                        <Ionicons name={showPw ? 'eye-off' : 'eye'} size={20} color="#666" />
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
+                            <PasswordField
+                                label="Password"
+                                value={password}
+                                onChangeText={setPassword}
+                                placeholder="••••••••"
+                                textContentType="password"
+                                returnKeyType="done"
+                                onSubmitEditing={onSubmit}
+                            />
+                            <Spacer />
+
                             <TouchableOpacity onPress={() => router.push('/forgot-password')} style={styles.forgotPassword}>
                                 <Text style={styles.forgotPasswordText}>Forgot password?</Text>
                             </TouchableOpacity>
-
-                            <TouchableOpacity
-                                disabled={loading}
-                                onPress={onSubmit}
-                                style={[styles.button, loading && styles.buttonDisabled]}
-                            >
-                                {loading ? (
-                                    <ActivityIndicator color="white" />
-                                ) : (
-                                    <Text style={styles.buttonText}>Sign in</Text>
-                                )}
-                            </TouchableOpacity>
+                            <Button label={'Sign in'} onPress={onSubmit } loading={loading} />
+                            <Spacer variant={SpacerVariant.large} />
 
                             <View style={styles.oauthSection}>
                                 <View style={styles.dividerContainer}>
@@ -133,13 +110,18 @@ export default function LoginScreen() {
                                     <Text style={styles.dividerText}>Or continue with</Text>
                                     <View style={styles.divider} />
                                 </View>
+                                <Spacer variant={SpacerVariant.large} />
 
                                 <SocialAuthButtons onSuccess={() => router.replace('/')} />
                             </View>
+                            <Spacer />
 
-                            <TouchableOpacity onPress={() => router.push('/(auth)/signup')} style={styles.buttonOutline}>
-                                <Text style={styles.buttonOutlineText}>Create New Account</Text>
-                            </TouchableOpacity>
+                            <View style={styles.signupRow}>
+                                <Text style={styles.signupPrompt}>Don't have an account?</Text>
+                                <Link href="/(auth)/signup" style={styles.signupLink}>
+                                    Sign up here
+                                </Link>
+                            </View>
                         </View>
                     )}
                 </View>
@@ -151,27 +133,21 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
     root: {
         flex: 1,
+        backgroundColor: '#f9f9f9',
+        paddingHorizontal: 20,
     },
     kav: {
         flex: 1,
         justifyContent: 'center',
-        paddingHorizontal: 20,
     },
     card: {
-        padding: 16,
+        width: '100%',
     },
     title: {
         fontSize: 28,
         fontWeight: '700',
         textAlign: 'center',
-        marginBottom: 8,
         color: '#111',
-    },
-    subtitle: {
-        textAlign: 'center',
-        color: '#666',
-        fontSize: 16,
-        marginBottom: 32,
     },
     authenticatedContainer: {
         marginBottom: 24,
@@ -180,7 +156,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         color: '#666',
         fontSize: 14,
-        marginBottom: 4,
     },
     userEmail: {
         textAlign: 'center',
@@ -191,38 +166,6 @@ const styles = StyleSheet.create({
     formContainer: {
         width: '100%',
     },
-    inputGroup: {
-        marginBottom: 16,
-    },
-    label: {
-        fontWeight: '600',
-        marginBottom: 8,
-        color: '#111',
-        fontSize: 14,
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 10,
-        paddingHorizontal: 12,
-        paddingVertical: 12,
-        backgroundColor: 'white',
-        fontSize: 16,
-    },
-    passwordRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        position: 'relative',
-    },
-    passwordInput: {
-        flex: 1,
-        paddingRight: 44,
-    },
-    eyeButton: {
-        position: 'absolute',
-        right: 12,
-        padding: 4,
-    },
     forgotPassword: {
         alignSelf: 'flex-end',
         marginBottom: 24,
@@ -232,38 +175,10 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '600',
     },
-    button: {
-        marginBottom: 16,
-        paddingVertical: 14,
-        borderRadius: 12,
-        backgroundColor: '#111',
-        alignItems: 'center',
-    },
-    buttonDisabled: {
-        opacity: 0.6,
-    },
-    buttonText: {
-        color: 'white',
-        fontWeight: '700',
-        fontSize: 16,
-    },
-    buttonOutline: {
-        paddingVertical: 14,
-        borderRadius: 12,
-        borderWidth: 1.5,
-        borderColor: '#111',
-        alignItems: 'center',
-        backgroundColor: 'transparent',
-    },
-    buttonOutlineText: {
-        color: '#111',
-        fontWeight: '700',
-        fontSize: 16,
-    },
+    oauthSection: {},
     dividerContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginVertical: 24,
     },
     divider: {
         flex: 1,
@@ -271,24 +186,23 @@ const styles = StyleSheet.create({
         backgroundColor: '#ddd',
     },
     dividerText: {
-        marginHorizontal: 16,
-        color: '#999',
-        fontSize: 13,
+        color: '#666',
+        fontSize: 14,
+        marginHorizontal: 8,
+    },
+    signupRow: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    signupPrompt: {
+        color: '#666',
+        fontSize: 14,
+        marginRight: 4,
+    },
+    signupLink: {
+        color: '#0066CC',
+        fontSize: 14,
         fontWeight: '600',
     },
-    oauthSection: {
-        marginTop: 24,
-        marginBottom: 24,
-    },
-    toggleBtn: {
-        paddingHorizontal: 10,
-        paddingVertical: 8,
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: '#ddd',
-    },
-    toggleText: { fontWeight: '600' },
-    buttonGhost: { paddingVertical: 10, borderRadius: 10, alignItems: 'center' },
-    buttonGhostText: { color: '#666', fontWeight: '600' },
-    hint: { marginTop: 8, textAlign: 'center', color: '#666' },
 });

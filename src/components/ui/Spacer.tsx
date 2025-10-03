@@ -1,6 +1,6 @@
 import { View, StyleSheet } from "react-native";
 
-enum SpacerVariant {
+export enum SpacerVariant {
     small = 8,
     medium = 16,
     large = 24,
