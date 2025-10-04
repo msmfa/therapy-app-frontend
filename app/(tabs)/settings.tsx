@@ -6,7 +6,8 @@ import { GradientUpwards } from '../../src/components/GradientUpwards';
 import { GradientRow } from '../../src/components/ui/GradientRow';
 import { SettingsRow } from '../../src/components/SettingsRow';
 import AppText from '../../src/components/ui/typography';
-import Spacer from 'src/components/ui/Spacer';
+import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
+import Card from 'src/components/ui/card';
 
 export default function SettingsScreen() {
     const { user, signOut } = useAuth();
@@ -35,47 +36,61 @@ export default function SettingsScreen() {
                         </View>
                     </GradientRow>
                 </View>
-                <View style={ styles.container }>
-                    <AppText variant='h2'>
-                        References
-                    </AppText>
-                    <Spacer />
-                    { /* TODO: add links to all these */ }
-                    <View style={ { gap: 8 } }>
-                        <SettingsRow text="The science behind our reminder intervals" onPress={ () => {} } />
-                        <SettingsRow text="How to get the most from note taking after a session" onPress={ () => {} } />
-                    </View>
-                    <Spacer />
+                <Spacer />
+                <Card>
+                    <View style={ styles.container }>
+                        <AppText variant='h2'>
+                            References
+                        </AppText>
+                        <Spacer />
+                        { /* TODO: add links to all these */ }
+                        <View style={ { gap: 8 } }>
+                            <SettingsRow text="The science behind our reminder intervals" onPress={ () => {} } />
+                            <SettingsRow text="How to get the most from note taking after a session" onPress={ () => {} } />
+                        </View>
+                        <Spacer />
 
-                    <AppText variant='h2'>
-                        Settings
-                    </AppText>
-                    <Spacer />
-                    <View style={ { gap: 8 } }>
-                        <SettingsRow text="Delete account" onPress={ () => {} } />
-                        <SettingsRow text="Privacy Policy" onPress={ () => {} } />
-                        <SettingsRow text="Rate this App" onPress={ () => {} } />
-                        <SettingsRow text="Log out" onPress={ () => onLogout() } />
+                        <AppText variant='h2'>
+                            Settings
+                        </AppText>
+                        <Spacer />
+                        <View style={ { gap: 8 } }>
+                            <SettingsRow text="Delete account" onPress={ () => {} } />
+                            <SettingsRow text="Privacy Policy" onPress={ () => {} } />
+                            <SettingsRow text="Rate this App" onPress={ () => {} } />
+                            <SettingsRow text="Log out" onPress={ () => onLogout() } />
+                        </View>
                     </View>
-                </View>
+                    <Spacer variant={ SpacerVariant.large } />
+                    <AppText variant='caption' align='center'>
+                        v1.0.0
+                    </AppText>
+                    <Spacer variant={ SpacerVariant.small } />
+                </Card>
             </View>
-            <AppText variant='caption' align='center'>
-                v1.0.0
-            </AppText>
+
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-    root: { flex: 1, backgroundColor: '#00000000' },
-    accountInfoContainer: {
-        marginHorizontal: 12,
+    root: {
+        flex: 1,
+        backgroundColor: '#00000000',
         padding: 12,
     },
-    container: { padding: 20 },
+    accountInfoContainer: {
+        // marginHorizontal: 12,
+        // padding: 12,
+    },
+    container: {
+        padding: 0,
+        marginTop: 12,
+        // margin: 12,
+    },
     user: {
         padding: 18,
         alignItems: 'center',
-        gap: 12,
+        gap: 8,
     },
 });

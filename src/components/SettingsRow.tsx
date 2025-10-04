@@ -13,7 +13,7 @@ export function SettingsRow({ text, onPress }: Props) {
             <AppText numberOfLines={ 3 }  variant={ "caption" } style={ styles.text }>
                 { text }
             </AppText>
-            <Ionicons name={ 'arrow-forward-outline' } size={ 20 } color="hsl(0, 10%,60%)" />
+            <Ionicons name={ 'arrow-forward-outline' } size={ 20 } color="hsla(0, 7%, 55%, 1.00)" />
         </TouchableOpacity>
     )
 }
@@ -28,8 +28,8 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         borderWidth: 1,
         borderRadius: 12,
-        backgroundColor: 'transparent',
-        borderColor: 'hsl(0, 0%,84%)',
+        backgroundColor: 'hsl(0, 0%,97%)',
+        borderColor: 'hsl(0, 0%,98%)',
         width: '100%',
         minHeight: 54,
     },
