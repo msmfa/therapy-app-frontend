@@ -1,4 +1,5 @@
-import React from 'react';
+import { colors } from 'new-design';
+import React, { useMemo } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 export type RadioOption = {
@@ -11,13 +12,22 @@ export type RadioButtonProps = {
     children: React.ReactNode;
     onPress: () => void;
 };
+const BASE_HUE = 220;
+const BACKGROUND_SATURATION = 60;
+const BACKGROUND_LIGHTNESS = 93;
 
 export default function RadioButton({ selectedValue, onPress, children }: RadioButtonProps) {
+    const backgroundColor = useMemo(
+        () => `hsl(${BASE_HUE}, ${BACKGROUND_SATURATION}%, ${BACKGROUND_LIGHTNESS}%)`,
+        []
+    );
+
+
     return (
         <TouchableOpacity
             style={ [
                 styles.sharedWrapper,
-                selectedValue ? styles.selectedWrapper : styles.notSelectedWrapper,
+                selectedValue ? [styles.selectedWrapper, { backgroundColor }] : styles.notSelectedWrapper,
             ] }
             onPress={ onPress }
         >
@@ -29,31 +39,30 @@ export default function RadioButton({ selectedValue, onPress, children }: RadioB
     );
 }
 
-const red = 'rgba(226, 61, 61, 1)';
-const lightBlue = '#c1d0e0ff';
+const lightBlue = '#C1D0E0FF';
 
 const styles = StyleSheet.create({
     circleNotSelected: {
         borderColor: lightBlue,
     },
     notSelectedWrapper: {
-        backgroundColor: 'transparent',
+        backgroundColor: '#00000000',
         borderColor: lightBlue,
     },
     selectedDot: {
-        backgroundColor: red,
+        backgroundColor: colors.primary,
         borderRadius: 5,
         height: 10,
         width: 10,
     },
     selectedWrapper: {
-        backgroundColor: 'rgba(255, 255, 255, 0.29)',
-        borderColor: 'rgba(255, 255, 255, 0.21)',
+        backgroundColor: colors.primary,
+        borderColor: colors.primaryHover,
         borderWidth: 1,
     },
     sharedDot: {
         alignItems: 'center',
-        borderColor: red,
+        borderColor: colors.primary,
         borderRadius: 10,
         borderWidth: 2,
         height: 20,

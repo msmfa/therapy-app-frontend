@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
     View,
-    Text,
     TouchableOpacity,
     StyleSheet,
     KeyboardAvoidingView,
@@ -17,6 +16,7 @@ import { Button } from 'src/components/ui/button';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import TextField from 'src/components/ui/TextField';
 import PasswordField from 'src/components/ui/PasswordField';
+import AppText from '../../src/components/ui/typography';
 
 export default function LoginScreen() {
     const router = useRouter();
@@ -61,13 +61,19 @@ export default function LoginScreen() {
                 style={styles.kav}
             >
                 <View style={styles.card}>
-                    <Text style={styles.title}>Welcome</Text>
+                    <AppText variant='h1' align='center'>
+                        Welcome
+                    </AppText>
                     <Spacer/>
                     {isAuthenticated ? (
                         <>
                             <View style={styles.authenticatedContainer}>
-                                <Text style={styles.authenticatedText}>Signed in as</Text>
-                                <Text style={styles.userEmail}>{user?.email}</Text>
+                                <AppText variant='h1'>
+                                    Signed in as
+                                </AppText>
+                                <AppText variant='h1'>
+                                    {user?.email}
+                                </AppText>
                             </View>
                             <Button label="Go to Home" onPress={() => router.replace('/')} />
                             <Spacer />
@@ -98,16 +104,20 @@ export default function LoginScreen() {
                             />
                             <Spacer />
 
-                            <TouchableOpacity onPress={() => router.push('/forgot-password')} style={styles.forgotPassword}>
-                                <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+                           <TouchableOpacity onPress={() => router.push('/forgot-password')} style={styles.forgotPassword}>
+                                <AppText variant='caption'>
+                                    Forgot password?
+                                </AppText>
                             </TouchableOpacity>
                             <Button label={'Sign in'} onPress={onSubmit } loading={loading} />
                             <Spacer variant={SpacerVariant.large} />
 
                             <View style={styles.oauthSection}>
-                                <View style={styles.dividerContainer}>
-                                    <View style={styles.divider} />
-                                    <Text style={styles.dividerText}>Or continue with</Text>
+                               <View style={styles.dividerContainer}>
+                                   <View style={styles.divider} />
+                                    <AppText variant='caption'>
+                                        Or continue with
+                                    </AppText>
                                     <View style={styles.divider} />
                                 </View>
                                 <Spacer variant={SpacerVariant.large} />
@@ -116,10 +126,12 @@ export default function LoginScreen() {
                             </View>
                             <Spacer />
 
-                            <View style={styles.signupRow}>
-                                <Text style={styles.signupPrompt}>Don't have an account?</Text>
+                           <View style={styles.signupRow}>
+                                <AppText variant='caption'>
+                                    Don't have an account?
+                                </AppText>
                                 <Link href="/(auth)/signup" style={styles.signupLink}>
-                                    Sign up here
+                                   {" "} Sign up here
                                 </Link>
                             </View>
                         </View>
@@ -133,7 +145,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
     root: {
         flex: 1,
-        backgroundColor: '#f9f9f9',
+        backgroundColor: '#F9F9F9',
         paddingHorizontal: 20,
     },
     kav: {
@@ -147,21 +159,18 @@ const styles = StyleSheet.create({
         fontSize: 28,
         fontWeight: '700',
         textAlign: 'center',
-        color: '#111',
     },
     authenticatedContainer: {
         marginBottom: 24,
     },
     authenticatedText: {
         textAlign: 'center',
-        color: '#666',
         fontSize: 14,
     },
     userEmail: {
         textAlign: 'center',
         fontWeight: '700',
         fontSize: 16,
-        color: '#111',
     },
     formContainer: {
         width: '100%',
@@ -171,7 +180,6 @@ const styles = StyleSheet.create({
         marginBottom: 24,
     },
     forgotPasswordText: {
-        color: '#0066CC',
         fontSize: 14,
         fontWeight: '600',
     },
@@ -183,10 +191,9 @@ const styles = StyleSheet.create({
     divider: {
         flex: 1,
         height: 1,
-        backgroundColor: '#ddd',
+        backgroundColor: '#DDDDDD',
     },
     dividerText: {
-        color: '#666',
         fontSize: 14,
         marginHorizontal: 8,
     },
@@ -196,7 +203,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     signupPrompt: {
-        color: '#666',
         fontSize: 14,
         marginRight: 4,
     },

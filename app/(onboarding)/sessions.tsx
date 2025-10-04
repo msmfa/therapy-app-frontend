@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, StyleSheet, Alert, Text } from 'react-native';
+import { View, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TherapyCalendar from '../../src/components/therapy-calendar/therapy-calendar';
@@ -9,11 +9,12 @@ import { convertSessionsToCalendarFormat } from '../../src/utils/calendar';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
 import { GradientRow } from '../../src/components/ui/GradientRow';
 import { Button } from '../../src/components/ui/button';
+import OnboardingSteps from 'src/components/ui/OnboardingSteps';
+
 
 const onBoardingText = {
-    one: 'Press on a date on the calendar to add your therapy sessions',
-    two: 'Add at least two weeks of sessions',
-    three: "Once you're done press the button below to save them",
+    one: 'Press on a date on the calendar to add your therapy sessions. Add at least two weeks of sessions',
+    two: "Once you're done press the button below to save them",
 };
 
 type SelectedSessions = Record<string, Date>;
@@ -71,24 +72,25 @@ export default function SessionsScreen() {
                     selectedSessions={ selectedSessions }
                 >
                     <GradientRow>
-                        <Text>
-                            { onBoardingText.one }. { onBoardingText.two }.
-                        </Text>
-                        <Text>
-                            { onBoardingText.three }. You can update your calendar at anytime.
-                        </Text>
+                        <OnboardingSteps
+                            title='Add your therapy sessions'
+                            steps={ [
+                                onBoardingText.one,
+                                onBoardingText.two,
+                            ] }
+                        />
                         <View style={ styles.buttonsWrapper }>
                             <Button
-                                addedStyles={ { width: '59%' } }
+                                addedStyles={ { width: '48%' } }
                                 disabled={ sessionCount === 0 }
                                 label="Add"
                                 onPress={ handleSavePress }
                             />
                             <Button
-                                addedStyles={ { width: '39%' } }
+                                addedStyles={ { width: '48%' } }
                                 transparent
                                 disabled={ sessionCount === 0 }
-                                label="Clear All"
+                                label="Clear"
                                 onPress={ handleClearAll }
                             />
                         </View>
@@ -102,11 +104,9 @@ export default function SessionsScreen() {
 
 
 const styles = StyleSheet.create({
-
     root: {
         flex: 1,
-        backgroundColor: 'transparent',
-
+        backgroundColor: '#00000000',
         padding: 4,
     },
     content: {

@@ -2,7 +2,6 @@ import React, { useCallback, useState } from 'react';
 import {
     ScrollView,
     View,
-    Text,
     StyleSheet,
     Alert,
     KeyboardAvoidingView,
@@ -16,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import TextField from 'src/components/ui/TextField';
 import PasswordField from 'src/components/ui/PasswordField';
 import { Button } from 'src/components/ui/button';
+import AppText from '../../src/components/ui/typography';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -79,8 +79,12 @@ export default function SignUpScreen() {
             >
                 <ScrollView contentContainerStyle={ styles.content } keyboardShouldPersistTaps="handled">
                     <View style={ styles.header }>
-                        <Text style={ styles.title }>Create Account</Text>
-                        <Text style={ styles.subtitle }>Join to start your therapy journey</Text>
+                        <AppText variant='h1'>
+                            Create Account
+                        </AppText>
+                        <AppText variant='bodySecondary'>
+                            Join to start your therapy journey
+                        </AppText>
                     </View>
 
                     <TextField
@@ -142,10 +146,8 @@ export default function SignUpScreen() {
 }
 
 const styles = StyleSheet.create({
-    root: { flex: 1, backgroundColor: '#fff' },
+    root: { flex: 1, backgroundColor: '#FFFFFF' },
     flex: { flex: 1 },
     content: { padding: 24, flexGrow: 1, justifyContent: 'center' },
     header: { marginBottom: 24 },
-    title: { fontSize: 28, fontWeight: '700', textAlign: 'center', color: '#111' },
-    subtitle: { fontSize: 14, textAlign: 'center', color: '#555', marginTop: 8 },
 });

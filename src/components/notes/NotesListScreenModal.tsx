@@ -1,8 +1,9 @@
-import { Modal, ScrollView, View, Text, StyleSheet } from "react-native";
+import { Modal, ScrollView, View, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Note } from "../../hooks/useNotes";
 import { GradientUpwards } from "../GradientUpwards";
 import { Button } from "../ui/button";
+import AppText from "../ui/typography";
 
 type NotePreviewModalProps = {
     visible: boolean;
@@ -22,7 +23,7 @@ export function NotePreviewModal({ visible, note, onClose }: NotePreviewModalPro
                 <GradientUpwards />
                 <ScrollView contentContainerStyle={ styles.modalContent }>
                     <View>
-                        <Text style={ styles.modalDate }>
+                        <AppText style={ styles.modalDate } color="#000000" weight="semibold">
                             { note &&
                             new Date(note.createdAt).toLocaleString('en-US', {
                                 weekday: 'long',
@@ -32,8 +33,10 @@ export function NotePreviewModal({ visible, note, onClose }: NotePreviewModalPro
                                 hour: 'numeric',
                                 minute: '2-digit',
                             }) }
-                        </Text>
-                        <Text style={ styles.modalText }>{ note?.text }</Text>
+                        </AppText>
+                        <AppText style={ styles.modalText } color="#000000">
+                            { note?.text }
+                        </AppText>
                     </View>
                 </ScrollView>
                 <View style={ styles.modalClose }>
@@ -45,7 +48,7 @@ export function NotePreviewModal({ visible, note, onClose }: NotePreviewModalPro
 }
 
 const styles = StyleSheet.create({
-    modalRoot: { flex: 1, backgroundColor: '#fff' },
+    modalRoot: { flex: 1, backgroundColor: '#FFFFFF' },
     modalContent: { padding: 24, paddingBottom: 120, paddingTop: 60 },
     modalClose: {
         position: 'absolute',
@@ -53,13 +56,12 @@ const styles = StyleSheet.create({
         right: 24,
         bottom: 24,
         borderRadius: 25,
-        backgroundColor: '#111',
+        backgroundColor: '#111111',
         paddingVertical: 12,
         alignItems: 'center',
     },
     modalDate: {
         fontSize: 14,
-        color: 'black',
         marginBottom: 16,
         textTransform: 'uppercase',
         letterSpacing: 0.6,
@@ -67,7 +69,6 @@ const styles = StyleSheet.create({
     modalText: {
         fontSize: 18,
         lineHeight: 28,
-        color: 'black',
         marginHorizontal: 5,
     },
 });

@@ -2,13 +2,13 @@ import React from 'react';
 import {
     ActivityIndicator,
     StyleSheet,
-    Text,
     TouchableOpacity,
     View,
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 
 import { useOAuthLogin } from '../../auth/useOAuthLogin';
+import AppText from '../ui/typography';
 
 interface Props {
     onSuccess?: () => void;
@@ -30,11 +30,13 @@ export const SocialAuthButtons: React.FC<Props> = ({ onSuccess }) => {
                     disabled={ appleLoading }
                 >
                     { appleLoading ? (
-                        <ActivityIndicator color={ 'red' } />
+                        <ActivityIndicator color={ '#FF0000' } />
                     ) : (
                         <View style={ styles.content }>
-                            <FontAwesome name="apple" size={ 20 } color={ 'grey' } style={ styles.icon } />
-                            <Text style={ styles.buttonText }>Continue with Apple</Text>
+                            <FontAwesome name="apple" size={ 20 } color={ '#808080' } style={ styles.icon } />
+                            <AppText style={ styles.buttonText } color="#000000" weight="semibold">
+                                Continue with Apple
+                            </AppText>
                         </View>
                     ) }
                 </TouchableOpacity>
@@ -50,17 +52,21 @@ export const SocialAuthButtons: React.FC<Props> = ({ onSuccess }) => {
                 disabled={ googleLoading || !googleConfigured }
             >
                 { googleLoading ? (
-                    <ActivityIndicator color={ 'blue' } />
+                    <ActivityIndicator color={ '#0000FF' } />
                 ) : (
                     <View style={ styles.content }>
-                        <FontAwesome name="google" size={ 20 } color={ 'blue' } style={ styles.icon } />
-                        <Text style={ styles.buttonText }>Continue with Google</Text>
+                        <FontAwesome name="google" size={ 20 } color={ '#0000FF' } style={ styles.icon } />
+                        <AppText style={ styles.buttonText } color="#000000" weight="semibold">
+                            Continue with Google
+                        </AppText>
                     </View>
                 ) }
             </TouchableOpacity>
 
             { !googleConfigured && (
-                <Text style={ styles.helperText }>Add your Google client IDs to enable this option.</Text>
+                <AppText style={ styles.helperText } color="#0000FF">
+                    Add your Google client IDs to enable this option.
+                </AppText>
             ) }
         </View>
     );
@@ -72,8 +78,8 @@ const styles = StyleSheet.create({
         height: 48,
         borderRadius: 12,
         borderWidth: 1,
-        borderColor: 'grey',
-        backgroundColor: 'white',
+        borderColor: '#808080',
+        backgroundColor: '#FFFFFF',
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 12,
@@ -95,12 +101,10 @@ const styles = StyleSheet.create({
     buttonText: {
         fontSize: 16,
         fontWeight: '600',
-        color: 'black',
         textAlign: 'center',
     },
     helperText: {
         textAlign: 'center',
-        color: 'blue',
         fontSize: 12,
         marginTop: 8,
     },

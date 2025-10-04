@@ -3,7 +3,6 @@ import {
     NativeSyntheticEvent,
     StyleProp,
     StyleSheet,
-    Text,
     TextInput,
     TextInputFocusEventData,
     TextInputProps,
@@ -14,6 +13,7 @@ import {
 
 import { Colors, spacing } from '../../const';
 import { Palette } from '../../../design';
+import AppText from './typography';
 
 type TextFieldProps = TextInputProps & {
     label: string;
@@ -58,7 +58,9 @@ const TextField = forwardRef<TextInput, TextFieldProps>(
 
         return (
             <View style={ [styles.container, containerStyle] }>
-                <Text style={ [styles.label, labelStyle] }>{ label }</Text>
+                <AppText style={ [styles.label, labelStyle] } color={ Palette.greyDarkest } weight="semibold">
+                    { label }
+                </AppText>
 
                 <View
                     style={ [
@@ -80,7 +82,11 @@ const TextField = forwardRef<TextInput, TextFieldProps>(
                     { RightAccessory ? <View style={ styles.accessory }>{ RightAccessory }</View> : null }
                 </View>
 
-                { error ? <Text style={ styles.error }>{ error }</Text> : null }
+                { error ? (
+                    <AppText style={ styles.error } color={ Colors.Red }>
+                        { error }
+                    </AppText>
+                ) : null }
             </View>
         );
     },
@@ -98,7 +104,6 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 14,
         fontWeight: '600',
-        color: Palette.greyDarkest,
         marginBottom: spacing.xs,
     },
     inputWrapper: {
@@ -128,7 +133,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     error: {
-        color: Colors.Red,
         fontSize: 12,
         marginTop: spacing.xs,
     },

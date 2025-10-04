@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import {
     View,
-    Text,
     TouchableOpacity,
     StyleSheet,
     KeyboardAvoidingView,
@@ -14,6 +13,7 @@ import { requestPasswordReset, resetPassword } from '../src/api/auth';
 import TextField from 'src/components/ui/TextField';
 import PasswordField from 'src/components/ui/PasswordField';
 import { Button } from 'src/components/ui/button';
+import AppText from '../src/components/ui/typography';
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -98,15 +98,19 @@ export default function ForgotPasswordScreen() {
             <KeyboardAvoidingView behavior={ Platform.OS === 'ios' ? 'padding' : undefined } style={ styles.kav }>
                 <View style={ styles.card }>
                     <TouchableOpacity onPress={ handleBack } style={ styles.backButton }>
-                        <Text style={ styles.backButtonText }>Back</Text>
+                        <AppText style={ styles.backButtonText } color="#444444">
+                            Back
+                        </AppText>
                     </TouchableOpacity>
 
                     { step === 'request' && (
                         <View style={ styles.content }>
-                            <Text style={ styles.title }>Forgot password</Text>
-                            <Text style={ styles.subtitle }>
+                            <AppText style={ styles.title } color="#111111" weight="bold">
+                                Forgot password
+                            </AppText>
+                            <AppText style={ styles.subtitle } color="#555555" align="left">
                                 Enter your account email. We will send you a reset code.
-                            </Text>
+                            </AppText>
 
                             <TextField
                                 label="Email"
@@ -131,10 +135,12 @@ export default function ForgotPasswordScreen() {
 
                     { step === 'reset' && (
                         <View style={ styles.content }>
-                            <Text style={ styles.title }>Check your email</Text>
-                            <Text style={ styles.subtitle }>
+                            <AppText style={ styles.title } color="#111111" weight="bold">
+                                Check your email
+                            </AppText>
+                            <AppText style={ styles.subtitle } color="#555555">
                                 Paste the reset code and choose a new password.
-                            </Text>
+                            </AppText>
 
                             <TextField
                                 label="Reset code"
@@ -177,10 +183,12 @@ export default function ForgotPasswordScreen() {
 
                     { step === 'done' && (
                         <View style={ styles.content }>
-                            <Text style={ styles.title }>Password updated</Text>
-                            <Text style={ styles.subtitle }>
+                            <AppText style={ styles.title } color="#111111" weight="bold">
+                                Password updated
+                            </AppText>
+                            <AppText style={ styles.subtitle } color="#555555">
                                 Your password has been reset. Sign in with your new password to continue.
-                            </Text>
+                            </AppText>
 
                             <Button label="Back to sign in" onPress={ handleReturnToLogin } />
                         </View>
@@ -201,11 +209,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
     },
     card: {
-        backgroundColor: 'white',
+        backgroundColor: '#FFFFFF',
         borderRadius: 16,
         padding: 24,
         gap: 16,
-        shadowColor: '#000',
+        shadowColor: '#000000',
         shadowOpacity: 0.06,
         shadowOffset: { width: 0, height: 4 },
         shadowRadius: 12,
@@ -215,7 +223,6 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-start',
     },
     backButtonText: {
-        color: '#444',
         fontSize: 16,
     },
     content: {
@@ -224,11 +231,9 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 26,
         fontWeight: '700',
-        color: '#111',
     },
     subtitle: {
         fontSize: 15,
-        color: '#555',
         lineHeight: 22,
     },
 });

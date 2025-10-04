@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Pressable, StyleSheet } from 'react-native';
+import AppText from '../ui/typography';
 
 interface ReminderOptionCardProps {
 	isSelected: boolean;
@@ -22,27 +23,35 @@ export default function ReminderOptionCard({
     return (
         <Pressable onPress={ onPress } style={ [styles.card, isSelected && styles.cardRecommended] }>
             <View style={ styles.header }>
-                <Text style={ styles.icon }>{ icon }</Text>
+                <AppText style={ styles.icon }>{ icon }</AppText>
                 <View style={ styles.info }>
                     <View style={ styles.titleRow }>
-                        <Text style={ [styles.label, isSelected && styles.labelActive] }>
+                        <AppText
+                            style={ styles.label }
+                            color="#111111"
+                            weight="semibold"
+                        >
                             { title }
-                        </Text>
+                        </AppText>
                     </View>
-                    <Text style={ [styles.description, isSelected && styles.descriptionActive] }>
+                    <AppText
+                        style={ styles.description }
+                        color={ isSelected ? '#495057' : '#666666' }
+                    >
                         { description }
-                    </Text>
+                    </AppText>
                 </View>
             </View>
 
             <View style={ styles.optionsList }>
                 { options.map((option, index) => (
-                    <Text
+                    <AppText
                         key={ index }
                         style={ [styles.optionText, isSelected && styles.optionTextActive] }
+                        color={ isSelected ? '#111111' : '#495057' }
                     >
                         • { option }
-                    </Text>
+                    </AppText>
                 )) }
             </View>
         </Pressable>
@@ -51,16 +60,16 @@ export default function ReminderOptionCard({
 
 const styles = StyleSheet.create({
     card: {
-        backgroundColor: '#fff',
+        backgroundColor: '#FFFFFF',
         padding: 16,
         borderRadius: 12,
         borderWidth: 2,
-        borderColor: '#e9ecef',
+        borderColor: '#E9ECEF',
         marginBottom: 12,
     },
     cardRecommended: {
-        borderColor: '#0066cc',
-        backgroundColor: '#f8fbff',
+        borderColor: '#0066CC',
+        backgroundColor: '#F8FBFF',
     },
     header: {
         flexDirection: 'row',
@@ -80,31 +89,21 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#111',
         marginRight: 8,
-    },
-    labelActive: {
-        color: '#111',
     },
     description: {
         fontSize: 14,
-        color: '#666',
         marginTop: 2,
-    },
-    descriptionActive: {
-        color: '#495057',
     },
     optionsList: {
         marginTop: 8,
     },
     optionText: {
         fontSize: 12,
-        color: '#495057',
         fontWeight: '500',
         marginBottom: 4,
     },
     optionTextActive: {
-        color: '#111',
         fontWeight: '600',
     },
 });

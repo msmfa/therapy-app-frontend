@@ -1,4 +1,5 @@
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import AppText from '../ui/typography';
 
 interface Props {
 	timestamp: string;
@@ -9,22 +10,28 @@ export function NextSessionCard({ timestamp, sessionInterval }: Props) {
     return (
         <View style={ styles.sessionInfoCard }>
             <View style={ styles.sessionInfoRow }>
-                <Text style={ styles.sessionInfoLabel }>Next session</Text>
-                <Text style={ styles.sessionInfoValue }>{ timestamp }</Text>
+                <AppText style={ styles.sessionInfoLabel } color="#666666" weight="medium">
+                    Next session
+                </AppText>
+                <AppText style={ styles.sessionInfoValue } color="#111111" weight="semibold">
+                    { timestamp }
+                </AppText>
             </View>
-            <Text style={ styles.sessionInterval }>{ sessionInterval }</Text>
+            <AppText style={ styles.sessionInterval } color="#28A745" weight="semibold">
+                { sessionInterval }
+            </AppText>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     sessionInfoCard: {
-        backgroundColor: '#f8f9fa',
+        backgroundColor: '#F8F9FA',
         padding: 16,
         borderRadius: 12,
         marginBottom: 24,
         borderWidth: 1,
-        borderColor: '#e9ecef',
+        borderColor: '#E9ECEF',
     },
     sessionInfoRow: {
         flexDirection: 'row',
@@ -33,17 +40,14 @@ const styles = StyleSheet.create({
     },
     sessionInfoLabel: {
         fontSize: 14,
-        color: '#666',
         fontWeight: '500',
     },
     sessionInfoValue: {
         fontSize: 14,
-        color: '#111',
         fontWeight: '600',
     },
     sessionInterval: {
         fontSize: 12,
-        color: '#28a745',
         marginTop: 8,
         fontWeight: '600',
         textTransform: 'uppercase',

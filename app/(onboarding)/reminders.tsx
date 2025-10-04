@@ -1,5 +1,5 @@
 import React, { JSX, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import dayjs from 'dayjs';
@@ -10,8 +10,8 @@ import { scheduleNeuroplasticityReminders } from '../../src/components/reminders
 import { ReminderRow } from '../../src/components/reminders/ReminderRow';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
 import { Button } from '../../src/components/ui/button';
-import { Palette } from '../../design';
 import { ReminderType } from '../../src/utils/types';
+import AppText from '../../src/components/ui/typography';
 
 const LENGTH_OF_DAYS_TO_SHOW = 7;
 
@@ -97,9 +97,11 @@ export default function RemindersScreen(): JSX.Element | null {
             <ScrollView style={ styles.scrollContent }>
                 <View style={ styles.header }>
 
-                    <Text style={ [styles.subtitle, styles.sectionTitle] }>
+                    <AppText
+                        variant='h1'
+                    >
                         Your tailored plan
-                    </Text>
+                    </AppText>
 
                     { remindersToShow.map(({ atUtc, reason }) => (
                         <ReminderRow
@@ -127,7 +129,7 @@ export default function RemindersScreen(): JSX.Element | null {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: '#FFFFFF',
     },
     scrollContent: {
         flex: 1,
@@ -136,15 +138,6 @@ const styles = StyleSheet.create({
     header: {
         marginBottom: 30,
         gap: 16,
-    },
-    subtitle: {
-        fontSize: 18,
-        color: Palette.maroon,
-    },
-    sectionTitle: {
-        marginTop: 12,
-        fontWeight: '600',
-        color: '#333',
     },
     buttons: {
         flexDirection: 'row',

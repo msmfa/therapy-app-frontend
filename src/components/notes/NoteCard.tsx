@@ -1,6 +1,9 @@
-import { Pressable, View, StyleSheet, Text } from "react-native";
+import { Pressable, View, StyleSheet } from "react-native";
 import { Note } from "../../hooks/useNotes";
-import { Palette } from "../../../design";
+import AppText from "../ui/typography";
+import Spacer from "../ui/Spacer";
+import dayjs from 'dayjs';
+import Badge from "../ui/Badge";
 
 type Props = {
     item: Note;
@@ -19,31 +22,24 @@ export function NoteCard({ item, index, onPress }: Props) {
             ] }
         >
             <View style={ styles.noteHeader }>
-                <Text style={ styles.noteDate }>
-                    { new Date(item.createdAt).toLocaleDateString('en-US', {
-                        weekday: 'short',
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric',
-                    }) }
-                </Text>
+                <AppText variant='h2' >
+                    { dayjs(item.createdAt).format('dddd, MMM D, YYYY') }
+                </AppText>
                 { index === 0 && (
                     <View style={ styles.latestBadge }>
-                        <Text style={ styles.latestBadgeText }>LAST SESSION</Text>
+                        <Badge>Last session</Badge>
                     </View>
                 ) }
             </View>
-            <Text style={ styles.noteText } numberOfLines={ 3 }>
+            <AppText variant='bodySecondary' numberOfLines={ 3 }>
                 { item.text }
-            </Text>
-            <View style={ styles.noteFooter }>
-                <Text style={ styles.noteTime }>
-                    { new Date(item.createdAt).toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                    }) }
-                </Text>
-            </View>
+            </AppText>
+
+            <Spacer />
+            <AppText variant="caption">
+                { dayjs(item.createdAt).format('h:mm A') }
+            </AppText>
+
         </Pressable>
     );
 }
@@ -52,8 +48,8 @@ const styles = StyleSheet.create({
     cardWrapper: {
         flex: 1,
         borderRadius: 15,
-        backgroundColor: 'rgba(255,255,255,0.22)',
-        shadowColor: 'rgba(86, 168, 255, 0.45)',
+        backgroundColor: '#FFFFFF38',
+        shadowColor: '#15447673',
         shadowOffset: { width: 0, height: 22 },
         shadowOpacity: 0.5,
         shadowRadius: 40,
@@ -64,12 +60,12 @@ const styles = StyleSheet.create({
     },
 
     noteCardPressed: {
-        backgroundColor: 'rgba(255, 255, 255, 0.47)',
+        backgroundColor: '#FFFFFF78',
         transform: [{ scale: 0.98 }],
     },
     firstCard: {
-        backgroundColor: 'rgba(255, 255, 255, 0.47)',
-        shadowColor: 'rgba(86, 168, 255, 0.45)',
+        backgroundColor: '#FFFFFF78',
+        shadowColor: '#56A8FF73',
         shadowOffset: { width: 0, height: 22 },
         shadowOpacity: 0.1,
         shadowRadius: 40,
@@ -80,40 +76,15 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 8,
-    },
-    noteDate: {
-        fontSize: 12,
-        fontWeight: '600',
-        color: Palette.greyDarkest2,
-        textTransform: 'uppercase',
-        letterSpacing: 0.5,
+
     },
     latestBadge: {
-        backgroundColor: 'rtgba(255, 220, 220, 0.9)',
         paddingHorizontal: 8,
-        paddingVertical: 3,
+        paddingVertical: 4,
         borderRadius: 4,
+        borderTopRightRadius: 8,
+        position: 'absolute',
+        right: -16,
+        top: -16,
     },
-    latestBadgeText: {
-        fontSize: 10,
-        fontWeight: '700',
-        color: 'grey',
-        letterSpacing: 0.5,
-    },
-    noteText: {
-        fontSize: 15,
-        lineHeight: 22,
-        color: 'grey',
-        marginBottom: 12,
-    },
-    noteFooter: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    noteTime: {
-        fontSize: 12,
-        color: 'grey',
-    },
-
 });

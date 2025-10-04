@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Colors } from '../const';
+import AppText from './ui/typography';
 
 interface Props {
 	text: string;
@@ -9,7 +10,9 @@ interface Props {
 export function InfoBlock({ text }: Props) {
     return (
         <View style={ styles.wrapper }>
-            <Text style={ styles.text }>{ text }</Text>
+            <AppText style={ styles.text } color="#0066CC">
+                { text }
+            </AppText>
         </View>
     );
 }
@@ -31,7 +34,6 @@ const styles = StyleSheet.create({
     text: {
         flex: 1,
         fontSize: 16,
-        color: '#0066cc',
         lineHeight: 18,
     },
 });

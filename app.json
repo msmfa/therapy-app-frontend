@@ -19,7 +19,7 @@
     "splash": {
       "image": "./assets/splash-brain.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#FFFFFF"
     },
     "ios": {
       "supportsTablet": true,

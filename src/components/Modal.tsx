@@ -34,7 +34,7 @@ export function AppModal({ children, isVisible, onClose }: ModalProps) {
 }
 
 const styles = StyleSheet.create({
-    modalRoot: { flex: 1, backgroundColor: '#fff' },
+    modalRoot: { flex: 1, backgroundColor: '#FFFFFF' },
     modalContent: { padding: 24, paddingBottom: 120, paddingTop: 60 },
     modalClose: {
         position: 'absolute',
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
         right: 24,
         bottom: 24,
         borderRadius: 25,
-        backgroundColor: '#111',
+        backgroundColor: '#111111',
         paddingVertical: 12,
         alignItems: 'center',
     },

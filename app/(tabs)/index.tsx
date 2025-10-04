@@ -41,7 +41,7 @@ export default function NewNoteScreen() {
     return (
         <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] }>
             <LinearGradient
-                colors={ ['#ff777c', '#f6b7b9ff', '#f0c7caff', '#e1e6ea', '#e1e6ea', '#dbe0e4'] }
+                colors={ ['#FF777C', '#F6B7B9FF', '#F0C7CAFF', '#E1E6EA', '#E1E6EA', '#DBE0E4'] }
                 start={ { x: 0.5, y: 0 } }
                 end={ { x: 0.5, y: 1 } }
                 style={ styles.backgroundGradient }
@@ -63,7 +63,7 @@ export default function NewNoteScreen() {
                                     numberOfLines={ 10 }
                                     underlineColorAndroid="transparent"
                                     style={ styles.textInput }
-                                    placeholderTextColor="rgba(40,48,74,0.35)"
+                                    placeholderTextColor="#28304A59"
                                     selectionColor="#FF7B9B"
                                 />
                                 <TouchableOpacity
@@ -71,7 +71,7 @@ export default function NewNoteScreen() {
                                     disabled={ isDisabled }
                                     style={ [styles.plusButton, isDisabled && styles.plusButtonDisabled] }
                                 >
-                                    <Feather name="plus" size={ 44 } color="#6a4d50ff" />
+                                    <Feather name="plus" size={ 44 } color="#6A4D50FF" />
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -108,8 +108,8 @@ const styles = StyleSheet.create({
     cardWrapper: {
         flex: 1,
         borderRadius: 30,
-        backgroundColor: 'rgba(255,255,255,0.22)',
-        shadowColor: 'rgba(86, 168, 255, 0.45)',
+        backgroundColor: '#FFFFFF38',
+        shadowColor: '#56A8FF73',
         shadowOffset: { width: 0, height: 22 },
         shadowOpacity: 0.5,
         shadowRadius: 40,
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
         borderRadius: 26,
         paddingVertical: 22,
         paddingHorizontal: 28,
-        backgroundColor: 'transparent',
+        backgroundColor: '#00000000',
         overflow: 'hidden',
         position: 'relative',
     },
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
         right: 16,
         bottom: 16,
         padding: 4,
-        shadowColor: 'rgba(140, 172, 232, 0.25)',
+        shadowColor: '#8CACE840',
         shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.4,
         shadowRadius: 12,

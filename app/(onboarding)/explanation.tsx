@@ -1,9 +1,10 @@
 import React, { JSX } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
 import { Button } from '../../src/components/ui/button';
+import AppText from '../../src/components/ui/typography';
 
 export default function ExplanationScreen(): JSX.Element {
     const router = useRouter();
@@ -16,11 +17,13 @@ export default function ExplanationScreen(): JSX.Element {
         <SafeAreaView style={ styles.container }>
             <GradientUpwards />
             <View style={ styles.content }>
-                <Text style={ styles.title }>Why we plan your reminders</Text>
-                <Text style={ styles.body }>
+                <AppText variant='h1' >
+                    Why we plan your reminders
+                </AppText>
+                <AppText variant='body'>
                     We tailor your follow-up reminders using your therapy schedule so you can capture insights
                     while they are fresh. This keeps your notes meaningful and easy to recall later.
-                </Text>
+                </AppText>
             </View>
             <View style={ styles.footer }>
                 <Button label='Next' onPress={ handleNext } />
@@ -32,7 +35,7 @@ export default function ExplanationScreen(): JSX.Element {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: '#FFFFFF',
         paddingHorizontal: 24,
         paddingTop: 24,
         paddingBottom: 32,
@@ -41,18 +44,6 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         gap: 16,
-    },
-    title: {
-        fontSize: 26,
-        fontWeight: '700',
-        color: '#1f1f1f',
-        textAlign: 'center',
-    },
-    body: {
-        fontSize: 16,
-        color: '#444',
-        lineHeight: 24,
-        textAlign: 'center',
     },
     footer: {
         paddingTop: 16,

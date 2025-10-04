@@ -1,23 +1,31 @@
+import { typography } from 'new-design';
+import React from 'react';
+import { Text as RNText, TextProps, StyleProp, TextStyle } from 'react-native';
 
-import { StyleSheet, Text, View } from 'react-native';
-import { Palette } from '../../../design';
-
-type Props = {
-    text: string;
+export type AppTextProps = TextProps & {
+    variant: 'h1' | 'h2' | 'body' | 'bodySecondary' | 'caption';
+    align?: 'auto' | 'left' | 'right' | 'center' | 'justify';
+    style?: StyleProp<TextStyle>;
 };
 
-export default function Typography({ text }: Props) {
+export default function AppText({
+    children,
+    variant = 'body',
+    align = 'auto',
+    style,
+    ...rest
+}: AppTextProps) {
+    const baseTypography = typography[variant];
+
+    const textStyles: StyleProp<TextStyle> = [
+        baseTypography,
+        align !== 'auto' ? { textAlign: align } : null,
+        style,
+    ];
+
     return (
-        <View>
-            <Text style={ styles.text }>{ text }</Text>
-        </View>
+        <RNText { ...rest } style={ textStyles }>
+            { children }
+        </RNText>
     );
 }
-
-const styles = StyleSheet.create({
-    text: {
-        fontSize: 16,
-        lineHeight: 22,
-        color: Palette.maroon,
-    },
-});

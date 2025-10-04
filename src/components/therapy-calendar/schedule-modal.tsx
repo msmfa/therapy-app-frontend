@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, Modal, Platform, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Modal, Platform, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import dayjs from 'dayjs';
@@ -9,6 +9,9 @@ dayjs.extend(advancedFormat);
 
 import RadioButton from '../ui/RadioButton';
 import { Button } from '../ui/button';
+import AppText from '../ui/typography';
+import Badge from '../ui/Badge';
+import { colors } from 'new-design';
 
 interface Session {
     id: string;
@@ -70,8 +73,8 @@ export default function ScheduleModal({
         weekly_pattern: {
             title: 'Every week',
             subtext: selectedDay
-                ? `Schedule every ${selectedDay.format('dddd')} for the next 2 months`
-                : 'Schedule every week for the next 2 months',
+                ? `Every ${selectedDay.format('dddd')} for the next 2 months`
+                : 'Every week for the next 2 months',
         },
     };
 
@@ -83,9 +86,9 @@ export default function ScheduleModal({
                 <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1} onPress={onCancel} />
                 <View style={styles.modalContent}>
                     {selectedDay && (
-                        <View style={styles.badge}>
-                            <Text style={styles.badgeText}>{selectedDay.format('dddd Do')}</Text>
-                        </View>
+                        <Badge addedStyles={styles.badge} tabWithBorder hue={220}>
+                            {selectedDay.format('dddd Do')}
+                        </Badge>
                     )}
 
                     <View style={styles.datePicker}>
@@ -96,7 +99,7 @@ export default function ScheduleModal({
                                     mode="time"
                                     display="spinner"
                                     onChange={handleTimeChange}
-                                    textColor="#282525"
+                                    textColor={ colors.text}
                                     themeVariant="light"
                                     style={styles.iosPicker}
                                 />
@@ -105,7 +108,9 @@ export default function ScheduleModal({
                             <>
                                 <TouchableOpacity style={styles.timeButton} onPress={() => setShowPicker(true)}>
                                     <Ionicons name="time-outline" size={20} />
-                                    <Text style={styles.timeLabel}>{dayjs(time).format('h:mm A')}</Text>
+                                    <AppText style={styles.timeLabel} variant='body'>
+                                        {dayjs(time).format('h:mm A')}
+                                    </AppText>
                                 </TouchableOpacity>
                                 {showPicker && (
                                     <DateTimePicker
@@ -129,8 +134,12 @@ export default function ScheduleModal({
                                     onPress={() => setScheduleMode(mode)}
                                 >
                                     <View>
-                                        <Text>{scheduleModeDictionary[mode].title}</Text>
-                                        <Text style={styles.subtext}>{scheduleModeDictionary[mode].subtext}</Text>
+                                        <AppText variant='body'>
+                                            {scheduleModeDictionary[mode].title}
+                                        </AppText>
+                                        <AppText variant='caption'>
+                                            {scheduleModeDictionary[mode].subtext}
+                                        </AppText>
                                     </View>
                                 </RadioButton>
                             ))}
@@ -168,19 +177,8 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left: 20,
         top: 0,
-        backgroundColor: 'rgba(226, 61, 61, 0.13)',
-        borderColor: 'rgba(226, 61, 61, 0.3)',
-        borderLeftWidth: 1,
-        borderRightWidth: 1,
-        borderBottomWidth: 1,
-        borderTopWidth: 0,
-        borderBottomLeftRadius: 8,
-        borderBottomRightRadius: 8,
         height: 45,
         width: 180,
-    },
-    badgeText: {
-        color: 'rgba(226, 61, 61, 1)',
     },
     buttonRow: {
         alignItems: 'center',
@@ -210,7 +208,7 @@ const styles = StyleSheet.create({
         top: 0,
     },
     modalContent: {
-        backgroundColor: '#eef3f7ff',
+        backgroundColor: colors.bgLight,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         padding: 20,
@@ -218,7 +216,7 @@ const styles = StyleSheet.create({
         paddingTop: 65,
     },
     modalOverlay: {
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: '#00000080',
         flex: 1,
         justifyContent: 'flex-end',
     },
@@ -227,7 +225,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     iosPickerWrapper: {
-        backgroundColor: '#fff',
+        backgroundColor: '#FFFFFF',
         borderRadius: 18,
         overflow: 'hidden',
         paddingVertical: 12,
@@ -238,12 +236,11 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     subtext: {
-        color: '#666',
         fontSize: 12,
     },
     timeButton: {
         alignItems: 'center',
-        borderColor: '#ccc',
+        borderColor: '#CCCCCC',
         borderRadius: 5,
         borderWidth: 1,
         flexDirection: 'row',
@@ -251,6 +248,5 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     timeLabel: {
-        color: '#282525',
     },
 });

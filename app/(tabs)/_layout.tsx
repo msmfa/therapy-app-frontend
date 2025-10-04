@@ -24,7 +24,7 @@ export default function TabsLayout() {
                 headerShown: false,
                 headerTitleAlign: 'center',
                 headerTransparent: true,
-                headerStyle: { backgroundColor: 'transparent' },
+                headerStyle: { backgroundColor: '#00000000' },
                 headerShadowVisible: false,
                 tabBarStyle: {
                     borderTopWidth: 0,
@@ -36,7 +36,7 @@ export default function TabsLayout() {
                     backgroundColor: '#DBE0E4',
                 },
                 tabBarActiveTintColor: Palette.maroon,
-                // tabBarInactiveTintColor: '#888',
+                // tabBarInactiveTintColor: '#888888',
                 tabBarShowLabel: false,
             } }
         >

@@ -1,6 +1,7 @@
-import { Text, ScrollView } from "react-native";
+import { ScrollView } from "react-native";
 import { ReminderType } from "../utils/types";
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AppText from "./ui/typography";
 
 
 type Props = {
@@ -12,7 +13,9 @@ export function ScienceTextModal({ type }: Props) {
     return (
         <SafeAreaView>
             <ScrollView>
-                <Text>{ title }</Text>
+                <AppText color="#111111" weight="semibold">
+                    { title }
+                </AppText>
             </ScrollView>
         </SafeAreaView>
     )
@@ -25,4 +28,3 @@ const scienceTypeToText: Record<ReminderType, { title: string }> = {
     [ReminderType.SpacedReactivation]: { title: 'Spaced Reactivation' },
     [ReminderType.StateReinstatement]: { title: 'State Reinstatement' },
 };
-

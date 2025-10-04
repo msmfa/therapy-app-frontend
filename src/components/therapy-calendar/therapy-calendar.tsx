@@ -5,21 +5,21 @@ import ScheduleModal from './schedule-modal';
 import { GradientRow } from '../ui/GradientRow';
 
 export const COLORS = {
-    activeSessionBackground: 'rgba(211, 85, 85, 1)',
-    activeSessionBorder: 'rgba(250, 169, 169, 1)',
-    activeSessionText: 'rgba(255, 255, 255, 1)',
-    calendarDayDefault: 'rgba(84, 38, 38, 1)',
-    calendarDayDisabled: 'rgba(202, 164, 164, 1)',
-    calendarMonthText: 'rgba(77, 49, 49, 1)',
-    calendarSelectedBackground: 'rgba(76, 110, 245, 1)',
-    calendarWeekdayHeader: 'rgba(162, 135, 135, 1)',
-    maroon: 'rgba(117, 42, 42, 1)',
-    scheduledBackground: 'rgba(247, 162, 164, 1)',
-    scheduledBorder: 'rgba(250, 169, 169, 1)',
-    scheduledText: 'rgba(226, 61, 61, 1)',
-    todayBackground: 'rgba(0, 0, 0, 1)',
-    todayText: 'rgba(255, 255, 255, 1)',
-    unscheduledBackground: 'rgba(253, 166, 166, 1)',
+    todayBackground: '#000000',
+    todayText: '#FFFFFF',
+    calendarSelectedBackground: '#000000',
+    activeSessionBackground: 'hsl(0, 72%, 85%)',
+    activeSessionText: 'hsl(0, 72%, 50%)',
+    activeSessionBorder: 'hsl(0, 72%, 75%)',
+    scheduledBackground: 'hsl(0, 72%, 85%)',
+    scheduledText: 'hsl(0, 72%, 50%)',
+    pressedText: 'hsl(0, 72%, 50%)',
+    unscheduledBackground: 'hsl(0, 72%, 85%)',
+    calendarDayDefault: 'hsl(0, 42%, 20%)',
+    calendarDayDisabled: 'hsl(0, 22%, 80%)',
+    calendarMonthText: 'hsl(0, 12%, 10%)',
+    calendarWeekdayHeader: 'hsl(0, 10%, 45%)',
+    arrows: 'hsl(0, 0%, 30%)',
 };
 
 type SelectedSessions = Record<string, Date>;
@@ -56,8 +56,8 @@ export default function TherapyCalendar({
             borderRadius: 18,
             height: 36,
             justifyContent: 'center',
-            marginTop: -2,
-            paddingTop: 5,
+            marginTop: -4,
+            paddingTop: 8,
             width: 36,
         };
 
@@ -87,12 +87,12 @@ export default function TherapyCalendar({
                     container: {
                         ...circleBaseStyle,
                         backgroundColor: COLORS.unscheduledBackground,
-                        borderColor: COLORS.scheduledText,
+                        borderColor: COLORS.activeSessionBorder,
                         borderWidth: 1,
                     },
                     text: {
-                        color: COLORS.maroon,
-                        fontWeight: '600',
+                        color:COLORS.pressedText,
+                        fontWeight: '1200',
                         marginTop: 0,
                     },
                 },
@@ -106,7 +106,7 @@ export default function TherapyCalendar({
                     container: {
                         ...circleBaseStyle,
                         backgroundColor: COLORS.todayBackground,
-                        borderWidth: 0,
+                        borderWidth: 1,
                     },
                     text: {
                         color: COLORS.todayText,
@@ -177,22 +177,23 @@ export default function TherapyCalendar({
     }, [activeDateKey, closeModal, onSelectedSessionsChange, selectedSessions]);
 
     const calendarTheme = {
-        arrowColor: COLORS.maroon,
-        backgroundColor: 'transparent',
-        calendarBackground: 'transparent',
+        arrowColor: COLORS.arrows,
+        backgroundColor: '#00000000',
+        calendarBackground: '#00000000',
         dayTextColor: COLORS.calendarDayDefault,
         monthTextColor: COLORS.calendarMonthText,
         selectedDayBackgroundColor: COLORS.calendarSelectedBackground,
         selectedDayTextColor: COLORS.activeSessionBorder,
-        textDayFontFamily: 'System',
-        textDayFontSize: 15,
-        textDayHeaderFontFamily: 'System',
-        textDayHeaderFontSize: 15,
-        textDisabledColor: COLORS.calendarDayDisabled,
-        textMonthFontFamily: 'System',
-        textMonthFontSize: 20,
+         textDisabledColor: COLORS.calendarDayDisabled,
         textSectionTitleColor: COLORS.calendarWeekdayHeader,
         todayTextColor: COLORS.scheduledText,
+        // fonts
+        textDayFontFamily: 'System',
+        textDayFontSize: 16,
+        textDayHeaderFontFamily: 'System',
+        textDayHeaderFontSize: 14,
+        textMonthFontFamily: 'System',
+        textMonthFontSize: 20,
     };
 
     return (
@@ -206,6 +207,7 @@ export default function TherapyCalendar({
                         minDate={formatDateKey(new Date())}
                         onDayPress={handleDayPress}
                         theme={calendarTheme}
+                        style={ styles.calendar }
                     />
                 </GradientRow>
                 {children}
@@ -234,13 +236,16 @@ export default function TherapyCalendar({
 }
 
 const styles = StyleSheet.create({
-    calendarWrapper: {
-        marginBottom: 18,
-    },
-    content: {
+     content: {
         flex: 1,
         paddingHorizontal: 4,
-        paddingTop: 20,
         position: 'relative',
     },
+    calendarWrapper: {
+        paddingHorizontal: 4,
+    },
+    calendar: {
+        paddingVertical: 14,
+    },
+
 });

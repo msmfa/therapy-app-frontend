@@ -33,7 +33,7 @@ export enum Colors {
 // 	danger: '#DC2626', // strong red
 // 	dangerLight: '#FEE2E2', // pale red / rose tint
 // 	border: '#E5E7EB', // light gray
-// 	overlay: 'rgba(0, 0, 0, 0.5)', // 50% black overlay
+// 	overlay: '#00000080', // 50% black overlay
 // };
 
 export const spacing = {

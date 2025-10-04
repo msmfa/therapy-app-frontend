@@ -1,6 +1,7 @@
 
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Palette } from '../../../design';
+import AppText from './typography';
 
 type Props = {
     text: string;
@@ -9,7 +10,9 @@ type Props = {
 export default function Header({ text }: Props) {
     return (
         <View>
-            <Text style={ styles.text }>{ text }</Text>
+            <AppText style={ styles.text } color={ Palette.maroon } weight="semibold">
+                { text }
+            </AppText>
         </View>
     );
 }
@@ -18,7 +21,6 @@ const styles = StyleSheet.create({
     text: {
         fontSize: 28,
         fontWeight: '600',
-        color: Palette.maroon,
         opacity: 1,
         zIndex: 110,
     },

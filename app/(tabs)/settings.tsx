@@ -1,10 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../src/auth/AuthContext';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
 import { GradientRow } from '../../src/components/ui/GradientRow';
 import { SettingsRow } from '../../src/components/SettingsRow';
+import AppText from '../../src/components/ui/typography';
+import Spacer from 'src/components/ui/Spacer';
 
 export default function SettingsScreen() {
     const { user, signOut } = useAuth();
@@ -17,8 +19,6 @@ export default function SettingsScreen() {
         }
     };
 
-    console.log('user', user);
-
     return (
         <SafeAreaView style={ styles.root }>
             <GradientUpwards />
@@ -26,24 +26,31 @@ export default function SettingsScreen() {
                 <View style={ styles.accountInfoContainer }>
                     <GradientRow>
                         <View style={ styles.user } >
-                            <Text style={ styles.name }>{ user?.name }</Text>
-                            <Text style={ styles.email }  numberOfLines={ 1 }>{ user?.email }</Text>
+                            <AppText variant='h1'>
+                                { user?.name }
+                            </AppText>
+                            <AppText variant='body' numberOfLines={ 1 }>
+                                { user?.email }
+                            </AppText>
                         </View>
                     </GradientRow>
                 </View>
                 <View style={ styles.container }>
-                    <Text style={ styles.rowHeader }>
+                    <AppText variant='h2'>
                         References
-                    </Text>
+                    </AppText>
+                    <Spacer />
                     { /* TODO: add links to all these */ }
                     <View style={ { gap: 8 } }>
                         <SettingsRow text="The science behind our reminder intervals" onPress={ () => {} } />
                         <SettingsRow text="How to get the most from note taking after a session" onPress={ () => {} } />
                     </View>
+                    <Spacer />
 
-                    <Text style={ styles.rowHeader }>
+                    <AppText variant='h2'>
                         Settings
-                    </Text>
+                    </AppText>
+                    <Spacer />
                     <View style={ { gap: 8 } }>
                         <SettingsRow text="Delete account" onPress={ () => {} } />
                         <SettingsRow text="Privacy Policy" onPress={ () => {} } />
@@ -52,13 +59,15 @@ export default function SettingsScreen() {
                     </View>
                 </View>
             </View>
-            <Text style={ styles.footer }>v1.0.0</Text>
+            <AppText variant='caption' align='center'>
+                v1.0.0
+            </AppText>
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-    root: { flex: 1, backgroundColor: 'transparent' },
+    root: { flex: 1, backgroundColor: '#00000000' },
     accountInfoContainer: {
         marginHorizontal: 12,
         padding: 12,
@@ -69,8 +78,4 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 12,
     },
-    name: { fontSize: 20, fontWeight: '600', color: '#333' },
-    rowHeader: { fontSize: 18, fontWeight: '600', color: '#333', marginTop: 12, marginBottom: 12 },
-    email: { fontSize: 16, color: '#666', textAlign: 'center' },
-    footer: { position: 'absolute', bottom: 20, left: 20, right: 20, textAlign: 'center', color: '#888', marginTop: 12 },
 });
