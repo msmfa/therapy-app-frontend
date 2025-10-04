@@ -13,6 +13,8 @@ interface Props {
     loading?: boolean;
 }
 
+const DISABLED_TEXT_COLOR = '#5C5C5C73';
+
 export function Button({
     label,
     icon,
@@ -23,11 +25,14 @@ export function Button({
     loading = false,
 }: Props) {
     const isDisabled = disabled || loading;
+
     const textColor = transparent
-        ? Palette.black
-        : isDisabled
-            ? '#5C5C5C73'
-            : Palette.white;
+        ? (isDisabled ? DISABLED_TEXT_COLOR : Palette.black)
+        : (isDisabled ? DISABLED_TEXT_COLOR : Palette.white);
+
+    const spinnerColor = transparent
+        ? (isDisabled ? DISABLED_TEXT_COLOR : Palette.black)
+        : Palette.white;
 
     return (
         <TouchableOpacity
@@ -44,7 +49,7 @@ export function Button({
             accessibilityState={ { disabled: isDisabled } }
         >
             { loading ? (
-                <ActivityIndicator color={ transparent ? Palette.black : Palette.white } />
+                <ActivityIndicator color={ spinnerColor } />
             ) : icon ? (
                 <View style={ [styles.iconWrapper, isDisabled && styles.iconDisabled] }>{ icon }</View>
             ) : null }

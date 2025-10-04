@@ -3,11 +3,12 @@ import AppText from "./typography";
 
 type Props = {
     text: string;
+    isActive?: boolean;
 }
 
-export default function Circle({ text }: Props) {
+export default function Circle({ text, isActive }: Props) {
     return (
-        <View style={ styles.circle }>
+        <View style={ [styles.circle, isActive && styles.circleActive] }>
             <AppText
                 variant="caption"
                 style={ styles.circleText }
@@ -33,6 +34,10 @@ const styles = StyleSheet.create({
         backgroundColor: 'hsl(220, 70%, 90%)',
         borderWidth: 1,
         borderColor: 'hsl(220, 70%, 80%)',
+    },
+    circleActive: {
+        backgroundColor: 'hsl(220, 70%, 85%)',
+        borderColor: 'hsl(220, 70%, 40%)',
     },
     circleText: {
         color: 'hsl(220, 70%, 50%)',

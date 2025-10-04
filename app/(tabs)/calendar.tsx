@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 
 import TherapyCalendar from '../../src/components/therapy-calendar/therapy-calendar';
@@ -11,6 +11,7 @@ import { GradientRow } from '../../src/components/ui/GradientRow';
 import { Button } from '../../src/components/ui/button';
 import OnboardingSteps from 'src/components/ui/OnboardingSteps';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
+import { useFocusEffect } from 'expo-router';
 
 
 const stepsText = {
@@ -32,13 +33,12 @@ export default function CalendarScreen() {
     const [selectedSessions, setSelectedSessions] = useState<SelectedSessions>(initialSessions);
     const [dotDates, setDotDates] = useState<string[]>(() => neuroReminders.map((item) => item.atUtc));
 
-    useEffect(() => {
-        setSelectedSessions(initialSessions);
-    }, [initialSessions]);
-
-    useEffect(() => {
-        setDotDates(neuroReminders.map((item) => item.atUtc));
-    }, [neuroReminders]);
+    useFocusEffect(
+        useCallback(() => {
+            setSelectedSessions(initialSessions);
+            setDotDates(neuroReminders.map((item) => item.atUtc));
+        }, [initialSessions, neuroReminders]),
+    );
 
     const sessionCount = Object.keys(selectedSessions).length;
 
@@ -92,8 +92,6 @@ export default function CalendarScreen() {
                     ] }
                 />
                 <Spacer variant={ SpacerVariant.small } />
-
-                { /* <Spacer variant={ SpacerVariant.small } /> */ }
                 <View style={ styles.buttonsWrapper }>
                     <Button
                         addedStyles={ { width: '48%' } }
@@ -109,8 +107,7 @@ export default function CalendarScreen() {
                         onPress={ handleClearAll }
                     />
                 </View>
-                <Spacer variant={ SpacerVariant.large } />
-
+                <Spacer variant={ SpacerVariant.medium } />
             </GradientRow>
             <SuccessScreenModal isVisible={ showSuccessModal } onClose={ () => setShowSuccessModal(false) } />
         </SafeAreaView>

@@ -20,7 +20,7 @@ export const COLORS = {
     calendarMonthText: 'hsl(0, 12%, 10%)',
     calendarWeekdayHeader: 'hsl(0, 10%, 45%)',
     arrows: 'hsl(0, 0%, 30%)',
-    dotIndicator: 'hsl(0, 72%, 50%)',
+    dotIndicator: 'hsl(0, 92%,50%)',
 };
 
 type SelectedSessions = Record<string, Date>;
@@ -89,13 +89,13 @@ export default function TherapyCalendar({
 
     const markedDates = useMemo(() => {
         const circleBaseStyle = {
-            borderRadius: 21,
-            height: 42,
             alignItems: 'center',
-            width: 42,
+            borderRadius: 20,
+            height: 40,
             justifyContent: 'center',
-            marginTop: -4,
-            paddingTop: 8,
+            marginTop: -5,
+            paddingTop: 0,
+            width: 40,
         };
 
         const entries = Object.keys(selectedSessions).reduce<Record<string, any>>((acc, dateKey) => {
@@ -111,7 +111,7 @@ export default function TherapyCalendar({
                     text: {
                         color: isActive ? COLORS.activeSessionText : COLORS.scheduledText,
                         fontWeight: '600',
-                        marginTop: -2,
+                        marginTop: 5,
                     },
                 },
             };
@@ -129,8 +129,8 @@ export default function TherapyCalendar({
                     },
                     text: {
                         color:COLORS.pressedText,
-                        fontWeight: '1200',
-                        marginTop: 0,
+                        fontWeight: '600',
+                        marginTop: 5,
                     },
                 },
             };
@@ -148,7 +148,7 @@ export default function TherapyCalendar({
                     text: {
                         color: COLORS.todayText,
                         fontWeight: '600',
-                        marginTop: 0,
+                        marginTop: 5,
                     },
                 },
             };

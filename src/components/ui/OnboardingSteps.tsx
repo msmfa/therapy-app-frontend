@@ -8,14 +8,16 @@ type Props = {
     title: string;
     steps: string[];
     containerStyle?: StyleProp<ViewStyle>;
+    activeStep?: number;
 };
 
 const LINE_COLOR = 'hsl(220, 70%, 90%)';
 const STEP_VERTICAL_SPACING = 10;
 
-export default function OnboardingSteps({ title, steps, containerStyle }: Props) {
+export default function OnboardingSteps({ title, steps, activeStep }: Props) {
+    console.log('Active Step:', activeStep);
     return (
-        <View style={ [styles.container, containerStyle] }>
+        <View >
             <Spacer variant={ SpacerVariant.medium } />
             <AppText variant='body'>
                 { title }
@@ -27,6 +29,7 @@ export default function OnboardingSteps({ title, steps, containerStyle }: Props)
 
             { steps.map((text, index) => {
                 const isLast = index === steps.length - 1;
+                const isActive = activeStep === index;
 
                 return (
                     <View
@@ -37,7 +40,9 @@ export default function OnboardingSteps({ title, steps, containerStyle }: Props)
                         ] }
                     >
                         <View style={ styles.indicatorColumn }>
-                            <Circle text={ String(index + 1) } />
+                            <View style={ styles.circleWrapper }>
+                                <Circle text={ String(index + 1) } isActive={ isActive } />
+                            </View>
                             <View
                                 style={ [
                                     styles.indicatorTail,
@@ -50,7 +55,10 @@ export default function OnboardingSteps({ title, steps, containerStyle }: Props)
                                 </View>
                             ) }
                         </View>
-                        <AppText variant='caption' style={ styles.stepText }>
+                        <AppText
+                            variant={ 'caption' }
+                            style={ [styles.stepText, isActive && styles.stepTextActive] }
+                        >
                             { text }
                         </AppText>
                     </View>
@@ -61,9 +69,6 @@ export default function OnboardingSteps({ title, steps, containerStyle }: Props)
 }
 
 const styles = StyleSheet.create({
-    container: {
-
-    },
     line: {
         height: 1,
         backgroundColor: LINE_COLOR,
@@ -91,7 +96,6 @@ const styles = StyleSheet.create({
     indicatorTailLast: {
         flexGrow: 0,
         height: 30,
-        // marginTop: -1,
         marginBottom: 6,
     },
     indicatorArrowWrapper: {
@@ -99,7 +103,14 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginTop: -12,
     },
+    circleWrapper: {
+        borderRadius: 999,
+    },
     stepText: {
         flex: 1,
+        color: 'hsl(0, 0%, 40%)',
+    },
+    stepTextActive: {
+        color: '#000000',
     },
 });

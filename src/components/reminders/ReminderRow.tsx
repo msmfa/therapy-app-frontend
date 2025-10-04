@@ -16,13 +16,16 @@ type Props = {
 
 export function ReminderRow ({ date, description, link }: Props) {
     const [openModal, setOpenModal] = useState<ReminderType | null>(null);
-    console.log("props", { date, description, link });
+
     return (
         <GradientRow>
             <View style={ styles.container }>
+                <Spacer />
                 <AppText variant="h2" >
                     { date }
                 </AppText>
+                <Spacer variant={ SpacerVariant.small } />
+
                 <AppText variant="bodySecondary" align="left" >
                     { description }
                 </AppText>
@@ -33,7 +36,7 @@ export function ReminderRow ({ date, description, link }: Props) {
                 <AppText variant="caption">
                     Learn More
                 </AppText>
-                <Ionicons name={  'arrow-forward-outline' } size={ 20 } color="#666666" />
+                <Ionicons name={ 'arrow-forward-outline' } size={ 20 } color="#666666" />
             </TouchableOpacity>
             { /* // todo: add the science behind this pages */ }
             { openModal && (
@@ -41,6 +44,8 @@ export function ReminderRow ({ date, description, link }: Props) {
                     <ScienceTextModal type={ openModal } />
                 </AppModal>
             ) }
+            <Spacer variant={ SpacerVariant.large } />
+
         </GradientRow>
     )
 }
@@ -48,20 +53,22 @@ export function ReminderRow ({ date, description, link }: Props) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+
     },
     bottomContainer: {
         position: 'absolute',
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: '#FFFFFF99',
+        backgroundColor: 'rgba(255, 255, 255, 1)',
         borderBottomLeftRadius: 10,
         borderBottomRightRadius: 10,
         flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 20,
+        paddingLeft: 20,
+        paddingRight: 10,
         paddingVertical: 8,
 
     }

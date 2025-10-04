@@ -16,6 +16,11 @@ const brainIllustrationUri = brainIllustrationSource?.uri ?? null;
 export default function EmptyNotesScreen() {
     const { nextSession, loading } = useTherapySessions();
 
+    if (!nextSession && !loading) {
+        return null;
+    }
+
+
     const nextSessionDate = nextSession
         ? dayjs(nextSession.startsAtUtc).format('dddd, MMM D [at] h:mm A')
         : null;
@@ -36,26 +41,12 @@ export default function EmptyNotesScreen() {
             </View>
             <View style={ styles.emptyContainer }>
                 <Spacer variant={ SpacerVariant.large } />
-                <AppText variant='h2'>
-                    Nothing logged yet
-                </AppText>
                 <Spacer variant={ SpacerVariant.large } />
-
-                { nextSessionDate ? (
-                    <AppText variant='body'>
-                        Your next session is { nextSessionDate }.
-                    </AppText>
-                ) : (
-                    <AppText variant='body'>
-                        { loading
-                            ? 'We are fetching your upcoming sessions…'
-                            : 'Your next session will appear here once you add it.' }
-                    </AppText>
-                ) }
-                <Spacer variant={ SpacerVariant.small } />
                 <AppText variant='h2'>
-                    We'll send you a notification just after your session so you can take down your first note!
+                    Your next session is { nextSessionDate }. We'll send you a notification just after your session so you can take down your first note
                 </AppText>
+                <Spacer variant={ SpacerVariant.small } />
+
 
                 <View style={ styles.bottomText }>
                     <View style={ styles.bottomTextLine } />
@@ -122,6 +113,8 @@ const styles = StyleSheet.create({
         // alignItems: 'center',
         // justifyContent: 'center',
         paddingHorizontal: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     bottomTextLink: {
         color: colors.primary,

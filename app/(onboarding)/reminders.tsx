@@ -65,7 +65,6 @@ export default function RemindersScreen(): JSX.Element | null {
             <GradientUpwards />
             <ScrollView style={ styles.scrollContent }>
                 <View style={ styles.header }>
-
                     <AppText
                         variant='h1'
                     >

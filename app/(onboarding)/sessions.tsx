@@ -10,11 +10,12 @@ import { GradientUpwards } from '../../src/components/GradientUpwards';
 import { GradientRow } from '../../src/components/ui/GradientRow';
 import { Button } from '../../src/components/ui/button';
 import OnboardingSteps from 'src/components/ui/OnboardingSteps';
+import Spacer from 'src/components/ui/Spacer';
 
 
 const onBoardingText = {
     one: 'Press on a date on the calendar to add your therapy sessions. Add at least two weeks of sessions',
-    two: "Once you're done press the button below to save them",
+    two: "Press the button below to save them. We will then use these dates to calculate the best times to notify you",
 };
 
 type SelectedSessions = Record<string, Date>;
@@ -63,6 +64,8 @@ export default function SessionsScreen() {
         setSelectedSessions({});
     };
 
+    const haveSessionsBeenSelected = Object.keys(selectedSessions).length === 0;
+
     return (
         <SafeAreaView style={ styles.root }>
             <GradientUpwards />
@@ -71,14 +74,16 @@ export default function SessionsScreen() {
                     onSelectedSessionsChange={ setSelectedSessions }
                     selectedSessions={ selectedSessions }
                 >
-                    <GradientRow>
+                    <GradientRow addedStyles={ styles.bottomContainer }>
                         <OnboardingSteps
                             title='Add your therapy sessions'
                             steps={ [
                                 onBoardingText.one,
                                 onBoardingText.two,
                             ] }
+                            activeStep={ haveSessionsBeenSelected ? 0 : 1 }
                         />
+                        <Spacer />
                         <View style={ styles.buttonsWrapper }>
                             <Button
                                 addedStyles={ { width: '48%' } }
@@ -94,6 +99,7 @@ export default function SessionsScreen() {
                                 onPress={ handleClearAll }
                             />
                         </View>
+                        <Spacer />
                     </GradientRow>
                 </TherapyCalendar>
             </View>
@@ -111,6 +117,12 @@ const styles = StyleSheet.create({
     },
     content: {
         flex: 1,
+    },
+    bottomContainer:{
+        position: 'absolute',
+        bottom: 10,
+        right: 10,
+        left: 10,
     },
     buttonsWrapper: {
         flexDirection: 'row',
