@@ -1,12 +1,12 @@
 import React, { useCallback, useState } from 'react';
 import {
-    ScrollView,
     View,
     StyleSheet,
     Alert,
     KeyboardAvoidingView,
     Platform,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/auth/AuthContext';
 import { BASE_URL } from '../../src/const';
 import { RegisterError, RegisterSuccess } from '../../src/api/signup';
@@ -16,10 +16,13 @@ import TextField from 'src/components/ui/TextField';
 import PasswordField from 'src/components/ui/PasswordField';
 import { Button } from 'src/components/ui/button';
 import AppText from '../../src/components/ui/typography';
+import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
+import SocialAuthButtons from '../../src/components/auth/SocialAuthButtons';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function SignUpScreen() {
+    const router = useRouter();
     const { setAuth } = useAuth();
 
     const [name, setName] = useState('');
@@ -77,77 +80,92 @@ export default function SignUpScreen() {
                 style={ styles.flex }
                 behavior={ Platform.OS === 'ios' ? 'padding' : undefined }
             >
-                <ScrollView contentContainerStyle={ styles.content } keyboardShouldPersistTaps="handled">
-                    <View style={ styles.header }>
-                        <AppText variant='h1'>
-                            Create Account
-                        </AppText>
-                        <AppText variant='bodySecondary'>
-                            Join to start your therapy journey
-                        </AppText>
-                    </View>
 
-                    <TextField
-                        label="Name"
-                        value={ name }
-                        onChangeText={ setName }
-                        autoCapitalize="words"
-                        autoCorrect={ false }
-                        placeholder="Jane Doe"
-                        textContentType="name"
-                        returnKeyType="next"
-                        error={ errors.name }
-                    />
+                <View style={ styles.header }>
+                    <AppText variant='h1'>
+                        Create Account
+                    </AppText>
+                    <AppText variant='bodySecondary'>
+                        Join to start your therapy journey
+                    </AppText>
+                </View>
 
-                    <TextField
-                        label="Email"
-                        value={ email }
-                        onChangeText={ setEmail }
-                        autoCapitalize="none"
-                        autoCorrect={ false }
-                        keyboardType="email-address"
-                        placeholder="you@example.com"
-                        textContentType="emailAddress"
-                        returnKeyType="next"
-                        error={ errors.email }
-                    />
+                <TextField
+                    label="Name"
+                    value={ name }
+                    onChangeText={ setName }
+                    autoCapitalize="words"
+                    autoCorrect={ false }
+                    placeholder="Jane Doe"
+                    textContentType="name"
+                    returnKeyType="next"
+                    error={ errors.name }
+                />
 
-                    <PasswordField
-                        label="Password"
-                        value={ password }
-                        onChangeText={ setPassword }
-                        placeholder="••••••••"
-                        textContentType="newPassword"
-                        returnKeyType="next"
-                        error={ errors.password }
-                    />
+                <TextField
+                    label="Email"
+                    value={ email }
+                    onChangeText={ setEmail }
+                    autoCapitalize="none"
+                    autoCorrect={ false }
+                    keyboardType="email-address"
+                    placeholder="you@example.com"
+                    textContentType="emailAddress"
+                    returnKeyType="next"
+                    error={ errors.email }
+                />
 
-                    <PasswordField
-                        label="Confirm Password"
-                        value={ confirmPassword }
-                        onChangeText={ setConfirmPassword }
-                        placeholder="••••••••"
-                        textContentType="newPassword"
-                        returnKeyType="done"
-                        onSubmitEditing={ onSubmit }
-                        error={ errors.confirmPassword }
-                    />
+                <PasswordField
+                    label="Password"
+                    value={ password }
+                    onChangeText={ setPassword }
+                    placeholder="••••••••"
+                    textContentType="newPassword"
+                    returnKeyType="next"
+                    error={ errors.password }
+                />
 
-                    <Button
-                        label="Create Account"
-                        onPress={ onSubmit }
-                        loading={ loading }
-                        addedStyles={ { marginTop: 8 } }
-                    />
-                </ScrollView>
+                <PasswordField
+                    label="Confirm Password"
+                    value={ confirmPassword }
+                    onChangeText={ setConfirmPassword }
+                    placeholder="••••••••"
+                    textContentType="newPassword"
+                    returnKeyType="done"
+                    onSubmitEditing={ onSubmit }
+                    error={ errors.confirmPassword }
+                />
+
+                <Button
+                    label="Create Account"
+                    onPress={ onSubmit }
+                    loading={ loading }
+                    addedStyles={ { marginTop: 8 } }
+                />
+
+                <Spacer variant={ SpacerVariant.large } />
+
+                <View style={ styles.oauthSection }>
+                    <AppText variant='caption' align='center'>
+                        Or continue with
+                    </AppText>
+                    <Spacer variant={ SpacerVariant.large } />
+                    <SocialAuthButtons onSuccess={ () => router.replace('/') } />
+                </View>
             </KeyboardAvoidingView>
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-    root: { flex: 1, backgroundColor: '#FFFFFF' },
+    root: {
+        flex: 1,
+        backgroundColor: '#FFFFFF',
+        justifyContent: 'center',
+        paddingHorizontal: 30,
+        paddingTop: 50,
+    },
     flex: { flex: 1 },
-    content: { padding: 24, flexGrow: 1, justifyContent: 'center' },
     header: { marginBottom: 24 },
+    oauthSection: { alignItems: 'center', marginBottom: 16 },
 });

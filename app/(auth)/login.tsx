@@ -62,7 +62,7 @@ export default function LoginScreen() {
             >
                 <View style={styles.card}>
                     <AppText variant='h1' align='center'>
-                        Welcome
+                        Sign In
                     </AppText>
                     <Spacer/>
                     {isAuthenticated ? (
@@ -92,7 +92,6 @@ export default function LoginScreen() {
                                 textContentType="username"
                                 returnKeyType="next"
                             />
-
                             <PasswordField
                                 label="Password"
                                 value={password}
@@ -102,8 +101,6 @@ export default function LoginScreen() {
                                 returnKeyType="done"
                                 onSubmitEditing={onSubmit}
                             />
-                            <Spacer />
-
                            <TouchableOpacity onPress={() => router.push('/forgot-password')} style={styles.forgotPassword}>
                                 <AppText variant='caption'>
                                     Forgot password?
@@ -111,8 +108,6 @@ export default function LoginScreen() {
                             </TouchableOpacity>
                             <Button label={'Sign in'} onPress={onSubmit } loading={loading} />
                             <Spacer variant={SpacerVariant.large} />
-
-                            <View style={styles.oauthSection}>
                                <View style={styles.dividerContainer}>
                                    <View style={styles.divider} />
                                     <AppText variant='caption'>
@@ -121,11 +116,8 @@ export default function LoginScreen() {
                                     <View style={styles.divider} />
                                 </View>
                                 <Spacer variant={SpacerVariant.large} />
-
                                 <SocialAuthButtons onSuccess={() => router.replace('/')} />
-                            </View>
                             <Spacer />
-
                            <View style={styles.signupRow}>
                                 <AppText variant='caption'>
                                     Don't have an account?
@@ -183,7 +175,6 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '600',
     },
-    oauthSection: {},
     dividerContainer: {
         flexDirection: 'row',
         alignItems: 'center',

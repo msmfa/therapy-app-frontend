@@ -10,7 +10,7 @@ import {
     View,
     ViewStyle,
 } from 'react-native';
-
+// todo: remove this stuff
 import { Colors, spacing } from '../../const';
 import { Palette } from '../../../design';
 import AppText from './typography';
@@ -44,21 +44,17 @@ const TextField = forwardRef<TextInput, TextFieldProps>(
 
         const handleFocus = (event: NativeSyntheticEvent<TextInputFocusEventData>) => {
             setFocused(true);
-            if (typeof onFocus === 'function') {
-                onFocus(event);
-            }
+            onFocus?.(event);
         };
 
         const handleBlur = (event: NativeSyntheticEvent<TextInputFocusEventData>) => {
             setFocused(false);
-            if (typeof onBlur === 'function') {
-                onBlur(event);
-            }
+            onBlur?.(event);
         };
 
         return (
             <View style={ [styles.container, containerStyle] }>
-                <AppText style={ [styles.label, labelStyle] } color={ Palette.greyDarkest } weight="semibold">
+                <AppText style={ [styles.label, labelStyle] } variant='body'>
                     { label }
                 </AppText>
 
@@ -74,7 +70,7 @@ const TextField = forwardRef<TextInput, TextFieldProps>(
                         ref={ ref }
                         style={ [styles.input, style] }
                         placeholderTextColor={ Palette.greyDarkest }
-                        {...inputProps }
+                        { ...inputProps }
                         onFocus={ handleFocus }
                         onBlur={ handleBlur }
                     />
@@ -83,7 +79,7 @@ const TextField = forwardRef<TextInput, TextFieldProps>(
                 </View>
 
                 { error ? (
-                    <AppText style={ styles.error } color={ Colors.Red }>
+                    <AppText style={ styles.error } variant='caption'>
                         { error }
                     </AppText>
                 ) : null }
@@ -114,6 +110,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: spacing.md,
+        minHeight: 48,
     },
     inputWrapperFocused: {
         borderColor: Palette.darkBlue,

@@ -22,49 +22,41 @@ export const SocialAuthButtons: React.FC<Props> = ({ onSuccess }) => {
     const googleLoading = loadingProvider === 'google';
 
     return (
-        <View style={ styles.container }>
-            { appleAvailable && (
+        <View>
+            <View style={ styles.buttonRow }>
+                { appleAvailable && (
+                    <TouchableOpacity
+                        onPress={ signInWithApple }
+                        style={ [styles.button, appleLoading && styles.disabledButton] }
+                        disabled={ appleLoading }
+                        accessibilityLabel="Continue with Apple"
+                        accessibilityRole="button"
+                    >
+                        { appleLoading ? (
+                            <ActivityIndicator color='#000000' />
+                        ) : (
+                            <FontAwesome name='apple' size={ 26 } color='#000000' />
+                        ) }
+                    </TouchableOpacity>
+                ) }
+
                 <TouchableOpacity
-                    onPress={ signInWithApple }
-                    style={ [styles.button, appleLoading && styles.disabledButton] }
-                    disabled={ appleLoading }
+                    onPress={ signInWithGoogle }
+                    style={ [styles.button, (!googleConfigured || googleLoading) && styles.disabledButton] }
+                    disabled={ googleLoading || !googleConfigured }
+                    accessibilityLabel='Continue with Google'
+                    accessibilityRole='button'
                 >
-                    { appleLoading ? (
-                        <ActivityIndicator color={ '#FF0000' } />
+                    { googleLoading ? (
+                        <ActivityIndicator color='#4285F4' />
                     ) : (
-                        <View style={ styles.content }>
-                            <FontAwesome name="apple" size={ 20 } color={ '#808080' } style={ styles.icon } />
-                            <AppText style={ styles.buttonText } color="#000000" weight="semibold">
-                                Continue with Apple
-                            </AppText>
-                        </View>
+                        <FontAwesome name='google' size={ 24 } color='#4285F4' />
                     ) }
                 </TouchableOpacity>
-            ) }
-
-            <TouchableOpacity
-                onPress={ signInWithGoogle }
-                style={ [
-                    styles.button,
-                    styles.lastButton,
-                    (!googleConfigured || googleLoading) && styles.disabledButton,
-                ] }
-                disabled={ googleLoading || !googleConfigured }
-            >
-                { googleLoading ? (
-                    <ActivityIndicator color={ '#0000FF' } />
-                ) : (
-                    <View style={ styles.content }>
-                        <FontAwesome name="google" size={ 20 } color={ '#0000FF' } style={ styles.icon } />
-                        <AppText style={ styles.buttonText } color="#000000" weight="semibold">
-                            Continue with Google
-                        </AppText>
-                    </View>
-                ) }
-            </TouchableOpacity>
+            </View>
 
             { !googleConfigured && (
-                <AppText style={ styles.helperText } color="#0000FF">
+                <AppText style={ [styles.helperText, styles.helperTextNotice] } variant='caption'>
                     Add your Google client IDs to enable this option.
                 </AppText>
             ) }
@@ -73,40 +65,33 @@ export const SocialAuthButtons: React.FC<Props> = ({ onSuccess }) => {
 };
 
 const styles = StyleSheet.create({
-    container: {},
+    buttonRow: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 16,
+    },
     button: {
-        height: 48,
-        borderRadius: 12,
+        width: 56,
+        height: 56,
+        borderRadius: 28,
         borderWidth: 1,
-        borderColor: '#808080',
+        borderColor: '#edededff',
         backgroundColor: '#FFFFFF',
         alignItems: 'center',
         justifyContent: 'center',
-        marginBottom: 12,
-    },
-    lastButton: {
-        marginBottom: 0,
+        marginHorizontal: 8,
     },
     disabledButton: {
         opacity: 0.6,
-    },
-    content: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    icon: {
-        marginRight: 8,
-    },
-    buttonText: {
-        fontSize: 16,
-        fontWeight: '600',
-        textAlign: 'center',
     },
     helperText: {
         textAlign: 'center',
         fontSize: 12,
         marginTop: 8,
+    },
+    helperTextNotice: {
+        color: '#4285F4',
     },
 });
 
