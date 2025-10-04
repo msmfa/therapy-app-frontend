@@ -84,7 +84,7 @@ export default function TabsLayout() {
                     headerShown: false,
                     title: 'Settings',
                     tabBarIcon: ({ color }) => (
-                        <Ionicons name="settings-outline" color={ color } size={ 24 } />
+                        <Ionicons name="person-outline" color={ color } size={ 24 } />
                     ),
                 } }
             />
