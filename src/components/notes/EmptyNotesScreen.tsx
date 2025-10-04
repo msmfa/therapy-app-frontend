@@ -1,4 +1,5 @@
 import { View, StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import dayjs from 'dayjs';
@@ -12,19 +13,19 @@ import { colors } from 'new-design';
 const ILLUSTRATION_SIZE = 670;
 
 export default function EmptyNotesScreen() {
+    const router = useRouter();
     const { nextSession, loading } = useTherapySessions();
 
     if (!nextSession && !loading) {
         return null;
     }
 
-
     const nextSessionDate = nextSession
         ? dayjs(nextSession.startsAtUtc).format('dddd, MMM D [at] h:mm A')
         : null;
 
     const handleOpenNoteTakingArticle = () => {
-        // to do: link to correct page
+        router.push('/how-to-take-notes');
     };
 
     return (
@@ -42,8 +43,12 @@ export default function EmptyNotesScreen() {
             <View style={ styles.emptyContainer }>
                 <Spacer variant={ SpacerVariant.large } />
                 <Spacer variant={ SpacerVariant.large } />
+                <AppText variant='body'>
+                    Your next session is { nextSessionDate }.
+                </AppText>
+                <Spacer variant={ SpacerVariant.small } />
                 <AppText variant='h2'>
-                    Your next session is { nextSessionDate }. We'll send you a notification just after your session so you can take down your first note
+                    We'll send you a notification just after your session so you can take down your first note
                 </AppText>
                 <Spacer variant={ SpacerVariant.small } />
 

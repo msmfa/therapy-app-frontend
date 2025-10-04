@@ -6,6 +6,7 @@ import { Button } from '../../src/components/ui/button';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
 import brainIllustration from '../../assets/illustrations/brain-red.svg';
 import AppText from '../../src/components/ui/typography';
+import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 
 const ILLUSTRATION_SIZE = 740;
 
@@ -26,12 +27,17 @@ export default function WelcomeScreen() {
                 <AppText variant='h1' >
                     Welcome
                 </AppText>
+                <Spacer />
                 <AppText variant='body'>
                     Let's get you set up with a few quick clicks
                 </AppText>
+                <Spacer variant={ SpacerVariant.small } />
+
                 <AppText variant='body'>
                     On the next screen you can add your weekly therapy sessions
                 </AppText>
+                <Spacer variant={ SpacerVariant.small } />
+
                 <AppText variant='body'>
                     This will let us calculate when the best time to notify you
                 </AppText>
@@ -65,7 +71,7 @@ const styles = StyleSheet.create({
     },
     content: {
         position: 'absolute',
-        bottom: 170,
+        bottom: 150,
         left: 20,
         right: 20,
         flex: 1,

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/auth/AuthContext';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
 import { GradientRow } from '../../src/components/ui/GradientRow';
@@ -12,6 +13,7 @@ import Loading from 'src/components/ui/loading';
 
 export default function SettingsScreen() {
     const { user, signOut } = useAuth();
+    const router = useRouter();
 
     if (!user) {
         return <Loading />;
@@ -50,7 +52,10 @@ export default function SettingsScreen() {
                     { /* TODO: add links to all these */ }
                     <View style={ { gap: 8 } }>
                         <SettingsRow text="The science behind our reminder intervals" onPress={ () => {} } />
-                        <SettingsRow text="How to get the most from note taking after a session" onPress={ () => {} } />
+                        <SettingsRow
+                            text="How to get the most from note taking after a session"
+                            onPress={ () => router.push('/how-to-take-notes') }
+                        />
                     </View>
                     <Spacer />
 

@@ -5,6 +5,9 @@ import { useRouter } from 'expo-router';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
 import { Button } from '../../src/components/ui/button';
 import AppText from '../../src/components/ui/typography';
+import brainIllustration from '../../assets/illustrations/brain-string.svg';
+import { Image } from 'expo-image';
+import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 
 export default function ExplanationScreen(): JSX.Element {
     const router = useRouter();
@@ -17,16 +20,33 @@ export default function ExplanationScreen(): JSX.Element {
         <SafeAreaView style={ styles.container }>
             <GradientUpwards />
             <View style={ styles.content }>
-                <AppText variant='h1' >
-                    Why we plan your reminders
-                </AppText>
-                <AppText variant='body'>
-                    We tailor your follow-up reminders using your therapy schedule so you can capture insights
-                    while they are fresh. This keeps your notes meaningful and easy to recall later.
-                </AppText>
-            </View>
-            <View style={ styles.footer }>
-                <Button label='Next' onPress={ handleNext } />
+                <View style={ styles.imageContainer }>
+                    <Image
+                        source={ brainIllustration }
+                        style={ styles.brainImage }
+                        contentFit='contain'
+                    />
+                </View>
+                <View style={ styles.footer }>
+                    <AppText variant='h1' >
+                        How we calculate your reminders
+                    </AppText>
+                    <Spacer />
+
+                    <AppText variant='body'>
+                        We use principles from psychotherapy and neurocognitive science to calculate the most effective times to nudge you to reflect on your last therapy session
+                    </AppText>
+                    <Spacer />
+
+                    <AppText variant='body'>
+                        Each reminder has a different purpose. Click next to see what dates we've picked for you and the science behind how each reminder works and how they help change your brain over time
+                    </AppText>
+                    <Spacer variant={ SpacerVariant.large } />
+                    <Spacer variant={ SpacerVariant.large } />
+                    <View>
+                        <Button label='Next' onPress={ handleNext } />
+                    </View>
+                </View>
             </View>
         </SafeAreaView>
     );
@@ -35,7 +55,6 @@ export default function ExplanationScreen(): JSX.Element {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FFFFFF',
         paddingHorizontal: 24,
         paddingTop: 24,
         paddingBottom: 32,
@@ -43,9 +62,22 @@ const styles = StyleSheet.create({
     content: {
         flex: 1,
         justifyContent: 'center',
-        gap: 16,
+    },
+    imageContainer: {
+        alignItems: 'center',
+        position: 'absolute',
+        top: -200,
+        left: 0,
+        right: 0,
+    },
+    brainImage: {
+        width: 650,
+        height: 650,
     },
     footer: {
-        paddingTop: 16,
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
     },
 });
