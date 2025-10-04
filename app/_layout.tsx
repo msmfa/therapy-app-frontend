@@ -56,7 +56,6 @@ function Gate() {
     return (
         <View style={ styles.root }>
             <Stack screenOptions={ { headerShown: false } }>
-                <Stack.Screen name="how-to-take-notes" />
                 { /* Route 1: Authentication screens - show when not authenticated */ }
                 <Stack.Protected guard={ !isAuthenticated && authHydrated }>
                     <Stack.Screen name="(auth)" />
@@ -71,6 +70,7 @@ function Gate() {
                 <Stack.Protected guard={ isAuthenticated && isFullyHydrated && hasOnboarded }>
                     <Stack.Screen name="(tabs)" options={ { headerShown: false } } />
                 </Stack.Protected>
+
             </Stack>
 
             { /* Show loading overlay until all providers are hydrated */ }
