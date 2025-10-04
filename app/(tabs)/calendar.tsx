@@ -21,7 +21,7 @@ type SelectedSessions = Record<string, Date>;
 
 
 export default function CalendarScreen() {
-    const { sessions, syncSessions } = useTherapySessions();
+    const { sessions, syncSessions, neuroReminders } = useTherapySessions();
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const initialSessions = useMemo(
         () => convertSessionsToCalendarFormat(sessions),
@@ -34,13 +34,26 @@ export default function CalendarScreen() {
         setSelectedSessions(initialSessions);
     }, [initialSessions]);
 
+    const neuroReminderDates = useMemo(
+        () => neuroReminders.map((reminder) => reminder.atUtc),
+        [neuroReminders],
+    );
+
     const sessionCount = Object.keys(selectedSessions).length;
+
 
     const handleSavePress = useCallback(async () => {
         try {
+            // todo: change to something more reasonable
+            if (sessionCount < 5) {
+                Alert.alert('Oops', 'Please select at least five therapy sessions to update.', [
+                    { text: 'OK', style: 'default' },
+                ]);
+                return;
+            }
             await syncSessions(selectedSessions, 50);
             setShowSuccessModal(true);
-            Alert.alert('Saved', 'Therapy sessions updated.');
+
         } catch (error) {
             console.error('syncSessions failed', error);
             Alert.alert('Error', 'Unable to save sessions right now.');
@@ -55,6 +68,7 @@ export default function CalendarScreen() {
         <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] }>
             <GradientUpwards />
             <TherapyCalendar
+                dotDates={ neuroReminderDates }
                 onSelectedSessionsChange={ setSelectedSessions }
                 selectedSessions={ selectedSessions }
             >

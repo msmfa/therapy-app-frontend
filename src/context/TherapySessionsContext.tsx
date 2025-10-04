@@ -9,6 +9,7 @@ import {
     syncTherapySessions as syncTherapySessionsApi,
 } from '../api/therapy';
 import { scheduleTherapySessionNotifications } from '../utils/schedule-reminders';
+import { scheduleNeuroplasticityReminders, Reminder } from '../components/reminders/reminder-schedule-v2';
 
 const POST_SESSION_NOTIFICATION_ID = 'post-session-note';
 const POST_SESSION_NOTIFICATION_MESSAGE = 'Take a quick note about your therapy session';
@@ -18,6 +19,7 @@ interface TherapySessionsContextType {
     loading: boolean;
     error: string | null;
     nextSession: TherapySession | null;
+    neuroReminders: Reminder[];
     refreshSessions: () => Promise<void>;
     addSession: (date: Date, duration: number) => Promise<void>;
     syncSessions: (selected: Record<string, Date>, duration: number) => Promise<void>;
@@ -37,6 +39,7 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
     const [sessions, setSessions] = useState<TherapySession[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [neuroReminders, setNeuroReminders] = useState<Reminder[]>([]);
 
     const refreshSessions = useCallback(async () => {
         if (!token) return;
@@ -167,6 +170,28 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
     }, [sessions]);
 
     useEffect(() => {
+        if (!sessions.length) {
+            setNeuroReminders([]);
+            return;
+        }
+
+        const sessionsUtc = sessions
+            .map((session) => session.startsAtUtc)
+            .filter((value): value is string => typeof value === 'string');
+
+        const reminders = scheduleNeuroplasticityReminders({
+            nowUtc: new Date().toISOString(),
+            sessionsUtc,
+            reflectionHour: 20,
+            morningHour: 7,
+            startAfterDays: 3,
+            cadenceDays: 4,
+        });
+
+        setNeuroReminders(reminders);
+    }, [sessions]);
+
+    useEffect(() => {
         if (token) {
             refreshSessions();
         } else {
@@ -174,6 +199,7 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
             setSessions([]);
             setError(null);
             setLoading(false);
+            setNeuroReminders([]);
         }
     }, [token, refreshSessions]);
 
@@ -190,6 +216,7 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
                 deleteSession,
                 hasUpcomingSessions,
                 nextSession,
+                neuroReminders,
             } }
         >
             { children }

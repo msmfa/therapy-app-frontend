@@ -6,11 +6,10 @@ import dayjs from 'dayjs';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import isBetween from 'dayjs/plugin/isBetween';
 import { useTherapySessions } from '../../src/context/TherapySessionsContext';
-import { scheduleNeuroplasticityReminders } from '../../src/components/reminders/reminder-schedule-v2';
 import { ReminderRow } from '../../src/components/reminders/ReminderRow';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
 import { Button } from '../../src/components/ui/button';
-import { ReminderType } from '../../src/utils/types';
+import { NEURO_REMINDER_COPY } from '../../src/constants/neuroReminders';
 import AppText from '../../src/components/ui/typography';
 
 const LENGTH_OF_DAYS_TO_SHOW = 7;
@@ -18,33 +17,9 @@ const LENGTH_OF_DAYS_TO_SHOW = 7;
 dayjs.extend(advancedFormat);
 dayjs.extend(isBetween);
 
-const keyToTextDictionary = {
-    post_session: {
-        time: "Evening of your session",
-        reason: "Right after therapy your brain starts forming new pathways. Reviewing your notes this evening strengthens those fresh changes before they fade. This is known as early consolidation.",
-        link: ReminderType.EarlyConsolidation,
-    },
-    post_sleep: {
-        time: "Morning after your session",
-        reason: "During sleep your brain replays what it learned. A quick review the next morning helps those pathways settle in and grow stronger. This is known as sleep-dependent consolidation.",
-        link: ReminderType.SleepDependentConsolidation,
-    },
-    mid_session: {
-        time: "Between your sessions",
-        reason: "New brain pathways need to be reactivated to grow stronger. This is known as spaced reactivation.",
-        link: ReminderType.SpacedReactivation,
-    },
-    pre_session: {
-        time: "Evening before your next session",
-        reason: "Bringing the insight back the night before therapy reactivates the pathway, so the next session builds on it instead of starting fresh. This is known as state reinstatement.",
-        link: ReminderType.StateReinstatement,
-    }
-} as const;
-
-
 export default function RemindersScreen(): JSX.Element | null {
     const router = useRouter();
-    const { sessions } = useTherapySessions();
+    const { sessions, neuroReminders } = useTherapySessions();
 
     const orderedSessionDates = useMemo(() => {
         return [...sessions]
@@ -60,14 +35,7 @@ export default function RemindersScreen(): JSX.Element | null {
         router.push('/(onboarding)/success');
     };
 
-    const reminders = scheduleNeuroplasticityReminders({
-        nowUtc: new Date().toISOString(),
-        sessionsUtc: orderedSessionDates.map((date) => date.toISOString()),
-        reflectionHour: 20,
-        morningHour: 7,
-        startAfterDays: 3,
-        cadenceDays: 4,
-    });
+    const reminders = neuroReminders;
 
     const nextSessionDate = useMemo(() => {
         const now = Date.now();
@@ -91,6 +59,7 @@ export default function RemindersScreen(): JSX.Element | null {
     }, [reminders, nextSessionDate]);
 
     const remindersToShow = getRemindersForWeek;
+
     return (
         <SafeAreaView style={ styles.container }>
             <GradientUpwards />
@@ -107,8 +76,8 @@ export default function RemindersScreen(): JSX.Element | null {
                         <ReminderRow
                             key={ atUtc }
                             date={ dayjs(atUtc).format('dddd Do [at] h:mm A') }
-                            description={ keyToTextDictionary[reason].reason }
-                            link={ keyToTextDictionary[reason].link }
+                            description={ NEURO_REMINDER_COPY[reason].reason }
+                            link={ NEURO_REMINDER_COPY[reason].link }
                         />
                     )) }
                 </View>

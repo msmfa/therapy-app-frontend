@@ -20,6 +20,7 @@ export const COLORS = {
     calendarMonthText: 'hsl(0, 12%, 10%)',
     calendarWeekdayHeader: 'hsl(0, 10%, 45%)',
     arrows: 'hsl(0, 0%, 30%)',
+    dotIndicator: '#2563EB',
 };
 
 type SelectedSessions = Record<string, Date>;
@@ -29,6 +30,7 @@ interface TherapyCalendarProps {
     children?: React.ReactNode;
     onSelectedSessionsChange: (sessions: SelectedSessions) => void;
     selectedSessions: SelectedSessions;
+    dotDates?: Array<string | Date>;
 }
 
 const WEEKLY_REPEAT_COUNT = 8;
@@ -46,9 +48,44 @@ export default function TherapyCalendar({
     children,
     onSelectedSessionsChange,
     selectedSessions,
+    dotDates = [],
 }: TherapyCalendarProps) {
     const [activeDateKey, setActiveDateKey] = useState<string | null>(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
+
+    const dotDateKeys = useMemo(() => {
+        if (!dotDates?.length) {
+            return [] as string[];
+        }
+
+        const keys = new Set<string>();
+        dotDates.forEach((value) => {
+            if (value instanceof Date) {
+                if (!Number.isNaN(value.getTime())) {
+                    keys.add(formatDateKey(value));
+                }
+                return;
+            }
+
+            if (typeof value === 'string') {
+                const trimmed = value.trim();
+                if (!trimmed) return;
+
+                const parsed = new Date(trimmed);
+                if (!Number.isNaN(parsed.getTime())) {
+                    keys.add(formatDateKey(parsed));
+                    return;
+                }
+
+                // Allow direct date-key strings (YYYY-MM-DD)
+                if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+                    keys.add(trimmed);
+                }
+            }
+        });
+
+        return Array.from(keys);
+    }, [dotDates]);
 
     const markedDates = useMemo(() => {
         const circleBaseStyle = {
@@ -117,8 +154,19 @@ export default function TherapyCalendar({
             };
         }
 
+        if (dotDateKeys.length > 0) {
+            dotDateKeys.forEach((dateKey) => {
+                entries[dateKey] = {
+                    ...entries[dateKey],
+                    marked: true,
+                    dotColor: COLORS.dotIndicator,
+
+                };
+            });
+        }
+
         return entries;
-    }, [selectedSessions, activeDateKey]);
+    }, [selectedSessions, activeDateKey, dotDateKeys]);
 
     const openModalForDate = useCallback((dateKey: string) => {
         setActiveDateKey(dateKey);

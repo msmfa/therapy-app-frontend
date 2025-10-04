@@ -74,6 +74,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         gap: 10,
         paddingBottom: STEP_VERTICAL_SPACING,
+        alignItems: 'flex-start',
     },
     stepRowLast: {
         paddingBottom: 0,
