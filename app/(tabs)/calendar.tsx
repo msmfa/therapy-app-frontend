@@ -22,6 +22,7 @@ type SelectedSessions = Record<string, Date>;
 
 export default function CalendarScreen() {
     const { sessions, syncSessions, neuroReminders } = useTherapySessions();
+
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const initialSessions = useMemo(
         () => convertSessionsToCalendarFormat(sessions),
@@ -29,18 +30,23 @@ export default function CalendarScreen() {
     );
 
     const [selectedSessions, setSelectedSessions] = useState<SelectedSessions>(initialSessions);
+    const [dotDates, setDotDates] = useState<string[]>(() => neuroReminders.map((item) => item.atUtc));
 
     useEffect(() => {
         setSelectedSessions(initialSessions);
     }, [initialSessions]);
 
-    const neuroReminderDates = useMemo(
-        () => neuroReminders.map((reminder) => reminder.atUtc),
-        [neuroReminders],
-    );
+    useEffect(() => {
+        setDotDates(neuroReminders.map((item) => item.atUtc));
+    }, [neuroReminders]);
 
     const sessionCount = Object.keys(selectedSessions).length;
 
+
+    const handleSessionsChange = useCallback((next: SelectedSessions) => {
+        setSelectedSessions(next);
+        setDotDates([]);
+    }, []);
 
     const handleSavePress = useCallback(async () => {
         try {
@@ -53,23 +59,25 @@ export default function CalendarScreen() {
             }
             await syncSessions(selectedSessions, 50);
             setShowSuccessModal(true);
+            setDotDates([]);
 
         } catch (error) {
             console.error('syncSessions failed', error);
             Alert.alert('Error', 'Unable to save sessions right now.');
         }
-    }, [selectedSessions, syncSessions]);
+    }, [selectedSessions, sessionCount, syncSessions]);
 
     const handleClearAll = useCallback(() => {
-        setSelectedSessions({});
-    }, []);
+        handleSessionsChange({});
+    }, [handleSessionsChange]);
+
 
     return (
         <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] }>
             <GradientUpwards />
             <TherapyCalendar
-                dotDates={ neuroReminderDates }
-                onSelectedSessionsChange={ setSelectedSessions }
+                dotDates={ dotDates }
+                onSelectedSessionsChange={ handleSessionsChange }
                 selectedSessions={ selectedSessions }
             >
                 <Spacer variant={ SpacerVariant.small } />
