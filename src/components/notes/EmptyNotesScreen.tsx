@@ -1,17 +1,15 @@
-import { View, StyleSheet, Image } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import dayjs from 'dayjs';
 import { GradientUpwards } from '../GradientUpwards';
 import { useTherapySessions } from '../../context/TherapySessionsContext';
 import AppText from '../ui/typography';
 import brainElastic from '../../../assets/illustrations/brain-elastic.svg';
-import { SvgUri } from 'react-native-svg';
 import Spacer, { SpacerVariant } from '../ui/Spacer';
 import { colors } from 'new-design';
 
 const ILLUSTRATION_SIZE = 670;
-const brainIllustrationSource = Image.resolveAssetSource(brainElastic);
-const brainIllustrationUri = brainIllustrationSource?.uri ?? null;
 
 export default function EmptyNotesScreen() {
     const { nextSession, loading } = useTherapySessions();
@@ -33,11 +31,13 @@ export default function EmptyNotesScreen() {
         <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] }>
             <GradientUpwards />
             <View pointerEvents='none' style={ styles.brainIllustration }>
-                { brainIllustrationUri && (
-                    <View style={ styles.illustrationContainer }>
-                        <SvgUri uri={ brainIllustrationUri } width={ ILLUSTRATION_SIZE } height={ ILLUSTRATION_SIZE } />
-                    </View>
-                ) }
+                <View style={ styles.illustrationContainer }>
+                    <Image
+                        source={ brainElastic }
+                        style={ styles.illustration }
+                        contentFit='contain'
+                    />
+                </View>
             </View>
             <View style={ styles.emptyContainer }>
                 <Spacer variant={ SpacerVariant.large } />
@@ -80,6 +80,10 @@ const styles = StyleSheet.create({
         width: ILLUSTRATION_SIZE,
         height: ILLUSTRATION_SIZE,
         paddingBottom: 260,
+    },
+    illustration: {
+        width: ILLUSTRATION_SIZE,
+        height: ILLUSTRATION_SIZE,
     },
     bottomText: {
         marginTop: 'auto',

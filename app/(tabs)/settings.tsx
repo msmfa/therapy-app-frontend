@@ -8,14 +8,14 @@ import { SettingsRow } from '../../src/components/SettingsRow';
 import AppText from '../../src/components/ui/typography';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import Card from 'src/components/ui/card';
-import { useFocusEffect } from 'expo-router';
+import Loading from 'src/components/ui/loading';
 
 export default function SettingsScreen() {
     const { user, signOut } = useAuth();
 
-    useFocusEffect(() => {
-        console.log('user', user);
-    });
+    if (!user) {
+        return <Loading />;
+    }
 
     const onLogout = async () => {
         try {
@@ -28,51 +28,50 @@ export default function SettingsScreen() {
     return (
         <SafeAreaView style={ styles.root }>
             <GradientUpwards />
-            <View>
-                <View style={ styles.accountInfoContainer }>
-                    <GradientRow>
-                        <View style={ styles.user } >
-                            <AppText variant='h1'>
-                                { user?.name }
-                            </AppText>
-                            <AppText variant='body' numberOfLines={ 1 }>
-                                { user?.email }
-                            </AppText>
-                        </View>
-                    </GradientRow>
-                </View>
-                <Spacer />
-                <Card>
-                    <View style={ styles.container }>
-                        <AppText variant='h2'>
-                            References
+            <View style={ styles.accountInfoContainer }>
+                <GradientRow>
+                    <View style={ styles.user } >
+                        <AppText variant='h1'>
+                            { user?.name }
                         </AppText>
-                        <Spacer />
-                        { /* TODO: add links to all these */ }
-                        <View style={ { gap: 8 } }>
-                            <SettingsRow text="The science behind our reminder intervals" onPress={ () => {} } />
-                            <SettingsRow text="How to get the most from note taking after a session" onPress={ () => {} } />
-                        </View>
-                        <Spacer />
-
-                        <AppText variant='h2'>
-                            Settings
+                        <AppText variant='body' numberOfLines={ 1 }>
+                            { user?.email }
                         </AppText>
-                        <Spacer />
-                        <View style={ { gap: 8 } }>
-                            <SettingsRow text="Delete account" onPress={ () => {} } />
-                            <SettingsRow text="Privacy Policy" onPress={ () => {} } />
-                            <SettingsRow text="Rate this App" onPress={ () => {} } />
-                            <SettingsRow text="Log out" onPress={ () => onLogout() } />
-                        </View>
                     </View>
-                    <Spacer variant={ SpacerVariant.large } />
-                    <AppText variant='caption' align='center'>
-                        v1.0.0
-                    </AppText>
-                    <Spacer variant={ SpacerVariant.small } />
-                </Card>
+                </GradientRow>
             </View>
+            <Spacer />
+            <Card>
+                <View style={ styles.container }>
+                    <AppText variant='h2'>
+                        References
+                    </AppText>
+                    <Spacer />
+                    { /* TODO: add links to all these */ }
+                    <View style={ { gap: 8 } }>
+                        <SettingsRow text="The science behind our reminder intervals" onPress={ () => {} } />
+                        <SettingsRow text="How to get the most from note taking after a session" onPress={ () => {} } />
+                    </View>
+                    <Spacer />
+
+                    <AppText variant='h2'>
+                        Settings
+                    </AppText>
+                    <Spacer />
+                    <View style={ { gap: 8 } }>
+                        <SettingsRow text="Delete account" onPress={ () => {} } />
+                        <SettingsRow text="Privacy Policy" onPress={ () => {} } />
+                        <SettingsRow text="Rate this App" onPress={ () => {} } />
+                        <SettingsRow text="Log out" onPress={ () => onLogout() } />
+                    </View>
+                </View>
+                <Spacer variant={ SpacerVariant.large } />
+                <AppText variant='caption' align='center'>
+                    v1.0.0
+                </AppText>
+                <Spacer variant={ SpacerVariant.small } />
+            </Card>
+
 
         </SafeAreaView>
     );
@@ -81,7 +80,7 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
     root: {
         flex: 1,
-        backgroundColor: '#00000000',
+        // backgroundColor: '#00000000',
         padding: 12,
     },
     accountInfoContainer: {

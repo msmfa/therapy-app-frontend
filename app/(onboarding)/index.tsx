@@ -1,15 +1,13 @@
-import { View, StyleSheet, Image } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { SvgUri } from 'react-native-svg';
 import { Button } from '../../src/components/ui/button';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
 import brainIllustration from '../../assets/illustrations/brain-red.svg';
 import AppText from '../../src/components/ui/typography';
 
 const ILLUSTRATION_SIZE = 740;
-const brainIllustrationSource = Image.resolveAssetSource(brainIllustration);
-const brainIllustrationUri = brainIllustrationSource?.uri ?? null;
 
 export default function WelcomeScreen() {
     const router = useRouter();
@@ -17,11 +15,13 @@ export default function WelcomeScreen() {
     return (
         <SafeAreaView style={ styles.container } edges={ ['left', 'right', 'bottom', 'top'] }>
             <GradientUpwards />
-            { brainIllustrationUri && (
-                <View style={ styles.illustrationContainer }>
-                    <SvgUri uri={ brainIllustrationUri } width={ ILLUSTRATION_SIZE } height={ ILLUSTRATION_SIZE } />
-                </View>
-            ) }
+            <View style={ styles.illustrationContainer }>
+                <Image
+                    source={ brainIllustration }
+                    style={ styles.illustration }
+                    contentFit='contain'
+                />
+            </View>
             <View style={ styles.content }>
                 <AppText variant='h1' >
                     Welcome
@@ -58,6 +58,10 @@ const styles = StyleSheet.create({
         width: ILLUSTRATION_SIZE,
         height: ILLUSTRATION_SIZE,
         paddingBottom: 290,
+    },
+    illustration: {
+        width: ILLUSTRATION_SIZE,
+        height: ILLUSTRATION_SIZE,
     },
     content: {
         position: 'absolute',
