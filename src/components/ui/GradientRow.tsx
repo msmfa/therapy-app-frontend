@@ -1,20 +1,41 @@
-import { ReactNode } from "react";
+import { ReactNode, useMemo } from "react";
 import { View, StyleSheet, StyleProp, ViewStyle } from "react-native";
 
-type Prop = {
+type Props = {
     children: ReactNode;
     addedStyles?: StyleProp<ViewStyle>;
-}
+    hue?: number;
+};
 
-export function GradientRow({ children, addedStyles }: Prop) {
+const DEFAULT_BACKGROUND = 'hsla(0, 0%, 100%, 0.29)';
+const DEFAULT_BORDER = 'hsla(0, 0%, 100%, 0.21)';
+const MIN_HUE = 0;
+const MAX_HUE = 360;
+
+export function GradientRow({ children, addedStyles, hue }: Props) {
+    const normalizedHue = useMemo(
+        () => Math.max(MIN_HUE, Math.min(MAX_HUE, hue ?? 0)),
+        [hue]
+    );
+
+    const hasHue = typeof hue === 'number';
+
+    const backgroundColor = hasHue
+        ? `hsla(${normalizedHue}, 70%, 90%, 0.35)`
+        : DEFAULT_BACKGROUND;
+
+    const borderColor = hasHue
+        ? `hsla(${normalizedHue}, 70%, 80%, 0.3)`
+        : DEFAULT_BORDER;
+
     return (
         <View style={ [styles.legendWrapper, addedStyles] }>
-            <View style={ styles.legendCard }>
+            <View style={ [styles.legendCard, { backgroundColor, borderColor }] }>
                 { children }
             </View>
         </View>
-    )
-};
+    );
+}
 
 const styles = StyleSheet.create({
     legendWrapper: {
@@ -25,13 +46,9 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 30,
     },
-
     legendCard: {
-        backgroundColor: '#FFFFFF4A',
-        borderColor: '#FFFFFF36',
         borderRadius: 16,
         borderWidth: 1,
         paddingHorizontal: 20,
-        // paddingVertical: 18,
-    }
-})
+    },
+});

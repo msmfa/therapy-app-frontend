@@ -21,7 +21,7 @@ export default function Loading({
         <View style={ containerStyle }>
             <ActivityIndicator size={ size } color={ color } />
             { text && (
-                <AppText style={ styles.text } color="#666666">
+                <AppText variant='body' style={ styles.text }>
                     { text }
                 </AppText>
             ) }

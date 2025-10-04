@@ -7,45 +7,90 @@ import { OnboardingProvider, useOnboarding } from '../src/context/OnboardingCont
 import { TherapySessionsProvider } from '../src/context/TherapySessionsContext';
 import { initNotifications } from '../src/utils/schedule-reminders';
 import { Palette } from '../design';
-import { StatusBar } from 'react-native';
+import { StatusBar, StyleSheet, View } from 'react-native';
+import Loading from '../src/components/ui/loading';
 import { ErrorBoundaryUI } from '../src/components/ErrorBoundary';
-
 
 const theme: Theme = {
     ...DefaultTheme,
     colors: {
         ...DefaultTheme.colors,
-        background:'#DBE0E4', // screen backgrounds
-        card: '#DBE0E4', // headers & tab bar
+        background: '#DBE0E4', // screen backgrounds
+        card: '#f5f7f8ff', // headers & tab bar
         text: Palette.black,
     },
 };
 
+/**
+ * Gate Component
+ *
+ * Controls navigation based on authentication and onboarding state.
+ * Waits for both auth and onboarding to hydrate before determining which route to show.
+ *
+ * Navigation flow:
+ * 1. Not authenticated → (auth) screens (login/signup)
+ * 2. Authenticated but not onboarded → (onboarding) screens
+ * 3. Authenticated and onboarded → (tabs) main app
+ */
 function Gate() {
-    const { user, hydrated } = useAuth();
-    const { hasOnboarded } = useOnboarding();
+    const { user, hydrated: authHydrated } = useAuth();
+    const { hasOnboarded, hydrated: onboardingHydrated } = useOnboarding();
 
-    if (!hydrated) {
-        return null;
-    }
+    // Both providers must be hydrated before we can route
+    const isFullyHydrated = authHydrated && onboardingHydrated;
+    const isAuthenticated = Boolean(user);
+    const userId = user?.id ?? null;
+
+    // Debug logging - shows clear state transitions
+    useEffect(() => {
+        console.log('[Gate] state change', {
+            userId,
+            isAuthenticated,
+            authHydrated,
+            onboardingHydrated,
+            hasOnboarded,
+            isFullyHydrated,
+        });
+    }, [userId, isAuthenticated, authHydrated, onboardingHydrated, hasOnboarded, isFullyHydrated]);
 
     return (
-        <Stack screenOptions={ { headerShown: false } }>
-            <Stack.Protected guard={ !user }>
-                <Stack.Screen name="(auth)" />
-            </Stack.Protected>
-            <Stack.Protected guard={ Boolean(user) && !hasOnboarded }>
-                <Stack.Screen name="(onboarding)" />
-            </Stack.Protected>
-            <Stack.Protected guard={ Boolean(user) && hasOnboarded }>
-                <Stack.Screen name="(tabs)" options={ { headerShown: false } } />
-            </Stack.Protected>
-        </Stack>
+        <View style={ styles.root }>
+            <Stack screenOptions={ { headerShown: false } }>
+                { /* Route 1: Authentication screens - show when not authenticated */ }
+                <Stack.Protected guard={ !isAuthenticated && authHydrated }>
+                    <Stack.Screen name="(auth)" />
+                </Stack.Protected>
+
+                { /* Route 2: Onboarding screens - show when authenticated but not onboarded */ }
+                <Stack.Protected guard={ isAuthenticated && isFullyHydrated && !hasOnboarded }>
+                    <Stack.Screen name="(onboarding)" />
+                </Stack.Protected>
+
+                { /* Route 3: Main app - show when authenticated and onboarded */ }
+                <Stack.Protected guard={ isAuthenticated && isFullyHydrated && hasOnboarded }>
+                    <Stack.Screen name="(tabs)" options={ { headerShown: false } } />
+                </Stack.Protected>
+            </Stack>
+
+            { /* Show loading overlay until all providers are hydrated */ }
+            { !isFullyHydrated && <Loading text="Loading your account..." /> }
+        </View>
     );
 }
 
+/**
+ * Root Layout Component
+ *
+ * Provider hierarchy (order matters!):
+ * 1. ThemeProvider - must wrap everything for styling
+ * 2. AuthProvider - hydrates first, determines user
+ * 3. TherapySessionsProvider - can mount early, doesn't depend on user
+ * 4. OnboardingProvider - waits for auth to hydrate, then hydrates based on user
+ * 5. SafeAreaProvider - handles device safe areas
+ *
+ * The Gate component waits for both Auth and Onboarding to hydrate before routing.
+ */
 export default function RootLayout() {
-
     return (
         <ThemeProvider value={ theme }>
             <AuthProvider>
@@ -63,17 +108,34 @@ export default function RootLayout() {
     );
 }
 
+/**
+ * Initializer Component
+ *
+ * Handles one-time initialization tasks like setting up notifications.
+ * Separated from RootLayout for clarity.
+ */
 function Initializer() {
     useEffect(() => {
-        initNotifications().catch((err) => console.warn('initNotifications failed', err));
+        initNotifications().catch((err) => {
+            console.warn('[Initializer] notification setup failed:', err);
+        });
     }, []);
 
     return null;
 }
 
-
+/**
+ * Error Boundary
+ *
+ * Catches and displays errors that occur anywhere in the component tree.
+ */
 export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
-    return (
-        <ErrorBoundaryUI error={ error } retry={ retry } />
-    );
+    return <ErrorBoundaryUI error={ error } retry={ retry } />;
 }
+
+const styles = StyleSheet.create({
+    root: {
+        flex: 1,
+        backgroundColor: 'green',
+    },
+});

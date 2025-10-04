@@ -5,10 +5,9 @@ import { useAuth } from '../../src/auth/AuthContext';
 import { useTheme } from '@react-navigation/native';
 
 export default function AuthLayout() {
-    const { hydrated, isAuthenticated } = useAuth();
+    const { isAuthenticated } = useAuth();
     const { colors } = useTheme();
 
-    if (!hydrated) return null;
     if (isAuthenticated) return <Redirect href="/" />;
 
     return (

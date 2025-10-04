@@ -8,9 +8,14 @@ import { SettingsRow } from '../../src/components/SettingsRow';
 import AppText from '../../src/components/ui/typography';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import Card from 'src/components/ui/card';
+import { useFocusEffect } from 'expo-router';
 
 export default function SettingsScreen() {
     const { user, signOut } = useAuth();
+
+    useFocusEffect(() => {
+        console.log('user', user);
+    });
 
     const onLogout = async () => {
         try {
@@ -19,7 +24,7 @@ export default function SettingsScreen() {
             Alert.alert('Error', `${(e as Error).message || 'Logout failed'}`);
         }
     };
-
+    console.log('user', user);
     return (
         <SafeAreaView style={ styles.root }>
             <GradientUpwards />

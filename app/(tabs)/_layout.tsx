@@ -5,10 +5,12 @@ import { useAuth } from '../../src/auth/AuthContext';
 import { Palette } from '../../design';
 
 export default function TabsLayout() {
-    const { hydrated, isAuthenticated } = useAuth();
+    const { isAuthenticated } = useAuth();
 
-    if (!hydrated) return null;
-    if (!isAuthenticated) return <Redirect href="/(auth)/login" />;
+    if (!isAuthenticated) {
+        console.log('User not authenticated, redirecting to login');
+        return <Redirect href="/(auth)/login" />;
+    }
 
     return (
         <Tabs
