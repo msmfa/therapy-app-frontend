@@ -4,7 +4,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/auth/AuthContext';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
-import { createHandleRateApp, createPrivacyPolicyHandler } from './settings.helpers';
 import { GradientRow } from '../../src/components/ui/GradientRow';
 import { SettingsRow } from '../../src/components/SettingsRow';
 import AppText from '../../src/components/ui/AppText';
@@ -151,3 +150,36 @@ const styles = StyleSheet.create({
         gap: 8,
     },
 });
+
+type RateAppDeps = {
+    select: typeof Platform.select;
+    openURL: typeof Linking.openURL;
+    alert: typeof Alert.alert;
+};
+
+function createHandleRateApp({ select, openURL, alert }: RateAppDeps) {
+    return () => {
+        const storeUrl = select({
+            ios: 'itms-apps://itunes.apple.com/app/id000000000?action=write-review', // TODO: replace with real App Store ID
+            android: 'market://details?id=com.example.therapyapp', // TODO: replace with real package name
+            default: 'https://therapy-app.example.com', // TODO: replace with real fallback URL
+        });
+
+        if (!storeUrl) {
+            alert('Unavailable', 'Rating is not supported on this platform yet.');
+            return;
+        }
+
+        void openURL(storeUrl).catch(() => {
+            alert('Error', 'Unable to open the store right now.');
+        });
+    };
+}
+
+type PushFn = (route: string) => void;
+
+function createPrivacyPolicyHandler(push: PushFn) {
+    return () => {
+        push('/privacy-policy');
+    };
+}

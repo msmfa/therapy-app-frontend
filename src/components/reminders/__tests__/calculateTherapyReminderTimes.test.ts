@@ -67,11 +67,10 @@ describe('calculateTherapyReminderTimes', () => {
 
             const reminders = calculateTherapyReminderTimes(lastSession, nextSession);
 
-            expect(reminders).toHaveLength(4);
+            expect(reminders).toHaveLength(3);
             expect(reminders[0]).toEqual(new Date('2024-01-15T15:00:00')); // Hour after
             expect(reminders[1]).toEqual(new Date('2024-01-17T20:00:00')); // Day 2
-            expect(reminders[2]).toEqual(new Date('2024-01-20T20:00:00')); // Day 5
-            expect(reminders[3]).toEqual(new Date('2024-01-21T20:00:00')); // Day 6 (day before)
+            expect(reminders[2]).toEqual(new Date('2024-01-21T20:00:00')); // Day 6 (day before)
         });
 
         it('handles biweekly (14 day) gap', () => {
@@ -134,8 +133,8 @@ describe('calculateTherapyReminderTimes', () => {
 
             const reminders = calculateTherapyReminderTimes(lastSession, nextSession);
 
-            // Should only get future reminders (day 2, 5, 6)
-            expect(reminders).toHaveLength(3);
+            // Should only get future reminders (day 2 and day 6)
+            expect(reminders).toHaveLength(2);
             expect(reminders[0]).toEqual(new Date('2024-01-16T20:00:00')); // Day 2
         });
 
@@ -168,8 +167,9 @@ describe('calculateTherapyReminderTimes', () => {
 
             const reminders = calculateTherapyReminderTimes(lastSession, nextSession);
 
-            // Should return empty or handle specially
-            expect(reminders).toHaveLength(0);
+            // Should keep the hour-after reminder even for same-day sessions
+            expect(reminders).toHaveLength(1);
+            expect(reminders[0]).toEqual(new Date('2024-01-15T11:00:00'));
         });
 
         it('handles sessions crossing daylight saving time', () => {
@@ -180,7 +180,7 @@ describe('calculateTherapyReminderTimes', () => {
             const reminders = calculateTherapyReminderTimes(lastSession, nextSession);
 
             // Verify times are calculated correctly across DST change
-            expect(reminders).toHaveLength(4);
+            expect(reminders).toHaveLength(3);
         });
 
         it('handles late night sessions', () => {
@@ -229,7 +229,7 @@ describe('calculateTherapyReminderTimes', () => {
 
             const reminders = calculateTherapyReminderTimes(lastSession, nextSession);
 
-            expect(reminders).toHaveLength(4);
+            expect(reminders).toHaveLength(3);
         });
 
         it('handles leap year correctly', () => {
@@ -238,7 +238,7 @@ describe('calculateTherapyReminderTimes', () => {
 
             const reminders = calculateTherapyReminderTimes(lastSession, nextSession);
 
-            expect(reminders).toHaveLength(4);
+            expect(reminders).toHaveLength(3);
             // Day 2 should be March 1st
             expect(reminders[1]).toEqual(new Date('2024-03-01T20:00:00'));
         });
