@@ -5,8 +5,8 @@ import Spacer, { SpacerVariant } from './Spacer';
 import Circle from './Circle';
 
 type Props = {
-    title: string;
     steps: string[];
+    title?: string;
     containerStyle?: StyleProp<ViewStyle>;
     activeStep?: number;
 };
@@ -17,14 +17,19 @@ const STEP_VERTICAL_SPACING = 10;
 export default function OnboardingSteps({ title, steps, activeStep }: Props) {
     return (
         <View >
-            <Spacer variant={ SpacerVariant.medium } />
-            <AppText variant='body'>
-                { title }
-            </AppText>
-            <Spacer variant={ SpacerVariant.medium } />
+            { title && (
+                <>
+                <Spacer variant={ SpacerVariant.medium } />
+                <AppText variant='body'>
+                    { title }
+                </AppText>
+                 <Spacer variant={ SpacerVariant.medium } />
+                 <View style={ styles.line } />
+                </>
+            ) }
 
-            <View style={ styles.line } />
             <Spacer variant={ SpacerVariant.large } />
+
 
             { steps.map((text, index) => {
                 const isLast = index === steps.length - 1;

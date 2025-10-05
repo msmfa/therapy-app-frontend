@@ -27,10 +27,9 @@ type SelectedSessions = Record<string, Date>;
 type ScheduleMode = 'single' | 'weekly_pattern';
 
 interface TherapyCalendarProps {
-    children?: React.ReactNode;
-    onSelectedSessionsChange: (sessions: SelectedSessions) => void;
     selectedSessions: SelectedSessions;
     dotDates?: Array<string | Date>;
+    onSelectedSessionsChange: (sessions: SelectedSessions) => void;
 }
 
 const WEEKLY_REPEAT_COUNT = 8;
@@ -45,7 +44,6 @@ const createDateFromKey = (dateKey: string) => {
 };
 
 export default function TherapyCalendar({
-    children,
     onSelectedSessionsChange,
     selectedSessions,
     dotDates = [],
@@ -257,7 +255,6 @@ export default function TherapyCalendar({
                         style={ styles.calendar }
                     />
                 </GradientRow>
-                {children}
             </View>
             {isModalVisible && activeDateKey && (
                 <ScheduleModal

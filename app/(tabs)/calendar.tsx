@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 
-import TherapyCalendar from '../../src/components/therapy-calendar/TherapyCalendar';
+import TherapyCalendar, { COLORS } from '../../src/components/therapy-calendar/TherapyCalendar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTherapySessions } from '../../src/context/TherapySessionsContext';
 import { convertSessionsToCalendarFormat } from '../../src/utils/calendar';
@@ -12,7 +12,7 @@ import OnboardingSteps from 'src/components/ui/OnboardingSteps';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { useFocusEffect } from 'expo-router';
 import LoadingSuccess from 'src/components/ui/LoadingWithSuccess';
-
+import AppText from 'src/components/ui/AppText';
 
 const stepsText = {
     one: 'Press on a date on the calendar to update your therapy session. You can set one date and apply it to up to 2 months in advance',
@@ -108,12 +108,23 @@ export default function CalendarScreen() {
                 dotDates={ dotDates }
                 onSelectedSessionsChange={ handleSessionsChange }
                 selectedSessions={ selectedSessions }
-            >
-                <Spacer variant={ SpacerVariant.small } />
-            </TherapyCalendar>
-            <GradientRow addedStyles={ { position: 'absolute', bottom: 10, right: 10, left: 10 } } >
+            />
+
+            <GradientRow addedStyles={ styles.calendarKey } borderRadius={ 10 }>
+                <View style={ styles.calendarKeyContent }>
+                    <View style={ { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 } }>
+                        <View style={ styles.keyTherapy } />
+                        <AppText variant='caption' >Therapy Session</AppText>
+                    </View>
+                    <View style={ { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 } }>
+                        <View style={ styles.keyReminder } />
+                        <AppText variant='caption' >Reminders</AppText>
+                    </View>
+                </View>
+            </GradientRow>
+
+            <GradientRow addedStyles={ styles.bottomGradient }>
                 <OnboardingSteps
-                    title='Update your therapy sessions'
                     steps={ [
                         stepsText.one,
                         stepsText.two,
@@ -122,13 +133,13 @@ export default function CalendarScreen() {
                 <Spacer variant={ SpacerVariant.small } />
                 <View style={ styles.buttonsWrapper }>
                     <Button
-                        addedStyles={ { width: '48%' } }
+                        addedStyles={ styles.button }
                         disabled={ sessionCount === 0 }
                         label="Update"
                         onPress={ handleSavePress }
                     />
                     <Button
-                        addedStyles={ { width: '48%' } }
+                        addedStyles={ styles.button }
                         transparent
                         disabled={ sessionCount === 0 }
                         label="Clear"
@@ -150,14 +161,57 @@ export default function CalendarScreen() {
 const styles = StyleSheet.create({
     root: {
         flex: 1,
-        backgroundColor: '#00000000',
-        position: 'relative',
+    },
+    calendarKey: {
+        flex: 1,
+        position: 'absolute',
+        bottom: 259,
+        right: 10,
+        left: 10,
+        borderRadius: 6,
+    },
+    calendarKeyContent:{
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 10,
+    },
+    keyReminder: {
+        backgroundColor: COLORS.dotIndicator,
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+        shadowColor: 'hsl(220, 60%, 88%)',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    keyTherapy: {
+        borderWidth: 1,
+        backgroundColor: COLORS.activeSessionBackground,
+        borderColor: COLORS.activeSessionBorder,
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        shadowColor: 'hsl(220, 60%, 88%)',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    bottomGradient: {
+        position: 'absolute',
+        bottom: 0,
+        right: 10,
+        left: 10,
+        paddingVertical: 15,
     },
     buttonsWrapper: {
-        // position: 'absolute',
-        // bottom: 0,
         flexDirection: 'row',
         justifyContent: 'space-between',
         width: '100%',
+    },
+    button: {
+        width: '48%',
     },
 });

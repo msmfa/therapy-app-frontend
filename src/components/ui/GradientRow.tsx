@@ -5,14 +5,16 @@ type Props = {
     children: ReactNode;
     addedStyles?: StyleProp<ViewStyle>;
     hue?: number;
+    borderRadius?: number;
 };
 
 const DEFAULT_BACKGROUND = 'hsla(0, 0%, 100%, 0.29)';
 const DEFAULT_BORDER = 'hsla(0, 0%, 100%, 0.21)';
+const DEFAULT_RADIUS = 16;
 const MIN_HUE = 0;
 const MAX_HUE = 360;
 
-export function GradientRow({ children, addedStyles, hue }: Props) {
+export function GradientRow({ children, addedStyles, hue, borderRadius }: Props) {
     const normalizedHue = useMemo(
         () => Math.max(MIN_HUE, Math.min(MAX_HUE, hue ?? 0)),
         [hue]
@@ -28,9 +30,11 @@ export function GradientRow({ children, addedStyles, hue }: Props) {
         ? `hsla(${normalizedHue}, 70%, 80%, 0.3)`
         : DEFAULT_BORDER;
 
+    const computedBorderRadius = borderRadius ?? DEFAULT_RADIUS;
+
     return (
-        <View style={ [styles.legendWrapper, addedStyles] }>
-            <View style={ [styles.legendCard, { backgroundColor, borderColor }] }>
+        <View style={ [styles.legendWrapper, { borderRadius: computedBorderRadius }, addedStyles] }>
+            <View style={ [styles.legendCard, { backgroundColor, borderColor, borderRadius: computedBorderRadius }] }>
                 { children }
             </View>
         </View>
@@ -39,7 +43,7 @@ export function GradientRow({ children, addedStyles, hue }: Props) {
 
 const styles = StyleSheet.create({
     legendWrapper: {
-        borderRadius: 16,
+        borderRadius: DEFAULT_RADIUS,
         elevation: 12,
         shadowColor: '#00000026',
         shadowOffset: { height: 4, width: 0 },
@@ -47,7 +51,7 @@ const styles = StyleSheet.create({
         shadowRadius: 30,
     },
     legendCard: {
-        borderRadius: 16,
+        borderRadius: DEFAULT_RADIUS,
         borderWidth: 1,
         paddingHorizontal: 20,
     },
