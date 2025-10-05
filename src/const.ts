@@ -45,8 +45,20 @@ export const APPLE_SERVICE_ID = process.env.EXPO_PUBLIC_APPLE_SERVICE_ID as stri
 export const APPLE_REDIRECT_URI =
     process.env.EXPO_PUBLIC_APPLE_REDIRECT_URI as string | undefined;
 
+const requireEnv = (name: string): string => {
+    const value = process.env[name];
+    if (!value) {
+        const message = `[config] Missing ${name}. Update your Expo env vars before shipping.`;
+        if (process.env.NODE_ENV === 'production') {
+            throw new Error(message);
+        }
+        console.warn(message);
+    }
+    return value ?? '';
+};
+
 export const STORE_URLS = {
-    ios: process.env.EXPO_PUBLIC_APP_STORE_URL ?? '',
-    android: process.env.EXPO_PUBLIC_PLAY_STORE_URL ?? '',
+    ios: requireEnv('EXPO_PUBLIC_APP_STORE_URL'),
+    android: requireEnv('EXPO_PUBLIC_PLAY_STORE_URL'),
     web: process.env.EXPO_PUBLIC_WEB_STORE_URL ?? '',
 } as const;

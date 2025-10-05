@@ -38,7 +38,7 @@ export function ReminderRow ({ date, description, link }: Props) {
                 </AppText>
                 <Ionicons name={ 'arrow-forward-outline' } size={ 20 } color="#666666" />
             </TouchableOpacity>
-            { /* // todo: add the science behind this pages */ }
+            { /* Placeholder: add science content pages and hook up modal copy (see TODO.md). */ }
             { openModal && (
                 <AppModal isVisible={ true } onClose={ () => setOpenModal(null) }>
                     <ScienceTextModal type={ openModal } />

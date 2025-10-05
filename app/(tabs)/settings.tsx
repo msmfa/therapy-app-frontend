@@ -42,7 +42,6 @@ export default function SettingsScreen() {
         }
     }, [signOut]);
 
-    // TODO: add app store links
     const handleRateApp = useCallback(() => {
         const url = Platform.select({
             ios: STORE_URLS.ios,

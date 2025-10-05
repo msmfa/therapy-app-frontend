@@ -154,7 +154,7 @@ export default function PrivacyPolicyScreen() {
                     <AppText variant='h2'>Contact us</AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     <AppText variant='body'>
-                        { /* TODO: change to real email */ }
+                        { /* Placeholder: update contact email before launch (see TODO.md). */ }
                         For questions or to exercise your privacy rights, email us at codemoore@outlook.com.
                     </AppText>
                 </View>

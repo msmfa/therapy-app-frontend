@@ -1,11 +1,11 @@
 export interface ReminderTiming {
-	id: string;
-	label: string;
-	description: string;
-	icon: string;
-	badge?: string;
-	isMultiple?: boolean;
-	calculate: (now: Date, next: Date) => Date | Array<{ time: Date; message: string }>;
+    id: string;
+    label: string;
+    description: string;
+    icon: string;
+    badge?: string;
+    isMultiple?: boolean;
+    calculate: (now: Date, next: Date) => Date | Array<{ time: Date; message: string }>;
 }
 
 export function calculateReminderTime(
@@ -41,15 +41,4 @@ export function getSessionInterval(nextSessionDate: Date | null): string {
     if (days === 14) return 'Bi-weekly session';
     if (days < 7) return `${days} days until session`;
     return `${days} days until session`;
-}
-
-export async function getSavedPreference(): Promise<string> {
-    // This would fetch from user settings/storage
-    // Default to 'smart-pattern' for new users
-    return 'smart-pattern';
-}
-
-export async function savePreference(timingId: string): Promise<void> {
-    // This would save to user settings/storage
-    console.log('Saving preference:', timingId);
 }

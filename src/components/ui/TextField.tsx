@@ -10,7 +10,7 @@ import {
     View,
     ViewStyle,
 } from 'react-native';
-// todo: remove this stuff
+// Pending: consolidate color imports once design tokens settle (see TODO.md).
 import { Colors, spacing } from '../../const';
 import { Palette } from '../../../design';
 import AppText from './AppText';
