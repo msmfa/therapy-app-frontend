@@ -17,6 +17,9 @@
                         ],
                         "expo-web-browser": [
                                 "types/expo-web-browser"
+                        ],
+                        "src/*": [
+                                "src/*"
                         ]
                 }
         },
