@@ -102,7 +102,6 @@ export default function SettingsScreen() {
                         References
                     </AppText>
                     <Spacer />
-                    { /* TODO: add links to all these */ }
                     <View style={ { gap: 8 } }>
                         <SettingsRow text="The science behind our reminder intervals" onPress={ () => {} } />
                         <SettingsRow

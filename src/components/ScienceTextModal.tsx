@@ -13,7 +13,7 @@ export function ScienceTextModal({ type }: Props) {
     return (
         <SafeAreaView>
             <ScrollView>
-                <AppText color="#111111" weight="semibold">
+                <AppText variant="h2">
                     { title }
                 </AppText>
             </ScrollView>
