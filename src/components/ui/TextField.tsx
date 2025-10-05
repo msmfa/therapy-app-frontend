@@ -1,10 +1,8 @@
 import React, { forwardRef, useState } from 'react';
 import {
-    NativeSyntheticEvent,
     StyleProp,
     StyleSheet,
     TextInput,
-    TextInputFocusEventData,
     TextInputProps,
     TextStyle,
     View,
@@ -41,13 +39,15 @@ const TextField = forwardRef<TextInput, TextFieldProps>(
         ref,
     ) => {
         const [focused, setFocused] = useState(false);
+        type FocusEventType = Parameters<NonNullable<TextInputProps['onFocus']>>[0];
+        type BlurEventType = Parameters<NonNullable<TextInputProps['onBlur']>>[0];
 
-        const handleFocus = (event: NativeSyntheticEvent<TextInputFocusEventData>) => {
+        const handleFocus = (event: FocusEventType) => {
             setFocused(true);
             onFocus?.(event);
         };
 
-        const handleBlur = (event: NativeSyntheticEvent<TextInputFocusEventData>) => {
+        const handleBlur = (event: BlurEventType) => {
             setFocused(false);
             onBlur?.(event);
         };
