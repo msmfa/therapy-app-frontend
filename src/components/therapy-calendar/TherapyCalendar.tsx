@@ -28,6 +28,7 @@ type ScheduleMode = 'single' | 'weekly_pattern';
 
 interface TherapyCalendarProps {
     selectedSessions: SelectedSessions;
+    children?: React.ReactNode;
     dotDates?: Array<string | Date>;
     onSelectedSessionsChange: (sessions: SelectedSessions) => void;
 }
@@ -47,6 +48,7 @@ export default function TherapyCalendar({
     onSelectedSessionsChange,
     selectedSessions,
     dotDates = [],
+    children,
 }: TherapyCalendarProps) {
     const [activeDateKey, setActiveDateKey] = useState<string | null>(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -255,6 +257,7 @@ export default function TherapyCalendar({
                         style={ styles.calendar }
                     />
                 </GradientRow>
+                { children }
             </View>
             {isModalVisible && activeDateKey && (
                 <ScheduleModal

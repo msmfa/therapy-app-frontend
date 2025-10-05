@@ -44,3 +44,9 @@ export const GOOGLE_CLIENT_IDS = {
 export const APPLE_SERVICE_ID = process.env.EXPO_PUBLIC_APPLE_SERVICE_ID as string | undefined;
 export const APPLE_REDIRECT_URI =
     process.env.EXPO_PUBLIC_APPLE_REDIRECT_URI as string | undefined;
+
+export const STORE_URLS = {
+    ios: process.env.EXPO_PUBLIC_APP_STORE_URL ?? '',
+    android: process.env.EXPO_PUBLIC_PLAY_STORE_URL ?? '',
+    web: process.env.EXPO_PUBLIC_WEB_STORE_URL ?? '',
+} as const;

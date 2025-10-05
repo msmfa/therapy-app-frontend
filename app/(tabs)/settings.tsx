@@ -1,9 +1,10 @@
 import React, { useCallback, useState } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet, Alert, Linking, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/auth/AuthContext';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
+import { STORE_URLS } from 'src/const';
 import { GradientRow } from '../../src/components/ui/GradientRow';
 import { SettingsRow } from '../../src/components/SettingsRow';
 import AppText from '../../src/components/ui/AppText';
@@ -40,6 +41,24 @@ export default function SettingsScreen() {
             Alert.alert('Error', message);
         }
     }, [signOut]);
+
+    // TODO: add app store links
+    const handleRateApp = useCallback(() => {
+        const url = Platform.select({
+            ios: STORE_URLS.ios,
+            android: STORE_URLS.android,
+            default: STORE_URLS.web || STORE_URLS.ios || STORE_URLS.android,
+        });
+
+        if (!url) {
+            Alert.alert('Coming soon', 'The app store listing will be available soon.');
+            return;
+        }
+
+        Linking.openURL(url).catch(() => {
+            Alert.alert('Error', 'Unable to open the store link right now.');
+        });
+    }, []);
 
     const onDeleteAccount = useCallback(() => {
         if (deleting) {
@@ -100,7 +119,7 @@ export default function SettingsScreen() {
                     <View style={ { gap: 8 } }>
                         <SettingsRow text="Delete account" onPress={ onDeleteAccount } />
                         <SettingsRow text="Privacy Policy" onPress={ () => router.push('/privacy-policy') } />
-                        <SettingsRow text="Rate this App" onPress={ () => {} } />
+                        <SettingsRow text="Rate this App" onPress={ handleRateApp } />
                         <SettingsRow text="Log out" onPress={ () => onLogout() } />
                     </View>
                 </View>
