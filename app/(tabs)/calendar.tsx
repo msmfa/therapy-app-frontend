@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     calendarKey: {
         flex: 1,
         position: 'absolute',
-        bottom: 259,
+        bottom: 262,
         right: 10,
         left: 10,
         borderRadius: 6,
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
     calendarKeyContent:{
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 10,
+        paddingVertical: 18,
     },
     keyReminder: {
         backgroundColor: COLORS.dotIndicator,
