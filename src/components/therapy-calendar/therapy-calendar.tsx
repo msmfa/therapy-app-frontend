@@ -20,7 +20,7 @@ export const COLORS = {
     calendarMonthText: 'hsl(0, 12%, 10%)',
     calendarWeekdayHeader: 'hsl(0, 10%, 45%)',
     arrows: 'hsl(0, 0%, 30%)',
-    dotIndicator: 'hsl(0, 92%,50%)',
+    dotIndicator: 'hsl(0, 52%, 50%)',
 };
 
 type SelectedSessions = Record<string, Date>;

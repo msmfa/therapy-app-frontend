@@ -4,9 +4,9 @@ import { Ionicons } from '@expo/vector-icons';
 
 type SuccessScreenProps = {
     isVisible: boolean;
-    onClose: () => void;
     iconSize?: number;
     iconColor?: string;
+    onClose: () => void;
 };
 
 export default function SuccessScreen({ isVisible, onClose, iconSize = 96, iconColor = '#22C55E' }: SuccessScreenProps) {
@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: 'transparent',
     },
     modalClose: {
         position: 'absolute',

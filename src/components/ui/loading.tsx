@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, Modal } from 'react-native';
 import AppText from './typography';
 
 type LoadingProps = {
@@ -7,24 +7,39 @@ type LoadingProps = {
 	size?: 'small' | 'large';
 	color?: string;
 	fullScreen?: boolean;
+    transparent?: boolean;
 };
 
 export default function Loading({
     text = 'Loading...',
     size = 'large',
-    color = '#007AFF',
+    color = '#3e536aff',
     fullScreen = true,
+    transparent = false,
 }: LoadingProps) {
-    const containerStyle = fullScreen ? styles.fullScreenContainer : styles.container;
+    if (fullScreen) {
+        return (
+            <Modal
+                transparent={ transparent }
+                visible={ true }
+                animationType="fade"
+                statusBarTranslucent
+            >
+                <View style={ styles.fullScreenContainer } pointerEvents="auto">
+                    <ActivityIndicator size={ size } color={ color } />
+                </View>
+            </Modal>
+        );
+    }
 
     return (
-        <View style={ containerStyle }>
+        <View style={ styles.container }>
             <ActivityIndicator size={ size } color={ color } />
-            { text && (
+            { text ? (
                 <AppText variant='body' style={ styles.text }>
                     { text }
                 </AppText>
-            ) }
+            ) : null }
         </View>
     );
 }
@@ -36,15 +51,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     fullScreenContainer: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#FFFFFFE6',
-        zIndex: 999,
+        backgroundColor: 'rgba(160, 139, 139, 0.92)', // ← Transparent background
+        paddingHorizontal: 24,
     },
     text: {
         marginTop: 12,

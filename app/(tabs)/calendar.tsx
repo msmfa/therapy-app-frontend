@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 
 import TherapyCalendar from '../../src/components/therapy-calendar/therapy-calendar';
@@ -6,12 +6,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTherapySessions } from '../../src/context/TherapySessionsContext';
 import { convertSessionsToCalendarFormat } from '../../src/utils/calendar';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
-import SuccessScreenModal from '../../src/components/ui/SuccessScreenModal';
 import { GradientRow } from '../../src/components/ui/GradientRow';
 import { Button } from '../../src/components/ui/button';
 import OnboardingSteps from 'src/components/ui/OnboardingSteps';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { useFocusEffect } from 'expo-router';
+import LoadingSuccess from 'src/components/ui/LoadingWithSuccess';
 
 
 const stepsText = {
@@ -23,8 +23,7 @@ type SelectedSessions = Record<string, Date>;
 
 export default function CalendarScreen() {
     const { sessions, syncSessions, neuroReminders } = useTherapySessions();
-
-    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [loading, setLoading] = useState<'loading' | 'success' | null>(null);
     const initialSessions = useMemo(
         () => convertSessionsToCalendarFormat(sessions),
         [sessions],
@@ -49,28 +48,43 @@ export default function CalendarScreen() {
     }, []);
 
     const handleSavePress = useCallback(async () => {
+        setLoading('loading');
         try {
-            // todo: change to something more reasonable
             if (sessionCount < 5) {
                 Alert.alert('Oops', 'Please select at least five therapy sessions to update.', [
                     { text: 'OK', style: 'default' },
                 ]);
+                setLoading(null); // ← Reset here since we're returning early
                 return;
             }
             await syncSessions(selectedSessions, 50);
-            setShowSuccessModal(true);
             setDotDates([]);
+            setLoading('success');
+
+            // Auto-dismiss after showing success - no setTimeout here!
 
         } catch (error) {
             console.error('syncSessions failed', error);
             Alert.alert('Error', 'Unable to save sessions right now.');
+            setLoading(null);
         }
+    // ← Remove the finally block that was setting loading to null
     }, [selectedSessions, sessionCount, syncSessions]);
+
+    // Delay resetting loading state after success
+    useEffect(() => {
+        if (loading === 'success') {
+            const timer = setTimeout(() => {
+                setLoading(null);
+            }, 2500); // Show success for 2.5 seconds
+
+            return () => clearTimeout(timer);
+        }
+    }, [loading]);
 
     const handleClearAll = useCallback(() => {
         handleSessionsChange({});
     }, [handleSessionsChange]);
-
 
     return (
         <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] }>
@@ -81,7 +95,6 @@ export default function CalendarScreen() {
                 selectedSessions={ selectedSessions }
             >
                 <Spacer variant={ SpacerVariant.small } />
-
             </TherapyCalendar>
             <GradientRow addedStyles={ { position: 'absolute', bottom: 10, right: 10, left: 10 } } >
                 <OnboardingSteps
@@ -109,7 +122,12 @@ export default function CalendarScreen() {
                 </View>
                 <Spacer variant={ SpacerVariant.medium } />
             </GradientRow>
-            <SuccessScreenModal isVisible={ showSuccessModal } onClose={ () => setShowSuccessModal(false) } />
+            { loading &&
+            <LoadingSuccess
+                visible={ !!loading }
+                status={ loading }
+                successText="Updated your therapy sessions"
+            /> }
         </SafeAreaView>
     );
 }

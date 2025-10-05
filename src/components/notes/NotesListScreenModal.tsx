@@ -23,7 +23,7 @@ export function NotePreviewModal({ visible, note, onClose }: NotePreviewModalPro
                 <GradientUpwards />
                 <ScrollView contentContainerStyle={ styles.modalContent }>
                     <View>
-                        <AppText style={ styles.modalDate } color="#000000" weight="semibold">
+                        <AppText style={ styles.modalDate }  variant="body">
                             { note &&
                             new Date(note.createdAt).toLocaleString('en-US', {
                                 weekday: 'long',
@@ -34,7 +34,7 @@ export function NotePreviewModal({ visible, note, onClose }: NotePreviewModalPro
                                 minute: '2-digit',
                             }) }
                         </AppText>
-                        <AppText style={ styles.modalText } color="#000000">
+                        <AppText style={ styles.modalText } variant="body" >
                             { note?.text }
                         </AppText>
                     </View>
