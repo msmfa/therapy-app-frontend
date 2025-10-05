@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, useRouter } from 'expo-router';
-import { useAuth } from '../../src/auth/AuthContext';
+import { useAuth } from '../../src/context/auth/AuthContext';
 import SocialAuthButtons from '../../src/components/auth/SocialAuthButtons';
 import { Button } from 'src/components/ui/Button';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';

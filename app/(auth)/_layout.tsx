@@ -1,7 +1,7 @@
 // app/(auth)/_layout.tsx
 import React from 'react';
 import { Stack, Redirect } from 'expo-router';
-import { useAuth } from '../../src/auth/AuthContext';
+import { useAuth } from '../../src/context/auth/AuthContext';
 import { useTheme } from '@react-navigation/native';
 
 export default function AuthLayout() {

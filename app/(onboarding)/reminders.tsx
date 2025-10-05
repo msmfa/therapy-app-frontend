@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import dayjs from 'dayjs';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import isBetween from 'dayjs/plugin/isBetween';
-import { useTherapySessions } from '../../src/context/TherapySessionsContext';
+import { useTherapySessions } from '../../src/context/therapy-sessions/TherapySessionsContext';
 import { ReminderRow } from '../../src/components/reminders/ReminderRow';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
 import { Button } from '../../src/components/ui/Button';

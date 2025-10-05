@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
-import { useAuth } from '../../src/auth/AuthContext';
+import { useAuth } from '../../src/context/auth/AuthContext';
 import { useNotes } from '../../src/hooks/useNotes';
 import ErrorMessage from '../../src/components/ui/ErrorMessage';
 import { colors, gradients, palette } from '../../new-design';

@@ -3,7 +3,7 @@ import { useCallback, useRef, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useOnboarding } from '../../src/context/OnboardingContext';
+import { useOnboarding } from '../../src/context/onboarding/OnboardingContext';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
 import { Button } from '../../src/components/ui/Button';
 import AppText from '../../src/components/ui/AppText';

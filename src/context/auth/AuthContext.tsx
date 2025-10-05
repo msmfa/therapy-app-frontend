@@ -8,8 +8,8 @@ import React, {
 } from 'react';
 import * as SecureStore from 'expo-secure-store';
 
-import { configureApiClient } from '../api/client';
-import { refreshAuthToken } from '../api/auth';
+import { configureApiClient } from '../../api/client';
+import { refreshAuthToken } from '../../api/auth';
 
 const normalizeToken = (value: string | null | undefined): string | null => {
     if (!value) {

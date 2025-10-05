@@ -89,11 +89,12 @@ export default function TherapyCalendar({
     }, [dotDates]);
 
     const markedDates = useMemo(() => {
+        // ODO:: change dots to text color on the day so key will be text is red and circle will be therapy day
         const circleBaseStyle = {
-            alignItems: 'center',
-            borderRadius: 20,
+            // alignItems: 'center',
+            // borderRadius: 20,
             // height: 40,
-            justifyContent: 'center',
+            // justifyContent: 'center',
 
             // width: 40,
         };
@@ -229,7 +230,7 @@ export default function TherapyCalendar({
         monthTextColor: COLORS.calendarMonthText,
         selectedDayBackgroundColor: COLORS.calendarSelectedBackground,
         selectedDayTextColor: COLORS.activeSessionBorder,
-        textDisabledColor: COLORS.calendarDayDisabled,
+         textDisabledColor: COLORS.calendarDayDisabled,
         textSectionTitleColor: COLORS.calendarWeekdayHeader,
         todayTextColor: COLORS.scheduledText,
         // fonts
@@ -239,6 +240,9 @@ export default function TherapyCalendar({
         textDayHeaderFontSize: 14,
         textMonthFontFamily: 'System',
         textMonthFontSize: 20,
+        dotStyle: {
+            marginTop: 2,
+        },
     };
 
     return (

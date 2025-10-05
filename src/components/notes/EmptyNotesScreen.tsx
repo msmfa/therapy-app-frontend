@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import dayjs from 'dayjs';
 import { GradientUpwards } from '../GradientUpwards';
-import { useTherapySessions } from '../../context/TherapySessionsContext';
+import { useTherapySessions } from '../../context/therapy-sessions/TherapySessionsContext';
 import AppText from '../ui/AppText';
 import brainElastic from '../../../assets/illustrations/brain-elastic.svg';
 import Spacer, { SpacerVariant } from '../ui/Spacer';

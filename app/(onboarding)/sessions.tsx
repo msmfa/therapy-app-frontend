@@ -3,7 +3,7 @@ import { View, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TherapyCalendar from '../../src/components/therapy-calendar/TherapyCalendar';
-import { useTherapySessions } from '../../src/context/TherapySessionsContext';
+import { useTherapySessions } from '../../src/context/therapy-sessions/TherapySessionsContext';
 import Loading from '../../src/components/ui/Loading';
 import { convertSessionsToCalendarFormat } from '../../src/utils/calendar';
 import { GradientUpwards } from '../../src/components/GradientUpwards';

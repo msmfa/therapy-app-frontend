@@ -1,6 +1,6 @@
 import React from 'react';
 import { useFocusEffect } from 'expo-router';
-import { useAuth } from '../../src/auth/AuthContext';
+import { useAuth } from '../../src/context/auth/AuthContext';
 import { useNotes } from '../../src/hooks/useNotes';
 import EmptyNotesScreen from '../../src/components/notes/EmptyNotesScreen';
 import NotesListScreen from '../../src/components/notes/NotesListScreen';

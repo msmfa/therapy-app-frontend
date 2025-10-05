@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { View, StyleSheet, Alert, Linking, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { useAuth } from '../../src/auth/AuthContext';
+import { useAuth } from '../../src/context/auth/AuthContext';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
 import { GradientRow } from '../../src/components/ui/GradientRow';
 import { SettingsRow } from '../../src/components/SettingsRow';

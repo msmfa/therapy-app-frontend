@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
-import { ApiError } from '../api/client';
+import { ApiError } from '../../api/client';
 import { useAuth } from '../auth/AuthContext';
 import {
     getTherapySessions,
@@ -8,9 +8,9 @@ import {
     deleteTherapySession,
     TherapySession,
     syncTherapySessions as syncTherapySessionsApi,
-} from '../api/therapy';
-import { scheduleTherapySessionNotifications } from '../utils/schedule-reminders';
-import { scheduleNeuroplasticityReminders, Reminder } from '../components/reminders/reminder-schedule-v2';
+} from '../../api/therapy';
+import { scheduleTherapySessionNotifications } from '../../utils/schedule-reminders';
+import { scheduleNeuroplasticityReminders, Reminder } from '../../components/reminders/reminder-schedule-v2';
 
 const POST_SESSION_NOTIFICATION_ID = 'post-session-note';
 const POST_SESSION_NOTIFICATION_MESSAGE = 'Take a quick note about your therapy session';

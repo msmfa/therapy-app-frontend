@@ -3,7 +3,7 @@ import { Alert, StyleSheet, View } from 'react-native';
 
 import TherapyCalendar, { COLORS } from '../../src/components/therapy-calendar/TherapyCalendar';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTherapySessions } from '../../src/context/TherapySessionsContext';
+import { useTherapySessions } from '../../src/context/therapy-sessions/TherapySessionsContext';
 import { convertSessionsToCalendarFormat } from '../../src/utils/calendar';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
 import { GradientRow } from '../../src/components/ui/GradientRow';
