@@ -7,35 +7,6 @@ export enum Colors {
 	PaleRed = '#FEE2E2',
 }
 
-// export const Palette = {
-// 	background: {
-// 		base: Colors.LightBlue, // light blue
-// 	},
-// 	button: {
-// 		label: Colors.DarkBlue,
-// 	},
-// };
-
-// export const colors = {
-// 	background: Palette.background.base, // app background (from Palette)
-// 	surface: '#FFFFFF', // white
-// 	surfaceAlt: '#F8F9FA', // very light gray (off-white)
-
-// 	text: {
-// 		primary: '#111111', // near-black
-// 		secondary: '#666666', // medium gray
-// 		muted: '#9CA3AF', // cool gray (gray-400)
-// 		inverse: '#FFFFFF', // white
-// 	},
-// 	primary: '#0066CC', // vivid blue
-// 	primaryLight: '#E8F4FD', // very light blue
-// 	success: '#059669', // emerald green
-// 	danger: '#DC2626', // strong red
-// 	dangerLight: '#FEE2E2', // pale red / rose tint
-// 	border: '#E5E7EB', // light gray
-// 	overlay: '#00000080', // 50% black overlay
-// };
-
 export const spacing = {
     xs: 4,
     sm: 8,

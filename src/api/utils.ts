@@ -11,7 +11,7 @@ export async function readApiError(response: Response): Promise<string> {
     if (!raw) return fallback;
 
     try {
-        const parsed = JSON.parse(raw);
+        const parsed: unknown = JSON.parse(raw);
         if (typeof parsed === 'string') return parsed;
         if (parsed && typeof parsed === 'object') {
             const record = parsed as Record<string, unknown>;

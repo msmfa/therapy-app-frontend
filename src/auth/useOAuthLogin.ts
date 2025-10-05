@@ -168,13 +168,13 @@ export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
 
             const fullName = credential.fullName
                 ? {
-                      givenName: credential.fullName.givenName ?? null,
-                      familyName: credential.fullName.familyName ?? null,
-                      middleName: credential.fullName.middleName ?? null,
-                      namePrefix: credential.fullName.namePrefix ?? null,
-                      nameSuffix: credential.fullName.nameSuffix ?? null,
-                      nickname: credential.fullName.nickname ?? null,
-                  }
+                    givenName: credential.fullName.givenName ?? null,
+                    familyName: credential.fullName.familyName ?? null,
+                    middleName: credential.fullName.middleName ?? null,
+                    namePrefix: credential.fullName.namePrefix ?? null,
+                    nameSuffix: credential.fullName.nameSuffix ?? null,
+                    nickname: credential.fullName.nickname ?? null,
+                }
                 : null;
 
             await exchangeToken('apple', {
