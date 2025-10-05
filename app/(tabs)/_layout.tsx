@@ -33,11 +33,10 @@ export default function TabsLayout() {
                     shadowOpacity: 0,
                     paddingVertical: 16,
                     height: 76,
-                    // make the tab completely transparent
                     backgroundColor: gradients.background.bottom,
                 },
                 tabBarActiveTintColor: colors.text,
-                tabBarInactiveTintColor: colors.textMuted,
+                tabBarInactiveTintColor: colors.textDisabled,
                 tabBarShowLabel: false,
             } }
         >
@@ -51,8 +50,6 @@ export default function TabsLayout() {
                     ),
                 } }
             />
-
-
             <Tabs.Screen
                 name="calendar"
                 options={ {
