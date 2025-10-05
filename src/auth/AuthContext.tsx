@@ -33,23 +33,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const isHydrating = useRef(false);
     const hasHydrated = useRef(false);
 
-    useEffect(() => {
-        console.log('[AuthProvider] mount');
-        return () => {
-            console.log('[AuthProvider] unmount');
-        };
-    }, []);
 
     // Hydrate auth state on mount - runs ONCE
     useEffect(() => {
         // Guard: prevent duplicate hydrations
         if (isHydrating.current || hasHydrated.current) {
-            console.log('[AuthProvider] skipping hydration (already hydrating or hydrated)');
             return;
         }
-
         isHydrating.current = true;
-        console.log('[AuthProvider] starting hydration');
 
         (async () => {
             try {
@@ -62,7 +53,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 if (storedToken) {
                     const normalized = normalizeToken(storedToken);
                     if (normalized) {
-                        console.log('[AuthProvider] restoring token from SecureStore');
                         setToken(normalized);
 
                         // Normalize stored token if needed
@@ -70,19 +60,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                             await SecureStore.setItemAsync('token', normalized);
                         }
                     } else {
-                        console.log('[AuthProvider] stored token invalid, clearing');
                         await SecureStore.deleteItemAsync('token');
                     }
-                } else {
-                    console.log('[AuthProvider] no token found in SecureStore');
                 }
 
                 // Process user
                 if (storedUser) {
-                    console.log('[AuthProvider] restoring user from SecureStore');
                     setUser(JSON.parse(storedUser));
-                } else {
-                    console.log('[AuthProvider] no user found in SecureStore');
                 }
             } catch (error) {
                 console.error('[AuthProvider] hydration error:', error);
@@ -93,18 +77,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 hasHydrated.current = true;
                 isHydrating.current = false;
                 setHydrated(true);
-                console.log('[AuthProvider] hydration complete');
             }
         })();
     }, []); // Empty deps - hydrate exactly ONCE on mount
 
     const setAuth = async (t: string, u: AuthUser) => {
         const normalizedToken = normalizeToken(t);
-
-        console.log('[AuthProvider] setAuth called', {
-            hasToken: Boolean(normalizedToken),
-            hasUser: Boolean(u),
-        });
 
         // Update state immediately
         setToken(normalizedToken);
@@ -129,8 +107,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const signOut = async () => {
-        console.log('[AuthProvider] signOut invoked');
-
         // Clear state immediately
         setToken(null);
         setUser(null);

@@ -39,19 +39,6 @@ function Gate() {
     // Both providers must be hydrated before we can route
     const isFullyHydrated = authHydrated && onboardingHydrated;
     const isAuthenticated = Boolean(user);
-    const userId = user?.id ?? null;
-
-    // Debug logging - shows clear state transitions
-    useEffect(() => {
-        console.log('[Gate] state change', {
-            userId,
-            isAuthenticated,
-            authHydrated,
-            onboardingHydrated,
-            hasOnboarded,
-            isFullyHydrated,
-        });
-    }, [userId, isAuthenticated, authHydrated, onboardingHydrated, hasOnboarded, isFullyHydrated]);
 
     return (
         <View style={ styles.root }>

@@ -15,7 +15,6 @@ const LINE_COLOR = 'hsl(220, 70%, 90%)';
 const STEP_VERTICAL_SPACING = 10;
 
 export default function OnboardingSteps({ title, steps, activeStep }: Props) {
-    console.log('Active Step:', activeStep);
     return (
         <View >
             <Spacer variant={ SpacerVariant.medium } />

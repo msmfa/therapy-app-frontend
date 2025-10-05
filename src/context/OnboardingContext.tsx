@@ -25,13 +25,6 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
 
     const userId = user?.id ?? null;
 
-    useEffect(() => {
-        console.log('[OnboardingProvider] mount');
-        return () => {
-            console.log('[OnboardingProvider] unmount');
-        };
-    }, []);
-
     // Hydrate onboarding state when user changes
     useEffect(() => {
         // CRITICAL: Only depend on userId, NOT on hydrated state
@@ -39,13 +32,11 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
 
         // Wait for auth to finish hydrating before we start
         if (!authHydrated) {
-            console.log('[OnboardingProvider] waiting for auth to hydrate');
             return;
         }
 
         // Case 1: No user logged in
         if (!userId) {
-            console.log('[OnboardingProvider] no user, marking as hydrated with default state');
             lastHydratedUserId.current = null;
             setHasOnboarded(false);
             setHydrated(true);
@@ -54,30 +45,22 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
 
         // Case 2: Same user, already hydrated - do nothing
         if (lastHydratedUserId.current === userId) {
-            console.log('[OnboardingProvider] already hydrated for user', userId);
             return;
         }
 
         // Case 3: New user (or first hydration) - hydrate from storage
         // Guard: prevent concurrent hydrations
         if (isHydrating.current) {
-            console.log('[OnboardingProvider] hydration already in progress for', userId);
             return;
         }
 
         isHydrating.current = true;
         setHydrated(false);
-        console.log('[OnboardingProvider] starting hydration for user', userId);
 
         (async () => {
             try {
                 const key = `${ONBOARDING_PREFIX}${userId}`;
                 const value = await AsyncStorage.getItem(key);
-
-                console.log('[OnboardingProvider] loaded value from storage', {
-                    key,
-                    value,
-                });
 
                 // Update state
                 const onboardingComplete = value === '1';
@@ -93,19 +76,16 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
             } finally {
                 isHydrating.current = false;
                 setHydrated(true);
-                console.log('[OnboardingProvider] hydration complete for user', userId);
             }
         })();
     }, [userId, authHydrated]); // ONLY depend on userId and authHydrated, NOT on hydrated state!
 
     const finishOnboarding = async () => {
         if (!userId) {
-            console.warn('[OnboardingProvider] finishOnboarding called with no user');
             return;
         }
 
         const key = `${ONBOARDING_PREFIX}${userId}`;
-        console.log('[OnboardingProvider] finishOnboarding', { key });
 
         try {
             await AsyncStorage.setItem(key, '1');
@@ -123,7 +103,6 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
         }
 
         const key = `${ONBOARDING_PREFIX}${userId}`;
-        console.log('[OnboardingProvider] resetOnboarding', { key });
 
         try {
             await AsyncStorage.removeItem(key);
