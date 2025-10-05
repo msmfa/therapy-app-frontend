@@ -220,6 +220,12 @@ export const typography = {
     lineHeight: 24,
     color: colors.text,
   },
+  h3: {
+    fontSize: 16,
+    fontWeight: '600' as const,
+    lineHeight: 24,
+    color: colors.text,
+  },
   body: {
     fontSize: 16,
     fontWeight: '400' as const,

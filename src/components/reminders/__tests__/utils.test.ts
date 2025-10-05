@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { calculateReminderTime, getSessionInterval, type ReminderTiming } from '../utils';
+import { calculateReminderTime, getSessionInterval, type ReminderTiming } from '../../../utils';
 
 describe('reminder utils', () => {
     const now = new Date('2024-01-01T12:00:00Z');

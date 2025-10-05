@@ -1,5 +1,5 @@
 import { describe, expect, it, jest } from '@jest/globals';
-import { readApiError } from '../utils';
+import { readApiError } from '../../utils';
 
 describe('readApiError', () => {
     const createResponse = (options: { statusText?: string; body?: string; shouldThrow?: boolean }) => {

@@ -17,7 +17,7 @@ import TextField from 'src/components/ui/TextField';
 import PasswordField from 'src/components/ui/PasswordField';
 import AppText from '../../src/components/ui/AppText';
 import { loginWithPassword } from '../../src/api/auth';
-import { handleError } from '../../src/utils/utils';
+import { handleError } from 'src/utils';
 import { COLOR_VARIANTS, palette } from '../../new-design';
 
 export default function LoginScreen() {

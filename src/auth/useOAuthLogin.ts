@@ -7,7 +7,7 @@ import * as AuthSession from 'expo-auth-session';
 
 import { useAuth } from './AuthContext';
 import { APPLE_REDIRECT_URI, APPLE_SERVICE_ID, GOOGLE_CLIENT_IDS } from '../const';
-import { handleError } from '../utils/utils';
+import { handleError } from '../utils';
 import { exchangeOAuthToken, OAuthPayloadMap, OAuthProvider } from '../api/auth';
 
 WebBrowser.maybeCompleteAuthSession();

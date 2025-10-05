@@ -3,8 +3,8 @@ import React from 'react';
 import { Text as RNText, TextProps, StyleProp, TextStyle } from 'react-native';
 
 export type AppTextProps = TextProps & {
-    variant: 'h1' | 'h2' | 'body' | 'bodySecondary' | 'caption';
-    align?: 'auto' | 'left' | 'right' | 'center' | 'justify';
+    variant: keyof typeof typography;
+    align?: TextStyle['textAlign'];
     style?: StyleProp<TextStyle>;
 };
 

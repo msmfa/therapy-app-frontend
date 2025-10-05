@@ -24,4 +24,3 @@ export async function readApiError(response: Response): Promise<string> {
         return raw;
     }
 }
-

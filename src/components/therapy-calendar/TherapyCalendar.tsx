@@ -92,11 +92,10 @@ export default function TherapyCalendar({
         const circleBaseStyle = {
             alignItems: 'center',
             borderRadius: 20,
-            height: 40,
+            // height: 40,
             justifyContent: 'center',
-            marginTop: -5,
-            paddingTop: 0,
-            width: 40,
+
+            // width: 40,
         };
 
         const entries = Object.keys(selectedSessions).reduce<Record<string, any>>((acc, dateKey) => {
@@ -112,7 +111,6 @@ export default function TherapyCalendar({
                     text: {
                         color: isActive ? COLORS.activeSessionText : COLORS.scheduledText,
                         fontWeight: '600',
-                        marginTop: 5,
                     },
                 },
             };
@@ -129,9 +127,8 @@ export default function TherapyCalendar({
                         borderWidth: 1,
                     },
                     text: {
-                        color:COLORS.pressedText,
+                        color: COLORS.pressedText,
                         fontWeight: '600',
-                        marginTop: 5,
                     },
                 },
             };
@@ -149,7 +146,6 @@ export default function TherapyCalendar({
                     text: {
                         color: COLORS.todayText,
                         fontWeight: '600',
-                        marginTop: 5,
                     },
                 },
             };
@@ -161,6 +157,7 @@ export default function TherapyCalendar({
                     ...entries[dateKey],
                     marked: true,
                     dotColor: COLORS.dotIndicator,
+
                 };
             });
         }
@@ -232,7 +229,7 @@ export default function TherapyCalendar({
         monthTextColor: COLORS.calendarMonthText,
         selectedDayBackgroundColor: COLORS.calendarSelectedBackground,
         selectedDayTextColor: COLORS.activeSessionBorder,
-         textDisabledColor: COLORS.calendarDayDisabled,
+        textDisabledColor: COLORS.calendarDayDisabled,
         textSectionTitleColor: COLORS.calendarWeekdayHeader,
         todayTextColor: COLORS.scheduledText,
         // fonts
@@ -255,10 +252,10 @@ export default function TherapyCalendar({
                         minDate={formatDateKey(new Date())}
                         onDayPress={handleDayPress}
                         theme={calendarTheme}
-                        style={ styles.calendar }
+                        style={styles.calendar}
                     />
                 </GradientRow>
-                { children }
+                {children}
             </View>
             {isModalVisible && activeDateKey && (
                 <ScheduleModal
@@ -284,7 +281,7 @@ export default function TherapyCalendar({
 }
 
 const styles = StyleSheet.create({
-     content: {
+    content: {
         flex: 1,
         paddingHorizontal: 4,
         position: 'relative',
@@ -295,5 +292,4 @@ const styles = StyleSheet.create({
     calendar: {
         paddingVertical: 14,
     },
-
 });

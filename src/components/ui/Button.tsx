@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet, View, ViewStyle, StyleProp, ActivityIndicator, Text } from 'react-native';
 import { spacing, typography } from '../../const';
-import { palette } from '../../../new-design';
+import { palette, colors } from '../../../new-design';
 
 interface Props {
 	label: string;
@@ -23,16 +23,18 @@ export function Button({
     loading = false,
 }: Props) {
     const isDisabled = disabled || loading;
+    const showDisabledStyles = disabled && !loading;
 
-    const textColor = transparent ? palette.neutral.black : palette.neutral.white;
-    const spinnerColor = textColor;
+    const baseTextColor = transparent ? palette.neutral.black : palette.neutral.white;
+    const textColor = showDisabledStyles ? colors.textDisabled : baseTextColor;
+    const spinnerColor = loading ? baseTextColor : textColor;
 
     return (
         <TouchableOpacity
             style={ [
                 styles.actionButton,
-                transparent && styles.actionButtonTransparent,
-                isDisabled && styles.actionButtonDisabled,
+                transparent && !showDisabledStyles && styles.actionButtonTransparent,
+                showDisabledStyles && styles.actionButtonDisabled,
                 addedStyles && addedStyles,
             ] }
             onPress={ onPress }
@@ -73,9 +75,11 @@ const styles = StyleSheet.create({
     },
     actionButtonTransparent: {
         backgroundColor: palette.neutral.transparentTransparent,
+        borderColor: colors.textMuted,
     },
     actionButtonDisabled: {
-        opacity: 0.5,
+        backgroundColor: colors.bg,
+        borderColor: colors.borderLight,
     },
     iconWrapper: {
         marginRight: spacing.sm,

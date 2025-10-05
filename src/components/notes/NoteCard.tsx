@@ -23,7 +23,7 @@ export function NoteCard({ item, index, onPress }: Props) {
             ] }
         >
             <View style={ styles.noteHeader }>
-                <AppText variant='h2' >
+                <AppText variant='h3' >
                     { dayjs(item.createdAt).format('dddd, MMM D, YYYY') }
                 </AppText>
                 { index === 0 && (
