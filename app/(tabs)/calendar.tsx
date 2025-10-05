@@ -53,10 +53,30 @@ export default function CalendarScreen() {
 
     const sessionCount = Object.keys(selectedSessions).length;
 
+    const hasChanges = useMemo(() => {
+        const serialize = (sessionsMap: SelectedSessions) =>
+            Object.keys(sessionsMap)
+                .sort()
+                .map((key) => {
+                    const value = sessionsMap[key];
+                    return `${key}-${value instanceof Date ? value.getTime() : ''}`;
+                })
+                .join('|');
+
+        return serialize(selectedSessions) !== serialize(initialSessions);
+    }, [initialSessions, selectedSessions]);
+
+    const canSave = hasChanges && sessionCount >= 5;
+    const userStep = canSave ? 1 : 0;
 
     const handleSessionsChange = useCallback((next: SelectedSessions) => {
         setSelectedSessions(next);
     }, []);
+
+    const handleClearAll = useCallback(() => {
+        setDotDates([]);
+        handleSessionsChange({});
+    }, [handleSessionsChange]);
 
     const handleSavePress = useCallback(async () => {
         setLoading('loading');
@@ -92,14 +112,12 @@ export default function CalendarScreen() {
         }
     }, [loading]);
 
-    const handleClearAll = useCallback(() => {
-        setDotDates([]);
-        handleSessionsChange({});
-    }, [handleSessionsChange]);
 
     useEffect(() => {
         setDotDates(normalizeReminderDates(neuroReminders));
     }, [neuroReminders, normalizeReminderDates]);
+
+
 
     return (
         <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] }>
@@ -129,12 +147,13 @@ export default function CalendarScreen() {
                         stepsText.one,
                         stepsText.two,
                     ] }
+                    activeStep={ userStep }
                 />
                 <Spacer variant={ SpacerVariant.small } />
                 <View style={ styles.buttonsWrapper }>
                     <Button
                         addedStyles={ styles.button }
-                        disabled={ sessionCount === 0 }
+                        disabled={ !canSave }
                         label="Update"
                         onPress={ handleSavePress }
                     />

@@ -21,7 +21,7 @@ export default function FrostedCard({ children, containerStyle, contentStyle }: 
 const styles = StyleSheet.create({
     shadowWrapper: {
         borderRadius: 18,
-        shadowColor: palette.overlay.roseShadowTransparent,
+        shadowColor: palette.overlay.blueMildTransparent,
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 1,
         shadowRadius: 14,

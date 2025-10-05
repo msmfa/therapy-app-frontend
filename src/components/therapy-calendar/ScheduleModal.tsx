@@ -66,6 +66,8 @@ export default function ScheduleModal({
         onConfirm(scheduleMode, time);
     };
 
+    const isUpdateDisabled = !!existingSession && existingSession.time.getTime() === time.getTime();
+
     const selectedDay = selectedDate ? dayjs(selectedDate) : null;
     const scheduleModeOptions: ScheduleMode[] = ['weekly_pattern', 'single'];
     const scheduleModeDictionary = {
@@ -153,7 +155,7 @@ export default function ScheduleModal({
                                     <Button label="Delete" onPress={onDelete} />
                                 </View>
                                 <View style={styles.actionButtonWrapper}>
-                                    <Button label="Update" onPress={handleConfirm} />
+                                    <Button label="Update" onPress={handleConfirm} disabled={isUpdateDisabled} />
                                 </View>
                             </View>
                         ) : (

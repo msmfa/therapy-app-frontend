@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { View, ActivityIndicator, StyleSheet, Animated, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AppText from './AppText';
-import { COLOR_VARIANTS, colors, palette } from '../../../new-design';
+import { colors, palette } from '../../../new-design';
 
 type LoadingSuccessProps = {
     visible: boolean;
@@ -21,7 +21,7 @@ export default function LoadingSuccess({
     successText = 'Success!',
     size = 50,
     color = colors.text,
-    successColor = COLOR_VARIANTS.green.mid,
+    successColor =  colors.text,
     onSuccess,
 }: LoadingSuccessProps) {
     const fadeAnim = useRef(new Animated.Value(1)).current;
