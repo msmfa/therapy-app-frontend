@@ -12,8 +12,8 @@ import { useRouter } from 'expo-router';
 import { requestPasswordReset, resetPassword } from '../src/api/auth';
 import TextField from 'src/components/ui/TextField';
 import PasswordField from 'src/components/ui/PasswordField';
-import { Button } from 'src/components/ui/button';
-import AppText from '../src/components/ui/typography';
+import { Button } from 'src/components/ui/Button';
+import AppText from '../src/components/ui/AppText';
 
 const MIN_PASSWORD_LENGTH = 8;
 

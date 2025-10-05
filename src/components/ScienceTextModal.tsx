@@ -1,7 +1,7 @@
 import { ScrollView } from "react-native";
 import { ReminderType } from "../utils/types";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AppText from "./ui/typography";
+import AppText from "./ui/AppText";
 
 
 type Props = {

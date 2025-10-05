@@ -6,7 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../src/auth/AuthContext';
 import { useNotes } from '../../src/hooks/useNotes';
-import ErrorMessage from '../../src/components/ui/error';
+import ErrorMessage from '../../src/components/ui/ErrorMessage';
 
 
 export default function NewNoteScreen() {

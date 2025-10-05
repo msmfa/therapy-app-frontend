@@ -8,7 +8,7 @@ import {
 import { FontAwesome } from '@expo/vector-icons';
 
 import { useOAuthLogin } from '../../auth/useOAuthLogin';
-import AppText from '../ui/typography';
+import AppText from '../ui/AppText';
 
 interface Props {
     onSuccess?: () => void;

@@ -1,7 +1,7 @@
 import { Redirect } from 'expo-router';
 import { useAuth } from '../src/auth/AuthContext';
 import { useOnboarding } from '../src/context/OnboardingContext';
-import Loading from '../src/components/ui/loading';
+import Loading from '../src/components/ui/Loading';
 
 export default function Index() {
     const { hydrated: authHydrated, user } = useAuth();

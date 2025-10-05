@@ -7,7 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Note } from '../../hooks/useNotes';
 import { NotePreviewModal } from './NotesListScreenModal';
 import { NoteCard } from './NoteCard';
-import AppText from '../ui/typography';
+import AppText from '../ui/AppText';
 import { GradientUpwards } from '../GradientUpwards';
 
 const BOTTOM_FADE = 96; // fade height at bottom (mask)

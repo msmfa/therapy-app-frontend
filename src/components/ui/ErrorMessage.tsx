@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Pressable, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import AppText from './typography';
+import AppText from './AppText';
 
 type Props = {
 	message: string | null;

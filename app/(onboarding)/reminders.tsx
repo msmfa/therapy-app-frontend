@@ -8,9 +8,9 @@ import isBetween from 'dayjs/plugin/isBetween';
 import { useTherapySessions } from '../../src/context/TherapySessionsContext';
 import { ReminderRow } from '../../src/components/reminders/ReminderRow';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
-import { Button } from '../../src/components/ui/button';
+import { Button } from '../../src/components/ui/Button';
 import { NEURO_REMINDER_COPY } from '../../src/constants/neuroReminders';
-import AppText from '../../src/components/ui/typography';
+import AppText from '../../src/components/ui/AppText';
 
 const LENGTH_OF_DAYS_TO_SHOW = 7;
 

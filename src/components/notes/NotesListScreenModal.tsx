@@ -2,8 +2,8 @@ import { Modal, ScrollView, View, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Note } from "../../hooks/useNotes";
 import { GradientUpwards } from "../GradientUpwards";
-import { Button } from "../ui/button";
-import AppText from "../ui/typography";
+import { Button } from "../ui/Button";
+import AppText from "../ui/AppText";
 
 type NotePreviewModalProps = {
     visible: boolean;

@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, StyleSheet, View } from 'react-native';
 
-import TherapyCalendar from '../../src/components/therapy-calendar/therapy-calendar';
+import TherapyCalendar from '../../src/components/therapy-calendar/TherapyCalendar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTherapySessions } from '../../src/context/TherapySessionsContext';
 import { convertSessionsToCalendarFormat } from '../../src/utils/calendar';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
 import { GradientRow } from '../../src/components/ui/GradientRow';
-import { Button } from '../../src/components/ui/button';
+import { Button } from '../../src/components/ui/Button';
 import OnboardingSteps from 'src/components/ui/OnboardingSteps';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { useFocusEffect } from 'expo-router';

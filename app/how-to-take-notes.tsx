@@ -3,9 +3,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { GradientUpwards } from '../src/components/GradientUpwards';
-import AppText from '../src/components/ui/typography';
+import AppText from '../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
-import { Button } from '../src/components/ui/button';
+import { Button } from '../src/components/ui/Button';
 
 export default function HowToTakeNotesScreen() {
     const router = useRouter();

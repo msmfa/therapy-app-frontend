@@ -1,6 +1,6 @@
 import { ErrorBoundaryProps } from "expo-router";
 import { View, StyleSheet } from "react-native";
-import AppText from './ui/typography';
+import AppText from './ui/AppText';
 
 // TODO: update the styles to match app theme
 export function ErrorBoundaryUI({ error, retry }: ErrorBoundaryProps) {

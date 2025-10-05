@@ -2,7 +2,7 @@ import React from 'react'
 import { Modal, ScrollView, View, StyleSheet } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { GradientUpwards } from './GradientUpwards'
-import { Button } from './ui/button'
+import { Button } from './ui/Button'
 
 interface ModalProps {
     children: React.ReactNode;

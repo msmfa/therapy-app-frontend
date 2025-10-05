@@ -1,6 +1,6 @@
 import { TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
-import AppText from "./ui/typography";
+import AppText from "./ui/AppText";
 
 type Props = {
     text: string;

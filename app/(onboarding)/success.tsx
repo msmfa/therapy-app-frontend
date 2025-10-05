@@ -5,8 +5,8 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useOnboarding } from '../../src/context/OnboardingContext';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
-import { Button } from '../../src/components/ui/button';
-import AppText from '../../src/components/ui/typography';
+import { Button } from '../../src/components/ui/Button';
+import AppText from '../../src/components/ui/AppText';
 import Spacer from 'src/components/ui/Spacer';
 
 export default function SuccessScreen() {

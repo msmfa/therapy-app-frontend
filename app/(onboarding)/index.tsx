@@ -2,10 +2,10 @@ import { View, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button } from '../../src/components/ui/button';
+import { Button } from '../../src/components/ui/Button';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
 import brainIllustration from '../../assets/illustrations/brain-red.svg';
-import AppText from '../../src/components/ui/typography';
+import AppText from '../../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 
 const ILLUSTRATION_SIZE = 740;

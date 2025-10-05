@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { AppModal } from "../Modal";
 import { ReminderType } from "../../utils/types";
 import { ScienceTextModal } from "../ScienceTextModal";
-import AppText from "../ui/typography";
+import AppText from "../ui/AppText";
 import Spacer, { SpacerVariant } from "../ui/Spacer";
 
 type Props = {

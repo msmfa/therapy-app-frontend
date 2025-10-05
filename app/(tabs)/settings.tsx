@@ -6,10 +6,10 @@ import { useAuth } from '../../src/auth/AuthContext';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
 import { GradientRow } from '../../src/components/ui/GradientRow';
 import { SettingsRow } from '../../src/components/SettingsRow';
-import AppText from '../../src/components/ui/typography';
+import AppText from '../../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
-import Card from 'src/components/ui/card';
-import Loading from 'src/components/ui/loading';
+import Card from 'src/components/ui/Card';
+import Loading from 'src/components/ui/Loading';
 
 export default function SettingsScreen() {
     const { user, signOut } = useAuth();

@@ -1,6 +1,6 @@
 import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import AppText from './typography';
+import AppText from './AppText';
 import Spacer, { SpacerVariant } from './Spacer';
 import Circle from './Circle';
 

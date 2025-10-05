@@ -10,13 +10,14 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, useRouter } from 'expo-router';
 import { useAuth } from '../../src/auth/AuthContext';
-import { BASE_URL } from '../../src/const';
 import SocialAuthButtons from '../../src/components/auth/SocialAuthButtons';
-import { Button } from 'src/components/ui/button';
+import { Button } from 'src/components/ui/Button';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import TextField from 'src/components/ui/TextField';
 import PasswordField from 'src/components/ui/PasswordField';
-import AppText from '../../src/components/ui/typography';
+import AppText from '../../src/components/ui/AppText';
+import { loginWithPassword } from '../../src/api/auth';
+import { handleError } from '../../src/utils/utils';
 
 export default function LoginScreen() {
     const router = useRouter();
@@ -27,24 +28,18 @@ export default function LoginScreen() {
     const [loading, setLoading] = useState<boolean>(false);
 
     const onSubmit = async () => {
-        if (!email || !password) {
+        const trimmedEmail = email.trim();
+        if (!trimmedEmail || !password) {
             Alert.alert('Missing info', 'Please enter email and password.');
             return;
         }
         setLoading(true);
         try {
-            const res = await fetch(`${BASE_URL}/api/auth/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: email.trim(), password }),
-            });
-            const json = await res.json();
-            if (!res.ok) throw new Error(json?.error || json?.message || 'Login failed');
-
-            await setAuth(json.token, json.user);
+            const { token, user: nextUser, refreshToken } = await loginWithPassword(trimmedEmail, password);
+            await setAuth(token, nextUser, refreshToken ?? null);
             router.replace('/');
-        } catch (e: any) {
-            Alert.alert('Error', e?.message ?? 'Login failed');
+        } catch (error) {
+            Alert.alert('Error', handleError(error));
         } finally {
             setLoading(false);
         }
@@ -55,38 +50,38 @@ export default function LoginScreen() {
     };
 
     return (
-        <SafeAreaView style={styles.root}>
+        <SafeAreaView style={ styles.root }>
             <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-                style={styles.kav}
+                behavior={ Platform.OS === 'ios' ? 'padding' : undefined }
+                style={ styles.kav }
             >
-                <View style={styles.card}>
+                <View style={ styles.card }>
                     <AppText variant='h1' align='center'>
                         Sign In
                     </AppText>
-                    <Spacer/>
-                    {isAuthenticated ? (
+                    <Spacer />
+                    { isAuthenticated ? (
                         <>
-                            <View style={styles.authenticatedContainer}>
+                            <View style={ styles.authenticatedContainer }>
                                 <AppText variant='h1'>
                                     Signed in as
                                 </AppText>
                                 <AppText variant='h1'>
-                                    {user?.email}
+                                    { user?.email }
                                 </AppText>
                             </View>
-                            <Button label="Go to Home" onPress={() => router.replace('/')} />
+                            <Button label="Go to Home" onPress={ () => router.replace('/') } />
                             <Spacer />
-                            <Button label="Log out" onPress={onLogout} transparent />
+                            <Button label="Log out" onPress={ onLogout } transparent />
                         </>
                     ) : (
-                        <View style={styles.formContainer}>
+                        <View style={ styles.formContainer }>
                             <TextField
                                 label="Email"
-                                value={email}
-                                onChangeText={setEmail}
+                                value={ email }
+                                onChangeText={ setEmail }
                                 autoCapitalize="none"
-                                autoCorrect={false}
+                                autoCorrect={ false }
                                 keyboardType="email-address"
                                 placeholder="you@example.com"
                                 textContentType="username"
@@ -94,40 +89,40 @@ export default function LoginScreen() {
                             />
                             <PasswordField
                                 label="Password"
-                                value={password}
-                                onChangeText={setPassword}
+                                value={ password }
+                                onChangeText={ setPassword }
                                 placeholder="••••••••"
                                 textContentType="password"
                                 returnKeyType="done"
-                                onSubmitEditing={onSubmit}
+                                onSubmitEditing={ onSubmit }
                             />
-                           <TouchableOpacity onPress={() => router.push('/forgot-password')} style={styles.forgotPassword}>
+                            <TouchableOpacity onPress={ () => router.push('/forgot-password') } style={ styles.forgotPassword }>
                                 <AppText variant='caption'>
                                     Forgot password?
                                 </AppText>
                             </TouchableOpacity>
-                            <Button label={'Sign in'} onPress={onSubmit } loading={loading} />
-                            <Spacer variant={SpacerVariant.large} />
-                               <View style={styles.dividerContainer}>
-                                   <View style={styles.divider} />
-                                    <AppText variant='caption'>
-                                        Or continue with
-                                    </AppText>
-                                    <View style={styles.divider} />
-                                </View>
-                                <Spacer variant={SpacerVariant.large} />
-                                <SocialAuthButtons onSuccess={() => router.replace('/')} />
+                            <Button label='Sign in' onPress={ onSubmit } loading={ loading } />
+                            <Spacer variant={ SpacerVariant.large } />
+                            <View style={ styles.dividerContainer }>
+                                <View style={ styles.divider } />
+                                <AppText variant='caption'>
+                                    Or continue with
+                                </AppText>
+                                <View style={ styles.divider } />
+                            </View>
+                            <Spacer variant={ SpacerVariant.large } />
+                            <SocialAuthButtons onSuccess={ () => router.replace('/') } />
                             <Spacer />
-                           <View style={styles.signupRow}>
+                            <View style={ styles.signupRow }>
                                 <AppText variant='caption'>
                                     Don't have an account?
                                 </AppText>
-                                <Link href="/(auth)/signup" style={styles.signupLink}>
-                                   {" "} Sign up here
+                                <Link href="/(auth)/signup" style={ styles.signupLink }>
+                                    { ' ' } Sign up here
                                 </Link>
                             </View>
                         </View>
-                    )}
+                    ) }
                 </View>
             </KeyboardAvoidingView>
         </SafeAreaView>
@@ -147,22 +142,8 @@ const styles = StyleSheet.create({
     card: {
         width: '100%',
     },
-    title: {
-        fontSize: 28,
-        fontWeight: '700',
-        textAlign: 'center',
-    },
     authenticatedContainer: {
         marginBottom: 24,
-    },
-    authenticatedText: {
-        textAlign: 'center',
-        fontSize: 14,
-    },
-    userEmail: {
-        textAlign: 'center',
-        fontWeight: '700',
-        fontSize: 16,
     },
     formContainer: {
         width: '100%',
@@ -170,10 +151,6 @@ const styles = StyleSheet.create({
     forgotPassword: {
         alignSelf: 'flex-end',
         marginBottom: 24,
-    },
-    forgotPasswordText: {
-        fontSize: 14,
-        fontWeight: '600',
     },
     dividerContainer: {
         flexDirection: 'row',
@@ -184,18 +161,10 @@ const styles = StyleSheet.create({
         height: 1,
         backgroundColor: '#DDDDDD',
     },
-    dividerText: {
-        fontSize: 14,
-        marginHorizontal: 8,
-    },
     signupRow: {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    signupPrompt: {
-        fontSize: 14,
-        marginRight: 4,
     },
     signupLink: {
         color: '#0066CC',

@@ -1,6 +1,6 @@
 import { View, StyleSheet } from 'react-native';
 import { Colors } from '../const';
-import AppText from './ui/typography';
+import AppText from './ui/AppText';
 
 interface Props {
 	text: string;

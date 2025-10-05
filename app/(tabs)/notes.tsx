@@ -4,7 +4,7 @@ import { useAuth } from '../../src/auth/AuthContext';
 import { useNotes } from '../../src/hooks/useNotes';
 import EmptyNotesScreen from '../../src/components/notes/EmptyNotesScreen';
 import NotesListScreen from '../../src/components/notes/NotesListScreen';
-import Loading from '../../src/components/ui/loading';
+import Loading from '../../src/components/ui/Loading';
 
 export default function NotesScreen() {
     const { user } = useAuth();

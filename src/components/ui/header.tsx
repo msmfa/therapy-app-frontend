@@ -1,7 +1,7 @@
 
 import { StyleSheet, View } from 'react-native';
 import { Palette } from '../../../design';
-import AppText from './typography';
+import AppText from './AppText';
 
 type Props = {
     text: string;

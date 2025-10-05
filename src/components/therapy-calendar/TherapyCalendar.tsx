@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Calendar } from 'react-native-calendars';
-import ScheduleModal from './schedule-modal';
+import ScheduleModal from './ScheduleModal';
 import { GradientRow } from '../ui/GradientRow';
 
 export const COLORS = {

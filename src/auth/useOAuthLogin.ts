@@ -66,7 +66,7 @@ export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
         async <P extends OAuthProvider>(provider: P, payload: OAuthPayloadMap[P]) => {
             try {
                 const data = await exchangeOAuthToken(provider, payload);
-                await setAuth(data.token, data.user);
+                await setAuth(data.token, data.user, data.refreshToken ?? null);
                 onSuccess?.();
             } catch (error) {
                 Alert.alert('Authentication failed', handleError(error));
@@ -78,7 +78,9 @@ export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
     );
 
     useEffect(() => {
-        if (!googleResponse) return;
+        if (!googleResponse) {
+            return;
+        }
 
         if (googleResponse.type === 'success') {
             const idToken =
@@ -182,8 +184,8 @@ export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
                 user: credential.user,
                 fullName,
             });
-        } catch (error: any) {
-            if (error?.code === 'ERR_REQUEST_CANCELED') {
+        } catch (error) {
+            if ((error as { code?: string } | null)?.code === 'ERR_REQUEST_CANCELED') {
                 setLoadingProvider(null);
                 return;
             }
@@ -201,4 +203,3 @@ export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
         signInWithApple,
     };
 };
-

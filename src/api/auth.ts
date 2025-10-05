@@ -1,5 +1,4 @@
-import { BASE_URL } from '../const';
-import { readApiError } from './utils';
+import { apiPost } from './client';
 
 export type AuthenticatedUser = {
     id: string;
@@ -25,45 +24,73 @@ export type OAuthPayloadMap = {
 export type OAuthExchangeSuccess = {
     token: string;
     user: AuthenticatedUser;
+    refreshToken?: string | null;
 };
 
 export async function requestPasswordReset(email: string): Promise<void> {
-    const response = await fetch(`${BASE_URL}/api/auth/forgot-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim() }),
-    });
-
-    if (!response.ok) {
-        throw new Error(await readApiError(response));
-    }
+    await apiPost<void>(
+        '/api/auth/forgot-password',
+        { email: email.trim() },
+        { auth: false, parseJson: false },
+    );
 }
 
 export async function resetPassword(token: string, password: string): Promise<void> {
-    const response = await fetch(`${BASE_URL}/api/auth/reset-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: token.trim(), password }),
-    });
-
-    if (!response.ok) {
-        throw new Error(await readApiError(response));
-    }
+    await apiPost<void>(
+        '/api/auth/reset-password',
+        { token: token.trim(), password },
+        { auth: false, parseJson: false },
+    );
 }
 
 export async function exchangeOAuthToken<P extends OAuthProvider>(
     provider: P,
     payload: OAuthPayloadMap[P],
 ): Promise<OAuthExchangeSuccess> {
-    const response = await fetch(`${BASE_URL}/api/auth/oauth/${provider}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+    return apiPost<OAuthExchangeSuccess>(`/api/auth/oauth/${provider}`, payload, {
+        auth: false,
     });
-
-    if (!response.ok) {
-        throw new Error(await readApiError(response));
-    }
-
-    return (await response.json()) as OAuthExchangeSuccess;
 }
+
+export type RefreshAuthResponse = {
+    token: string;
+    refreshToken?: string | null;
+    user?: AuthenticatedUser | null;
+};
+
+export const refreshAuthToken = async (refreshToken: string): Promise<RefreshAuthResponse> =>
+    apiPost<RefreshAuthResponse>(
+        '/api/auth/refresh',
+        { refreshToken },
+        { auth: false },
+    );
+
+export type LoginResponse = {
+    token: string;
+    refreshToken?: string | null;
+    user: AuthenticatedUser;
+};
+
+export const loginWithPassword = async (email: string, password: string): Promise<LoginResponse> =>
+    apiPost<LoginResponse>(
+        '/api/auth/login',
+        { email: email.trim(), password },
+        { auth: false },
+    );
+
+export type RegisterPayload = {
+    name: string;
+    email: string;
+    password: string;
+};
+
+export const registerAccount = async (payload: RegisterPayload): Promise<LoginResponse> =>
+    apiPost<LoginResponse>(
+        '/api/auth/register',
+        {
+            name: payload.name.trim(),
+            email: payload.email.trim().toLowerCase(),
+            password: payload.password,
+        },
+        { auth: false },
+    );

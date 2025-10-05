@@ -8,7 +8,7 @@ import { TherapySessionsProvider } from '../src/context/TherapySessionsContext';
 import { initNotifications } from '../src/utils/schedule-reminders';
 import { Palette } from '../design';
 import { StatusBar, StyleSheet, View } from 'react-native';
-import Loading from '../src/components/ui/loading';
+import Loading from '../src/components/ui/Loading';
 import { ErrorBoundaryUI } from '../src/components/ErrorBoundary';
 
 const theme: Theme = {

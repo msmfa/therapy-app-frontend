@@ -1,5 +1,5 @@
 import { View, StyleSheet } from "react-native";
-import AppText from "./typography";
+import AppText from "./AppText";
 
 type Props = {
     text: string;

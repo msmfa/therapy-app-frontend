@@ -8,8 +8,8 @@ import advancedFormat from 'dayjs/plugin/advancedFormat';
 dayjs.extend(advancedFormat);
 
 import RadioButton from '../ui/RadioButton';
-import { Button } from '../ui/button';
-import AppText from '../ui/typography';
+import { Button } from '../ui/Button';
+import AppText from '../ui/AppText';
 import Badge from '../ui/Badge';
 import { colors } from 'new-design';
 

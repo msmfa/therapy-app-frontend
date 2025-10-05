@@ -1,6 +1,6 @@
 import { ReactNode, useMemo } from "react";
 import { View, StyleSheet, StyleProp, ViewStyle } from "react-native";
-import AppText from "./typography";
+import AppText from "./AppText";
 
 type Props = {
     children: ReactNode;

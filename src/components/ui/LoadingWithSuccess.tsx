@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, ActivityIndicator, StyleSheet, Animated, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import AppText from './typography';
+import AppText from './AppText';
 
 type LoadingSuccessProps = {
     visible: boolean;

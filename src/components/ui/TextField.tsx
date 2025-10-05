@@ -13,7 +13,7 @@ import {
 // todo: remove this stuff
 import { Colors, spacing } from '../../const';
 import { Palette } from '../../../design';
-import AppText from './typography';
+import AppText from './AppText';
 
 type TextFieldProps = TextInputProps & {
     label: string;

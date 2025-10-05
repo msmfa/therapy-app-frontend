@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, ActivityIndicator, StyleSheet, Modal } from 'react-native';
-import AppText from './typography';
+import AppText from './AppText';
 
 type LoadingProps = {
 	text?: string;

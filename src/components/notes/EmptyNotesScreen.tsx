@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import dayjs from 'dayjs';
 import { GradientUpwards } from '../GradientUpwards';
 import { useTherapySessions } from '../../context/TherapySessionsContext';
-import AppText from '../ui/typography';
+import AppText from '../ui/AppText';
 import brainElastic from '../../../assets/illustrations/brain-elastic.svg';
 import Spacer, { SpacerVariant } from '../ui/Spacer';
 import { colors } from 'new-design';

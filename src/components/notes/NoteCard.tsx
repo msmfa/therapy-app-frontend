@@ -1,6 +1,6 @@
 import { Pressable, View, StyleSheet } from "react-native";
 import { Note } from "../../hooks/useNotes";
-import AppText from "../ui/typography";
+import AppText from "../ui/AppText";
 import Spacer from "../ui/Spacer";
 import dayjs from 'dayjs';
 import Badge from "../ui/Badge";

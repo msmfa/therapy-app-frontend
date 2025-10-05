@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
+import { ApiError } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import {
     getTherapySessions,
@@ -35,70 +36,77 @@ interface TherapySessionsProviderProps {
 }
 
 export function TherapySessionsProvider({ children }: TherapySessionsProviderProps) {
-    const { token, signOut } = useAuth();
+    const { isAuthenticated } = useAuth();
     const [sessions, setSessions] = useState<TherapySession[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [neuroReminders, setNeuroReminders] = useState<Reminder[]>([]);
 
     const refreshSessions = useCallback(async () => {
-        if (!token) return;
+        if (!isAuthenticated) {
+            return;
+        }
 
         setLoading(true);
         setError(null);
         try {
             const from = new Date();
-            from.setUTCHours(0, 0, 0, 0); // Today at midnight UTC
+            from.setUTCHours(0, 0, 0, 0);
 
             const to = new Date();
-            to.setFullYear(to.getFullYear() + 1); // One year from today
+            to.setFullYear(to.getFullYear() + 1);
             to.setUTCHours(23, 59, 59, 999);
 
-            const data = await getTherapySessions(token, from, to);
+            const data = await getTherapySessions(from, to);
             setSessions(data);
 
-            await scheduleTherapySessionNotifications(
-                POST_SESSION_NOTIFICATION_ID,
-                POST_SESSION_NOTIFICATION_MESSAGE,
-                data,
-            );
-        } catch (err) {
-            const message = err instanceof Error ? err.message : String(err);
-            const invalidToken = /invalid token/i.test(message);
-
-            setError(invalidToken ? 'Session expired. Please sign in again.' : 'Failed to load sessions');
-            console.error('Error loading sessions:', err);
-
-            if (invalidToken) {
-                await signOut();
+            try {
+                await scheduleTherapySessionNotifications(
+                    POST_SESSION_NOTIFICATION_ID,
+                    POST_SESSION_NOTIFICATION_MESSAGE,
+                    data,
+                );
+            } catch (notificationError) {
+                console.warn('[TherapySessions] scheduling notifications failed:', notificationError);
             }
+        } catch (err) {
+            const message = err instanceof ApiError
+                ? err.message
+                : err instanceof Error
+                    ? err.message
+                    : undefined;
+            setError(message ?? 'Failed to load sessions');
+            console.error('Error loading sessions:', err);
         } finally {
             setLoading(false);
         }
-    }, [token, signOut]);
+    }, [isAuthenticated]);
 
     const addSession = useCallback(
         async (date: Date, duration: number) => {
-            if (!token) throw new Error('Not authenticated');
+            if (!isAuthenticated) {
+                throw new Error('Not authenticated');
+            }
 
-            // Check if session already exists
-            const exists = sessions.some(session =>
-                new Date(session.startsAtUtc).getTime() === date.getTime()
+            const exists = sessions.some((session) =>
+                new Date(session.startsAtUtc).getTime() === date.getTime(),
             );
 
             if (exists) {
                 throw new Error('Session already exists at this time');
             }
 
-            await createTherapySession(token, date, duration);
+            await createTherapySession(date, duration);
             await refreshSessions();
         },
-        [token, sessions, refreshSessions],
+        [isAuthenticated, sessions, refreshSessions],
     );
 
     const syncSessions = useCallback(
         async (selected: Record<string, Date>, duration: number) => {
-            if (!token) throw new Error('Not authenticated');
+            if (!isAuthenticated) {
+                throw new Error('Not authenticated');
+            }
 
             const payload = Object.values(selected).map((date) => {
                 const existing = sessions.find(
@@ -112,40 +120,43 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
                 };
             });
 
-            await syncTherapySessionsApi(token, payload);
+            await syncTherapySessionsApi(payload);
             await refreshSessions();
         },
-        [token, sessions, refreshSessions],
+        [isAuthenticated, sessions, refreshSessions],
     );
 
     const updateSession = useCallback(
         async (id: string, date: Date, duration: number) => {
-            if (!token) throw new Error('Not authenticated');
+            if (!isAuthenticated) {
+                throw new Error('Not authenticated');
+            }
 
-            // Check if the new date conflicts with any OTHER session (excluding the one being updated)
-            const exists = sessions.some(session =>
-                session._id !== id && // Exclude the session being updated
-                new Date(session.startsAtUtc).getTime() === date.getTime()
+            const exists = sessions.some((session) =>
+                session._id !== id &&
+                new Date(session.startsAtUtc).getTime() === date.getTime(),
             );
 
             if (exists) {
                 throw new Error('Another session already exists at this time');
             }
 
-            await updateTherapySession(token, id, date, duration);
+            await updateTherapySession(id, date, duration);
             await refreshSessions();
         },
-        [token, sessions, refreshSessions],
+        [isAuthenticated, sessions, refreshSessions],
     );
 
     const deleteSession = useCallback(
         async (id: string) => {
-            if (!token) throw new Error('Not authenticated');
+            if (!isAuthenticated) {
+                throw new Error('Not authenticated');
+            }
 
-            await deleteTherapySession(token, id);
+            await deleteTherapySession(id);
             await refreshSessions();
         },
-        [token, refreshSessions],
+        [isAuthenticated, refreshSessions],
     );
 
     const hasUpcomingSessions = useCallback(() => {
@@ -192,33 +203,32 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
     }, [sessions]);
 
     useEffect(() => {
-        if (token) {
+        if (isAuthenticated) {
             refreshSessions();
         } else {
-            // Clear all data when user logs out
             setSessions([]);
             setError(null);
             setLoading(false);
             setNeuroReminders([]);
         }
-    }, [token, refreshSessions]);
+    }, [isAuthenticated, refreshSessions]);
+
+    const value: TherapySessionsContextType = {
+        sessions,
+        loading,
+        error,
+        nextSession,
+        neuroReminders,
+        refreshSessions,
+        addSession,
+        syncSessions,
+        updateSession,
+        deleteSession,
+        hasUpcomingSessions,
+    };
 
     return (
-        <TherapySessionsContext.Provider
-            value={ {
-                sessions,
-                loading,
-                error,
-                refreshSessions,
-                addSession,
-                syncSessions,
-                updateSession,
-                deleteSession,
-                hasUpcomingSessions,
-                nextSession,
-                neuroReminders,
-            } }
-        >
+        <TherapySessionsContext.Provider value={ value }>
             { children }
         </TherapySessionsContext.Provider>
     );

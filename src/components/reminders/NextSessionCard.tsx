@@ -1,5 +1,5 @@
 import { View, StyleSheet } from 'react-native';
-import AppText from '../ui/typography';
+import AppText from '../ui/AppText';
 
 interface Props {
 	timestamp: string;
