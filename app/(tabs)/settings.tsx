@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -10,10 +10,12 @@ import AppText from '../../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import Card from 'src/components/ui/Card';
 import Loading from 'src/components/ui/Loading';
+import { deleteCurrentUser } from '../../src/api/users';
 
 export default function SettingsScreen() {
     const { user, signOut } = useAuth();
     const router = useRouter();
+    const [deleting, setDeleting] = useState(false);
 
     if (!user) {
         return <Loading />;
@@ -26,7 +28,39 @@ export default function SettingsScreen() {
             Alert.alert('Error', `${(e as Error).message || 'Logout failed'}`);
         }
     };
-    console.log('user', user);
+
+    const performDeleteAccount = useCallback(async () => {
+        setDeleting(true);
+        try {
+            await deleteCurrentUser();
+            await signOut();
+        } catch (error) {
+            setDeleting(false);
+            const message = error instanceof Error ? error.message : 'Failed to delete account';
+            Alert.alert('Error', message);
+        }
+    }, [signOut]);
+
+    const onDeleteAccount = useCallback(() => {
+        if (deleting) {
+            return;
+        }
+        Alert.alert(
+            'Delete account',
+            'This will permanently remove your account and all stored data. This action cannot be undone.',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete',
+                    style: 'destructive',
+                    onPress: () => {
+                        void performDeleteAccount();
+                    },
+                },
+            ],
+        );
+    }, [deleting, performDeleteAccount]);
+
     return (
         <SafeAreaView style={ styles.root }>
             <GradientUpwards />
@@ -64,8 +98,8 @@ export default function SettingsScreen() {
                     </AppText>
                     <Spacer />
                     <View style={ { gap: 8 } }>
-                        <SettingsRow text="Delete account" onPress={ () => {} } />
-                        <SettingsRow text="Privacy Policy" onPress={ () => {} } />
+                        <SettingsRow text="Delete account" onPress={ onDeleteAccount } />
+                        <SettingsRow text="Privacy Policy" onPress={ () => router.push('/privacy-policy') } />
                         <SettingsRow text="Rate this App" onPress={ () => {} } />
                         <SettingsRow text="Log out" onPress={ () => onLogout() } />
                     </View>
