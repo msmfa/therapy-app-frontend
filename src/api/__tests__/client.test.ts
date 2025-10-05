@@ -6,7 +6,7 @@ describe('apiRequest auth header handling', () => {
     const originalFetch = global.fetch;
 
     beforeEach(() => {
-        const fetchMock = jest.fn<Parameters<typeof fetch>, ReturnType<typeof fetch>>().mockResolvedValue({
+        const fetchMock = jest.fn<typeof fetch>().mockResolvedValue({
             ok: true,
             status: 200,
             headers: new Headers({ 'content-type': 'application/json' }),
