@@ -3,6 +3,7 @@ import { Modal, ScrollView, View, StyleSheet } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { GradientUpwards } from './GradientUpwards'
 import { Button } from './ui/Button'
+import { palette } from '../../new-design';
 
 interface ModalProps {
     children: React.ReactNode;
@@ -34,7 +35,7 @@ export function AppModal({ children, isVisible, onClose }: ModalProps) {
 }
 
 const styles = StyleSheet.create({
-    modalRoot: { flex: 1, backgroundColor: '#FFFFFF' },
+    modalRoot: { flex: 1, backgroundColor: palette.neutral.white },
     modalContent: { padding: 24, paddingBottom: 120, paddingTop: 60 },
     modalClose: {
         position: 'absolute',
@@ -42,7 +43,6 @@ const styles = StyleSheet.create({
         right: 24,
         bottom: 24,
         borderRadius: 25,
-        backgroundColor: '#111111',
         paddingVertical: 12,
         alignItems: 'center',
     },

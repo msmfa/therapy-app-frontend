@@ -3,24 +3,25 @@ import { StyleSheet, View } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import ScheduleModal from './ScheduleModal';
 import { GradientRow } from '../ui/GradientRow';
+import { palette } from '../../../new-design';
 
 export const COLORS = {
-    todayBackground: '#000000',
-    todayText: '#FFFFFF',
-    calendarSelectedBackground: '#000000',
-    activeSessionBackground: 'hsl(0, 72%, 85%)',
-    activeSessionText: 'hsl(0, 72%, 50%)',
-    activeSessionBorder: 'hsl(0, 72%, 75%)',
-    scheduledBackground: 'hsl(0, 72%, 85%)',
-    scheduledText: 'hsl(0, 72%, 50%)',
-    pressedText: 'hsl(0, 72%, 50%)',
-    unscheduledBackground: 'hsl(0, 72%, 85%)',
-    calendarDayDefault: 'hsl(0, 42%, 20%)',
-    calendarDayDisabled: 'hsl(0, 22%, 80%)',
-    calendarMonthText: 'hsl(0, 12%, 10%)',
-    calendarWeekdayHeader: 'hsl(0, 10%, 45%)',
-    arrows: 'hsl(0, 0%, 30%)',
-    dotIndicator: 'hsl(0, 52%, 50%)',
+    todayBackground: palette.calendar.calendarTodayBackground,
+    todayText: palette.calendar.calendarTodayText,
+    calendarSelectedBackground: palette.calendar.calendarTodayBackground,
+    activeSessionBackground: palette.calendar.calendarSessionBackground,
+    activeSessionText: palette.calendar.calendarSessionText,
+    activeSessionBorder: palette.calendar.calendarSessionBorder,
+    scheduledBackground: palette.calendar.calendarSessionBackground,
+    scheduledText: palette.calendar.calendarSessionText,
+    pressedText: palette.calendar.calendarSessionText,
+    unscheduledBackground: palette.calendar.calendarSessionBackground,
+    calendarDayDefault: palette.calendar.calendarDayText,
+    calendarDayDisabled: palette.calendar.calendarDayDisabledText,
+    calendarMonthText: palette.calendar.calendarMonthLabel,
+    calendarWeekdayHeader: palette.calendar.calendarWeekdayLabel,
+    arrows: palette.calendar.calendarArrow,
+    dotIndicator: palette.calendar.calendarDot,
 };
 
 type SelectedSessions = Record<string, Date>;
@@ -225,8 +226,8 @@ export default function TherapyCalendar({
 
     const calendarTheme = {
         arrowColor: COLORS.arrows,
-        backgroundColor: '#00000000',
-        calendarBackground: '#00000000',
+        backgroundColor: palette.neutral.transparentTransparent,
+        calendarBackground: palette.neutral.transparentTransparent,
         dayTextColor: COLORS.calendarDayDefault,
         monthTextColor: COLORS.calendarMonthText,
         selectedDayBackgroundColor: COLORS.calendarSelectedBackground,

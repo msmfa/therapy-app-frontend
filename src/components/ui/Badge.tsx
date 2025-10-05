@@ -1,6 +1,7 @@
-import { ReactNode, useMemo } from "react";
+import { ReactNode } from "react";
 import { View, StyleSheet, StyleProp, ViewStyle } from "react-native";
 import AppText from "./AppText";
+import { COLOR_VARIANTS } from "new-design";
 
 type Props = {
     children: ReactNode;
@@ -9,39 +10,12 @@ type Props = {
     tabWithBorder?: boolean;
 }
 
-const BASE_HUE = 0;
-const BACKGROUND_SATURATION = 60;
-const BACKGROUND_LIGHTNESS = 88;
-const TEXT_SATURATION = 70;
-const TEXT_LIGHTNESS = 52;
-
-export default function Badge({ children, addedStyles, hue, tabWithBorder }: Props) {
-    const normalizedHue = useMemo(
-        () => Math.max(0, Math.min(360, hue ?? BASE_HUE)),
-        [hue]
-    );
-
-    const backgroundColor = useMemo(
-        () => `hsl(${normalizedHue}, ${BACKGROUND_SATURATION}%, ${BACKGROUND_LIGHTNESS}%)`,
-        [normalizedHue]
-    );
-
-    const textColor = useMemo(
-        () => `hsl(${normalizedHue}, ${TEXT_SATURATION}%, ${TEXT_LIGHTNESS}%)`,
-        [normalizedHue]
-    );
-
-    const borderColor = useMemo(
-        () => `hsl(${normalizedHue}, ${TEXT_SATURATION}%, ${TEXT_LIGHTNESS}%)`,
-        [normalizedHue]
-    );
-
-
+export default function Badge({ children, addedStyles, tabWithBorder }: Props) {
     return (
-        <View style={ [styles.badge, tabWithBorder && styles.tabWithBorder, { backgroundColor, borderColor }, addedStyles] }>
+        <View style={ [styles.badge, tabWithBorder && styles.tabWithBorder, addedStyles] }>
             <AppText
                 variant="caption"
-                style={ [styles.badgeText, { color: textColor }] }
+                style={ styles.badgeText }
             >
                 { children }
             </AppText>
@@ -58,6 +32,7 @@ const styles = StyleSheet.create({
         height: '100%',
         alignItems: 'center',
         justifyContent: 'center',
+        backgroundColor: COLOR_VARIANTS.red.light,
     },
     tabWithBorder: {
         borderWidth: 1,
@@ -66,9 +41,9 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 0,
         borderBottomLeftRadius: 8,
         borderBottomRightRadius: 8,
-        borderColor: `hsl(${BASE_HUE}, ${TEXT_SATURATION}%, ${TEXT_LIGHTNESS}%)`,
+        borderColor: COLOR_VARIANTS.red.mid,
     },
     badgeText: {
-        color: `hsl(${BASE_HUE}, ${TEXT_SATURATION}%, ${TEXT_LIGHTNESS}%)`,
+        color: COLOR_VARIANTS.red.mid,
     },
 });

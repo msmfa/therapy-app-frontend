@@ -1,6 +1,7 @@
 import { TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import AppText from "./ui/AppText";
+import { colors, palette } from '../../new-design';
 
 type Props = {
     text: string;
@@ -13,7 +14,7 @@ export function SettingsRow({ text, onPress }: Props) {
             <AppText numberOfLines={ 3 }  variant={ "caption" } style={ styles.text }>
                 { text }
             </AppText>
-            <Ionicons name={ 'arrow-forward-outline' } size={ 20 } color="hsla(0, 7%, 55%, 1.00)" />
+            <Ionicons name={ 'arrow-forward-outline' } size={ 20 } color={ colors.textMuted } />
         </TouchableOpacity>
     )
 }
@@ -28,8 +29,8 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         borderWidth: 1,
         borderRadius: 12,
-        backgroundColor: 'hsl(0, 0%,97%)',
-        borderColor: 'hsl(0, 0%,98%)',
+        backgroundColor: palette.overlay.whiteSurfaceTransparent,
+        borderColor: palette.overlay.whiteSurfaceTransparent,
         width: '100%',
         minHeight: 54,
     },

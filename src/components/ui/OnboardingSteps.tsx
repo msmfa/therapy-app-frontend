@@ -3,6 +3,7 @@ import { Feather } from '@expo/vector-icons';
 import AppText from './AppText';
 import Spacer, { SpacerVariant } from './Spacer';
 import Circle from './Circle';
+import { COLOR_VARIANTS, palette } from 'new-design';
 
 type Props = {
     steps: string[];
@@ -11,7 +12,7 @@ type Props = {
     activeStep?: number;
 };
 
-const LINE_COLOR = 'hsl(220, 70%, 90%)';
+const LINE_COLOR = COLOR_VARIANTS.blue.light;
 const STEP_VERTICAL_SPACING = 10;
 
 export default function OnboardingSteps({ title, steps, activeStep }: Props) {
@@ -27,10 +28,7 @@ export default function OnboardingSteps({ title, steps, activeStep }: Props) {
                  <View style={ styles.line } />
                 </>
             ) }
-
             <Spacer variant={ SpacerVariant.large } />
-
-
             { steps.map((text, index) => {
                 const isLast = index === steps.length - 1;
                 const isActive = activeStep === index;
@@ -75,7 +73,7 @@ export default function OnboardingSteps({ title, steps, activeStep }: Props) {
 const styles = StyleSheet.create({
     line: {
         height: 1,
-        backgroundColor: LINE_COLOR,
+        backgroundColor: COLOR_VARIANTS.blue.light,
         alignSelf: 'stretch',
         marginHorizontal: -20,
     },
@@ -94,7 +92,7 @@ const styles = StyleSheet.create({
     indicatorTail: {
         width: 2,
         flexGrow: 1,
-        backgroundColor: LINE_COLOR,
+        backgroundColor: COLOR_VARIANTS.blue.light,
         marginBottom: -STEP_VERTICAL_SPACING,
     },
     indicatorTailLast: {
@@ -112,9 +110,9 @@ const styles = StyleSheet.create({
     },
     stepText: {
         flex: 1,
-        color: 'hsl(0, 0%, 40%)',
+        color: COLOR_VARIANTS.black.mid,
     },
     stepTextActive: {
-        color: '#000000',
+        color: palette.neutral.black,
     },
 });

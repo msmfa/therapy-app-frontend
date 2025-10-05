@@ -11,6 +11,7 @@ import { GradientRow } from '../../src/components/ui/GradientRow';
 import { Button } from '../../src/components/ui/Button';
 import OnboardingSteps from 'src/components/ui/OnboardingSteps';
 import Spacer from 'src/components/ui/Spacer';
+import { palette } from '../../new-design';
 
 
 const onBoardingText = {
@@ -112,7 +113,7 @@ export default function SessionsScreen() {
 const styles = StyleSheet.create({
     root: {
         flex: 1,
-        backgroundColor: '#00000000',
+        backgroundColor: palette.neutral.transparentTransparent,
         padding: 4,
     },
     content: {

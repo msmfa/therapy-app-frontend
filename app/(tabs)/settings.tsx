@@ -8,7 +8,7 @@ import { GradientRow } from '../../src/components/ui/GradientRow';
 import { SettingsRow } from '../../src/components/SettingsRow';
 import AppText from '../../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
-import Card from 'src/components/ui/Card';
+import FrostedCard from 'src/components/ui/FrostedCard';
 import Loading from 'src/components/ui/Loading';
 import { deleteCurrentUser } from '../../src/api/users';
 
@@ -78,20 +78,18 @@ export default function SettingsScreen() {
     return (
         <SafeAreaView style={ styles.root }>
             <GradientUpwards />
-            <View style={ styles.accountInfoContainer }>
-                <GradientRow>
-                    <View style={ styles.user } >
-                        <AppText variant='h1'>
-                            { user?.name }
-                        </AppText>
-                        <AppText variant='body' numberOfLines={ 1 }>
-                            { user?.email }
-                        </AppText>
-                    </View>
-                </GradientRow>
-            </View>
+            <GradientRow>
+                <View style={ styles.user } >
+                    <AppText variant='h1'>
+                        { user?.name }
+                    </AppText>
+                    <AppText variant='body' numberOfLines={ 1 }>
+                        { user?.email }
+                    </AppText>
+                </View>
+            </GradientRow>
             <Spacer />
-            <Card>
+            <FrostedCard>
                 <View style={ styles.container }>
                     <AppText variant='h2'>
                         References
@@ -122,9 +120,7 @@ export default function SettingsScreen() {
                     v1.0.0
                 </AppText>
                 <Spacer variant={ SpacerVariant.small } />
-            </Card>
-
-
+            </FrostedCard>
         </SafeAreaView>
     );
 }
@@ -132,12 +128,7 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
     root: {
         flex: 1,
-        // backgroundColor: '#00000000',
         padding: 12,
-    },
-    accountInfoContainer: {
-        // marginHorizontal: 12,
-        // padding: 12,
     },
     container: {
         padding: 0,

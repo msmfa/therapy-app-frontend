@@ -9,6 +9,7 @@ import { FontAwesome } from '@expo/vector-icons';
 
 import { useOAuthLogin } from '../../auth/useOAuthLogin';
 import AppText from '../ui/AppText';
+import { palette } from '../../../new-design';
 
 interface Props {
     onSuccess?: () => void;
@@ -33,9 +34,9 @@ export const SocialAuthButtons: React.FC<Props> = ({ onSuccess }) => {
                         accessibilityRole="button"
                     >
                         { appleLoading ? (
-                            <ActivityIndicator color='#000000' />
+                            <ActivityIndicator color={ palette.neutral.black } />
                         ) : (
-                            <FontAwesome name='apple' size={ 26 } color='#000000' />
+                            <FontAwesome name='apple' size={ 26 } color={ palette.neutral.black } />
                         ) }
                     </TouchableOpacity>
                 ) }
@@ -48,9 +49,9 @@ export const SocialAuthButtons: React.FC<Props> = ({ onSuccess }) => {
                     accessibilityRole='button'
                 >
                     { googleLoading ? (
-                        <ActivityIndicator color='#4285F4' />
+                        <ActivityIndicator color={ palette.blue.google } />
                     ) : (
-                        <FontAwesome name='google' size={ 24 } color='#4285F4' />
+                        <FontAwesome name='google' size={ 24 } color={ palette.blue.google } />
                     ) }
                 </TouchableOpacity>
             </View>
@@ -76,8 +77,8 @@ const styles = StyleSheet.create({
         height: 56,
         borderRadius: 28,
         borderWidth: 1,
-        borderColor: '#edededff',
-        backgroundColor: '#FFFFFF',
+        borderColor: palette.neutral.boundary,
+        backgroundColor: palette.neutral.white,
         alignItems: 'center',
         justifyContent: 'center',
         marginHorizontal: 8,
@@ -91,7 +92,7 @@ const styles = StyleSheet.create({
         marginTop: 8,
     },
     helperTextNotice: {
-        color: '#4285F4',
+        color: palette.blue.google,
     },
 });
 

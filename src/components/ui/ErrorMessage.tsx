@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Pressable, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AppText from './AppText';
+import { COLOR_VARIANTS } from '../../../new-design';
 
 type Props = {
 	message: string | null;
@@ -10,13 +11,10 @@ type Props = {
 	onDismiss?: () => void;
 };
 
-const RED = '#DC2626'; // danger
-const RED_SOFT = '#FEE2E2'; // dangerLight
-
 export function ErrorMessage({ message, onDismiss, style, testID }: Props) {
     return (
         <View style={ [styles.container, style] } testID={ testID }>
-            <Ionicons name="alert-circle" size={ 18 } color={ RED } style={ styles.icon } />
+            <Ionicons name="alert-circle" size={ 18 } color={ COLOR_VARIANTS.red.mid } style={ styles.icon } />
             <AppText style={ styles.text } variant='body'>
                 { message }
             </AppText>
@@ -29,7 +27,7 @@ export function ErrorMessage({ message, onDismiss, style, testID }: Props) {
                     hitSlop={ 8 }
                     style={ styles.close }
                 >
-                    <Ionicons name="close" size={ 18 } color={ RED } />
+                    <Ionicons name="close" size={ 18 } color={ COLOR_VARIANTS.red.mid } />
                 </Pressable>
             ) : null }
         </View>
@@ -44,8 +42,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         borderRadius: 10,
         borderWidth: 1,
-        borderColor: RED,
-        backgroundColor: RED_SOFT,
+        borderColor: COLOR_VARIANTS.red.light,
     },
     icon: {
         marginRight: 8,

@@ -11,6 +11,7 @@ import { GradientUpwards } from '../../src/components/GradientUpwards';
 import { Button } from '../../src/components/ui/Button';
 import { NEURO_REMINDER_COPY } from '../../src/constants/neuroReminders';
 import AppText from '../../src/components/ui/AppText';
+import { palette } from '../../new-design';
 
 const LENGTH_OF_DAYS_TO_SHOW = 7;
 
@@ -97,7 +98,7 @@ export default function RemindersScreen(): JSX.Element | null {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: palette.neutral.white,
     },
     scrollContent: {
         flex: 1,

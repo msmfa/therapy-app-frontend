@@ -7,7 +7,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../src/auth/AuthContext';
 import { useNotes } from '../../src/hooks/useNotes';
 import ErrorMessage from '../../src/components/ui/ErrorMessage';
-import { colors } from '../../new-design';
+import { colors, gradients, palette } from '../../new-design';
 
 
 export default function NewNoteScreen() {
@@ -42,7 +42,7 @@ export default function NewNoteScreen() {
     return (
         <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] }>
             <LinearGradient
-                colors={ ['#FF777C', '#F6B7B9FF', '#F0C7CAFF', '#E1E6EA', '#E1E6EA', colors.bgGradientBottom] }
+                colors={ [...gradients.appBackground] }
                 start={ { x: 0.5, y: 0 } }
                 end={ { x: 0.5, y: 1 } }
                 style={ styles.backgroundGradient }
@@ -62,17 +62,17 @@ export default function NewNoteScreen() {
                                     onChangeText={ setText }
                                     multiline
                                     numberOfLines={ 10 }
-                                    underlineColorAndroid="transparent"
+                                    underlineColorAndroid={ palette.neutral.transparentTransparent }
                                     style={ styles.textInput }
-                                    placeholderTextColor="#28304A59"
-                                    selectionColor="#FF7B9B"
+                                    placeholderTextColor={ colors.textMuted }
+                                    selectionColor={ colors.textMuted }
                                 />
                                 <TouchableOpacity
                                     onPress={ handleNext }
                                     disabled={ isDisabled }
                                     style={ [styles.plusButton, isDisabled && styles.plusButtonDisabled] }
                                 >
-                                    <Feather name="plus" size={ 44 } color="#6A4D50FF" />
+                                    <Feather name="plus" size={ 44 } color={ colors.textMuted } />
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -109,8 +109,8 @@ const styles = StyleSheet.create({
     cardWrapper: {
         flex: 1,
         borderRadius: 30,
-        backgroundColor: '#FFFFFF38',
-        shadowColor: '#56A8FF73',
+        backgroundColor: palette.overlay.whiteSoftTransparent,
+        shadowColor: palette.overlay.blueGlowTransparent,
         shadowOffset: { width: 0, height: 22 },
         shadowOpacity: 0.5,
         shadowRadius: 40,
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
         borderRadius: 26,
         paddingVertical: 22,
         paddingHorizontal: 28,
-        backgroundColor: '#00000000',
+        backgroundColor: palette.neutral.transparentTransparent,
         overflow: 'hidden',
         position: 'relative',
     },
@@ -130,7 +130,6 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: 18,
         lineHeight: 26,
-        color: '#1F2538',
         textAlignVertical: 'top',
         padding: 0,
         paddingBottom: 70,
@@ -140,7 +139,7 @@ const styles = StyleSheet.create({
         right: 16,
         bottom: 16,
         padding: 4,
-        shadowColor: '#8CACE840',
+        // shadowColor: palette.overlay.blueMildTransparent,
         shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.4,
         shadowRadius: 12,

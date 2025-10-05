@@ -6,6 +6,7 @@ import { GradientUpwards } from '../src/components/GradientUpwards';
 import AppText from '../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { Button } from '../src/components/ui/Button';
+import { palette } from '../new-design';
 
 const EFFECTIVE_DATE = 'January 15, 2025';
 
@@ -171,7 +172,7 @@ export default function PrivacyPolicyScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: palette.neutral.white,
     },
     scroll: {
         flex: 1,
@@ -190,4 +191,3 @@ const styles = StyleSheet.create({
         paddingBottom: 24,
     },
 });
-

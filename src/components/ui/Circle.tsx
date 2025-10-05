@@ -1,5 +1,6 @@
 import { View, StyleSheet } from "react-native";
 import AppText from "./AppText";
+import { COLOR_VARIANTS } from "new-design";
 
 type Props = {
     text: string;
@@ -26,20 +27,14 @@ const styles = StyleSheet.create({
         borderRadius: 12.5,
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: 'hsl(220, 60%, 88%)',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-        elevation: 5,
-        backgroundColor: 'hsl(220, 70%, 90%)',
-        borderWidth: 1,
-        borderColor: 'hsl(220, 70%, 80%)',
+        backgroundColor: COLOR_VARIANTS.blue.light,
     },
     circleActive: {
-        backgroundColor: 'hsl(220, 70%, 85%)',
-        borderColor: 'hsl(220, 70%, 40%)',
+        backgroundColor: COLOR_VARIANTS.blue.light,
+        borderColor: COLOR_VARIANTS.blue.dark,
+        borderWidth: 1,
     },
     circleText: {
-        color: 'hsl(220, 70%, 50%)',
+        color: COLOR_VARIANTS.blue.dark,
     },
 });

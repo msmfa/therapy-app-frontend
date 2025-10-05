@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 // Pending: consolidate color imports once design tokens settle (see TODO.md).
 import { spacing } from '../../const';
-import { colors } from '../../../new-design';
+import { COLOR_VARIANTS, colors } from '../../../new-design';
 import AppText from './AppText';
 
 type TextFieldProps = TextInputProps & {
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
         minHeight: 48,
     },
     inputWrapperFocused: {
-        borderColor: colors.primary,
+        borderColor: COLOR_VARIANTS.blue.dark,
     },
     inputWrapperError: {
         borderColor: colors.error,

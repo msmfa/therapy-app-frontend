@@ -7,6 +7,7 @@ import { GradientUpwards } from '../../src/components/GradientUpwards';
 import brainIllustration from '../../assets/illustrations/brain-red.svg';
 import AppText from '../../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
+import { palette } from '../../new-design';
 
 const ILLUSTRATION_SIZE = 740;
 
@@ -55,7 +56,7 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: palette.neutral.white,
         alignItems: 'center',
     },
     illustrationContainer: {

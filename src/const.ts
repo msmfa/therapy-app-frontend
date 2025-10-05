@@ -1,12 +1,3 @@
-export enum Colors {
-	White = '#FFFFFF',
-	LightBlue = '#E8F4FD',
-	DarkBlue = '#0066CC',
-	Green = '#059669',
-	Red = '#DC2626',
-	PaleRed = '#FEE2E2',
-}
-
 export const spacing = {
     xs: 4,
     sm: 8,

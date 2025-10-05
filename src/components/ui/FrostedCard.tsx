@@ -1,13 +1,14 @@
 import React from 'react';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { palette } from '../../../new-design';
 
-type CardProps = {
+type FrostedCardProps = {
     children: React.ReactNode;
     containerStyle?: StyleProp<ViewStyle>;
     contentStyle?: StyleProp<ViewStyle>;
 };
 
-export default function Card({ children, containerStyle, contentStyle }: CardProps) {
+export default function FrostedCard({ children, containerStyle, contentStyle }: FrostedCardProps) {
     return (
         <View style={ [styles.shadowWrapper, containerStyle] }>
             <View style={ [styles.card, contentStyle] }>
@@ -20,7 +21,7 @@ export default function Card({ children, containerStyle, contentStyle }: CardPro
 const styles = StyleSheet.create({
     shadowWrapper: {
         borderRadius: 18,
-        shadowColor: '#bb949458',
+        shadowColor: palette.overlay.roseShadowTransparent,
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 1,
         shadowRadius: 14,
@@ -29,8 +30,8 @@ const styles = StyleSheet.create({
     card: {
         borderRadius: 18,
         borderWidth: 1,
-        borderColor: '#FFFFFF3B',
-        backgroundColor: '#ffffff9c',
+        borderColor: palette.overlay.whiteBorderTransparent,
+        backgroundColor: palette.overlay.whiteSurfaceTransparent,
         paddingHorizontal: 20,
         paddingVertical: 18,
     },

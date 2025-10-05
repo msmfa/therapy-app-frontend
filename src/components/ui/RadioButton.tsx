@@ -1,5 +1,5 @@
-import { colors } from 'new-design';
-import React, { useMemo } from 'react';
+import { COLOR_VARIANTS, palette } from 'new-design';
+import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 export type RadioOption = {
@@ -12,22 +12,13 @@ export type RadioButtonProps = {
     children: React.ReactNode;
     onPress: () => void;
 };
-const BASE_HUE = 220;
-const BACKGROUND_SATURATION = 60;
-const BACKGROUND_LIGHTNESS = 93;
 
 export default function RadioButton({ selectedValue, onPress, children }: RadioButtonProps) {
-    const backgroundColor = useMemo(
-        () => `hsl(${BASE_HUE}, ${BACKGROUND_SATURATION}%, ${BACKGROUND_LIGHTNESS}%)`,
-        []
-    );
-
-
     return (
         <TouchableOpacity
             style={ [
                 styles.sharedWrapper,
-                selectedValue ? [styles.selectedWrapper, { backgroundColor }] : styles.notSelectedWrapper,
+                selectedValue ? styles.selectedWrapper : styles.notSelectedWrapper,
             ] }
             onPress={ onPress }
         >
@@ -39,30 +30,28 @@ export default function RadioButton({ selectedValue, onPress, children }: RadioB
     );
 }
 
-const lightBlue = '#C1D0E0FF';
-
 const styles = StyleSheet.create({
     circleNotSelected: {
-        borderColor: lightBlue,
+        borderColor: COLOR_VARIANTS.blue.light,
     },
     notSelectedWrapper: {
-        backgroundColor: '#00000000',
-        borderColor: lightBlue,
+        backgroundColor: palette.neutral.transparentTransparent,
+        borderColor: COLOR_VARIANTS.blue.light,
     },
     selectedDot: {
-        backgroundColor: colors.primary,
+        backgroundColor: COLOR_VARIANTS.blue.dark,
         borderRadius: 5,
         height: 10,
         width: 10,
     },
     selectedWrapper: {
-        backgroundColor: colors.primary,
-        borderColor: colors.primaryHover,
+        backgroundColor: COLOR_VARIANTS.blue.lightest,
+        borderColor: COLOR_VARIANTS.blue.mid,
         borderWidth: 1,
     },
     sharedDot: {
         alignItems: 'center',
-        borderColor: colors.primary,
+        borderColor: COLOR_VARIANTS.blue.dark,
         borderRadius: 10,
         borderWidth: 2,
         height: 20,

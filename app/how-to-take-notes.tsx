@@ -6,6 +6,7 @@ import { GradientUpwards } from '../src/components/GradientUpwards';
 import AppText from '../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { Button } from '../src/components/ui/Button';
+import { palette } from '../new-design';
 
 type SourceLink = { text: string; url: string };
 
@@ -172,7 +173,7 @@ const styles = StyleSheet.create({
     scrollContent: { paddingHorizontal: 24, paddingTop: 24, paddingBottom: 32 },
     section: { gap: 8 },
     footer: { paddingHorizontal: 24, paddingBottom: 24 },
-    link: { color: '#007AFF', marginTop: 2 },
+    link: { color: palette.blue.ios, marginTop: 2 },
     bold: { fontWeight: '600' },
     italic: { fontStyle: 'italic' },
 });

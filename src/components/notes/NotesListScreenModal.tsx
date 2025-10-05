@@ -4,6 +4,7 @@ import { Note } from "../../hooks/useNotes";
 import { GradientUpwards } from "../GradientUpwards";
 import { Button } from "../ui/Button";
 import AppText from "../ui/AppText";
+import { palette } from '../../../new-design';
 
 type NotePreviewModalProps = {
     visible: boolean;
@@ -48,7 +49,7 @@ export function NotePreviewModal({ visible, note, onClose }: NotePreviewModalPro
 }
 
 const styles = StyleSheet.create({
-    modalRoot: { flex: 1, backgroundColor: '#FFFFFF' },
+    modalRoot: { flex: 1, backgroundColor: palette.neutral.white },
     modalContent: { padding: 24, paddingBottom: 120, paddingTop: 60 },
     modalClose: {
         position: 'absolute',
@@ -56,7 +57,6 @@ const styles = StyleSheet.create({
         right: 24,
         bottom: 24,
         borderRadius: 25,
-        backgroundColor: '#111111',
         paddingVertical: 12,
         alignItems: 'center',
     },

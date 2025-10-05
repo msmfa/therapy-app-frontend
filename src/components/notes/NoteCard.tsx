@@ -4,6 +4,7 @@ import AppText from "../ui/AppText";
 import Spacer from "../ui/Spacer";
 import dayjs from 'dayjs';
 import Badge from "../ui/Badge";
+import { palette } from '../../../new-design';
 
 type Props = {
     item: Note;
@@ -48,8 +49,8 @@ const styles = StyleSheet.create({
     cardWrapper: {
         flex: 1,
         borderRadius: 15,
-        backgroundColor: '#FFFFFF38',
-        shadowColor: '#15447673',
+        backgroundColor: palette.overlay.whiteSoftTransparent,
+        shadowColor: palette.overlay.navyGlowTransparent,
         shadowOffset: { width: 0, height: 22 },
         shadowOpacity: 0.5,
         shadowRadius: 40,
@@ -60,12 +61,12 @@ const styles = StyleSheet.create({
     },
 
     noteCardPressed: {
-        backgroundColor: '#FFFFFF78',
+        backgroundColor: palette.overlay.whiteMediumTransparent,
         transform: [{ scale: 0.98 }],
     },
     firstCard: {
-        backgroundColor: '#FFFFFF78',
-        shadowColor: '#56A8FF73',
+        backgroundColor: palette.overlay.whiteMediumTransparent,
+        shadowColor: palette.overlay.blueGlowTransparent,
         shadowOffset: { width: 0, height: 22 },
         shadowOpacity: 0.1,
         shadowRadius: 40,

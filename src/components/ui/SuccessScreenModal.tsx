@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Modal, Button } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { COLOR_VARIANTS, palette } from '../../../new-design';
 
 type SuccessScreenProps = {
     isVisible: boolean;
@@ -9,7 +10,7 @@ type SuccessScreenProps = {
     onClose: () => void;
 };
 
-export default function SuccessScreen({ isVisible, onClose, iconSize = 96, iconColor = '#22C55E' }: SuccessScreenProps) {
+export default function SuccessScreen({ isVisible, onClose, iconSize = 96, iconColor = COLOR_VARIANTS.green.mid }: SuccessScreenProps) {
     return (
         <Modal
             visible={ isVisible }
@@ -32,7 +33,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'transparent',
+        backgroundColor: palette.neutral.transparentTransparent,
     },
     modalClose: {
         position: 'absolute',
@@ -40,7 +41,6 @@ const styles = StyleSheet.create({
         right: 24,
         bottom: 24,
         borderRadius: 25,
-        backgroundColor: '#111',
         paddingVertical: 12,
         alignItems: 'center',
     },

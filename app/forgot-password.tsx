@@ -14,6 +14,7 @@ import TextField from 'src/components/ui/TextField';
 import PasswordField from 'src/components/ui/PasswordField';
 import { Button } from 'src/components/ui/Button';
 import AppText from '../src/components/ui/AppText';
+import { palette } from '../new-design';
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -209,11 +210,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
     },
     card: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: palette.neutral.white,
         borderRadius: 16,
         padding: 24,
         gap: 16,
-        shadowColor: '#000000',
+        shadowColor: palette.neutral.black,
         shadowOpacity: 0.06,
         shadowOffset: { width: 0, height: 4 },
         shadowRadius: 12,

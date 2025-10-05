@@ -11,7 +11,7 @@ import RadioButton from '../ui/RadioButton';
 import { Button } from '../ui/Button';
 import AppText from '../ui/AppText';
 import Badge from '../ui/Badge';
-import { colors } from 'new-design';
+import { colors, palette } from 'new-design';
 
 interface Session {
     id: string;
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
         top: 0,
     },
     modalContent: {
-        backgroundColor: colors.bgLight,
+        backgroundColor: palette.calendar.calendarModalSurface,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         padding: 20,
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
         paddingTop: 65,
     },
     modalOverlay: {
-        backgroundColor: '#00000080',
+        backgroundColor: palette.calendar.calendarModalOverlayTransparent,
         flex: 1,
         justifyContent: 'flex-end',
     },
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     iosPickerWrapper: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: palette.calendar.calendarModalSurface,
         borderRadius: 18,
         overflow: 'hidden',
         paddingVertical: 12,
@@ -235,14 +235,10 @@ const styles = StyleSheet.create({
     iosPicker: {
         width: '100%',
     },
-    subtext: {
-        fontSize: 12,
-    },
     timeButton: {
         alignItems: 'center',
-        borderColor: '#CCCCCC',
+        borderColor: palette.calendar.calendarModalBorder,
         borderRadius: 5,
-        borderWidth: 1,
         flexDirection: 'row',
         gap: 10,
         padding: 10,

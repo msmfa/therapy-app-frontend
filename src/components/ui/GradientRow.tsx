@@ -1,5 +1,6 @@
 import { ReactNode, useMemo } from "react";
 import { View, StyleSheet, StyleProp, ViewStyle } from "react-native";
+import { palette, surfaces } from '../../../new-design';
 
 type Props = {
     children: ReactNode;
@@ -8,8 +9,8 @@ type Props = {
     borderRadius?: number;
 };
 
-const DEFAULT_BACKGROUND = 'hsla(0, 0%, 100%, 0.29)';
-const DEFAULT_BORDER = 'hsla(0, 0%, 100%, 0.21)';
+const DEFAULT_BACKGROUND = surfaces.gradientRow.defaultBackground;
+const DEFAULT_BORDER = surfaces.gradientRow.defaultBorder;
 const DEFAULT_RADIUS = 16;
 const MIN_HUE = 0;
 const MAX_HUE = 360;
@@ -23,11 +24,11 @@ export function GradientRow({ children, addedStyles, hue, borderRadius }: Props)
     const hasHue = typeof hue === 'number';
 
     const backgroundColor = hasHue
-        ? `hsla(${normalizedHue}, 70%, 90%, 0.35)`
+        ? surfaces.gradientRow.tintedBackground(normalizedHue)
         : DEFAULT_BACKGROUND;
 
     const borderColor = hasHue
-        ? `hsla(${normalizedHue}, 70%, 80%, 0.3)`
+        ? surfaces.gradientRow.tintedBorder(normalizedHue)
         : DEFAULT_BORDER;
 
     const computedBorderRadius = borderRadius ?? DEFAULT_RADIUS;
@@ -45,7 +46,7 @@ const styles = StyleSheet.create({
     legendWrapper: {
         borderRadius: DEFAULT_RADIUS,
         elevation: 12,
-        shadowColor: '#00000026',
+        shadowColor: palette.overlay.blackLightTransparent,
         shadowOffset: { height: 4, width: 0 },
         shadowOpacity: 0.3,
         shadowRadius: 30,

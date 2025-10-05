@@ -9,25 +9,9 @@ import { NotePreviewModal } from './NotesListScreenModal';
 import { NoteCard } from './NoteCard';
 import AppText from '../ui/AppText';
 import { GradientUpwards } from '../GradientUpwards';
+import { palette } from '../../../new-design';
 
 const BOTTOM_FADE = 96; // fade height at bottom (mask)
-
-// Color palette
-const colors = {
-    cardBg: '#FFFFFF',
-    cardBgAlt: '#F8F9FA',
-    scienceBg: '#E8F4FD',
-    previewBg: '#E7F3FF',
-    cardBorder: '#E9ECEF',
-    blueBorder: '#BEE5EB',
-    primaryText: '#111111',
-    secondaryText: '#666666',
-    mutedText: '#6C757D',
-    darkGrayText: '#495057',
-    blueText: '#0066CC',
-    successText: '#28A745',
-    primaryBtn: '#111111',
-};
 
 interface NotesListScreenProps {
 	notes: Note[];
@@ -50,7 +34,7 @@ export default function NotesListScreen({ notes, loading, refresh }: NotesListSc
                     style={ { flex: 1 } }
                     maskElement={
                         <LinearGradient
-                            colors={ ['#1c0404ff', '#000000', '#00000000'] }
+                            colors={ [palette.red.deep, palette.neutral.black, palette.neutral.transparentTransparent] }
                             locations={ [0, bottomStart, 1] }
                             start={ { x: 0, y: 0 } }
                             end={ { x: 0, y: 1 } }
@@ -72,8 +56,8 @@ export default function NotesListScreen({ notes, loading, refresh }: NotesListSc
                             <RefreshControl
                                 refreshing={ loading }
                                 onRefresh={ refresh }
-                                tintColor={ colors.primaryText }
-                                colors={ [colors.primaryText] }
+                                tintColor={ palette.neutral.black }
+                                colors={ [palette.neutral.black] }
                             />
                         }
                         ItemSeparatorComponent={ () => <View style={ { height: 12 } } /> }

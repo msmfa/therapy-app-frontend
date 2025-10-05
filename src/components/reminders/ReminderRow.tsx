@@ -7,6 +7,7 @@ import { ReminderType } from "../../utils/types";
 import { ScienceTextModal } from "../ScienceTextModal";
 import AppText from "../ui/AppText";
 import Spacer, { SpacerVariant } from "../ui/Spacer";
+import { colors, palette } from '../../../new-design';
 
 type Props = {
     date: string;
@@ -36,7 +37,7 @@ export function ReminderRow ({ date, description, link }: Props) {
                 <AppText variant="caption">
                     Learn More
                 </AppText>
-                <Ionicons name={ 'arrow-forward-outline' } size={ 20 } color="#666666" />
+                <Ionicons name={ 'arrow-forward-outline' } size={ 20 } color={ colors.textMuted } />
             </TouchableOpacity>
             { /* Placeholder: add science content pages and hook up modal copy (see TODO.md). */ }
             { openModal && (
@@ -53,14 +54,13 @@ export function ReminderRow ({ date, description, link }: Props) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-
     },
     bottomContainer: {
         position: 'absolute',
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: 'rgba(255, 255, 255, 1)',
+        backgroundColor: palette.overlay.whiteMediumTransparent,
         borderBottomLeftRadius: 10,
         borderBottomRightRadius: 10,
         flex: 1,
@@ -70,6 +70,5 @@ const styles = StyleSheet.create({
         paddingLeft: 20,
         paddingRight: 10,
         paddingVertical: 8,
-
     }
 });

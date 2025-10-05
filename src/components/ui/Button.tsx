@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet, View, ViewStyle, StyleProp, ActivityIndicator, Text } from 'react-native';
 import { spacing, typography } from '../../const';
-import { colors } from '../../../new-design';
+import { palette } from '../../../new-design';
 
 interface Props {
 	label: string;
@@ -12,8 +12,6 @@ interface Props {
     addedStyles?: StyleProp<ViewStyle>;
     loading?: boolean;
 }
-
-const DISABLED_TEXT_COLOR = colors.textMuted;
 
 export function Button({
     label,
@@ -26,13 +24,8 @@ export function Button({
 }: Props) {
     const isDisabled = disabled || loading;
 
-    const textColor = transparent
-        ? (isDisabled ? DISABLED_TEXT_COLOR : colors.text)
-        : (isDisabled ? DISABLED_TEXT_COLOR : colors.bgLight);
-
-    const spinnerColor = transparent
-        ? (isDisabled ? DISABLED_TEXT_COLOR : colors.text)
-        : colors.bgLight;
+    const textColor = transparent ? palette.neutral.black : palette.neutral.white;
+    const spinnerColor = textColor;
 
     return (
         <TouchableOpacity
@@ -51,7 +44,7 @@ export function Button({
             { loading ? (
                 <ActivityIndicator color={ spinnerColor } />
             ) : icon ? (
-                <View style={ [styles.iconWrapper, isDisabled && styles.iconDisabled] }>{ icon }</View>
+                <View style={ styles.iconWrapper }>{ icon }</View>
             ) : null }
             { !loading ? (
                 <Text
@@ -73,23 +66,19 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.lg,
         borderRadius: 12,
         borderWidth: 1,
-        borderColor: colors.primary,
+        borderColor: palette.neutral.black,
         minHeight: 44,
-        backgroundColor: colors.primary,
+        backgroundColor: palette.neutral.black,
         width: '100%',
     },
     actionButtonTransparent: {
-        backgroundColor: 'transparent',
+        backgroundColor: palette.neutral.transparentTransparent,
     },
     actionButtonDisabled: {
-        backgroundColor: colors.borderLight,
-        borderColor: colors.border,
+        opacity: 0.5,
     },
     iconWrapper: {
         marginRight: spacing.sm,
-    },
-    iconDisabled: {
-        opacity: 0.5,
     },
     actionButtonText: {
         ...typography.button,

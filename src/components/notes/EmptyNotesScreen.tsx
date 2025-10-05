@@ -8,7 +8,7 @@ import { useTherapySessions } from '../../context/TherapySessionsContext';
 import AppText from '../ui/AppText';
 import brainElastic from '../../../assets/illustrations/brain-elastic.svg';
 import Spacer, { SpacerVariant } from '../ui/Spacer';
-import { colors } from 'new-design';
+import { COLOR_VARIANTS, colors } from 'new-design';
 
 const ILLUSTRATION_SIZE = 670;
 
@@ -41,10 +41,8 @@ export default function EmptyNotesScreen() {
                 </View>
             </View>
             <View style={ styles.emptyContainer }>
-                <Spacer variant={ SpacerVariant.large } />
-                <Spacer variant={ SpacerVariant.large } />
                 <AppText variant='body'>
-                    Your next session is { nextSessionDate }.
+                    Your next session is { nextSessionDate }
                 </AppText>
                 <Spacer variant={ SpacerVariant.small } />
                 <AppText variant='h2'>
@@ -119,13 +117,11 @@ const styles = StyleSheet.create({
     },
     emptyContainer: {
         flex: 1,
-        // alignItems: 'center',
-        // justifyContent: 'center',
+        paddingTop: 50,
         paddingHorizontal: 20,
-        alignItems: 'center',
         justifyContent: 'center',
     },
     bottomTextLink: {
-        color: colors.primary,
+        color: COLOR_VARIANTS.blue.dark,
     },
 });

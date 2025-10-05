@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, ActivityIndicator, StyleSheet, Modal } from 'react-native';
 import AppText from './AppText';
+import { colors, palette } from '../../../new-design';
 
 type LoadingProps = {
 	text?: string;
@@ -13,7 +14,7 @@ type LoadingProps = {
 export default function Loading({
     text = 'Loading...',
     size = 'large',
-    color = '#3e536aff',
+    color = colors.text,
     fullScreen = true,
     transparent = false,
 }: LoadingProps) {
@@ -54,7 +55,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(160, 139, 139, 0.92)', // ← Transparent background
+        backgroundColor: palette.overlay.taupeTransparent,
         paddingHorizontal: 24,
     },
     text: {

@@ -18,6 +18,7 @@ import PasswordField from 'src/components/ui/PasswordField';
 import AppText from '../../src/components/ui/AppText';
 import { loginWithPassword } from '../../src/api/auth';
 import { handleError } from '../../src/utils/utils';
+import { COLOR_VARIANTS, palette } from '../../new-design';
 
 export default function LoginScreen() {
     const router = useRouter();
@@ -132,7 +133,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
     root: {
         flex: 1,
-        backgroundColor: '#F9F9F9',
+        backgroundColor: palette.neutral.white,
         paddingHorizontal: 20,
     },
     kav: {
@@ -159,7 +160,7 @@ const styles = StyleSheet.create({
     divider: {
         flex: 1,
         height: 1,
-        backgroundColor: '#DDDDDD',
+        backgroundColor: palette.neutral.boundary,
     },
     signupRow: {
         flexDirection: 'row',
@@ -167,7 +168,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     signupLink: {
-        color: '#0066CC',
+        color: COLOR_VARIANTS.blue.mid,
         fontSize: 14,
         fontWeight: '600',
     },

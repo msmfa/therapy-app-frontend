@@ -6,7 +6,7 @@ import { AuthProvider, useAuth } from '../src/auth/AuthContext';
 import { OnboardingProvider, useOnboarding } from '../src/context/OnboardingContext';
 import { TherapySessionsProvider } from '../src/context/TherapySessionsContext';
 import { initNotifications } from '../src/utils/schedule-reminders';
-import { colors } from '../new-design';
+import { colors, gradients } from '../new-design';
 import { StatusBar, StyleSheet, View } from 'react-native';
 import Loading from '../src/components/ui/Loading';
 import { ErrorBoundaryUI } from '../src/components/ErrorBoundary';
@@ -15,7 +15,7 @@ const theme: Theme = {
     ...DefaultTheme,
     colors: {
         ...DefaultTheme.colors,
-        background: colors.bgGradientBottom,
+        background: gradients.background.bottom,
         card: colors.bgLight,
         text: colors.text,
     },
