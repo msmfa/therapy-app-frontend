@@ -169,7 +169,9 @@ export async function apiRequest<T = unknown>(path: string, options: ApiRequestO
     } = options;
 
     const url = path.startsWith('http') ? path : `${config.baseUrl}${path}`;
-    const initialHeaders = await withAuthHeader(headers);
+    const initialHeaders = auth
+        ? await withAuthHeader(headers)
+        : new Headers(headers ?? {});
     const serializedBody = serializeBody(body, initialHeaders);
     const { controller, timeoutId } = createTimeoutController(timeoutMs);
 
