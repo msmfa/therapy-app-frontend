@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet, View, ViewStyle, StyleProp, ActivityIndicator, Text } from 'react-native';
 import { spacing, typography } from '../../const';
-import { Palette } from '../../../design';
+import { colors } from '../../../new-design';
 
 interface Props {
 	label: string;
@@ -13,7 +13,7 @@ interface Props {
     loading?: boolean;
 }
 
-const DISABLED_TEXT_COLOR = '#5C5C5C73';
+const DISABLED_TEXT_COLOR = colors.textMuted;
 
 export function Button({
     label,
@@ -27,12 +27,12 @@ export function Button({
     const isDisabled = disabled || loading;
 
     const textColor = transparent
-        ? (isDisabled ? DISABLED_TEXT_COLOR : Palette.black)
-        : (isDisabled ? DISABLED_TEXT_COLOR : Palette.white);
+        ? (isDisabled ? DISABLED_TEXT_COLOR : colors.text)
+        : (isDisabled ? DISABLED_TEXT_COLOR : colors.bgLight);
 
     const spinnerColor = transparent
-        ? (isDisabled ? DISABLED_TEXT_COLOR : Palette.black)
-        : Palette.white;
+        ? (isDisabled ? DISABLED_TEXT_COLOR : colors.text)
+        : colors.bgLight;
 
     return (
         <TouchableOpacity
@@ -73,17 +73,17 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.lg,
         borderRadius: 12,
         borderWidth: 1,
-        borderColor: Palette.black,
+        borderColor: colors.primary,
         minHeight: 44,
-        backgroundColor: '#000000',
+        backgroundColor: colors.primary,
         width: '100%',
     },
     actionButtonTransparent: {
-        backgroundColor: '#00000000',
+        backgroundColor: 'transparent',
     },
     actionButtonDisabled: {
-        backgroundColor: '#F5C3C308', // subtle fill
-        borderColor: '#6E6E6E1A', // muted border
+        backgroundColor: colors.borderLight,
+        borderColor: colors.border,
     },
     iconWrapper: {
         marginRight: spacing.sm,

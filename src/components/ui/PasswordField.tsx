@@ -2,7 +2,7 @@ import React, { forwardRef, useState } from 'react';
 import { StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
-import { Palette } from '../../../design';
+import { colors } from '../../../new-design';
 import TextField, { TextFieldProps } from './TextField';
 
 export type PasswordFieldProps = Omit<TextFieldProps, 'secureTextEntry' | 'RightAccessory'> & {
@@ -32,7 +32,7 @@ const PasswordField = forwardRef<TextInput, PasswordFieldProps>(
                         accessibilityLabel={ visible ? 'Hide password' : 'Show password' }
                         hitSlop={ styles.hitSlop }
                     >
-                        <Feather name={ visible ? 'eye-off' : 'eye' } size={ 18 } color={ Palette.dark } />
+                        <Feather name={ visible ? 'eye-off' : 'eye' } size={ 18 } color={ colors.text } />
                     </TouchableOpacity>
                 ) }
                 { ...props }

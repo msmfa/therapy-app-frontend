@@ -69,6 +69,7 @@ const hue = {
 
 export const colors = {
   // Backgrounds
+  bgGradientBottom: 'hsl(207, 14%, 88%)',
   bgDark: 'hsl(0, 0%, 90%)',
   bg: 'hsl(0, 0%, 95%)',
   bgLight: 'hsl(0, 0%, 100%)',
@@ -76,6 +77,7 @@ export const colors = {
   // Text
   text: 'hsl(0, 0%, 5%)',        // 100% intensity
   textMuted: 'hsl(0, 0%, 30%)',  // 70% intensity (muted)
+  textDisabled: 'hsl(0, 0%, 50%)',  // 50% intensity (disabled)
 
   // Borders
   border: 'hsl(0, 0%, 85%)',

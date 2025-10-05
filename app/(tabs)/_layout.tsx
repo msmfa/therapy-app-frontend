@@ -2,7 +2,7 @@ import React from 'react';
 import { Tabs, Redirect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../src/auth/AuthContext';
-import { Palette } from '../../design';
+import { colors } from '../../new-design';
 
 export default function TabsLayout() {
     const { isAuthenticated } = useAuth();
@@ -34,10 +34,10 @@ export default function TabsLayout() {
                     paddingVertical: 16,
                     height: 76,
                     // make the tab completely transparent
-                    backgroundColor: '#DBE0E4',
+                    backgroundColor: colors.bgGradientBottom,
                 },
-                tabBarActiveTintColor: Palette.maroon,
-                // tabBarInactiveTintColor: '#888888',
+                tabBarActiveTintColor: colors.text,
+                tabBarInactiveTintColor: colors.textMuted,
                 tabBarShowLabel: false,
             } }
         >

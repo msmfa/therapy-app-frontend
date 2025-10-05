@@ -7,6 +7,7 @@ import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../src/auth/AuthContext';
 import { useNotes } from '../../src/hooks/useNotes';
 import ErrorMessage from '../../src/components/ui/ErrorMessage';
+import { colors } from '../../new-design';
 
 
 export default function NewNoteScreen() {
@@ -41,7 +42,7 @@ export default function NewNoteScreen() {
     return (
         <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] }>
             <LinearGradient
-                colors={ ['#FF777C', '#F6B7B9FF', '#F0C7CAFF', '#E1E6EA', '#E1E6EA', '#DBE0E4'] }
+                colors={ ['#FF777C', '#F6B7B9FF', '#F0C7CAFF', '#E1E6EA', '#E1E6EA', colors.bgGradientBottom] }
                 start={ { x: 0.5, y: 0 } }
                 end={ { x: 0.5, y: 1 } }
                 style={ styles.backgroundGradient }

@@ -6,7 +6,7 @@ import { AuthProvider, useAuth } from '../src/auth/AuthContext';
 import { OnboardingProvider, useOnboarding } from '../src/context/OnboardingContext';
 import { TherapySessionsProvider } from '../src/context/TherapySessionsContext';
 import { initNotifications } from '../src/utils/schedule-reminders';
-import { Palette } from '../design';
+import { colors } from '../new-design';
 import { StatusBar, StyleSheet, View } from 'react-native';
 import Loading from '../src/components/ui/Loading';
 import { ErrorBoundaryUI } from '../src/components/ErrorBoundary';
@@ -15,9 +15,9 @@ const theme: Theme = {
     ...DefaultTheme,
     colors: {
         ...DefaultTheme.colors,
-        background: '#DBE0E4', // screen backgrounds
-        card: '#f5f7f8ff', // headers & tab bar
-        text: Palette.black,
+        background: colors.bgGradientBottom,
+        card: colors.bgLight,
+        text: colors.text,
     },
 };
 
@@ -124,6 +124,6 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
 const styles = StyleSheet.create({
     root: {
         flex: 1,
-        backgroundColor: 'green',
+        backgroundColor: colors.bg,
     },
 });

@@ -9,8 +9,8 @@ import {
     ViewStyle,
 } from 'react-native';
 // Pending: consolidate color imports once design tokens settle (see TODO.md).
-import { Colors, spacing } from '../../const';
-import { Palette } from '../../../design';
+import { spacing } from '../../const';
+import { colors } from '../../../new-design';
 import AppText from './AppText';
 
 type TextFieldProps = TextInputProps & {
@@ -69,7 +69,7 @@ const TextField = forwardRef<TextInput, TextFieldProps>(
                     <TextInput
                         ref={ ref }
                         style={ [styles.input, style] }
-                        placeholderTextColor={ Palette.greyDarkest }
+                        placeholderTextColor={ colors.textMuted }
                         { ...inputProps }
                         onFocus={ handleFocus }
                         onBlur={ handleBlur }
@@ -104,25 +104,25 @@ const styles = StyleSheet.create({
     },
     inputWrapper: {
         borderWidth: 1,
-        borderColor: Palette.greyLight,
+        borderColor: colors.borderLight,
         borderRadius: 12,
-        backgroundColor: Palette.white,
+        backgroundColor: colors.bgLight,
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: spacing.md,
         minHeight: 48,
     },
     inputWrapperFocused: {
-        borderColor: Palette.darkBlue,
+        borderColor: colors.primary,
     },
     inputWrapperError: {
-        borderColor: Colors.Red,
+        borderColor: colors.error,
     },
     input: {
         flex: 1,
         fontSize: 16,
         paddingVertical: spacing.sm,
-        color: Palette.dark,
+        color: colors.text,
     },
     accessory: {
         marginLeft: spacing.sm,
@@ -132,5 +132,6 @@ const styles = StyleSheet.create({
     error: {
         fontSize: 12,
         marginTop: spacing.xs,
+        color: colors.error,
     },
 });
