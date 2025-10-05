@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/auth/AuthContext';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
-import { STORE_URLS } from 'src/const';
+import { createHandleRateApp, createPrivacyPolicyHandler } from './settings.helpers';
 import { GradientRow } from '../../src/components/ui/GradientRow';
 import { SettingsRow } from '../../src/components/SettingsRow';
 import AppText from '../../src/components/ui/AppText';
@@ -42,22 +42,19 @@ export default function SettingsScreen() {
         }
     }, [signOut]);
 
-    const handleRateApp = useCallback(() => {
-        const url = Platform.select({
-            ios: STORE_URLS.ios,
-            android: STORE_URLS.android,
-            default: STORE_URLS.web || STORE_URLS.ios || STORE_URLS.android,
-        });
+    const handleRateApp = useCallback(
+        createHandleRateApp({
+            select: Platform.select,
+            openURL: Linking.openURL,
+            alert: Alert.alert,
+        }),
+        [],
+    );
 
-        if (!url) {
-            Alert.alert('Coming soon', 'The app store listing will be available soon.');
-            return;
-        }
-
-        Linking.openURL(url).catch(() => {
-            Alert.alert('Error', 'Unable to open the store link right now.');
-        });
-    }, []);
+    const handlePrivacyPolicy = useCallback(
+        createPrivacyPolicyHandler(router.push),
+        [router],
+    );
 
     const onDeleteAccount = useCallback(() => {
         if (deleting) {
@@ -116,7 +113,7 @@ export default function SettingsScreen() {
                     <Spacer />
                     <View style={ { gap: 8 } }>
                         <SettingsRow text="Delete account" onPress={ onDeleteAccount } />
-                        <SettingsRow text="Privacy Policy" onPress={ () => router.push('/privacy-policy') } />
+                        <SettingsRow text="Privacy Policy" onPress={ handlePrivacyPolicy } />
                         <SettingsRow text="Rate this App" onPress={ handleRateApp } />
                         <SettingsRow text="Log out" onPress={ () => onLogout() } />
                     </View>

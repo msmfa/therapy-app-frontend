@@ -32,7 +32,7 @@ const theme: Theme = {
  * 2. Authenticated but not onboarded → (onboarding) screens
  * 3. Authenticated and onboarded → (tabs) main app
  */
-function Gate() {
+export function Gate() {
     const { user, hydrated: authHydrated } = useAuth();
     const { hasOnboarded, hydrated: onboardingHydrated } = useOnboarding();
 
