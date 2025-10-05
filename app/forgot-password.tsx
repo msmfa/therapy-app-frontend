@@ -98,17 +98,17 @@ export default function ForgotPasswordScreen() {
             <KeyboardAvoidingView behavior={ Platform.OS === 'ios' ? 'padding' : undefined } style={ styles.kav }>
                 <View style={ styles.card }>
                     <TouchableOpacity onPress={ handleBack } style={ styles.backButton }>
-                        <AppText style={ styles.backButtonText } color="#444444">
+                        <AppText style={ styles.backButtonText } variant='body'>
                             Back
                         </AppText>
                     </TouchableOpacity>
 
                     { step === 'request' && (
                         <View style={ styles.content }>
-                            <AppText style={ styles.title } color="#111111" weight="bold">
+                            <AppText style={ styles.title } variant='h2'>
                                 Forgot password
                             </AppText>
-                            <AppText style={ styles.subtitle } color="#555555" align="left">
+                            <AppText style={ styles.subtitle } variant='body'>
                                 Enter your account email. We will send you a reset code.
                             </AppText>
 
@@ -135,10 +135,10 @@ export default function ForgotPasswordScreen() {
 
                     { step === 'reset' && (
                         <View style={ styles.content }>
-                            <AppText style={ styles.title } color="#111111" weight="bold">
+                            <AppText style={ styles.title } variant='body'>
                                 Check your email
                             </AppText>
-                            <AppText style={ styles.subtitle } color="#555555">
+                            <AppText style={ styles.subtitle } variant='body'>
                                 Paste the reset code and choose a new password.
                             </AppText>
 
@@ -183,10 +183,10 @@ export default function ForgotPasswordScreen() {
 
                     { step === 'done' && (
                         <View style={ styles.content }>
-                            <AppText style={ styles.title } color="#111111" weight="bold">
+                            <AppText style={ styles.title } variant='body'>
                                 Password updated
                             </AppText>
-                            <AppText style={ styles.subtitle } color="#555555">
+                            <AppText style={ styles.subtitle } variant='body'>
                                 Your password has been reset. Sign in with your new password to continue.
                             </AppText>
 

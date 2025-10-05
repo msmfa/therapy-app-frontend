@@ -17,7 +17,7 @@ export function ErrorMessage({ message, onDismiss, style, testID }: Props) {
     return (
         <View style={ [styles.container, style] } testID={ testID }>
             <Ionicons name="alert-circle" size={ 18 } color={ RED } style={ styles.icon } />
-            <AppText style={ styles.text } color={ RED } weight="semibold">
+            <AppText style={ styles.text } variant='body'>
                 { message }
             </AppText>
 

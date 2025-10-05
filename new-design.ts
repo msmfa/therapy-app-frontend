@@ -1,41 +1,4 @@
-const text = {
-    // text
-    header: 'black',
-    body: 'black',
 
-    // buttons normal
-    buttonText: 'white',
-    buttonBackground: 'black',
-
-    // buttom transparent
-    buttonTextTransparent: 'black',
-    buttonBackgroundTransparent: 'transparent',
-
-    // modals
-    modalBackground: 'white',
-    modalBadgeBackground: '#E0E0E0',
-    modalBadgeText: 'black',
-    modalBadgeBorder: '#C0C0C0',
-
-    // radio buttons active
-    radioButtonBorder: '#C0C0C0',
-    radioButtonBackground: '#C0C0C0',
-    radioButtonDot: 'red',
-
-
-    // Calendar colors
-// apparently 60% is good for sub text that is less important
-
-}
-
-// these are all you should need in pixels for all fonts
-const fontSize = {
-    header: 24,
-    subHeader: 20,
-    subHeaderTwo: 18,
-    body: 16,
-    caption: 14,
-}
 
 // should be all we need
 
