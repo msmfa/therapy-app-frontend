@@ -30,13 +30,25 @@ export default function CalendarScreen() {
     );
 
     const [selectedSessions, setSelectedSessions] = useState<SelectedSessions>(initialSessions);
-    const [dotDates, setDotDates] = useState<string[]>(() => neuroReminders.map((item) => item.atUtc));
+    const normalizeReminderDates = useCallback((values: typeof neuroReminders) =>
+        values
+            .map((item) => {
+                const date = new Date(item.atUtc);
+                if (Number.isNaN(date.getTime())) {
+                    return null;
+                }
+                return date.toISOString().split('T')[0];
+            })
+            .filter((value): value is string => Boolean(value)),
+    [],);
+
+    const [dotDates, setDotDates] = useState<string[]>(() => normalizeReminderDates(neuroReminders));
 
     useFocusEffect(
         useCallback(() => {
             setSelectedSessions(initialSessions);
-            setDotDates(neuroReminders.map((item) => item.atUtc));
-        }, [initialSessions, neuroReminders]),
+            setDotDates(normalizeReminderDates(neuroReminders));
+        }, [initialSessions, neuroReminders, normalizeReminderDates]),
     );
 
     const sessionCount = Object.keys(selectedSessions).length;
@@ -44,7 +56,6 @@ export default function CalendarScreen() {
 
     const handleSessionsChange = useCallback((next: SelectedSessions) => {
         setSelectedSessions(next);
-        setDotDates([]);
     }, []);
 
     const handleSavePress = useCallback(async () => {
@@ -58,7 +69,6 @@ export default function CalendarScreen() {
                 return;
             }
             await syncSessions(selectedSessions, 50);
-            setDotDates([]);
             setLoading('success');
 
             // Auto-dismiss after showing success - no setTimeout here!
@@ -83,8 +93,13 @@ export default function CalendarScreen() {
     }, [loading]);
 
     const handleClearAll = useCallback(() => {
+        setDotDates([]);
         handleSessionsChange({});
     }, [handleSessionsChange]);
+
+    useEffect(() => {
+        setDotDates(normalizeReminderDates(neuroReminders));
+    }, [neuroReminders, normalizeReminderDates]);
 
     return (
         <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] }>
