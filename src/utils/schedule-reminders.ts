@@ -56,7 +56,7 @@ export async function scheduleNoteNotification(
 
     return Notifications.scheduleNotificationAsync({
         content: {
-            title: 'Note reminder',
+            title: 'Time to log your therapy session',
             body,
             data: { noteId },
         },

@@ -17,7 +17,7 @@
       "expo-apple-authentication"
     ],
     "splash": {
-      "image": "./assets/splash-brain.png",
+      "image": "./assets/brain-logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#FFFFFF"
     },
@@ -27,7 +27,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/illustrations/brain-string.svg",
         "backgroundColor": "transparent"
       },
       "edgeToEdgeEnabled": true,

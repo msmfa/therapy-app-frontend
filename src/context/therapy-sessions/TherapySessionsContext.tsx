@@ -13,7 +13,7 @@ import { scheduleTherapySessionNotifications } from '../../utils/schedule-remind
 import { scheduleNeuroplasticityReminders, Reminder } from '../../components/reminders/reminder-schedule-v2';
 
 const POST_SESSION_NOTIFICATION_ID = 'post-session-note';
-const POST_SESSION_NOTIFICATION_MESSAGE = 'Take a quick note about your therapy session';
+const POST_SESSION_NOTIFICATION_MESSAGE = 'Remember to take a note about your therapy session';
 
 interface TherapySessionsContextType {
     sessions: TherapySession[];

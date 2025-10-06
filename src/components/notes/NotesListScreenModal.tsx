@@ -1,64 +1,189 @@
-import { Modal, ScrollView, View, StyleSheet } from "react-native";
+import React from 'react';
+import { KeyboardAvoidingView, Modal, Platform, ScrollView, TextInput, View, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Note } from "../../hooks/useNotes";
 import { GradientUpwards } from "../GradientUpwards";
 import { Button } from "../ui/Button";
 import AppText from "../ui/AppText";
-import { palette } from '../../../new-design';
+import { colors, palette } from '../../../new-design';
 
 type NotePreviewModalProps = {
     visible: boolean;
     note: Note | null;
     onClose: () => void;
+    onUpdateNote: (id: string, text: string) => Promise<void>;
 };
 
-export function NotePreviewModal({ visible, note, onClose }: NotePreviewModalProps) {
+export function NotePreviewModal({ visible, note, onClose, onUpdateNote }: NotePreviewModalProps) {
+    const [isEditing, setIsEditing] = React.useState(false);
+    const [draft, setDraft] = React.useState('');
+    const [saving, setSaving] = React.useState(false);
+    const [error, setError] = React.useState<string | null>(null);
+
+    React.useEffect(() => {
+        if (!visible) {
+            setIsEditing(false);
+            setDraft('');
+            setSaving(false);
+            setError(null);
+            return;
+        }
+
+        if (note && !isEditing) {
+            setDraft(note.text);
+        }
+    }, [visible, note, isEditing]);
+
+    const handleClose = React.useCallback(() => {
+        setIsEditing(false);
+        setError(null);
+        setSaving(false);
+        setDraft(note?.text ?? '');
+        onClose();
+    }, [note, onClose]);
+
+    const handleStartEditing = React.useCallback(() => {
+        if (!note) return;
+        setDraft(note.text);
+        setError(null);
+        setIsEditing(true);
+    }, [note]);
+
+    const handleCancelEditing = React.useCallback(() => {
+        setIsEditing(false);
+        setError(null);
+        if (note) {
+            setDraft(note.text);
+        } else {
+            setDraft('');
+        }
+    }, [note]);
+
+    const handleSave = React.useCallback(async () => {
+        if (!note) return;
+        const value = draft.trim();
+        if (!value) {
+            setError('Notes cannot be empty.');
+            return;
+        }
+
+        try {
+            setSaving(true);
+            setDraft(value);
+            await onUpdateNote(note.id, value);
+            setIsEditing(false);
+            setError(null);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to update note.');
+        } finally {
+            setSaving(false);
+        }
+    }, [draft, note, onUpdateNote]);
+
     return (
         <Modal
             visible={ visible }
             animationType="slide"
             // presentationStyle="fullScreen"
-            onRequestClose={ onClose }
+            onRequestClose={ handleClose }
         >
-            <SafeAreaView style={ styles.modalRoot }>
-                <GradientUpwards />
-                <ScrollView contentContainerStyle={ styles.modalContent }>
-                    <View>
-                        <AppText style={ styles.modalDate }  variant="body">
-                            { note &&
-                            new Date(note.createdAt).toLocaleString('en-US', {
-                                weekday: 'long',
-                                month: 'long',
-                                day: 'numeric',
-                                year: 'numeric',
-                                hour: 'numeric',
-                                minute: '2-digit',
-                            }) }
-                        </AppText>
-                        <AppText style={ styles.modalText } variant="body" >
-                            { note?.text }
-                        </AppText>
+            <KeyboardAvoidingView
+                behavior={ Platform.OS === 'ios' ? 'padding' : undefined }
+                style={ styles.avoidingView }
+            >
+                <SafeAreaView style={ styles.modalRoot }>
+                    <GradientUpwards />
+                    <ScrollView
+                        contentContainerStyle={ styles.modalContent }
+                        keyboardShouldPersistTaps="handled"
+                    >
+                        <View>
+                            <AppText style={ styles.modalDate }  variant="body">
+                                { note ?
+                                    new Date(note.createdAt).toLocaleString('en-US', {
+                                        weekday: 'long',
+                                        month: 'long',
+                                        day: 'numeric',
+                                        year: 'numeric',
+                                        hour: 'numeric',
+                                        minute: '2-digit',
+                                    }) : null }
+                            </AppText>
+                            { isEditing ? (
+                                <View style={ styles.editableTextContainer }>
+                                    <View style={ styles.editDivider } />
+                                    <TextInput
+                                        value={ draft }
+                                        onChangeText={ setDraft }
+                                        multiline
+                                        autoFocus
+                                        style={ styles.editableText }
+                                        textAlignVertical="top"
+                                        accessibilityLabel="Edit note"
+                                    />
+                                </View>
+                            ) : (
+                                <AppText style={ styles.modalText } variant="body" >
+                                    { note?.text ?? 'No note selected.' }
+                                </AppText>
+                            ) }
+                            { error ? (
+                                <AppText style={ styles.errorText } variant="caption">
+                                    { error }
+                                </AppText>
+                            ) : null }
+                        </View>
+                    </ScrollView>
+                    <View style={ styles.modalActions }>
+                        { isEditing ? (
+                            <>
+                                <Button
+                                    label="Save changes"
+                                    onPress={ handleSave }
+                                    loading={ saving }
+                                />
+                                <View style={ styles.actionSpacer } />
+                                <Button
+                                    label="Cancel"
+                                    onPress={ handleCancelEditing }
+                                    transparent
+                                    disabled={ saving }
+                                />
+                            </>
+                        ) : (
+                            <>
+                                <Button
+                                    label="Edit"
+                                    onPress={ handleStartEditing }
+                                    disabled={ !note }
+                                />
+                                <View style={ styles.actionSpacer } />
+                                <Button
+                                    label="Close"
+                                    onPress={ handleClose }
+                                    transparent
+                                />
+                            </>
+                        ) }
                     </View>
-                </ScrollView>
-                <View style={ styles.modalClose }>
-                    <Button label="Close" onPress={ onClose } />
-                </View>
-            </SafeAreaView>
+                </SafeAreaView>
+            </KeyboardAvoidingView>
         </Modal>
     );
 }
 
 const styles = StyleSheet.create({
+    avoidingView: { flex: 1 },
     modalRoot: { flex: 1, backgroundColor: palette.neutral.white },
     modalContent: { padding: 24, paddingBottom: 120, paddingTop: 60 },
-    modalClose: {
+    modalActions: {
         position: 'absolute',
         left: 24,
         right: 24,
         bottom: 24,
-        borderRadius: 25,
-        paddingVertical: 12,
-        alignItems: 'center',
+    },
+    actionSpacer: {
+        height: 12,
     },
     modalDate: {
         fontSize: 14,
@@ -70,5 +195,27 @@ const styles = StyleSheet.create({
         fontSize: 18,
         lineHeight: 28,
         marginHorizontal: 5,
+    },
+    errorText: {
+        marginTop: 12,
+        color: colors.error,
+        marginHorizontal: 5,
+    },
+    editableTextContainer: {
+        marginHorizontal: 5,
+        paddingTop: 12,
+    },
+    editDivider: {
+        height: 1,
+        backgroundColor: palette.neutral.boundary,
+        marginBottom: 12,
+        opacity: 0.6,
+    },
+    editableText: {
+        fontSize: 18,
+        lineHeight: 28,
+        color: colors.text,
+        padding: 0,
+        minHeight: 160,
     },
 });

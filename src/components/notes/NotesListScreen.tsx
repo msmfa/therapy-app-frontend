@@ -17,13 +17,23 @@ interface NotesListScreenProps {
 	notes: Note[];
 	loading: boolean;
 	refresh: () => void;
+	onUpdateNote: (id: string, text: string) => Promise<void>;
 }
 
-export default function NotesListScreen({ notes, loading, refresh }: NotesListScreenProps) {
+export default function NotesListScreen({ notes, loading, refresh, onUpdateNote }: NotesListScreenProps) {
     const headerHeight = useHeaderHeight();
     const nominal = 600;
     const bottomStart = Math.max(0, 1 - BOTTOM_FADE / nominal);
     const [previewNote, setPreviewNote] = React.useState<Note | null>(null);
+
+    React.useEffect(() => {
+        if (!previewNote) return;
+        const latest = notes.find((n) => n.id === previewNote.id);
+        if (latest && latest !== previewNote) {
+            setPreviewNote(latest);
+        }
+    }, [notes, previewNote]);
+
     const isPreviewVisible = Boolean(previewNote?.id);
 
     return (
@@ -79,6 +89,7 @@ export default function NotesListScreen({ notes, loading, refresh }: NotesListSc
                 visible={ isPreviewVisible }
                 note={ previewNote }
                 onClose={ () => setPreviewNote(null) }
+                onUpdateNote={ onUpdateNote }
             />
         </SafeAreaView>
     );

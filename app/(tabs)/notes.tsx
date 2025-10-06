@@ -8,7 +8,14 @@ import Loading from '../../src/components/ui/Loading';
 
 export default function NotesScreen() {
     const { user } = useAuth();
-    const { notes, loading, refresh } = useNotes(user?.id);
+    const { notes, loading, refresh, updateNote } = useNotes(user?.id);
+
+    const handleUpdateNote = React.useCallback(
+        async (noteId: string, text: string) => {
+            await updateNote(noteId, { text });
+        },
+        [updateNote],
+    );
 
     useFocusEffect(
         React.useCallback(() => {
@@ -24,5 +31,12 @@ export default function NotesScreen() {
         return <EmptyNotesScreen />;
     }
 
-    return <NotesListScreen notes={ notes } loading={ loading } refresh={ refresh } />;
+    return (
+        <NotesListScreen
+            notes={ notes }
+            loading={ loading }
+            refresh={ refresh }
+            onUpdateNote={ handleUpdateNote }
+        />
+    );
 }
