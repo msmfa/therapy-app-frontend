@@ -1,17 +1,19 @@
-import React from 'react';
+/* eslint-env jest */
+import { expect, describe, it, beforeEach, jest, beforeAll } from '@jest/globals';
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
+import React from 'react';
 
-const mockReplace = jest.fn();
+const mockReplace = jest.fn<(path: string) => void>();
 
 jest.mock('expo-router', () => {
-    const React = require('react');
+    const React = require('react') as typeof import('react');
     return {
         useRouter: () => ({
             replace: mockReplace,
         }),
-        useFocusEffect: (callback: any) => {
+        useFocusEffect: (callback: React.EffectCallback) => {
             const { useEffect } = React;
-            useEffect(() => callback(), [callback]);
+            useEffect(callback, [callback]);
         },
     };
 });
@@ -25,8 +27,9 @@ jest.mock('../../../src/context/auth/AuthContext', () => ({
 }));
 
 jest.mock('../../../src/components/notes/EmptyNotesScreen', () => {
-    const React = require('react');
-    const { Text } = require('react-native');
+    const React = require('react') as typeof import('react');
+    const ReactNative = require('react-native') as typeof import('react-native');
+    const { Text } = ReactNative;
 
     return function EmptyNotesScreen() {
         return <Text testID="empty-notes-placeholder">No notes yet</Text>;
@@ -34,8 +37,8 @@ jest.mock('../../../src/components/notes/EmptyNotesScreen', () => {
 });
 
 jest.mock('../../../src/components/notes/NotesListScreen', () => {
-    const React = require('react');
-    const { View, Text } = require('react-native');
+    const ReactNative = require('react-native') as typeof import('react-native');
+    const { View, Text } = ReactNative;
 
     return function NotesListScreen({ notes }: { notes: Array<{ id: string; text: string }> }) {
         return (
@@ -49,18 +52,21 @@ jest.mock('../../../src/components/notes/NotesListScreen', () => {
 });
 
 jest.mock('../../../src/hooks/useNotes', () => {
-    const React = require('react');
+    const React = require('react') as typeof import('react');
 
-    let notesStore: any[] = [];
-    const mockListeners = new Set();
+    type mockNote = { id: string; text: string; createdAt: number };
+    type MockNotesListener = (mockNotes: mockNote[]) => void;
 
-    const snapshot = () => notesStore.map((note) => ({ ...note }));
+    let notesStore: mockNote[] = [];
+    const mockListeners: Set<MockNotesListener> = new Set();
+
+    const snapshot = (): mockNote[] => notesStore.map((note) => ({ ...note }));
     const emit = () => {
         const next = snapshot();
         mockListeners.forEach((listener) => listener(next));
     };
 
-    const subscribe = (listener: any) => {
+    const subscribe = (listener: MockNotesListener) => {
         mockListeners.add(listener);
         listener(snapshot());
         return () => {
@@ -123,10 +129,13 @@ const notesModule = require('../../../src/hooks/useNotes') as {
 
 const { __resetNotesStore, __getMocks } = notesModule;
 
+const globalWithRAF = globalThis as typeof globalThis & {
+    requestAnimationFrame?: (cb: (time: number) => void) => number;
+};
+
 describe('add note flow', () => {
     beforeAll(() => {
-        // @ts-expect-error: provide basic RAF polyfill for the test environment
-        global.requestAnimationFrame = (cb: (time: number) => void) => {
+        globalWithRAF.requestAnimationFrame = (cb: (time: number) => void) => {
             cb(0);
             return 0;
         };
@@ -138,8 +147,8 @@ describe('add note flow', () => {
     });
 
     it('shows the newly added note on the notes screen after saving from the index screen', async () => {
-        const NewNoteScreen = require('../index').default;
-        const NotesScreen = require('../notes').default;
+        const { default: NewNoteScreen } = require('../index') as typeof import('../index');
+        const { default: NotesScreen } = require('../notes') as typeof import('../notes');
 
         const noteText = 'Remember to breathe deeply';
 
