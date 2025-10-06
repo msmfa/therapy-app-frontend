@@ -19,25 +19,33 @@ export function ReminderRow ({ date, description, link }: Props) {
     const [openModal, setOpenModal] = useState<ReminderType | null>(null);
 
     return (
-        <GradientRow>
-            <View style={ styles.container }>
-                <Spacer />
-                <AppText variant="h2" >
-                    { date }
-                </AppText>
-                <Spacer variant={ SpacerVariant.small } />
+        <>
+            <TouchableOpacity
+                activeOpacity={ 0.85 }
+                onPress={ () => setOpenModal(link) }
+            >
+                <GradientRow>
+                    <View style={ styles.container }>
+                        <Spacer />
+                        <AppText variant="h2" >
+                            { date }
+                        </AppText>
+                        <Spacer variant={ SpacerVariant.small } />
 
-                <AppText variant="bodySecondary" align="left" >
-                    { description }
-                </AppText>
-                <Spacer variant={ SpacerVariant.large } />
-                <Spacer variant={ SpacerVariant.small } />
-            </View>
-            <TouchableOpacity style={ styles.bottomContainer } onPress={ () => { setOpenModal(link) } }>
-                <AppText variant="caption">
-                    Learn More
-                </AppText>
-                <Ionicons name={ 'arrow-forward-outline' } size={ 20 } color={ colors.textMuted } />
+                        <AppText variant="bodySecondary" align="left" >
+                            { description }
+                        </AppText>
+                        <Spacer variant={ SpacerVariant.large } />
+                        <Spacer variant={ SpacerVariant.small } />
+                    </View>
+                    <View style={ styles.bottomContainer }>
+                        <AppText variant="caption">
+                            Learn More
+                        </AppText>
+                        <Ionicons name={ 'arrow-forward-outline' } size={ 20 } color={ colors.textMuted } />
+                    </View>
+                    <Spacer variant={ SpacerVariant.large } />
+                </GradientRow>
             </TouchableOpacity>
             { /* Placeholder: add science content pages and hook up modal copy (see TODO.md). */ }
             { openModal && (
@@ -45,9 +53,7 @@ export function ReminderRow ({ date, description, link }: Props) {
                     <ScienceTextModal type={ openModal } />
                 </AppModal>
             ) }
-            <Spacer variant={ SpacerVariant.large } />
-
-        </GradientRow>
+        </>
     )
 }
 

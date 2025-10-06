@@ -1,25 +1,13 @@
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ScrollView, StyleSheet, View, Linking } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { GradientUpwards } from '../src/components/GradientUpwards';
 import AppText from '../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { Button } from '../src/components/ui/Button';
-import { palette } from '../new-design';
+import { ExternalLink } from 'src/components/ui/ExternalLink';
 
-type SourceLink = { text: string; url: string };
-
-const LinkText: React.FC<SourceLink> = ({ text, url }) => (
-    <AppText
-        variant="body"
-        style={ styles.link }
-        accessibilityRole="link"
-        onPress={ () => Linking.openURL(url) }
-    >
-        { text }
-    </AppText>
-);
 
 export default function HowToTakeNotesScreen() {
     const router = useRouter();
@@ -105,7 +93,12 @@ export default function HowToTakeNotesScreen() {
                     </AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     { sources.recall.map((s) => (
-                        <LinkText key={ s.url } text={ `${s.text}` } url={ s.url } />
+                        <ExternalLink
+                            key={ s.url }
+                            text={ s.text }
+                            url={ s.url }
+                            style={ styles.link }
+                        />
                     )) }
 
                     <Spacer variant={ SpacerVariant.medium } />
@@ -117,7 +110,12 @@ export default function HowToTakeNotesScreen() {
                     </AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     { sources.cues.map((s) => (
-                        <LinkText key={ s.url } text={ `${s.text}` } url={ s.url } />
+                        <ExternalLink
+                            key={ s.url }
+                            text={ s.text }
+                            url={ s.url }
+                            style={ styles.link }
+                        />
                     )) }
 
                     <Spacer variant={ SpacerVariant.medium } />
@@ -129,7 +127,12 @@ export default function HowToTakeNotesScreen() {
                     </AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     { sources.affectLabel.map((s) => (
-                        <LinkText key={ s.url } text={ `${s.text}` } url={ s.url } />
+                        <ExternalLink
+                            key={ s.url }
+                            text={ s.text }
+                            url={ s.url }
+                            style={ styles.link }
+                        />
                     )) }
 
                     <Spacer variant={ SpacerVariant.medium } />
@@ -141,7 +144,12 @@ export default function HowToTakeNotesScreen() {
                     </AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     { sources.implIntent.map((s) => (
-                        <LinkText key={ s.url } text={ `${s.text}` } url={ s.url } />
+                        <ExternalLink
+                            key={ s.url }
+                            text={ s.text }
+                            url={ s.url }
+                            style={ styles.link }
+                        />
                     )) }
 
                     <Spacer variant={ SpacerVariant.medium } />
@@ -153,7 +161,12 @@ export default function HowToTakeNotesScreen() {
                     { /* Re-use testing effect sources for brevity */ }
                     <Spacer variant={ SpacerVariant.small } />
                     { sources.recall.map((s) => (
-                        <LinkText key={ `test-${s.url}` } text={ `${s.text}` } url={ s.url } />
+                        <ExternalLink
+                            key={ `test-${s.url}` }
+                            text={ s.text }
+                            url={ s.url }
+                            style={ styles.link }
+                        />
                     )) }
                 </View>
 
@@ -173,7 +186,7 @@ const styles = StyleSheet.create({
     scrollContent: { paddingHorizontal: 24, paddingTop: 24, paddingBottom: 32 },
     section: { gap: 8 },
     footer: { paddingHorizontal: 24, paddingBottom: 24 },
-    link: { color: palette.blue.ios, marginTop: 2 },
+    link: { marginTop: 2 },
     bold: { fontWeight: '600' },
     italic: { fontStyle: 'italic' },
 });

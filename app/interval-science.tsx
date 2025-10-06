@@ -23,13 +23,12 @@ export default function IntervalScienceScreen() {
                 showsVerticalScrollIndicator={ false }
             >
                 <AppText variant='h1'>
-                    Why your reminders land when they do
+                    Why we place your reminders where we do
                 </AppText>
-                <Spacer variant={ SpacerVariant.medium } />
                 <AppText variant='body'>
-                    Each interval is grounded in neuroplasticity research so your follow-up work reinforces what you covered in session. Explore the reminder types below to learn how timing supports lasting change.
+                    Each interval is grounded in neuroplasticity, psychology and memory retention research so your follow-up work reinforces what you covered in session.
                 </AppText>
-                <Spacer variant={ SpacerVariant.large } />
+                <Spacer variant={ SpacerVariant.small } />
                 <View style={ styles.list }>
                     { reminderEntries.map(([key, copy]) => (
                         <ReminderRow
