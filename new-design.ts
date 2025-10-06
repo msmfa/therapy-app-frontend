@@ -312,7 +312,7 @@ export const palette = {
     calendarWeekdayLabel: 'hsl(0, 10%, 45%)',
     calendarDot: 'hsl(0, 72%, 50%)',
     calendarArrow: 'hsl(0, 0%, 30%)',
-    calendarModalOverlayTransparent: 'hsla(0, 0%, 0%, 0.50)',
+    calendarModalOverlayTransparent: 'hsla(0, 0%, 0%, 0.60)',
     calendarModalSurface: 'hsl(0, 0%, 100%)',
     calendarModalBorder: 'hsl(0, 0%, 80%)',
   },

@@ -84,6 +84,7 @@ export default function ScheduleModal({
 
     return (
         <Modal visible={visible} transparent animationType="slide" onRequestClose={onCancel}>
+
             <View style={styles.modalOverlay}>
                 <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1} onPress={onCancel} />
                 <View style={styles.modalContent}>
@@ -168,6 +169,7 @@ export default function ScheduleModal({
                     </View>
                 </View>
             </View>
+
         </Modal>
     );
 }
@@ -208,14 +210,16 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 0,
         top: 0,
+
     },
     modalContent: {
-        backgroundColor: palette.calendar.calendarModalSurface,
+        // backgroundColor: palette.calendar.calendarModalSurface,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         padding: 20,
         paddingBottom: 40,
         paddingTop: 65,
+        backgroundColor: 'hsl(220, 40%, 97%)',
     },
     modalOverlay: {
         backgroundColor: palette.calendar.calendarModalOverlayTransparent,
@@ -225,17 +229,17 @@ const styles = StyleSheet.create({
     datePicker: {
         marginBottom: 20,
         alignItems: 'center',
+
     },
-    iosPickerWrapper: {
-        backgroundColor: palette.calendar.calendarModalSurface,
+   iosPickerWrapper: {
+        backgroundColor: 'hsl(220, 40%, 97%)',
         borderRadius: 18,
         overflow: 'hidden',
         paddingVertical: 12,
         paddingHorizontal: 10,
-        width: '100%',
     },
     iosPicker: {
-        width: '100%',
+        backgroundColor: 'hsl(220, 40%, 97%)',
     },
     timeButton: {
         alignItems: 'center',

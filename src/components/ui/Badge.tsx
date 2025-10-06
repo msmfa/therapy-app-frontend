@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
         height: '100%',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: COLOR_VARIANTS.red.light,
+        backgroundColor: COLOR_VARIANTS.blue.light,
     },
     tabWithBorder: {
         borderWidth: 1,
@@ -41,9 +41,9 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 0,
         borderBottomLeftRadius: 8,
         borderBottomRightRadius: 8,
-        borderColor: COLOR_VARIANTS.red.mid,
+        borderColor: COLOR_VARIANTS.blue.mid,
     },
     badgeText: {
-        color: COLOR_VARIANTS.red.mid,
+        color: COLOR_VARIANTS.blue.dark,
     },
 });
