@@ -8,8 +8,6 @@ import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { Button } from '../src/components/ui/Button';
 import { palette } from '../new-design';
 
-const EFFECTIVE_DATE = 'January 15, 2025';
-
 export default function TermsOfServiceScreen() {
     const router = useRouter();
 
@@ -26,9 +24,6 @@ export default function TermsOfServiceScreen() {
                 showsVerticalScrollIndicator={ false }
             >
                 <AppText variant='h1'>Terms of Service</AppText>
-                <Spacer variant={ SpacerVariant.small } />
-                <AppText variant='body'>Effective date: { EFFECTIVE_DATE }</AppText>
-
                 <Spacer variant={ SpacerVariant.large } />
                 <View style={ styles.section }>
                     <AppText variant='h2'>Acceptance of these terms</AppText>
