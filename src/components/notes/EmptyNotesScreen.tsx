@@ -9,7 +9,7 @@ import AppText from '../ui/AppText';
 import brainElastic from '../../../assets/illustrations/brain-elastic.svg';
 import Spacer, { SpacerVariant } from '../ui/Spacer';
 import { COLOR_VARIANTS, colors } from 'new-design';
-import { GradientRow } from '../ui/GradientRow';
+import { GradientCard } from '../ui/GradientCard';
 
 const ILLUSTRATION_SIZE = 670;
 
@@ -43,14 +43,14 @@ export default function EmptyNotesScreen() {
             </View>
             <View style={ styles.emptyContainer }>
                 <Spacer variant={ SpacerVariant.small } />
-                <GradientRow>
+                <GradientCard>
                     <Spacer variant={ SpacerVariant.medium } />
                     <AppText variant='h3'>
                         We'll send you a notification just after your next session on { nextSessionDate } so you can take down your first note. You'll then see your logged notes on this screen
                     </AppText>
                     <Spacer variant={ SpacerVariant.medium } />
 
-                </GradientRow>
+                </GradientCard>
                 <Spacer variant={ SpacerVariant.small } />
 
 

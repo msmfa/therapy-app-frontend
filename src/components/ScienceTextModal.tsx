@@ -6,7 +6,7 @@ import AppText from './ui/AppText';
 import Spacer, { SpacerVariant } from './ui/Spacer';
 import { ExternalLink } from './ui/ExternalLink';
 import { Fragment } from 'react';
-import { GradientRow } from './ui/GradientRow';
+import { GradientCard } from './ui/GradientCard';
 
 type Props = {
     type: ReminderType;
@@ -20,7 +20,7 @@ export function ScienceTextModal({ type }: Props) {
             <ScrollView
                 showsVerticalScrollIndicator={ false }
             >
-                <GradientRow addedStyles={ styles.gradientContainer }>
+                <GradientCard addedStyles={ styles.gradientContainer }>
                     <Spacer />
                     <View style={ styles.badge }>
                         <AppText variant="h3">{ title }</AppText>
@@ -34,7 +34,7 @@ export function ScienceTextModal({ type }: Props) {
                         </View>
                     )) }
                     <Spacer variant={ SpacerVariant.large } />
-                </GradientRow>
+                </GradientCard>
 
                 { sources.length > 0 && (
                     <View style={ styles.sourcesSection }>

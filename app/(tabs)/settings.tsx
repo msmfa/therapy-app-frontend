@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/auth/AuthContext';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
-import { GradientRow } from '../../src/components/ui/GradientRow';
+import { GradientCard } from '../../src/components/ui/GradientCard';
 import { SettingsRow } from '../../src/components/SettingsRow';
 import AppText from '../../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
@@ -78,7 +78,7 @@ export default function SettingsScreen() {
     return (
         <SafeAreaView style={ styles.root }>
             <GradientUpwards />
-            <GradientRow>
+            <GradientCard>
                 <View style={ styles.user } >
                     <AppText variant='h1'>
                         { user?.name }
@@ -87,7 +87,7 @@ export default function SettingsScreen() {
                         { user?.email }
                     </AppText>
                 </View>
-            </GradientRow>
+            </GradientCard>
             <Spacer />
             <FrostedCard>
                 <View style={ styles.container }>

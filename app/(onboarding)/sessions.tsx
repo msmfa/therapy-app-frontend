@@ -7,7 +7,7 @@ import { useTherapySessions } from '../../src/context/therapy-sessions/TherapySe
 import Loading from '../../src/components/ui/Loading';
 import { convertSessionsToCalendarFormat } from '../../src/utils/calendar';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
-import { GradientRow } from '../../src/components/ui/GradientRow';
+import { GradientCard } from '../../src/components/ui/GradientCard';
 import { Button } from '../../src/components/ui/Button';
 import OnboardingSteps from 'src/components/ui/OnboardingSteps';
 import Spacer from 'src/components/ui/Spacer';
@@ -75,7 +75,7 @@ export default function SessionsScreen() {
                     onSelectedSessionsChange={ setSelectedSessions }
                     selectedSessions={ selectedSessions }
                 >
-                    <GradientRow addedStyles={ styles.bottomContainer }>
+                    <GradientCard addedStyles={ styles.bottomContainer }>
                         <OnboardingSteps
                             title='Add your therapy sessions'
                             steps={ [
@@ -101,7 +101,7 @@ export default function SessionsScreen() {
                             />
                         </View>
                         <Spacer />
-                    </GradientRow>
+                    </GradientCard>
                 </TherapyCalendar>
             </View>
             { isSaving && <Loading /> }

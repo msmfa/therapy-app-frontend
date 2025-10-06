@@ -2,7 +2,7 @@ import React, { useMemo, useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import ScheduleModal from './ScheduleModal';
-import { GradientRow } from '../ui/GradientRow';
+import { GradientCard } from '../ui/GradientCard';
 import { palette } from '../../../new-design';
 
 export const COLORS = {
@@ -261,7 +261,7 @@ export default function TherapyCalendar({
     return (
         <>
             <View style={styles.content}>
-                <GradientRow addedStyles={styles.calendarWrapper}>
+                <GradientCard addedStyles={styles.calendarWrapper}>
                     <Calendar
                         hideExtraDays
                         markedDates={markedDates}
@@ -271,7 +271,7 @@ export default function TherapyCalendar({
                         theme={calendarTheme}
                         style={styles.calendar}
                     />
-                </GradientRow>
+                </GradientCard>
                 {children}
             </View>
             {isModalVisible && activeDateKey && (

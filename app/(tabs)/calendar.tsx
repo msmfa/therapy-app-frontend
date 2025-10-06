@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTherapySessions } from '../../src/context/therapy-sessions/TherapySessionsContext';
 import { convertSessionsToCalendarFormat } from '../../src/utils/calendar';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
-import { GradientRow } from '../../src/components/ui/GradientRow';
+import { GradientCard } from '../../src/components/ui/GradientCard';
 import { Button } from '../../src/components/ui/Button';
 import OnboardingSteps from 'src/components/ui/OnboardingSteps';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
@@ -128,7 +128,7 @@ export default function CalendarScreen() {
                 selectedSessions={ selectedSessions }
             />
 
-            <GradientRow addedStyles={ styles.calendarKey } borderRadius={ 10 }>
+            <GradientCard addedStyles={ styles.calendarKey } borderRadius={ 10 }>
                 <View style={ styles.calendarKeyContent }>
                     <View style={ { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 } }>
                         <View style={ styles.keyTherapy } />
@@ -139,9 +139,9 @@ export default function CalendarScreen() {
                         <AppText variant='caption' >Reminders</AppText>
                     </View>
                 </View>
-            </GradientRow>
+            </GradientCard>
 
-            <GradientRow addedStyles={ styles.bottomGradient }>
+            <GradientCard addedStyles={ styles.bottomGradient }>
                 <OnboardingSteps
                     steps={ [
                         stepsText.one,
@@ -166,7 +166,7 @@ export default function CalendarScreen() {
                     />
                 </View>
                 <Spacer variant={ SpacerVariant.medium } />
-            </GradientRow>
+            </GradientCard>
             { loading &&
             <LoadingSuccess
                 visible={ !!loading }

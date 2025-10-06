@@ -1,5 +1,5 @@
 import { View, StyleSheet, TouchableOpacity } from "react-native";
-import { GradientRow } from "../ui/GradientRow";
+import { GradientCard } from "../ui/GradientCard";
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { AppModal } from "../Modal";
@@ -24,7 +24,7 @@ export function ReminderRow ({ date, description, link }: Props) {
                 activeOpacity={ 0.85 }
                 onPress={ () => setOpenModal(link) }
             >
-                <GradientRow>
+                <GradientCard>
                     <View style={ styles.container }>
                         <Spacer />
                         <AppText variant="h2" >
@@ -45,7 +45,7 @@ export function ReminderRow ({ date, description, link }: Props) {
                         <Ionicons name={ 'arrow-forward-outline' } size={ 20 } color={ colors.textMuted } />
                     </View>
                     <Spacer variant={ SpacerVariant.large } />
-                </GradientRow>
+                </GradientCard>
             </TouchableOpacity>
             { /* Placeholder: add science content pages and hook up modal copy (see TODO.md). */ }
             { openModal && (

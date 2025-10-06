@@ -15,7 +15,7 @@ const DEFAULT_RADIUS = 16;
 const MIN_HUE = 0;
 const MAX_HUE = 360;
 
-export function GradientRow({ children, addedStyles, hue, borderRadius }: Props) {
+export function GradientCard({ children, addedStyles, hue, borderRadius }: Props) {
     const normalizedHue = useMemo(
         () => Math.max(MIN_HUE, Math.min(MAX_HUE, hue ?? 0)),
         [hue]
