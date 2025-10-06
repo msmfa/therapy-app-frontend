@@ -55,6 +55,11 @@ export default function SettingsScreen() {
         [router],
     );
 
+    const handleTermsOfService = useCallback(
+        createTermsOfServiceHandler(router.push),
+        [router],
+    );
+
     const onDeleteAccount = useCallback(() => {
         if (deleting) {
             return;
@@ -113,6 +118,7 @@ export default function SettingsScreen() {
                     <Spacer />
                     <View style={ { gap: 8 } }>
                         <SettingsRow text="Delete account" onPress={ onDeleteAccount } />
+                        <SettingsRow text="Terms of Service" onPress={ handleTermsOfService } />
                         <SettingsRow text="Privacy Policy" onPress={ handlePrivacyPolicy } />
                         <SettingsRow text="Rate this App" onPress={ handleRateApp } />
                         <SettingsRow text="Log out" onPress={ () => onLogout() } />
@@ -175,5 +181,11 @@ type PushFn = (route: string) => void;
 function createPrivacyPolicyHandler(push: PushFn) {
     return () => {
         push('/privacy-policy');
+    };
+}
+
+function createTermsOfServiceHandler(push: PushFn) {
+    return () => {
+        push('/terms-of-service');
     };
 }
