@@ -2,8 +2,10 @@ import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 import { SchedulableTriggerInputTypes } from 'expo-notifications';
+import * as Sentry from '@sentry/react-native';
 import { getPostSessionNoteReminders } from '../components/reminders/reminder-schedule-v2';
 import type { TherapySession } from '../api/therapy';
+import { toError } from './errors';
 
 Notifications.setNotificationHandler({
     handleNotification: async (): Promise<Notifications.NotificationBehavior> => ({
@@ -68,6 +70,11 @@ export async function cancelScheduledNotification(notificationId: string): Promi
     try {
         await Notifications.cancelScheduledNotificationAsync(notificationId);
     } catch (err) {
+        Sentry.withScope((scope) => {
+            scope.setTag('feature', 'notifications.cancel');
+            scope.setContext('notification', { notificationId });
+            Sentry.captureException(toError(err));
+        });
         console.warn('cancelScheduledNotification failed', err);
     }
 }

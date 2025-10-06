@@ -24,8 +24,8 @@ export default function LoginScreen() {
     const router = useRouter();
     const { setAuth, signOut, isAuthenticated, user } = useAuth();
 
-    const [email, setEmail] = useState<string>('test@example.com');
-    const [password, setPassword] = useState<string>('Passw0rd!');
+    const [email, setEmail] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
 
     const onSubmit = async () => {

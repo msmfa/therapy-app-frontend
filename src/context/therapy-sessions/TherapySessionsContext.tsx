@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
+import * as Sentry from '@sentry/react-native';
 import { ApiError } from '../../api/client';
 import { useAuth } from '../auth/AuthContext';
 import {
@@ -11,6 +12,7 @@ import {
 } from '../../api/therapy';
 import { scheduleTherapySessionNotifications } from '../../utils/schedule-reminders';
 import { scheduleNeuroplasticityReminders, Reminder } from '../../components/reminders/reminder-schedule-v2';
+import { toError } from '../../utils/errors';
 
 const POST_SESSION_NOTIFICATION_ID = 'post-session-note';
 const POST_SESSION_NOTIFICATION_MESSAGE = 'Remember to take a note about your therapy session';
@@ -67,6 +69,13 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
                     data,
                 );
             } catch (notificationError) {
+                Sentry.withScope((scope) => {
+                    scope.setTag('feature', 'therapy-sessions.notifications');
+                    scope.setContext('notification', {
+                        scheduledSessions: data.length,
+                    });
+                    Sentry.captureException(toError(notificationError));
+                });
                 console.warn('[TherapySessions] scheduling notifications failed:', notificationError);
             }
         } catch (err) {
@@ -76,6 +85,16 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
                     ? err.message
                     : undefined;
             setError(message ?? 'Failed to load sessions');
+            const shouldReport = !(err instanceof ApiError) || err.status >= 500;
+            if (shouldReport) {
+                Sentry.withScope((scope) => {
+                    scope.setTag('feature', 'therapy-sessions.refreshSessions');
+                    scope.setContext('request', {
+                        cachedSessions: sessions.length,
+                    });
+                    Sentry.captureException(toError(err));
+                });
+            }
             console.error('Error loading sessions:', err);
         } finally {
             setLoading(false);
