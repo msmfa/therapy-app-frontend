@@ -6,6 +6,7 @@ import AppText from './ui/AppText';
 import Spacer, { SpacerVariant } from './ui/Spacer';
 import { ExternalLink } from './ui/ExternalLink';
 import { Fragment } from 'react';
+import { GradientRow } from './ui/GradientRow';
 
 type Props = {
     type: ReminderType;
@@ -17,18 +18,23 @@ export function ScienceTextModal({ type }: Props) {
     return (
         <SafeAreaView style={ styles.safeArea } edges={ ['left', 'right', 'bottom', 'top'] }>
             <ScrollView
-                contentContainerStyle={ styles.content }
                 showsVerticalScrollIndicator={ false }
             >
-                <AppText variant="h2">{ title }</AppText>
-                <Spacer variant={ SpacerVariant.medium } />
-
-                { body.map((paragraph, index) => (
-                    <View key={ `paragraph-${index}` }>
-                        <AppText variant="body">{ paragraph }</AppText>
-                        { index < body.length - 1 && <Spacer variant={ SpacerVariant.small } /> }
+                <GradientRow addedStyles={ styles.gradientContainer }>
+                    <Spacer />
+                    <View style={ styles.badge }>
+                        <AppText variant="h3">{ title }</AppText>
                     </View>
-                )) }
+                    <Spacer variant={ SpacerVariant.medium } />
+
+                    { body.map((paragraph, index) => (
+                        <View key={ `paragraph-${index}` }>
+                            <AppText variant="body">{ paragraph }</AppText>
+                            { index < body.length - 1 && <Spacer variant={ SpacerVariant.small } /> }
+                        </View>
+                    )) }
+                    <Spacer variant={ SpacerVariant.large } />
+                </GradientRow>
 
                 { sources.length > 0 && (
                     <View style={ styles.sourcesSection }>
@@ -55,11 +61,21 @@ const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
     },
-    content: {
-        paddingHorizontal: 12,
-        paddingVertical: 12,
+    gradientContainer: {
+        // paddingHorizontal: 12,
+        // paddingVertical: 12,
     },
     sourcesSection: {
         alignSelf: 'stretch',
+        paddingHorizontal: 12,
     },
+    badge: {
+        borderWidth: 1,
+        borderColor: 'rgba(74, 69, 69, 0.31)',
+        borderRadius: 20,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        alignSelf: 'flex-end',
+
+    }
 });
