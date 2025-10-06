@@ -13,3 +13,13 @@ export const toError = (error: unknown, fallbackMessage = 'Unknown error'): Erro
         return new Error(fallbackMessage);
     }
 };
+
+export const handleError = (
+    error: unknown,
+    fallbackMessage = 'Something went wrong. Please try again.',
+): string => {
+    const resolved = toError(error, fallbackMessage);
+    const message = resolved.message?.trim();
+
+    return message || fallbackMessage;
+};
