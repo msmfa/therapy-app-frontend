@@ -96,7 +96,10 @@ export default function SettingsScreen() {
                     </AppText>
                     <Spacer />
                     <View style={ { gap: 8 } }>
-                        <SettingsRow text="The science behind our reminder intervals" onPress={ () => {} } />
+                        <SettingsRow
+                            text="The science behind our reminder intervals"
+                            onPress={ () => router.push('/interval-science') }
+                        />
                         <SettingsRow
                             text="How to get the most from note taking after a session"
                             onPress={ () => router.push('/how-to-take-notes') }
