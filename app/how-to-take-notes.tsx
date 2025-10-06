@@ -97,7 +97,6 @@ export default function HowToTakeNotesScreen() {
                             key={ s.url }
                             text={ s.text }
                             url={ s.url }
-                            style={ styles.link }
                         />
                     )) }
 
@@ -114,7 +113,6 @@ export default function HowToTakeNotesScreen() {
                             key={ s.url }
                             text={ s.text }
                             url={ s.url }
-                            style={ styles.link }
                         />
                     )) }
 
@@ -131,7 +129,6 @@ export default function HowToTakeNotesScreen() {
                             key={ s.url }
                             text={ s.text }
                             url={ s.url }
-                            style={ styles.link }
                         />
                     )) }
 
@@ -148,7 +145,6 @@ export default function HowToTakeNotesScreen() {
                             key={ s.url }
                             text={ s.text }
                             url={ s.url }
-                            style={ styles.link }
                         />
                     )) }
 
@@ -165,7 +161,6 @@ export default function HowToTakeNotesScreen() {
                             key={ `test-${s.url}` }
                             text={ s.text }
                             url={ s.url }
-                            style={ styles.link }
                         />
                     )) }
                 </View>
@@ -186,7 +181,6 @@ const styles = StyleSheet.create({
     scrollContent: { paddingHorizontal: 24, paddingTop: 24, paddingBottom: 32 },
     section: { gap: 8 },
     footer: { paddingHorizontal: 24, paddingBottom: 24 },
-    link: { marginTop: 2 },
     bold: { fontWeight: '600' },
     italic: { fontStyle: 'italic' },
 });
