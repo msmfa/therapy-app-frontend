@@ -10,6 +10,28 @@ import { colors, gradients } from '../new-design';
 import { StatusBar, StyleSheet, View } from 'react-native';
 import Loading from '../src/components/ui/Loading';
 import { ErrorBoundaryUI } from '../src/components/ErrorBoundary';
+import * as Sentry from '@sentry/react-native';
+import { toError } from '../src/utils/errors';
+
+const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN ?? process.env.SENTRY_DSN;
+
+Sentry.init({
+    dsn: SENTRY_DSN,
+    enabled: Boolean(SENTRY_DSN),
+    // Adds more context data to events (IP address, cookies, user, etc.)
+    // For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/
+    sendDefaultPii: true,
+    enableCaptureFailedRequests: true,
+    tracesSampleRate: process.env.NODE_ENV === 'development' ? 1 : 0.2,
+    // @ts-ignore
+    enableLogs: true,
+    // Configure Session Replay
+    replaysSessionSampleRate: 0.1,
+    replaysOnErrorSampleRate: 1,
+    integrations: [Sentry.mobileReplayIntegration(), Sentry.feedbackIntegration()],
+    // uncomment the line below to enable Spotlight (https://spotlightjs.com)
+    // spotlight: __DEV__,
+});
 
 const theme: Theme = {
     ...DefaultTheme,
@@ -57,7 +79,6 @@ export function Gate() {
                 <Stack.Protected guard={ isAuthenticated && isFullyHydrated && hasOnboarded }>
                     <Stack.Screen name="(tabs)" options={ { headerShown: false } } />
                 </Stack.Protected>
-
             </Stack>
 
             { /* Show loading overlay until all providers are hydrated */ }
@@ -78,7 +99,7 @@ export function Gate() {
  *
  * The Gate component waits for both Auth and Onboarding to hydrate before routing.
  */
-export default function RootLayout() {
+export default Sentry.wrap(function RootLayout() {
     return (
         <ThemeProvider value={ theme }>
             <AuthProvider>
@@ -94,7 +115,7 @@ export default function RootLayout() {
             <StatusBar barStyle="dark-content" backgroundColor={ theme.colors.background } />
         </ThemeProvider>
     );
-}
+});
 
 /**
  * Initializer Component
@@ -105,6 +126,15 @@ export default function RootLayout() {
 function Initializer() {
     useEffect(() => {
         initNotifications().catch((err) => {
+            if (err instanceof Error && err.message === 'Notification permissions not granted') {
+                console.warn('[Initializer] notification setup skipped:', err.message);
+                return;
+            }
+
+            Sentry.withScope((scope) => {
+                scope.setTag('feature', 'notifications.init');
+                Sentry.captureException(toError(err));
+            });
             console.warn('[Initializer] notification setup failed:', err);
         });
     }, []);

@@ -1,9 +1,15 @@
-export const handleError = (error: unknown): string => {
+export const toError = (error: unknown, fallbackMessage = 'Unknown error'): Error => {
     if (error instanceof Error) {
-        return error.message;
-    }
-    if (typeof error === 'string') {
         return error;
     }
-    return 'An unexpected error occurred';
+
+    if (typeof error === 'string') {
+        return new Error(error);
+    }
+
+    try {
+        return new Error(JSON.stringify(error));
+    } catch {
+        return new Error(fallbackMessage);
+    }
 };

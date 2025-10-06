@@ -11,3 +11,5 @@ build/
 coverage/
 *.log
 TODO.md
+
+.env.local

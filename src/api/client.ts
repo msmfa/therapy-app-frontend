@@ -1,4 +1,6 @@
+import * as Sentry from '@sentry/react-native';
 import { BASE_URL } from '../const';
+import { toError } from '../utils/errors';
 
 export type ApiErrorPayload = {
     message: string;
@@ -38,6 +40,35 @@ let refreshInFlight: Promise<boolean> | null = null;
 
 export const configureApiClient = (overrides: Partial<ApiClientConfig>) => {
     config = { ...config, ...overrides };
+};
+
+const captureApiException = (
+    error: unknown,
+    metadata: { method: string; url: string; status?: number; payload?: ApiErrorPayload },
+): void => {
+    Sentry.withScope((scope) => {
+        scope.setTag('api.method', metadata.method);
+        scope.setContext('api.request', {
+            url: metadata.url,
+            method: metadata.method,
+        });
+
+        if (metadata.status !== undefined) {
+            scope.setContext('api.response', {
+                status: metadata.status,
+                payload: metadata.payload,
+            });
+        }
+
+        const fingerprintParts = [
+            'api',
+            metadata.method,
+            metadata.status !== undefined ? String(metadata.status) : 'network',
+            metadata.url,
+        ];
+        scope.setFingerprint(fingerprintParts);
+        Sentry.captureException(toError(error));
+    });
 };
 
 const createTimeoutController = (timeoutMs: number) => {
@@ -187,6 +218,8 @@ export async function apiRequest<T = unknown>(path: string, options: ApiRequestO
     } catch (error) {
         clearTimeout(timeoutId);
 
+        captureApiException(error, { url, method });
+
         if (error instanceof DOMException && error.name === 'AbortError') {
             throw new ApiError(408, { message: 'Request timed out' });
         }
@@ -209,7 +242,18 @@ export async function apiRequest<T = unknown>(path: string, options: ApiRequestO
 
     if (!response.ok) {
         const payload = await parseErrorPayload(response);
-        throw new ApiError(response.status, payload);
+        const error = new ApiError(response.status, payload);
+
+        if (response.status >= 500 || response.status === 429) {
+            captureApiException(error, {
+                url,
+                method,
+                status: response.status,
+                payload,
+            });
+        }
+
+        throw error;
     }
 
     if (response.status === 204 || !parseJson) {
