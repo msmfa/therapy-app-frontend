@@ -70,6 +70,7 @@ export default function NewNoteScreen() {
                                 <TouchableOpacity
                                     onPress={ handleNext }
                                     disabled={ isDisabled }
+                                    testID="add-note-button"
                                     style={ [styles.plusButton, isDisabled && styles.plusButtonDisabled] }
                                 >
                                     <Feather name="plus" size={ 44 } color={ colors.textMuted } />
