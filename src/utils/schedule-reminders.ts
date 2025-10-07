@@ -85,6 +85,15 @@ export async function scheduleTherapySessionNotifications(
     sessions: Array<Pick<TherapySession, '_id' | 'startsAtUtc' | 'durationMin'>>,
     minutesAfterSession = 10,
 ): Promise<void> {
+    const existing = await Notifications.getAllScheduledNotificationsAsync();
+    const duplicates = existing.filter(
+        (request) => typeof request.identifier === 'string' && request.content?.data?.noteId === noteId,
+    );
+
+    if (duplicates.length) {
+        await Promise.all(duplicates.map((request) => cancelScheduledNotification(request.identifier)));
+    }
+
     const plan = getPostSessionNoteReminders({
         sessions,
         nowUtc: new Date().toISOString(),

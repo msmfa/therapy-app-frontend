@@ -74,6 +74,10 @@
 		"transformIgnorePatterns": [
 			"node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|@sentry/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg)"
 		],
+		"setupFiles": [
+			"<rootDir>/jest.setup.js"
+		],
+		"testEnvironment": "<rootDir>/jest.expo-environment.js",
 		"moduleNameMapper": {
 			"^new-design$": "<rootDir>/__mocks__/new-design.ts"
 		}
