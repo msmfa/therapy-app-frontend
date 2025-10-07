@@ -279,33 +279,3 @@ function createGapWindowFromIsoSessions(index: number, startIso: string, endIso:
     };
 }
 
-/* ---------- Lightweight examples ---------- */
-
-export function exampleWeekly() {
-    return scheduleNeuroplasticityReminders({
-        nowUtc: '2025-09-28T10:00:00Z',
-        sessionsUtc: ['2025-09-29T09:00:00Z', '2025-10-06T09:00:00Z'],
-        reflectionHour: 20,
-        morningHour: 9,
-    });
-}
-
-export function exampleTwoPerWeek() {
-    return scheduleNeuroplasticityReminders({
-        nowUtc: '2025-09-28T10:00:00Z',
-        sessionsUtc: ['2025-09-29T09:00:00Z', '2025-10-01T09:00:00Z', '2025-10-06T09:00:00Z'],
-        reflectionHour: 20,
-        morningHour: 9,
-    });
-}
-
-export function exampleBiweekly() {
-    return scheduleNeuroplasticityReminders({
-        nowUtc: '2025-09-28T10:00:00Z',
-        sessionsUtc: ['2025-09-29T09:00:00Z', '2025-10-13T09:00:00Z'],
-        reflectionHour: 20,
-        morningHour: 9,
-        startAfterDays: 3,
-        cadenceDays: 4,
-    });
-}
