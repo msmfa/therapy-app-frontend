@@ -1,50 +1,61 @@
 {
-	"expo": {
-		"androidStatusBar": {
-			"backgroundColor": "transparent",
-			"barStyle": "dark-content"
-		},
-		"name": "therapy-app-frontend",
-		"slug": "therapy-app-frontend",
-		"version": "1.0.0",
-		"scheme": "therapyapp",
-		"orientation": "portrait",
-		"icon": "./assets/icon.png",
-		"userInterfaceStyle": "light",
-		"newArchEnabled": true,
-		"plugins": [
-			"expo-sqlite",
-			"expo-apple-authentication",
-			[
-				"@sentry/react-native/expo",
-				{
-					"url": "https://sentry.io/",
-					"project": "react-native",
-					"organization": "codemoore"
-				}
-			]
-		],
-		"splash": {
-			"image": "./assets/brain-logo.png",
-			"resizeMode": "contain",
-			"backgroundColor": "#FFFFFF"
-		},
-		"ios": {
-			"bundleIdentifier": "com.yourcompany.therapyapp",
-			"supportsTablet": true,
-			"usesAppleSignIn": true
-		},
-		"android": {
-			"adaptiveIcon": {
-				"foregroundImage": "./assets/illustrations/brain-string.svg",
-				"backgroundColor": "transparent"
-			},
-			"edgeToEdgeEnabled": true,
-			"predictiveBackGestureEnabled": false,
-			"permissions": ["POST_NOTIFICATIONS"]
-		},
-		"web": {
-			"favicon": "./assets/favicon.png"
-		}
-	}
+  "expo": {
+    "androidStatusBar": {
+      "backgroundColor": "transparent",
+      "barStyle": "dark-content"
+    },
+    "name": "therapy-app-frontend",
+    "slug": "therapy-app-frontend",
+    "version": "1.0.0",
+    "scheme": "therapyapp",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "plugins": [
+      "expo-sqlite",
+      "expo-apple-authentication",
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "react-native",
+          "organization": "codemoore"
+        }
+      ],
+      "expo-router"
+    ],
+    "splash": {
+      "image": "./assets/brain-logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFFFFF"
+    },
+    "ios": {
+      "bundleIdentifier": "com.yourcompany.therapyapp",
+      "supportsTablet": true,
+      "usesAppleSignIn": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/illustrations/brain-string.svg",
+        "backgroundColor": "transparent"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "POST_NOTIFICATIONS"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "d802148d-ed84-4010-9b6f-bd727d76af94"
+      }
+    }
+  }
 }
