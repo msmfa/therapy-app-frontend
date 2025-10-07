@@ -41,3 +41,11 @@ jest.mock('@sentry/react-native', () => {
         feedbackIntegration: jest.fn(() => ({})),
     };
 });
+
+if (!process.env.EXPO_PUBLIC_APP_STORE_URL) {
+    process.env.EXPO_PUBLIC_APP_STORE_URL = 'https://example.com/app-store';
+}
+
+if (!process.env.EXPO_PUBLIC_PLAY_STORE_URL) {
+    process.env.EXPO_PUBLIC_PLAY_STORE_URL = 'https://example.com/play-store';
+}
