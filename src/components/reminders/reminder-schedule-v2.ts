@@ -84,16 +84,16 @@ interface GapContext {
 
 /* ---------- Day helpers ---------- */
 
-function toUtcMinute(iso: string): Dayjs | null {
+function parseIsoUtcToMinute(iso: string): Dayjs | null {
     const parsed = dayjs.utc(iso).second(0).millisecond(0);
     return parsed.isValid() ? parsed : null;
 }
 
-function withHour(source: Dayjs, hour: number): Dayjs {
+function setToHourStart(source: Dayjs, hour: number): Dayjs {
     return source.hour(hour).minute(0).second(0).millisecond(0);
 }
 
-function clampWithinGap(candidate: Dayjs, gap: GapWindow): Dayjs | null {
+function clampTimestampWithinGapWindow(candidate: Dayjs, gap: GapWindow): Dayjs | null {
     const earliest = gap.start.add(1, 'minute');
     const latest = gap.end.subtract(1, 'minute');
     if (earliest.isAfter(latest)) return null;
@@ -105,7 +105,7 @@ function clampWithinGap(candidate: Dayjs, gap: GapWindow): Dayjs | null {
     return clamped.second(0).millisecond(0);
 }
 
-function countCalendarDaysBetween(start: Dayjs, end: Dayjs): number {
+function countCalendarDaysBetweenUtcMoments(start: Dayjs, end: Dayjs): number {
     const startDay = start.startOf('day');
     const endDay = end.startOf('day');
     return Math.max(0, endDay.diff(startDay, 'day'));
@@ -113,8 +113,8 @@ function countCalendarDaysBetween(start: Dayjs, end: Dayjs): number {
 
 /* ---------- Gap scheduling ---------- */
 
-function buildReminder(desired: Dayjs, reason: Reason, gap: GapWindow, ctx: GapContext): ReminderDraft | null {
-    const withinGap = clampWithinGap(desired, gap);
+function buildReminderDraftWithinGap(desired: Dayjs, reason: Reason, gap: GapWindow, ctx: GapContext): ReminderDraft | null {
+    const withinGap = clampTimestampWithinGapWindow(desired, gap);
     if (!withinGap) return null;
     if (!withinGap.isAfter(ctx.now)) return null;
     if (!withinGap.isBefore(gap.end)) return null;
@@ -126,28 +126,28 @@ function buildReminder(desired: Dayjs, reason: Reason, gap: GapWindow, ctx: GapC
     };
 }
 
-function scheduleGap(gap: GapWindow, ctx: GapContext): ReminderDraft[] {
+function scheduleRemindersForGap(gap: GapWindow, ctx: GapContext): ReminderDraft[] {
     if (!gap.end.isAfter(ctx.now)) return [];
 
     const drafts: ReminderDraft[] = [];
 
-    const postSession = buildReminder(withHour(gap.start, ctx.reflectionHour), 'post_session', gap, ctx);
+    const postSession = buildReminderDraftWithinGap(setToHourStart(gap.start, ctx.reflectionHour), 'post_session', gap, ctx);
     if (postSession) drafts.push(postSession);
 
-    const postSleep = buildReminder(withHour(gap.start.add(1, 'day'), ctx.morningHour), 'post_sleep', gap, ctx);
+    const postSleep = buildReminderDraftWithinGap(setToHourStart(gap.start.add(1, 'day'), ctx.morningHour), 'post_sleep', gap, ctx);
     if (postSleep) drafts.push(postSleep);
 
     if (gap.days > ctx.startAfterDays) {
         const anchorBase = gap.start.startOf('day');
         for (let dayOffset = ctx.startAfterDays; dayOffset < gap.days; dayOffset += ctx.cadenceDays) {
             const anchor = anchorBase.add(dayOffset, 'day');
-            const midSession = buildReminder(withHour(anchor, ctx.reflectionHour), 'mid_session', gap, ctx);
+            const midSession = buildReminderDraftWithinGap(setToHourStart(anchor, ctx.reflectionHour), 'mid_session', gap, ctx);
             if (midSession) drafts.push(midSession);
         }
     }
 
     if (gap.days >= 1) {
-        const preSession = buildReminder(withHour(gap.end.subtract(1, 'day'), ctx.reflectionHour), 'pre_session', gap, ctx);
+        const preSession = buildReminderDraftWithinGap(setToHourStart(gap.end.subtract(1, 'day'), ctx.reflectionHour), 'pre_session', gap, ctx);
         if (preSession) drafts.push(preSession);
     }
 
@@ -155,7 +155,6 @@ function scheduleGap(gap: GapWindow, ctx: GapContext): ReminderDraft[] {
 }
 
 /* ---------- Public API ---------- */
-
 export function scheduleNeuroplasticityReminders(params: ScheduleParams): Reminder[] {
     const {
         nowUtc,
@@ -169,14 +168,14 @@ export function scheduleNeuroplasticityReminders(params: ScheduleParams): Remind
 
     if (!sessionsUtc || sessionsUtc.length < 2) return [];
 
-    const now = toUtcMinute(nowUtc);
+    const now = parseIsoUtcToMinute(nowUtc);
     if (!now) return [];
 
     const sortedSessions = [...sessionsUtc].sort();
     const windows: GapWindow[] = [];
 
     for (let index = 0; index < sortedSessions.length - 1; index += 1) {
-        const window = createGapWindow(index, sortedSessions[index], sortedSessions[index + 1]);
+        const window = createGapWindowFromIsoSessions(index, sortedSessions[index], sortedSessions[index + 1]);
         if (window) windows.push(window);
     }
 
@@ -190,7 +189,7 @@ export function scheduleNeuroplasticityReminders(params: ScheduleParams): Remind
         cadenceDays,
     };
 
-    const drafts = windows.flatMap((gap) => scheduleGap(gap, ctx));
+    const drafts = windows.flatMap((gap) => scheduleRemindersForGap(gap, ctx));
     if (!drafts.length) return [];
 
     const remindersByDay = new Map<string, ReminderDraft[]>();
@@ -228,7 +227,7 @@ export function getPostSessionNoteReminders(params: PostSessionNoteParams): Post
     if (!Array.isArray(sessions) || sessions.length === 0) return [];
     if (minutesAfterSession < 0) return [];
 
-    const now = toUtcMinute(nowUtc);
+    const now = parseIsoUtcToMinute(nowUtc);
     if (!now) return [];
 
     const reminders: PostSessionNoteReminder[] = [];
@@ -237,7 +236,7 @@ export function getPostSessionNoteReminders(params: PostSessionNoteParams): Post
         const startsAtUtc = session?.startsAtUtc;
         if (!startsAtUtc) continue;
 
-        const start = toUtcMinute(startsAtUtc);
+        const start = parseIsoUtcToMinute(startsAtUtc);
         if (!start) continue;
 
         const duration = typeof session?.durationMin === 'number' && session.durationMin > 0
@@ -267,16 +266,16 @@ export function getPostSessionNoteReminders(params: PostSessionNoteParams): Post
 
 /* ---------- Helpers ---------- */
 
-function createGapWindow(index: number, startIso: string, endIso: string): GapWindow | null {
-    const start = toUtcMinute(startIso);
-    const end = toUtcMinute(endIso);
+function createGapWindowFromIsoSessions(index: number, startIso: string, endIso: string): GapWindow | null {
+    const start = parseIsoUtcToMinute(startIso);
+    const end = parseIsoUtcToMinute(endIso);
     if (!start || !end || !end.isAfter(start)) return null;
 
     return {
         index,
         start,
         end,
-        days: countCalendarDaysBetween(start, end),
+        days: countCalendarDaysBetweenUtcMoments(start, end),
     };
 }
 
