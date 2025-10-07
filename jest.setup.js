@@ -22,3 +22,22 @@ class ReactNativeLikeFormData {
 if (typeof global.FormData === 'undefined') {
     global.FormData = ReactNativeLikeFormData;
 }
+
+jest.mock('@sentry/react-native', () => {
+    const createScope = () => ({
+        setTag: jest.fn(),
+        setContext: jest.fn(),
+        setFingerprint: jest.fn(),
+    });
+
+    return {
+        init: jest.fn(),
+        wrap: (component) => component,
+        withScope: (callback) => callback(createScope()),
+        configureScope: (callback) => callback(createScope()),
+        captureException: jest.fn(),
+        captureMessage: jest.fn(),
+        mobileReplayIntegration: jest.fn(() => ({})),
+        feedbackIntegration: jest.fn(() => ({})),
+    };
+});

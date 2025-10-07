@@ -1,6 +1,6 @@
 /* eslint-env jest */
-import { expect, describe, it, beforeEach, jest, beforeAll } from '@jest/globals';
-import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
+import { expect, describe, it, beforeEach, jest, beforeAll, afterAll } from '@jest/globals';
+import { act, fireEvent, render } from '@testing-library/react-native';
 import React from 'react';
 
 const mockReplace = jest.fn<(path: string) => void>();
@@ -133,12 +133,23 @@ const globalWithRAF = globalThis as typeof globalThis & {
     requestAnimationFrame?: (cb: (time: number) => void) => number;
 };
 
+let originalRAF: ((cb: (time: number) => void) => number) | undefined;
+
 describe('add note flow', () => {
     beforeAll(() => {
+        originalRAF = globalWithRAF.requestAnimationFrame;
         globalWithRAF.requestAnimationFrame = (cb: (time: number) => void) => {
             cb(0);
             return 0;
         };
+    });
+
+    afterAll(() => {
+        if (originalRAF) {
+            globalWithRAF.requestAnimationFrame = originalRAF;
+        } else {
+            Reflect.deleteProperty(globalWithRAF, 'requestAnimationFrame');
+        }
     });
 
     beforeEach(() => {
@@ -161,17 +172,17 @@ describe('add note flow', () => {
             fireEvent.press(indexScreen.getByTestId('add-note-button'));
         });
 
-        await waitFor(() => {
-            expect(mockReplace).toHaveBeenCalledWith('/(tabs)/notes');
-        });
+        expect(mockReplace).toHaveBeenCalledWith('/(tabs)/notes');
+
+        indexScreen.unmount();
 
         const notesScreen = render(<NotesScreen />);
 
-        await waitFor(() => {
-            expect(notesScreen.getByText(noteText)).toBeTruthy();
-        });
+        expect(notesScreen.getByText(noteText)).toBeTruthy();
 
         const { refresh } = __getMocks();
         expect(refresh).toHaveBeenCalled();
+
+        notesScreen.unmount();
     });
 });
