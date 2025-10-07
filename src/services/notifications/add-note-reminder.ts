@@ -1,4 +1,4 @@
-import { scheduleNotificationRequest } from './index';
+import { scheduleNotificationRequest, cancelNotificationsById } from './index';
 
 const DEFAULT_ADD_NOTE_TITLE = 'Log your therapy session note';
 
@@ -25,4 +25,8 @@ export async function scheduleAddNoteReminderNotification(
             ...data,
         },
     });
+}
+
+export async function cancelAddNoteReminderNotifications(notificationIds: string[]): Promise<void> {
+    await cancelNotificationsById(notificationIds);
 }
