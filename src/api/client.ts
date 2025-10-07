@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/react-native';
-import { BASE_URL } from '../const';
+import { BASE_URL } from '../constants/env';
 import { toError } from '../utils/errors';
 
 export type ApiErrorPayload = {

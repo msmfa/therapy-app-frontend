@@ -6,7 +6,7 @@ import * as WebBrowser from 'expo-web-browser';
 import * as AuthSession from 'expo-auth-session';
 
 import { useAuth } from '../context/auth/AuthContext';
-import { APPLE_REDIRECT_URI, APPLE_SERVICE_ID, GOOGLE_CLIENT_IDS } from '../const';
+import { APPLE_REDIRECT_URI, APPLE_SERVICE_ID, GOOGLE_CLIENT_IDS } from '../constants/env';
 import { handleError } from '../utils';
 import { exchangeOAuthToken, OAuthPayloadMap, OAuthProvider } from '../api/auth';
 

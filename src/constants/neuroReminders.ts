@@ -1,5 +1,5 @@
 import { ReminderType } from '../utils/types';
-import { Reason } from '../components/reminders/reminder-schedule-v2';
+import { Reason } from '../features/reminders/reminder-schedule-v2';
 
 interface NeuroReminderCopy {
     time: string;

@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import isBetween from 'dayjs/plugin/isBetween';
 import { useTherapySessions } from '../../src/context/therapy-sessions/TherapySessionsContext';
-import { ReminderRow } from '../../src/components/reminders/ReminderRow';
+import { ReminderRow } from '../../src/features/reminders/ReminderRow';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
 import { Button } from '../../src/components/ui/Button';
 import { NEURO_REMINDER_COPY } from '../../src/constants/neuroReminders';

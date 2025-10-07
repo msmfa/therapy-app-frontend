@@ -1,5 +1,5 @@
 import { Pressable, View, StyleSheet } from "react-native";
-import { Note } from "../../hooks/useNotes";
+import { Note } from "../../features/notes/useNotes";
 import AppText from "../ui/AppText";
 import Spacer from "../ui/Spacer";
 import dayjs from 'dayjs';

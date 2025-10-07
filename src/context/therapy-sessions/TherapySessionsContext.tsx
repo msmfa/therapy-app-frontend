@@ -10,8 +10,8 @@ import {
     TherapySession,
     syncTherapySessions as syncTherapySessionsApi,
 } from '../../api/therapy';
-import { scheduleTherapySessionNotifications } from '../../utils/schedule-reminders';
-import { scheduleNeuroplasticityReminders, Reminder } from '../../components/reminders/reminder-schedule-v2';
+import { scheduleTherapySessionNotifications } from '../../features/reminders/schedule-reminders';
+import { scheduleNeuroplasticityReminders, Reminder } from '../../features/reminders/reminder-schedule-v2';
 import { toError } from '../../utils/errors';
 
 const POST_SESSION_NOTIFICATION_ID = 'post-session-note';

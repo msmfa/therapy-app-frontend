@@ -1,6 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet, View, ViewStyle, StyleProp, ActivityIndicator, Text } from 'react-native';
-import { spacing, typography } from '../../const';
+import { spacing } from '../../constants';
 import { palette, colors } from '../../../new-design';
 
 interface Props {
@@ -50,7 +50,7 @@ export function Button({
             ) : null }
             { !loading ? (
                 <Text
-                    style={ [styles.actionButtonText, { color: textColor }] }
+                    style={ { color: textColor } }
                 >
                     { label }
                 </Text>
@@ -83,8 +83,5 @@ const styles = StyleSheet.create({
     },
     iconWrapper: {
         marginRight: spacing.sm,
-    },
-    actionButtonText: {
-        ...typography.button,
     },
 });

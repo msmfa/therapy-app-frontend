@@ -9,7 +9,7 @@ import {
     ViewStyle,
 } from 'react-native';
 // Pending: consolidate color imports once design tokens settle (see TODO.md).
-import { spacing } from '../../const';
+import { spacing } from '../../constants';
 import { COLOR_VARIANTS, colors } from '../../../new-design';
 import AppText from './AppText';
 

@@ -1,6 +1,6 @@
-import { getPostSessionNoteReminders } from '../components/reminders/reminder-schedule-v2';
-import type { TherapySession } from '../api/therapy';
-import { scheduleNoteNotification } from '../services/notifications';
+import { getPostSessionNoteReminders } from './reminder-schedule-v2';
+import type { TherapySession } from '../../api/therapy';
+import { scheduleNoteNotification } from '../../services/notifications';
 
 /**
  * Schedule notifications to remind users to write session notes after therapy.

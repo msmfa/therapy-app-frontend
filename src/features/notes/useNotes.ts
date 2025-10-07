@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { openDatabaseAsync, type SQLiteDatabase } from 'expo-sqlite';
-import { scheduleNoteNotification, cancelScheduledNotification } from '../services/notifications';
+import { scheduleNoteNotification, cancelScheduledNotification } from '../../services/notifications';
 
 type SqlRow = {
     id: string;

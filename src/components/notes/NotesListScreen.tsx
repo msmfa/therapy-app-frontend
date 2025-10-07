@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import {  useHeaderHeight } from '@react-navigation/elements';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Note } from '../../hooks/useNotes';
+import { Note } from '../../features/notes/useNotes';
 import { NotePreviewModal } from './NotesListScreenModal';
 import { NoteCard } from './NoteCard';
 import AppText from '../ui/AppText';

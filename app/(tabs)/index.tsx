@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../src/context/auth/AuthContext';
-import { useNotes } from '../../src/hooks/useNotes';
+import { useNotes } from '../../src/features/notes/useNotes';
 import ErrorMessage from '../../src/components/ui/ErrorMessage';
 import { colors, gradients, palette } from '../../new-design';
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { KeyboardAvoidingView, Modal, Platform, ScrollView, TextInput, View, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Note } from "../../hooks/useNotes";
+import { Note } from "../../features/notes/useNotes";
 import { GradientUpwards } from "../GradientUpwards";
 import { Button } from "../ui/Button";
 import AppText from "../ui/AppText";

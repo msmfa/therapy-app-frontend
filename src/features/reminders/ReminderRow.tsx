@@ -1,12 +1,12 @@
 import { View, StyleSheet, TouchableOpacity } from "react-native";
-import { GradientCard } from "../ui/GradientCard";
+import { GradientCard } from 'src/components/ui/GradientCard';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { AppModal } from "../Modal";
+import { AppModal } from 'src/components/Modal';
 import { ReminderType } from "../../utils/types";
-import { ScienceTextModal } from "../ScienceTextModal";
-import AppText from "../ui/AppText";
-import Spacer, { SpacerVariant } from "../ui/Spacer";
+import { ScienceTextModal } from 'src/components/ScienceTextModal';
+import AppText from 'src/components/ui/AppText';
+import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { colors, palette } from '../../../new-design';
 
 type Props = {

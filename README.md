@@ -42,10 +42,10 @@ Upgrade Node if Jest exits with optional-chaining syntax errors.
 ## API Layer
 
 - `src/api/client.ts` centralizes fetch configuration, auth headers, retries, and error parsing.
-- Helper wrappers (`apiGet`, `apiPost`, etc.) share base URL and timeout defaults from `src/const.ts`.
-- Feature-specific endpoints are grouped per domain (e.g. `src/api/users.ts`, reminder utilities under `src/components/reminders/`).
+- Helper wrappers (`apiGet`, `apiPost`, etc.) share base URL and timeout defaults from `src/constants/env.ts`.
+- Feature-specific endpoints are grouped per domain (e.g. `src/api/users.ts`, reminder utilities under `src/features/reminders/`).
 
 ## Project Notes
 
-- Environment config is split between `app.json` and `src/const.ts`.
+- Environment config is split between `app.json` and `src/constants/env.ts`.
 - In-progress work is tracked in `TODO.md` (gitignored locally).

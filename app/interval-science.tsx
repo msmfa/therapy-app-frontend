@@ -4,9 +4,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { GradientUpwards } from '../src/components/GradientUpwards';
 import AppText from 'src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
-import { ReminderRow } from 'src/components/reminders/ReminderRow';
+import { ReminderRow } from 'src/features/reminders/ReminderRow';
 import { NEURO_REMINDER_COPY } from 'src/constants/neuroReminders';
-import { Reason } from 'src/components/reminders/reminder-schedule-v2';
+import { Reason } from 'src/features/reminders/reminder-schedule-v2';
 
 const reminderEntries = Object.entries(NEURO_REMINDER_COPY) as Array<[
     Reason,
