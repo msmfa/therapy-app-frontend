@@ -220,7 +220,7 @@ export async function apiRequest<T = unknown>(path: string, options: ApiRequestO
 
         captureApiException(error, { url, method });
 
-        if (error instanceof DOMException && error.name === 'AbortError') {
+        if (typeof DOMException !== 'undefined' && error instanceof DOMException && error.name === 'AbortError') {
             throw new ApiError(408, { message: 'Request timed out' });
         }
 

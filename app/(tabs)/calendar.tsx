@@ -13,6 +13,7 @@ import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { useFocusEffect } from 'expo-router';
 import LoadingSuccess from 'src/components/ui/LoadingWithSuccess';
 import AppText from 'src/components/ui/AppText';
+import ErrorModal from '../../src/components/ui/ErrorModal';
 
 const stepsText = {
     one: 'Press on a date on the calendar to update your therapy session. You can set one date and apply it to up to 2 months in advance',
@@ -22,8 +23,17 @@ type SelectedSessions = Record<string, Date>;
 
 
 export default function CalendarScreen() {
-    const { sessions, syncSessions, neuroReminders } = useTherapySessions();
-    const [loading, setLoading] = useState<'loading' | 'success' | null>(null);
+    const {
+        sessions,
+        syncSessions,
+        neuroReminders,
+        loading: sessionsLoading,
+        error: sessionsError,
+        refreshSessions,
+    } = useTherapySessions();
+    const [saveStatus, setSaveStatus] = useState<'loading' | 'success' | null>(null);
+    const [errorModalVisible, setErrorModalVisible] = useState(false);
+    const [errorDismissed, setErrorDismissed] = useState(false);
     const initialSessions = useMemo(
         () => convertSessionsToCalendarFormat(sessions),
         [sessions],
@@ -48,7 +58,18 @@ export default function CalendarScreen() {
         useCallback(() => {
             setSelectedSessions(initialSessions);
             setDotDates(normalizeReminderDates(neuroReminders));
+            return () => {};
         }, [initialSessions, neuroReminders, normalizeReminderDates]),
+    );
+
+    useFocusEffect(
+        useCallback(() => {
+            setErrorDismissed(false);
+            if (sessionsError) {
+                setErrorModalVisible(true);
+            }
+            return () => {};
+        }, [sessionsError]),
     );
 
     const sessionCount = Object.keys(selectedSessions).length;
@@ -79,49 +100,82 @@ export default function CalendarScreen() {
     }, [handleSessionsChange]);
 
     const handleSavePress = useCallback(async () => {
-        setLoading('loading');
+        setSaveStatus('loading');
         try {
             if (sessionCount < 5) {
                 Alert.alert('Oops', 'Please select at least five therapy sessions to update.', [
                     { text: 'OK', style: 'default' },
                 ]);
-                setLoading(null); // ← Reset here since we're returning early
+                setSaveStatus(null); // ← Reset here since we're returning early
                 return;
             }
             await syncSessions(selectedSessions, 50);
-            setLoading('success');
+            setSaveStatus('success');
 
             // Auto-dismiss after showing success - no setTimeout here!
 
         } catch (error) {
             console.error('syncSessions failed', error);
             Alert.alert('Error', 'Unable to save sessions right now.');
-            setLoading(null);
+            setSaveStatus(null);
         }
     // ← Remove the finally block that was setting loading to null
     }, [selectedSessions, sessionCount, syncSessions]);
 
     // Delay resetting loading state after success
     useEffect(() => {
-        if (loading === 'success') {
+        if (saveStatus === 'success') {
             const timer = setTimeout(() => {
-                setLoading(null);
+                setSaveStatus(null);
             }, 2500); // Show success for 2.5 seconds
 
             return () => clearTimeout(timer);
         }
-    }, [loading]);
+    }, [saveStatus]);
 
 
     useEffect(() => {
         setDotDates(normalizeReminderDates(neuroReminders));
     }, [neuroReminders, normalizeReminderDates]);
 
+    useEffect(() => {
+        if (sessionsError && !errorDismissed) {
+            setErrorModalVisible(true);
+        }
+
+        if (!sessionsError) {
+            setErrorModalVisible(false);
+            setErrorDismissed(false);
+        }
+    }, [sessionsError, errorDismissed]);
+
+    const handleErrorModalClose = useCallback(() => {
+        setErrorModalVisible(false);
+        setErrorDismissed(true);
+    }, []);
+
+    const handleErrorPrimaryAction = useCallback(() => {
+        if (!sessionsError) return;
+
+        if (sessionsError.retryable) {
+            setErrorDismissed(false);
+            setErrorModalVisible(false);
+            refreshSessions().catch(() => {});
+        } else {
+            handleErrorModalClose();
+        }
+    }, [sessionsError, refreshSessions, handleErrorModalClose]);
+
 
 
     return (
         <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] }>
             <GradientUpwards />
+            { sessionsLoading && !sessions.length && (
+                <View style={ styles.loadingFallback }>
+                    <AppText variant='bodySecondary'>Loading your upcoming sessions…</AppText>
+                </View>
+            ) }
             <TherapyCalendar
                 dotDates={ dotDates }
                 onSelectedSessionsChange={ handleSessionsChange }
@@ -167,12 +221,22 @@ export default function CalendarScreen() {
                 </View>
                 <Spacer variant={ SpacerVariant.medium } />
             </GradientCard>
-            { loading &&
+            { saveStatus &&
             <LoadingSuccess
-                visible={ !!loading }
-                status={ loading }
+                visible={ !!saveStatus }
+                status={ saveStatus }
                 successText="Updated your therapy sessions"
             /> }
+            { sessionsError && (
+                <ErrorModal
+                    visible={ errorModalVisible }
+                    title={ sessionsError.title }
+                    message={ sessionsError.message }
+                    buttonLabel={ sessionsError.retryable ? sessionsError.actionLabel : undefined }
+                    onPress={ sessionsError.retryable ? handleErrorPrimaryAction : undefined }
+                    onClose={ handleErrorModalClose }
+                />
+            ) }
         </SafeAreaView>
     );
 }
@@ -180,6 +244,10 @@ export default function CalendarScreen() {
 const styles = StyleSheet.create({
     root: {
         flex: 1,
+    },
+    loadingFallback: {
+        marginHorizontal: 16,
+        marginBottom: 12,
     },
     calendarKey: {
         flex: 1,

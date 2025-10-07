@@ -18,7 +18,6 @@ export function AppModal({ children, isVisible, onClose }: ModalProps) {
         <Modal
             visible={ isVisible }
             animationType="slide"
-            // presentationStyle="fullScreen"
             onRequestClose={ onClose }
         >
             <SafeAreaView style={ styles.modalRoot }>

@@ -13,6 +13,7 @@ import {
 import { scheduleAddNoteReminders } from '../../features/reminders/add-note-reminder';
 import { scheduleNeuroplasticityReminders, Reminder } from '../../features/reminders/reminder-schedule-v2';
 import { syncReviewNoteReminders } from '../../features/reminders/review-note-reminder';
+import { mapSessionError, SessionErrorCopy } from '../../features/therapy-sessions/session-error-map';
 import { toError } from '../../utils/errors';
 
 const POST_SESSION_NOTIFICATION_ID = 'post-session-note';
@@ -21,7 +22,7 @@ const POST_SESSION_NOTIFICATION_MESSAGE = 'Remember to take a note about your th
 interface TherapySessionsContextType {
     sessions: TherapySession[];
     loading: boolean;
-    error: string | null;
+    error: SessionErrorCopy | null;
     nextSession: TherapySession | null;
     neuroReminders: Reminder[];
     refreshSessions: () => Promise<void>;
@@ -42,7 +43,7 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
     const { isAuthenticated } = useAuth();
     const [sessions, setSessions] = useState<TherapySession[]>([]);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<SessionErrorCopy | null>(null);
     const [neuroReminders, setNeuroReminders] = useState<Reminder[]>([]);
 
     const refreshSessions = useCallback(async () => {
@@ -51,8 +52,8 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
         }
 
         setLoading(true);
-        setError(null);
         try {
+            setError(null);
             const from = new Date();
             from.setUTCHours(0, 0, 0, 0);
 
@@ -69,6 +70,7 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
                     POST_SESSION_NOTIFICATION_MESSAGE,
                     data,
                 );
+                setError(null);
             } catch (notificationError) {
                 Sentry.withScope((scope) => {
                     scope.setTag('feature', 'therapy-sessions.notifications');
@@ -78,14 +80,16 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
                     Sentry.captureException(toError(notificationError));
                 });
                 console.warn('[TherapySessions] scheduling notifications failed:', notificationError);
+                setError({
+                    title: 'Reminder scheduling failed',
+                    message: 'We could not reschedule your reminders. Please try again later.',
+                    actionLabel: 'Try again',
+                    retryable: true,
+                });
             }
         } catch (err) {
-            const message = err instanceof ApiError
-                ? err.message
-                : err instanceof Error
-                    ? err.message
-                    : undefined;
-            setError(message ?? 'Failed to load sessions');
+            const mapped = mapSessionError(err);
+            setError({ ...mapped });
             const shouldReport = !(err instanceof ApiError) || err.status >= 500;
             if (shouldReport) {
                 Sentry.withScope((scope) => {
