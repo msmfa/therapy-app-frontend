@@ -30,6 +30,7 @@
 			"backgroundColor": "#FFFFFF"
 		},
 		"ios": {
+			"bundleIdentifier": "com.yourcompany.therapyapp",
 			"supportsTablet": true,
 			"usesAppleSignIn": true
 		},

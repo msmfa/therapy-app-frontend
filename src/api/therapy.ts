@@ -24,11 +24,11 @@ export type TherapySession = {
 export const updateTherapySession = async (
     sessionId: string,
     startsAtUtc: Date,
-    durationMinutes: number,
+    durationMin: number,
 ): Promise<TherapySession> =>
     apiPut<TherapySession>(`/api/therapy-sessions/${sessionId}`, {
         startsAtUtc: startsAtUtc.toISOString(),
-        durationMinutes,
+        durationMin,
     });
 
 export async function createTherapySession(
