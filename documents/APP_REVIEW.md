@@ -14,8 +14,8 @@
 - **Privacy policy contact information still references a placeholder email.** The inline comment explicitly marks it as temporary. 【F:app/privacy-policy.tsx†L155-L160】
 
 ## Notifications & reminders
-- **Therapy session reminders stack up on every refresh.** Each hydration pass reschedules all post-session notifications without cancelling previously scheduled ones, so users can receive duplicate pings for the same session. 【F:src/context/therapy-sessions/TherapySessionsContext.tsx†L45-L83】【F:src/utils/schedule-reminders.ts†L75-L91】
-- **Failed notification setup is silent.** `initNotifications` throws when permissions are missing, but the initializer just logs a warning—there’s no UI telling users why reminder features stopped working. 【F:app/_layout.tsx†L105-L113】【F:src/utils/schedule-reminders.ts†L18-L40】
+- **Therapy session reminders stack up on every refresh.** Each hydration pass reschedules all post-session notifications without cancelling previously scheduled ones, so users can receive duplicate pings for the same session. 【F:src/context/therapy-sessions/TherapySessionsContext.tsx†L45-L83】【F:src/utils/schedule-reminders.ts†L1-L21】
+- **Failed notification setup is silent.** `initNotifications` throws when permissions are missing, but the initializer just logs a warning—there’s no UI telling users why reminder features stopped working. 【F:app/_layout.tsx†L105-L113】【F:src/services/notifications/index.ts†L1-L52】
 
 ## Content & state coverage gaps
 - **Authentication forms ship with test credentials pre-filled.** The login form defaults to `test@example.com` / `Passw0rd!`, which is confusing for users and unsafe for release builds. 【F:app/(auth)/login.tsx†L27-L46】

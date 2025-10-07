@@ -5,7 +5,7 @@ import { ThemeProvider, DefaultTheme, Theme } from '@react-navigation/native';
 import { AuthProvider, useAuth } from '../src/context/auth/AuthContext';
 import { OnboardingProvider, useOnboarding } from '../src/context/onboarding/OnboardingContext';
 import { TherapySessionsProvider } from '../src/context/therapy-sessions/TherapySessionsContext';
-import { initNotifications } from '../src/utils/schedule-reminders';
+import { initNotifications } from '../src/services/notifications';
 import { colors, gradients } from '../new-design';
 import { StatusBar, StyleSheet, View } from 'react-native';
 import Loading from '../src/components/ui/Loading';
