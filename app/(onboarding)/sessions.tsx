@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,6 +12,7 @@ import { Button } from '../../src/components/ui/Button';
 import OnboardingSteps from 'src/components/ui/OnboardingSteps';
 import Spacer from 'src/components/ui/Spacer';
 import { palette } from '../../new-design';
+import ErrorModal from '../../src/components/ui/ErrorModal';
 
 
 const onBoardingText = {
@@ -24,8 +25,14 @@ type SelectedSessions = Record<string, Date>;
 
 export default function SessionsScreen() {
     const router = useRouter();
-    const { sessions: existingSessions, syncSessions } = useTherapySessions();
+    const {
+        sessions: existingSessions,
+        syncSessions,
+        refreshSessions,
+        error: sessionsError,
+    } = useTherapySessions();
     const [isSaving, setIsSaving] = useState(false);
+    const [errorVisible, setErrorVisible] = useState(false);
 
     const initialSessions = useMemo(
         () => convertSessionsToCalendarFormat(existingSessions),
@@ -37,6 +44,27 @@ export default function SessionsScreen() {
     useEffect(() => {
         setSelectedSessions(initialSessions);
     }, [initialSessions]);
+
+    useEffect(() => {
+        if (sessionsError) {
+            setErrorVisible(true);
+        } else {
+            setErrorVisible(false);
+        }
+    }, [sessionsError]);
+
+    const handleErrorClose = useCallback(() => {
+        setErrorVisible(false);
+    }, []);
+
+    const handleErrorRetry = useCallback(() => {
+        if (!sessionsError?.retryable) {
+            setErrorVisible(false);
+            return;
+        }
+        setErrorVisible(false);
+        refreshSessions().catch(() => {});
+    }, [sessionsError, refreshSessions]);
 
     const sessionCount = Object.keys(selectedSessions).length;
 
@@ -105,6 +133,16 @@ export default function SessionsScreen() {
                 </TherapyCalendar>
             </View>
             { isSaving && <Loading /> }
+            { sessionsError && (
+                <ErrorModal
+                    visible={ errorVisible }
+                    title={ sessionsError.title }
+                    message={ sessionsError.message }
+                    buttonLabel={ sessionsError.retryable && sessionsError.actionLabel ? sessionsError.actionLabel : undefined }
+                    onPress={ sessionsError.retryable ? handleErrorRetry : undefined }
+                    onClose={ handleErrorClose }
+                />
+            ) }
         </SafeAreaView>
     );
 }

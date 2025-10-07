@@ -93,9 +93,9 @@ export default function SettingsScreen() {
                     </AppText>
                 </View>
             </GradientCard>
-            <Spacer />
+            <Spacer variant={ SpacerVariant.small } />
             <FrostedCard>
-                <View style={ styles.container }>
+                <View>
                     <AppText variant='h2'>
                         References
                     </AppText>
@@ -111,7 +111,6 @@ export default function SettingsScreen() {
                         />
                     </View>
                     <Spacer />
-
                     <AppText variant='h2'>
                         Settings
                     </AppText>
@@ -124,11 +123,10 @@ export default function SettingsScreen() {
                         <SettingsRow text="Log out" onPress={ () => onLogout() } />
                     </View>
                 </View>
-                <Spacer variant={ SpacerVariant.large } />
+                <Spacer  />
                 <AppText variant='caption' align='center'>
                     v1.0.0
                 </AppText>
-                <Spacer variant={ SpacerVariant.small } />
             </FrostedCard>
         </SafeAreaView>
     );
@@ -137,17 +135,12 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
     root: {
         flex: 1,
-        padding: 12,
-    },
-    container: {
-        padding: 0,
-        marginTop: 12,
-        // margin: 12,
+        paddingHorizontal: 12,
+
     },
     user: {
-        padding: 18,
+        padding: 12,
         alignItems: 'center',
-        gap: 8,
     },
 });
 

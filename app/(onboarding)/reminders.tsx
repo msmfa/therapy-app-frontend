@@ -1,4 +1,4 @@
-import React, { JSX, useMemo } from 'react';
+import React, { JSX, useCallback, useEffect, useMemo, useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,6 +12,7 @@ import { Button } from '../../src/components/ui/Button';
 import { NEURO_REMINDER_COPY } from '../../src/constants/neuroReminders';
 import AppText from '../../src/components/ui/AppText';
 import { palette } from '../../new-design';
+import ErrorModal from '../../src/components/ui/ErrorModal';
 
 const LENGTH_OF_DAYS_TO_SHOW = 7;
 
@@ -20,7 +21,34 @@ dayjs.extend(isBetween);
 
 export default function RemindersScreen(): JSX.Element | null {
     const router = useRouter();
-    const { sessions, neuroReminders } = useTherapySessions();
+    const {
+        sessions,
+        neuroReminders,
+        error: sessionsError,
+        refreshSessions,
+    } = useTherapySessions();
+    const [errorVisible, setErrorVisible] = useState(false);
+
+    useEffect(() => {
+        if (sessionsError) {
+            setErrorVisible(true);
+        } else {
+            setErrorVisible(false);
+        }
+    }, [sessionsError]);
+
+    const handleErrorClose = useCallback(() => {
+        setErrorVisible(false);
+    }, []);
+
+    const handleErrorRetry = useCallback(() => {
+        if (!sessionsError?.retryable) {
+            setErrorVisible(false);
+            return;
+        }
+        setErrorVisible(false);
+        refreshSessions().catch(() => {});
+    }, [sessionsError, refreshSessions]);
 
     const orderedSessionDates = useMemo(() => {
         return [...sessions]
@@ -62,35 +90,47 @@ export default function RemindersScreen(): JSX.Element | null {
     const remindersToShow = getRemindersForWeek;
 
     return (
-        <SafeAreaView style={ styles.container }>
-            <GradientUpwards />
-            <ScrollView style={ styles.scrollContent }>
-                <View style={ styles.header }>
-                    <AppText
-                        variant='h1'
-                    >
-                        Your tailored plan
-                    </AppText>
+        <>
+            <SafeAreaView style={ styles.container }>
+                <GradientUpwards />
+                <ScrollView style={ styles.scrollContent }>
+                    <View style={ styles.header }>
+                        <AppText
+                            variant='h1'
+                        >
+                            Your tailored plan
+                        </AppText>
 
-                    { remindersToShow.map(({ atUtc, reason }) => (
-                        <ReminderRow
-                            key={ atUtc }
-                            date={ dayjs(atUtc).format('dddd Do [at] h:mm A') }
-                            description={ NEURO_REMINDER_COPY[reason].reason }
-                            link={ NEURO_REMINDER_COPY[reason].link }
-                        />
-                    )) }
+                        { remindersToShow.map(({ atUtc, reason }) => (
+                            <ReminderRow
+                                key={ atUtc }
+                                date={ dayjs(atUtc).format('dddd Do [at] h:mm A') }
+                                description={ NEURO_REMINDER_COPY[reason].reason }
+                                link={ NEURO_REMINDER_COPY[reason].link }
+                            />
+                        )) }
+                    </View>
+                </ScrollView>
+                <View style={ styles.buttons }>
+                    <View style={ styles.button }>
+                        <Button label='Back' onPress={ () => router.back() } />
+                    </View >
+                    <View  style={ styles.button }>
+                        <Button label='Next' onPress={ handleNext } />
+                    </View>
                 </View>
-            </ScrollView>
-            <View style={ styles.buttons }>
-                <View style={ styles.button }>
-                    <Button label='Back' onPress={ () => router.back() } />
-                </View >
-                <View  style={ styles.button }>
-                    <Button label='Next' onPress={ handleNext } />
-                </View>
-            </View>
-        </SafeAreaView>
+            </SafeAreaView>
+            { sessionsError && (
+                <ErrorModal
+                    visible={ errorVisible }
+                    title={ sessionsError.title }
+                    message={ sessionsError.message }
+                    buttonLabel={ sessionsError.retryable && sessionsError.actionLabel ? sessionsError.actionLabel : undefined }
+                    onPress={ sessionsError.retryable ? handleErrorRetry : undefined }
+                    onClose={ handleErrorClose }
+                />
+            ) }
+        </>
     );
 }
 

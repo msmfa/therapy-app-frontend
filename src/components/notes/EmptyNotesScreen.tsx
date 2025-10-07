@@ -1,3 +1,4 @@
+import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
@@ -10,14 +11,44 @@ import brainElastic from '../../../assets/illustrations/brain-elastic.svg';
 import Spacer, { SpacerVariant } from '../ui/Spacer';
 import { COLOR_VARIANTS, colors } from 'new-design';
 import { GradientCard } from '../ui/GradientCard';
+import ErrorModal from '../ui/ErrorModal';
 
 const ILLUSTRATION_SIZE = 670;
 
 export default function EmptyNotesScreen() {
     const router = useRouter();
-    const { nextSession, loading } = useTherapySessions();
+    const {
+        nextSession,
+        loading,
+        error: sessionsError,
+        refreshSessions,
+    } = useTherapySessions();
+    const [errorVisible, setErrorVisible] = React.useState(false);
 
-    if (!nextSession && !loading) {
+    React.useEffect(() => {
+        if (sessionsError) {
+            setErrorVisible(true);
+        } else {
+            setErrorVisible(false);
+        }
+    }, [sessionsError]);
+
+    const handleErrorClose = React.useCallback(() => {
+        setErrorVisible(false);
+    }, []);
+
+    const handleErrorRetry = React.useCallback(() => {
+        if (!sessionsError?.retryable) {
+            setErrorVisible(false);
+            return;
+        }
+        setErrorVisible(false);
+        refreshSessions().catch(() => {});
+    }, [sessionsError, refreshSessions]);
+
+    const shouldRenderContent = Boolean(nextSession || loading);
+
+    if (!shouldRenderContent && !sessionsError) {
         return null;
     }
 
@@ -30,52 +61,66 @@ export default function EmptyNotesScreen() {
     };
 
     return (
-        <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] }>
-            <GradientUpwards />
-            <View pointerEvents='none' style={ styles.brainIllustration }>
-                <View style={ styles.illustrationContainer }>
-                    <Image
-                        source={ brainElastic }
-                        style={ styles.illustration }
-                        contentFit='contain'
-                    />
-                </View>
-            </View>
-            <View style={ styles.emptyContainer }>
-                <Spacer variant={ SpacerVariant.small } />
-                <GradientCard>
-                    <Spacer variant={ SpacerVariant.medium } />
-                    <AppText variant='h3'>
-                        We'll send you a notification just after your next session on { nextSessionDate } so you can take down your first note. You'll then see your logged notes on this screen
-                    </AppText>
-                    <Spacer variant={ SpacerVariant.medium } />
-
-                </GradientCard>
-                <Spacer variant={ SpacerVariant.small } />
-
-
-                <View style={ styles.bottomText }>
-                    <View style={ styles.bottomTextLine } />
-                    <View style={ styles.bottomTextContent }>
-                        <AppText variant='bodySecondary'>
-                            If you want to get started now, you can create your first note by tapping the plus icon in the bottom left
-                        </AppText>
-                        <AppText variant='bodySecondary'>
-                            However we recommend you read a little about what kind of{ ' ' }
-                            <AppText
-                                variant='bodySecondary'
-                                onPress={ handleOpenNoteTakingArticle }
-                                accessibilityRole='link'
-                                style={ styles.bottomTextLink }
-                            >
-                                note taking is best for therapy sessions
-                            </AppText>
-                        </AppText>
+        <>
+            { shouldRenderContent && (
+                <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] }>
+                    <GradientUpwards />
+                    <View pointerEvents='none' style={ styles.brainIllustration }>
+                        <View style={ styles.illustrationContainer }>
+                            <Image
+                                source={ brainElastic }
+                                style={ styles.illustration }
+                                contentFit='contain'
+                            />
+                        </View>
                     </View>
-                </View>
+                    <View style={ styles.emptyContainer }>
+                        <Spacer variant={ SpacerVariant.small } />
+                        <GradientCard>
+                            <Spacer variant={ SpacerVariant.medium } />
+                            <AppText variant='h3'>
+                                We'll send you a notification just after your next session on { nextSessionDate } so you can take down your first note. You'll then see your logged notes on this screen
+                            </AppText>
+                            <Spacer variant={ SpacerVariant.medium } />
 
-            </View>
-        </SafeAreaView>
+                        </GradientCard>
+                        <Spacer variant={ SpacerVariant.small } />
+
+
+                        <View style={ styles.bottomText }>
+                            <View style={ styles.bottomTextLine } />
+                            <View style={ styles.bottomTextContent }>
+                                <AppText variant='bodySecondary'>
+                                    If you want to get started now, you can create your first note by tapping the plus icon in the bottom left
+                                </AppText>
+                                <AppText variant='bodySecondary'>
+                                    However we recommend you read a little about what kind of{ ' ' }
+                                    <AppText
+                                        variant='bodySecondary'
+                                        onPress={ handleOpenNoteTakingArticle }
+                                        accessibilityRole='link'
+                                        style={ styles.bottomTextLink }
+                                    >
+                                        note taking is best for therapy sessions
+                                    </AppText>
+                                </AppText>
+                            </View>
+                        </View>
+
+                    </View>
+                </SafeAreaView>
+            ) }
+            { sessionsError && (
+                <ErrorModal
+                    visible={ errorVisible }
+                    title={ sessionsError.title }
+                    message={ sessionsError.message }
+                    buttonLabel={ sessionsError.retryable && sessionsError.actionLabel ? sessionsError.actionLabel : undefined }
+                    onPress={ sessionsError.retryable ? handleErrorRetry : undefined }
+                    onClose={ handleErrorClose }
+                />
+            ) }
+        </>
     );
 }
 
