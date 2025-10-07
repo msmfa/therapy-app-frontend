@@ -6,6 +6,7 @@ import {
     KeyboardAvoidingView,
     Platform,
     Alert,
+    ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, useRouter } from 'expo-router';
@@ -51,80 +52,87 @@ export default function LoginScreen() {
     };
 
     return (
-        <SafeAreaView style={ styles.root }>
+        <SafeAreaView edges={ ['top', 'left', 'right'] } style={ styles.root }>
             <KeyboardAvoidingView
-                behavior={ Platform.OS === 'ios' ? 'padding' : undefined }
+                behavior={ Platform.OS === 'ios' ? 'padding' : 'height' }
+                keyboardVerticalOffset={ Platform.OS === 'ios' ? 24 : 0 }
                 style={ styles.kav }
             >
-                <View style={ styles.card }>
-                    <AppText variant='h1' align='center'>
-                        Sign In
-                    </AppText>
-                    <Spacer />
-                    { isAuthenticated ? (
-                        <>
-                            <View style={ styles.authenticatedContainer }>
-                                <AppText variant='h1'>
-                                    Signed in as
-                                </AppText>
-                                <AppText variant='h1'>
-                                    { user?.email }
-                                </AppText>
+                <ScrollView
+                    contentContainerStyle={ styles.scrollContent }
+                    keyboardShouldPersistTaps='handled'
+                    showsVerticalScrollIndicator={ false }
+                >
+                    <View style={ styles.card }>
+                        <AppText variant='h1' align='center'>
+                            Sign In
+                        </AppText>
+                        <Spacer />
+                        { isAuthenticated ? (
+                            <>
+                                <View style={ styles.authenticatedContainer }>
+                                    <AppText variant='h1'>
+                                        Signed in as
+                                    </AppText>
+                                    <AppText variant='h1'>
+                                        { user?.email }
+                                    </AppText>
+                                </View>
+                                <Button label="Go to Home" onPress={ () => router.replace('/') } />
+                                <Spacer />
+                                <Button label="Log out" onPress={ onLogout } transparent />
+                            </>
+                        ) : (
+                            <View style={ styles.formContainer }>
+                                <TextField
+                                    label="Email"
+                                    value={ email }
+                                    onChangeText={ setEmail }
+                                    autoCapitalize="none"
+                                    autoCorrect={ false }
+                                    keyboardType="email-address"
+                                    placeholder="you@example.com"
+                                    textContentType="username"
+                                    returnKeyType="next"
+                                />
+                                <PasswordField
+                                    label="Password"
+                                    value={ password }
+                                    onChangeText={ setPassword }
+                                    placeholder="••••••••"
+                                    textContentType="password"
+                                    returnKeyType="done"
+                                    onSubmitEditing={ onSubmit }
+                                />
+                                <TouchableOpacity onPress={ () => router.push('/forgot-password') } style={ styles.forgotPassword }>
+                                    <AppText variant='caption'>
+                                        Forgot password?
+                                    </AppText>
+                                </TouchableOpacity>
+                                <Button label='Sign in' onPress={ onSubmit } loading={ loading } />
+                                <Spacer variant={ SpacerVariant.large } />
+                                <View style={ styles.dividerContainer }>
+                                    <View style={ styles.divider } />
+                                    <AppText variant='caption'>
+                                        Or continue with
+                                    </AppText>
+                                    <View style={ styles.divider } />
+                                </View>
+                                <Spacer variant={ SpacerVariant.large } />
+                                <SocialAuthButtons onSuccess={ () => router.replace('/') } />
+                                <Spacer />
+                                <View style={ styles.signupRow }>
+                                    <AppText variant='caption'>
+                                        Don't have an account?
+                                    </AppText>
+                                    <Link href="/(auth)/signup" style={ styles.signupLink }>
+                                        { ' ' } Sign up here
+                                    </Link>
+                                </View>
                             </View>
-                            <Button label="Go to Home" onPress={ () => router.replace('/') } />
-                            <Spacer />
-                            <Button label="Log out" onPress={ onLogout } transparent />
-                        </>
-                    ) : (
-                        <View style={ styles.formContainer }>
-                            <TextField
-                                label="Email"
-                                value={ email }
-                                onChangeText={ setEmail }
-                                autoCapitalize="none"
-                                autoCorrect={ false }
-                                keyboardType="email-address"
-                                placeholder="you@example.com"
-                                textContentType="username"
-                                returnKeyType="next"
-                            />
-                            <PasswordField
-                                label="Password"
-                                value={ password }
-                                onChangeText={ setPassword }
-                                placeholder="••••••••"
-                                textContentType="password"
-                                returnKeyType="done"
-                                onSubmitEditing={ onSubmit }
-                            />
-                            <TouchableOpacity onPress={ () => router.push('/forgot-password') } style={ styles.forgotPassword }>
-                                <AppText variant='caption'>
-                                    Forgot password?
-                                </AppText>
-                            </TouchableOpacity>
-                            <Button label='Sign in' onPress={ onSubmit } loading={ loading } />
-                            <Spacer variant={ SpacerVariant.large } />
-                            <View style={ styles.dividerContainer }>
-                                <View style={ styles.divider } />
-                                <AppText variant='caption'>
-                                    Or continue with
-                                </AppText>
-                                <View style={ styles.divider } />
-                            </View>
-                            <Spacer variant={ SpacerVariant.large } />
-                            <SocialAuthButtons onSuccess={ () => router.replace('/') } />
-                            <Spacer />
-                            <View style={ styles.signupRow }>
-                                <AppText variant='caption'>
-                                    Don't have an account?
-                                </AppText>
-                                <Link href="/(auth)/signup" style={ styles.signupLink }>
-                                    { ' ' } Sign up here
-                                </Link>
-                            </View>
-                        </View>
-                    ) }
-                </View>
+                        ) }
+                    </View>
+                </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>
     );
@@ -138,7 +146,11 @@ const styles = StyleSheet.create({
     },
     kav: {
         flex: 1,
-        justifyContent: 'center',
+    },
+    scrollContent: {
+        flexGrow: 1,
+        paddingTop: 40,
+        paddingBottom: 24,
     },
     card: {
         width: '100%',

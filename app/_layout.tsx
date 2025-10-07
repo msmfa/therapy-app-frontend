@@ -1,6 +1,6 @@
-import { ErrorBoundaryProps, Stack } from 'expo-router';
+import { ErrorBoundaryProps, Stack, useRouter } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { ThemeProvider, DefaultTheme, Theme } from '@react-navigation/native';
 import { AuthProvider, useAuth } from '../src/context/auth/AuthContext';
 import { OnboardingProvider, useOnboarding } from '../src/context/onboarding/OnboardingContext';
@@ -12,6 +12,7 @@ import Loading from '../src/components/ui/Loading';
 import { ErrorBoundaryUI } from '../src/components/ErrorBoundary';
 import * as Sentry from '@sentry/react-native';
 import { toError } from '../src/utils/errors';
+import * as Notifications from 'expo-notifications';
 
 const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN ?? process.env.SENTRY_DSN;
 
@@ -61,9 +62,11 @@ export function Gate() {
     // Both providers must be hydrated before we can route
     const isFullyHydrated = authHydrated && onboardingHydrated;
     const isAuthenticated = Boolean(user);
+    const isMainAppReady = isAuthenticated && isFullyHydrated && hasOnboarded;
 
     return (
         <View style={ styles.root }>
+            <NotificationNavigationHandler isReady={ isMainAppReady } />
             <Stack screenOptions={ { headerShown: false } }>
                 { /* Route 1: Authentication screens - show when not authenticated */ }
                 <Stack.Protected guard={ !isAuthenticated && authHydrated }>
@@ -138,6 +141,81 @@ function Initializer() {
             console.warn('[Initializer] notification setup failed:', err);
         });
     }, []);
+
+    return null;
+}
+
+interface NotificationNavigationHandlerProps {
+    isReady: boolean;
+}
+
+function NotificationNavigationHandler({ isReady }: NotificationNavigationHandlerProps) {
+    const router = useRouter();
+    const pendingResponseRef = useRef<Notifications.NotificationResponse | null>(null);
+    const handledNotificationIdsRef = useRef<Set<string>>(new Set());
+
+    const handleNotificationResponse = useCallback((response: Notifications.NotificationResponse | null) => {
+        if (!response) return;
+
+        const { notification } = response;
+        const notificationId = notification.request.identifier;
+        if (handledNotificationIdsRef.current.has(notificationId)) {
+            return;
+        }
+
+        const data = notification.request.content.data as Record<string, unknown> | undefined;
+        const rawType = data?.['type'];
+        const notificationType = typeof rawType === 'string' ? rawType : undefined;
+        if (notificationType !== 'reviewNoteReminder') {
+            return;
+        }
+
+        handledNotificationIdsRef.current.add(notificationId);
+        router.navigate('/(tabs)/index');
+    }, [router]);
+
+    useEffect(() => {
+        const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+            if (isReady) {
+                handleNotificationResponse(response);
+                return;
+            }
+            pendingResponseRef.current = response;
+        });
+
+        return () => subscription.remove();
+    }, [handleNotificationResponse, isReady]);
+
+    useEffect(() => {
+        let mounted = true;
+
+        Notifications.getLastNotificationResponseAsync()
+            .then((response) => {
+                if (!mounted || !response) {
+                    return;
+                }
+
+                if (isReady) {
+                    handleNotificationResponse(response);
+                } else {
+                    pendingResponseRef.current = response;
+                }
+            })
+            .catch(() => {});
+
+        return () => {
+            mounted = false;
+        };
+    }, [handleNotificationResponse, isReady]);
+
+    useEffect(() => {
+        if (!isReady || !pendingResponseRef.current) {
+            return;
+        }
+
+        handleNotificationResponse(pendingResponseRef.current);
+        pendingResponseRef.current = null;
+    }, [handleNotificationResponse, isReady]);
 
     return null;
 }

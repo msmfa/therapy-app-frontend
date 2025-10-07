@@ -9,7 +9,7 @@
     "version": "1.0.0",
     "scheme": "therapyapp",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/brain-logo.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "plugins": [

@@ -6,7 +6,6 @@ import { toError } from '../../utils/errors';
 
 Notifications.setNotificationHandler({
     handleNotification: async (): Promise<Notifications.NotificationBehavior> => ({
-        shouldShowAlert: true,
         shouldShowBanner: true,
         shouldShowList: true,
         shouldPlaySound: true,
