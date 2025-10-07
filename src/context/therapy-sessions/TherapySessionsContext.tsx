@@ -10,8 +10,9 @@ import {
     TherapySession,
     syncTherapySessions as syncTherapySessionsApi,
 } from '../../api/therapy';
-import { scheduleTherapySessionNotifications } from '../../features/reminders/schedule-reminders';
+import { scheduleAddNoteReminders } from '../../features/reminders/add-note-reminder';
 import { scheduleNeuroplasticityReminders, Reminder } from '../../features/reminders/reminder-schedule-v2';
+import { syncReviewNoteReminders } from '../../features/reminders/review-note-reminder';
 import { toError } from '../../utils/errors';
 
 const POST_SESSION_NOTIFICATION_ID = 'post-session-note';
@@ -63,7 +64,7 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
             setSessions(data);
 
             try {
-                await scheduleTherapySessionNotifications(
+                await scheduleAddNoteReminders(
                     POST_SESSION_NOTIFICATION_ID,
                     POST_SESSION_NOTIFICATION_MESSAGE,
                     data,
@@ -202,6 +203,9 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
     useEffect(() => {
         if (!sessions.length) {
             setNeuroReminders([]);
+            void syncReviewNoteReminders([]).catch((error) => {
+                console.warn('[TherapySessions] failed to clear review reminders', error);
+            });
             return;
         }
 
@@ -219,6 +223,16 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
         });
 
         setNeuroReminders(reminders);
+        void syncReviewNoteReminders(reminders).catch((error) => {
+            Sentry.withScope((scope) => {
+                scope.setTag('feature', 'therapy-sessions.review-reminders');
+                scope.setContext('notification', {
+                    reminders: reminders.length,
+                });
+                Sentry.captureException(toError(error));
+            });
+            console.warn('[TherapySessions] failed to sync review reminders', error);
+        });
     }, [sessions]);
 
     useEffect(() => {

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { openDatabaseAsync, type SQLiteDatabase } from 'expo-sqlite';
-import { scheduleNoteNotification, cancelScheduledNotification } from '../../services/notifications';
+import { cancelNotificationById } from '../../services/notifications';
+import { scheduleReviewNoteReminderNotification } from '../../services/notifications/review-note-reminder';
 
 type SqlRow = {
     id: string;
@@ -138,7 +139,7 @@ export function useNotes(userId: string | undefined) {
                 if (when) {
                     const ms = when.getTime();
                     if (ms <= Date.now()) throw new Error('Pick a future date & time');
-                    notifId = await scheduleNoteNotification(String(now), clean, when);
+                    notifId = await scheduleReviewNoteReminderNotification(String(now), clean, when);
                     remindAt = ms;
                 }
 
@@ -166,7 +167,7 @@ export function useNotes(userId: string | undefined) {
                 setError(null);
             } catch (err) {
                 console.warn('useNotes.addNoteWithReminder', err);
-                if (notifId) cancelScheduledNotification(notifId).catch(() => {});
+                if (notifId) cancelNotificationById(notifId).catch(() => {});
                 setError(err instanceof Error ? err.message : 'Failed to add note');
             }
         },
@@ -221,7 +222,7 @@ export function useNotes(userId: string | undefined) {
 
             const target = notes.find((n) => n.id === id);
             if (target?.notifId) {
-                cancelScheduledNotification(target.notifId).catch(() => {});
+                cancelNotificationById(target.notifId).catch(() => {});
             }
 
             try {
@@ -247,10 +248,10 @@ export function useNotes(userId: string | undefined) {
             if (!current) throw new Error('Note not found');
 
             if (current.notifId) {
-                await cancelScheduledNotification(current.notifId).catch(() => {});
+                await cancelNotificationById(current.notifId).catch(() => {});
             }
 
-            const notifId = await scheduleNoteNotification(id, current.text, when);
+            const notifId = await scheduleReviewNoteReminderNotification(id, current.text, when);
 
             try {
                 const db = await getDb();
@@ -281,7 +282,7 @@ export function useNotes(userId: string | undefined) {
 
             const current = notes.find((n) => n.id === id);
             if (current?.notifId) {
-                await cancelScheduledNotification(current.notifId).catch(() => {});
+                await cancelNotificationById(current.notifId).catch(() => {});
             }
 
             try {
@@ -309,7 +310,7 @@ export function useNotes(userId: string | undefined) {
         if (!userId) return;
 
         await Promise.all(
-            notes.map((n) => (n.notifId ? cancelScheduledNotification(n.notifId).catch(() => {}) : null)),
+            notes.map((n) => (n.notifId ? cancelNotificationById(n.notifId).catch(() => {}) : null)),
         );
 
         try {

@@ -14,7 +14,7 @@
 - **Privacy policy contact information still references a placeholder email.** The inline comment explicitly marks it as temporary. 【F:app/privacy-policy.tsx†L155-L160】
 
 ## Notifications & reminders
-- **Therapy session reminders stack up on every refresh.** Each hydration pass reschedules all post-session notifications without cancelling previously scheduled ones, so users can receive duplicate pings for the same session. 【F:src/context/therapy-sessions/TherapySessionsContext.tsx†L45-L83】【F:src/features/reminders/schedule-reminders.ts†L1-L21】
+- **Therapy session reminders stack up on every refresh.** Each hydration pass reschedules all post-session notifications without cancelling previously scheduled ones, so users can receive duplicate pings for the same session. 【F:src/context/therapy-sessions/TherapySessionsContext.tsx†L45-L83】【F:src/features/reminders/add-note-reminder/index.ts†L1-L25】
 - **Failed notification setup is silent.** `initNotifications` throws when permissions are missing, but the initializer just logs a warning—there’s no UI telling users why reminder features stopped working. 【F:app/_layout.tsx†L105-L113】【F:src/services/notifications/index.ts†L1-L52】
 
 ## Content & state coverage gaps
@@ -23,4 +23,3 @@
 - **Settings lacks confirmation/feedback after destructive actions.** Account deletion kicks the user back to the login gate with no confirmation or undo, and errors only appear in alerts; consider a dedicated success state and progress indicator. 【F:app/(tabs)/settings.tsx†L24-L80】
 - **Privacy copy over-promises storage security.** The policy claims notes are kept in “encrypted secure storage,” but the implementation writes plain text entries into an on-device SQLite table, which is misleading until encryption ships. 【F:app/privacy-policy.tsx†L46-L104】【F:src/features/notes/useNotes.ts†L31-L166】
 - **No Terms of Service entry point.** The settings screen only links to privacy, rate, and account options; there’s no obvious route to legal terms that app stores require. 【F:app/(tabs)/settings.tsx†L64-L96】
-

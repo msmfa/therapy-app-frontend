@@ -1,11 +1,11 @@
-import { getPostSessionNoteReminders } from './reminder-schedule-v2';
-import type { TherapySession } from '../../api/therapy';
-import { scheduleNoteNotification } from '../../services/notifications';
+import { getPostSessionNoteReminders } from '../reminder-schedule-v2';
+import type { TherapySession } from '../../../api/therapy';
+import { scheduleAddNoteReminderNotification } from '../../../services/notifications/add-note-reminder';
 
 /**
  * Schedule notifications to remind users to write session notes after therapy.
  */
-export async function scheduleTherapySessionNotifications(
+export async function scheduleAddNoteReminders(
     noteId: string,
     message: string,
     sessions: Array<Pick<TherapySession, '_id' | 'startsAtUtc' | 'durationMin'>>,
@@ -20,6 +20,8 @@ export async function scheduleTherapySessionNotifications(
     if (!plan.length) return;
 
     await Promise.all(
-        plan.map(({ remindAtUtc }) => scheduleNoteNotification(noteId, message, new Date(remindAtUtc))),
+        plan.map(({ remindAtUtc }) =>
+            scheduleAddNoteReminderNotification(noteId, message, new Date(remindAtUtc)),
+        ),
     );
 }

@@ -11,6 +11,6 @@
 - [ ] Validate push-notification permissions and surface fallbacks when `initNotifications` fails instead of silently warning. 【F:app/_layout.tsx†L105-L110】【F:src/services/notifications/index.ts†L1-L52】
 - [ ] Surface therapy-session loading and error states in the calendar tab so users don’t interact with stale data. 【F:app/(tabs)/calendar.tsx†L24-L176】【F:src/context/therapy-sessions/TherapySessionsContext.tsx†L18-L83】
 - [ ] Populate the reminder science modals with real explanatory copy and vetted resources before shipping. 【F:src/features/reminders/ReminderRow.tsx†L18-L46】【F:src/components/ScienceTextModal.tsx†L11-L30】
-- [ ] Track and cancel previously scheduled therapy-session notifications before creating new ones to avoid duplicate reminders. 【F:src/context/therapy-sessions/TherapySessionsContext.tsx†L45-L83】【F:src/features/reminders/schedule-reminders.ts†L1-L21】
+- [ ] Track and cancel previously scheduled therapy-session notifications before creating new ones to avoid duplicate reminders. 【F:src/context/therapy-sessions/TherapySessionsContext.tsx†L45-L83】【F:src/features/reminders/add-note-reminder/index.ts†L1-L25】
 - [ ] Update the privacy policy copy—or implement encryption—so it accurately reflects how note data is stored. 【F:app/privacy-policy.tsx†L46-L104】【F:src/features/notes/useNotes.ts†L31-L166】
 - [ ] Add a Terms of Service screen (and settings link) to cover required legal disclosures. 【F:app/(tabs)/settings.tsx†L64-L96】

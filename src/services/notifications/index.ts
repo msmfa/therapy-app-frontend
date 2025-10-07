@@ -1,7 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
-import { SchedulableTriggerInputTypes } from 'expo-notifications';
 import * as Sentry from '@sentry/react-native';
 import { toError } from '../../utils/errors';
 
@@ -39,29 +38,36 @@ export async function initNotifications(): Promise<void> {
     if (!granted) throw new Error('Notification permissions not granted');
 }
 
-export async function scheduleNoteNotification(
-    noteId: string,
-    body: string,
-    when: Date,
-): Promise<string> {
+export type ScheduleNotificationParams = {
+    identifier: string;
+    title: string;
+    body: string;
+    when: Date;
+    data?: Record<string, unknown>;
+};
+
+export async function scheduleNotificationRequest({ identifier, title, body, when, data }: ScheduleNotificationParams): Promise<string> {
     if (when.getTime() <= Date.now()) throw new Error('Pick a future date & time');
 
     const trigger: Notifications.DateTriggerInput = {
-        type: SchedulableTriggerInputTypes.DATE,
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
         date: when,
     };
 
     return Notifications.scheduleNotificationAsync({
         content: {
-            title: 'Time to log your therapy session',
+            title,
             body,
-            data: { noteId },
+            data: {
+                identifier,
+                ...data,
+            },
         },
         trigger,
     });
 }
 
-export async function cancelScheduledNotification(notificationId: string): Promise<void> {
+export async function cancelNotificationById(notificationId: string): Promise<void> {
     try {
         await Notifications.cancelScheduledNotificationAsync(notificationId);
     } catch (err) {
@@ -70,6 +76,14 @@ export async function cancelScheduledNotification(notificationId: string): Promi
             scope.setContext('notification', { notificationId });
             Sentry.captureException(toError(err));
         });
-        console.warn('cancelScheduledNotification failed', err);
+        console.warn('cancelNotificationById failed', err);
     }
+}
+
+export async function cancelNotificationsById(notificationIds: string[]): Promise<void> {
+    await Promise.all(
+        notificationIds.map((notificationId) =>
+            cancelNotificationById(notificationId).catch(() => {}),
+        ),
+    );
 }
