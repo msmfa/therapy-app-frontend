@@ -72,7 +72,7 @@ export default function LoadingReminders() {
 
     useEffect(() => {
         if (timerDone && apiSuccess) {
-            // router.replace('/(onboarding)/reminders');
+            router.replace('/(onboarding)/reminders');
         }
     }, [timerDone, apiSuccess]);
 
