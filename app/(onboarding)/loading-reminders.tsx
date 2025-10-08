@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import AppText from '../../src/components/ui/AppText';
@@ -21,74 +21,72 @@ export default function LoadingReminders() {
     const { sessions: sessionsParam, duration: durationParam } = useLocalSearchParams<LoadingParams>();
 
     const [error, setError] = useState<{ title: string; message: string } | null>(null);
-    const [apiSuccess, setApiSuccess] = useState(false);
-    const [apiError, setApiError] = useState<{ title: string; message: string } | null>(null);
-    const [timerDone, setTimerDone] = useState(false);
+    const [retryCount, setRetryCount] = useState(0);
+    const hasStartedRef = useRef(false);
 
-    const addSessions = useCallback(async () => {
-        const rawSessions = Array.isArray(sessionsParam) ? sessionsParam[0] : sessionsParam;
+    useEffect(() => {
+        // Prevent multiple executions
+        if (hasStartedRef.current) return;
+        hasStartedRef.current = true;
 
-        if (!rawSessions) {
-            router.replace('/(onboarding)/sessions');
-            return;
-        }
+        let cancelled = false;
 
-        try {
-            const parsed = JSON.parse(rawSessions) as Record<string, string>;
-            const mapped = Object.entries(parsed).reduce<Record<string, Date>>((acc, [key, iso]) => {
-                const date = new Date(iso);
-                if (!Number.isNaN(date.getTime())) {
-                    acc[key] = date;
-                }
-                return acc;
-            }, {});
+        const load = async () => {
+            const rawSessions = Array.isArray(sessionsParam) ? sessionsParam[0] : sessionsParam;
 
-            if (Object.keys(mapped).length === 0) {
-                throw new Error('No sessions to sync');
+            if (!rawSessions) {
+                router.replace('/(onboarding)/sessions');
+                return;
             }
 
-            const duration = Number(durationParam);
-            await syncSessions(mapped, duration);
-            setApiSuccess(true);
-        } catch (err) {
-            setApiError({
-                title: 'Unable to save sessions',
-                message: 'We could not save your therapy sessions. Please try again.',
-            });
-        }
-    }, [durationParam, sessionsParam, syncSessions]);
+            try {
+                const parsed = JSON.parse(rawSessions) as Record<string, string>;
+                const mapped = Object.entries(parsed).reduce<Record<string, Date>>((acc, [key, iso]) => {
+                    const date = new Date(iso);
+                    if (!Number.isNaN(date.getTime())) {
+                        acc[key] = date;
+                    }
+                    return acc;
+                }, {});
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setTimerDone(true);
-        }, MINIMUM_LOADING_TIME);
+                if (Object.keys(mapped).length === 0) {
+                    throw new Error('No sessions to sync');
+                }
 
-        return () => clearTimeout(timer);
-    }, []);
+                const durationValue = Array.isArray(durationParam) ? durationParam[0] : durationParam;
+                const duration = Number(durationValue);
 
-    useEffect(() => {
-        addSessions();
-    }, [addSessions]);
+                await Promise.all([
+                    syncSessions(mapped, duration),
+                    new Promise((resolve) => setTimeout(resolve, MINIMUM_LOADING_TIME)),
+                ]);
 
-    useEffect(() => {
-        if (timerDone && apiSuccess) {
-            router.replace('/(onboarding)/reminders');
-        }
-    }, [timerDone, apiSuccess]);
+                if (!cancelled) {
+                    router.replace('/(onboarding)/reminders');
+                }
+            } catch (err) {
+                if (!cancelled) {
+                    hasStartedRef.current = false; // Reset on error so retry works
+                    setError({
+                        title: 'Unable to save sessions',
+                        message: 'We could not save your therapy sessions. Please try again.',
+                    });
+                }
+            }
+        };
 
-    useEffect(() => {
-        if (timerDone && apiError) {
-            setError(apiError);
-        }
-    }, [timerDone, apiError]);
+        load();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [durationParam, sessionsParam, retryCount]);
 
     const handleRetry = useCallback(() => {
         setError(null);
-        setApiSuccess(false);
-        setApiError(null);
-        setTimerDone(false);
-        addSessions();
-    }, [addSessions]);
+        hasStartedRef.current = false;
+        setRetryCount((count) => count + 1);
+    }, []);
 
     const handleClose = useCallback(() => {
         setError(null);
@@ -96,18 +94,18 @@ export default function LoadingReminders() {
     }, []);
 
     return (
-            <View style={styles.root}>
-                <GlassMorphismWithCircle style={{ padding: 6 }}>
-                    <SafeAreaView edges={['left', 'right']} style={ styles.inner}>
-                        <AppText variant="body" align="center">
-                            Preparing your reminder schedule
-                        </AppText>
-                        <Spacer variant={SpacerVariant.large} />
-                        <Spacer />
-                        <DancingSquare />
-                    </SafeAreaView>
-                </GlassMorphismWithCircle>
-                  {error && (
+        <View style={styles.root}>
+            <GlassMorphismWithCircle style={{ padding: 6 }}>
+                <SafeAreaView edges={['left', 'right']} style={styles.inner}>
+                    <AppText variant="body" align="center">
+                        Preparing your reminder schedule
+                    </AppText>
+                    <Spacer variant={SpacerVariant.large} />
+                    <Spacer />
+                    <DancingSquare />
+                </SafeAreaView>
+            </GlassMorphismWithCircle>
+            {error && (
                 <ErrorModal
                     visible={error !== null}
                     title={error.title}
@@ -117,7 +115,7 @@ export default function LoadingReminders() {
                     onClose={handleClose}
                 />
             )}
-            </View>
+        </View>
     );
 }
 
@@ -132,5 +130,5 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-    }
+    },
 });
