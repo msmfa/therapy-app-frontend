@@ -4,10 +4,10 @@ import { View, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useOnboarding } from '../../src/context/onboarding/OnboardingContext';
-import { GradientUpwards } from '../../src/components/GradientUpwards';
 import { Button } from '../../src/components/ui/Button';
 import AppText from '../../src/components/ui/AppText';
 import Spacer from 'src/components/ui/Spacer';
+import { GlassMorphismWithCircle } from 'src/components/ui/GlassMorphismWithCircle';
 
 export default function SuccessScreen() {
     const router = useRouter();
@@ -28,10 +28,10 @@ export default function SuccessScreen() {
 
 
     return (
+        <GlassMorphismWithCircle style={ { flex: 1, padding: 6 } }>
         <SafeAreaView style={ styles.container }>
-            <GradientUpwards />
             <View style={ styles.content }>
-                <AppText variant='h1'>
+                <AppText variant='h1' align='center'>
                     Congrats, You're all set up!
                 </AppText>
                 <Spacer />
@@ -41,6 +41,7 @@ export default function SuccessScreen() {
                 <Button label='Next' onPress={ handleComplete } loading={ isCompleting } />
             </View>
         </SafeAreaView>
+        </GlassMorphismWithCircle>
     );
 }
 

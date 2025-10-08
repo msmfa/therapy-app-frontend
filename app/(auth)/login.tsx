@@ -20,6 +20,7 @@ import AppText from '../../src/components/ui/AppText';
 import { loginWithPassword } from '../../src/api/auth';
 import { handleError } from 'src/utils';
 import { COLOR_VARIANTS, palette } from '../../new-design';
+import { GlassMorphismWithCircle } from 'src/components/ui/GlassMorphismWithCircle';
 
 export default function LoginScreen() {
     const router = useRouter();
@@ -52,10 +53,10 @@ export default function LoginScreen() {
     };
 
     return (
+        <GlassMorphismWithCircle style={ { padding: 6, flex: 1 } }>
         <SafeAreaView edges={ ['top', 'left', 'right'] } style={ styles.root }>
             <KeyboardAvoidingView
                 behavior={ Platform.OS === 'ios' ? 'padding' : 'height' }
-                keyboardVerticalOffset={ Platform.OS === 'ios' ? 24 : 0 }
                 style={ styles.kav }
             >
                 <ScrollView
@@ -135,22 +136,24 @@ export default function LoginScreen() {
                 </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>
+        </GlassMorphismWithCircle>
     );
 }
 
 const styles = StyleSheet.create({
     root: {
         flex: 1,
-        backgroundColor: palette.neutral.white,
         paddingHorizontal: 20,
+        justifyContent: 'center',
+        borderRadius: 16,
     },
     kav: {
         flex: 1,
     },
     scrollContent: {
         flexGrow: 1,
-        paddingTop: 40,
-        paddingBottom: 24,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     card: {
         width: '100%',

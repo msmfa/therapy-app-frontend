@@ -33,7 +33,7 @@ export default function TabsLayout() {
                     shadowOpacity: 0,
                     paddingVertical: 16,
                     height: 76,
-                    backgroundColor: gradients.background.bottom,
+                    backgroundColor: 'red',
                 },
                 tabBarActiveTintColor: colors.text,
                 tabBarInactiveTintColor: colors.textDisabled,

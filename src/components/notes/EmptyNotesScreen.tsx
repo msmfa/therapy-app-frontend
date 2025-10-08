@@ -12,6 +12,7 @@ import Spacer, { SpacerVariant } from '../ui/Spacer';
 import { COLOR_VARIANTS, colors } from 'new-design';
 import { GradientCard } from '../ui/GradientCard';
 import ErrorModal from '../ui/ErrorModal';
+import { GlassMorphismWithCircle } from '../ui/GlassMorphismWithCircle';
 
 const ILLUSTRATION_SIZE = 670;
 
@@ -62,53 +63,54 @@ export default function EmptyNotesScreen() {
 
     return (
         <>
-            { shouldRenderContent && (
-                <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] }>
-                    <GradientUpwards />
-                    <View pointerEvents='none' style={ styles.brainIllustration }>
-                        <View style={ styles.illustrationContainer }>
-                            <Image
-                                source={ brainElastic }
-                                style={ styles.illustration }
-                                contentFit='contain'
-                            />
-                        </View>
-                    </View>
-                    <View style={ styles.emptyContainer }>
-                        <Spacer variant={ SpacerVariant.small } />
-                        <GradientCard>
-                            <Spacer variant={ SpacerVariant.medium } />
-                            <AppText variant='h3'>
-                                We'll send you a notification just after your next session on { nextSessionDate } so you can take down your first note. You'll then see your logged notes on this screen
-                            </AppText>
-                            <Spacer variant={ SpacerVariant.medium } />
-
-                        </GradientCard>
-                        <Spacer variant={ SpacerVariant.small } />
-
-
-                        <View style={ styles.bottomText }>
-                            <View style={ styles.bottomTextLine } />
-                            <View style={ styles.bottomTextContent }>
-                                <AppText variant='bodySecondary'>
-                                    If you want to get started now, you can create your first note by tapping the plus icon in the bottom left
-                                </AppText>
-                                <AppText variant='bodySecondary'>
-                                    However we recommend you read a little about what kind of{ ' ' }
-                                    <AppText
-                                        variant='bodySecondary'
-                                        onPress={ handleOpenNoteTakingArticle }
-                                        accessibilityRole='link'
-                                        style={ styles.bottomTextLink }
-                                    >
-                                        note taking is best for therapy sessions
-                                    </AppText>
-                                </AppText>
+            {shouldRenderContent && (
+                <GlassMorphismWithCircle style={styles.glass}>
+                    <SafeAreaView style={styles.root} edges={['left', 'right', 'top']}>
+                        <View pointerEvents='none' style={ styles.brainIllustration }>
+                            <View style={ styles.illustrationContainer }>
+                                <Image
+                                    source={ brainElastic }
+                                    style={ styles.illustration }
+                                    contentFit='contain'
+                                />
                             </View>
                         </View>
+                        <View style={ styles.emptyContainer }>
+                            <Spacer variant={ SpacerVariant.small } />
+                            <GradientCard>
+                                <Spacer variant={ SpacerVariant.medium } />
+                                <AppText variant='h3'>
+                                    We'll send you a notification just after your next session on { nextSessionDate } so you can take down your first note. You'll then see your logged notes on this screen
+                                </AppText>
+                                <Spacer variant={ SpacerVariant.medium } />
 
-                    </View>
-                </SafeAreaView>
+                            </GradientCard>
+                            <Spacer variant={ SpacerVariant.small } />
+
+
+                            <View style={ styles.bottomText }>
+                                <View style={ styles.bottomTextLine } />
+                                <View style={ styles.bottomTextContent }>
+                                    <AppText variant='bodySecondary'>
+                                        If you want to get started now, you can create your first note by tapping the plus icon in the bottom left
+                                    </AppText>
+                                    <AppText variant='bodySecondary'>
+                                        However we recommend you read a little about what kind of{ ' ' }
+                                        <AppText
+                                            variant='bodySecondary'
+                                            onPress={ handleOpenNoteTakingArticle }
+                                            accessibilityRole='link'
+                                            style={ styles.bottomTextLink }
+                                        >
+                                            note taking is best for therapy sessions
+                                        </AppText>
+                                    </AppText>
+                                </View>
+                            </View>
+
+                        </View>
+                    </SafeAreaView>
+                </GlassMorphismWithCircle>
             ) }
             { sessionsError && (
                 <ErrorModal
@@ -125,6 +127,10 @@ export default function EmptyNotesScreen() {
 }
 
 const styles = StyleSheet.create({
+    glass: {
+        flex: 1,
+        paddingBottom: 24,
+    },
     illustrationContainer: {
         alignItems: 'center',
         justifyContent: 'center',

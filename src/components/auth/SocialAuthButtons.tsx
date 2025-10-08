@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
         borderRadius: 28,
         borderWidth: 1,
         borderColor: palette.neutral.boundary,
-        backgroundColor: palette.neutral.white,
+        // backgroundColor: palette.neutral.white,
         alignItems: 'center',
         justifyContent: 'center',
         marginHorizontal: 8,

@@ -1,5 +1,6 @@
 import React, { forwardRef, useState } from 'react';
 import {
+    Platform,
     StyleProp,
     StyleSheet,
     TextInput,
@@ -10,7 +11,7 @@ import {
 } from 'react-native';
 // Pending: consolidate color imports once design tokens settle (see TODO.md).
 import { spacing } from '../../constants';
-import { COLOR_VARIANTS, colors } from '../../../new-design';
+import { COLOR_VARIANTS, colors, palette } from '../../../new-design';
 import AppText from './AppText';
 
 type TextFieldProps = TextInputProps & {
@@ -100,20 +101,19 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 14,
         fontWeight: '600',
-        marginBottom: spacing.xs,
+        marginBottom: 8,
     },
     inputWrapper: {
         borderWidth: 1,
-        borderColor: colors.borderLight,
+        borderColor: palette.neutral.boundary,
         borderRadius: 12,
-        backgroundColor: colors.bgLight,
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: spacing.md,
         minHeight: 48,
     },
     inputWrapperFocused: {
-        borderColor: COLOR_VARIANTS.blue.dark,
+        borderColor: COLOR_VARIANTS.black.dark,
     },
     inputWrapperError: {
         borderColor: colors.error,
@@ -121,17 +121,19 @@ const styles = StyleSheet.create({
     input: {
         flex: 1,
         fontSize: 16,
-        paddingVertical: spacing.sm,
         color: colors.text,
+        paddingVertical: Platform.select({ android: 0, default: 8 }),
+        textAlignVertical: 'center',
+        includeFontPadding: false,
     },
     accessory: {
-        marginLeft: spacing.sm,
+        marginLeft: 8,
         justifyContent: 'center',
         alignItems: 'center',
     },
     error: {
         fontSize: 12,
-        marginTop: spacing.xs,
+        marginTop: 8,
         color: colors.error,
     },
 });
