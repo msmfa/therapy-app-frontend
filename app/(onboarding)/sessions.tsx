@@ -4,7 +4,6 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TherapyCalendar from '../../src/components/therapy-calendar/TherapyCalendar';
 import { useTherapySessions } from '../../src/context/therapy-sessions/TherapySessionsContext';
-import Loading from '../../src/components/ui/Loading';
 import { convertSessionsToCalendarFormat } from '../../src/utils/calendar';
 import { GradientUpwards } from '../../src/components/GradientUpwards';
 import { GradientCard } from '../../src/components/ui/GradientCard';
@@ -27,11 +26,9 @@ export default function SessionsScreen() {
     const router = useRouter();
     const {
         sessions: existingSessions,
-        syncSessions,
         refreshSessions,
         error: sessionsError,
     } = useTherapySessions();
-    const [isSaving, setIsSaving] = useState(false);
     const [errorVisible, setErrorVisible] = useState(false);
 
     const initialSessions = useMemo(
@@ -68,7 +65,7 @@ export default function SessionsScreen() {
 
     const sessionCount = Object.keys(selectedSessions).length;
 
-    const handleSavePress = async () => {
+    const handleSavePress = () => {
         if (sessionCount < 4) {
             Alert.alert('Not Enough Sessions', 'Please add at least 4 therapy sessions.', [
                 { text: 'OK', style: 'default' },
@@ -76,17 +73,20 @@ export default function SessionsScreen() {
             return;
         }
 
-        setIsSaving(true);
+        const serializedSessions = JSON.stringify(
+            Object.entries(selectedSessions).reduce<Record<string, string>>((acc, [key, date]) => {
+                acc[key] = date.toISOString();
+                return acc;
+            }, {}),
+        );
 
-        try {
-            await syncSessions(selectedSessions, 50);
-            router.push('/(onboarding)/explanation');
-        } catch (error) {
-            Alert.alert('Error', 'Failed to save sessions. Please try again.');
-            console.error(error);
-        } finally {
-            setIsSaving(false);
-        }
+        router.push({
+            pathname: '/(onboarding)/loading-reminders',
+            params: {
+                sessions: serializedSessions,
+                duration: '50',
+            },
+        });
     };
 
     const handleClearAll = () => {
@@ -132,7 +132,6 @@ export default function SessionsScreen() {
                     </GradientCard>
                 </TherapyCalendar>
             </View>
-            { isSaving && <Loading /> }
             { sessionsError && (
                 <ErrorModal
                     visible={ errorVisible }

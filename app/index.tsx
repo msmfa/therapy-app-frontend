@@ -8,7 +8,7 @@ export default function Index() {
     const { hydrated: onboardingHydrated, hasOnboarded } = useOnboarding();
 
     if (!authHydrated || !onboardingHydrated) {
-        return <Loading text="Loading your account..." />; // wait for providers to hydrate
+        return <Loading />; // wait for providers to hydrate
     }
 
     if (!user) {

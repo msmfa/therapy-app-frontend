@@ -38,6 +38,7 @@ export function GradientCard({ children, addedStyles, hue, borderRadius }: Props
             <View style={ [styles.legendCard, { backgroundColor, borderColor, borderRadius: computedBorderRadius }] }>
                 { children }
             </View>
+
         </View>
     );
 }
@@ -55,5 +56,6 @@ const styles = StyleSheet.create({
         borderRadius: DEFAULT_RADIUS,
         borderWidth: 1,
         paddingHorizontal: 20,
+        // paddingVertical: 10,
     },
 });

@@ -1,0 +1,42 @@
+import React from 'react';
+import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
+import LinearGradientCircle from './LinearGradientCircle';
+import GlassMorphism from './GlassMorphism';
+
+type Props = {
+  children: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
+};
+
+export const GlassMorphismWithCircle = ({ children, style }: Props) => {
+  return (
+      <View style={styles.container}>
+        <View style={styles.colorfulCardsContainer}>
+          <LinearGradientCircle />
+        </View>
+        <GlassMorphism tint='light' style={style}>
+         {children}
+        </GlassMorphism>
+      </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+  },
+  colorfulCardsContainer: {
+    position: 'absolute',
+    bottom: -500,
+    left: 0,
+    right: 0,
+    height: 800,
+    width: 800,
+  },
+});
+

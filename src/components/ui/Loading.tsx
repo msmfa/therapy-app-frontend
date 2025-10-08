@@ -1,20 +1,14 @@
 import React from 'react';
-import { View, ActivityIndicator, StyleSheet, Modal } from 'react-native';
-import AppText from './AppText';
-import { colors, palette } from '../../../new-design';
+import { View, StyleSheet, Modal } from 'react-native';
+import { palette } from '../../../new-design';
+import DancingSquare from './PulsingSquare';
 
 type LoadingProps = {
-	text?: string;
-	size?: 'small' | 'large';
-	color?: string;
 	fullScreen?: boolean;
     transparent?: boolean;
 };
 
 export default function Loading({
-    text = 'Loading...',
-    size = 'large',
-    color = colors.text,
     fullScreen = true,
     transparent = false,
 }: LoadingProps) {
@@ -27,7 +21,7 @@ export default function Loading({
                 statusBarTranslucent
             >
                 <View style={ styles.fullScreenContainer } pointerEvents="auto">
-                    <ActivityIndicator size={ size } color={ color } />
+                    <DancingSquare/>
                 </View>
             </Modal>
         );
@@ -35,12 +29,9 @@ export default function Loading({
 
     return (
         <View style={ styles.container }>
-            <ActivityIndicator size={ size } color={ color } />
-            { text ? (
-                <AppText variant='body' style={ styles.text }>
-                    { text }
-                </AppText>
-            ) : null }
+           <View style={ styles.fullScreenContainer } pointerEvents="auto">
+                 <DancingSquare/>
+            </View>
         </View>
     );
 }

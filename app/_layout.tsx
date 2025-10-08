@@ -85,7 +85,7 @@ export function Gate() {
             </Stack>
 
             { /* Show loading overlay until all providers are hydrated */ }
-            { !isFullyHydrated && <Loading text="Loading your account..." /> }
+            { !isFullyHydrated && <Loading fullScreen /> }
         </View>
     );
 }
