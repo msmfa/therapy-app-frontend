@@ -47,7 +47,6 @@ export function ReminderRow ({ date, description, link }: Props) {
                     <Spacer variant={ SpacerVariant.large } />
                 </GradientCard>
             </TouchableOpacity>
-            { /* Placeholder: add science content pages and hook up modal copy (see TODO.md). */ }
             { openModal && (
                 <AppModal isVisible={ true } onClose={ () => setOpenModal(null) }>
                     <ScienceTextModal type={ openModal } />

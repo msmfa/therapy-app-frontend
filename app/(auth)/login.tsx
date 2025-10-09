@@ -20,8 +20,6 @@ import AppText from '../../src/components/ui/AppText';
 import { loginWithPassword } from '../../src/api/auth';
 import { handleError } from 'src/utils';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
-import { GlassMorphismWithCircle } from 'src/components/ui/GlassMorphismWithCircle';
-import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 
 export default function LoginScreen() {
     const router = useRouter();
@@ -54,9 +52,7 @@ export default function LoginScreen() {
     };
 
     return (
-        <GlassMorphismWithCircle style={ { padding: 6, flex: 1 } } circlePosition={ CirclePosition.TOP_LEFT }>
         <SafeAreaView edges={ ['top', 'left', 'right'] } style={ styles.root }>
-
             <KeyboardAvoidingView
                 behavior={ Platform.OS === 'ios' ? 'padding' : 'height' }
                 style={ styles.kav }
@@ -138,7 +134,7 @@ export default function LoginScreen() {
                 </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>
-        </GlassMorphismWithCircle>
+
     );
 }
 

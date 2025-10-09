@@ -97,56 +97,56 @@ export default function SessionsScreen() {
 
     return (
         <View style={ styles.container }>
-             <View pointerEvents='none' style={ styles.background }>
+            <View pointerEvents='none' style={ styles.background }>
                 <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_LEFT } />
             </View>
-        <SafeAreaView style={ styles.root }>
+            <SafeAreaView style={ styles.root }>
 
-            <View style={ styles.content }>
-                <TherapyCalendar
-                    onSelectedSessionsChange={ setSelectedSessions }
-                    selectedSessions={ selectedSessions }
-                >
-                    <GradientCard addedStyles={ styles.bottomContainer }>
-                        <OnboardingSteps
-                            title='Add your therapy sessions'
-                            steps={ [
-                                onBoardingText.one,
-                                onBoardingText.two,
-                            ] }
-                            activeStep={ haveSessionsBeenSelected ? 0 : 1 }
-                        />
-                        <Spacer />
-                        <View style={ styles.buttonsWrapper }>
-                            <Button
-                                addedStyles={ { width: '48%' } }
-                                disabled={ sessionCount === 0 }
-                                label="Add"
-                                onPress={ handleSavePress }
+                <View style={ styles.content }>
+                    <TherapyCalendar
+                        onSelectedSessionsChange={ setSelectedSessions }
+                        selectedSessions={ selectedSessions }
+                    >
+                        <GradientCard addedStyles={ styles.bottomContainer }>
+                            <OnboardingSteps
+                                title='Add your therapy sessions'
+                                steps={ [
+                                    onBoardingText.one,
+                                    onBoardingText.two,
+                                ] }
+                                activeStep={ haveSessionsBeenSelected ? 0 : 1 }
                             />
-                            <Button
-                                addedStyles={ { width: '48%' } }
-                                transparent
-                                disabled={ sessionCount === 0 }
-                                label="Clear"
-                                onPress={ handleClearAll }
-                            />
-                        </View>
-                        <Spacer />
-                    </GradientCard>
-                </TherapyCalendar>
-            </View>
-            { sessionsError && (
-                <ErrorModal
-                    visible={ errorVisible }
-                    title={ sessionsError.title }
-                    message={ sessionsError.message }
-                    buttonLabel={ sessionsError.retryable && sessionsError.actionLabel ? sessionsError.actionLabel : undefined }
-                    onPress={ sessionsError.retryable ? handleErrorRetry : undefined }
-                    onClose={ handleErrorClose }
-                />
-            ) }
-        </SafeAreaView>
+                            <Spacer />
+                            <View style={ styles.buttonsWrapper }>
+                                <Button
+                                    addedStyles={ { width: '48%' } }
+                                    disabled={ sessionCount === 0 }
+                                    label="Add"
+                                    onPress={ handleSavePress }
+                                />
+                                <Button
+                                    addedStyles={ { width: '48%' } }
+                                    transparent
+                                    disabled={ sessionCount === 0 }
+                                    label="Clear"
+                                    onPress={ handleClearAll }
+                                />
+                            </View>
+                            <Spacer />
+                        </GradientCard>
+                    </TherapyCalendar>
+                </View>
+                { sessionsError && (
+                    <ErrorModal
+                        visible={ errorVisible }
+                        title={ sessionsError.title }
+                        message={ sessionsError.message }
+                        buttonLabel={ sessionsError.retryable && sessionsError.actionLabel ? sessionsError.actionLabel : undefined }
+                        onPress={ sessionsError.retryable ? handleErrorRetry : undefined }
+                        onClose={ handleErrorClose }
+                    />
+                ) }
+            </SafeAreaView>
         </View>
     );
 }

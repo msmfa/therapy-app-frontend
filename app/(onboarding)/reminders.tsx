@@ -10,8 +10,9 @@ import { ReminderRow } from '../../src/features/reminders/ReminderRow';
 import { Button } from '../../src/components/ui/Button';
 import { NEURO_REMINDER_COPY } from '../../src/constants/neuroReminders';
 import AppText from '../../src/components/ui/AppText';
-import { COLOR_VARIANTS } from 'designs/designs-colors';
 import ErrorModal from '../../src/components/ui/ErrorModal';
+import { GlassMorphismWithCircle } from 'src/components/ui/GlassMorphismWithCircle';
+import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 
 const LENGTH_OF_DAYS_TO_SHOW = 7;
 
@@ -89,8 +90,10 @@ export default function RemindersScreen(): JSX.Element | null {
     const remindersToShow = getRemindersForWeek;
 
     return (
-        <>
-
+        <View style={ { flex: 1 } }>
+            <View pointerEvents='none' style={ StyleSheet.absoluteFill }>
+                <GlassMorphismWithCircle circlePosition={ CirclePosition.TOP_LEFT } />
+            </View>
             <SafeAreaView style={ styles.container }>
                 <ScrollView style={ styles.scrollContent }>
                     <View style={ styles.header }>
@@ -99,7 +102,6 @@ export default function RemindersScreen(): JSX.Element | null {
                         >
                             Your tailored plan
                         </AppText>
-
                         { remindersToShow.map(({ atUtc, reason }) => (
                             <ReminderRow
                                 key={ atUtc }
@@ -129,7 +131,7 @@ export default function RemindersScreen(): JSX.Element | null {
                     onClose={ handleErrorClose }
                 />
             ) }
-        </>
+        </View>
     );
 }
 
@@ -137,7 +139,6 @@ export default function RemindersScreen(): JSX.Element | null {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: COLOR_VARIANTS.white.primary,
     },
     scrollContent: {
         flex: 1,

@@ -1,12 +1,13 @@
 import React from 'react';
 import { StyleProp, StyleSheet, ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
+import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { GradientColors } from 'src/utils/types';
 
 export enum SquarePosition {
     TOP_LEFT = 'top-left',
     TOP_RIGHT = 'top-right',
+    MIDDLE_RIGHT = 'middle-right',
     BOTTOM_LEFT = 'bottom-left',
     BOTTOM_RIGHT = 'bottom-right',
 }
@@ -26,18 +27,23 @@ const POSITION_STYLES: Record<SquarePosition, ViewStyle> = {
     },
     [SquarePosition.TOP_RIGHT]: {
         position: 'absolute',
-        top: 40,
-        left: 200,
+        top: 0,
+        left: 250,
     },
     [SquarePosition.BOTTOM_LEFT]: {
         position: 'absolute',
-        top: 460,
+        top: 580,
         left: -80,
     },
     [SquarePosition.BOTTOM_RIGHT]: {
         position: 'absolute',
         top: 460,
         left: 200,
+    },
+    [SquarePosition.MIDDLE_RIGHT]: {
+        position: 'absolute',
+        top: 90,
+        left: 150,
     },
 };
 
@@ -47,8 +53,8 @@ export default function LinearGradientSquare({ gradient, style, position, rotati
 
     return (
         <LinearGradient
-            colors={gradient ?? [COLOR_VARIANTS.red.dark, COLOR_VARIANTS.red.dark]}
-            style={[styles.gradientSquare, positionStyle, rotationStyle, style]}
+            colors={ gradient ?? [COLOR_VARIANTS.red.dark, COLOR_VARIANTS.red.dark, COLOR_VARIANTS.red.dark] }
+            style={ [styles.gradientSquare, positionStyle, rotationStyle, style] }
         />
     );
 }
@@ -61,11 +67,6 @@ const styles = StyleSheet.create({
         width: 300,
         height: 300,
         borderRadius: 56,
-        shadowColor: PALETTE.neutral.black,
-        shadowOffset: { width: 0, height: 12 },
-        shadowOpacity: 0.25,
-        shadowRadius: 18,
-        elevation: 6,
     },
     defaultRotation: {
         transform: [{ rotate: '6deg' }],

@@ -1,8 +1,10 @@
 import React from 'react'
 import { Modal, ScrollView, View, StyleSheet } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useTheme } from '@react-navigation/native';
 import { Button } from './ui/Button'
-import { COLOR_VARIANTS } from 'designs/designs-colors';
+import { GlassMorphismWithSquare } from './ui/GlassMorphismWithSquare';
+import { SquarePosition } from './ui/LinearGradientSquare';
 
 interface ModalProps {
     children: React.ReactNode;
@@ -13,27 +15,35 @@ interface ModalProps {
 export function AppModal({ children, isVisible, onClose }: ModalProps) {
     if (!isVisible) return null;
 
+    const { colors } = useTheme();
+
     return (
         <Modal
             visible={ isVisible }
             animationType="slide"
             onRequestClose={ onClose }
         >
-            <SafeAreaView style={ styles.modalRoot }>
-                <ScrollView contentContainerStyle={ styles.modalContent }>
-                    { children }
-                </ScrollView>
-                <View style={ styles.modalClose }>
-                    <Button label="Close" onPress={ onClose } />
+            <View style={ [styles.modalWrapper, { backgroundColor: colors.background }] }>
+                <View pointerEvents='none' style={ StyleSheet.absoluteFill }>
+                    <GlassMorphismWithSquare squarePosition={ SquarePosition.MIDDLE_RIGHT } />
                 </View>
-            </SafeAreaView>
+                <SafeAreaView style={ styles.modalRoot }>
+                    <ScrollView contentContainerStyle={ styles.modalContent }>
+                        { children }
+                    </ScrollView>
+                    <View style={ styles.modalClose }>
+                        <Button label="Close" onPress={ onClose } />
+                    </View>
+                </SafeAreaView>
+            </View>
         </Modal>
     );
 }
 
 const styles = StyleSheet.create({
-    modalRoot: { flex: 1, backgroundColor: COLOR_VARIANTS.white.primary },
-    modalContent: { padding: 12, paddingBottom: 120, paddingTop: 60 },
+    modalWrapper: { flex: 1 },
+    modalRoot: { flex: 1 },
+    modalContent: { padding: 12, paddingBottom: 65 },
     modalClose: {
         position: 'absolute',
         left: 24,

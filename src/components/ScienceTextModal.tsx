@@ -63,8 +63,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     gradientContainer: {
-        // paddingHorizontal: 12,
-        // paddingVertical: 12,
+        backgroundColor: '#dbdbdb91',
     },
     sourcesSection: {
         alignSelf: 'stretch',
@@ -77,6 +76,5 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         paddingVertical: 8,
         alignSelf: 'flex-end',
-
     }
 });

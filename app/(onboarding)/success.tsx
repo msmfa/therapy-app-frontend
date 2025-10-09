@@ -6,8 +6,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useOnboarding } from '../../src/context/onboarding/OnboardingContext';
 import { Button } from '../../src/components/ui/Button';
 import AppText from '../../src/components/ui/AppText';
-import Spacer from 'src/components/ui/Spacer';
 import { GlassMorphismWithCircle } from 'src/components/ui/GlassMorphismWithCircle';
+import CheckGradients from 'src/components/ui/CheckGradients';
+import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 
 export default function SuccessScreen() {
     const router = useRouter();
@@ -28,19 +29,18 @@ export default function SuccessScreen() {
 
 
     return (
-        <GlassMorphismWithCircle style={ { flex: 1, padding: 6 } }>
-        <SafeAreaView style={ styles.container }>
-            <View style={ styles.content }>
-                <AppText variant='h1' align='center'>
-                    Congrats, You're all set up!
-                </AppText>
-                <Spacer />
-
-            </View>
-            <View >
-                <Button label='Next' onPress={ handleComplete } loading={ isCompleting } />
-            </View>
-        </SafeAreaView>
+        <GlassMorphismWithCircle style={ { flex: 1, padding: 6 } } circlePosition={ CirclePosition.BOTTOM_RIGHT }>
+            <SafeAreaView style={ styles.container }>
+                <View style={ styles.content }>
+                    <AppText variant='body' align='center' style={ { position: 'absolute', top: 150, left: 0, right: 0 } }>
+                        Congrats, You're all set up!
+                    </AppText>
+                    <CheckGradients />
+                </View>
+                <View >
+                    <Button label='Next' onPress={ handleComplete } loading={ isCompleting } />
+                </View>
+            </SafeAreaView>
         </GlassMorphismWithCircle>
     );
 }

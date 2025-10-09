@@ -8,6 +8,7 @@ import Spacer, { SpacerVariant } from '../../src/components/ui/Spacer';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DancingSquare from 'src/components/ui/PulsingSquare';
 import { GlassMorphismWithCircle } from 'src/components/ui/GlassMorphismWithCircle';
+import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 
 type LoadingParams = {
     sessions?: string | string[];
@@ -64,7 +65,7 @@ export default function LoadingReminders() {
                 if (!cancelled) {
                     router.replace('/(onboarding)/reminders');
                 }
-            } catch (err) {
+            } catch (_) {
                 if (!cancelled) {
                     hasStartedRef.current = false; // Reset on error so retry works
                     setError({
@@ -94,27 +95,27 @@ export default function LoadingReminders() {
     }, []);
 
     return (
-        <View style={styles.root}>
-            <GlassMorphismWithCircle style={{ padding: 6 }}>
-                <SafeAreaView edges={['left', 'right']} style={styles.inner}>
+        <View style={ styles.root }>
+            <GlassMorphismWithCircle style={ { padding: 6 } } circlePosition={ CirclePosition.BOTTOM_RIGHT }>
+                <SafeAreaView edges={ ['left', 'right'] } style={ styles.inner }>
                     <AppText variant="body" align="center">
                         Preparing your reminder schedule
                     </AppText>
-                    <Spacer variant={SpacerVariant.large} />
+                    <Spacer variant={ SpacerVariant.large } />
                     <Spacer />
                     <DancingSquare />
                 </SafeAreaView>
             </GlassMorphismWithCircle>
-            {error && (
+            { error && (
                 <ErrorModal
-                    visible={error !== null}
-                    title={error.title}
-                    message={error.message}
+                    visible={ error !== null }
+                    title={ error.title }
+                    message={ error.message }
                     buttonLabel="Try again"
-                    onPress={handleRetry}
-                    onClose={handleClose}
+                    onPress={ handleRetry }
+                    onClose={ handleClose }
                 />
-            )}
+            ) }
         </View>
     );
 }

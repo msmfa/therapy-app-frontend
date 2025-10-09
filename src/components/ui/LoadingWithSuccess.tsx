@@ -1,11 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Animated, Modal } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import AppText from './AppText';
-import { COLOR_VARIANTS } from 'designs/designs-colors';
 import DancingSquare from './PulsingSquare';
 import { GlassMorphismWithCircle } from './GlassMorphismWithCircle';
 import { CirclePosition } from './LinearGradientCircle';
+import CheckGradients from './CheckGradients';
 
 type LoadingSuccessProps = {
     visible: boolean;
@@ -21,9 +19,6 @@ type LoadingSuccessProps = {
 export default function LoadingSuccess({
     visible,
     status,
-    successText = 'Success!',
-    size = 50,
-    successColor = COLOR_VARIANTS.green.mid,
     onSuccess,
 }: LoadingSuccessProps) {
     const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -38,7 +33,7 @@ export default function LoadingSuccess({
                 duration: 1500, // ← How long spinner takes to fade out (in ms)
                 useNativeDriver: true,
             }).start(() => {
-            // Delay before checkmark appears (optional)
+            // Delay before checkmark appears
                 setTimeout(() => {
                 // Fade in and scale up checkmark
                     Animated.parallel([
@@ -56,7 +51,7 @@ export default function LoadingSuccess({
                     ]).start(() => {
                         onSuccess?.();
                     });
-                }, 0); // ← ADD THIS: Delay between spinner fadeout and checkmark (in ms)
+                }, 0); // Delay between spinner fadeout and checkmark (in ms)
             });
         } else {
             fadeAnim.setValue(1);
@@ -82,26 +77,10 @@ export default function LoadingSuccess({
                     style={ {
                         opacity: checkFadeAnim,
                         transform: [{ scale: scaleAnim }],
-                        position: 'absolute',
-                        bottom: 0,
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        justifyContent: 'center',
-                        alignItems: 'center',
+                        ...styles.checkAnimation
                     } }
                 >
-                    <Ionicons name="checkmark-circle" size={ size } color={ successColor } />
-                    { successText && (
-                        <AppText
-                            variant="body"
-                            style={ [styles.text, { color: successColor }] }
-                            align="center"
-                        >
-
-                            { successText }
-                        </AppText>
-                    ) }
+                    <CheckGradients />
                 </Animated.View>
             </View>
         </Modal>
@@ -113,10 +92,15 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        // backgroundColor: 'white',
+    },
+    checkAnimation: {
+        position: 'absolute',
+        bottom: 0,
+        top: 0,
+        left: 0,
+        right: 0,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     background: StyleSheet.absoluteFillObject,
-    text: {
-        marginTop: 12,
-    },
 });
