@@ -64,6 +64,15 @@ export function Gate() {
     const isAuthenticated = Boolean(user);
     const isMainAppReady = isAuthenticated && isFullyHydrated && hasOnboarded;
 
+    if (!isFullyHydrated) {
+        return (
+            <View style={ styles.root }>
+                <NotificationNavigationHandler isReady={ false } />
+                <Loading fullScreen />
+            </View>
+        );
+    }
+
     return (
         <View style={ styles.root }>
             <NotificationNavigationHandler isReady={ isMainAppReady } />
@@ -83,9 +92,6 @@ export function Gate() {
                     <Stack.Screen name="(tabs)" options={ { headerShown: false } } />
                 </Stack.Protected>
             </Stack>
-
-            { /* Show loading overlay until all providers are hydrated */ }
-            { !isFullyHydrated && <Loading fullScreen /> }
         </View>
     );
 }
@@ -187,25 +193,20 @@ function NotificationNavigationHandler({ isReady }: NotificationNavigationHandle
     }, [handleNotificationResponse, isReady]);
 
     useEffect(() => {
-        let mounted = true;
+        try {
+            const response = Notifications.getLastNotificationResponse();
+            if (!response) {
+                return;
+            }
 
-        Notifications.getLastNotificationResponseAsync()
-            .then((response) => {
-                if (!mounted || !response) {
-                    return;
-                }
-
-                if (isReady) {
-                    handleNotificationResponse(response);
-                } else {
-                    pendingResponseRef.current = response;
-                }
-            })
-            .catch(() => {});
-
-        return () => {
-            mounted = false;
-        };
+            if (isReady) {
+                handleNotificationResponse(response);
+            } else {
+                pendingResponseRef.current = response;
+            }
+        } catch {
+            // Ignore errors if the response is unavailable
+        }
     }, [handleNotificationResponse, isReady]);
 
     useEffect(() => {
