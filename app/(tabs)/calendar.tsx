@@ -117,7 +117,7 @@ export default function CalendarScreen() {
 
     const hasChanges = selectedSignature !== initialSignature;
 
-    const canSave = hasChanges && sessionCount >= 5;
+    const canSave = hasChanges && sessionCount !== 0;
     const userStep = canSave ? 1 : 0;
 
     const handleSessionsChange = useCallback((next: SessionsMapInput) => {
@@ -133,7 +133,7 @@ export default function CalendarScreen() {
         setSaveStatus('loading');
         try {
             if (sessionCount < 5) {
-                showAlert('Oops', 'Please select at least five therapy sessions to update.');
+                showAlert('Oops', 'Please select at least five therapy sessions to continue.');
                 setSaveStatus(null); // ← Reset here since we're returning early
                 return;
             }
