@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleProp, StyleSheet, ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
+import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { GradientColors } from 'src/utils/types';
 
 type LinearGradientCirclePosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
@@ -47,8 +47,8 @@ export default function LinearGradientCircle({ gradient, style, position }: Line
 
     return (
         <LinearGradient
-            colors={gradient ?? [COLOR_VARIANTS.red.mid, COLOR_VARIANTS.red.dark]}
-            style={[styles.gradientCircle, positionStyle, style]}
+            colors={ gradient ?? [COLOR_VARIANTS.red.mid, COLOR_VARIANTS.red.dark] }
+            style={ [styles.gradientCircle, positionStyle, style] }
         />
     );
 }
@@ -61,11 +61,6 @@ const styles = StyleSheet.create({
         width: 400,
         height: 400,
         borderRadius: 200,
-        shadowColor: PALETTE.neutral.black,
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.25,
-        shadowRadius: 15,
-        elevation: 5,
     },
 });
 

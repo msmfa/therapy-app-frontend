@@ -11,30 +11,31 @@ type Props = {
 };
 
 export const GlassMorphismWithCircle = ({ children, style, circlePosition, circleStyle }: Props) => {
-  return (
-    <View style={styles.container}>
-        <View style={styles.colorfulCardsContainer}>
-          <LinearGradientCircle position={circlePosition} style={circleStyle} />
+    return (
+        <View style={ styles.container }>
+            <View style={ styles.colorfulCardsContainer }>
+                <LinearGradientCircle position={ circlePosition } style={ circleStyle } />
+            </View>
+            <GlassMorphism tint="light" style={ style }>
+                { children }
+            </GlassMorphism>
         </View>
-      <GlassMorphism tint="light" style={style}>
-        {children}
-      </GlassMorphism>
-    </View>
-  );
+    );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-  },
-  colorfulCardsContainer: {
-    position: 'absolute',
-    height: 800,
-    width: 800,
-  },
+    container: {
+        flex: 1,
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+    },
+    colorfulCardsContainer: {
+        position: 'absolute',
+        height: 800,
+        width: 800,
+        zIndex: -1,
+    },
 });

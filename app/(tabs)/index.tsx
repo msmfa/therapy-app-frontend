@@ -49,7 +49,6 @@ export default function NewNoteScreen() {
                 <KeyboardAvoidingView
                     style={ styles.screen }
                     behavior={ Platform.OS === 'ios' ? 'padding' : 'height' }
-                    keyboardVerticalOffset={ Platform.OS === 'ios' ? 0 : 0 }
                 >
                     <Pressable style={ styles.content } onPress={ Keyboard.dismiss }>
                         <View style={ styles.body }>

@@ -67,9 +67,7 @@ export default function SignUpScreen() {
             <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_LEFT } style={ styles.glassMorphism } />
             <SafeAreaView edges={ ['top', 'left', 'right'] } style={ styles.root }>
                 <KeyboardAvoidingView
-                    style={ styles.flex }
                     behavior={ Platform.OS === 'ios' ? 'padding' : 'height' }
-                    keyboardVerticalOffset={ Platform.OS === 'ios' ? 24 : 0 }
                 >
                     <ScrollView
                         contentContainerStyle={ styles.scrollContent }
@@ -157,17 +155,25 @@ export default function SignUpScreen() {
 const styles = StyleSheet.create({
     root: {
         flex: 1,
-        paddingHorizontal: 30,
-        paddingTop: 50,
+        // paddingHorizontal: 30,
+        // paddingTop: 50,
     },
     glassMorphism: {
+        flex: 1,
         padding: 6,
+        zIndex: 0,
     },
     flex: { flex: 1 },
-    header: { marginBottom: 24 },
+    header: {
+        marginBottom: 24
+    },
     scrollContent: {
         flexGrow: 1,
-        paddingBottom: 32,
+        paddingHorizontal: 34,
+        justifyContent: 'center',
+        paddingTop: 32,
+
+        // paddingBottom: 32,
     },
     oauthSection: { alignItems: 'center', marginBottom: 16 },
 });
