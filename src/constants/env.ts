@@ -12,6 +12,48 @@ const requireEnv = (name: string): string => {
 
 export const BASE_URL = (process.env.EXPO_PUBLIC_API_URL as string) ?? 'http://localhost:3000';
 
+const normalizeEndpointBase = (input?: string | null): string | null => {
+    if (!input) {
+        return null;
+    }
+
+    const trimmed = input.trim();
+    if (!trimmed) {
+        return null;
+    }
+
+    if (trimmed.startsWith('http')) {
+        return trimmed.replace(/\/+$/, '');
+    }
+
+    const withLeadingSlash = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+    const normalized = withLeadingSlash.replace(/\/+$/, '');
+    return normalized || '/';
+};
+
+const FALLBACK_OAUTH_BASE_PATHS = [
+    process.env.EXPO_PUBLIC_OAUTH_ENDPOINT as string | undefined,
+    '/api/auth/oauth',
+    '/auth/oauth',
+    '/auth/oauth2',
+    '/oauth',
+    '/auth',
+];
+
+const oauthBaseSet = new Set<string>();
+for (const base of FALLBACK_OAUTH_BASE_PATHS) {
+    const normalized = normalizeEndpointBase(base);
+    if (normalized) {
+        oauthBaseSet.add(normalized);
+    }
+}
+
+if (oauthBaseSet.size === 0) {
+    oauthBaseSet.add('/api/auth/oauth');
+}
+
+export const OAUTH_ENDPOINT_CANDIDATES = Array.from(oauthBaseSet);
+
 export const GOOGLE_CLIENT_IDS = {
     expo: process.env.EXPO_PUBLIC_GOOGLE_EXPO_CLIENT_ID as string | undefined,
     ios: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID as string | undefined,

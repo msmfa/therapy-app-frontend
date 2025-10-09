@@ -1,4 +1,5 @@
-import { apiPost } from './client';
+import { OAUTH_ENDPOINT_CANDIDATES } from '../constants/env';
+import { apiPost, ApiError } from './client';
 
 export type AuthenticatedUser = {
     id: string;
@@ -6,20 +7,13 @@ export type AuthenticatedUser = {
     name: string;
 };
 
-export type OAuthProvider = 'google' | 'apple';
+export type OAuthProvider = 'apple';
 
-export type OAuthPayloadMap = {
-    google: {
-        idToken: string;
-    };
-    apple: {
-        identityToken: string;
-        authorizationCode?: string | null;
-        email?: string | null;
-        user?: string | null;
-        fullName?: Record<string, unknown> | null;
-    };
-};
+export interface OAuthPayloadMap {
+  apple: {
+    idToken: string;
+  };
+}
 
 export type OAuthExchangeSuccess = {
     token: string;
@@ -47,9 +41,41 @@ export async function exchangeOAuthToken<P extends OAuthProvider>(
     provider: P,
     payload: OAuthPayloadMap[P],
 ): Promise<OAuthExchangeSuccess> {
-    return apiPost<OAuthExchangeSuccess>(`/api/auth/oauth/${provider}`, payload, {
-        auth: false,
-    });
+    const candidates = OAUTH_ENDPOINT_CANDIDATES.length > 0
+        ? OAUTH_ENDPOINT_CANDIDATES
+        : ['/api/auth/oauth'];
+    const tried: string[] = [];
+    let lastEndpointError: ApiError | null = null;
+
+    for (const base of candidates) {
+        const normalizedBase = base.replace(/\/+$/, '');
+        const normalizedProvider = String(provider).replace(/^\/+/, '');
+        const endpoint = normalizedBase === '' || normalizedBase === '/'
+            ? `/${normalizedProvider}`
+            : `${normalizedBase}/${normalizedProvider}`;
+
+        tried.push(endpoint);
+
+        try {
+            return await apiPost<OAuthExchangeSuccess>(endpoint, payload, {
+                auth: false,
+            });
+        } catch (error) {
+            if (error instanceof ApiError && (error.status === 404 || error.status === 405)) {
+                lastEndpointError = error;
+                continue;
+            }
+
+            throw error;
+        }
+    }
+
+    const message = `OAuth endpoint not found. Tried: ${tried.join(', ')}`;
+    if (lastEndpointError) {
+        throw new ApiError(lastEndpointError.status, { message });
+    }
+
+    throw new ApiError(404, { message });
 }
 
 export type RefreshAuthResponse = {
