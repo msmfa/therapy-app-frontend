@@ -2,12 +2,13 @@ import React, { useState, useCallback } from 'react';
 import { View, TextInput, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, Pressable, Keyboard } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../src/context/auth/AuthContext';
 import { useNotes } from '../../src/features/notes/useNotes';
 import ErrorMessage from '../../src/components/ui/ErrorMessage';
-import { colors, gradients, palette } from '../../new-design';
+import { GlassMorphismWithCircle } from '../../src/components/ui/GlassMorphismWithCircle';
+import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
+import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 
 
 export default function NewNoteScreen() {
@@ -40,56 +41,59 @@ export default function NewNoteScreen() {
     const isDisabled = text.trim().length === 0;
 
     return (
-        <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] }>
-            <LinearGradient
-                colors={ [...gradients.appBackground] }
-                start={ { x: 0.5, y: 0 } }
-                end={ { x: 0.5, y: 1 } }
-                style={ styles.backgroundGradient }
-            />
-            <KeyboardAvoidingView
-                style={ styles.screen }
-                behavior={ Platform.OS === 'ios' ? 'padding' : 'height' }
-                keyboardVerticalOffset={ Platform.OS === 'ios' ? 0 : 0 }
-            >
-                <Pressable style={ styles.content } onPress={ Keyboard.dismiss }>
-                    <View style={ styles.body }>
-                        <View style={ styles.cardWrapper }>
-                            <View style={ styles.cardOverlay }>
-                                <TextInput
-                                    placeholder="Add your notes here..."
-                                    value={ text }
-                                    onChangeText={ setText }
-                                    multiline
-                                    numberOfLines={ 10 }
-                                    underlineColorAndroid={ palette.neutral.transparentTransparent }
-                                    style={ styles.textInput }
-                                    placeholderTextColor={ colors.textMuted }
-                                    selectionColor={ colors.textMuted }
-                                />
-                                <TouchableOpacity
-                                    onPress={ handleNext }
-                                    disabled={ isDisabled }
-                                    style={ [styles.plusButton, isDisabled && styles.plusButtonDisabled] }
-                                >
-                                    <Feather name="plus" size={ 44 } color={ colors.textMuted } />
-                                </TouchableOpacity>
+        <View style={ styles.container }>
+            <View pointerEvents='none' style={ styles.background }>
+                <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_RIGHT } />
+            </View>
+            <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] }>
+                <KeyboardAvoidingView
+                    style={ styles.screen }
+                    behavior={ Platform.OS === 'ios' ? 'padding' : 'height' }
+                    keyboardVerticalOffset={ Platform.OS === 'ios' ? 0 : 0 }
+                >
+                    <Pressable style={ styles.content } onPress={ Keyboard.dismiss }>
+                        <View style={ styles.body }>
+                            <View style={ styles.cardWrapper }>
+                                <View style={ styles.cardOverlay }>
+                                    <TextInput
+                                        placeholder="Add your notes here..."
+                                        value={ text }
+                                        onChangeText={ setText }
+                                        multiline
+                                        numberOfLines={ 10 }
+                                        underlineColorAndroid={ COLOR_VARIANTS.transparent }
+                                        style={ styles.textInput }
+                                        placeholderTextColor={ COLOR_VARIANTS.black.tertiary }
+                                        selectionColor={ COLOR_VARIANTS.white.quaternary }
+                                    />
+                                    <TouchableOpacity
+                                        onPress={ handleNext }
+                                        disabled={ isDisabled }
+                                        style={ [styles.plusButton, isDisabled && styles.plusButtonDisabled] }
+                                    >
+                                        <Feather name="plus" size={ 44 } color={ COLOR_VARIANTS.black.tertiary } />
+                                    </TouchableOpacity>
+                                </View>
                             </View>
+                            { error ? <ErrorMessage message={ error } /> : null }
                         </View>
-                        { error ? <ErrorMessage message={ error } /> : null }
-                    </View>
 
-                    <View style={ styles.footer }>
-                    </View>
-                </Pressable>
-            </KeyboardAvoidingView>
-        </SafeAreaView>
+                        <View style={ styles.footer }>
+                        </View>
+                    </Pressable>
+                </KeyboardAvoidingView>
+            </SafeAreaView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        paddingBottom: 40,
+    },
+    background: StyleSheet.absoluteFillObject,
     root: { flex: 1, position: 'relative' },
-    backgroundGradient: StyleSheet.absoluteFillObject,
     screen: {
         flex: 1,
         paddingTop: 16,
@@ -109,8 +113,8 @@ const styles = StyleSheet.create({
     cardWrapper: {
         flex: 1,
         borderRadius: 30,
-        backgroundColor: palette.overlay.whiteSoftTransparent,
-        shadowColor: palette.overlay.blueGlowTransparent,
+        backgroundColor: PALETTE.overlay.whiteSoftTransparent,
+        shadowColor: PALETTE.overlay.blueGlowTransparent,
         shadowOffset: { width: 0, height: 22 },
         shadowOpacity: 0.5,
         shadowRadius: 40,
@@ -122,7 +126,7 @@ const styles = StyleSheet.create({
         borderRadius: 26,
         paddingVertical: 22,
         paddingHorizontal: 28,
-        backgroundColor: palette.neutral.transparentTransparent,
+        backgroundColor: COLOR_VARIANTS.transparent,
         overflow: 'hidden',
         position: 'relative',
     },
@@ -139,7 +143,7 @@ const styles = StyleSheet.create({
         right: 16,
         bottom: 16,
         padding: 4,
-        // shadowColor: palette.overlay.blueMildTransparent,
+        // shadowColor: PALETTE.overlay.blueMildTransparent,
         shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.4,
         shadowRadius: 12,

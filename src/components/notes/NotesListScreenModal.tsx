@@ -2,10 +2,9 @@ import React from 'react';
 import { KeyboardAvoidingView, Modal, Platform, ScrollView, TextInput, View, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Note } from "../../features/notes/useNotes";
-import { GradientUpwards } from "../GradientUpwards";
 import { Button } from "../ui/Button";
 import AppText from "../ui/AppText";
-import { colors, palette } from '../../../new-design';
+import { COLOR_VARIANTS, THEME_COLORS } from 'designs/designs-colors';
 
 type NotePreviewModalProps = {
     visible: boolean;
@@ -92,7 +91,6 @@ export function NotePreviewModal({ visible, note, onClose, onUpdateNote }: NoteP
                 style={ styles.avoidingView }
             >
                 <SafeAreaView style={ styles.modalRoot }>
-                    <GradientUpwards />
                     <ScrollView
                         contentContainerStyle={ styles.modalContent }
                         keyboardShouldPersistTaps="handled"
@@ -111,7 +109,6 @@ export function NotePreviewModal({ visible, note, onClose, onUpdateNote }: NoteP
                             </AppText>
                             { isEditing ? (
                                 <View style={ styles.editableTextContainer }>
-                                    <View style={ styles.editDivider } />
                                     <TextInput
                                         value={ draft }
                                         onChangeText={ setDraft }
@@ -174,7 +171,7 @@ export function NotePreviewModal({ visible, note, onClose, onUpdateNote }: NoteP
 
 const styles = StyleSheet.create({
     avoidingView: { flex: 1 },
-    modalRoot: { flex: 1, backgroundColor: palette.neutral.white },
+    modalRoot: { flex: 1, backgroundColor: COLOR_VARIANTS.white.primary },
     modalContent: { padding: 24, paddingBottom: 120, paddingTop: 60 },
     modalActions: {
         position: 'absolute',
@@ -198,23 +195,17 @@ const styles = StyleSheet.create({
     },
     errorText: {
         marginTop: 12,
-        color: colors.error,
+        color: THEME_COLORS.error,
         marginHorizontal: 5,
     },
     editableTextContainer: {
         marginHorizontal: 5,
         paddingTop: 12,
     },
-    editDivider: {
-        height: 1,
-        backgroundColor: palette.neutral.boundary,
-        marginBottom: 12,
-        opacity: 0.6,
-    },
     editableText: {
         fontSize: 18,
         lineHeight: 28,
-        color: colors.text,
+        color: COLOR_VARIANTS.black.primary,
         padding: 0,
         minHeight: 160,
     },

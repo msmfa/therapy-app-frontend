@@ -1,4 +1,4 @@
-import { COLOR_VARIANTS } from 'new-design';
+import { COLOR_VARIANTS } from 'designs/designs-colors';
 import React, { useEffect, useRef } from 'react';
 import { StyleSheet, Animated, Easing } from 'react-native';
 

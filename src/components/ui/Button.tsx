@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet, View, ViewStyle, StyleProp, ActivityIndicator, Text } from 'react-native';
 import { spacing } from '../../constants';
-import { palette, colors } from '../../../new-design';
+import { BUTTON_COLORS } from 'designs/designs-colors';
 
 interface Props {
 	label: string;
@@ -25,8 +25,8 @@ export function Button({
     const isDisabled = disabled || loading;
     const showDisabledStyles = disabled && !loading;
 
-    const baseTextColor = transparent ? palette.neutral.black : palette.neutral.white;
-    const textColor = showDisabledStyles ? colors.textDisabled : baseTextColor;
+    const baseTextColor = transparent ? BUTTON_COLORS.secondaryText: BUTTON_COLORS.primaryText;
+    const textColor = showDisabledStyles ? BUTTON_COLORS.disabledLight  : baseTextColor;
     const spinnerColor = loading ? baseTextColor : textColor;
 
     return (
@@ -68,18 +68,18 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.lg,
         borderRadius: 12,
         borderWidth: 1,
-        borderColor: palette.neutral.black,
         minHeight: 44,
-        backgroundColor: palette.neutral.black,
         width: '100%',
+        borderColor: BUTTON_COLORS.primaryBackground,
+        backgroundColor: BUTTON_COLORS.primaryBackground,
     },
     actionButtonTransparent: {
-        backgroundColor: palette.neutral.transparentTransparent,
-        borderColor: colors.textMuted,
+        backgroundColor: BUTTON_COLORS.secondaryBackground,
+        borderColor: BUTTON_COLORS.secondaryText,
     },
     actionButtonDisabled: {
-        backgroundColor: colors.bg,
-        borderColor: colors.borderLight,
+        backgroundColor: 'transparent',
+        borderColor: BUTTON_COLORS.disabledLight,
     },
     iconWrapper: {
         marginRight: spacing.sm,

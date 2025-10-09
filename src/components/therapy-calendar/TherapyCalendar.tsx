@@ -3,25 +3,25 @@ import { StyleSheet, View } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import ScheduleModal from './ScheduleModal';
 import { GradientCard } from '../ui/GradientCard';
-import { palette } from '../../../new-design';
+import { CALENDAR_COLORS, COLOR_VARIANTS } from 'designs/designs-colors';
 
 export const COLORS = {
-    todayBackground: palette.calendar.calendarTodayBackground,
-    todayText: palette.calendar.calendarTodayText,
-    calendarSelectedBackground: palette.calendar.calendarTodayBackground,
-    activeSessionBackground: palette.calendar.calendarSessionBackground,
-    activeSessionText: palette.calendar.calendarSessionText,
-    activeSessionBorder: palette.calendar.calendarSessionBorder,
-    scheduledBackground: palette.calendar.calendarSessionBackground,
-    scheduledText: palette.calendar.calendarSessionText,
-    pressedText: palette.calendar.calendarSessionText,
-    unscheduledBackground: palette.calendar.calendarSessionBackground,
-    calendarDayDefault: palette.calendar.calendarDayText,
-    calendarDayDisabled: palette.calendar.calendarDayDisabledText,
-    calendarMonthText: palette.calendar.calendarMonthLabel,
-    calendarWeekdayHeader: palette.calendar.calendarWeekdayLabel,
-    arrows: palette.calendar.calendarArrow,
-    dotIndicator: palette.calendar.calendarDot,
+    todayBackground: CALENDAR_COLORS.todayBackground,
+    todayText: CALENDAR_COLORS.todayText,
+    calendarSelectedBackground: CALENDAR_COLORS.calendarSelectedBackground,
+    activeSessionBackground: CALENDAR_COLORS.activeSessionBackground,
+    activeSessionText: CALENDAR_COLORS.activeSessionText,
+    activeSessionBorder: CALENDAR_COLORS.activeSessionBorder,
+    scheduledBackground: CALENDAR_COLORS.scheduledBackground,
+    scheduledText: CALENDAR_COLORS.scheduledText,
+    pressedText: CALENDAR_COLORS.pressedText,
+    unscheduledBackground: CALENDAR_COLORS.unscheduledBackground,
+    calendarDayDefault: CALENDAR_COLORS.calendarDayDefault,
+    calendarDayDisabled: CALENDAR_COLORS.calendarDayDisabled,
+    calendarMonthText: CALENDAR_COLORS.calendarMonthText,
+    calendarWeekdayHeader: CALENDAR_COLORS.calendarWeekdayHeader,
+    arrows: CALENDAR_COLORS.arrows,
+    dotIndicator: CALENDAR_COLORS.dotIndicator,
 };
 
 type SelectedSessions = Record<string, Date>;
@@ -237,13 +237,13 @@ export default function TherapyCalendar({
 
     const calendarTheme = {
         arrowColor: COLORS.arrows,
-        backgroundColor: palette.neutral.transparentTransparent,
-        calendarBackground: palette.neutral.transparentTransparent,
+        backgroundColor: COLOR_VARIANTS.transparent,
+        calendarBackground: COLOR_VARIANTS.transparent,
         dayTextColor: COLORS.calendarDayDefault,
         monthTextColor: COLORS.calendarMonthText,
         selectedDayBackgroundColor: COLORS.calendarSelectedBackground,
         selectedDayTextColor: COLORS.activeSessionBorder,
-         textDisabledColor: COLORS.calendarDayDisabled,
+        textDisabledColor: COLORS.calendarDayDisabled,
         textSectionTitleColor: COLORS.calendarWeekdayHeader,
         todayTextColor: COLORS.scheduledText,
         // fonts

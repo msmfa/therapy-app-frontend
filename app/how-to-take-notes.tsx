@@ -2,12 +2,10 @@ import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { GradientUpwards } from '../src/components/GradientUpwards';
 import AppText from '../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { Button } from '../src/components/ui/Button';
 import { ExternalLink } from 'src/components/ui/ExternalLink';
-
 
 export default function HowToTakeNotesScreen() {
     const router = useRouter();
@@ -54,7 +52,6 @@ export default function HowToTakeNotesScreen() {
 
     return (
         <SafeAreaView style={ styles.container }>
-            <GradientUpwards />
             <ScrollView
                 style={ styles.scroll }
                 contentContainerStyle={ styles.scrollContent }

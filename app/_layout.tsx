@@ -6,7 +6,8 @@ import { AuthProvider, useAuth } from '../src/context/auth/AuthContext';
 import { OnboardingProvider, useOnboarding } from '../src/context/onboarding/OnboardingContext';
 import { TherapySessionsProvider } from '../src/context/therapy-sessions/TherapySessionsContext';
 import { initNotifications } from '../src/services/notifications';
-import { colors, gradients } from '../new-design';
+import { COLOR_VARIANTS } from 'designs/designs-colors';
+import { GRADIENTS } from 'designs/designs-gradients';
 import { StatusBar, StyleSheet, View } from 'react-native';
 import Loading from '../src/components/ui/Loading';
 import { ErrorBoundaryUI } from '../src/components/ErrorBoundary';
@@ -38,9 +39,8 @@ const theme: Theme = {
     ...DefaultTheme,
     colors: {
         ...DefaultTheme.colors,
-        background: gradients.background.bottom,
-        card: colors.bgLight,
-        text: colors.text,
+        background: GRADIENTS.background.bottom,
+        card: COLOR_VARIANTS.white.primary,
     },
 };
 
@@ -232,6 +232,6 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
 const styles = StyleSheet.create({
     root: {
         flex: 1,
-        backgroundColor: colors.bg,
+        backgroundColor: COLOR_VARIANTS.white.primary,
     },
 });

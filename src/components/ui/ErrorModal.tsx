@@ -3,7 +3,7 @@ import { Modal, View, StyleSheet } from 'react-native';
 import AppText from './AppText';
 import { Button } from './Button';
 import Spacer, { SpacerVariant } from './Spacer';
-import { COLOR_VARIANTS } from '../../../new-design';
+import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface ErrorModalProps {
@@ -81,4 +81,3 @@ const styles = StyleSheet.create({
         width: '100%',
     },
 });
-

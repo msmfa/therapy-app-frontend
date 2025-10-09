@@ -5,6 +5,7 @@ import { REMINDER_SCIENCE_COPY } from '../constants/neuroReminders';
 import AppText from './ui/AppText';
 import Spacer, { SpacerVariant } from './ui/Spacer';
 import { ExternalLink } from './ui/ExternalLink';
+import { COMPONENT_COLORS } from 'designs/designs-colors';
 import { Fragment } from 'react';
 import { GradientCard } from './ui/GradientCard';
 
@@ -71,7 +72,7 @@ const styles = StyleSheet.create({
     },
     badge: {
         borderWidth: 1,
-        borderColor: 'rgba(74, 69, 69, 0.31)',
+        borderColor: COMPONENT_COLORS.scienceBadgeBorder,
         borderRadius: 20,
         paddingHorizontal: 12,
         paddingVertical: 8,

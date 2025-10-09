@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Pressable, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AppText from './AppText';
-import { COLOR_VARIANTS } from '../../../new-design';
+import { COLOR_VARIANTS } from 'designs/designs-colors';
 
 type Props = {
 	message: string | null;

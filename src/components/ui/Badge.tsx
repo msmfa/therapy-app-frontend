@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { View, StyleSheet, StyleProp, ViewStyle } from "react-native";
 import AppText from "./AppText";
-import { COLOR_VARIANTS } from "new-design";
+import { COLOR_VARIANTS } from "designs/designs-colors";
 
 type Props = {
     children: ReactNode;
@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
         height: '100%',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: COLOR_VARIANTS.blue.light,
+        backgroundColor: COLOR_VARIANTS.red.light,
     },
     tabWithBorder: {
         borderWidth: 1,
@@ -41,9 +41,9 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 0,
         borderBottomLeftRadius: 8,
         borderBottomRightRadius: 8,
-        borderColor: COLOR_VARIANTS.blue.mid,
+        borderColor: COLOR_VARIANTS.red.mid,
     },
     badgeText: {
-        color: COLOR_VARIANTS.blue.dark,
+        color: COLOR_VARIANTS.red.dark,
     },
 });

@@ -11,7 +11,7 @@ import RadioButton from '../ui/RadioButton';
 import { Button } from '../ui/Button';
 import AppText from '../ui/AppText';
 import Badge from '../ui/Badge';
-import { colors, palette } from 'new-design';
+import { CALENDAR_COLORS, COLOR_VARIANTS } from 'designs/designs-colors';
 
 interface Session {
     id: string;
@@ -84,7 +84,6 @@ export default function ScheduleModal({
 
     return (
         <Modal visible={visible} transparent animationType="slide" onRequestClose={onCancel}>
-
             <View style={styles.modalOverlay}>
                 <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1} onPress={onCancel} />
                 <View style={styles.modalContent}>
@@ -102,7 +101,7 @@ export default function ScheduleModal({
                                     mode="time"
                                     display="spinner"
                                     onChange={handleTimeChange}
-                                    textColor={ colors.text}
+                                    textColor={COLOR_VARIANTS.black.secondary}
                                     themeVariant="light"
                                     style={styles.iosPicker}
                                 />
@@ -169,7 +168,6 @@ export default function ScheduleModal({
                     </View>
                 </View>
             </View>
-
         </Modal>
     );
 }
@@ -210,19 +208,22 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 0,
         top: 0,
+        // backgroundColor: CALENDAR_COLORS.modalSurface,
 
     },
     modalContent: {
-        // backgroundColor: palette.calendar.calendarModalSurface,
+        // backgroundColor: CALENDAR_COLORS.modalSurface,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         padding: 20,
         paddingBottom: 40,
         paddingTop: 65,
-        backgroundColor: 'hsl(220, 40%, 97%)',
+        backgroundColor: CALENDAR_COLORS.modalSurface,
+        // shadowColor: CALENDAR_COLORS.modalOverlayTransparent,
+
     },
     modalOverlay: {
-        backgroundColor: palette.calendar.calendarModalOverlayTransparent,
+        backgroundColor: CALENDAR_COLORS.modalOverlayTransparent,
         flex: 1,
         justifyContent: 'flex-end',
     },
@@ -232,18 +233,18 @@ const styles = StyleSheet.create({
 
     },
    iosPickerWrapper: {
-        backgroundColor: 'hsl(220, 40%, 97%)',
+        // backgroundColor: 'hsl(220, 40%, 97%)',
         borderRadius: 18,
         overflow: 'hidden',
         paddingVertical: 12,
         paddingHorizontal: 10,
     },
     iosPicker: {
-        backgroundColor: 'hsl(220, 40%, 97%)',
+        // backgroundColor: 'hsl(220, 40%, 97%)',
     },
     timeButton: {
         alignItems: 'center',
-        borderColor: palette.calendar.calendarModalBorder,
+        borderColor: CALENDAR_COLORS.modalBorder,
         borderRadius: 5,
         flexDirection: 'row',
         gap: 10,

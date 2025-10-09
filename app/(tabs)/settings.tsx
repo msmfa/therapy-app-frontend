@@ -3,7 +3,6 @@ import { View, StyleSheet, Alert, Linking, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/auth/AuthContext';
-import { GradientUpwards } from '../../src/components/GradientUpwards';
 import { GradientCard } from '../../src/components/ui/GradientCard';
 import { SettingsRow } from '../../src/components/SettingsRow';
 import AppText from '../../src/components/ui/AppText';
@@ -11,6 +10,8 @@ import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import FrostedCard from 'src/components/ui/FrostedCard';
 import Loading from 'src/components/ui/Loading';
 import { deleteCurrentUser } from '../../src/api/users';
+import { GlassMorphismWithCircle } from '../../src/components/ui/GlassMorphismWithCircle';
+import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 
 export default function SettingsScreen() {
     const { user, signOut } = useAuth();
@@ -18,7 +19,16 @@ export default function SettingsScreen() {
     const [deleting, setDeleting] = useState(false);
 
     if (!user) {
-        return <Loading />;
+        return (
+            <View style={ styles.container }>
+                <View pointerEvents='none' style={ styles.background }>
+                    <GlassMorphismWithCircle circlePosition={ CirclePosition.TOP_RIGHT } />
+                </View>
+                <View style={ styles.content }>
+                    <Loading />
+                </View>
+            </View>
+        );
     }
 
     const onLogout = async () => {
@@ -81,58 +91,71 @@ export default function SettingsScreen() {
     }, [deleting, performDeleteAccount]);
 
     return (
-        <SafeAreaView style={ styles.root }>
-            <GradientUpwards />
-            <GradientCard>
-                <View style={ styles.user } >
-                    <AppText variant='h1'>
-                        { user?.name }
-                    </AppText>
-                    <AppText variant='body' numberOfLines={ 1 }>
-                        { user?.email }
-                    </AppText>
-                </View>
-            </GradientCard>
-            <Spacer variant={ SpacerVariant.small } />
-            <FrostedCard>
-                <View>
-                    <AppText variant='h2'>
-                        References
-                    </AppText>
-                    <Spacer />
-                    <View style={ { gap: 8 } }>
-                        <SettingsRow
-                            text="The science behind our reminder intervals"
-                            onPress={ () => router.push('/interval-science') }
-                        />
-                        <SettingsRow
-                            text="How to get the most from note taking after a session"
-                            onPress={ () => router.push('/how-to-take-notes') }
-                        />
+        <View style={ styles.container }>
+            <View pointerEvents='none' style={ styles.background }>
+                <GlassMorphismWithCircle circlePosition={ CirclePosition.TOP_RIGHT } />
+                <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_LEFT } />
+            </View>
+            <SafeAreaView style={ styles.root }>
+                <GradientCard>
+                    <View style={ styles.user } >
+                        <AppText variant='h1'>
+                            { user?.name }
+                        </AppText>
+                        <AppText variant='body' numberOfLines={ 1 }>
+                            { user?.email }
+                        </AppText>
                     </View>
-                    <Spacer />
-                    <AppText variant='h2'>
-                        Settings
-                    </AppText>
-                    <Spacer />
-                    <View style={ { gap: 8 } }>
-                        <SettingsRow text="Delete account" onPress={ onDeleteAccount } />
-                        <SettingsRow text="Terms of Service" onPress={ handleTermsOfService } />
-                        <SettingsRow text="Privacy Policy" onPress={ handlePrivacyPolicy } />
-                        <SettingsRow text="Rate this App" onPress={ handleRateApp } />
-                        <SettingsRow text="Log out" onPress={ () => onLogout() } />
+                </GradientCard>
+                <Spacer variant={ SpacerVariant.small } />
+                <FrostedCard>
+                    <View>
+                        <AppText variant='h2'>
+                            References
+                        </AppText>
+                        <Spacer />
+                        <View style={ { gap: 8 } }>
+                            <SettingsRow
+                                text="The science behind our reminder intervals"
+                                onPress={ () => router.push('/interval-science') }
+                            />
+                            <SettingsRow
+                                text="How to get the most from note taking after a session"
+                                onPress={ () => router.push('/how-to-take-notes') }
+                            />
+                        </View>
+                        <Spacer />
+                        <AppText variant='h2'>
+                            Settings
+                        </AppText>
+                        <Spacer />
+                        <View style={ { gap: 8 } }>
+                             <SettingsRow text="Log out" onPress={ () => onLogout() } />
+                            <SettingsRow text="Rate this App" onPress={ handleRateApp } />
+
+                            <SettingsRow text="Privacy Policy" onPress={ handlePrivacyPolicy } />
+                            <SettingsRow text="Delete account" onPress={ onDeleteAccount } />
+                            <SettingsRow text="Terms of Service" onPress={ handleTermsOfService } />
+                        </View>
                     </View>
-                </View>
-                <Spacer  />
-                <AppText variant='caption' align='center'>
-                    v1.0.0
-                </AppText>
-            </FrostedCard>
-        </SafeAreaView>
+                    <Spacer  />
+                    <AppText variant='caption' align='center'>
+                        v1.0.0
+                    </AppText>
+                </FrostedCard>
+            </SafeAreaView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+    },
+    background: StyleSheet.absoluteFillObject,
+    content: {
+        flex: 1,
+    },
     root: {
         flex: 1,
         paddingHorizontal: 12,

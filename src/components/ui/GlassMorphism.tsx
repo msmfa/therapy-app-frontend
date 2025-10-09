@@ -1,5 +1,6 @@
 import { BlurView, BlurViewProps } from "expo-blur";
 import { StyleProp, View, StyleSheet, ViewStyle } from "react-native";
+import { COMPONENT_COLORS, PALETTE } from 'designs/designs-colors';
 
 interface GlassProps extends BlurViewProps {
     children: React.ReactNode;
@@ -19,8 +20,8 @@ export default function GlassMorphism({ children, style, ...blurViewProps }: Gla
 const styles = StyleSheet.create({
     glassContainer: {
         flex: 1,
-        backgroundColor: 'rgba(255, 255, 255, 0.15)',
-        shadowColor: '#000',
+        backgroundColor: COMPONENT_COLORS.glassBackground,
+        shadowColor: PALETTE.neutral.black,
         shadowOffset: { width: 0, height: 20 },
         shadowOpacity: 0.25,
         shadowRadius: 30,
@@ -32,5 +33,3 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
 });
-
-

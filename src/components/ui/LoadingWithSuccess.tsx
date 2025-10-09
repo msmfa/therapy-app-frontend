@@ -1,8 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import { View, ActivityIndicator, StyleSheet, Animated, Modal } from 'react-native';
+import { View, StyleSheet, Animated, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AppText from './AppText';
-import { colors, palette } from '../../../new-design';
+import { COLOR_VARIANTS } from 'designs/designs-colors';
+import DancingSquare from './PulsingSquare';
+import { GlassMorphismWithCircle } from './GlassMorphismWithCircle';
+import { CirclePosition } from './LinearGradientCircle';
 
 type LoadingSuccessProps = {
     visible: boolean;
@@ -20,8 +23,7 @@ export default function LoadingSuccess({
     status,
     successText = 'Success!',
     size = 50,
-    color = colors.text,
-    successColor =  colors.text,
+    successColor = COLOR_VARIANTS.green.mid,
     onSuccess,
 }: LoadingSuccessProps) {
     const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -69,9 +71,12 @@ export default function LoadingSuccess({
             animationType="fade"
             statusBarTranslucent
         >
+            <View pointerEvents='none' style={ styles.background }>
+                <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_LEFT } />
+            </View>
             <View style={ styles.fullScreenContainer } pointerEvents="auto">
                 <Animated.View style={ { opacity: fadeAnim, position: 'absolute' } }>
-                    <ActivityIndicator size={ size } color={ color } />
+                    <DancingSquare />
                 </Animated.View>
                 <Animated.View
                     style={ {
@@ -88,7 +93,12 @@ export default function LoadingSuccess({
                 >
                     <Ionicons name="checkmark-circle" size={ size } color={ successColor } />
                     { successText && (
-                        <AppText variant="body" style={ [styles.text, { color: successColor }] }>
+                        <AppText
+                            variant="body"
+                            style={ [styles.text, { color: successColor }] }
+                            align="center"
+                        >
+
                             { successText }
                         </AppText>
                     ) }
@@ -103,11 +113,10 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: palette.overlay.taupeTransparent,
+        // backgroundColor: 'white',
     },
+    background: StyleSheet.absoluteFillObject,
     text: {
         marginTop: 12,
-        fontSize: 16,
-        textAlign: 'center',
     },
 });

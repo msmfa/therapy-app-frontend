@@ -9,7 +9,7 @@ import { FontAwesome } from '@expo/vector-icons';
 
 import { useOAuthLogin } from '../../auth/useOAuthLogin';
 import AppText from '../ui/AppText';
-import { palette } from '../../../new-design';
+import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
 
 interface Props {
     onSuccess?: () => void;
@@ -34,9 +34,9 @@ export const SocialAuthButtons: React.FC<Props> = ({ onSuccess }) => {
                         accessibilityRole="button"
                     >
                         { appleLoading ? (
-                            <ActivityIndicator color={ palette.neutral.black } />
+                            <ActivityIndicator color={ COLOR_VARIANTS.black.primary } />
                         ) : (
-                            <FontAwesome name='apple' size={ 26 } color={ palette.neutral.black } />
+                            <FontAwesome name='apple' size={ 26 } color={ COLOR_VARIANTS.black.primary } />
                         ) }
                     </TouchableOpacity>
                 ) }
@@ -49,9 +49,9 @@ export const SocialAuthButtons: React.FC<Props> = ({ onSuccess }) => {
                     accessibilityRole='button'
                 >
                     { googleLoading ? (
-                        <ActivityIndicator color={ palette.blue.google } />
+                        <ActivityIndicator color={ PALETTE.blue.google } />
                     ) : (
-                        <FontAwesome name='google' size={ 24 } color={ palette.blue.google } />
+                        <FontAwesome name='google' size={ 24 } color={ PALETTE.blue.google } />
                     ) }
                 </TouchableOpacity>
             </View>
@@ -77,8 +77,8 @@ const styles = StyleSheet.create({
         height: 56,
         borderRadius: 28,
         borderWidth: 1,
-        borderColor: palette.neutral.boundary,
-        // backgroundColor: palette.neutral.white,
+        borderColor: PALETTE.neutral.boundary,
+        // backgroundColor: PALETTE.neutral.white,
         alignItems: 'center',
         justifyContent: 'center',
         marginHorizontal: 8,
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
         marginTop: 8,
     },
     helperTextNotice: {
-        color: palette.blue.google,
+        color: PALETTE.blue.google,
     },
 });
 

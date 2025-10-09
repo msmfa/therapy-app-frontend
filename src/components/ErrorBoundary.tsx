@@ -1,7 +1,7 @@
 import { ErrorBoundaryProps } from "expo-router";
 import { View, StyleSheet } from "react-native";
 import AppText from './ui/AppText';
-import { palette } from '../../new-design';
+import { COLOR_VARIANTS } from 'designs/designs-colors';
 
 // Pending: align error boundary styling with app theme (see TODO.md).
 export function ErrorBoundaryUI({ error, retry }: ErrorBoundaryProps) {
@@ -18,6 +18,6 @@ export function ErrorBoundaryUI({ error, retry }: ErrorBoundaryProps) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: palette.neutral.white,
+        backgroundColor: COLOR_VARIANTS.white.primary,
     },
 });

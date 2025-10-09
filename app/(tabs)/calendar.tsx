@@ -5,7 +5,6 @@ import TherapyCalendar, { COLORS } from '../../src/components/therapy-calendar/T
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTherapySessions } from '../../src/context/therapy-sessions/TherapySessionsContext';
 import { convertSessionsToCalendarFormat } from '../../src/utils/calendar';
-import { GradientUpwards } from '../../src/components/GradientUpwards';
 import { GradientCard } from '../../src/components/ui/GradientCard';
 import { Button } from '../../src/components/ui/Button';
 import OnboardingSteps from 'src/components/ui/OnboardingSteps';
@@ -14,12 +13,40 @@ import { useFocusEffect } from 'expo-router';
 import LoadingSuccess from 'src/components/ui/LoadingWithSuccess';
 import AppText from 'src/components/ui/AppText';
 import ErrorModal from '../../src/components/ui/ErrorModal';
+import { GlassMorphismWithCircle } from '../../src/components/ui/GlassMorphismWithCircle';
+import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 
 const stepsText = {
     one: 'Press on a date on the calendar to update your therapy session. You can set one date and apply it to up to 2 months in advance',
     two: "Once you're done press the button below to save them",
 };
 type SelectedSessions = Record<string, Date>;
+type SessionsMapInput = Record<string, Date | undefined>;
+
+const cloneSessionsMap = (sessionsMap: SessionsMapInput): SelectedSessions => (
+    Object.keys(sessionsMap).reduce<SelectedSessions>((acc, key) => {
+        const value = sessionsMap[key];
+        if (value instanceof Date) {
+            acc[key] = new Date(value);
+        }
+        return acc;
+    }, {} as SelectedSessions)
+);
+
+const getSessionsSignature = (sessionsMap: SelectedSessions): string => (
+    Object.keys(sessionsMap)
+        .sort()
+        .map((key) => {
+            const value = sessionsMap[key];
+            if (value instanceof Date) {
+                const timestamp = value.getTime();
+                return `${key}-${Number.isNaN(timestamp) ? 'invalid' : timestamp}`;
+            }
+
+            return `${key}-missing`;
+        })
+        .join('|')
+);
 
 
 export default function CalendarScreen() {
@@ -39,7 +66,9 @@ export default function CalendarScreen() {
         [sessions],
     );
 
-    const [selectedSessions, setSelectedSessions] = useState<SelectedSessions>(initialSessions);
+    const [selectedSessions, setSelectedSessions] = useState<SelectedSessions>(
+        () => cloneSessionsMap(initialSessions),
+    );
     const normalizeReminderDates = useCallback((values: typeof neuroReminders) =>
         values
             .map((item) => {
@@ -56,7 +85,7 @@ export default function CalendarScreen() {
 
     useFocusEffect(
         useCallback(() => {
-            setSelectedSessions(initialSessions);
+            setSelectedSessions(cloneSessionsMap(initialSessions));
             setDotDates(normalizeReminderDates(neuroReminders));
             return () => {};
         }, [initialSessions, neuroReminders, normalizeReminderDates]),
@@ -74,24 +103,23 @@ export default function CalendarScreen() {
 
     const sessionCount = Object.keys(selectedSessions).length;
 
-    const hasChanges = useMemo(() => {
-        const serialize = (sessionsMap: SelectedSessions) =>
-            Object.keys(sessionsMap)
-                .sort()
-                .map((key) => {
-                    const value = sessionsMap[key];
-                    return `${key}-${value instanceof Date ? value.getTime() : ''}`;
-                })
-                .join('|');
+    const initialSignature = useMemo(
+        () => getSessionsSignature(initialSessions),
+        [initialSessions],
+    );
 
-        return serialize(selectedSessions) !== serialize(initialSessions);
-    }, [initialSessions, selectedSessions]);
+    const selectedSignature = useMemo(
+        () => getSessionsSignature(selectedSessions),
+        [selectedSessions],
+    );
+
+    const hasChanges = selectedSignature !== initialSignature;
 
     const canSave = hasChanges && sessionCount >= 5;
     const userStep = canSave ? 1 : 0;
 
-    const handleSessionsChange = useCallback((next: SelectedSessions) => {
-        setSelectedSessions(next);
+    const handleSessionsChange = useCallback((next: SessionsMapInput) => {
+        setSelectedSessions(cloneSessionsMap(next));
     }, []);
 
     const handleClearAll = useCallback(() => {
@@ -166,11 +194,12 @@ export default function CalendarScreen() {
         }
     }, [sessionsError, refreshSessions, handleErrorModalClose]);
 
-
-
     return (
-        <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] }>
-            <GradientUpwards />
+        <View style={ styles.container }>
+            <View pointerEvents='none' style={ styles.background }>
+                <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_LEFT } />
+            </View>
+            <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] }>
             { sessionsLoading && !sessions.length && (
                 <View style={ styles.loadingFallback }>
                     <AppText variant='bodySecondary'>Loading your upcoming sessions…</AppText>
@@ -237,11 +266,17 @@ export default function CalendarScreen() {
                     onClose={ handleErrorModalClose }
                 />
             ) }
-        </SafeAreaView>
+            </SafeAreaView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        paddingBottom: 70,
+    },
+    background: StyleSheet.absoluteFillObject,
     root: {
         flex: 1,
     },

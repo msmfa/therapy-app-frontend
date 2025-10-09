@@ -4,7 +4,7 @@ import AppText from "../ui/AppText";
 import Spacer from "../ui/Spacer";
 import dayjs from 'dayjs';
 import Badge from "../ui/Badge";
-import { colors, palette } from '../../../new-design';
+import { PALETTE, TEXT_COLORS } from 'designs/designs-colors';
 
 type Props = {
     item: Note;
@@ -37,7 +37,7 @@ export function NoteCard({ item, index, onPress }: Props) {
             </AppText>
 
             <Spacer />
-            <AppText variant="caption" style={ styles.dateText }>
+            <AppText variant="caption" style={ { color: TEXT_COLORS.tertiary } }>
                 { dayjs(item.createdAt).format('h:mm A') }
             </AppText>
 
@@ -49,8 +49,8 @@ const styles = StyleSheet.create({
     cardWrapper: {
         flex: 1,
         borderRadius: 15,
-        backgroundColor: palette.overlay.whiteSurfaceTransparent,
-        shadowColor: palette.overlay.blueGlowTransparent,
+        backgroundColor: PALETTE.overlay.whiteSurfaceTransparent,
+        shadowColor: PALETTE.overlay.blueGlowTransparent,
         shadowOffset: { width: 0, height: 22 },
         shadowOpacity: 0.3,
         shadowRadius: 140,
@@ -60,17 +60,17 @@ const styles = StyleSheet.create({
         paddingHorizontal: 22,
     },
     noteCardPressed: {
-        backgroundColor: palette.overlay.whiteMediumTransparent,
+        backgroundColor: PALETTE.overlay.whiteMediumTransparent,
         transform: [{ scale: 0.98 }],
     },
     firstCard: {
-        backgroundColor: palette.overlay.whiteMediumTransparent,
-        shadowColor: palette.overlay.blueGlowTransparent,
+        backgroundColor: PALETTE.overlay.whiteMediumTransparent,
+        shadowColor: PALETTE.overlay.blueGlowTransparent,
         shadowOffset: { width: 0, height: 22 },
         shadowOpacity: 0.1,
         shadowRadius: 40,
         elevation: 24,
-        borderColor: palette.overlay.whiteSurfaceTransparent,
+        borderColor: PALETTE.overlay.whiteSurfaceTransparent,
         borderWidth: 1,
     },
     noteHeader: {
@@ -88,7 +88,4 @@ const styles = StyleSheet.create({
         right: -16,
         top: -16,
     },
-    dateText:{
-        color: colors.textDisabled,
-    }
 });

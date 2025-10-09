@@ -1,6 +1,7 @@
 import { ReactNode, useMemo } from "react";
 import { View, StyleSheet, StyleProp, ViewStyle } from "react-native";
-import { palette, surfaces } from '../../../new-design';
+import { PALETTE } from 'designs/designs-colors';
+import { SURFACE_TINTS } from 'designs/designs-gradients';
 
 type Props = {
     children: ReactNode;
@@ -9,8 +10,8 @@ type Props = {
     borderRadius?: number;
 };
 
-const DEFAULT_BACKGROUND = surfaces.gradientRow.defaultBackground;
-const DEFAULT_BORDER = surfaces.gradientRow.defaultBorder;
+const DEFAULT_BACKGROUND = SURFACE_TINTS.defaultBackground;
+const DEFAULT_BORDER = SURFACE_TINTS.defaultBorder;
 const DEFAULT_RADIUS = 16;
 const MIN_HUE = 0;
 const MAX_HUE = 360;
@@ -24,11 +25,11 @@ export function GradientCard({ children, addedStyles, hue, borderRadius }: Props
     const hasHue = typeof hue === 'number';
 
     const backgroundColor = hasHue
-        ? surfaces.gradientRow.tintedBackground(normalizedHue)
+        ? SURFACE_TINTS.tintedBackground(normalizedHue)
         : DEFAULT_BACKGROUND;
 
     const borderColor = hasHue
-        ? surfaces.gradientRow.tintedBorder(normalizedHue)
+        ? SURFACE_TINTS.tintedBorder(normalizedHue)
         : DEFAULT_BORDER;
 
     const computedBorderRadius = borderRadius ?? DEFAULT_RADIUS;
@@ -47,7 +48,7 @@ const styles = StyleSheet.create({
     legendWrapper: {
         borderRadius: DEFAULT_RADIUS,
         elevation: 12,
-        shadowColor: palette.overlay.blackLightTransparent,
+        shadowColor: PALETTE.overlay.blackLightTransparent,
         shadowOffset: { height: 4, width: 0 },
         shadowOpacity: 0.3,
         shadowRadius: 30,

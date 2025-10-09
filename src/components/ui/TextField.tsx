@@ -9,9 +9,8 @@ import {
     View,
     ViewStyle,
 } from 'react-native';
-// Pending: consolidate color imports once design tokens settle (see TODO.md).
 import { spacing } from '../../constants';
-import { COLOR_VARIANTS, colors, palette } from '../../../new-design';
+import { COLOR_VARIANTS, PALETTE, THEME_COLORS } from 'designs/designs-colors';
 import AppText from './AppText';
 
 type TextFieldProps = TextInputProps & {
@@ -70,7 +69,7 @@ const TextField = forwardRef<TextInput, TextFieldProps>(
                     <TextInput
                         ref={ ref }
                         style={ [styles.input, style] }
-                        placeholderTextColor={ colors.textMuted }
+                        placeholderTextColor={ COLOR_VARIANTS.black.tertiary }
                         { ...inputProps }
                         onFocus={ handleFocus }
                         onBlur={ handleBlur }
@@ -105,7 +104,7 @@ const styles = StyleSheet.create({
     },
     inputWrapper: {
         borderWidth: 1,
-        borderColor: palette.neutral.boundary,
+        borderColor: PALETTE.neutral.boundary,
         borderRadius: 12,
         flexDirection: 'row',
         alignItems: 'center',
@@ -113,15 +112,15 @@ const styles = StyleSheet.create({
         minHeight: 48,
     },
     inputWrapperFocused: {
-        borderColor: COLOR_VARIANTS.black.dark,
+        borderColor: COLOR_VARIANTS.black.primary,
     },
     inputWrapperError: {
-        borderColor: colors.error,
+        borderColor: THEME_COLORS.error,
     },
     input: {
         flex: 1,
         fontSize: 16,
-        color: colors.text,
+        color: COLOR_VARIANTS.black.secondary,
         paddingVertical: Platform.select({ android: 0, default: 8 }),
         textAlignVertical: 'center',
         includeFontPadding: false,
@@ -134,6 +133,6 @@ const styles = StyleSheet.create({
     error: {
         fontSize: 12,
         marginTop: 8,
-        color: colors.error,
+        color: THEME_COLORS.error,
     },
 });

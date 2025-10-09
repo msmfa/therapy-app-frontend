@@ -7,7 +7,7 @@ import { ReminderType } from "../../utils/types";
 import { ScienceTextModal } from 'src/components/ScienceTextModal';
 import AppText from 'src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
-import { colors, palette } from '../../../new-design';
+import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
 
 type Props = {
     date: string;
@@ -42,7 +42,7 @@ export function ReminderRow ({ date, description, link }: Props) {
                         <AppText variant="caption">
                             Learn More
                         </AppText>
-                        <Ionicons name={ 'arrow-forward-outline' } size={ 20 } color={ colors.textMuted } />
+                        <Ionicons name={ 'arrow-forward-outline' } size={ 20 } color={ COLOR_VARIANTS.black.quaternary } />
                     </View>
                     <Spacer variant={ SpacerVariant.large } />
                 </GradientCard>
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: palette.overlay.whiteMediumTransparent,
+        backgroundColor: PALETTE.overlay.whiteMediumTransparent,
         borderBottomLeftRadius: 10,
         borderBottomRightRadius: 10,
         flex: 1,

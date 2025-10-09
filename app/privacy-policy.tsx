@@ -2,11 +2,10 @@ import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { GradientUpwards } from '../src/components/GradientUpwards';
 import AppText from '../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { Button } from '../src/components/ui/Button';
-import { palette } from '../new-design';
+import { COLOR_VARIANTS } from 'designs/designs-colors';
 
 const EFFECTIVE_DATE = 'January 15, 2025';
 
@@ -19,7 +18,6 @@ export default function PrivacyPolicyScreen() {
 
     return (
         <SafeAreaView style={ styles.container }>
-            <GradientUpwards />
             <ScrollView
                 style={ styles.scroll }
                 contentContainerStyle={ styles.scrollContent }
@@ -172,7 +170,7 @@ export default function PrivacyPolicyScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: palette.neutral.white,
+        backgroundColor: COLOR_VARIANTS.white.primary,
     },
     scroll: {
         flex: 1,

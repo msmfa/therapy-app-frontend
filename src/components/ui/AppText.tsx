@@ -1,9 +1,9 @@
-import { typography } from 'new-design';
+import { TYPOGRAPHY } from 'designs/designs-typography';
 import React from 'react';
 import { Text as RNText, TextProps, StyleProp, TextStyle } from 'react-native';
 
 export type AppTextProps = TextProps & {
-    variant: keyof typeof typography;
+    variant: keyof typeof TYPOGRAPHY;
     align?: TextStyle['textAlign'];
     style?: StyleProp<TextStyle>;
 };
@@ -15,7 +15,7 @@ export default function AppText({
     style,
     ...rest
 }: AppTextProps) {
-    const baseTypography = typography[variant];
+    const baseTypography = TYPOGRAPHY[variant];
 
     const textStyles: StyleProp<TextStyle> = [
         baseTypography,

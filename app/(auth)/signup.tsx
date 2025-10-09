@@ -18,7 +18,7 @@ import AppText from '../../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import SocialAuthButtons from '../../src/components/auth/SocialAuthButtons';
 import { registerAccount } from '../../src/api/auth';
-import { palette } from '../../new-design';
+import { COLOR_VARIANTS } from 'designs/designs-colors';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -152,7 +152,7 @@ export default function SignUpScreen() {
 const styles = StyleSheet.create({
     root: {
         flex: 1,
-        backgroundColor: palette.neutral.white,
+        backgroundColor: COLOR_VARIANTS.white.primary,
         paddingHorizontal: 30,
         paddingTop: 50,
     },

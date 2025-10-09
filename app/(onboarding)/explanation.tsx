@@ -2,7 +2,6 @@ import React, { JSX } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { GradientUpwards } from '../../src/components/GradientUpwards';
 import { Button } from '../../src/components/ui/Button';
 import AppText from '../../src/components/ui/AppText';
 import brainIllustration from '../../assets/illustrations/brain-string.svg';
@@ -18,7 +17,6 @@ export default function ExplanationScreen(): JSX.Element {
 
     return (
         <SafeAreaView style={ styles.container }>
-            <GradientUpwards />
             <View style={ styles.content }>
                 <View style={ styles.imageContainer }>
                     <Image

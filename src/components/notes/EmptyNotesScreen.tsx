@@ -1,20 +1,16 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import dayjs from 'dayjs';
-import { GradientUpwards } from '../GradientUpwards';
 import { useTherapySessions } from '../../context/therapy-sessions/TherapySessionsContext';
 import AppText from '../ui/AppText';
-import brainElastic from '../../../assets/illustrations/brain-elastic.svg';
 import Spacer, { SpacerVariant } from '../ui/Spacer';
-import { COLOR_VARIANTS, colors } from 'new-design';
+import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { GradientCard } from '../ui/GradientCard';
 import ErrorModal from '../ui/ErrorModal';
-import { GlassMorphismWithCircle } from '../ui/GlassMorphismWithCircle';
-
-const ILLUSTRATION_SIZE = 670;
+import { GlassMorphismWithSquare } from '../ui/GlassMorphismWithSquare';
+import { SquarePosition } from '../ui/LinearGradientSquare';
 
 export default function EmptyNotesScreen() {
     const router = useRouter();
@@ -64,53 +60,50 @@ export default function EmptyNotesScreen() {
     return (
         <>
             {shouldRenderContent && (
-                <GlassMorphismWithCircle style={styles.glass}>
-                    <SafeAreaView style={styles.root} edges={['left', 'right', 'top']}>
-                        <View pointerEvents='none' style={ styles.brainIllustration }>
-                            <View style={ styles.illustrationContainer }>
-                                <Image
-                                    source={ brainElastic }
-                                    style={ styles.illustration }
-                                    contentFit='contain'
-                                />
-                            </View>
-                        </View>
+                <View style={ styles.container }>
+                    <View pointerEvents='none' style={ styles.background }>
+                        <GlassMorphismWithSquare />
+                        <GlassMorphismWithSquare squarePosition={SquarePosition.BOTTOM_LEFT} squareRotation='60deg' />
+                    </View>
+                    <SafeAreaView style={ styles.root } edges={['left', 'right', 'top']}>
                         <View style={ styles.emptyContainer }>
                             <Spacer variant={ SpacerVariant.small } />
                             <GradientCard>
                                 <Spacer variant={ SpacerVariant.medium } />
                                 <AppText variant='h3'>
-                                    We'll send you a notification just after your next session on { nextSessionDate } so you can take down your first note. You'll then see your logged notes on this screen
+                                    We'll send you a notification just after your next session on { nextSessionDate } so you can take down your first note.
+                                </AppText>
+                                <Spacer variant={ SpacerVariant.medium } />
+                                <AppText variant='body'>
+                                    You'll then see your logged notes on this screen
                                 </AppText>
                                 <Spacer variant={ SpacerVariant.medium } />
 
-                            </GradientCard>
-                            <Spacer variant={ SpacerVariant.small } />
-
-
-                            <View style={ styles.bottomText }>
-                                <View style={ styles.bottomTextLine } />
-                                <View style={ styles.bottomTextContent }>
-                                    <AppText variant='bodySecondary'>
+                                <View>
+                                    <AppText variant='body'>
                                         If you want to get started now, you can create your first note by tapping the plus icon in the bottom left
                                     </AppText>
-                                    <AppText variant='bodySecondary'>
+                                    <Spacer variant={ SpacerVariant.large } />
+
+                                    <AppText variant='body'>
                                         However we recommend you read a little about what kind of{ ' ' }
                                         <AppText
-                                            variant='bodySecondary'
+                                            variant='body'
                                             onPress={ handleOpenNoteTakingArticle }
                                             accessibilityRole='link'
                                             style={ styles.bottomTextLink }
                                         >
                                             note taking is best for therapy sessions
                                         </AppText>
+                                        { ' ' }before you do
                                     </AppText>
                                 </View>
-                            </View>
-
+                            <Spacer variant={ SpacerVariant.large } />
+                            </GradientCard>
+                            <Spacer variant={ SpacerVariant.small } />
                         </View>
                     </SafeAreaView>
-                </GlassMorphismWithCircle>
+                </View>
             ) }
             { sessionsError && (
                 <ErrorModal
@@ -127,33 +120,14 @@ export default function EmptyNotesScreen() {
 }
 
 const styles = StyleSheet.create({
-    glass: {
+    container: {
         flex: 1,
-        paddingBottom: 24,
+        paddingTop: 60,
     },
-    illustrationContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: ILLUSTRATION_SIZE,
-        height: ILLUSTRATION_SIZE,
-        paddingBottom: 260,
-    },
-    illustration: {
-        width: ILLUSTRATION_SIZE,
-        height: ILLUSTRATION_SIZE,
-    },
+    background: StyleSheet.absoluteFillObject,
     bottomText: {
-        marginTop: 'auto',
-        marginBottom: 24,
         gap: 16,
         flexDirection: 'row',
-        alignItems: 'flex-start',
-    },
-    bottomTextLine: {
-        width: 1,
-        borderRadius: 999,
-        backgroundColor: colors.textMuted,
-        alignSelf: 'stretch',
     },
     bottomTextContent: {
         flex: 1,
@@ -161,21 +135,14 @@ const styles = StyleSheet.create({
     },
     root: {
         flex: 1,
-    },
-    brainIllustration: {
-        position: 'absolute',
-        top: 180,
-        bottom: 0,
-        left: -150,
-        right:  90,
+        paddingBottom: 70,
     },
     emptyContainer: {
         flex: 1,
         paddingTop: 50,
         paddingHorizontal: 20,
-        justifyContent: 'center',
     },
     bottomTextLink: {
-        color: COLOR_VARIANTS.blue.dark,
+        color: COLOR_VARIANTS.blue.mid,
     },
 });

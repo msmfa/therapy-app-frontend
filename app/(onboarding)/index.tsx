@@ -3,60 +3,60 @@ import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button } from '../../src/components/ui/Button';
-import { GradientUpwards } from '../../src/components/GradientUpwards';
-import brainIllustration from '../../assets/illustrations/brain-red.svg';
+import brainIllustration from '../../assets/illustrations/brain-elastic.svg';
 import AppText from '../../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
-import { palette } from '../../new-design';
+import { GlassMorphismWithCircle } from 'src/components/ui/GlassMorphismWithCircle';
 
-const ILLUSTRATION_SIZE = 740;
+const ILLUSTRATION_SIZE = 600;
 
 export default function WelcomeScreen() {
     const router = useRouter();
 
     return (
-        <SafeAreaView style={ styles.container } edges={ ['left', 'right', 'bottom', 'top'] }>
-            <GradientUpwards />
-            <View style={ styles.illustrationContainer }>
-                <Image
-                    source={ brainIllustration }
-                    style={ styles.illustration }
-                    contentFit='contain'
+        <GlassMorphismWithCircle style={ { padding: 6, flex: 1 } }>
+            <SafeAreaView style={ styles.container } edges={ ['left', 'right', 'bottom', 'top'] }>
+                <View style={ styles.content }>
+                    <AppText variant='h1' style={ { fontSize: 26, fontWeight: 'bold' } }>
+                        Welcome
+                    </AppText>
+                    <Spacer />
+                    <AppText variant='body'>
+                        Let's get you set up with a few quick clicks
+                    </AppText>
+                    <Spacer variant={ SpacerVariant.small } />
+
+                    <AppText variant='body'>
+                        On the next screen you can add your weekly therapy sessions
+                    </AppText>
+                    <Spacer variant={ SpacerVariant.small } />
+
+                    <AppText variant='body'>
+                        This will let us calculate when the best time to notify you
+                    </AppText>
+                </View>
+                <View style={ styles.illustrationContainer }>
+                    <Image
+                        source={ brainIllustration }
+                        style={ styles.illustration }
+                        contentFit='contain'
+                    />
+                </View>
+
+                <Button
+                    addedStyles={ styles.button }
+                    label={ 'Get Started' }
+                    onPress={ () => router.push('/(onboarding)/sessions') }
                 />
-            </View>
-            <View style={ styles.content }>
-                <AppText variant='h1' >
-                    Welcome
-                </AppText>
-                <Spacer />
-                <AppText variant='body'>
-                    Let's get you set up with a few quick clicks
-                </AppText>
-                <Spacer variant={ SpacerVariant.small } />
-
-                <AppText variant='body'>
-                    On the next screen you can add your weekly therapy sessions
-                </AppText>
-                <Spacer variant={ SpacerVariant.small } />
-
-                <AppText variant='body'>
-                    This will let us calculate when the best time to notify you
-                </AppText>
-            </View>
-            <Button
-                addedStyles={ styles.button }
-                label={ 'Get Started' }
-                onPress={ () => router.push('/(onboarding)/sessions') }
-            />
-
-        </SafeAreaView>
+            </SafeAreaView>
+        </GlassMorphismWithCircle>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: palette.neutral.white,
+        // backgroundColor: COLOR_VARIANTS.white.primary,
         alignItems: 'center',
     },
     illustrationContainer: {
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         width: ILLUSTRATION_SIZE,
         height: ILLUSTRATION_SIZE,
-        paddingBottom: 290,
+        paddingTop: 140,
     },
     illustration: {
         width: ILLUSTRATION_SIZE,
@@ -72,7 +72,8 @@ const styles = StyleSheet.create({
     },
     content: {
         position: 'absolute',
-        bottom: 150,
+        bottom: 0,
+        top: 120,
         left: 20,
         right: 20,
         flex: 1,

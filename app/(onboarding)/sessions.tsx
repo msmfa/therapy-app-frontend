@@ -5,13 +5,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import TherapyCalendar from '../../src/components/therapy-calendar/TherapyCalendar';
 import { useTherapySessions } from '../../src/context/therapy-sessions/TherapySessionsContext';
 import { convertSessionsToCalendarFormat } from '../../src/utils/calendar';
-import { GradientUpwards } from '../../src/components/GradientUpwards';
 import { GradientCard } from '../../src/components/ui/GradientCard';
 import { Button } from '../../src/components/ui/Button';
 import OnboardingSteps from 'src/components/ui/OnboardingSteps';
 import Spacer from 'src/components/ui/Spacer';
-import { palette } from '../../new-design';
 import ErrorModal from '../../src/components/ui/ErrorModal';
+import { GlassMorphismWithCircle } from 'src/components/ui/GlassMorphismWithCircle';
+import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 
 
 const onBoardingText = {
@@ -96,8 +96,12 @@ export default function SessionsScreen() {
     const haveSessionsBeenSelected = Object.keys(selectedSessions).length === 0;
 
     return (
+        <View style={ styles.container }>
+             <View pointerEvents='none' style={ styles.background }>
+                <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_LEFT } />
+            </View>
         <SafeAreaView style={ styles.root }>
-            <GradientUpwards />
+
             <View style={ styles.content }>
                 <TherapyCalendar
                     onSelectedSessionsChange={ setSelectedSessions }
@@ -143,14 +147,18 @@ export default function SessionsScreen() {
                 />
             ) }
         </SafeAreaView>
+        </View>
     );
 }
 
 
 const styles = StyleSheet.create({
+    background: StyleSheet.absoluteFillObject,
+    container: {
+        flex: 1,
+    },
     root: {
         flex: 1,
-        backgroundColor: palette.neutral.transparentTransparent,
         padding: 4,
     },
     content: {

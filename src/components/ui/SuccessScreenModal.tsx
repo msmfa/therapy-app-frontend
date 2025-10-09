@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Modal, Button } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLOR_VARIANTS, palette } from '../../../new-design';
+import { COLOR_VARIANTS } from 'designs/designs-colors';
 
 type SuccessScreenProps = {
     isVisible: boolean;
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: palette.neutral.transparentTransparent,
+        backgroundColor: COLOR_VARIANTS.transparent,
     },
     modalClose: {
         position: 'absolute',

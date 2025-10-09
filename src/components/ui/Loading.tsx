@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Modal } from 'react-native';
-import { palette } from '../../../new-design';
+import { PALETTE } from 'designs/designs-colors';
 import DancingSquare from './PulsingSquare';
 
 type LoadingProps = {
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: palette.overlay.taupeTransparent,
+        backgroundColor: PALETTE.overlay.taupeTransparent,
         paddingHorizontal: 24,
     },
     text: {

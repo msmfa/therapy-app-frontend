@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
-import { palette } from '../../../new-design';
+import { PALETTE } from 'designs/designs-colors';
 
 type FrostedCardProps = {
     children: React.ReactNode;
@@ -21,7 +21,7 @@ export default function FrostedCard({ children, containerStyle, contentStyle }: 
 const styles = StyleSheet.create({
     shadowWrapper: {
         borderRadius: 18,
-        shadowColor: palette.overlay.blueMildTransparent,
+        shadowColor: PALETTE.overlay.blueMildTransparent,
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 1,
         shadowRadius: 14,
@@ -30,8 +30,8 @@ const styles = StyleSheet.create({
     card: {
         borderRadius: 18,
         borderWidth: 1,
-        borderColor: palette.overlay.whiteBorderTransparent,
-        backgroundColor: palette.overlay.whiteSurfaceTransparent,
+        borderColor: PALETTE.overlay.whiteBorderTransparent,
+        backgroundColor: PALETTE.overlay.whiteSurfaceTransparent,
         paddingHorizontal: 20,
         paddingVertical: 18,
     },

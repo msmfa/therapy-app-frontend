@@ -3,7 +3,7 @@ import { Feather } from '@expo/vector-icons';
 import AppText from './AppText';
 import Spacer, { SpacerVariant } from './Spacer';
 import Circle from './Circle';
-import { COLOR_VARIANTS, palette } from 'new-design';
+import { COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
 
 type Props = {
     steps: string[];
@@ -12,7 +12,7 @@ type Props = {
     activeStep?: number;
 };
 
-const LINE_COLOR = COLOR_VARIANTS.blue.light;
+const LINE_COLOR = COLOR_VARIANTS.red.light;
 const STEP_VERTICAL_SPACING = 10;
 
 export default function OnboardingSteps({ title, steps, activeStep }: Props) {
@@ -73,7 +73,7 @@ export default function OnboardingSteps({ title, steps, activeStep }: Props) {
 const styles = StyleSheet.create({
     line: {
         height: 1,
-        backgroundColor: COLOR_VARIANTS.blue.light,
+        backgroundColor: COLOR_VARIANTS.red.mid,
         alignSelf: 'stretch',
         marginHorizontal: -20,
     },
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     indicatorTail: {
         width: 2,
         flexGrow: 1,
-        backgroundColor: COLOR_VARIANTS.blue.light,
+        backgroundColor: COLOR_VARIANTS.red.light,
         marginBottom: -STEP_VERTICAL_SPACING,
     },
     indicatorTailLast: {
@@ -108,11 +108,12 @@ const styles = StyleSheet.create({
     circleWrapper: {
         borderRadius: 999,
     },
+    // disabled
     stepText: {
         flex: 1,
-        color: COLOR_VARIANTS.black.mid,
+        color: TEXT_COLORS.tertiary,
     },
     stepTextActive: {
-        color: palette.neutral.black,
+        color: COLOR_VARIANTS.black.primary,
     },
 });

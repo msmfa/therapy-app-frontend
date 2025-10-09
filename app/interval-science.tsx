@@ -1,7 +1,6 @@
 import React from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { GradientUpwards } from '../src/components/GradientUpwards';
 import AppText from 'src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { ReminderRow } from 'src/features/reminders/ReminderRow';
@@ -17,7 +16,6 @@ export default function IntervalScienceScreen() {
 
     return (
         <SafeAreaView style={ styles.container }>
-            <GradientUpwards />
             <ScrollView
                 contentContainerStyle={ styles.content }
                 showsVerticalScrollIndicator={ false }

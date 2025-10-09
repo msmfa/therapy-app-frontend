@@ -1,6 +1,6 @@
 import { View, StyleSheet } from "react-native";
 import AppText from "./AppText";
-import { COLOR_VARIANTS } from "new-design";
+import { COLOR_VARIANTS } from "designs/designs-colors";
 
 type Props = {
     text: string;
@@ -27,14 +27,14 @@ const styles = StyleSheet.create({
         borderRadius: 12.5,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: COLOR_VARIANTS.blue.light,
+        backgroundColor: COLOR_VARIANTS.red.light,
     },
     circleActive: {
-        backgroundColor: COLOR_VARIANTS.blue.light,
-        borderColor: COLOR_VARIANTS.blue.dark,
+        backgroundColor: COLOR_VARIANTS.red.light,
+        borderColor: COLOR_VARIANTS.red.dark,
         borderWidth: 1,
     },
     circleText: {
-        color: COLOR_VARIANTS.blue.dark,
+        color: COLOR_VARIANTS.red.dark,
     },
 });

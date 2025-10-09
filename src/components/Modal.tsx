@@ -1,9 +1,8 @@
 import React from 'react'
 import { Modal, ScrollView, View, StyleSheet } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { GradientUpwards } from './GradientUpwards'
 import { Button } from './ui/Button'
-import { palette } from '../../new-design';
+import { COLOR_VARIANTS } from 'designs/designs-colors';
 
 interface ModalProps {
     children: React.ReactNode;
@@ -21,7 +20,6 @@ export function AppModal({ children, isVisible, onClose }: ModalProps) {
             onRequestClose={ onClose }
         >
             <SafeAreaView style={ styles.modalRoot }>
-                <GradientUpwards />
                 <ScrollView contentContainerStyle={ styles.modalContent }>
                     { children }
                 </ScrollView>
@@ -34,7 +32,7 @@ export function AppModal({ children, isVisible, onClose }: ModalProps) {
 }
 
 const styles = StyleSheet.create({
-    modalRoot: { flex: 1, backgroundColor: palette.neutral.white },
+    modalRoot: { flex: 1, backgroundColor: COLOR_VARIANTS.white.primary },
     modalContent: { padding: 12, paddingBottom: 120, paddingTop: 60 },
     modalClose: {
         position: 'absolute',

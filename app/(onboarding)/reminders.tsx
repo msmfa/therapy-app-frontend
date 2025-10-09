@@ -7,11 +7,10 @@ import advancedFormat from 'dayjs/plugin/advancedFormat';
 import isBetween from 'dayjs/plugin/isBetween';
 import { useTherapySessions } from '../../src/context/therapy-sessions/TherapySessionsContext';
 import { ReminderRow } from '../../src/features/reminders/ReminderRow';
-import { GradientUpwards } from '../../src/components/GradientUpwards';
 import { Button } from '../../src/components/ui/Button';
 import { NEURO_REMINDER_COPY } from '../../src/constants/neuroReminders';
 import AppText from '../../src/components/ui/AppText';
-import { palette } from '../../new-design';
+import { COLOR_VARIANTS } from 'designs/designs-colors';
 import ErrorModal from '../../src/components/ui/ErrorModal';
 
 const LENGTH_OF_DAYS_TO_SHOW = 7;
@@ -91,8 +90,8 @@ export default function RemindersScreen(): JSX.Element | null {
 
     return (
         <>
+
             <SafeAreaView style={ styles.container }>
-                <GradientUpwards />
                 <ScrollView style={ styles.scrollContent }>
                     <View style={ styles.header }>
                         <AppText
@@ -138,7 +137,7 @@ export default function RemindersScreen(): JSX.Element | null {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: palette.neutral.white,
+        backgroundColor: COLOR_VARIANTS.white.primary,
     },
     scrollContent: {
         flex: 1,

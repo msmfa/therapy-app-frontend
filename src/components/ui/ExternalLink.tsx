@@ -1,6 +1,6 @@
 import React from 'react';
 import { Linking, Pressable, StyleSheet, StyleProp, TextStyle, ViewStyle } from 'react-native';
-import { COLOR_VARIANTS } from '../../../new-design';
+import { COLOR_VARIANTS } from 'designs/designs-colors';
 import AppText, { AppTextProps } from './AppText';
 
 type TextProps = Omit<AppTextProps, 'variant' | 'onPress' | 'children' | 'style'>;

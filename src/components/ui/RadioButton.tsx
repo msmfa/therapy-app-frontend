@@ -1,4 +1,4 @@
-import { COLOR_VARIANTS, palette } from 'new-design';
+import { COLOR_VARIANTS } from 'designs/designs-colors';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
         borderColor: COLOR_VARIANTS.blue.light,
     },
     notSelectedWrapper: {
-        backgroundColor: palette.neutral.transparentTransparent,
+        backgroundColor: COLOR_VARIANTS.transparent,
         borderColor: COLOR_VARIANTS.blue.light,
     },
     selectedDot: {

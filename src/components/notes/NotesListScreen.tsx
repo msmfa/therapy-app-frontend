@@ -8,8 +8,7 @@ import { Note } from '../../features/notes/useNotes';
 import { NotePreviewModal } from './NotesListScreenModal';
 import { NoteCard } from './NoteCard';
 import AppText from '../ui/AppText';
-import { GradientUpwards } from '../GradientUpwards';
-import { palette } from '../../../new-design';
+import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
 
 const BOTTOM_FADE = 96; // fade height at bottom (mask)
 
@@ -38,13 +37,12 @@ export default function NotesListScreen({ notes, loading, refresh, onUpdateNote 
 
     return (
         <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] }>
-            <GradientUpwards />
             <View style={ { flex: 1 } }>
                 <MaskedView
                     style={ { flex: 1 } }
                     maskElement={
                         <LinearGradient
-                            colors={ [palette.red.deep, palette.neutral.black, palette.neutral.transparentTransparent] }
+                            colors={ [PALETTE.red.deep, COLOR_VARIANTS.black.primary, COLOR_VARIANTS.transparent] }
                             locations={ [0, bottomStart, 1] }
                             start={ { x: 0, y: 0 } }
                             end={ { x: 0, y: 1 } }
@@ -66,8 +64,8 @@ export default function NotesListScreen({ notes, loading, refresh, onUpdateNote 
                             <RefreshControl
                                 refreshing={ loading }
                                 onRefresh={ refresh }
-                                tintColor={ palette.neutral.black }
-                                colors={ [palette.neutral.black] }
+                                tintColor={ COLOR_VARIANTS.black.primary }
+                                colors={ [COLOR_VARIANTS.black.primary] }
                             />
                         }
                         ItemSeparatorComponent={ () => <View style={ { height: 12 } } /> }
@@ -98,6 +96,7 @@ export default function NotesListScreen({ notes, loading, refresh, onUpdateNote 
 const styles = StyleSheet.create({
     root: {
         flex: 1,
+        paddingBottom: 70,
     },
     listContent: {
         paddingHorizontal: 16,
