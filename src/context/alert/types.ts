@@ -6,9 +6,12 @@ export type AppAlertAction = {
     loading?: boolean;
 };
 
+export type AppAlertVariant = 'info' | 'success' | 'error';
+
 export type AppAlertOptions = {
     onClose?: () => void;
     primaryAction?: AppAlertAction;
+    variant?: AppAlertVariant;
 };
 
 export interface AppAlertContextValue {

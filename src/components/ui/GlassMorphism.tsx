@@ -1,17 +1,18 @@
 import { BlurView, BlurViewProps } from "expo-blur";
 import { StyleProp, View, StyleSheet, ViewStyle } from "react-native";
 import { COMPONENT_COLORS, PALETTE } from 'designs/designs-colors';
+import { ReactNode } from "react";
 
 interface GlassProps extends BlurViewProps {
-    children: React.ReactNode;
+    children: ReactNode;
     style?: StyleProp<ViewStyle>;
 };
 
 export default function GlassMorphism({ children, style, ...blurViewProps }: GlassProps) {
     return (
-        <View style={[styles.glassContainer, style]}>
-            <BlurView tint={ blurViewProps.tint } { ...blurViewProps } style={styles.glassPanel}>
-                    { children }
+        <View style={ [styles.glassContainer, style] }>
+            <BlurView tint={ blurViewProps.tint } { ...blurViewProps } style={ styles.glassPanel }>
+                { children }
             </BlurView>
         </View>
     );

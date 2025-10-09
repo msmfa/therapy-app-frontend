@@ -82,7 +82,6 @@ export default function SignUpScreen() {
                                 Join to start your therapy journey
                             </AppText>
                         </View>
-
                         <TextField
                             label="Name"
                             value={ name }
@@ -94,7 +93,6 @@ export default function SignUpScreen() {
                             returnKeyType="next"
                             error={ errors.name }
                         />
-
                         <TextField
                             label="Email"
                             value={ email }
@@ -107,7 +105,6 @@ export default function SignUpScreen() {
                             returnKeyType="next"
                             error={ errors.email }
                         />
-
                         <PasswordField
                             label="Password"
                             value={ password }
@@ -117,7 +114,6 @@ export default function SignUpScreen() {
                             returnKeyType="next"
                             error={ errors.password }
                         />
-
                         <PasswordField
                             label="Confirm Password"
                             value={ confirmPassword }
@@ -128,16 +124,13 @@ export default function SignUpScreen() {
                             onSubmitEditing={ onSubmit }
                             error={ errors.confirmPassword }
                         />
-
                         <Button
                             label="Create Account"
                             onPress={ onSubmit }
                             loading={ loading }
                             addedStyles={ { marginTop: 8 } }
                         />
-
                         <Spacer variant={ SpacerVariant.large } />
-
                         <View style={ styles.oauthSection }>
                             <AppText variant='caption' align='center'>
                                 Or continue with
@@ -155,15 +148,13 @@ export default function SignUpScreen() {
 const styles = StyleSheet.create({
     root: {
         flex: 1,
-        // paddingHorizontal: 30,
-        // paddingTop: 50,
+        justifyContent: 'center',
     },
     glassMorphism: {
         flex: 1,
         padding: 6,
         zIndex: 0,
     },
-    flex: { flex: 1 },
     header: {
         marginBottom: 24
     },
@@ -172,8 +163,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 34,
         justifyContent: 'center',
         paddingTop: 32,
-
-        // paddingBottom: 32,
     },
     oauthSection: { alignItems: 'center', marginBottom: 16 },
 });
