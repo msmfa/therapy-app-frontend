@@ -6,6 +6,8 @@ import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { ReminderRow } from 'src/features/reminders/ReminderRow';
 import { NEURO_REMINDER_COPY } from 'src/constants/neuroReminders';
 import { Reason } from 'src/features/reminders/reminder-schedule-v2';
+import { GlassMorphismWithSquare } from 'src/components/ui/GlassMorphismWithSquare';
+import { SquarePosition } from 'src/components/ui/LinearGradientSquare';
 
 const reminderEntries = Object.entries(NEURO_REMINDER_COPY) as Array<[
     Reason,
@@ -15,7 +17,10 @@ const reminderEntries = Object.entries(NEURO_REMINDER_COPY) as Array<[
 export default function IntervalScienceScreen() {
 
     return (
-        <SafeAreaView style={ styles.container }>
+
+        <SafeAreaView style={ styles.container } edges={ ['top', 'left', 'right'] }>
+            <GlassMorphismWithSquare squarePosition={ SquarePosition.MIDDLE_RIGHT } />
+            <GlassMorphismWithSquare squarePosition={ SquarePosition.BOTTOM_LEFT } />
             <ScrollView
                 contentContainerStyle={ styles.content }
                 showsVerticalScrollIndicator={ false }
@@ -26,6 +31,7 @@ export default function IntervalScienceScreen() {
                 <AppText variant='body'>
                     Each interval is grounded in neuroplasticity, psychology and memory retention research so your follow-up work reinforces what you covered in session.
                 </AppText>
+
                 <Spacer variant={ SpacerVariant.small } />
                 <View style={ styles.list }>
                     { reminderEntries.map(([key, copy]) => (

@@ -5,26 +5,28 @@ import type { AppAlertContextValue, AppAlertOptions } from './types';
 interface AppAlertSnapshot {
     title: string;
     message: string;
+    options?: AppAlertOptions;
 }
 
 const AppAlertContext = createContext<AppAlertContextValue | undefined>(undefined);
 
 export function AppAlertProvider({ children }: { children: React.ReactNode }) {
     const [currentAlert, setCurrentAlert] = useState<AppAlertSnapshot | null>(null);
-    const onCloseRef = useRef<AppAlertOptions['onClose']>(null);
+    const optionsRef = useRef<AppAlertOptions | undefined>(undefined);
 
     const hideAlert = useCallback(() => {
         setCurrentAlert(null);
-        const callback = onCloseRef.current;
-        onCloseRef.current = undefined;
-        callback?.();
+        const options = optionsRef.current;
+        optionsRef.current = undefined;
+        options?.onClose?.();
     }, []);
 
     const showAlert = useCallback<AppAlertContextValue['showAlert']>((title, message, options) => {
-        onCloseRef.current = options?.onClose;
+        optionsRef.current = options;
         setCurrentAlert({
             title,
             message,
+            options,
         });
     }, []);
 
@@ -40,6 +42,7 @@ export function AppAlertProvider({ children }: { children: React.ReactNode }) {
                 <AppAlertModal
                     title={ currentAlert.title }
                     message={ currentAlert.message }
+                    options={ currentAlert.options }
                     onRequestClose={ hideAlert }
                 />
             ) : null }

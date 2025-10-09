@@ -36,7 +36,7 @@ export default function SettingsScreen() {
     const onLogout = async () => {
         try {
             await signOut();
-        } catch (e: unknown) {
+        } catch (_) {
             showAlert('Error', 'Could not log out please try again');
         }
     };
@@ -78,7 +78,14 @@ export default function SettingsScreen() {
         }
         showAlert(
             'Delete account',
-            'This will permanently remove your account and all stored data. This action cannot be undone.'
+            'This will permanently remove your account and all stored data. This action cannot be undone.',
+            {
+                primaryAction: {
+                    label: 'Delete account',
+                    tone: 'danger',
+                    onPress: performDeleteAccount,
+                },
+            }
         );
     }, [deleting, performDeleteAccount, showAlert]);
 
@@ -100,7 +107,7 @@ export default function SettingsScreen() {
                     </View>
                 </GradientCard>
                 <Spacer variant={ SpacerVariant.small } />
-                <FrostedCard>
+                <FrostedCard contentStyle={ { paddingVertical: 22 } }>
                     <View>
                         <AppText variant='h2'>
                             References

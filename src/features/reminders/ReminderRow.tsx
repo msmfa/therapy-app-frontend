@@ -1,5 +1,4 @@
 import { View, StyleSheet, TouchableOpacity } from "react-native";
-import { GradientCard } from 'src/components/ui/GradientCard';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { AppModal } from 'src/components/Modal';
@@ -8,6 +7,7 @@ import { ScienceTextModal } from 'src/components/ScienceTextModal';
 import AppText from 'src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
+import FrostedCard from "src/components/ui/FrostedCard";
 
 type Props = {
     date: string;
@@ -24,7 +24,7 @@ export function ReminderRow ({ date, description, link }: Props) {
                 activeOpacity={ 0.85 }
                 onPress={ () => setOpenModal(link) }
             >
-                <GradientCard>
+                <FrostedCard>
                     <View style={ styles.container }>
                         <Spacer />
                         <AppText variant="h2" >
@@ -45,7 +45,7 @@ export function ReminderRow ({ date, description, link }: Props) {
                         <Ionicons name={ 'arrow-forward-outline' } size={ 20 } color={ COLOR_VARIANTS.black.quaternary } />
                     </View>
                     <Spacer variant={ SpacerVariant.large } />
-                </GradientCard>
+                </FrostedCard>
             </TouchableOpacity>
             { openModal && (
                 <AppModal isVisible={ true } onClose={ () => setOpenModal(null) }>

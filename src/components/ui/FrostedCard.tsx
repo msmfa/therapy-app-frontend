@@ -33,6 +33,5 @@ const styles = StyleSheet.create({
         borderColor: PALETTE.overlay.whiteBorderTransparent,
         backgroundColor: PALETTE.overlay.whiteSurfaceTransparent,
         paddingHorizontal: 20,
-        paddingVertical: 18,
     },
 });

@@ -5,14 +5,28 @@ import { COLOR_VARIANTS } from 'designs/designs-colors';
 import Spacer, { SpacerVariant } from '../Spacer';
 import ErrorGradients from '../ErrorGradients';
 import { Button } from '../Button';
+import { AppAlertOptions } from 'src/context/alert/types';
 
 type Props = {
     title: string;
     message: string;
+    options?: AppAlertOptions;
     onRequestClose: () => void;
 };
 
-export function AppAlertModal({ title, message, onRequestClose }: Props) {
+export function AppAlertModal({ title, message, options, onRequestClose }: Props) {
+    const primaryAction = options?.primaryAction;
+
+    const handlePrimaryPress = React.useCallback(() => {
+        if (!primaryAction) {
+            return;
+        }
+
+        const { onPress } = primaryAction;
+        onRequestClose();
+        onPress();
+    }, [onRequestClose, primaryAction]);
+
     return (
         <Modal
             animationType='fade'
@@ -47,7 +61,23 @@ export function AppAlertModal({ title, message, onRequestClose }: Props) {
                     </AppText>
                     <Spacer variant={ SpacerVariant.large } />
                     <Spacer variant={ SpacerVariant.medium } />
-                    <Button label='Close' onPress={ onRequestClose } />
+                    { primaryAction ? (
+                        <>
+                            <Button
+                                label={ primaryAction.label }
+                                onPress={ handlePrimaryPress }
+                                disabled={ primaryAction.disabled }
+                                loading={ primaryAction.loading }
+                                addedStyles={ primaryAction.tone === 'danger' ? styles.primaryActionDanger : undefined }
+                            />
+                            <Spacer variant={ SpacerVariant.small } />
+                        </>
+                    ) : null }
+                    <Button
+                        label='Close'
+                        onPress={ onRequestClose }
+                        transparent={ Boolean(primaryAction) }
+                    />
                     <Spacer variant={ SpacerVariant.medium } />
                 </View>
             </View>
@@ -80,5 +110,9 @@ const styles = StyleSheet.create({
     },
     backdrop: {
         ...StyleSheet.absoluteFillObject,
+    },
+    primaryActionDanger: {
+        backgroundColor: COLOR_VARIANTS.red.primary,
+        borderColor: COLOR_VARIANTS.red.primary,
     },
 });
