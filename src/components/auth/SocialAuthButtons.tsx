@@ -63,14 +63,6 @@ const styles = StyleSheet.create({
     disabledButton: {
         opacity: 0.6,
     },
-    helperText: {
-        textAlign: 'center',
-        fontSize: 12,
-        marginTop: 8,
-    },
-    helperTextNotice: {
-        color: PALETTE.blue.google,
-    },
 });
 
 export default SocialAuthButtons;
