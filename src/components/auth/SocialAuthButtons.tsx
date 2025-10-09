@@ -6,9 +6,7 @@ import {
     View,
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-
 import { useOAuthLogin } from '../../auth/useOAuthLogin';
-import AppText from '../ui/AppText';
 import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
 
 interface Props {
@@ -16,11 +14,10 @@ interface Props {
 }
 
 export const SocialAuthButtons: React.FC<Props> = ({ onSuccess }) => {
-    const { appleAvailable, googleConfigured, loadingProvider, signInWithApple, signInWithGoogle } =
+    const { appleAvailable, loadingProvider, signInWithApple } =
         useOAuthLogin(onSuccess);
 
     const appleLoading = loadingProvider === 'apple';
-    const googleLoading = loadingProvider === 'google';
 
     return (
         <View>
@@ -40,27 +37,7 @@ export const SocialAuthButtons: React.FC<Props> = ({ onSuccess }) => {
                         ) }
                     </TouchableOpacity>
                 ) }
-
-                <TouchableOpacity
-                    onPress={ signInWithGoogle }
-                    style={ [styles.button, (!googleConfigured || googleLoading) && styles.disabledButton] }
-                    disabled={ googleLoading || !googleConfigured }
-                    accessibilityLabel='Continue with Google'
-                    accessibilityRole='button'
-                >
-                    { googleLoading ? (
-                        <ActivityIndicator color={ PALETTE.blue.google } />
-                    ) : (
-                        <FontAwesome name='google' size={ 24 } color={ PALETTE.blue.google } />
-                    ) }
-                </TouchableOpacity>
             </View>
-
-            { !googleConfigured && (
-                <AppText style={ [styles.helperText, styles.helperTextNotice] } variant='caption'>
-                    Add your Google client IDs to enable this option.
-                </AppText>
-            ) }
         </View>
     );
 };
