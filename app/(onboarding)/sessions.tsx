@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TherapyCalendar from '../../src/components/therapy-calendar/TherapyCalendar';
@@ -12,6 +12,7 @@ import Spacer from 'src/components/ui/Spacer';
 import ErrorModal from '../../src/components/ui/ErrorModal';
 import { GlassMorphismWithCircle } from 'src/components/ui/GlassMorphismWithCircle';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
+import { useAppAlert } from '../../src/context/alert';
 
 
 const onBoardingText = {
@@ -37,6 +38,7 @@ export default function SessionsScreen() {
     );
 
     const [selectedSessions, setSelectedSessions] = useState<SelectedSessions>(initialSessions);
+    const { showAlert } = useAppAlert();
 
     useEffect(() => {
         setSelectedSessions(initialSessions);
@@ -67,9 +69,7 @@ export default function SessionsScreen() {
 
     const handleSavePress = () => {
         if (sessionCount < 4) {
-            Alert.alert('Not Enough Sessions', 'Please add at least 4 therapy sessions.', [
-                { text: 'OK', style: 'default' },
-            ]);
+            showAlert('Not Enough Sessions', 'Please add at least 4 therapy sessions.');
             return;
         }
 

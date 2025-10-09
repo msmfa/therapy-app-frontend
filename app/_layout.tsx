@@ -14,6 +14,7 @@ import { ErrorBoundaryUI } from '../src/components/ErrorBoundary';
 import * as Sentry from '@sentry/react-native';
 import { toError } from '../src/utils/errors';
 import * as Notifications from 'expo-notifications';
+import { AppAlertProvider } from '../src/context/alert';
 
 const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN ?? process.env.SENTRY_DSN;
 
@@ -111,16 +112,18 @@ export function Gate() {
 export default Sentry.wrap(function RootLayout() {
     return (
         <ThemeProvider value={ theme }>
-            <AuthProvider>
-                <TherapySessionsProvider>
-                    <OnboardingProvider>
-                        <SafeAreaProvider>
-                            <Initializer />
-                            <Gate />
-                        </SafeAreaProvider>
-                    </OnboardingProvider>
-                </TherapySessionsProvider>
-            </AuthProvider>
+            <AppAlertProvider>
+                <AuthProvider>
+                    <TherapySessionsProvider>
+                        <OnboardingProvider>
+                            <SafeAreaProvider>
+                                <Initializer />
+                                <Gate />
+                            </SafeAreaProvider>
+                        </OnboardingProvider>
+                    </TherapySessionsProvider>
+                </AuthProvider>
+            </AppAlertProvider>
             <StatusBar barStyle="dark-content" backgroundColor={ theme.colors.background } />
         </ThemeProvider>
     );

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
@@ -9,6 +9,7 @@ import { useAuth } from '../context/auth/AuthContext';
 import { APPLE_REDIRECT_URI, APPLE_SERVICE_ID, GOOGLE_CLIENT_IDS } from '../constants/env';
 import { handleError } from '../utils';
 import { exchangeOAuthToken, OAuthPayloadMap, OAuthProvider } from '../api/auth';
+import { useAppAlert } from '../context/alert';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -21,9 +22,11 @@ interface UseOAuthLoginResult {
 }
 
 const DUMMY_GOOGLE_CLIENT_ID = 'DUMMY_GOOGLE_CLIENT_ID';
+// todo: change error messages once workign so users dont see technical details
 
 export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
     const { setAuth } = useAuth();
+    const { showAlert } = useAppAlert();
 
     const [appleAvailable, setAppleAvailable] = useState(false);
     const [loadingProvider, setLoadingProvider] = useState<OAuthProvider | null>(null);
@@ -69,12 +72,12 @@ export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
                 await setAuth(data.token, data.user, data.refreshToken ?? null);
                 onSuccess?.();
             } catch (error) {
-                Alert.alert('Authentication failed', handleError(error));
+                showAlert('Authentication failed', handleError(error));
             } finally {
                 setLoadingProvider(null);
             }
         },
-        [onSuccess, setAuth],
+        [onSuccess, setAuth, showAlert],
     );
 
     useEffect(() => {
@@ -88,7 +91,7 @@ export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
 
             if (!idToken) {
                 setLoadingProvider(null);
-                Alert.alert('Google sign-in failed', 'Missing Google identity token.');
+                showAlert('Google sign-in failed', 'Missing Google identity token.');
                 return;
             }
 
@@ -99,13 +102,13 @@ export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
         setLoadingProvider(null);
 
         if (googleResponse.type === 'error') {
-            Alert.alert('Google sign-in failed', 'Unable to sign in with Google. Please try again.');
+            showAlert('Google sign-in failed', 'Unable to sign in with Google. Please try again.');
         }
-    }, [exchangeToken, googleResponse]);
+    }, [exchangeToken, googleResponse, showAlert]);
 
     const signInWithGoogle = useCallback(async () => {
         if (!googleConfigured) {
-            Alert.alert(
+            showAlert(
                 'Google sign-in unavailable',
                 'Add your Google OAuth client IDs to enable Google sign-in.',
             );
@@ -113,7 +116,7 @@ export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
         }
 
         if (!googleRequest) {
-            Alert.alert('Please try again', 'Google sign-in is still initializing.');
+            showAlert('Please try again', 'Google sign-in is still initializing.');
             return;
         }
 
@@ -125,7 +128,7 @@ export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
                 setLoadingProvider(null);
 
                 if (result?.type === 'error') {
-                    Alert.alert(
+                    showAlert(
                         'Google sign-in failed',
                         'Unable to sign in with Google. Please try again.',
                     );
@@ -133,13 +136,13 @@ export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
             }
         } catch (error) {
             setLoadingProvider(null);
-            Alert.alert('Google sign-in failed', handleError(error));
+            showAlert('Google sign-in failed', handleError(error));
         }
-    }, [googleConfigured, googleRequest, promptGoogle, shouldUseProxy]);
+    }, [googleConfigured, googleRequest, promptGoogle, shouldUseProxy, showAlert]);
 
     const signInWithApple = useCallback(async () => {
         if (!appleAvailable) {
-            Alert.alert('Apple sign-in unavailable', 'This device does not support Sign in with Apple.');
+            showAlert('Apple sign-in unavailable', 'This device does not support Sign in with Apple.');
             return;
         }
 
@@ -191,9 +194,9 @@ export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
             }
 
             setLoadingProvider(null);
-            Alert.alert('Apple sign-in failed', handleError(error));
+            showAlert('Apple sign-in failed', handleError(error));
         }
-    }, [appleAvailable, exchangeToken, redirectUri]);
+    }, [appleAvailable, exchangeToken, redirectUri, showAlert]);
 
     return {
         appleAvailable,

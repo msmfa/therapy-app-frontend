@@ -2,7 +2,6 @@ import React, { useCallback, useState } from 'react';
 import {
     View,
     StyleSheet,
-    Alert,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -18,13 +17,16 @@ import AppText from '../../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import SocialAuthButtons from '../../src/components/auth/SocialAuthButtons';
 import { registerAccount } from '../../src/api/auth';
-import { COLOR_VARIANTS } from 'designs/designs-colors';
+import { useAppAlert } from '../../src/context/alert';
+import { GlassMorphismWithCircle } from 'src/components/ui/GlassMorphismWithCircle';
+import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function SignUpScreen() {
     const router = useRouter();
     const { setAuth } = useAuth();
+    const { showAlert } = useAppAlert();
 
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -54,107 +56,112 @@ export default function SignUpScreen() {
             await setAuth(token, user, refreshToken ?? null);
             router.replace('/');
         } catch (err) {
-            Alert.alert('Signup failed', handleError(err));
+            showAlert('Signup failed', handleError(err));
         } finally {
             setLoading(false);
         }
-    }, [email, name, password, router, setAuth, validate]);
+    }, [email, name, password, router, setAuth, showAlert, validate]);
 
     return (
-        <SafeAreaView edges={ ['top', 'left', 'right'] } style={ styles.root }>
-            <KeyboardAvoidingView
-                style={ styles.flex }
-                behavior={ Platform.OS === 'ios' ? 'padding' : 'height' }
-                keyboardVerticalOffset={ Platform.OS === 'ios' ? 24 : 0 }
-            >
-                <ScrollView
-                    contentContainerStyle={ styles.scrollContent }
-                    keyboardShouldPersistTaps='handled'
-                    showsVerticalScrollIndicator={ false }
+        <View style={ { flex: 1 } }>
+            <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_LEFT } style={ styles.glassMorphism } />
+            <SafeAreaView edges={ ['top', 'left', 'right'] } style={ styles.root }>
+                <KeyboardAvoidingView
+                    style={ styles.flex }
+                    behavior={ Platform.OS === 'ios' ? 'padding' : 'height' }
+                    keyboardVerticalOffset={ Platform.OS === 'ios' ? 24 : 0 }
                 >
-                    <View style={ styles.header }>
-                        <AppText variant='h1'>
-                            Create Account
-                        </AppText>
-                        <AppText variant='bodySecondary'>
-                            Join to start your therapy journey
-                        </AppText>
-                    </View>
+                    <ScrollView
+                        contentContainerStyle={ styles.scrollContent }
+                        keyboardShouldPersistTaps='handled'
+                        showsVerticalScrollIndicator={ false }
+                    >
+                        <View style={ styles.header }>
+                            <AppText variant='h1'>
+                                Create Account
+                            </AppText>
+                            <AppText variant='bodySecondary'>
+                                Join to start your therapy journey
+                            </AppText>
+                        </View>
 
-                    <TextField
-                        label="Name"
-                        value={ name }
-                        onChangeText={ setName }
-                        autoCapitalize="words"
-                        autoCorrect={ false }
-                        placeholder="Jane Doe"
-                        textContentType="name"
-                        returnKeyType="next"
-                        error={ errors.name }
-                    />
+                        <TextField
+                            label="Name"
+                            value={ name }
+                            onChangeText={ setName }
+                            autoCapitalize="words"
+                            autoCorrect={ false }
+                            placeholder="Jane Doe"
+                            textContentType="name"
+                            returnKeyType="next"
+                            error={ errors.name }
+                        />
 
-                    <TextField
-                        label="Email"
-                        value={ email }
-                        onChangeText={ setEmail }
-                        autoCapitalize="none"
-                        autoCorrect={ false }
-                        keyboardType="email-address"
-                        placeholder="you@example.com"
-                        textContentType="emailAddress"
-                        returnKeyType="next"
-                        error={ errors.email }
-                    />
+                        <TextField
+                            label="Email"
+                            value={ email }
+                            onChangeText={ setEmail }
+                            autoCapitalize="none"
+                            autoCorrect={ false }
+                            keyboardType="email-address"
+                            placeholder="you@example.com"
+                            textContentType="emailAddress"
+                            returnKeyType="next"
+                            error={ errors.email }
+                        />
 
-                    <PasswordField
-                        label="Password"
-                        value={ password }
-                        onChangeText={ setPassword }
-                        placeholder="••••••••"
-                        textContentType="newPassword"
-                        returnKeyType="next"
-                        error={ errors.password }
-                    />
+                        <PasswordField
+                            label="Password"
+                            value={ password }
+                            onChangeText={ setPassword }
+                            placeholder="••••••••"
+                            textContentType="newPassword"
+                            returnKeyType="next"
+                            error={ errors.password }
+                        />
 
-                    <PasswordField
-                        label="Confirm Password"
-                        value={ confirmPassword }
-                        onChangeText={ setConfirmPassword }
-                        placeholder="••••••••"
-                        textContentType="newPassword"
-                        returnKeyType="done"
-                        onSubmitEditing={ onSubmit }
-                        error={ errors.confirmPassword }
-                    />
+                        <PasswordField
+                            label="Confirm Password"
+                            value={ confirmPassword }
+                            onChangeText={ setConfirmPassword }
+                            placeholder="••••••••"
+                            textContentType="newPassword"
+                            returnKeyType="done"
+                            onSubmitEditing={ onSubmit }
+                            error={ errors.confirmPassword }
+                        />
 
-                    <Button
-                        label="Create Account"
-                        onPress={ onSubmit }
-                        loading={ loading }
-                        addedStyles={ { marginTop: 8 } }
-                    />
+                        <Button
+                            label="Create Account"
+                            onPress={ onSubmit }
+                            loading={ loading }
+                            addedStyles={ { marginTop: 8 } }
+                        />
 
-                    <Spacer variant={ SpacerVariant.large } />
-
-                    <View style={ styles.oauthSection }>
-                        <AppText variant='caption' align='center'>
-                            Or continue with
-                        </AppText>
                         <Spacer variant={ SpacerVariant.large } />
-                        <SocialAuthButtons onSuccess={ () => router.replace('/') } />
-                    </View>
-                </ScrollView>
-            </KeyboardAvoidingView>
-        </SafeAreaView>
+
+                        <View style={ styles.oauthSection }>
+                            <AppText variant='caption' align='center'>
+                                Or continue with
+                            </AppText>
+                            <Spacer variant={ SpacerVariant.large } />
+                            <SocialAuthButtons onSuccess={ () => router.replace('/') } />
+                        </View>
+                    </ScrollView>
+                </KeyboardAvoidingView>
+            </SafeAreaView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
     root: {
         flex: 1,
-        backgroundColor: COLOR_VARIANTS.white.primary,
         paddingHorizontal: 30,
         paddingTop: 50,
+    },
+    glassMorphism: {
+        padding: 6,
     },
     flex: { flex: 1 },
     header: { marginBottom: 24 },

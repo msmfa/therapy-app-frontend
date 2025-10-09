@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import TherapyCalendar, { COLORS } from '../../src/components/therapy-calendar/TherapyCalendar';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -15,6 +15,7 @@ import AppText from 'src/components/ui/AppText';
 import ErrorModal from '../../src/components/ui/ErrorModal';
 import { GlassMorphismWithCircle } from '../../src/components/ui/GlassMorphismWithCircle';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
+import { useAppAlert } from '../../src/context/alert';
 
 const stepsText = {
     one: 'Press on a date on the calendar to update your therapy session. You can set one date and apply it to up to 2 months in advance',
@@ -69,6 +70,7 @@ export default function CalendarScreen() {
     const [selectedSessions, setSelectedSessions] = useState<SelectedSessions>(
         () => cloneSessionsMap(initialSessions),
     );
+    const { showAlert } = useAppAlert();
     const normalizeReminderDates = useCallback((values: typeof neuroReminders) =>
         values
             .map((item) => {
@@ -131,9 +133,7 @@ export default function CalendarScreen() {
         setSaveStatus('loading');
         try {
             if (sessionCount < 5) {
-                Alert.alert('Oops', 'Please select at least five therapy sessions to update.', [
-                    { text: 'OK', style: 'default' },
-                ]);
+                showAlert('Oops', 'Please select at least five therapy sessions to update.');
                 setSaveStatus(null); // ← Reset here since we're returning early
                 return;
             }
@@ -144,11 +144,11 @@ export default function CalendarScreen() {
 
         } catch (error) {
             console.error('syncSessions failed', error);
-            Alert.alert('Error', 'Unable to save sessions right now.');
+            showAlert('Error', 'Unable to save sessions right now.');
             setSaveStatus(null);
         }
     // ← Remove the finally block that was setting loading to null
-    }, [selectedSessions, sessionCount, syncSessions]);
+    }, [selectedSessions, sessionCount, showAlert, syncSessions]);
 
     // Delay resetting loading state after success
     useEffect(() => {

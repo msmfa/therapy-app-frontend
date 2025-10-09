@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { View, StyleSheet, Alert, Linking, Platform } from 'react-native';
+import { View, StyleSheet, Linking, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/auth/AuthContext';
@@ -12,11 +12,13 @@ import Loading from 'src/components/ui/Loading';
 import { deleteCurrentUser } from '../../src/api/users';
 import { GlassMorphismWithCircle } from '../../src/components/ui/GlassMorphismWithCircle';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
+import { useAppAlert, type AppAlertContextValue } from '../../src/context/alert';
 
 export default function SettingsScreen() {
     const { user, signOut } = useAuth();
     const router = useRouter();
     const [deleting, setDeleting] = useState(false);
+    const { showAlert } = useAppAlert();
 
     if (!user) {
         return (
@@ -35,7 +37,7 @@ export default function SettingsScreen() {
         try {
             await signOut();
         } catch (e: unknown) {
-            Alert.alert('Error', `${(e as Error).message || 'Logout failed'}`);
+            showAlert('Error', 'Could not log out please try again');
         }
     };
 
@@ -47,17 +49,17 @@ export default function SettingsScreen() {
         } catch (error) {
             setDeleting(false);
             const message = error instanceof Error ? error.message : 'Failed to delete account';
-            Alert.alert('Error', message);
+            showAlert('Error', message);
         }
-    }, [signOut]);
+    }, [showAlert, signOut]);
 
     const handleRateApp = useCallback(
         createHandleRateApp({
             select: Platform.select,
             openURL: Linking.openURL,
-            alert: Alert.alert,
+            alert: showAlert,
         }),
-        [],
+        [showAlert],
     );
 
     const handlePrivacyPolicy = useCallback(
@@ -74,21 +76,11 @@ export default function SettingsScreen() {
         if (deleting) {
             return;
         }
-        Alert.alert(
+        showAlert(
             'Delete account',
-            'This will permanently remove your account and all stored data. This action cannot be undone.',
-            [
-                { text: 'Cancel', style: 'cancel' },
-                {
-                    text: 'Delete',
-                    style: 'destructive',
-                    onPress: () => {
-                        void performDeleteAccount();
-                    },
-                },
-            ],
+            'This will permanently remove your account and all stored data. This action cannot be undone.'
         );
-    }, [deleting, performDeleteAccount]);
+    }, [deleting, performDeleteAccount, showAlert]);
 
     return (
         <View style={ styles.container }>
@@ -130,7 +122,7 @@ export default function SettingsScreen() {
                         </AppText>
                         <Spacer />
                         <View style={ { gap: 8 } }>
-                             <SettingsRow text="Log out" onPress={ () => onLogout() } />
+                            <SettingsRow text="Log out" onPress={ () => onLogout() } />
                             <SettingsRow text="Rate this App" onPress={ handleRateApp } />
 
                             <SettingsRow text="Privacy Policy" onPress={ handlePrivacyPolicy } />
@@ -167,10 +159,12 @@ const styles = StyleSheet.create({
     },
 });
 
+type ShowAlert = AppAlertContextValue['showAlert'];
+
 type RateAppDeps = {
     select: typeof Platform.select;
     openURL: typeof Linking.openURL;
-    alert: typeof Alert.alert;
+    alert: ShowAlert;
 };
 
 function createHandleRateApp({ select, openURL, alert }: RateAppDeps) {

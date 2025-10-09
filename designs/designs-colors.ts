@@ -16,10 +16,15 @@ export const COLOR_VARIANTS = {
     mid: `hsl(${COLOR_HUES.success}, 70%, 55%)`,
   },
   red: {
-    light: `hsl(${COLOR_HUES.error}, 70%, 85%)`,
-    mid: `hsl(${COLOR_HUES.error}, 75%, 45%)`,
-    dark: `hsl(${COLOR_HUES.error}, 75%, 35%)`,
+    light: `hsl(0, 70%, 85%)`,
+    mid: `hsl(0, 75%, 45%)`,
+    dark: `hsl(0, 75%, 35%)`,
     default: 'hsla(0, 64%, 51%, 1.00)',
+
+    primary: 'hsla(0, 64%, 51%, 1.00)',
+    secondary: 'hsla(0, 64%, 61%, 1.00)',
+    tertiary: 'hsla(0, 64%, 68%, 1.00)',
+    quaternary: 'hsla(0, 64%, 75%, 1.00)',
   },
   black: {
     primary: 'hsl(0, 0%, 5%)',
@@ -95,7 +100,7 @@ export const PALETTE = {
     boundary: COLOR_VARIANTS.white.quaternary,
   },
   blue: {
-    google: '#EA4335',
+    google: '#ff1f1fff',
     ios: '#000000',
   },
   red: {

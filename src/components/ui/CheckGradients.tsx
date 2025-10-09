@@ -5,15 +5,9 @@ import { Ionicons } from '@expo/vector-icons';
 const CheckGradients = () => {
     return (
         <View style={ styles.container }>
-            { /* Outermost circle */ }
             <View style={ [styles.circle, styles.circle4] } />
-
-            { /* Second circle */ }
             <View style={ [styles.circle, styles.circle3] } />
-
-            { /* Third circle */ }
             <View style={ [styles.circle, styles.circle2] } />
-
             { /* Center circle with checkmark */ }
             <View style={ [styles.circle, styles.circle1] }>
                 { /* Checkmark */ }
