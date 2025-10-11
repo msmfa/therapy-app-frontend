@@ -1,11 +1,21 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import type { SQLiteRunResult } from 'expo-sqlite';
 
 type ClearNotesForUser = typeof import('../useNotes')['clearNotesForUser'];
 type CancelNotificationById = typeof import('../../../services/notifications')['cancelNotificationById'];
 
-const mockExecAsync = jest.fn();
-const mockGetAllAsync = jest.fn();
-const mockRunAsync = jest.fn();
+type NoteRow = { notifId: string | null };
+type ExecAsync = (source: string) => Promise<void>;
+type GetAllAsync = (source: string, ...params: unknown[]) => Promise<NoteRow[]>;
+type RunAsync = (source: string, ...params: unknown[]) => Promise<SQLiteRunResult>;
+
+const createRunResult = (): SQLiteRunResult => ({
+    lastInsertRowId: 0,
+    changes: 0,
+});
+const mockExecAsync: jest.MockedFunction<ExecAsync> = jest.fn();
+const mockGetAllAsync: jest.MockedFunction<GetAllAsync> = jest.fn();
+const mockRunAsync: jest.MockedFunction<RunAsync> = jest.fn();
 
 jest.mock('expo-sqlite', () => ({
     openDatabaseAsync: jest.fn(() =>
@@ -30,7 +40,7 @@ describe('clearNotesForUser', () => {
 
         mockExecAsync.mockResolvedValue(undefined);
         mockGetAllAsync.mockResolvedValue([]);
-        mockRunAsync.mockResolvedValue(undefined);
+        mockRunAsync.mockResolvedValue(createRunResult());
 
         jest.isolateModules(() => {
             const notesModule = require('../useNotes');
@@ -40,7 +50,7 @@ describe('clearNotesForUser', () => {
             cancelNotificationById = notificationsModule.cancelNotificationById;
         });
 
-        jest.mocked(cancelNotificationById).mockResolvedValue(undefined as never);
+        jest.mocked(cancelNotificationById).mockResolvedValue(undefined);
     });
 
     afterEach(() => {
