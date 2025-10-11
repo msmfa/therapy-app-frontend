@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/auth/AuthContext';
-import { handleError } from 'src/utils';
+import { handleError, validatePassword } from 'src/utils';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TextField from 'src/components/ui/TextField';
 import PasswordField from 'src/components/ui/PasswordField';
@@ -40,7 +40,8 @@ export default function SignUpScreen() {
 
         if (!name.trim()) nextErrors.name = 'Name is required';
         if (!emailRegex.test(email.trim().toLowerCase())) nextErrors.email = 'Enter a valid email';
-        if (password.length < 8) nextErrors.password = 'Password must be at least 8 characters';
+        const passwordError = validatePassword(password);
+        if (passwordError) nextErrors.password = passwordError;
         if (password !== confirmPassword) nextErrors.confirmPassword = 'Passwords must match';
 
         setErrors(nextErrors);
