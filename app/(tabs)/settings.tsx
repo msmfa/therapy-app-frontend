@@ -10,6 +10,7 @@ import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import FrostedCard from 'src/components/ui/FrostedCard';
 import Loading from 'src/components/ui/Loading';
 import { deleteCurrentUser } from '../../src/api/users';
+import { clearNotesForUser } from '../../src/features/notes/useNotes';
 import { GlassMorphismWithCircle } from '../../src/components/ui/GlassMorphismWithCircle';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 import { useAppAlert, type AppAlertContextValue } from '../../src/context/alert';
@@ -44,6 +45,11 @@ export default function SettingsScreen() {
     const performDeleteAccount = useCallback(async () => {
         setDeleting(true);
         try {
+            if (!user?.id) {
+                throw new Error('Unable to delete account right now.');
+            }
+
+            await clearNotesForUser(user.id);
             await deleteCurrentUser();
             await signOut();
         } catch (error) {
@@ -51,7 +57,7 @@ export default function SettingsScreen() {
             const message = error instanceof Error ? error.message : 'Failed to delete account';
             showAlert('Error', message);
         }
-    }, [showAlert, signOut]);
+    }, [showAlert, signOut, user?.id]);
 
     const handleRateApp = useCallback(
         createHandleRateApp({
