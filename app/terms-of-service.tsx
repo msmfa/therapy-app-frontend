@@ -73,10 +73,9 @@ export default function TermsOfServiceScreen() {
                     <AppText variant='h2'>Subscriptions & payments</AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     <AppText variant='body'>
-                        Some features may require a paid subscription through the Apple App Store or Google Play. Payments,
-                        renewals, and refunds are managed by the respective store and subject to its terms. If you cancel, you
-                        retain access to paid features until the end of the current billing period, unless the store provides a
-                        different remedy.
+                        Some features may require a paid subscription through the Apple App Store. Payments, renewals, and refunds
+                        are managed by Apple and subject to App Store terms. If you cancel, you retain access to paid features until
+                        the end of the current billing period, unless the store provides a different remedy.
                     </AppText>
                 </View>
 

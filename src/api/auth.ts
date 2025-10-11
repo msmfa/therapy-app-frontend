@@ -12,6 +12,7 @@ export type OAuthProvider = 'apple';
 export interface OAuthPayloadMap {
   apple: {
     idToken: string;
+    authorizationCode?: string;
   };
 }
 
@@ -61,6 +62,7 @@ export async function exchangeOAuthToken<P extends OAuthProvider>(
                 auth: false,
             });
         } catch (error) {
+            console.log("OAuth exchange error at", endpoint, ":", error);
             if (error instanceof ApiError && (error.status === 404 || error.status === 405)) {
                 lastEndpointError = error;
                 continue;

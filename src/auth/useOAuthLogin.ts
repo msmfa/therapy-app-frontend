@@ -96,7 +96,7 @@ export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
 
             const authorizationCode = trimToValue(credential.authorizationCode);
             if (authorizationCode) {
-                applePayload.idToken = credential.identityToken;
+                applePayload.authorizationCode = authorizationCode;
             }
             await exchangeToken('apple', applePayload);
         } catch (error) {

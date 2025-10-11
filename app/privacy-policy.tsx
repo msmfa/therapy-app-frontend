@@ -32,7 +32,7 @@ export default function PrivacyPolicyScreen() {
                     <AppText variant='h2'>About this policy</AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     <AppText variant='body'>
-                        Therapy App ("we", "us", or "our") helps you prepare for, reflect on, and follow up on therapy sessions. This policy explains how we handle your information in line with Google Play and Apple App Store requirements. By using the app, you agree to the practices described here.
+                        Therapy App ("we", "us", or "our") helps you prepare for, reflect on, and follow up on therapy sessions. This policy explains how we handle your information in line with App Store requirements. By using the app, you agree to the practices described here.
                     </AppText>
                 </View>
 
@@ -41,10 +41,10 @@ export default function PrivacyPolicyScreen() {
                     <AppText variant='h2'>Information we collect</AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     <AppText variant='body'>
-                        - Account details you provide, such as your name, email address, and authentication identifiers when you sign in with email, Apple, or Google.
+                        - Account details you provide, such as your name, email address, and authentication identifiers when you sign in with email or Apple.
                         { '\n' }- Therapy-related entries you create, including notes, session dates, reminder preferences, and optional reflections.
                         { '\n' }- Device and usage information, such as app version, device type, crash logs, and basic interactions used to keep the service reliable.
-                        { '\n' }- Information from authentication partners (Apple and Google), limited to the identifiers, names, and email addresses you authorize them to share with us.
+                        { '\n' }- Information from authentication partners (Apple), limited to the identifiers, names, and email addresses you authorize them to share with us.
                     </AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     <AppText variant='body'>
@@ -75,7 +75,7 @@ export default function PrivacyPolicyScreen() {
                     </AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     <AppText variant='body'>
-                        We rely on trusted service providers to operate the app, including authentication through Apple and Google, cloud hosting, and push notification delivery via Expo services. These partners process your data only to provide the services we request and are bound by contractual safeguards.
+                        We rely on trusted service providers to operate the app, including authentication through Apple, cloud hosting, and push notification delivery via Expo services. These partners process your data only to provide the services we request and are bound by contractual safeguards.
                     </AppText>
                 </View>
 

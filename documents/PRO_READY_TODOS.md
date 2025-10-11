@@ -4,7 +4,7 @@
 - [ ] Replace the placeholder App Store / Play Store URLs and fallback link before shipping so that “Rate this App” deep links succeed. 【F:app/(tabs)/settings.tsx†L154-L170】
 - [ ] Update the privacy policy contact section with the real support email address (the current copy is still marked as a placeholder). 【F:app/privacy-policy.tsx†L155-L160】
 - [ ] Remove the seeded test email and password from the login form defaults so production builds never leak test credentials. 【F:app/(auth)/login.tsx†L27-L46】
-- [ ] Provide real OAuth client IDs and service IDs (Google & Apple) in Expo config and gate the buttons until configuration is validated at startup. 【F:src/constants/env.ts†L15-L29】【F:src/auth/useOAuthLogin.ts†L30-L122】
+- [ ] Provide real Apple Sign-In service identifiers in Expo config and gate the buttons until configuration is validated at startup. 【F:src/constants/env.ts†L15-L29】【F:src/auth/useOAuthLogin.ts†L30-L122】
 - [ ] Add centralized error and crash reporting (e.g. Sentry) instead of only logging to the console when authentication, notification, or storage calls fail. 【F:src/context/auth/AuthContext.tsx†L97-L205】【F:app/_layout.tsx†L105-L110】【F:src/services/notifications/index.ts†L1-L52】
 - [ ] Encrypt or otherwise harden local note storage; sensitive therapy notes are currently stored as plain text inside the on-device SQLite database. 【F:src/features/notes/useNotes.ts†L22-L170】
 - [ ] Add user-facing confirmation or toast after account deletion so people know the operation succeeded before being redirected. 【F:app/(tabs)/settings.tsx†L24-L80】

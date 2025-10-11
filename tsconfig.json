@@ -12,9 +12,6 @@
                         "expo-auth-session": [
                                 "types/expo-auth-session"
                         ],
-                        "expo-auth-session/providers/google": [
-                                "types/expo-auth-session"
-                        ],
                         "expo-web-browser": [
                                 "types/expo-web-browser"
                         ],

@@ -100,7 +100,6 @@ export const PALETTE = {
     boundary: COLOR_VARIANTS.white.quaternary,
   },
   blue: {
-    google: '#ff1f1fff',
     ios: '#000000',
   },
   red: {

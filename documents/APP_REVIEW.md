@@ -19,7 +19,7 @@
 
 ## Content & state coverage gaps
 - **Authentication forms ship with test credentials pre-filled.** The login form defaults to `test@example.com` / `Passw0rd!`, which is confusing for users and unsafe for release builds. 【F:app/(auth)/login.tsx†L27-L46】
-- **OAuth buttons surface configuration issues only at runtime.** Google sign-in remains tappable until after the config check completes, and when IDs are missing the helper text is subtle. Consider gating the whole section behind a clearer setup state. 【F:src/auth/useOAuthLogin.ts†L30-L122】【F:src/components/auth/SocialAuthButtons.tsx†L17-L54】
+- **OAuth buttons surface configuration issues only at runtime.** Apple sign-in remains tappable until after the config check completes, and when IDs are missing the helper text is subtle. Consider gating the whole section behind a clearer setup state. 【F:src/auth/useOAuthLogin.ts†L30-L122】【F:src/components/auth/SocialAuthButtons.tsx†L17-L54】
 - **Settings lacks confirmation/feedback after destructive actions.** Account deletion kicks the user back to the login gate with no confirmation or undo, and errors only appear in alerts; consider a dedicated success state and progress indicator. 【F:app/(tabs)/settings.tsx†L24-L80】
 - **Privacy copy over-promises storage security.** The policy claims notes are kept in “encrypted secure storage,” but the implementation writes plain text entries into an on-device SQLite table, which is misleading until encryption ships. 【F:app/privacy-policy.tsx†L46-L104】【F:src/features/notes/useNotes.ts†L31-L166】
 - **No Terms of Service entry point.** The settings screen only links to privacy, rate, and account options; there’s no obvious route to legal terms that app stores require. 【F:app/(tabs)/settings.tsx†L64-L96】
