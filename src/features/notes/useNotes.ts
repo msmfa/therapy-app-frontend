@@ -51,6 +51,38 @@ const getDb = async (): Promise<SQLiteDatabase> => {
 
 const sortNotes = (items: Note[]) => [...items].sort((a, b) => b.createdAt - a.createdAt);
 
+async function deleteNotesForUser(db: SQLiteDatabase, userId: string) {
+    const rows = await db.getAllAsync<{ notifId: string | null }>(
+        `SELECT notifId FROM notes WHERE userId = ?`,
+        userId,
+    );
+
+    const cancellations = rows
+        .map((row) => row.notifId)
+        .filter((notifId): notifId is string => Boolean(notifId))
+        .map((notifId) => cancelNotificationById(notifId).catch(() => {}));
+
+    if (cancellations.length > 0) {
+        await Promise.all(cancellations);
+    }
+
+    await db.runAsync(`DELETE FROM notes WHERE userId = ?`, userId);
+}
+
+export const clearNotesForUser = async (userId: string): Promise<void> => {
+    if (!userId) {
+        return;
+    }
+
+    try {
+        const db = await getDb();
+        await deleteNotesForUser(db, userId);
+    } catch (error) {
+        console.warn('clearNotesForUser', error);
+        throw new Error('Failed to clear local notes');
+    }
+};
+
 export function useNotes(userId: string | undefined) {
     const [notes, setNotes] = React.useState<Note[]>([]);
     const [loading, setLoading] = React.useState<boolean>(true);
@@ -309,20 +341,16 @@ export function useNotes(userId: string | undefined) {
     const clearAll = React.useCallback(async (): Promise<void> => {
         if (!userId) return;
 
-        await Promise.all(
-            notes.map((n) => (n.notifId ? cancelNotificationById(n.notifId).catch(() => {}) : null)),
-        );
-
         try {
             const db = await getDb();
-            await db.runAsync(`DELETE FROM notes WHERE userId = ?`, userId);
+            await deleteNotesForUser(db, userId);
             setNotes([]);
             setError(null);
         } catch (err) {
             console.warn('useNotes.clearAll', err);
             setError('Failed to clear notes');
         }
-    }, [notes, userId]);
+    }, [userId]);
 
     return {
         notes,
