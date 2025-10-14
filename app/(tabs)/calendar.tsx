@@ -16,6 +16,7 @@ import ErrorModal from '../../src/components/ui/ErrorModal';
 import { GlassMorphismWithCircle } from '../../src/components/ui/GlassMorphismWithCircle';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 import { useAppAlert } from '../../src/context/alert';
+import Loading from 'src/components/ui/Loading';
 
 const stepsText = {
     one: 'Press on a date on the calendar to update your therapy session. You can set one date and apply it to up to 2 months in advance',
@@ -194,17 +195,17 @@ export default function CalendarScreen() {
         }
     }, [sessionsError, refreshSessions, handleErrorModalClose]);
 
+    // TODO: fix this tp still show tabs and be conststant with update loader
+    if (sessionsLoading && !sessions.length) {
+        return <Loading transparent={ false } />;
+    }
+
     return (
         <View style={ styles.container }>
             <View pointerEvents='none' style={ styles.background }>
                 <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_LEFT } />
             </View>
             <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] }>
-                { sessionsLoading && !sessions.length && (
-                    <View style={ styles.loadingFallback }>
-                        <AppText variant='bodySecondary'>Loading your upcoming sessions…</AppText>
-                    </View>
-                ) }
                 <TherapyCalendar
                     dotDates={ dotDates }
                     onSelectedSessionsChange={ handleSessionsChange }
