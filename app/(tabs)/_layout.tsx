@@ -15,7 +15,7 @@ export default function TabsLayout() {
         <Tabs
             initialRouteName="index"
             screenOptions={ {
-                animation: 'shift', // or 'shift'
+                animation: 'fade',
                 transitionSpec: {
                     animation: 'timing',
                     config: {
