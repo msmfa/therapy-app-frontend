@@ -25,9 +25,9 @@ async function loadStoredAddReminders(): Promise<StoredAddReminder[]> {
     try {
         const raw = await AsyncStorage.getItem(STORAGE_KEY);
         if (!raw) return [];
-        const parsed = JSON.parse(raw);
-        if (!Array.isArray(parsed)) return [];
-        return parsed.filter(isStoredAddReminder);
+        const parsed: unknown = JSON.parse(raw);
+        const parsedArray: unknown[] = Array.isArray(parsed) ? parsed : [];
+        return parsedArray.filter(isStoredAddReminder);
     } catch (err) {
         console.warn('[add-note-reminder] failed to read storage', err);
         return [];
@@ -55,10 +55,7 @@ export async function scheduleAddNoteReminders(
     sessions: Array<Pick<TherapySession, '_id' | 'startsAtUtc' | 'durationMin'>>,
     minutesAfterSession = 10,
 ): Promise<void> {
-    const previous = await loadStoredAddReminders();
-    if (previous.length) {
-        await cancelAddNoteReminderNotifications(previous.map((item) => item.id));
-    }
+    await clearAddNoteReminders();
 
     const plan = getPostSessionNoteReminders({
         sessions,
@@ -93,4 +90,13 @@ export async function scheduleAddNoteReminders(
     }
 
     await persistStoredAddReminders(scheduled);
+}
+
+export async function clearAddNoteReminders(): Promise<void> {
+    const previous = await loadStoredAddReminders();
+    if (previous.length) {
+        await cancelAddNoteReminderNotifications(previous.map((item) => item.id));
+    }
+
+    await persistStoredAddReminders([]);
 }
