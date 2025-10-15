@@ -48,4 +48,24 @@ Upgrade Node if Jest exits with optional-chaining syntax errors.
 ## Project Notes
 
 - Environment config is split between `app.json` and `src/constants/env.ts`.
-- In-progress work is tracked in `TODO.md` (gitignored locally).
+
+## Infra
+
+### Local dev
+
+npx expo start
+192.168.0.241:3000
+Local MongoDB
+
+### Staging
+
+eas build --profile staging
+staging.plastic-brains.com
+
+Staging MongoDB
+
+### Production
+
+eas build --profile production
+www.plastic-brains.com
+Production MongoDB

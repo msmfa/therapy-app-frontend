@@ -45,7 +45,6 @@ export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
         async <P extends OAuthProvider>(provider: P, payload: OAuthPayloadMap[P]) => {
             try {
                 const data = await exchangeOAuthToken(provider, payload);
-                console.log("OAuth exchange success:", data);
                 await setAuth(data.token, data.user, data.refreshToken ?? null);
                 onSuccess?.();
             } catch (error) {
