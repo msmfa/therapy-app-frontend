@@ -13,7 +13,14 @@ export default function OnboardingLayout() {
             <Stack.Screen name="sessions" />
             <Stack.Screen name="explanation" />
             <Stack.Screen name="reminders" />
-            <Stack.Screen name="success" />
+            <Stack.Screen name="notifications" />
+            <Stack.Screen
+                name="success"
+                options={ {
+                    gestureEnabled: false,
+                    presentation: 'card',
+                } }
+            />
         </Stack>
     );
 }

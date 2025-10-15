@@ -1,10 +1,11 @@
-import React, { JSX, useCallback, useEffect, useMemo, useState } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import React, { JSX, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { View, StyleSheet, ScrollView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import dayjs from 'dayjs';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 import isBetween from 'dayjs/plugin/isBetween';
+import * as Notifications from 'expo-notifications';
 import { useTherapySessions } from '../../src/context/therapy-sessions/TherapySessionsContext';
 import { ReminderRow } from '../../src/features/reminders/ReminderRow';
 import { Button } from '../../src/components/ui/Button';
@@ -28,6 +29,14 @@ export default function RemindersScreen(): JSX.Element | null {
         refreshSessions,
     } = useTherapySessions();
     const [errorVisible, setErrorVisible] = useState(false);
+    const [checkingPermission, setCheckingPermission] = useState(false);
+    const isMountedRef = useRef(true);
+
+    useEffect(() => {
+        return () => {
+            isMountedRef.current = false;
+        };
+    }, []);
 
     useEffect(() => {
         if (sessionsError) {
@@ -60,9 +69,34 @@ export default function RemindersScreen(): JSX.Element | null {
             .filter((date) => !Number.isNaN(date.getTime()));
     }, [sessions]);
 
-    const handleNext = () => {
-        router.push('/(onboarding)/success');
-    };
+    const handleNext = useCallback(async () => {
+        if (checkingPermission) {
+            return;
+        }
+
+        setCheckingPermission(true);
+
+        try {
+            if (Platform.OS !== 'ios') {
+                router.push('/(onboarding)/success');
+                return;
+            }
+
+            const settings = await Notifications.getPermissionsAsync();
+            if (settings.granted) {
+                router.push('/(onboarding)/success');
+                return;
+            }
+
+            router.push('/(onboarding)/notifications');
+        } catch {
+            router.push('/(onboarding)/notifications');
+        } finally {
+            if (isMountedRef.current) {
+                setCheckingPermission(false);
+            }
+        }
+    }, [checkingPermission, router]);
 
     const reminders = neuroReminders;
 
@@ -117,7 +151,12 @@ export default function RemindersScreen(): JSX.Element | null {
                         <Button label='Back' onPress={ () => router.back() } />
                     </View >
                     <View  style={ styles.button }>
-                        <Button label='Next' onPress={ handleNext } />
+                        <Button
+                            label='Next'
+                            onPress={ handleNext }
+                            loading={ checkingPermission }
+                            disabled={ checkingPermission }
+                        />
                     </View>
                 </View>
             </SafeAreaView>
