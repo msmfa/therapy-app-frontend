@@ -1,5 +1,6 @@
 import React from 'react';
-import { fireEvent, render, waitFor } from '@testing-library/react-native';
+import { jest } from '@jest/globals';
+import { act, fireEvent, render } from '@testing-library/react-native';
 
 import ForgotPasswordScreen from '../forgot-password';
 import { requestPasswordReset } from '../../src/api/auth';
@@ -50,6 +51,7 @@ const mockedRequestPasswordReset = jest.mocked(requestPasswordReset);
 
 describe('ForgotPasswordScreen request step', () => {
     beforeEach(() => {
+        jest.useRealTimers();
         jest.clearAllMocks();
         mockShowAlert.mockClear();
     });
@@ -60,16 +62,15 @@ describe('ForgotPasswordScreen request step', () => {
         const { getByPlaceholderText, getByText } = render(<ForgotPasswordScreen />);
 
         fireEvent.changeText(getByPlaceholderText('you@example.com'), '  user@example.com  ');
-        fireEvent.press(getByText('Send reset code'));
-
-        await waitFor(() => {
-            expect(mockedRequestPasswordReset).toHaveBeenCalledWith('user@example.com');
+        const submitButton = getByText('Send reset code');
+        await act(async () => {
+            fireEvent.press(submitButton);
+            await Promise.resolve();
         });
 
+        expect(mockedRequestPasswordReset).toHaveBeenCalledWith('user@example.com');
         expect(mockShowAlert).toHaveBeenCalledWith('Check your email', 'Reset email sent');
-        await waitFor(() => {
-            expect(getByText('Reset code')).toBeTruthy();
-        });
+        expect(getByText('Reset code')).toBeTruthy();
     });
 
     it('shows an error alert when the request fails', async () => {
@@ -78,12 +79,13 @@ describe('ForgotPasswordScreen request step', () => {
         const { getByPlaceholderText, getByText } = render(<ForgotPasswordScreen />);
 
         fireEvent.changeText(getByPlaceholderText('you@example.com'), 'person@example.com');
-        fireEvent.press(getByText('Send reset code'));
-
-        await waitFor(() => {
-            expect(mockedRequestPasswordReset).toHaveBeenCalledWith('person@example.com');
+        const submitButton = getByText('Send reset code');
+        await act(async () => {
+            fireEvent.press(submitButton);
+            await Promise.resolve();
         });
 
+        expect(mockedRequestPasswordReset).toHaveBeenCalledWith('person@example.com');
         expect(mockShowAlert).toHaveBeenCalledWith('Request failed', 'offline');
     });
 });

@@ -8,7 +8,17 @@ const globals = require('globals');
 
 module.exports = [
   // Global ignores
-  { ignores: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/.expo/**', '**/*.config.js'] },
+  {
+    ignores: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/build/**',
+      '**/.expo/**',
+      '**/*.config.js',
+      '**/__tests__/**',
+      '**/*.test.*',
+    ],
+  },
 
   // Base JS recommended
   js.configs.recommended,
