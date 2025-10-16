@@ -5,20 +5,23 @@
                 "noUnusedLocals": true,
                 "noUnusedParameters": true,
                 "baseUrl": ".",
-                "paths": {
-                        "expo-apple-authentication": [
-                                "types/expo-apple-authentication"
-                        ],
-                        "expo-auth-session": [
-                                "types/expo-auth-session"
-                        ],
-                        "expo-web-browser": [
-                                "types/expo-web-browser"
-                        ],
-                        "src/*": [
-                                "src/*"
-                        ]
-                }
+				"paths": {
+					"expo-apple-authentication": [
+						"types/expo-apple-authentication"
+					],
+					"expo-auth-session": [
+						"types/expo-auth-session"
+					],
+					"expo-web-browser": [
+						"types/expo-web-browser"
+					],
+					"designs/*": [
+						"designs/*"
+					],
+					"src/*": [
+						"src/*"
+					]
+				}
         },
         "include": [
                 "**/*.ts",

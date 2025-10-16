@@ -31,6 +31,7 @@
       "backgroundColor": "#FFFFFF"
     },
     "ios": {
+      "icon": "./assets/brain-logo.png",
       "bundleIdentifier": "com.plastic-brains.app",
       "supportsTablet": true,
       "usesAppleSignIn": true,

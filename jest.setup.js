@@ -1,3 +1,12 @@
+require('@testing-library/jest-native/extend-expect');
+
+process.env.EXPO_PUBLIC_API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://example.com/api';
+process.env.EXPO_PUBLIC_APPLE_SERVICE_ID = process.env.EXPO_PUBLIC_APPLE_SERVICE_ID ?? 'com.example.service';
+process.env.EXPO_PUBLIC_APPLE_REDIRECT_URI = process.env.EXPO_PUBLIC_APPLE_REDIRECT_URI ?? 'https://example.com/auth/callback';
+process.env.EXPO_PUBLIC_APP_STORE_URL = process.env.EXPO_PUBLIC_APP_STORE_URL ?? 'https://apps.apple.com/app/id123456789';
+process.env.EXPO_PUBLIC_PLAY_STORE_URL = process.env.EXPO_PUBLIC_PLAY_STORE_URL ?? 'https://play.google.com/store/apps/details?id=com.example.app';
+process.env.EXPO_PUBLIC_WEB_STORE_URL = process.env.EXPO_PUBLIC_WEB_STORE_URL ?? 'https://example.com/download';
+
 jest.mock(
   '@sentry/react-native',
   () => {

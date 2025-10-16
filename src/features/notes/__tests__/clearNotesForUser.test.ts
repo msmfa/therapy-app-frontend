@@ -32,6 +32,8 @@ jest.mock('../../../services/notifications', () => ({
 }));
 
 describe('clearNotesForUser', () => {
+    let warnSpy: jest.SpyInstance;
+
     let clearNotesForUser: ClearNotesForUser;
     let cancelNotificationById: CancelNotificationById;
 
@@ -41,6 +43,8 @@ describe('clearNotesForUser', () => {
         mockExecAsync.mockResolvedValue(undefined);
         mockGetAllAsync.mockResolvedValue([]);
         mockRunAsync.mockResolvedValue(createRunResult());
+
+        warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
         jest.isolateModules(() => {
             const notesModule = require('../useNotes');
@@ -55,6 +59,7 @@ describe('clearNotesForUser', () => {
 
     afterEach(() => {
         jest.clearAllMocks();
+        warnSpy.mockRestore();
     });
 
     it('clears notes and cancels scheduled reminders for the user', async () => {
@@ -112,5 +117,6 @@ describe('clearNotesForUser', () => {
 
         await expect(clearNotesForUser('user-123')).rejects.toThrow('Failed to clear local notes');
         expect(mockRunAsync).not.toHaveBeenCalled();
+        expect(warnSpy).toHaveBeenCalled();
     });
 });

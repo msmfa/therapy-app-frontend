@@ -15,13 +15,6 @@ export default function TabsLayout() {
         <Tabs
             initialRouteName="index"
             screenOptions={ {
-                animation: 'fade',
-                transitionSpec: {
-                    animation: 'timing',
-                    config: {
-                        duration: 250,
-                    },
-                },
                 headerShown: false,
                 headerTitleAlign: 'center',
                 headerTransparent: true,
