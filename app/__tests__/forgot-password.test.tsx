@@ -1,4 +1,5 @@
 import React from 'react';
+import { jest } from '@jest/globals';
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
 
 import ForgotPasswordScreen from '../forgot-password';
@@ -50,6 +51,7 @@ const mockedRequestPasswordReset = jest.mocked(requestPasswordReset);
 
 describe('ForgotPasswordScreen request step', () => {
     beforeEach(() => {
+        jest.useRealTimers();
         jest.clearAllMocks();
         mockShowAlert.mockClear();
     });
