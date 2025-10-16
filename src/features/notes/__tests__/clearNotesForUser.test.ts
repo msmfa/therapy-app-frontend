@@ -32,7 +32,7 @@ jest.mock('../../../services/notifications', () => ({
 }));
 
 describe('clearNotesForUser', () => {
-    let warnSpy: jest.SpyInstance;
+    let warnSpy: jest.SpiedFunction<typeof console.warn>;
 
     let clearNotesForUser: ClearNotesForUser;
     let cancelNotificationById: CancelNotificationById;
@@ -47,8 +47,8 @@ describe('clearNotesForUser', () => {
         warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
         jest.isolateModules(() => {
-            const notesModule = require('../useNotes');
-            const notificationsModule = require('../../../services/notifications');
+            const notesModule = require('../useNotes') as typeof import('../useNotes');
+            const notificationsModule = require('../../../services/notifications') as typeof import('../../../services/notifications');
 
             clearNotesForUser = notesModule.clearNotesForUser;
             cancelNotificationById = notificationsModule.cancelNotificationById;
