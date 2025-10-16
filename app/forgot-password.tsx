@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
     View,
     StyleSheet,
@@ -32,6 +32,12 @@ export default function ForgotPasswordScreen() {
     const [loading, setLoading] = useState(false);
 
     const trimmedEmail = useMemo(() => email.trim(), [email]);
+    const isTokenValid = token.length === 6;
+
+    const handleTokenChange = useCallback((value: string) => {
+        const digitsOnly = value.replace(/\D/g, '').slice(0, 6);
+        setToken(digitsOnly);
+    }, []);
 
     const handleRequest = async () => {
         if (!trimmedEmail) {
@@ -41,11 +47,11 @@ export default function ForgotPasswordScreen() {
 
         setLoading(true);
         try {
-            await requestPasswordReset(trimmedEmail);
+            const responseMessage = await requestPasswordReset(trimmedEmail);
             setStep('reset');
             showAlert(
                 'Check your email',
-                'We sent you a reset code. Paste it below once you have it.',
+                responseMessage,
             );
         } catch (err) {
             const message = err instanceof Error ? err.message : 'We could not start the reset.';
@@ -56,8 +62,8 @@ export default function ForgotPasswordScreen() {
     };
 
     const handleReset = async () => {
-        if (!token.trim()) {
-            showAlert('Missing code', 'Enter the reset code you received.');
+        if (!isTokenValid) {
+            showAlert('Invalid code', 'Enter the 6-digit reset code from your email.');
             return;
         }
 
@@ -135,11 +141,13 @@ export default function ForgotPasswordScreen() {
                                     <TextField
                                         label="Reset code"
                                         value={ token }
-                                        onChangeText={ setToken }
-                                        placeholder="6-digit code or token"
+                                        onChangeText={ handleTokenChange }
+                                        placeholder="6-digit code"
                                         autoCapitalize="none"
                                         autoCorrect={ false }
                                         textContentType="oneTimeCode"
+                                        keyboardType="number-pad"
+                                        maxLength={ 6 }
                                         returnKeyType="next"
                                     />
                                     <PasswordField
@@ -164,6 +172,7 @@ export default function ForgotPasswordScreen() {
                                     <Button
                                         label="Update password"
                                         onPress={ handleReset }
+                                        disabled={ !isTokenValid }
                                         loading={ loading }
                                         addedStyles={ { marginTop: 8 } }
                                     />

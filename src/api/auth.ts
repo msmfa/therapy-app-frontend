@@ -22,12 +22,18 @@ export type OAuthExchangeSuccess = {
     refreshToken?: string | null;
 };
 
-export async function requestPasswordReset(email: string): Promise<void> {
-    await apiPost<void>(
+export async function requestPasswordReset(email: string): Promise<string> {
+    const response = await apiPost<{ message: string }>(
         '/api/auth/forgot-password',
         { email: email.trim() },
-        { auth: false, parseJson: false },
+        { auth: false },
     );
+
+    if (!response || typeof response.message !== 'string' || response.message.length === 0) {
+        throw new Error('Unexpected response from password reset endpoint.');
+    }
+
+    return response.message;
 }
 
 export async function resetPassword(token: string, password: string): Promise<void> {
