@@ -5,7 +5,7 @@
       "barStyle": "dark-content"
     },
     "name": "Plastic Brains",
-    "slug": "plastic-brains",
+    "slug": "therapy-app-frontend",
     "version": "1.0.0",
     "scheme": "therapyapp",
     "orientation": "portrait",
@@ -31,7 +31,7 @@
       "backgroundColor": "#FFFFFF"
     },
     "ios": {
-      "bundleIdentifier": "com.yourcompany.therapyapp",
+      "bundleIdentifier": "com.plastic-brains.app",
       "supportsTablet": true,
       "usesAppleSignIn": true,
       "infoPlist": {
