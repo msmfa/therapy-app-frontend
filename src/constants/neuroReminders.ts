@@ -46,10 +46,10 @@ export const NEURO_REMINDER_COPY: Record<Reason, NeuroReminderCopy> = {
 };
 
 export const NOTIFICATION_MESSAGES = {
-    post_session: 'Time to review your session notes while your brain is still forming new pathways 🧠',
-    post_sleep: "Good morning! Your brain worked on your insights overnight—let's reinforce them ☀️",
-    mid_session: 'Quick check-in with your therapy notes to strengthen those neural pathways 💪',
-    pre_session: "'Tomorrow's session prep: reactivate your insights so you start strong 🎯",
+    post_session: 'Time to add notes from your today\'s session',
+    post_sleep: "Morning, review yesterday's therapy notes to keep changing those pathways ☀️",
+    mid_session: 'Time to review your therapy notes 💪',
+    pre_session: "Prep for tomorrow's session: have a look at what you discussed in your last session before tomorrow's session 🧠",
 };
 
 export const REMINDER_SCIENCE_COPY: Record<ReminderType, ReminderScienceCopy> = {
