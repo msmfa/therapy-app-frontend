@@ -16,18 +16,24 @@ interface StoredReviewReminder {
     reason: Reason;
 }
 
+export enum ReviewNoteNotificationCategory {
+    NeuroReminder = 'neuroReminder',
+}
+
 function isStoredReviewReminder(value: unknown): value is StoredReviewReminder {
     if (!value || typeof value !== 'object') return false;
     const candidate = value as Partial<StoredReviewReminder>;
-    return typeof candidate.id === 'string' && typeof candidate.atUtc === 'string' &&
-        (candidate.reason === 'post_session' || candidate.reason === 'post_sleep' || candidate.reason === 'mid_session' || candidate.reason === 'pre_session');
+    return typeof candidate.id === 'string' &&
+        typeof candidate.atUtc === 'string' &&
+        typeof candidate.reason === 'string' &&
+        Object.values(Reason).includes(candidate.reason as Reason);
 }
 
 async function loadStoredNotifications(): Promise<StoredReviewReminder[]> {
     try {
         const raw = await AsyncStorage.getItem(STORAGE_KEY);
         if (!raw) return [];
-        const parsed = JSON.parse(raw);
+        const parsed: unknown = JSON.parse(raw);
         if (!Array.isArray(parsed)) return [];
         return parsed.filter(isStoredReviewReminder);
     } catch (err) {
@@ -58,7 +64,7 @@ function buildNotificationContent(reminder: Reminder) {
             reason: reminder.reason,
             atUtc: reminder.atUtc,
             gapIndex: reminder.gapIndex,
-            category: 'neuroReminder',
+            category: ReviewNoteNotificationCategory.NeuroReminder,
         },
     };
 }

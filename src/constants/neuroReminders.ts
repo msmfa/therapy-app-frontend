@@ -19,25 +19,25 @@ interface ReminderScienceCopy {
 }
 
 export const NEURO_REMINDER_COPY: Record<Reason, NeuroReminderCopy> = {
-    post_session: {
+    [Reason.PostSession]: {
         time: 'Evening of your session',
         reason:
             "Right after therapy your brain starts forming new pathways. Reviewing your notes this evening strengthens those fresh changes before they fade. This is known as early consolidation.",
         link: ReminderType.EarlyConsolidation,
     },
-    post_sleep: {
+    [Reason.PostSleep]: {
         time: 'Morning after your session',
         reason:
             "During sleep your brain replays what it learned. A quick review the next morning helps those pathways settle in and grow stronger. This is known as sleep-dependent consolidation.",
         link: ReminderType.SleepDependentConsolidation,
     },
-    mid_session: {
+    [Reason.MidSession]: {
         time: 'Between your sessions',
         reason:
             'New brain pathways need to be reactivated to grow stronger. This is known as spaced reactivation.',
         link: ReminderType.SpacedReactivation,
     },
-    pre_session: {
+    [Reason.PreSession]: {
         time: 'Evening before your next session',
         reason:
             "Bringing the insight back the night before therapy reactivates the pathway, so the next session builds on it instead of starting fresh. This is known as state reinstatement.",
@@ -45,11 +45,11 @@ export const NEURO_REMINDER_COPY: Record<Reason, NeuroReminderCopy> = {
     },
 };
 
-export const NOTIFICATION_MESSAGES = {
-    post_session: 'Time to add notes from your today\'s session',
-    post_sleep: "Morning, review yesterday's therapy notes to keep changing those pathways ☀️",
-    mid_session: 'Time to review your therapy notes 💪',
-    pre_session: "Prep for tomorrow's session: have a look at what you discussed in your last session before tomorrow's session 🧠",
+export const NOTIFICATION_MESSAGES: Record<Reason, string> = {
+    [Reason.PostSession]: 'Time to add notes from your today\'s session',
+    [Reason.PostSleep]: "Morning, review yesterday's therapy notes to keep changing those pathways ☀️",
+    [Reason.MidSession]: 'Time to review your therapy notes 💪',
+    [Reason.PreSession]: "Prep for tomorrow's session: have a look at what you discussed in your last session before tomorrow's session 🧠",
 };
 
 export const REMINDER_SCIENCE_COPY: Record<ReminderType, ReminderScienceCopy> = {

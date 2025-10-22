@@ -7,7 +7,8 @@ import {
     scheduleReviewNoteReminderNotification,
 } from '../../../services/notifications/review-note-reminder';
 import { NOTIFICATION_MESSAGES } from '../../../constants/neuroReminders';
-import type { Reminder } from '../reminder-schedule-v2';
+import { Reason, type Reminder } from '../reminder-schedule-v2';
+import { ReviewNoteNotificationCategory } from '../review-note-reminder';
 
 jest.mock('@react-native-async-storage/async-storage', () => ({
     getItem: jest.fn(),
@@ -47,7 +48,7 @@ describe('syncReviewNoteReminders', () => {
     it('cancels stored notifications and schedules upcoming reminders', async () => {
         getItemMock.mockResolvedValue(
             JSON.stringify([
-                { id: 'stored-1', atUtc: '2023-12-31T20:00:00.000Z', reason: 'post_session' },
+                { id: 'stored-1', atUtc: '2023-12-31T20:00:00.000Z', reason: Reason.PostSession },
             ]),
         );
         scheduleMock.mockResolvedValue('new-1');
@@ -55,12 +56,12 @@ describe('syncReviewNoteReminders', () => {
         const reminders: Reminder[] = [
             {
                 atUtc: '2024-01-02T07:00:00.000Z',
-                reason: 'post_sleep',
+                reason: Reason.PostSleep,
                 gapIndex: 0,
             },
             {
                 atUtc: '2023-12-31T19:00:00.000Z',
-                reason: 'mid_session',
+                reason: Reason.MidSession,
                 gapIndex: 0,
             },
         ];
@@ -71,16 +72,16 @@ describe('syncReviewNoteReminders', () => {
         expect(scheduleMock).toHaveBeenCalledTimes(1);
 
         const [identifier, body, when, options] = scheduleMock.mock.calls[0];
-        expect(identifier).toBe('post_sleep');
-        expect(body).toBe(NOTIFICATION_MESSAGES.post_sleep);
+        expect(identifier).toBe(Reason.PostSleep);
+        expect(body).toBe(NOTIFICATION_MESSAGES[Reason.PostSleep]);
         expect(when.toISOString()).toBe('2024-01-02T07:00:00.000Z');
         expect(options).toMatchObject({
             title: 'Keep your therapy insights active',
             data: {
-                reason: 'post_sleep',
+                reason: Reason.PostSleep,
                 atUtc: '2024-01-02T07:00:00.000Z',
                 gapIndex: 0,
-                category: 'neuroReminder',
+                category: ReviewNoteNotificationCategory.NeuroReminder,
             },
         });
 
@@ -90,7 +91,7 @@ describe('syncReviewNoteReminders', () => {
                 {
                     id: 'new-1',
                     atUtc: '2024-01-02T07:00:00.000Z',
-                    reason: 'post_sleep',
+                    reason: Reason.PostSleep,
                 },
             ]),
         );
@@ -100,8 +101,8 @@ describe('syncReviewNoteReminders', () => {
     it('clears persisted state when no reminders remain', async () => {
         getItemMock.mockResolvedValue(
             JSON.stringify([
-                { id: 'stored-1', atUtc: '2023-12-31T20:00:00.000Z', reason: 'pre_session' },
-                { id: 'stored-2', atUtc: '2024-01-01T07:00:00.000Z', reason: 'post_sleep' },
+                { id: 'stored-1', atUtc: '2023-12-31T20:00:00.000Z', reason: Reason.PreSession },
+                { id: 'stored-2', atUtc: '2024-01-01T07:00:00.000Z', reason: Reason.PostSleep },
             ]),
         );
 

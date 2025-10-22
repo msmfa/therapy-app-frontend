@@ -1,4 +1,4 @@
-import { scheduleNotificationRequest, cancelNotificationsById } from './index';
+import { scheduleNotificationRequest, cancelNotificationsById, NotificationType } from './index';
 
 const DEFAULT_REVIEW_TITLE = 'Review your therapy note';
 
@@ -21,7 +21,7 @@ export async function scheduleReviewNoteReminderNotification(
         body,
         when,
         data: {
-            type: 'reviewNoteReminder',
+            type: NotificationType.ReviewNoteReminder,
             ...data,
         },
     });

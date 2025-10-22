@@ -5,7 +5,7 @@ import { ThemeProvider, DefaultTheme, Theme } from '@react-navigation/native';
 import { AuthProvider, useAuth } from '../src/context/auth/AuthContext';
 import { OnboardingProvider, useOnboarding } from '../src/context/onboarding/OnboardingContext';
 import { TherapySessionsProvider } from '../src/context/therapy-sessions/TherapySessionsContext';
-import { initNotifications } from '../src/services/notifications';
+import { initNotifications, NotificationType } from '../src/services/notifications';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { GRADIENTS } from 'designs/designs-gradients';
 import { StatusBar, StyleSheet, View } from 'react-native';
@@ -169,21 +169,23 @@ function NotificationNavigationHandler({ isReady }: NotificationNavigationHandle
     const handleNotificationResponse = useCallback((response: Notifications.NotificationResponse | null) => {
         if (!response) return;
 
-        const { notification } = response;
-        const notificationId = notification.request.identifier;
+        const notificationId = response.notification.request.identifier;
+
+        // Prevent duplicate handling
         if (handledNotificationIdsRef.current.has(notificationId)) {
             return;
         }
 
-        const data = notification.request.content.data as Record<string, unknown> | undefined;
-        const rawType = data?.['type'];
-        const notificationType = typeof rawType === 'string' ? rawType : undefined;
-        if (notificationType !== 'reviewNoteReminder') {
-            return;
-        }
+        const data = response.notification.request.content.data as Record<string, unknown> | undefined;
+        const type = data?.type;
 
-        handledNotificationIdsRef.current.add(notificationId);
-        router.navigate('/(tabs)/index');
+        if (type === NotificationType.AddNoteReminder) {
+            handledNotificationIdsRef.current.add(notificationId);
+            router.navigate('/(tabs)/index');
+        } else if (type === NotificationType.ReviewNoteReminder) {
+            handledNotificationIdsRef.current.add(notificationId);
+            router.navigate('/(tabs)/notes');
+        }
     }, [router]);
 
     useEffect(() => {

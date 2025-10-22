@@ -17,7 +17,12 @@ dayjs.extend(utc);
 // • clamped inside the gap between two sessions
 // • limited to maxPerDay with priority pre_session > post_session > post_sleep > mid_session
 
-export type Reason = 'post_session' | 'post_sleep' | 'mid_session' | 'pre_session';
+export enum Reason {
+    PostSession = 'post_session',
+    PostSleep = 'post_sleep',
+    MidSession = 'mid_session',
+    PreSession = 'pre_session',
+}
 
 export interface Reminder {
   atUtc: string;
@@ -55,10 +60,10 @@ export interface ScheduleParams {
 }
 
 const REASON_PRIORITY: Record<Reason, number> = {
-    pre_session: 0,
-    post_session: 1,
-    post_sleep: 2,
-    mid_session: 3,
+    [Reason.PreSession]: 0,
+    [Reason.PostSession]: 1,
+    [Reason.PostSleep]: 2,
+    [Reason.MidSession]: 3,
 };
 
 interface ReminderDraft {
@@ -131,23 +136,23 @@ function scheduleRemindersForGap(gap: GapWindow, ctx: GapContext): ReminderDraft
 
     const drafts: ReminderDraft[] = [];
 
-    const postSession = buildReminderDraftWithinGap(setToHourStart(gap.start, ctx.reflectionHour), 'post_session', gap, ctx);
+    const postSession = buildReminderDraftWithinGap(setToHourStart(gap.start, ctx.reflectionHour), Reason.PostSession, gap, ctx);
     if (postSession) drafts.push(postSession);
 
-    const postSleep = buildReminderDraftWithinGap(setToHourStart(gap.start.add(1, 'day'), ctx.morningHour), 'post_sleep', gap, ctx);
+    const postSleep = buildReminderDraftWithinGap(setToHourStart(gap.start.add(1, 'day'), ctx.morningHour), Reason.PostSleep, gap, ctx);
     if (postSleep) drafts.push(postSleep);
 
     if (gap.days > ctx.startAfterDays) {
         const anchorBase = gap.start.startOf('day');
         for (let dayOffset = ctx.startAfterDays; dayOffset < gap.days; dayOffset += ctx.cadenceDays) {
             const anchor = anchorBase.add(dayOffset, 'day');
-            const midSession = buildReminderDraftWithinGap(setToHourStart(anchor, ctx.reflectionHour), 'mid_session', gap, ctx);
+            const midSession = buildReminderDraftWithinGap(setToHourStart(anchor, ctx.reflectionHour), Reason.MidSession, gap, ctx);
             if (midSession) drafts.push(midSession);
         }
     }
 
     if (gap.days >= 1) {
-        const preSession = buildReminderDraftWithinGap(setToHourStart(gap.end.subtract(1, 'day'), ctx.reflectionHour), 'pre_session', gap, ctx);
+        const preSession = buildReminderDraftWithinGap(setToHourStart(gap.end.subtract(1, 'day'), ctx.reflectionHour), Reason.PreSession, gap, ctx);
         if (preSession) drafts.push(preSession);
     }
 
@@ -278,4 +283,3 @@ function createGapWindowFromIsoSessions(index: number, startIso: string, endIso:
         days: countCalendarDaysBetweenUtcMoments(start, end),
     };
 }
-

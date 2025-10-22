@@ -4,6 +4,11 @@ import { Platform } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import { toError } from '../../utils/errors';
 
+export enum NotificationType {
+    AddNoteReminder = 'addNoteReminder',
+    ReviewNoteReminder = 'reviewNoteReminder',
+}
+
 Notifications.setNotificationHandler({
     handleNotification: async (): Promise<Notifications.NotificationBehavior> => ({
         shouldShowBanner: true,
