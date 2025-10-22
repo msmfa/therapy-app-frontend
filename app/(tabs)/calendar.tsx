@@ -281,10 +281,6 @@ const styles = StyleSheet.create({
     root: {
         flex: 1,
     },
-    loadingFallback: {
-        marginHorizontal: 16,
-        marginBottom: 12,
-    },
     calendarKey: {
         flex: 1,
         position: 'absolute',
