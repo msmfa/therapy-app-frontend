@@ -166,7 +166,7 @@ export default function HowToTakeNotesScreen() {
             </ScrollView>
 
             <View style={ styles.footer }>
-                <Button label="Back" onPress={ handleBack } transparent />
+                <Button label="Back" onPress={ handleBack } />
             </View>
         </SafeAreaView>
     );

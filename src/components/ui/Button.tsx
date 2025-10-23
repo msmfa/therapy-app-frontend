@@ -6,11 +6,11 @@ import { BUTTON_COLORS } from 'designs/designs-colors';
 interface Props {
 	label: string;
 	icon?: React.ReactNode;
-	onPress: () => void;
 	disabled?: boolean;
 	transparent?: boolean;
     addedStyles?: StyleProp<ViewStyle>;
     loading?: boolean;
+	onPress: () => void;
 }
 
 export function Button({

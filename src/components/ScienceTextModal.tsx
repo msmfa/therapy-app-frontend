@@ -61,6 +61,7 @@ export function ScienceTextModal({ type }: Props) {
 const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
+        paddingVertical: 12,
     },
     gradientContainer: {
         backgroundColor: '#dbdbdb91',

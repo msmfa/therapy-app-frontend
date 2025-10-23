@@ -143,7 +143,6 @@ export function NotePreviewModal({ visible, note, onClose, onUpdateNote }: NoteP
                                 <Button
                                     label="Cancel"
                                     onPress={ handleCancelEditing }
-                                    transparent
                                     disabled={ saving }
                                 />
                             </>
@@ -158,7 +157,6 @@ export function NotePreviewModal({ visible, note, onClose, onUpdateNote }: NoteP
                                 <Button
                                     label="Close"
                                     onPress={ handleClose }
-                                    transparent
                                 />
                             </>
                         ) }
@@ -177,7 +175,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left: 24,
         right: 24,
-        bottom: 24,
+        bottom: 34,
     },
     actionSpacer: {
         height: 12,
@@ -200,7 +198,7 @@ const styles = StyleSheet.create({
     },
     editableTextContainer: {
         marginHorizontal: 5,
-        paddingTop: 12,
+        marginBottom: 20,
     },
     editableText: {
         fontSize: 18,
