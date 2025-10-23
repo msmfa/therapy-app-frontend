@@ -141,15 +141,14 @@ export default function TermsOfServiceScreen() {
                     <AppText variant='h2'>Contact</AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     <AppText variant='body'>
-                        { /* Placeholder: update contact email before launch (see TODO.md). */ }
-                        For questions about these terms, email us at codemoore@outlook.com.
+                        For questions about these terms, email us at info@plastic-brains.com.
                     </AppText>
                 </View>
 
                 <Spacer variant={ SpacerVariant.large } />
             </ScrollView>
             <View style={ styles.footer }>
-                <Button label='Back' onPress={ handleBack } transparent />
+                <Button label='Back' onPress={ handleBack } />
             </View>
         </SafeAreaView>
     );

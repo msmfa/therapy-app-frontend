@@ -153,8 +153,7 @@ export default function PrivacyPolicyScreen() {
                     <AppText variant='h2'>Contact us</AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     <AppText variant='body'>
-                        { /* Placeholder: update contact email before launch (see TODO.md). */ }
-                        For questions or to exercise your privacy rights, email us at codemoore@outlook.com.
+                        For questions or to exercise your privacy rights, email us at info@plastic-brains.com.
                     </AppText>
                 </View>
 
