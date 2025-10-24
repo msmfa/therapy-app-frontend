@@ -9,6 +9,9 @@
     "version": "1.0.0",
     "scheme": "therapyapp",
     "orientation": "portrait",
+    "experiments": {
+      "typedRoutes": true
+    },
     "icon": "./assets/brain-logo.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
@@ -36,7 +39,12 @@
       "supportsTablet": true,
       "usesAppleSignIn": true,
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": ["therapyapp"]
+          }
+        ]
       }
     },
     "android": {
