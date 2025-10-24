@@ -184,16 +184,17 @@ function NotificationNavigationHandler({ isReady }: NotificationNavigationHandle
         const data = response.notification.request.content.data as Record<string, unknown> | undefined;
         const type = data?.type;
 
-        // Use try-catch to handle any router errors gracefully
+        if (!isReady) {
+            console.warn('[NotificationNavigationHandler] Attempted to handle notification before ready');
+            return;
+        }
+
         try {
             if (type === NotificationType.AddNoteReminder) {
-                // Use replace instead of navigate to avoid deep link issues
                 router.replace('/(tabs)/index');
             } else if (type === NotificationType.ReviewNoteReminder) {
-                // Use replace instead of navigate to avoid deep link issues
                 router.replace('/(tabs)/notes');
             } else {
-                // Fallback to main tabs if notification type is unknown
                 router.replace('/(tabs)');
             }
         } catch (error) {
@@ -210,7 +211,7 @@ function NotificationNavigationHandler({ isReady }: NotificationNavigationHandle
             // Fallback to main app - if this fails, let it propagate
             router.replace('/(tabs)');
         }
-    }, [router]);
+    }, [router, isReady]);
 
     useEffect(() => {
         const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
@@ -225,7 +226,6 @@ function NotificationNavigationHandler({ isReady }: NotificationNavigationHandle
     }, [handleNotificationResponse, isReady]);
 
     useEffect(() => {
-        // Get last notification response on mount
         try {
             const response = Notifications.getLastNotificationResponse();
             if (!response) {
