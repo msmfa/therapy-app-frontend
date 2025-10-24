@@ -95,6 +95,9 @@ export function Gate() {
                 <Stack.Protected guard={ isAuthenticated && isFullyHydrated && hasOnboarded }>
                     <Stack.Screen name="(tabs)" options={ { headerShown: false } } />
                 </Stack.Protected>
+
+                { /* Catch-all for unmatched routes (e.g., from notification deep links) */ }
+                <Stack.Screen name="+not-found" />
             </Stack>
         </View>
     );
@@ -176,15 +179,36 @@ function NotificationNavigationHandler({ isReady }: NotificationNavigationHandle
             return;
         }
 
+        handledNotificationIdsRef.current.add(notificationId);
+
         const data = response.notification.request.content.data as Record<string, unknown> | undefined;
         const type = data?.type;
 
-        if (type === NotificationType.AddNoteReminder) {
-            handledNotificationIdsRef.current.add(notificationId);
-            router.navigate('/(tabs)/index');
-        } else if (type === NotificationType.ReviewNoteReminder) {
-            handledNotificationIdsRef.current.add(notificationId);
-            router.navigate('/(tabs)/notes');
+        // Use try-catch to handle any router errors gracefully
+        try {
+            if (type === NotificationType.AddNoteReminder) {
+                // Use replace instead of navigate to avoid deep link issues
+                router.replace('/(tabs)/index');
+            } else if (type === NotificationType.ReviewNoteReminder) {
+                // Use replace instead of navigate to avoid deep link issues
+                router.replace('/(tabs)/notes');
+            } else {
+                // Fallback to main tabs if notification type is unknown
+                router.replace('/(tabs)');
+            }
+        } catch (error) {
+            Sentry.withScope((scope) => {
+                scope.setTag('feature', 'notifications.navigation');
+                scope.setContext('notification', {
+                    notificationId,
+                    type,
+                    data,
+                });
+                Sentry.captureException(toError(error));
+            });
+            console.warn('[NotificationNavigationHandler] Navigation error:', error);
+            // Fallback to main app - if this fails, let it propagate
+            router.replace('/(tabs)');
         }
     }, [router]);
 
@@ -201,6 +225,7 @@ function NotificationNavigationHandler({ isReady }: NotificationNavigationHandle
     }, [handleNotificationResponse, isReady]);
 
     useEffect(() => {
+        // Get last notification response on mount
         try {
             const response = Notifications.getLastNotificationResponse();
             if (!response) {
@@ -212,8 +237,12 @@ function NotificationNavigationHandler({ isReady }: NotificationNavigationHandle
             } else {
                 pendingResponseRef.current = response;
             }
-        } catch {
-            // Ignore errors if the response is unavailable
+        } catch (error) {
+            Sentry.withScope((scope) => {
+                scope.setTag('feature', 'notifications.getLastResponse');
+                Sentry.captureException(toError(error));
+            });
+            console.warn('[NotificationNavigationHandler] Error getting last notification response:', error);
         }
     }, [handleNotificationResponse, isReady]);
 
