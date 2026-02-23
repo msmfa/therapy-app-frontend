@@ -5,7 +5,6 @@ import { ThemeProvider, DefaultTheme, Theme } from '@react-navigation/native';
 import { AuthProvider, useAuth } from '../src/context/auth/AuthContext';
 import { OnboardingProvider, useOnboarding } from '../src/context/onboarding/OnboardingContext';
 import { TherapySessionsProvider } from '../src/context/therapy-sessions/TherapySessionsContext';
-import { NotificationType } from '../src/services/notifications';
 import { usePushNotifications } from '../src/hooks/usePushNotifications';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { GRADIENTS } from 'designs/designs-gradients';
@@ -183,30 +182,17 @@ function NotificationNavigationHandler({ isReady }: NotificationNavigationHandle
 
         handledNotificationIdsRef.current.add(notificationId);
 
-        const data = response.notification.request.content.data as Record<string, unknown> | undefined;
-        const type = data?.type;
-
         if (!isReady) {
             console.warn('[NotificationNavigationHandler] Attempted to handle notification before ready');
             return;
         }
 
         try {
-            if (type === NotificationType.AddNoteReminder) {
-                router.replace('/(tabs)/index');
-            } else if (type === NotificationType.ReviewNoteReminder) {
-                router.replace('/(tabs)/notes');
-            } else {
-                router.replace('/(tabs)');
-            }
+            router.replace('/(tabs)');
         } catch (error) {
             Sentry.withScope((scope) => {
                 scope.setTag('feature', 'notifications.navigation');
-                scope.setContext('notification', {
-                    notificationId,
-                    type,
-                    data,
-                });
+                scope.setContext('notification', { notificationId });
                 Sentry.captureException(toError(error));
             });
             console.warn('[NotificationNavigationHandler] Navigation error:', error);

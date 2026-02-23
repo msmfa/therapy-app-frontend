@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { openDatabaseAsync, type SQLiteDatabase } from 'expo-sqlite';
 import { cancelNotificationById } from '../../services/notifications';
-import { scheduleReviewNoteReminderNotification } from '../../services/notifications/review-note-reminder';
 
 type SqlRow = {
     id: string;
@@ -158,54 +157,6 @@ export function useNotes(userId: string | undefined) {
         [userId],
     );
 
-    const addNoteWithReminder = React.useCallback(
-        async (text: string, when?: Date): Promise<void> => {
-            const clean = text.trim();
-            if (!clean || !userId) return;
-
-            const now = Date.now();
-            let remindAt: number | undefined;
-            let notifId: string | undefined;
-
-            try {
-                if (when) {
-                    const ms = when.getTime();
-                    if (ms <= Date.now()) throw new Error('Pick a future date & time');
-                    notifId = await scheduleReviewNoteReminderNotification(String(now), clean, when);
-                    remindAt = ms;
-                }
-
-                const note: Note = {
-                    id: String(now),
-                    text: clean,
-                    createdAt: now,
-                    remindAt,
-                    notifId,
-                };
-
-                const db = await getDb();
-                await db.runAsync(
-                    `INSERT INTO notes (id, userId, text, createdAt, remindAt, notifId)
-                     VALUES (?, ?, ?, ?, ?, ?)`,
-                    note.id,
-                    userId,
-                    note.text,
-                    note.createdAt,
-                    remindAt ?? null,
-                    notifId ?? null,
-                );
-
-                setNotes((prev) => sortNotes([note, ...prev]));
-                setError(null);
-            } catch (err) {
-                console.warn('useNotes.addNoteWithReminder', err);
-                if (notifId) cancelNotificationById(notifId).catch(() => {});
-                setError(err instanceof Error ? err.message : 'Failed to add note');
-            }
-        },
-        [userId],
-    );
-
     const updateNote = React.useCallback(
         async (id: string, patch: Partial<Pick<Note, 'text' | 'remindAt' | 'notifId'>>): Promise<void> => {
             if (!userId) return;
@@ -270,74 +221,6 @@ export function useNotes(userId: string | undefined) {
         [notes, userId],
     );
 
-    const setReminder = React.useCallback(
-        async (id: string, when: Date): Promise<void> => {
-            if (!userId) return;
-            const ms = when.getTime();
-            if (ms <= Date.now()) throw new Error('Pick a future date & time');
-
-            const current = notes.find((n) => n.id === id);
-            if (!current) throw new Error('Note not found');
-
-            if (current.notifId) {
-                await cancelNotificationById(current.notifId).catch(() => {});
-            }
-
-            const notifId = await scheduleReviewNoteReminderNotification(id, current.text, when);
-
-            try {
-                const db = await getDb();
-                await db.runAsync(
-                    `UPDATE notes SET remindAt = ?, notifId = ? WHERE id = ? AND userId = ?`,
-                    ms,
-                    notifId,
-                    id,
-                    userId,
-                );
-                setNotes((prev) =>
-                    prev.map((n) =>
-                        n.id === id ? { ...n, remindAt: ms, notifId } : n,
-                    ),
-                );
-                setError(null);
-            } catch (err) {
-                console.warn('useNotes.setReminder', err);
-                setError('Failed to set reminder');
-            }
-        },
-        [notes, userId],
-    );
-
-    const removeReminder = React.useCallback(
-        async (id: string): Promise<void> => {
-            if (!userId) return;
-
-            const current = notes.find((n) => n.id === id);
-            if (current?.notifId) {
-                await cancelNotificationById(current.notifId).catch(() => {});
-            }
-
-            try {
-                const db = await getDb();
-                await db.runAsync(
-                    `UPDATE notes SET remindAt = NULL, notifId = NULL WHERE id = ? AND userId = ?`,
-                    id,
-                    userId,
-                );
-                setNotes((prev) =>
-                    prev.map((n) =>
-                        n.id === id ? { ...n, remindAt: undefined, notifId: undefined } : n,
-                    ),
-                );
-                setError(null);
-            } catch (err) {
-                console.warn('useNotes.removeReminder', err);
-                setError('Failed to remove reminder');
-            }
-        },
-        [notes, userId],
-    );
-
     const clearAll = React.useCallback(async (): Promise<void> => {
         if (!userId) return;
 
@@ -358,11 +241,8 @@ export function useNotes(userId: string | undefined) {
         error,
         refresh,
         addNote,
-        addNoteWithReminder,
         updateNote,
         deleteNote,
-        setReminder,
-        removeReminder,
         clearAll,
     };
 }

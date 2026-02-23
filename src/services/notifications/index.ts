@@ -1,13 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
-import { Platform } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import { toError } from '../../utils/errors';
-
-export enum NotificationType {
-    AddNoteReminder = 'addNoteReminder',
-    ReviewNoteReminder = 'reviewNoteReminder',
-}
 
 Notifications.setNotificationHandler({
     handleNotification: async (): Promise<Notifications.NotificationBehavior> => ({
@@ -27,19 +21,6 @@ export async function ensureNotificationPermissions(): Promise<boolean> {
         status = request.status;
     }
     return status === 'granted';
-}
-
-export async function initNotifications(): Promise<void> {
-    if (Platform.OS === 'android') {
-        await Notifications.setNotificationChannelAsync('default', {
-            name: 'Default',
-            importance: Notifications.AndroidImportance.DEFAULT,
-            sound: 'default',
-        });
-    }
-
-    const granted = await ensureNotificationPermissions();
-    if (!granted) throw new Error('Notification permissions not granted');
 }
 
 export type ScheduleNotificationParams = {
