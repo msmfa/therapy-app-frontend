@@ -1,10 +1,11 @@
 import { Link } from "expo-router";
+import type { Href } from "expo-router";
 import { Pressable, StyleSheet, StyleProp, Text, TextStyle } from "react-native";
 import { COLOR_VARIANTS } from "designs/designs-colors";
 import type { ReactNode } from "react";
 
 type InternalLinkProps = {
-    href: string;
+    href: Href;
     children: ReactNode;
     style?: StyleProp<TextStyle>;
 };
