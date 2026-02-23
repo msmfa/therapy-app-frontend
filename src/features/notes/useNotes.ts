@@ -87,7 +87,7 @@ export function useNotes(userId: string | undefined) {
     const [loading, setLoading] = React.useState<boolean>(true);
     const [error, setError] = React.useState<string | null>(null);
 
-    const refresh = React.useCallback(async (): Promise<void> => {
+    const refresh = React.useCallback(async (options?: { silent?: boolean }): Promise<void> => {
         if (!userId) {
             setNotes([]);
             setLoading(false);
@@ -96,7 +96,7 @@ export function useNotes(userId: string | undefined) {
         }
 
         try {
-            setLoading(true);
+            if (!options?.silent) setLoading(true);
             const db = await getDb();
             const rows = await db.getAllAsync<SqlRow>(
                 `SELECT id, text, createdAt, remindAt, notifId
