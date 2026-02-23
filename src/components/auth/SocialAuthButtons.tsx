@@ -11,13 +11,15 @@ import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
 
 interface Props {
     onSuccess?: () => void;
+    disabled?: boolean;
 }
 
-export const SocialAuthButtons: React.FC<Props> = ({ onSuccess }) => {
+export const SocialAuthButtons: React.FC<Props> = ({ onSuccess, disabled = false }) => {
     const { appleAvailable, loadingProvider, signInWithApple } =
         useOAuthLogin(onSuccess);
 
     const appleLoading = loadingProvider === 'apple';
+    const appleDisabled = appleLoading || disabled;
 
     return (
         <View>
@@ -25,8 +27,8 @@ export const SocialAuthButtons: React.FC<Props> = ({ onSuccess }) => {
                 { appleAvailable && (
                     <TouchableOpacity
                         onPress={ signInWithApple }
-                        style={ [styles.button, appleLoading && styles.disabledButton] }
-                        disabled={ appleLoading }
+                        style={ [styles.button, appleDisabled && styles.disabledButton] }
+                        disabled={ appleDisabled }
                         accessibilityLabel="Continue with Apple"
                         accessibilityRole="button"
                     >

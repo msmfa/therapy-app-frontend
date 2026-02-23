@@ -93,6 +93,7 @@ export default function SignUpScreen() {
                             textContentType="name"
                             returnKeyType="next"
                             error={ errors.name }
+                            editable={ !loading }
                         />
                         <TextField
                             label="Email"
@@ -105,6 +106,7 @@ export default function SignUpScreen() {
                             textContentType="emailAddress"
                             returnKeyType="next"
                             error={ errors.email }
+                            editable={ !loading }
                         />
                         <PasswordField
                             label="Password"
@@ -114,6 +116,7 @@ export default function SignUpScreen() {
                             textContentType="newPassword"
                             returnKeyType="next"
                             error={ errors.password }
+                            editable={ !loading }
                         />
                         <PasswordField
                             label="Confirm Password"
@@ -124,6 +127,7 @@ export default function SignUpScreen() {
                             returnKeyType="done"
                             onSubmitEditing={ onSubmit }
                             error={ errors.confirmPassword }
+                            editable={ !loading }
                         />
                         <Button
                             label="Create Account"
@@ -137,7 +141,7 @@ export default function SignUpScreen() {
                                 Or continue with
                             </AppText>
                             <Spacer variant={ SpacerVariant.large } />
-                            <SocialAuthButtons onSuccess={ () => router.replace('/') } />
+                            <SocialAuthButtons onSuccess={ () => router.replace('/') } disabled={ loading } />
                         </View>
                     </ScrollView>
                 </KeyboardAvoidingView>

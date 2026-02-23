@@ -200,7 +200,7 @@ function createHandleRateApp({ select, openURL, alert }: RateAppDeps) {
     };
 }
 
-type PushFn = (route: string) => void;
+type PushFn = ReturnType<typeof useRouter>['push'];
 
 function createPrivacyPolicyHandler(push: PushFn) {
     return () => {
