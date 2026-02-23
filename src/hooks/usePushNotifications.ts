@@ -3,8 +3,10 @@ import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
+import * as Sentry from '@sentry/react-native';
 import { useAuth } from 'src/context/auth/AuthContext';
 import { registerDeviceToken, unregisterDeviceToken } from 'src/api/devices';
+import { toError } from 'src/utils/errors';
 
 // Show push notifications even when the app is in the foreground
 Notifications.setNotificationHandler({
@@ -86,6 +88,15 @@ export function usePushNotifications(): void {
       } catch (err) {
         if (!cancelled) {
           console.warn('[PushNotifications] Registration failed:', err);
+          Sentry.withScope((scope) => {
+            scope.setTag('feature', 'push-notifications.registration');
+            scope.setContext('device', {
+              isDevice: Device.isDevice,
+              platform: Platform.OS,
+              projectId: getProjectId(),
+            });
+            Sentry.captureException(toError(err));
+          });
         }
       }
     }
