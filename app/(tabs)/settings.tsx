@@ -14,6 +14,7 @@ import { clearNotesForUser } from '../../src/features/notes/useNotes';
 import { GlassMorphismWithCircle } from '../../src/components/ui/GlassMorphismWithCircle';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 import { useAppAlert, type AppAlertContextValue } from '../../src/context/alert';
+import { STORE_URLS } from '../../src/constants/env';
 
 export default function SettingsScreen() {
     const { user, signOut } = useAuth();
@@ -183,9 +184,9 @@ type RateAppDeps = {
 function createHandleRateApp({ select, openURL, alert }: RateAppDeps) {
     return () => {
         const storeUrl = select({
-            ios: 'itms-apps://itunes.apple.com/app/id000000000?action=write-review', // TODO: replace with real App Store ID
-            android: 'market://details?id=com.example.therapyapp', // TODO: replace with real package name
-            default: 'https://therapy-app.example.com', // TODO: replace with real fallback URL
+            ios: STORE_URLS.ios,
+            android: STORE_URLS.android,
+            default: STORE_URLS.web,
         });
 
         if (!storeUrl) {
