@@ -11,7 +11,6 @@ import FrostedCard from 'src/components/ui/FrostedCard';
 import Loading from 'src/components/ui/Loading';
 import { deleteCurrentUser } from '../../src/api/users';
 import { clearNotesForUser } from '../../src/features/notes/useNotes';
-import { clearAddNoteReminders } from '../../src/features/reminders/add-note-reminder';
 import { GlassMorphismWithCircle } from '../../src/components/ui/GlassMorphismWithCircle';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 import { useAppAlert, type AppAlertContextValue } from '../../src/context/alert';
@@ -50,7 +49,6 @@ export default function SettingsScreen() {
                 throw new Error('Unable to delete account right now.');
             }
 
-            await clearAddNoteReminders();
             await clearNotesForUser(user.id);
             await deleteCurrentUser();
             await signOut();
