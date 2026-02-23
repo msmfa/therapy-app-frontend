@@ -5,10 +5,11 @@ import { ThemeProvider, DefaultTheme, Theme } from '@react-navigation/native';
 import { AuthProvider, useAuth } from '../src/context/auth/AuthContext';
 import { OnboardingProvider, useOnboarding } from '../src/context/onboarding/OnboardingContext';
 import { TherapySessionsProvider } from '../src/context/therapy-sessions/TherapySessionsContext';
-import { initNotifications, NotificationType } from '../src/services/notifications';
+import { NotificationType } from '../src/services/notifications';
+import { usePushNotifications } from '../src/hooks/usePushNotifications';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { GRADIENTS } from 'designs/designs-gradients';
-import { StatusBar, StyleSheet, View } from 'react-native';
+import { Platform, StatusBar, StyleSheet, View } from 'react-native';
 import Loading from '../src/components/ui/Loading';
 import { ErrorBoundaryUI } from '../src/components/ErrorBoundary';
 import * as Sentry from '@sentry/react-native';
@@ -142,19 +143,20 @@ export default Sentry.wrap(function RootLayout() {
  * Separated from RootLayout for clarity.
  */
 function Initializer() {
-    useEffect(() => {
-        initNotifications().catch((err) => {
-            if (err instanceof Error && err.message === 'Notification permissions not granted') {
-                console.warn('[Initializer] notification setup skipped:', err.message);
-                return;
-            }
+    // Register / unregister the Expo push token with the backend as auth state changes
+    usePushNotifications();
 
-            Sentry.withScope((scope) => {
-                scope.setTag('feature', 'notifications.init');
-                Sentry.captureException(toError(err));
+    useEffect(() => {
+        // Android requires a notification channel for push notifications to appear
+        if (Platform.OS === 'android') {
+            Notifications.setNotificationChannelAsync('default', {
+                name: 'Default',
+                importance: Notifications.AndroidImportance.DEFAULT,
+                sound: 'default',
+            }).catch((err) => {
+                console.warn('[Initializer] Android notification channel setup failed:', err);
             });
-            console.warn('[Initializer] notification setup failed:', err);
-        });
+        }
     }, []);
 
     return null;

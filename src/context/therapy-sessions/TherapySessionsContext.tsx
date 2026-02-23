@@ -10,14 +10,9 @@ import {
     TherapySession,
     syncTherapySessions as syncTherapySessionsApi,
 } from '../../api/therapy';
-import { scheduleAddNoteReminders } from '../../features/reminders/add-note-reminder';
 import { scheduleNeuroplasticityReminders, Reminder } from '../../features/reminders/reminder-schedule-v2';
-import { syncReviewNoteReminders } from '../../features/reminders/review-note-reminder';
 import { mapSessionError, SessionErrorCopy } from '../../features/therapy-sessions/session-error-map';
 import { toError } from '../../utils/errors';
-
-const POST_SESSION_NOTIFICATION_ID = 'post-session-note';
-const POST_SESSION_NOTIFICATION_MESSAGE = 'Remember to take a note about your therapy session';
 
 interface TherapySessionsContextType {
     sessions: TherapySession[];
@@ -63,30 +58,6 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
 
             const data = await getTherapySessions(from, to);
             setSessions(data);
-
-            try {
-                await scheduleAddNoteReminders(
-                    POST_SESSION_NOTIFICATION_ID,
-                    POST_SESSION_NOTIFICATION_MESSAGE,
-                    data,
-                );
-                setError(null);
-            } catch (notificationError) {
-                Sentry.withScope((scope) => {
-                    scope.setTag('feature', 'therapy-sessions.notifications');
-                    scope.setContext('notification', {
-                        scheduledSessions: data.length,
-                    });
-                    Sentry.captureException(toError(notificationError));
-                });
-                console.warn('[TherapySessions] scheduling notifications failed:', notificationError);
-                setError({
-                    title: 'Reminder scheduling failed',
-                    message: 'We could not reschedule your reminders. Please try again later.',
-                    actionLabel: 'Try again',
-                    retryable: true,
-                });
-            }
         } catch (err) {
             const mapped = mapSessionError(err);
             setError({ ...mapped });
@@ -207,9 +178,6 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
     useEffect(() => {
         if (!sessions.length) {
             setNeuroReminders([]);
-            void syncReviewNoteReminders([]).catch((error) => {
-                console.warn('[TherapySessions] failed to clear review reminders', error);
-            });
             return;
         }
 
@@ -227,16 +195,6 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
         });
 
         setNeuroReminders(reminders);
-        void syncReviewNoteReminders(reminders).catch((error) => {
-            Sentry.withScope((scope) => {
-                scope.setTag('feature', 'therapy-sessions.review-reminders');
-                scope.setContext('notification', {
-                    reminders: reminders.length,
-                });
-                Sentry.captureException(toError(error));
-            });
-            console.warn('[TherapySessions] failed to sync review reminders', error);
-        });
     }, [sessions]);
 
     useEffect(() => {
