@@ -80,6 +80,7 @@ export default function LoginScreen() {
                                     placeholder="you@example.com"
                                     textContentType="username"
                                     returnKeyType="next"
+                                    editable={ !loading }
                                 />
                                 <PasswordField
                                     label="Password"
@@ -89,8 +90,9 @@ export default function LoginScreen() {
                                     textContentType="password"
                                     returnKeyType="done"
                                     onSubmitEditing={ onSubmit }
+                                    editable={ !loading }
                                 />
-                                <TouchableOpacity onPress={ () => router.push('/forgot-password') } style={ styles.forgotPassword }>
+                                <TouchableOpacity onPress={ () => router.push('/forgot-password') } style={ styles.forgotPassword } disabled={ loading }>
                                     <AppText variant='caption'>
                                         Forgot password?
                                     </AppText>
@@ -101,7 +103,7 @@ export default function LoginScreen() {
                                     Or continue with
                                 </AppText>
                                 <Spacer variant={ SpacerVariant.large } />
-                                <SocialAuthButtons onSuccess={ () => router.replace('/') } />
+                                <SocialAuthButtons onSuccess={ () => router.replace('/') } disabled={ loading } />
                                 <Spacer />
                                 <View style={ styles.signupRow }>
                                     <AppText variant='caption'>
