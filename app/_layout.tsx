@@ -196,8 +196,6 @@ function NotificationNavigationHandler({ isReady }: NotificationNavigationHandle
                 Sentry.captureException(toError(error));
             });
             console.warn('[NotificationNavigationHandler] Navigation error:', error);
-            // Fallback to main app - if this fails, let it propagate
-            router.replace('/(tabs)');
         }
     }, [router, isReady]);
 
