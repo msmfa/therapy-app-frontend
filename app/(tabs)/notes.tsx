@@ -23,21 +23,25 @@ export default function NotesScreen() {
         [updateNote],
     );
 
+    const [isFocused, setIsFocused] = React.useState(false);
+
     useFocusEffect(
         React.useCallback(() => {
+            setIsFocused(true);
             void refresh({ silent: true });
+            return () => setIsFocused(false);
         }, [refresh]),
     );
 
     React.useEffect(() => {
-        if (!error) return;
+        if (!error || !isFocused) return;
         showAlert('Failed to load notes', error, {
             primaryAction: {
                 label: 'Try again',
                 onPress: () => { void refresh(); },
             },
         });
-    }, [error, showAlert, refresh]);
+    }, [error, isFocused, showAlert, refresh]);
 
     const isLoading = !user?.id || (loading && notes.length === 0);
 

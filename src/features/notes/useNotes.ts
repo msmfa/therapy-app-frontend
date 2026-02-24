@@ -97,6 +97,7 @@ export function useNotes(userId: string | undefined) {
 
         try {
             if (!options?.silent) setLoading(true);
+            setError(null);
             const db = await getDb();
             const rows = await db.getAllAsync<SqlRow>(
                 `SELECT id, text, createdAt, remindAt, notifId
