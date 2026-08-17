@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import * as Sentry from '@sentry/react-native';
 import { ApiError } from '../../api/client';
 import { useAuth } from '../auth/AuthContext';
@@ -11,6 +11,7 @@ import {
     syncTherapySessions as syncTherapySessionsApi,
 } from '../../api/therapy';
 import { scheduleNeuroplasticityReminders, Reminder } from '../../features/reminders/reminder-schedule-v2';
+import { useDeviceTimeZone } from '../../hooks/useDeviceTimeZone';
 import { mapSessionError, SessionErrorCopy } from '../../features/therapy-sessions/session-error-map';
 import { toError } from '../../utils/errors';
 
@@ -40,41 +41,58 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<SessionErrorCopy | null>(null);
     const [neuroReminders, setNeuroReminders] = useState<Reminder[]>([]);
+    const deviceTimeZone = useDeviceTimeZone();
+    const refreshInFlightRef = useRef<Promise<void> | null>(null);
+    const sessionsCountRef = useRef(0);
+
+    useEffect(() => {
+        sessionsCountRef.current = sessions.length;
+    }, [sessions.length]);
 
     const refreshSessions = useCallback(async () => {
         if (!isAuthenticated) {
             return;
         }
 
-        setLoading(true);
-        try {
-            setError(null);
-            const from = new Date();
-            from.setUTCHours(0, 0, 0, 0);
-
-            const to = new Date();
-            to.setFullYear(to.getFullYear() + 1);
-            to.setUTCHours(23, 59, 59, 999);
-
-            const data = await getTherapySessions(from, to);
-            setSessions(data);
-        } catch (err) {
-            const mapped = mapSessionError(err);
-            setError({ ...mapped });
-            const shouldReport = !(err instanceof ApiError) || err.status >= 500;
-            if (shouldReport) {
-                Sentry.withScope((scope) => {
-                    scope.setTag('feature', 'therapy-sessions.refreshSessions');
-                    scope.setContext('request', {
-                        cachedSessions: sessions.length,
-                    });
-                    Sentry.captureException(toError(err));
-                });
-            }
-            console.error('Error loading sessions:', err);
-        } finally {
-            setLoading(false);
+        if (refreshInFlightRef.current) {
+            return refreshInFlightRef.current;
         }
+
+        const request = (async () => {
+            setLoading(true);
+            try {
+                setError(null);
+                const from = new Date();
+                from.setUTCHours(0, 0, 0, 0);
+
+                const to = new Date();
+                to.setFullYear(to.getFullYear() + 1);
+                to.setUTCHours(23, 59, 59, 999);
+
+                const data = await getTherapySessions(from, to);
+                setSessions(data);
+            } catch (err) {
+                const mapped = mapSessionError(err);
+                setError({ ...mapped });
+                const shouldReport = !(err instanceof ApiError) || err.status >= 500;
+                if (shouldReport) {
+                    Sentry.withScope((scope) => {
+                        scope.setTag('feature', 'therapy-sessions.refreshSessions');
+                        scope.setContext('request', {
+                            cachedSessions: sessionsCountRef.current,
+                        });
+                        Sentry.captureException(toError(err));
+                    });
+                }
+                console.error('Error loading sessions:', err);
+            } finally {
+                refreshInFlightRef.current = null;
+                setLoading(false);
+            }
+        })();
+
+        refreshInFlightRef.current = request;
+        return request;
     }, [isAuthenticated]);
 
     const addSession = useCallback(
@@ -192,10 +210,16 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
             morningHour: 7,
             startAfterDays: 3,
             cadenceDays: 4,
+            timeZone: deviceTimeZone,
         });
 
         setNeuroReminders(reminders);
-    }, [sessions]);
+        // deviceTimeZone is a dependency because reminder instants are derived
+        // from it. Travelling does not change the user's sessions, so keying
+        // this only on [sessions] left the UI showing times computed for the
+        // previous zone while useTimeZoneSync had already moved the backend to
+        // the new one.
+    }, [sessions, deviceTimeZone]);
 
     useEffect(() => {
         if (isAuthenticated) {

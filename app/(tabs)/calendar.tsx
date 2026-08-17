@@ -75,6 +75,13 @@ export default function CalendarScreen() {
     const normalizeReminderDates = useCallback((values: typeof neuroReminders) =>
         values
             .map((item) => {
+                // Use the reminder's own local date. Deriving it from atUtc put
+                // the dot on the wrong day for any reminder that crosses UTC
+                // midnight — 20:00 in the Americas, 07:00 in Tokyo.
+                if (item.localDate) {
+                    return item.localDate;
+                }
+
                 const date = new Date(item.atUtc);
                 if (Number.isNaN(date.getTime())) {
                     return null;
