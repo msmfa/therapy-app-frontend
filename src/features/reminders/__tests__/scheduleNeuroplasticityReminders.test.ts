@@ -45,21 +45,25 @@ describe('scheduleNeuroplasticityReminders', () => {
         expect(reminders).toEqual([
             {
                 atUtc: '2024-01-01T20:00:00.000Z',
+                localDate: '2024-01-01',
                 reason: Reason.PostSession,
                 gapIndex: 0,
             },
             {
                 atUtc: '2024-01-02T07:00:00.000Z',
+                localDate: '2024-01-02',
                 reason: Reason.PostSleep,
                 gapIndex: 0,
             },
             {
                 atUtc: '2024-01-04T20:00:00.000Z',
+                localDate: '2024-01-04',
                 reason: Reason.MidSession,
                 gapIndex: 0,
             },
             {
                 atUtc: '2024-01-07T20:00:00.000Z',
+                localDate: '2024-01-07',
                 reason: Reason.PreSession,
                 gapIndex: 0,
             },
@@ -77,11 +81,13 @@ describe('scheduleNeuroplasticityReminders', () => {
         expect(reminders).toEqual([
             {
                 atUtc: '2024-01-01T20:00:00.000Z',
+                localDate: '2024-01-01',
                 reason: Reason.PostSession,
                 gapIndex: 0,
             },
             {
                 atUtc: '2024-01-02T20:00:00.000Z',
+                localDate: '2024-01-02',
                 reason: Reason.PreSession,
                 gapIndex: 0,
             },
@@ -99,16 +105,19 @@ describe('scheduleNeuroplasticityReminders', () => {
         expect(reminders).toEqual([
             {
                 atUtc: '2024-01-01T20:00:00.000Z',
+                localDate: '2024-01-01',
                 reason: Reason.PostSession,
                 gapIndex: 0,
             },
             {
                 atUtc: '2024-01-02T07:00:00.000Z',
+                localDate: '2024-01-02',
                 reason: Reason.PostSleep,
                 gapIndex: 0,
             },
             {
                 atUtc: '2024-01-03T20:00:00.000Z',
+                localDate: '2024-01-03',
                 reason: Reason.PreSession,
                 gapIndex: 0,
             },
@@ -126,26 +135,31 @@ describe('scheduleNeuroplasticityReminders', () => {
         expect(reminders).toEqual([
             {
                 atUtc: '2024-01-01T20:00:00.000Z',
+                localDate: '2024-01-01',
                 reason: Reason.PostSession,
                 gapIndex: 0,
             },
             {
                 atUtc: '2024-01-02T07:00:00.000Z',
+                localDate: '2024-01-02',
                 reason: Reason.PostSleep,
                 gapIndex: 0,
             },
             {
                 atUtc: '2024-01-04T20:00:00.000Z',
+                localDate: '2024-01-04',
                 reason: Reason.MidSession,
                 gapIndex: 0,
             },
             {
                 atUtc: '2024-01-08T20:00:00.000Z',
+                localDate: '2024-01-08',
                 reason: Reason.MidSession,
                 gapIndex: 0,
             },
             {
                 atUtc: '2024-01-10T20:00:00.000Z',
+                localDate: '2024-01-10',
                 reason: Reason.PreSession,
                 gapIndex: 0,
             },
@@ -178,6 +192,7 @@ describe('scheduleNeuroplasticityReminders', () => {
         expect(reminders).toEqual([
             {
                 atUtc: '2024-01-07T20:00:00.000Z',
+                localDate: '2024-01-07',
                 reason: Reason.PreSession,
                 gapIndex: 0,
             },
@@ -196,21 +211,25 @@ describe('scheduleNeuroplasticityReminders', () => {
         expect(reminders).toEqual([
             {
                 atUtc: '2024-01-01T20:00:00.000Z',
+                localDate: '2024-01-01',
                 reason: Reason.PostSession,
                 gapIndex: 0,
             },
             {
                 atUtc: '2024-01-02T07:00:00.000Z',
+                localDate: '2024-01-02',
                 reason: Reason.PostSleep,
                 gapIndex: 0,
             },
             {
                 atUtc: '2024-01-04T20:00:00.000Z',
+                localDate: '2024-01-04',
                 reason: Reason.MidSession,
                 gapIndex: 0,
             },
             {
                 atUtc: '2024-01-07T20:00:00.000Z',
+                localDate: '2024-01-07',
                 reason: Reason.PreSession,
                 gapIndex: 0,
             },
@@ -265,11 +284,13 @@ describe('scheduleNeuroplasticityReminders', () => {
         expect(gap0).toEqual([
             {
                 atUtc: '2024-02-05T20:00:00.000Z',
+                localDate: '2024-02-05',
                 reason: Reason.PostSession,
                 gapIndex: 0,
             },
             {
                 atUtc: '2024-02-06T20:00:00.000Z',
+                localDate: '2024-02-06',
                 reason: Reason.PreSession,
                 gapIndex: 0,
             },
@@ -278,21 +299,25 @@ describe('scheduleNeuroplasticityReminders', () => {
         expect(gap1).toEqual([
             {
                 atUtc: '2024-02-07T20:00:00.000Z',
+                localDate: '2024-02-07',
                 reason: Reason.PostSession,
                 gapIndex: 1,
             },
             {
                 atUtc: '2024-02-08T07:00:00.000Z',
+                localDate: '2024-02-08',
                 reason: Reason.PostSleep,
                 gapIndex: 1,
             },
             {
                 atUtc: '2024-02-10T20:00:00.000Z',
+                localDate: '2024-02-10',
                 reason: Reason.MidSession,
                 gapIndex: 1,
             },
             {
                 atUtc: '2024-02-13T20:00:00.000Z',
+                localDate: '2024-02-13',
                 reason: Reason.PreSession,
                 gapIndex: 1,
             },
@@ -301,21 +326,25 @@ describe('scheduleNeuroplasticityReminders', () => {
         expect(gap2).toEqual([
             {
                 atUtc: '2024-02-14T20:00:00.000Z',
+                localDate: '2024-02-14',
                 reason: Reason.PostSession,
                 gapIndex: 2,
             },
             {
                 atUtc: '2024-02-15T07:00:00.000Z',
+                localDate: '2024-02-15',
                 reason: Reason.PostSleep,
                 gapIndex: 2,
             },
             {
                 atUtc: '2024-02-17T20:00:00.000Z',
+                localDate: '2024-02-17',
                 reason: Reason.MidSession,
                 gapIndex: 2,
             },
             {
                 atUtc: '2024-02-20T20:00:00.000Z',
+                localDate: '2024-02-20',
                 reason: Reason.PreSession,
                 gapIndex: 2,
             },

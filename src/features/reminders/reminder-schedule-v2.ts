@@ -28,6 +28,13 @@ export enum Reason {
 
 export interface Reminder {
   atUtc: string;
+  /**
+   * The calendar day this reminder belongs to in the user's zone, as
+   * YYYY-MM-DD. 20:00 in Los Angeles is 04:00 UTC the next day, so deriving a
+   * day key from `atUtc` puts calendar markers on the wrong date; consumers
+   * should key off this instead.
+   */
+  localDate: string;
   reason: Reason;
   gapIndex: number;
 }
@@ -116,8 +123,46 @@ function parseIsoToMinute(iso: string, zone: string): Dayjs | null {
     return parsed.isValid() ? parsed : null;
 }
 
-function setToHourStart(source: Dayjs, hour: number): Dayjs {
-    return source.hour(hour).minute(0).second(0).millisecond(0);
+/**
+ * The local calendar date of a correctly-zoned instant, as YYYY-MM-DD.
+ */
+function localDateKey(source: Dayjs): string {
+    return source.format('YYYY-MM-DD');
+}
+
+/**
+ * `dayOffset` calendar days after `source`, at `hour`:00 local time.
+ *
+ * The day arithmetic is done on the bare calendar (in UTC space, where every
+ * day is 24h) and the result is then *reinterpreted* in the zone. Doing it
+ * with `source.add(n, 'day').hour(h)` is wrong across a DST transition: a
+ * dayjs .tz() instance keeps the offset it was constructed with, so adding a
+ * day to a PST instant and setting hour 7 produces 07:00 -08:00, which is
+ * 08:00 PDT — an hour late — and every later reminder in the gap inherits the
+ * drift. Rebuilding via dayjs.tz resolves the offset for the target date.
+ */
+function atLocalHour(source: Dayjs, dayOffset: number, hour: number, zone: string): Dayjs {
+    const shifted = new Date(
+        Date.UTC(source.year(), source.month(), source.date() + dayOffset),
+    );
+
+    const y = shifted.getUTCFullYear();
+    const m = String(shifted.getUTCMonth() + 1).padStart(2, '0');
+    const d = String(shifted.getUTCDate()).padStart(2, '0');
+    const h = String(hour).padStart(2, '0');
+
+    return dayjs.tz(`${y}-${m}-${d}T${h}:00:00`, zone);
+}
+
+/**
+ * Whole calendar days between two instants, counted on the local calendar.
+ * Diffing local-midnight instants directly is off by one across a DST week,
+ * because one of those "days" is 23 or 25 hours long.
+ */
+function countLocalCalendarDays(start: Dayjs, end: Dayjs): number {
+    const startDay = Date.UTC(start.year(), start.month(), start.date());
+    const endDay = Date.UTC(end.year(), end.month(), end.date());
+    return Math.max(0, Math.round((endDay - startDay) / 86_400_000));
 }
 
 function clampTimestampWithinGapWindow(candidate: Dayjs, gap: GapWindow): Dayjs | null {
@@ -132,11 +177,7 @@ function clampTimestampWithinGapWindow(candidate: Dayjs, gap: GapWindow): Dayjs 
     return clamped.second(0).millisecond(0);
 }
 
-function countCalendarDaysBetweenUtcMoments(start: Dayjs, end: Dayjs): number {
-    const startDay = start.startOf('day');
-    const endDay = end.startOf('day');
-    return Math.max(0, endDay.diff(startDay, 'day'));
-}
+
 
 /* ---------- Gap scheduling ---------- */
 
@@ -158,23 +199,21 @@ function scheduleRemindersForGap(gap: GapWindow, ctx: GapContext): ReminderDraft
 
     const drafts: ReminderDraft[] = [];
 
-    const postSession = buildReminderDraftWithinGap(setToHourStart(gap.start, ctx.reflectionHour), Reason.PostSession, gap, ctx);
+    const postSession = buildReminderDraftWithinGap(atLocalHour(gap.start, 0, ctx.reflectionHour, ctx.zone), Reason.PostSession, gap, ctx);
     if (postSession) drafts.push(postSession);
 
-    const postSleep = buildReminderDraftWithinGap(setToHourStart(gap.start.add(1, 'day'), ctx.morningHour), Reason.PostSleep, gap, ctx);
+    const postSleep = buildReminderDraftWithinGap(atLocalHour(gap.start, 1, ctx.morningHour, ctx.zone), Reason.PostSleep, gap, ctx);
     if (postSleep) drafts.push(postSleep);
 
     if (gap.days > ctx.startAfterDays) {
-        const anchorBase = gap.start.startOf('day');
         for (let dayOffset = ctx.startAfterDays; dayOffset < gap.days; dayOffset += ctx.cadenceDays) {
-            const anchor = anchorBase.add(dayOffset, 'day');
-            const midSession = buildReminderDraftWithinGap(setToHourStart(anchor, ctx.reflectionHour), Reason.MidSession, gap, ctx);
+            const midSession = buildReminderDraftWithinGap(atLocalHour(gap.start, dayOffset, ctx.reflectionHour, ctx.zone), Reason.MidSession, gap, ctx);
             if (midSession) drafts.push(midSession);
         }
     }
 
     if (gap.days >= 1) {
-        const preSession = buildReminderDraftWithinGap(setToHourStart(gap.end.subtract(1, 'day'), ctx.reflectionHour), Reason.PreSession, gap, ctx);
+        const preSession = buildReminderDraftWithinGap(atLocalHour(gap.end, -1, ctx.reflectionHour, ctx.zone), Reason.PreSession, gap, ctx);
         if (preSession) drafts.push(preSession);
     }
 
@@ -226,7 +265,7 @@ export function scheduleNeuroplasticityReminders(params: ScheduleParams): Remind
     const remindersByDay = new Map<string, ReminderDraft[]>();
 
     for (const draft of drafts) {
-        const key = draft.at.startOf('day').toISOString();
+        const key = localDateKey(draft.at);
         if (!remindersByDay.has(key)) remindersByDay.set(key, []);
     remindersByDay.get(key)!.push(draft);
     }
@@ -248,6 +287,7 @@ export function scheduleNeuroplasticityReminders(params: ScheduleParams): Remind
         .filter((draft) => draft.at.isAfter(now))
         .map((draft) => ({
             atUtc: draft.at.toISOString(),
+            localDate: localDateKey(draft.at),
             reason: draft.reason,
             gapIndex: draft.gapIndex,
         }));
@@ -269,6 +309,6 @@ function createGapWindowFromIsoSessions(
         index,
         start,
         end,
-        days: countCalendarDaysBetweenUtcMoments(start, end),
+        days: countLocalCalendarDays(start, end),
     };
 }
