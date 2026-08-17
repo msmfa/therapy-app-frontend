@@ -25,6 +25,16 @@ type AuthUser = {
     name: string;
 } | null;
 
+export type SignOutTask = () => Promise<void>;
+
+export type SignOutOptions = {
+    /**
+     * Skip the registered cleanup tasks. Used when the session is already
+     * known to be rejected by the server, so calling it again is pointless.
+     */
+    skipCleanup?: boolean;
+};
+
 type AuthContextValue = {
     token: string | null;
     refreshToken: string | null;
@@ -33,8 +43,17 @@ type AuthContextValue = {
     hydrated: boolean;
     setAuth: (token: string, user: AuthUser, refreshToken?: string | null) => Promise<void>;
     refreshSession: () => Promise<boolean>;
-    signOut: () => Promise<void>;
+    signOut: (options?: SignOutOptions) => Promise<void>;
+    /**
+     * Registers work that must happen while the session is still valid, such
+     * as telling the backend to stop pushing to this device. Returns an
+     * unregister function.
+     */
+    registerSignOutTask: (task: SignOutTask) => () => void;
 };
+
+// Sign-out must not hang on a dead network, so cleanup gets a bounded window.
+const SIGN_OUT_CLEANUP_TIMEOUT_MS = 4000;
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
@@ -49,6 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const refreshInFlight = useRef<Promise<boolean> | null>(null);
     const tokenRef = useRef<string | null>(null);
     const refreshTokenRef = useRef<string | null>(null);
+    const signOutTasksRef = useRef<Set<SignOutTask>>(new Set());
 
     useEffect(() => {
         tokenRef.current = token;
@@ -173,7 +193,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return refreshInFlight.current;
     }, [setAuth, user]);
 
-    const signOut = useCallback(async () => {
+    const registerSignOutTask = useCallback((task: SignOutTask) => {
+        signOutTasksRef.current.add(task);
+        return () => {
+            signOutTasksRef.current.delete(task);
+        };
+    }, []);
+
+    const signOut = useCallback(async (options?: SignOutOptions) => {
+        // Cleanup runs FIRST, while the token is still live. Clearing
+        // credentials up front meant the push de-registration went out
+        // unauthenticated, failed with a 401, and left the device row on the
+        // server — so the cron kept pushing therapy reminders to a phone that
+        // had logged out.
+        if (!options?.skipCleanup && signOutTasksRef.current.size > 0) {
+            const tasks = Array.from(signOutTasksRef.current);
+            try {
+                await Promise.race([
+                    Promise.allSettled(tasks.map((task) => task())),
+                    new Promise((resolve) =>
+                        setTimeout(resolve, SIGN_OUT_CLEANUP_TIMEOUT_MS),
+                    ),
+                ]);
+            } catch (error) {
+                console.warn('[AuthProvider] signOut cleanup error:', error);
+            }
+        }
+
         tokenRef.current = null;
         refreshTokenRef.current = null;
         setToken(null);
@@ -196,7 +242,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             getToken: () => tokenRef.current,
             refreshAuth: refreshSession,
             onAuthFailure: () => {
-                void signOut().catch((error) => {
+                // The server has already rejected this session, so calling it
+                // again during cleanup would only produce another 401.
+                void signOut({ skipCleanup: true }).catch((error) => {
                     console.warn('[AuthProvider] signOut after auth failure failed:', error);
                 });
             },
@@ -212,6 +260,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setAuth,
         refreshSession,
         signOut,
+        registerSignOutTask,
     };
 
     return <AuthContext.Provider value={ value }>{ children }</AuthContext.Provider>;

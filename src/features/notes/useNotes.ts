@@ -19,6 +19,15 @@ export type Note = {
     notifId?: string;
 };
 
+/**
+ * `id` is the table's global PRIMARY KEY, shared across every user on the
+ * device. Using the raw millisecond timestamp meant two notes saved in the
+ * same millisecond collided on insert and the second one was silently lost
+ * behind a "Failed to add note" toast. The random suffix removes that.
+ */
+export const createNoteId = (now: number = Date.now()): string =>
+    `${now.toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+
 const dbPromise = openDatabaseAsync('notes.db');
 let initPromise: Promise<void> | null = null;
 
@@ -135,7 +144,7 @@ export function useNotes(userId: string | undefined) {
             if (!clean || !userId) return;
 
             const now = Date.now();
-            const note: Note = { id: String(now), text: clean, createdAt: now };
+            const note: Note = { id: createNoteId(now), text: clean, createdAt: now };
 
             try {
                 const db = await getDb();

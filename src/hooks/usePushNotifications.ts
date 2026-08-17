@@ -32,22 +32,35 @@ function getProjectId(): string | undefined {
 }
 
 export function usePushNotifications(): void {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, registerSignOutTask } = useAuth();
   const pushTokenRef = useRef<string | null>(null);
   const listenerRef = useRef<Notifications.Subscription | null>(null);
 
+  // De-registering has to happen while the access token is still valid. By the
+  // time `isAuthenticated` flips to false the credentials are already gone, so
+  // the request would go out unauthenticated and the device would keep
+  // receiving reminders after logout.
+  useEffect(
+    () =>
+      registerSignOutTask(async () => {
+        const tokenToRemove = pushTokenRef.current;
+        if (!tokenToRemove) return;
+
+        pushTokenRef.current = null;
+        try {
+          await unregisterDeviceToken(tokenToRemove);
+        } catch (err) {
+          console.warn('[PushNotifications] Failed to unregister token on logout:', err);
+        }
+      }),
+    [registerSignOutTask],
+  );
+
   useEffect(() => {
     if (!isAuthenticated) {
-      // If we have a token stored, unregister it on logout
-      const tokenToRemove = pushTokenRef.current;
-      if (tokenToRemove) {
-        pushTokenRef.current = null;
-        unregisterDeviceToken(tokenToRemove).catch((err) => {
-          console.warn('[PushNotifications] Failed to unregister token on logout:', err);
-        });
-      }
-
-      // Clean up the listener
+      // The de-registration itself is handled by the sign-out task above; all
+      // that is left here is local teardown.
+      pushTokenRef.current = null;
       listenerRef.current?.remove();
       listenerRef.current = null;
       return;

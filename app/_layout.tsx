@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from '../src/context/auth/AuthContext';
 import { OnboardingProvider, useOnboarding } from '../src/context/onboarding/OnboardingContext';
 import { TherapySessionsProvider } from '../src/context/therapy-sessions/TherapySessionsContext';
 import { usePushNotifications } from '../src/hooks/usePushNotifications';
+import { useTimeZoneSync } from '../src/hooks/useTimeZoneSync';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { GRADIENTS } from 'designs/designs-gradients';
 import { Platform, StatusBar, StyleSheet, View } from 'react-native';
@@ -18,21 +19,27 @@ import { AppAlertProvider } from '../src/context/alert';
 
 const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN ?? process.env.SENTRY_DSN;
 
+// This app handles special-category health data (GDPR Art. 9): therapy session
+// notes, appointment times, and the fact of being in therapy at all.
+//
+// - sendDefaultPii is off. It attaches IP address, user identifiers and
+//   request/response data to every event, which sends identifiable health
+//   context to a third-party processor.
+// - Session Replay is off. It records the screen, and on this app the screen
+//   is the user's therapy notes. If it is ever re-enabled it must be with
+//   maskAllText and maskAllImages, and covered by the privacy policy and DPA.
 Sentry.init({
     dsn: SENTRY_DSN,
     enabled: Boolean(SENTRY_DSN),
-    // Adds more context data to events (IP address, cookies, user, etc.)
-    // For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/
-    sendDefaultPii: true,
+    sendDefaultPii: false,
     enableCaptureFailedRequests: true,
     tracesSampleRate: process.env.NODE_ENV === 'development' ? 1 : 0.2,
     // @ts-ignore
     enableLogs: true,
-    // Configure Session Replay
-    replaysSessionSampleRate: 0.1,
-    replaysOnErrorSampleRate: 1,
+    replaysSessionSampleRate: 0,
+    replaysOnErrorSampleRate: 0,
     integrations: [
-        Sentry.mobileReplayIntegration(),
+        // Session Replay deliberately not enabled — see note above.
         // feedbackIntegration() removed - causes crashes on iOS
     ],
     // uncomment the line below to enable Spotlight (https://spotlightjs.com)
@@ -60,12 +67,14 @@ const theme: Theme = {
  * 3. Authenticated and onboarded → (tabs) main app
  */
 export function Gate() {
-    const { user, hydrated: authHydrated } = useAuth();
+    const { isAuthenticated, hydrated: authHydrated } = useAuth();
     const { hasOnboarded, hydrated: onboardingHydrated } = useOnboarding();
 
     // Both providers must be hydrated before we can route
     const isFullyHydrated = authHydrated && onboardingHydrated;
-    const isAuthenticated = Boolean(user);
+    // Routing follows the same definition the API client uses (presence of a
+    // token). Keying off `user` instead let the two disagree: a restored user
+    // object with no token routed into the app, where every request 401s.
     const isMainAppReady = isAuthenticated && isFullyHydrated && hasOnboarded;
 
     if (!isFullyHydrated) {
@@ -144,6 +153,9 @@ export default Sentry.wrap(function RootLayout() {
 function Initializer() {
     // Register / unregister the Expo push token with the backend as auth state changes
     usePushNotifications();
+
+    // Tell the backend which zone to place reminder wall-clock times in
+    useTimeZoneSync();
 
     useEffect(() => {
         // Android requires a notification channel for push notifications to appear
