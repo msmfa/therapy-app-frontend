@@ -1,7 +1,9 @@
 import dayjs, { Dayjs } from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 
 dayjs.extend(utc);
+dayjs.extend(timezone);
 
 // Neuroplasticity-aware reminder scheduler
 // --------------------------------------------------
@@ -38,6 +40,14 @@ export interface ScheduleParams {
   startAfterDays?: number;
   cadenceDays?: number;
   maxPerDay?: number;
+  /**
+   * IANA zone the reflection/morning hours are expressed in. Defaults to the
+   * device zone, which is also what the app reports to the backend, so the
+   * schedule shown here matches when the push actually arrives. Computing in
+   * UTC put the "morning" reminder at 23:00 the previous night for anyone in
+   * the Americas.
+   */
+  timeZone?: string;
 }
 
 const REASON_PRIORITY: Record<Reason, number> = {
@@ -62,6 +72,7 @@ interface GapWindow {
 
 interface GapContext {
   now: Dayjs;
+  zone: string;
   reflectionHour: number;
   morningHour: number;
   startAfterDays: number;
@@ -70,8 +81,38 @@ interface GapContext {
 
 /* ---------- Day helpers ---------- */
 
-function parseIsoUtcToMinute(iso: string): Dayjs | null {
-    const parsed = dayjs.utc(iso).second(0).millisecond(0);
+const UTC_ZONE = 'UTC';
+
+function isValidZone(zone: string | undefined): zone is string {
+    if (!zone) return false;
+    try {
+        new Intl.DateTimeFormat('en-US', { timeZone: zone });
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+function resolveZone(requested?: string): string {
+    if (isValidZone(requested)) return requested;
+
+    try {
+        const device = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (isValidZone(device)) return device;
+    } catch {
+        // fall through
+    }
+
+    return UTC_ZONE;
+}
+
+/**
+ * Parsed into the target zone, so every downstream calendar operation
+ * (`hour()`, `startOf('day')`, `add(1, 'day')`) is evaluated against the
+ * user's local clock rather than UTC. The emitted `atUtc` is unaffected.
+ */
+function parseIsoToMinute(iso: string, zone: string): Dayjs | null {
+    const parsed = dayjs.utc(iso).tz(zone).second(0).millisecond(0);
     return parsed.isValid() ? parsed : null;
 }
 
@@ -150,18 +191,21 @@ export function scheduleNeuroplasticityReminders(params: ScheduleParams): Remind
         startAfterDays = 3,
         cadenceDays = 4,
         maxPerDay = 1,
+        timeZone,
     } = params;
 
     if (!sessionsUtc || sessionsUtc.length < 2) return [];
 
-    const now = parseIsoUtcToMinute(nowUtc);
+    const zone = resolveZone(timeZone);
+
+    const now = parseIsoToMinute(nowUtc, zone);
     if (!now) return [];
 
     const sortedSessions = [...sessionsUtc].sort();
     const windows: GapWindow[] = [];
 
     for (let index = 0; index < sortedSessions.length - 1; index += 1) {
-        const window = createGapWindowFromIsoSessions(index, sortedSessions[index], sortedSessions[index + 1]);
+        const window = createGapWindowFromIsoSessions(index, sortedSessions[index], sortedSessions[index + 1], zone);
         if (window) windows.push(window);
     }
 
@@ -169,6 +213,7 @@ export function scheduleNeuroplasticityReminders(params: ScheduleParams): Remind
 
     const ctx: GapContext = {
         now,
+        zone,
         reflectionHour,
         morningHour,
         startAfterDays,
@@ -210,9 +255,14 @@ export function scheduleNeuroplasticityReminders(params: ScheduleParams): Remind
 
 /* ---------- Helpers ---------- */
 
-function createGapWindowFromIsoSessions(index: number, startIso: string, endIso: string): GapWindow | null {
-    const start = parseIsoUtcToMinute(startIso);
-    const end = parseIsoUtcToMinute(endIso);
+function createGapWindowFromIsoSessions(
+    index: number,
+    startIso: string,
+    endIso: string,
+    zone: string,
+): GapWindow | null {
+    const start = parseIsoToMinute(startIso, zone);
+    const end = parseIsoToMinute(endIso, zone);
     if (!start || !end || !end.isAfter(start)) return null;
 
     return {
