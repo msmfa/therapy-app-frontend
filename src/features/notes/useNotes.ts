@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { openDatabaseAsync, type SQLiteDatabase } from 'expo-sqlite';
 import { cancelNotificationById } from '../../services/notifications';
+import { encryptNoteText, decryptNoteText, isEncrypted } from './noteCrypto';
 
 type SqlRow = {
     id: string;
@@ -59,6 +60,59 @@ const getDb = async (): Promise<SQLiteDatabase> => {
 
 const sortNotes = (items: Note[]) => [...items].sort((a, b) => b.createdAt - a.createdAt);
 
+/**
+ * Re-writes any note still stored as plaintext.
+ *
+ * Notes written before encryption existed stay readable either way, but
+ * leaving them in the clear would mean the protection only ever applied to
+ * new notes. Each row is converted individually so one undecryptable row
+ * cannot abort the whole pass.
+ */
+export async function migratePlaintextNotes(
+    db: SQLiteDatabase,
+    userId: string,
+): Promise<number> {
+    const rows = await db.getAllAsync<{ id: string; text: string }>(
+        `SELECT id, text FROM notes WHERE userId = ?`,
+        userId,
+    );
+
+    const plaintextRows = rows.filter((row) => !isEncrypted(row.text));
+    if (plaintextRows.length === 0) return 0;
+
+    let migrated = 0;
+    for (const row of plaintextRows) {
+        try {
+            const sealed = await encryptNoteText(row.text);
+            await db.runAsync(
+                `UPDATE notes SET text = ? WHERE id = ? AND userId = ?`,
+                sealed,
+                row.id,
+                userId,
+            );
+            migrated += 1;
+        } catch (err) {
+            console.warn('useNotes.migratePlaintextNotes', row.id, err);
+        }
+    }
+
+    return migrated;
+}
+
+/**
+ * Decrypts a row for display. A row that will not open (key replaced, storage
+ * corruption) must not take the whole list down with it, so it degrades to a
+ * placeholder and the rest of the notes still render.
+ */
+const readRowText = async (row: Pick<SqlRow, 'id' | 'text'>): Promise<string> => {
+    try {
+        return await decryptNoteText(row.text);
+    } catch (err) {
+        console.warn('useNotes.decrypt', row.id, err);
+        return '';
+    }
+};
+
 async function deleteNotesForUser(db: SQLiteDatabase, userId: string) {
     const rows = await db.getAllAsync<{ notifId: string | null }>(
         `SELECT notifId FROM notes WHERE userId = ?`,
@@ -107,6 +161,13 @@ export function useNotes(userId: string | undefined) {
         try {
             if (!options?.silent) setLoading(true);
             const db = await getDb();
+
+            // Bring any pre-encryption rows up to date before reading, so the
+            // plaintext window closes on first launch after upgrading.
+            await migratePlaintextNotes(db, userId).catch((err) => {
+                console.warn('useNotes.migrate', err);
+            });
+
             const rows = await db.getAllAsync<SqlRow>(
                 `SELECT id, text, createdAt, remindAt, notifId
                  FROM notes
@@ -115,13 +176,15 @@ export function useNotes(userId: string | undefined) {
                 userId,
             );
 
-            const loaded: Note[] = rows.map((row) => ({
-                id: row.id,
-                text: row.text,
-                createdAt: row.createdAt,
-                remindAt: row.remindAt ?? undefined,
-                notifId: row.notifId ?? undefined,
-            }));
+            const loaded: Note[] = await Promise.all(
+                rows.map(async (row) => ({
+                    id: row.id,
+                    text: await readRowText(row),
+                    createdAt: row.createdAt,
+                    remindAt: row.remindAt ?? undefined,
+                    notifId: row.notifId ?? undefined,
+                })),
+            );
 
             setNotes(sortNotes(loaded));
             setError(null);
@@ -148,12 +211,15 @@ export function useNotes(userId: string | undefined) {
 
             try {
                 const db = await getDb();
+                // `note` keeps the plaintext for in-memory state; only the
+                // encrypted form is ever written to disk.
+                const sealed = await encryptNoteText(note.text);
                 await db.runAsync(
                     `INSERT INTO notes (id, userId, text, createdAt)
                      VALUES (?, ?, ?, ?)`,
                     note.id,
                     userId,
-                    note.text,
+                    sealed,
                     note.createdAt,
                 );
                 setNotes((prev) => sortNotes([note, ...prev]));
@@ -173,10 +239,6 @@ export function useNotes(userId: string | undefined) {
             const updates: string[] = [];
             const values: Array<string | number | null> = [];
 
-            if (Object.prototype.hasOwnProperty.call(patch, 'text')) {
-                updates.push('text = ?');
-                values.push(patch.text ?? null);
-            }
             if (Object.prototype.hasOwnProperty.call(patch, 'remindAt')) {
                 updates.push('remindAt = ?');
                 values.push(patch.remindAt ?? null);
@@ -186,9 +248,22 @@ export function useNotes(userId: string | undefined) {
                 values.push(patch.notifId ?? null);
             }
 
-            if (updates.length === 0) return;
+            if (!Object.prototype.hasOwnProperty.call(patch, 'text') && updates.length === 0) {
+                return;
+            }
 
             try {
+                // Encrypting can fail (keychain unavailable while locked), so
+                // it belongs inside the same guard as the write itself.
+                if (Object.prototype.hasOwnProperty.call(patch, 'text')) {
+                    updates.unshift('text = ?');
+                    values.unshift(
+                        typeof patch.text === 'string'
+                            ? await encryptNoteText(patch.text)
+                            : null,
+                    );
+                }
+
                 const db = await getDb();
                 await db.runAsync(
                     `UPDATE notes SET ${updates.join(', ')} WHERE id = ? AND userId = ?`,
