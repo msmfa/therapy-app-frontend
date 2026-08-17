@@ -10,6 +10,11 @@ describe('scheduleNeuroplasticityReminders', () => {
             '2024-01-01T14:00:00.000Z',
             '2024-01-08T14:00:00.000Z',
         ],
+        // Pinned so these expectations describe the scheduling logic rather
+        // than the machine's clock. Reminder hours are wall-clock times, so
+        // without this the asserted UTC instants only hold for a runner that
+        // happens to sit at UTC+0.
+        timeZone: 'UTC',
     };
 
     const runSchedule = (
