@@ -79,7 +79,7 @@ export default function ForgotPasswordScreen() {
 
         setLoading(true);
         try {
-            await resetPassword(token, password);
+            await resetPassword(email, token, password);
             setStep('done');
         } catch (err) {
             const message = err instanceof Error ? err.message : 'We could not reset your password.';

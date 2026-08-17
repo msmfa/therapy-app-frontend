@@ -27,14 +27,18 @@ describe('auth password helpers', () => {
         expect(message).toBe('Reset email sent');
     });
 
-    it('resets the password with trimmed token and auth disabled', async () => {
+    it('resets the password with the account email, trimmed token and auth disabled', async () => {
         apiPost.mockResolvedValueOnce(undefined);
 
-        await resetPassword('  RESET123  ', 'NewPassword!23');
+        await resetPassword('  User@Example.com  ', '  RESET123  ', 'NewPassword!23');
 
         expect(apiPost).toHaveBeenCalledWith(
             '/api/auth/reset-password',
-            { token: 'RESET123', password: 'NewPassword!23' },
+            {
+                email: 'User@Example.com',
+                token: 'RESET123',
+                password: 'NewPassword!23',
+            },
             { auth: false, parseJson: false },
         );
     });

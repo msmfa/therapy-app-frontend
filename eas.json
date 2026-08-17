@@ -15,7 +15,6 @@
       "autoIncrement": true,
       "env": {
         "EXPO_PUBLIC_API_URL": "https://www.plastic-brains.com",
-        "EXPO_PUBLIC_APPLE_SERVICE_ID": "com.yourcompany.therapyapp",
         "EXPO_PUBLIC_APPLE_REDIRECT_URI": "https://www.plastic-brains.com/api/auth/oauth/apple/callback",
         "SENTRY_DSN": "https://f53e4d04c73b930d40d89ec6463458ad@o4510144677806080.ingest.de.sentry.io/4510144681148496",
         "EXPO_PUBLIC_APP_STORE_URL": "itms-apps://itunes.apple.com/app/id6754110068?action=write-review"
@@ -25,7 +24,6 @@
       "distribution": "internal",
       "env": {
         "EXPO_PUBLIC_API_URL": "https://staging.plastic-brains.com",
-        "EXPO_PUBLIC_APPLE_SERVICE_ID": "com.yourcompany.therapyapp",
         "EXPO_PUBLIC_APPLE_REDIRECT_URI": "https://staging.plastic-brains.com/api/auth/oauth/apple/callback",
         "SENTRY_DSN": "https://f53e4d04c73b930d40d89ec6463458ad@o4510144677806080.ingest.de.sentry.io/4510144681148496"
       }

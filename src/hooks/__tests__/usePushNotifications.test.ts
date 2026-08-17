@@ -9,6 +9,21 @@ import { registerDeviceToken, unregisterDeviceToken } from 'src/api/devices';
 
 let mockIsAuthenticated = false;
 
+// Stands in for AuthProvider's task registry. `runSignOutTasks` plays the part
+// of signOut(), which runs the tasks while the session is still valid.
+const signOutTasks = new Set<() => Promise<void>>();
+
+const mockRegisterSignOutTask = (task: () => Promise<void>) => {
+  signOutTasks.add(task);
+  return () => {
+    signOutTasks.delete(task);
+  };
+};
+
+const runSignOutTasks = async () => {
+  await Promise.allSettled(Array.from(signOutTasks).map((task) => task()));
+};
+
 jest.mock('src/context/auth/AuthContext', () => ({
   useAuth: () => ({
     isAuthenticated: mockIsAuthenticated,
@@ -19,6 +34,7 @@ jest.mock('src/context/auth/AuthContext', () => ({
     setAuth: jest.fn(),
     refreshSession: jest.fn(),
     signOut: jest.fn(),
+    registerSignOutTask: mockRegisterSignOutTask,
   }),
 }));
 
@@ -80,6 +96,7 @@ const mockUnregister = jest.mocked(unregisterDeviceToken);
 describe('usePushNotifications', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    signOutTasks.clear();
     mockIsAuthenticated = false;
     // Default: listener returns a removable subscription
     mockAddTokenListener.mockReturnValue({ remove: jest.fn() } as any);
@@ -163,7 +180,14 @@ describe('usePushNotifications', () => {
     // Token should have been registered
     expect(mockRegister).toHaveBeenCalledWith('ExponentPushToken[logout-test]', expect.any(String));
 
-    // Simulate logout
+    // signOut() drains the cleanup tasks before it clears the credentials.
+    await act(async () => {
+      await runSignOutTasks();
+    });
+
+    expect(mockUnregister).toHaveBeenCalledWith('ExponentPushToken[logout-test]');
+
+    // ...and only then does isAuthenticated flip.
     mockIsAuthenticated = false;
     rerender({} as any);
 
@@ -171,6 +195,24 @@ describe('usePushNotifications', () => {
       await Promise.resolve();
     });
 
-    expect(mockUnregister).toHaveBeenCalledWith('ExponentPushToken[logout-test]');
+    expect(mockUnregister).toHaveBeenCalledTimes(1);
+  });
+
+  it('registers exactly one cleanup task and releases it on unmount', async () => {
+    mockIsAuthenticated = true;
+    mockGetPermissions.mockResolvedValue({ status: 'granted' } as any);
+    mockGetPushToken.mockResolvedValue({ data: 'ExponentPushToken[cleanup]' } as any);
+
+    const { unmount } = renderHook(() => usePushNotifications());
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(signOutTasks.size).toBe(1);
+
+    unmount();
+
+    expect(signOutTasks.size).toBe(0);
   });
 });

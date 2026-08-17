@@ -36,10 +36,18 @@ export async function requestPasswordReset(email: string): Promise<string> {
     return response.message;
 }
 
-export async function resetPassword(token: string, password: string): Promise<void> {
+/**
+ * `email` is required by the backend: the 6-digit code is only valid for the
+ * account it was issued to, so the reset has to name that account.
+ */
+export async function resetPassword(
+    email: string,
+    token: string,
+    password: string,
+): Promise<void> {
     await apiPost<void>(
         '/api/auth/reset-password',
-        { token: token.trim(), password },
+        { email: email.trim(), token: token.trim(), password },
         { auth: false, parseJson: false },
     );
 }
