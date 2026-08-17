@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import * as Sentry from '@sentry/react-native';
 import { ApiError } from '../../api/client';
 import { useAuth } from '../auth/AuthContext';
@@ -40,41 +40,57 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<SessionErrorCopy | null>(null);
     const [neuroReminders, setNeuroReminders] = useState<Reminder[]>([]);
+    const refreshInFlightRef = useRef<Promise<void> | null>(null);
+    const sessionsCountRef = useRef(0);
+
+    useEffect(() => {
+        sessionsCountRef.current = sessions.length;
+    }, [sessions.length]);
 
     const refreshSessions = useCallback(async () => {
         if (!isAuthenticated) {
             return;
         }
 
-        setLoading(true);
-        try {
-            setError(null);
-            const from = new Date();
-            from.setUTCHours(0, 0, 0, 0);
-
-            const to = new Date();
-            to.setFullYear(to.getFullYear() + 1);
-            to.setUTCHours(23, 59, 59, 999);
-
-            const data = await getTherapySessions(from, to);
-            setSessions(data);
-        } catch (err) {
-            const mapped = mapSessionError(err);
-            setError({ ...mapped });
-            const shouldReport = !(err instanceof ApiError) || err.status >= 500;
-            if (shouldReport) {
-                Sentry.withScope((scope) => {
-                    scope.setTag('feature', 'therapy-sessions.refreshSessions');
-                    scope.setContext('request', {
-                        cachedSessions: sessions.length,
-                    });
-                    Sentry.captureException(toError(err));
-                });
-            }
-            console.error('Error loading sessions:', err);
-        } finally {
-            setLoading(false);
+        if (refreshInFlightRef.current) {
+            return refreshInFlightRef.current;
         }
+
+        const request = (async () => {
+            setLoading(true);
+            try {
+                setError(null);
+                const from = new Date();
+                from.setUTCHours(0, 0, 0, 0);
+
+                const to = new Date();
+                to.setFullYear(to.getFullYear() + 1);
+                to.setUTCHours(23, 59, 59, 999);
+
+                const data = await getTherapySessions(from, to);
+                setSessions(data);
+            } catch (err) {
+                const mapped = mapSessionError(err);
+                setError({ ...mapped });
+                const shouldReport = !(err instanceof ApiError) || err.status >= 500;
+                if (shouldReport) {
+                    Sentry.withScope((scope) => {
+                        scope.setTag('feature', 'therapy-sessions.refreshSessions');
+                        scope.setContext('request', {
+                            cachedSessions: sessionsCountRef.current,
+                        });
+                        Sentry.captureException(toError(err));
+                    });
+                }
+                console.error('Error loading sessions:', err);
+            } finally {
+                refreshInFlightRef.current = null;
+                setLoading(false);
+            }
+        })();
+
+        refreshInFlightRef.current = request;
+        return request;
     }, [isAuthenticated]);
 
     const addSession = useCallback(
