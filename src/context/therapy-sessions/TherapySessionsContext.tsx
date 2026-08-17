@@ -11,6 +11,7 @@ import {
     syncTherapySessions as syncTherapySessionsApi,
 } from '../../api/therapy';
 import { scheduleNeuroplasticityReminders, Reminder } from '../../features/reminders/reminder-schedule-v2';
+import { useDeviceTimeZone } from '../../hooks/useDeviceTimeZone';
 import { mapSessionError, SessionErrorCopy } from '../../features/therapy-sessions/session-error-map';
 import { toError } from '../../utils/errors';
 
@@ -40,6 +41,7 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<SessionErrorCopy | null>(null);
     const [neuroReminders, setNeuroReminders] = useState<Reminder[]>([]);
+    const deviceTimeZone = useDeviceTimeZone();
     const refreshInFlightRef = useRef<Promise<void> | null>(null);
     const sessionsCountRef = useRef(0);
 
@@ -208,10 +210,16 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
             morningHour: 7,
             startAfterDays: 3,
             cadenceDays: 4,
+            timeZone: deviceTimeZone,
         });
 
         setNeuroReminders(reminders);
-    }, [sessions]);
+        // deviceTimeZone is a dependency because reminder instants are derived
+        // from it. Travelling does not change the user's sessions, so keying
+        // this only on [sessions] left the UI showing times computed for the
+        // previous zone while useTimeZoneSync had already moved the backend to
+        // the new one.
+    }, [sessions, deviceTimeZone]);
 
     useEffect(() => {
         if (isAuthenticated) {
