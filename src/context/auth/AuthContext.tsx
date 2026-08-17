@@ -25,6 +25,44 @@ type AuthUser = {
     name: string;
 } | null;
 
+const STORED_SESSION_KEYS = ['token', 'refreshToken', 'user'] as const;
+
+/**
+ * A persisted user is only usable if it actually round-tripped. A truncated or
+ * corrupted record must not become a `null` user attached to a live token.
+ */
+const parseStoredUser = (raw: string | null): AuthUser => {
+    if (!raw) return null;
+
+    try {
+        const parsed: unknown = JSON.parse(raw);
+        if (!parsed || typeof parsed !== 'object') return null;
+
+        const candidate = parsed as Record<string, unknown>;
+        if (
+            typeof candidate.id !== 'string' || !candidate.id ||
+            typeof candidate.email !== 'string' || !candidate.email ||
+            typeof candidate.name !== 'string'
+        ) {
+            return null;
+        }
+
+        return {
+            id: candidate.id,
+            email: candidate.email,
+            name: candidate.name,
+        };
+    } catch {
+        return null;
+    }
+};
+
+const clearPersistedSession = async (): Promise<void> => {
+    await Promise.all(
+        STORED_SESSION_KEYS.map((key) => SecureStore.deleteItemAsync(key)),
+    );
+};
+
 export type SignOutTask = () => Promise<void>;
 
 export type SignOutOptions = {
@@ -92,32 +130,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     SecureStore.getItemAsync('user'),
                 ]);
 
-                if (storedToken) {
-                    const normalized = normalizeToken(storedToken);
-                    if (normalized) {
-                        tokenRef.current = normalized;
-                        setToken(normalized);
+                const normalized = normalizeToken(storedToken);
+                const hydratedUser = parseStoredUser(storedUser);
 
-                        if (normalized !== storedToken) {
-                            await SecureStore.setItemAsync('token', normalized);
-                        }
-                    } else {
-                        await SecureStore.deleteItemAsync('token');
+                // A token without a user (or vice versa) is a half-written
+                // session — setAuth persists the two separately, so a crash or
+                // a failed write between them leaves one behind. Restoring it
+                // would route into the app with a null userId, where
+                // onboarding reports incomplete and finishOnboarding() is a
+                // no-op: the user is stuck with no path back to login. Discard
+                // it and start clean instead.
+                if (!normalized || !hydratedUser) {
+                    if (storedToken || storedRefreshToken || storedUser) {
+                        console.warn(
+                            '[AuthProvider] Discarding incomplete persisted session',
+                        );
+                        await clearPersistedSession();
                     }
+                    return;
+                }
+
+                tokenRef.current = normalized;
+                setToken(normalized);
+                setUser(hydratedUser);
+
+                if (normalized !== storedToken) {
+                    await SecureStore.setItemAsync('token', normalized);
                 }
 
                 if (storedRefreshToken) {
                     refreshTokenRef.current = storedRefreshToken;
                     setRefreshToken(storedRefreshToken);
                 }
-
-                if (storedUser) {
-                    setUser(JSON.parse(storedUser));
-                }
             } catch (error) {
                 console.error('[AuthProvider] hydration error:', error);
+                tokenRef.current = null;
+                refreshTokenRef.current = null;
                 setToken(null);
+                setRefreshToken(null);
                 setUser(null);
+                await clearPersistedSession().catch(() => undefined);
             } finally {
                 hasHydrated.current = true;
                 isHydrating.current = false;
@@ -156,6 +208,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
         } catch (error) {
             console.error('[AuthProvider] setAuth storage error:', error);
+            // The writes are not atomic, so a failure part-way through can
+            // leave a token on disk with no user. Clear the lot rather than
+            // let the next launch hydrate a session that cannot be used.
+            await clearPersistedSession().catch(() => undefined);
         }
     }, []);
 
@@ -255,7 +311,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         token,
         refreshToken,
         user,
-        isAuthenticated: Boolean(token),
+        // Both halves are required. A token on its own cannot drive the app:
+        // downstream providers key off user.id, so "signed in with no user" is
+        // an unroutable state rather than a degraded one.
+        isAuthenticated: Boolean(token && user),
         hydrated,
         setAuth,
         refreshSession,
