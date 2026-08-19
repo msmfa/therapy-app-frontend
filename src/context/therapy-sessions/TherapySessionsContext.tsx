@@ -154,6 +154,16 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
             .map((session) => session.startsAtUtc)
             .filter((value): value is string => typeof value === 'string');
 
+        // Durations travel alongside the starts so the plan shown here never
+        // promises a reminder while a session is still running, matching what
+        // the backend cron will actually send.
+        const sessionDurationsMin: Record<string, number> = {};
+        for (const session of sessions) {
+            if (typeof session.startsAtUtc === 'string') {
+                sessionDurationsMin[session.startsAtUtc] = session.durationMin ?? 0;
+            }
+        }
+
         const reminders = scheduleNeuroplasticityReminders({
             nowUtc: new Date().toISOString(),
             sessionsUtc,
@@ -162,6 +172,7 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
             startAfterDays: 3,
             cadenceDays: 4,
             timeZone: deviceTimeZone,
+            sessionDurationsMin,
         });
 
         setNeuroReminders(reminders);
