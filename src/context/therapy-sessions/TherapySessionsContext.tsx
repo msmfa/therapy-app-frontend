@@ -25,6 +25,25 @@ interface TherapySessionsContextType {
 const TherapySessionsContext = createContext<TherapySessionsContextType | undefined>(undefined);
 
 /**
+ * Assumed length of a session whose duration was never recorded.
+ *
+ * `durationMin` is optional on the API, so a session can arrive without one.
+ * Treating that as zero-length left the reminder plan with no session end to
+ * stay clear of, and showed reminders landing inside the session. 50 is what
+ * both write paths send, so an unknown session is assumed to look like every
+ * session the app itself creates.
+ *
+ * Mirrors DEFAULT_SESSION_MINUTES in the backend's notificationCron.helpers.ts:
+ * the two have to agree or the plan shown here drifts from the pushes sent.
+ */
+const DEFAULT_SESSION_MINUTES = 50;
+
+const effectiveDurationMin = (durationMin?: number | null): number =>
+    typeof durationMin === 'number' && Number.isFinite(durationMin) && durationMin > 0
+        ? durationMin
+        : DEFAULT_SESSION_MINUTES;
+
+/**
  * The window of sessions the app fetches and edits: from the start of the
  * user's local day one year ahead. The floor is local midnight, not UTC
  * midnight: with a UTC floor, a session earlier today disappeared from the
@@ -160,7 +179,7 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
         const sessionDurationsMin: Record<string, number> = {};
         for (const session of sessions) {
             if (typeof session.startsAtUtc === 'string') {
-                sessionDurationsMin[session.startsAtUtc] = session.durationMin ?? 0;
+                sessionDurationsMin[session.startsAtUtc] = effectiveDurationMin(session.durationMin);
             }
         }
 
