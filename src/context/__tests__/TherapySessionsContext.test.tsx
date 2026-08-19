@@ -14,9 +14,6 @@ jest.mock('../auth/AuthContext', () => ({
 
 jest.mock('../../api/therapy', () => ({
   getTherapySessions: jest.fn(),
-  createTherapySession: jest.fn(),
-  updateTherapySession: jest.fn(),
-  deleteTherapySession: jest.fn(),
   syncTherapySessions: jest.fn(),
 }));
 

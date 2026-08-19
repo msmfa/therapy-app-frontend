@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPost, apiPut } from './client';
+import { apiGet, apiPost } from './client';
 
 type TherapySessionSyncPayload = {
     id?: string;
@@ -12,34 +12,15 @@ type TherapySessionSyncResult = {
     deleted: number;
 };
 
+/**
+ * Shape of a session as returned by the list endpoint, which projects only
+ * these fields. All mutations go through syncTherapySessions.
+ */
 export type TherapySession = {
     _id: string;
-    userId: string;
     startsAtUtc: string;
     durationMin?: number;
-    createdAt: string;
-    updatedAt: string;
 };
-
-export const updateTherapySession = async (
-    sessionId: string,
-    startsAtUtc: Date,
-    durationMin: number,
-): Promise<TherapySession> =>
-    apiPut<TherapySession>(`/api/therapy-sessions/${sessionId}`, {
-        startsAtUtc: startsAtUtc.toISOString(),
-        durationMin,
-    });
-
-export async function createTherapySession(
-    startsAt: Date,
-    durationMin?: number,
-): Promise<TherapySession> {
-    return apiPost<TherapySession>(
-        '/api/therapy-sessions',
-        { startsAtUtc: startsAt.toISOString(), durationMin },
-    );
-}
 
 export type SessionsWindow = {
     from: Date;
@@ -89,10 +70,6 @@ export async function getTherapySessions(
     return apiGet<TherapySession[]>(`/api/therapy-sessions?${params.toString()}`);
 }
 
-export async function deleteTherapySession(id: string): Promise<void> {
-    await apiDelete<void>(`/api/therapy-sessions/${id}`, { parseJson: false });
-}
-
 export async function syncTherapySessions(
     payload: TherapySessionSyncPayload[],
     window?: SessionsWindow,
@@ -115,26 +92,4 @@ export async function syncTherapySessions(
         '/api/therapy-sessions/sync',
         body,
     );
-}
-
-export async function getNextSession(): Promise<Date | null> {
-    const now = new Date();
-    const twoMonthsLater = new Date(now);
-    twoMonthsLater.setMonth(now.getMonth() + 2);
-
-    try {
-        const sessions = await getTherapySessions(now, twoMonthsLater);
-        const futureSessions = sessions
-            .map((session) => new Date(session.startsAtUtc))
-            .filter((date) => date > now);
-
-        if (futureSessions.length === 0) {
-            return null;
-        }
-
-        return futureSessions.reduce((earliest, current) => (current < earliest ? current : earliest));
-    } catch (error) {
-        console.error('Failed to fetch therapy sessions:', error);
-        return null;
-    }
 }
