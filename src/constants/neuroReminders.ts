@@ -45,12 +45,11 @@ export const NEURO_REMINDER_COPY: Record<Reason, NeuroReminderCopy> = {
     },
 };
 
-export const NOTIFICATION_MESSAGES: Record<Reason, string> = {
-    [Reason.PostSession]: 'Time to add notes from your today\'s session',
-    [Reason.PostSleep]: "Morning, review yesterday's therapy notes to keep changing those pathways ☀️",
-    [Reason.MidSession]: 'Time to review your therapy notes 💪',
-    [Reason.PreSession]: "Prep for tomorrow's session: have a look at what you discussed in your last session before tomorrow's session 🧠",
-};
+// The push bodies used to be mirrored here as NOTIFICATION_MESSAGES. Nothing
+// ever read them, and the copy had already drifted from what the cron actually
+// sends, so the constant was a second source of truth that could only ever be
+// wrong. The bodies live with the sender, in the backend's
+// notificationCron.helpers.ts.
 
 export const REMINDER_SCIENCE_COPY: Record<ReminderType, ReminderScienceCopy> = {
     [ReminderType.EarlyConsolidation]: {

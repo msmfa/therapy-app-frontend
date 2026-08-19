@@ -55,6 +55,14 @@ export interface ScheduleParams {
    * the Americas.
    */
   timeZone?: string;
+  /**
+   * Session length in minutes, keyed by the session's `startsAtUtc` string.
+   *
+   * Keyed rather than positional because the starts are sorted below, which
+   * would break a parallel array. Missing entries mean "unknown", and a
+   * reminder is then only held back until the session has started.
+   */
+  sessionDurationsMin?: Record<string, number>;
 }
 
 const REASON_PRIORITY: Record<Reason, number> = {
@@ -73,6 +81,8 @@ interface ReminderDraft {
 interface GapWindow {
   index: number;
   start: Dayjs;
+  /** When the session at `start` finishes; the earliest a reminder may fire. */
+  sessionEnd: Dayjs;
   end: Dayjs;
   days: number;
 }
@@ -165,16 +175,30 @@ function countLocalCalendarDays(start: Dayjs, end: Dayjs): number {
     return Math.max(0, Math.round((endDay - startDay) / 86_400_000));
 }
 
-function clampTimestampWithinGapWindow(candidate: Dayjs, gap: GapWindow): Dayjs | null {
-    const earliest = gap.start.add(1, 'minute');
+/**
+ * Places `candidate` inside the gap, or rejects it.
+ *
+ * A candidate falling *before* the window is dropped rather than pulled
+ * forward. Pulling it forward is what used to put the evening reminder inside
+ * the session it was reflecting on: a 21:00 session makes "20:00 on the session
+ * day" earlier than the session itself, and the old clamp moved it to one
+ * minute past the start, so the reminder landed while the user was still in the
+ * room. There is no evening slot left in that case, and the next morning's
+ * reminder already covers it.
+ *
+ * A candidate past the window is still clamped back, which only shortens the
+ * wait before an already-scheduled next session.
+ */
+function fitTimestampWithinGapWindow(candidate: Dayjs, gap: GapWindow): Dayjs | null {
+    const afterStart = gap.start.add(1, 'minute');
+    const earliest = gap.sessionEnd.isAfter(afterStart) ? gap.sessionEnd : afterStart;
     const latest = gap.end.subtract(1, 'minute');
     if (earliest.isAfter(latest)) return null;
 
-    let clamped = candidate;
-    if (candidate.isBefore(earliest)) clamped = earliest;
-    else if (candidate.isAfter(latest)) clamped = latest;
+    if (candidate.isBefore(earliest)) return null;
 
-    return clamped.second(0).millisecond(0);
+    const fitted = candidate.isAfter(latest) ? latest : candidate;
+    return fitted.second(0).millisecond(0);
 }
 
 
@@ -182,7 +206,7 @@ function clampTimestampWithinGapWindow(candidate: Dayjs, gap: GapWindow): Dayjs 
 /* ---------- Gap scheduling ---------- */
 
 function buildReminderDraftWithinGap(desired: Dayjs, reason: Reason, gap: GapWindow, ctx: GapContext): ReminderDraft | null {
-    const withinGap = clampTimestampWithinGapWindow(desired, gap);
+    const withinGap = fitTimestampWithinGapWindow(desired, gap);
     if (!withinGap) return null;
     if (!withinGap.isAfter(ctx.now)) return null;
     if (!withinGap.isBefore(gap.end)) return null;
@@ -231,6 +255,7 @@ export function scheduleNeuroplasticityReminders(params: ScheduleParams): Remind
         cadenceDays = 4,
         maxPerDay = 1,
         timeZone,
+        sessionDurationsMin,
     } = params;
 
     if (!sessionsUtc || sessionsUtc.length < 2) return [];
@@ -244,7 +269,13 @@ export function scheduleNeuroplasticityReminders(params: ScheduleParams): Remind
     const windows: GapWindow[] = [];
 
     for (let index = 0; index < sortedSessions.length - 1; index += 1) {
-        const window = createGapWindowFromIsoSessions(index, sortedSessions[index], sortedSessions[index + 1], zone);
+        const window = createGapWindowFromIsoSessions(
+            index,
+            sortedSessions[index],
+            sortedSessions[index + 1],
+            zone,
+            sessionDurationsMin?.[sortedSessions[index]] ?? 0,
+        );
         if (window) windows.push(window);
     }
 
@@ -300,14 +331,18 @@ function createGapWindowFromIsoSessions(
     startIso: string,
     endIso: string,
     zone: string,
+    startDurationMin = 0,
 ): GapWindow | null {
     const start = parseIsoToMinute(startIso, zone);
     const end = parseIsoToMinute(endIso, zone);
     if (!start || !end || !end.isAfter(start)) return null;
 
+    const duration = Number.isFinite(startDurationMin) && startDurationMin > 0 ? startDurationMin : 0;
+
     return {
         index,
         start,
+        sessionEnd: start.add(duration, 'minute'),
         end,
         days: countLocalCalendarDays(start, end),
     };
