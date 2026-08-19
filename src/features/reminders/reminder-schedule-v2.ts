@@ -176,18 +176,18 @@ function countLocalCalendarDays(start: Dayjs, end: Dayjs): number {
 }
 
 /**
- * Places `candidate` inside the gap, or rejects it.
+ * Whether `candidate` genuinely falls inside the usable part of the gap.
  *
- * A candidate falling *before* the window is dropped rather than pulled
- * forward. Pulling it forward is what used to put the evening reminder inside
- * the session it was reflecting on: a 21:00 session makes "20:00 on the session
- * day" earlier than the session itself, and the old clamp moved it to one
- * minute past the start, so the reminder landed while the user was still in the
- * room. There is no evening slot left in that case, and the next morning's
- * reminder already covers it.
+ * Out-of-range candidates are rejected rather than dragged to the nearest edge.
+ * Moving them is what produced reminders whose time contradicted their own
+ * wording. Pulled forward, a 21:00 session made "20:00 on the session day"
+ * earlier than the session itself and the reminder landed one minute into it.
+ * Pushed back, a second session later the same day dragged the evening reminder
+ * to one minute before that session, so "review today's notes" arrived as the
+ * user was walking into their next appointment.
  *
- * A candidate past the window is still clamped back, which only shortens the
- * wait before an already-scheduled next session.
+ * Dropping is the honest outcome in both cases: there is no slot left, and the
+ * next morning's reminder covers it.
  */
 function fitTimestampWithinGapWindow(candidate: Dayjs, gap: GapWindow): Dayjs | null {
     const afterStart = gap.start.add(1, 'minute');
@@ -196,9 +196,9 @@ function fitTimestampWithinGapWindow(candidate: Dayjs, gap: GapWindow): Dayjs | 
     if (earliest.isAfter(latest)) return null;
 
     if (candidate.isBefore(earliest)) return null;
+    if (candidate.isAfter(latest)) return null;
 
-    const fitted = candidate.isAfter(latest) ? latest : candidate;
-    return fitted.second(0).millisecond(0);
+    return candidate.second(0).millisecond(0);
 }
 
 
