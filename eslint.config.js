@@ -4,6 +4,7 @@ const tsParser = require('@typescript-eslint/parser');
 const tsPlugin = require('@typescript-eslint/eslint-plugin');
 const react = require('eslint-plugin-react');
 const reactNative = require('eslint-plugin-react-native');
+const stylistic = require('@stylistic/eslint-plugin');
 const globals = require('globals');
 
 module.exports = [
@@ -40,6 +41,7 @@ module.exports = [
       '@typescript-eslint': tsPlugin,
       react,
       'react-native': reactNative,
+      '@stylistic': stylistic,
     },
     settings: {
       react: { version: 'detect' },
@@ -63,7 +65,10 @@ module.exports = [
       ],
 
       // Whitespace / formatting
-      indent: ['error', 4, { SwitchCase: 1 }],
+      // @stylistic/indent, not core indent: the deprecated core rule
+      // overflows the call stack on deeply nested JSX
+      // (app/(onboarding)/notifications.tsx) and killed every lint run.
+      '@stylistic/indent': ['error', 4, { SwitchCase: 1 }],
       'no-mixed-spaces-and-tabs': 'error',
       'no-trailing-spaces': 'error',
       'eol-last': ['error', 'always'],

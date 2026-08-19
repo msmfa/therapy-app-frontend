@@ -41,10 +41,17 @@ export async function createTherapySession(
     );
 }
 
-export async function getTherapySessions(
-    from: Date,
-    to: Date,
-): Promise<TherapySession[]> {
+export type SessionsWindow = {
+    from: Date;
+    to: Date;
+};
+
+/**
+ * The exact UTC instants a `[from, to]` pair widens to when querying the
+ * backend. Shared between fetching and syncing so the sync's deletion scope
+ * can never exceed the window the client actually loaded.
+ */
+export const toUtcDayRange = (from: Date, to: Date): { fromUTC: Date; toUTC: Date } => {
     const fromUTC = new Date(Date.UTC(
         from.getUTCFullYear(),
         from.getUTCMonth(),
@@ -65,6 +72,15 @@ export async function getTherapySessions(
         999,
     ));
 
+    return { fromUTC, toUTC };
+};
+
+export async function getTherapySessions(
+    from: Date,
+    to: Date,
+): Promise<TherapySession[]> {
+    const { fromUTC, toUTC } = toUtcDayRange(from, to);
+
     const params = new URLSearchParams({
         from: fromUTC.toISOString(),
         to: toUTC.toISOString(),
@@ -79,10 +95,25 @@ export async function deleteTherapySession(id: string): Promise<void> {
 
 export async function syncTherapySessions(
     payload: TherapySessionSyncPayload[],
+    window?: SessionsWindow,
 ): Promise<TherapySessionSyncResult> {
+    const body: {
+        sessions: TherapySessionSyncPayload[];
+        from?: string;
+        to?: string;
+    } = { sessions: payload };
+
+    if (window) {
+        // Send the widened instants the fetch actually queried with, so the
+        // backend's deletion scope matches what the user could see and edit.
+        const { fromUTC, toUTC } = toUtcDayRange(window.from, window.to);
+        body.from = fromUTC.toISOString();
+        body.to = toUTC.toISOString();
+    }
+
     return apiPost<TherapySessionSyncResult>(
         '/api/therapy-sessions/sync',
-        { sessions: payload },
+        body,
     );
 }
 

@@ -51,3 +51,48 @@ describe('apiRequest auth header handling', () => {
         expect(requestHeaders.get('Authorization')).toBe('Bearer test-token');
     });
 });
+
+describe('apiRequest transport failure mapping', () => {
+    const originalFetch = global.fetch;
+
+    beforeEach(() => {
+        configureApiClient({
+            baseUrl: 'https://api.example.com',
+            defaultTimeoutMs: 1000,
+            getToken: async () => 'test-token',
+        });
+    });
+
+    afterEach(() => {
+        global.fetch = originalFetch;
+        jest.resetAllMocks();
+    });
+
+    it('maps aborts to 408 by error name, without relying on a global DOMException', async () => {
+        // Hermes has no global DOMException; RN's fetch polyfill rejects with
+        // an Error-derived object whose name is 'AbortError'. Simulate that
+        // shape exactly.
+        const abortError = new Error('Aborted');
+        abortError.name = 'AbortError';
+        global.fetch = jest.fn<typeof fetch>().mockRejectedValue(abortError) as unknown as typeof fetch;
+
+        await expect(apiRequest('/anything')).rejects.toMatchObject({
+            name: 'ApiError',
+            status: 408,
+            message: 'Request timed out',
+        });
+    });
+
+    it('maps network failures to status 0 with a network code', async () => {
+        global.fetch = jest
+            .fn<typeof fetch>()
+            .mockRejectedValue(new TypeError('Network request failed')) as unknown as typeof fetch;
+
+        await expect(apiRequest('/anything')).rejects.toMatchObject({
+            name: 'ApiError',
+            status: 0,
+            code: 'network',
+            message: 'Network request failed',
+        });
+    });
+});

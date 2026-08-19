@@ -8,6 +8,7 @@ import { useAuth } from '../context/auth/AuthContext';
 import { APPLE_REDIRECT_URI, APPLE_SERVICE_ID } from '../constants/env';
 import { handleError } from '../utils';
 import { exchangeOAuthToken, OAuthPayloadMap, OAuthProvider } from '../api/auth';
+import { formatAppleFullName } from './appleFullName';
 import { useAppAlert } from '../context/alert';
 
 WebBrowser.maybeCompleteAuthSession();
@@ -96,6 +97,11 @@ export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
             const authorizationCode = trimToValue(credential.authorizationCode);
             if (authorizationCode) {
                 applePayload.authorizationCode = authorizationCode;
+            }
+
+            const fullName = formatAppleFullName(credential.fullName);
+            if (fullName) {
+                applePayload.name = fullName;
             }
             await exchangeToken('apple', applePayload);
         } catch (error) {
