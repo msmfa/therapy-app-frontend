@@ -4,9 +4,6 @@ import { ApiError } from '../../api/client';
 import { useAuth } from '../auth/AuthContext';
 import {
     getTherapySessions,
-    createTherapySession,
-    updateTherapySession,
-    deleteTherapySession,
     TherapySession,
     syncTherapySessions as syncTherapySessionsApi,
 } from '../../api/therapy';
@@ -22,11 +19,7 @@ interface TherapySessionsContextType {
     nextSession: TherapySession | null;
     neuroReminders: Reminder[];
     refreshSessions: () => Promise<void>;
-    addSession: (date: Date, duration: number) => Promise<void>;
     syncSessions: (selected: Record<string, Date>, duration: number) => Promise<void>;
-    updateSession: (id: string, date: Date, duration: number) => Promise<void>;
-    deleteSession: (id: string) => Promise<void>;
-    hasUpcomingSessions: () => boolean;
 }
 
 const TherapySessionsContext = createContext<TherapySessionsContextType | undefined>(undefined);
@@ -95,26 +88,6 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
         return request;
     }, [isAuthenticated]);
 
-    const addSession = useCallback(
-        async (date: Date, duration: number) => {
-            if (!isAuthenticated) {
-                throw new Error('Not authenticated');
-            }
-
-            const exists = sessions.some((session) =>
-                new Date(session.startsAtUtc).getTime() === date.getTime(),
-            );
-
-            if (exists) {
-                throw new Error('Session already exists at this time');
-            }
-
-            await createTherapySession(date, duration);
-            await refreshSessions();
-        },
-        [isAuthenticated, sessions, refreshSessions],
-    );
-
     const syncSessions = useCallback(
         async (selected: Record<string, Date>, duration: number) => {
             if (!isAuthenticated) {
@@ -138,44 +111,6 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
         },
         [isAuthenticated, sessions, refreshSessions],
     );
-
-    const updateSession = useCallback(
-        async (id: string, date: Date, duration: number) => {
-            if (!isAuthenticated) {
-                throw new Error('Not authenticated');
-            }
-
-            const exists = sessions.some((session) =>
-                session._id !== id &&
-                new Date(session.startsAtUtc).getTime() === date.getTime(),
-            );
-
-            if (exists) {
-                throw new Error('Another session already exists at this time');
-            }
-
-            await updateTherapySession(id, date, duration);
-            await refreshSessions();
-        },
-        [isAuthenticated, sessions, refreshSessions],
-    );
-
-    const deleteSession = useCallback(
-        async (id: string) => {
-            if (!isAuthenticated) {
-                throw new Error('Not authenticated');
-            }
-
-            await deleteTherapySession(id);
-            await refreshSessions();
-        },
-        [isAuthenticated, refreshSessions],
-    );
-
-    const hasUpcomingSessions = useCallback(() => {
-        const now = Date.now();
-        return sessions.some((session) => new Date(session.startsAtUtc).getTime() > now);
-    }, [sessions]);
 
     const nextSession = useMemo(() => {
         const now = Date.now();
@@ -239,11 +174,7 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
         nextSession,
         neuroReminders,
         refreshSessions,
-        addSession,
         syncSessions,
-        updateSession,
-        deleteSession,
-        hasUpcomingSessions,
     };
 
     return (
