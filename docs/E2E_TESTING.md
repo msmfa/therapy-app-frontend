@@ -43,8 +43,15 @@ The workflow checks all three are present before it builds anything, so a
 missing secret fails in seconds with a message naming it, rather than twenty
 minutes later inside xcodebuild.
 
-Nothing else is needed: the build is unsigned (simulator only), so no Apple
-credentials are involved, and Sentry upload is disabled for E2E builds.
+Nothing else is needed: the build is signed ad hoc (simulator only), so no
+Apple credentials, team, or provisioning profile are involved, and Sentry
+upload is disabled for E2E builds.
+
+Ad hoc rather than unsigned, deliberately. `CODE_SIGNING_ALLOWED=NO` leaves the
+app with only a linker-generated signature and no embedded entitlements, and
+iOS then rejects every Keychain call with "A required entitlement isn't
+present." expo-secure-store holds the auth tokens and the note encryption key,
+so on an unsigned build no note can be saved at all.
 
 ---
 
@@ -107,6 +114,19 @@ Useful environment variables:
 You can also point everything at a local backend (`http://localhost:3000`) for
 faster iteration; the guards allow localhost and private LAN addresses.
 
+Homebrew's `openjdk` is keg-only, so `maestro` fails with "Unable to locate a
+Java Runtime" until it is on the path:
+
+```bash
+export JAVA_HOME=/opt/homebrew/opt/openjdk/libexec/openjdk.jdk/Contents/Home
+export PATH="$JAVA_HOME/bin:$PATH"
+```
+
+`E2E_SIMULATOR` matters more than it looks. The default is `iPhone 16`, and
+when that device is not installed the run script falls back to the newest
+available iPhone — which may be one another process is already driving. Name a
+device explicitly when anything else is using a simulator.
+
 ---
 
 ## Repeatability and data safety
@@ -123,6 +143,15 @@ likeliest way it would happen:
 **Repeatable.** Each run launches with `clearState` and `clearKeychain`, so the
 app always starts logged out and never-onboarded regardless of what the last
 run left on the device. Both are simulator-local.
+
+**Backend state is not covered by `clearState`.** The sessions phase 01 creates
+live on the backend and outlive the device wipe. If today already has a
+session, tapping today opens the schedule modal in edit mode, which offers
+delete and confirm instead of the "every week" option, and phase 01 fails on a
+missing `schedule-mode-weekly` that gives no hint of the real cause. CI
+therefore runs the cleanup *before* the flows as well as after, so a run never
+depends on the previous run having tidied up. Do the same locally after an
+interrupted run.
 
 **Cleans up only what it creates.** `yarn e2e:cleanup` signs in as the test
 account and clears therapy sessions in a bounded date window

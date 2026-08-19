@@ -227,6 +227,12 @@ export function useNotes(userId: string | undefined) {
             } catch (err) {
                 console.warn('useNotes.addNote', err);
                 setError('Failed to add note');
+                // Rethrow: the caller decides what a failed save means for the
+                // user. Swallowing it here made NewNoteScreen's catch dead
+                // code, so a note that never reached the database still
+                // cleared the editor and navigated to the notes list, and the
+                // note was silently lost.
+                throw err;
             }
         },
         [userId],

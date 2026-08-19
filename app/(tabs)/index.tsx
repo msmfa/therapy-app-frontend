@@ -51,7 +51,11 @@ export default function NewNoteScreen() {
                     style={ styles.screen }
                     behavior={ Platform.OS === 'ios' ? 'padding' : 'height' }
                 >
-                    <Pressable style={ styles.content } onPress={ Keyboard.dismiss }>
+                    { /* accessible={false}: a full-screen dismiss target must not collapse
+                        its subtree into one accessibility element, which would hide the
+                        note input and save button from VoiceOver and from the E2E flows.
+                        Same reason as the wrapper in app/forgot-password.tsx. */ }
+                    <Pressable style={ styles.content } onPress={ Keyboard.dismiss } accessible={ false }>
                         <View style={ styles.body }>
                             <View style={ styles.cardWrapper }>
                                 <View style={ styles.cardOverlay }>

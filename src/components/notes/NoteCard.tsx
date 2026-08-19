@@ -14,10 +14,20 @@ type Props = {
 }
 
 export function NoteCard({ item, index, onPress }: Props) {
+    const dayLabel = dayjs(item.createdAt).format('dddd, MMM D, YYYY');
+    const timeLabel = dayjs(item.createdAt).format('h:mm A');
+
     return (
         <Pressable
             testID={ TEST_IDS.notes.card(index) }
             onPress={ () => onPress(item) }
+            // A Pressable is one accessibility element, so its children are not
+            // announced individually. Without an explicit label that left the
+            // card silent under VoiceOver: it read as an unlabelled button and
+            // the note itself was never spoken. The label mirrors what is on
+            // screen, in the same order.
+            accessibilityRole="button"
+            accessibilityLabel={ `${dayLabel}. ${item.text}. ${timeLabel}` }
             style={ ({ pressed }) => [
                 styles.cardWrapper,
                 pressed && styles.noteCardPressed,
@@ -26,7 +36,7 @@ export function NoteCard({ item, index, onPress }: Props) {
         >
             <View style={ styles.noteHeader }>
                 <AppText variant='h3' >
-                    { dayjs(item.createdAt).format('dddd, MMM D, YYYY') }
+                    { dayLabel }
                 </AppText>
                 { index === 0 && (
                     <View style={ styles.latestBadge }>
@@ -40,7 +50,7 @@ export function NoteCard({ item, index, onPress }: Props) {
 
             <Spacer />
             <AppText variant="caption" style={ { color: TEXT_COLORS.tertiary } }>
-                { dayjs(item.createdAt).format('h:mm A') }
+                { timeLabel }
             </AppText>
 
         </Pressable>

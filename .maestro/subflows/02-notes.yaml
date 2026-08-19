@@ -19,7 +19,11 @@ name: 02 write a note and read it back
 - tapOn:
     id: 'new-note-input'
 - inputText: ${output.noteText}
-- hideKeyboard
+# No `hideKeyboard` here. The note field is a multiline TextInput, and on iOS a
+# multiline text view exposes no standard dismiss action, so Maestro cannot
+# collapse the keyboard and fails the step. It is not needed either: the
+# KeyboardAvoidingView lifts the save button clear of the keyboard, so the tap
+# below lands on the button rather than on a key.
 - takeScreenshot: artifacts/02-note-composed
 
 - tapOn:
@@ -31,7 +35,11 @@ name: 02 write a note and read it back
     visible:
       id: 'note-card-0'
     timeout: 30000
-- assertVisible: ${output.noteText}
+# The card is a single accessibility element, so what is matched here is its
+# label, which is "<date>. <note>. <time>". Maestro matches a text selector
+# against the whole string rather than looking for it inside, hence the
+# surrounding `.*` — asserting the bare note text would never match.
+- assertVisible: '.*${output.noteText}.*'
 - takeScreenshot: artifacts/02-note-in-list
 
 # Opening the card proves the note round-tripped through encryption and

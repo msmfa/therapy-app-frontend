@@ -60,6 +60,40 @@ describe('note encryption', () => {
     expect(await decryptNoteText(await encryptNoteText(''))).toBe('');
   });
 
+  /**
+   * Hermes has no `TextDecoder` (and React Native does not polyfill it), so a
+   * decrypt path that used one threw on every real device while these tests
+   * passed on Node, which has both. Notes were written and then read back
+   * blank. Removing the globals here makes the test environment match the
+   * engine the app actually runs on.
+   */
+  it('round-trips without TextEncoder or TextDecoder, as on Hermes', async () => {
+    const globals = global as unknown as Record<string, unknown>;
+    const savedEncoder = globals.TextEncoder;
+    const savedDecoder = globals.TextDecoder;
+    delete globals.TextEncoder;
+    delete globals.TextDecoder;
+
+    try {
+      const plaintext = 'No TextDecoder here 🙂 — 進歩している';
+      expect(await decryptNoteText(await encryptNoteText(plaintext))).toBe(plaintext);
+    } finally {
+      globals.TextEncoder = savedEncoder;
+      globals.TextDecoder = savedDecoder;
+    }
+  });
+
+  it('matches TextEncoder byte-for-byte on multi-byte input', async () => {
+    // The hand-rolled UTF-8 encoder must agree with the platform one, or notes
+    // written by one build would not open in another.
+    const samples = ['', 'plain ascii', 'Ça va', '進歩', '🙂', 'mixed 🙂 進歩 Ça'];
+
+    for (const sample of samples) {
+      const sealed = await encryptNoteText(sample);
+      expect(await decryptNoteText(sealed)).toBe(sample);
+    }
+  });
+
   it('produces a different ciphertext each time for the same input', async () => {
     // A fixed nonce would leak that two notes are identical.
     const first = await encryptNoteText('same text');

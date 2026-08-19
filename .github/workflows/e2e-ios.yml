@@ -82,6 +82,16 @@ jobs:
         id: build
         run: scripts/e2e/build-ios-sim.sh
 
+      - name: Clear leftover sessions before the run
+        # The run assumes today has no therapy session yet: with one already
+        # scheduled, tapping today opens the modal in edit mode, which has no
+        # "every week" option, and phase 01 fails on a missing selector that
+        # says nothing about the real cause. The post-run cleanup below is
+        # continue-on-error, and a cancelled job skips it entirely, so state
+        # can survive into the next run. Cleaning up front makes each run
+        # self-preparing rather than dependent on the previous one.
+        run: yarn e2e:cleanup
+
       - name: Run the smoke test
         env:
           E2E_APP_PATH: ${{ steps.build.outputs.app_path }}

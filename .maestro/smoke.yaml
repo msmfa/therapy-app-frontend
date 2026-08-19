@@ -2,12 +2,13 @@ appId: com.plastic-brains.app
 name: Plastic Brains iOS smoke
 tags:
   - smoke
-env:
-  # Overridden from the command line with `-e KEY=value`. The defaults exist so
-  # a missing secret fails on an obviously bogus credential rather than on an
-  # unresolved-variable error three screens in.
-  E2E_EMAIL: 'MISSING_E2E_EMAIL'
-  E2E_PASSWORD: 'MISSING_E2E_PASSWORD'
+# E2E_EMAIL and E2E_PASSWORD are injected with `-e KEY=value` by
+# scripts/e2e/run-ios-sim.sh, which refuses to start without them.
+#
+# Deliberately no `env:` defaults here. In Maestro 2.8.0 a flow-level `env`
+# entry takes precedence over the `-e` value rather than acting as a fallback
+# for it, so declaring defaults silently shadows the real credentials: the
+# login screen gets the literal placeholder and the run always fails.
 ---
 # The whole journey a first-time user takes on a fresh device, against the
 # staging backend, with a dedicated staging account.

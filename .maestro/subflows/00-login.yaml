@@ -34,6 +34,21 @@ name: 00 sign in with the staging test account
 - tapOn:
     id: 'login-submit'
 
+# iOS offers to save the password once it sees a login form submitted. That
+# prompt is a system alert drawn above the app, and while it is up the app's
+# own view hierarchy is not reachable, so every later selector would fail with
+# a misleading "not visible". Dismissing it has to happen here, before anything
+# else is asserted.
+#
+# `optional: true` because it is not guaranteed: it does not appear when the
+# device has AutoFill off, and it stops appearing once the password is saved.
+# Disabling AutoFill from the command line was tried first and does not work on
+# iOS 26 (`defaults write com.apple.Preferences AutoFillPasswords` is ignored),
+# so dismissing the alert is the reliable option.
+- tapOn:
+    text: 'Not Now'
+    optional: true
+
 # A fresh install has never onboarded, so a successful sign-in always lands on
 # the onboarding welcome screen. Generous timeout: this is the first real round
 # trip to staging and may include a cold start.

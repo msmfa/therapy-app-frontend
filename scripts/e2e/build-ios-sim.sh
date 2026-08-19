@@ -89,6 +89,15 @@ echo "    api url:   $EXPO_PUBLIC_API_URL"
 # SENTRY_DISABLE_AUTO_UPLOAD keeps the Release build from trying to upload
 # source maps, which needs a token CI does not have and is meaningless for a
 # throwaway simulator binary.
+#
+# Signing: ad hoc (CODE_SIGN_IDENTITY="-"), not disabled. Turning signing off
+# entirely leaves the app with only a linker-generated signature and *no
+# embedded entitlements*, and iOS then refuses every Keychain call with
+# "A required entitlement isn't present." That breaks expo-secure-store, which
+# is where the auth tokens and the note encryption key live, so notes could
+# never be saved and the smoke test could never pass. Ad hoc signing embeds
+# PlasticBrains.entitlements and needs no Apple account or provisioning
+# profile, so CI still requires no Apple credentials.
 SENTRY_DISABLE_AUTO_UPLOAD=true \
 xcodebuild \
     -workspace "$WORKSPACE" \
@@ -97,9 +106,12 @@ xcodebuild \
     -sdk iphonesimulator \
     -destination 'generic/platform=iOS Simulator' \
     -derivedDataPath "$DERIVED_DATA" \
-    CODE_SIGNING_ALLOWED=NO \
+    CODE_SIGNING_ALLOWED=YES \
     CODE_SIGNING_REQUIRED=NO \
-    CODE_SIGN_IDENTITY="" \
+    CODE_SIGN_IDENTITY="-" \
+    CODE_SIGN_STYLE=Manual \
+    DEVELOPMENT_TEAM="" \
+    PROVISIONING_PROFILE_SPECIFIER="" \
     build \
     | (xcpretty 2>/dev/null || cat)
 
