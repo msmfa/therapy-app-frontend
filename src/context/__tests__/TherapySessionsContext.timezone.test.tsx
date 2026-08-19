@@ -25,9 +25,6 @@ jest.mock('../../api/therapy', () => ({
     { id: 's1', startsAtUtc: '2030-01-06T18:00:00.000Z', durationMin: 60 },
     { id: 's2', startsAtUtc: '2030-01-20T18:00:00.000Z', durationMin: 60 },
   ]),
-  createTherapySession: jest.fn(),
-  updateTherapySession: jest.fn(),
-  deleteTherapySession: jest.fn(),
   syncTherapySessions: jest.fn(),
 }));
 
