@@ -10,10 +10,11 @@ export type RadioOption = {
 export type RadioButtonProps = {
     selectedValue: boolean;
     children: React.ReactNode;
+    testID?: string;
     onPress: () => void;
 };
 
-export default function RadioButton({ selectedValue, onPress, children }: RadioButtonProps) {
+export default function RadioButton({ selectedValue, onPress, children, testID }: RadioButtonProps) {
     return (
         <TouchableOpacity
             style={ [
@@ -21,6 +22,9 @@ export default function RadioButton({ selectedValue, onPress, children }: RadioB
                 selectedValue ? styles.selectedWrapper : styles.notSelectedWrapper,
             ] }
             onPress={ onPress }
+            testID={ testID }
+            accessibilityRole="radio"
+            accessibilityState={ { selected: selectedValue } }
         >
             <View style={ [styles.sharedDot, !selectedValue && styles.circleNotSelected] }>
                 <View style={ selectedValue && styles.selectedDot } />

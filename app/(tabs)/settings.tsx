@@ -15,6 +15,7 @@ import { GlassMorphismWithCircle } from '../../src/components/ui/GlassMorphismWi
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 import { useAppAlert, type AppAlertContextValue } from '../../src/context/alert';
 import { STORE_URLS } from '../../src/constants/env';
+import { TEST_IDS } from '../../src/constants/testIDs';
 
 export default function SettingsScreen() {
     const { user, signOut } = useAuth();
@@ -114,7 +115,7 @@ export default function SettingsScreen() {
                 <GlassMorphismWithCircle circlePosition={ CirclePosition.TOP_RIGHT } />
                 <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_LEFT } />
             </View>
-            <SafeAreaView style={ styles.root }>
+            <SafeAreaView style={ styles.root } testID={ TEST_IDS.settings.screen }>
                 <GradientCard>
                     <View style={ styles.user } >
                         <AppText variant='h1'>
@@ -148,12 +149,12 @@ export default function SettingsScreen() {
                         </AppText>
                         <Spacer />
                         <View style={ { gap: 8 } }>
-                            <SettingsRow text="Log out" onPress={ () => onLogout() } />
-                            <SettingsRow text="Rate this App" onPress={ handleRateApp } />
+                            <SettingsRow testID={ TEST_IDS.settings.logout } text="Log out" onPress={ () => onLogout() } />
+                            <SettingsRow testID={ TEST_IDS.settings.rateApp } text="Rate this App" onPress={ handleRateApp } />
 
-                            <SettingsRow text="Privacy Policy" onPress={ handlePrivacyPolicy } />
-                            <SettingsRow text="Delete account" onPress={ onDeleteAccount } />
-                            <SettingsRow text="Terms of Service" onPress={ handleTermsOfService } />
+                            <SettingsRow testID={ TEST_IDS.settings.privacyPolicy } text="Privacy Policy" onPress={ handlePrivacyPolicy } />
+                            <SettingsRow testID={ TEST_IDS.settings.deleteAccount } text="Delete account" onPress={ onDeleteAccount } />
+                            <SettingsRow testID={ TEST_IDS.settings.termsOfService } text="Terms of Service" onPress={ handleTermsOfService } />
                         </View>
                     </View>
                     <Spacer  />

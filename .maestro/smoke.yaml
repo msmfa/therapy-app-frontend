@@ -1,0 +1,22 @@
+appId: com.plastic-brains.app
+name: Plastic Brains iOS smoke
+tags:
+  - smoke
+env:
+  # Overridden from the command line with `-e KEY=value`. The defaults exist so
+  # a missing secret fails on an obviously bogus credential rather than on an
+  # unresolved-variable error three screens in.
+  E2E_EMAIL: 'MISSING_E2E_EMAIL'
+  E2E_PASSWORD: 'MISSING_E2E_PASSWORD'
+---
+# The whole journey a first-time user takes on a fresh device, against the
+# staging backend, with a dedicated staging account.
+#
+# Every phase is a separate file so a failure names the phase it happened in.
+# The order matters: each phase assumes the app is where the previous one left
+# it.
+- runFlow: subflows/00-login.yaml
+- runFlow: subflows/01-onboarding.yaml
+- runFlow: subflows/02-notes.yaml
+- runFlow: subflows/03-navigation.yaml
+- runFlow: subflows/04-logout.yaml

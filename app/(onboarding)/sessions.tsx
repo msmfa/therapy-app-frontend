@@ -13,6 +13,7 @@ import ErrorModal from '../../src/components/ui/ErrorModal';
 import { GlassMorphismWithCircle } from 'src/components/ui/GlassMorphismWithCircle';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 import { useAppAlert } from '../../src/context/alert';
+import { TEST_IDS } from '../../src/constants/testIDs';
 
 
 const onBoardingText = {
@@ -100,7 +101,7 @@ export default function SessionsScreen() {
             <View pointerEvents='none' style={ styles.background }>
                 <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_LEFT } />
             </View>
-            <SafeAreaView style={ styles.root }>
+            <SafeAreaView style={ styles.root } testID={ TEST_IDS.onboarding.sessionsScreen }>
 
                 <View style={ styles.content }>
                     <TherapyCalendar
@@ -119,12 +120,14 @@ export default function SessionsScreen() {
                             <Spacer />
                             <View style={ styles.buttonsWrapper }>
                                 <Button
+                                    testID={ TEST_IDS.onboarding.sessionsAdd }
                                     addedStyles={ { width: '48%' } }
                                     disabled={ sessionCount === 0 }
                                     label="Add"
                                     onPress={ handleSavePress }
                                 />
                                 <Button
+                                    testID={ TEST_IDS.onboarding.sessionsClear }
                                     addedStyles={ { width: '48%' } }
                                     transparent
                                     disabled={ sessionCount === 0 }

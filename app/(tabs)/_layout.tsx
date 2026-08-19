@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../src/context/auth/AuthContext';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { GRADIENTS } from 'designs/designs-gradients';
+import { TEST_IDS } from '../../src/constants/testIDs';
 
 export default function TabsLayout() {
     const { isAuthenticated } = useAuth();
@@ -46,6 +47,7 @@ export default function TabsLayout() {
                     options={ {
                         headerShown: false,
                         title: 'New Note',
+                        tabBarButtonTestID: TEST_IDS.tabs.newNote,
                         tabBarIcon: ({ color }) => (
                             <Ionicons name="add" color={ color } size={ 24 } />
                         ),
@@ -56,6 +58,7 @@ export default function TabsLayout() {
                     options={ {
                         headerShown: false,
                         title: 'Calendar',
+                        tabBarButtonTestID: TEST_IDS.tabs.calendar,
                         tabBarIcon: ({ color }) => (
                             <Ionicons
                                 name={ 'calendar-clear-outline' }
@@ -70,6 +73,7 @@ export default function TabsLayout() {
                     options={ {
                         headerShown: false,
                         title: 'Notes',
+                        tabBarButtonTestID: TEST_IDS.tabs.notes,
                         tabBarIcon: ({ color }) => (
                             <Ionicons name="book-outline" color={ color } size={ 24 } />
                         ),
@@ -80,6 +84,7 @@ export default function TabsLayout() {
                     options={ {
                         headerShown: false,
                         title: 'Settings',
+                        tabBarButtonTestID: TEST_IDS.tabs.settings,
                         tabBarIcon: ({ color }) => (
                             <Ionicons name="person-outline" color={ color } size={ 24 } />
                         ),

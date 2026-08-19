@@ -11,6 +11,10 @@
     "typecheck": "tsc --noEmit",
     "prepare": "husky install",
     "test:watch": "jest --watch",
+    "e2e:ensure-account": "node scripts/e2e/ensure-test-account.mjs",
+    "e2e:build:ios": "scripts/e2e/build-ios-sim.sh",
+    "e2e:run:ios": "scripts/e2e/run-ios-sim.sh",
+    "e2e:cleanup": "node scripts/e2e/cleanup-sessions.mjs",
     "clean:functions": "npx ts-prune -p tsconfig.json | grep -vE '^app/|/index\\\\.ts$'"
   },
   "dependencies": {

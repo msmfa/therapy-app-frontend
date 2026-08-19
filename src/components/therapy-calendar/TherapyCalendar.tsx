@@ -4,6 +4,7 @@ import { Calendar } from 'react-native-calendars';
 import ScheduleModal from './ScheduleModal';
 import { GradientCard } from '../ui/GradientCard';
 import { CALENDAR_COLORS, COLOR_VARIANTS } from 'designs/designs-colors';
+import { TEST_IDS } from '../../constants/testIDs';
 
 export const COLORS = {
     todayBackground: CALENDAR_COLORS.todayBackground,
@@ -270,6 +271,7 @@ export default function TherapyCalendar({
                         onDayPress={handleDayPress}
                         theme={calendarTheme}
                         style={styles.calendar}
+                        testID={ TEST_IDS.calendar.root }
                     />
                 </GradientCard>
                 {children}

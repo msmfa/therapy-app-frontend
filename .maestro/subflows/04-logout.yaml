@@ -1,0 +1,19 @@
+appId: com.plastic-brains.app
+name: 04 sign out
+---
+# Signing out is the last UI step. It ends the run on a known screen and drops
+# the refresh token, so the run leaves no live session behind on staging.
+#
+# "Delete account" sits two rows below "Log out" on this screen and would
+# destroy the shared test account, so it is addressed by id and never by
+# position or by nearby text.
+- assertVisible:
+    id: 'settings-screen'
+- tapOn:
+    id: 'settings-logout'
+
+- extendedWaitUntil:
+    visible:
+      id: 'login-screen'
+    timeout: 60000
+- takeScreenshot: artifacts/04-signed-out

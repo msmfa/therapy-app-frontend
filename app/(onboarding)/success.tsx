@@ -9,6 +9,7 @@ import AppText from '../../src/components/ui/AppText';
 import { GlassMorphismWithCircle } from 'src/components/ui/GlassMorphismWithCircle';
 import CheckGradients from 'src/components/ui/CheckGradients';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
+import { TEST_IDS } from '../../src/constants/testIDs';
 
 export default function SuccessScreen() {
     const router = useRouter();
@@ -30,7 +31,7 @@ export default function SuccessScreen() {
 
     return (
         <GlassMorphismWithCircle style={ { flex: 1, padding: 6 } } circlePosition={ CirclePosition.BOTTOM_RIGHT }>
-            <SafeAreaView style={ styles.container }>
+            <SafeAreaView style={ styles.container } testID={ TEST_IDS.onboarding.successScreen }>
                 <View style={ styles.content }>
                     <AppText variant='body' align='center' style={ { position: 'absolute', top: 150, left: 0, right: 0 } }>
                         Congrats, You're all set up!
@@ -38,7 +39,7 @@ export default function SuccessScreen() {
                     <CheckGradients />
                 </View>
                 <View >
-                    <Button label='Next' onPress={ handleComplete } loading={ isCompleting } />
+                    <Button testID={ TEST_IDS.onboarding.successNext } label='Next' onPress={ handleComplete } loading={ isCompleting } />
                 </View>
             </SafeAreaView>
         </GlassMorphismWithCircle>

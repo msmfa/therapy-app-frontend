@@ -5,6 +5,7 @@ import Spacer from "../ui/Spacer";
 import dayjs from 'dayjs';
 import Badge from "../ui/Badge";
 import { PALETTE, TEXT_COLORS } from 'designs/designs-colors';
+import { TEST_IDS } from '../../constants/testIDs';
 
 type Props = {
     item: Note;
@@ -15,6 +16,7 @@ type Props = {
 export function NoteCard({ item, index, onPress }: Props) {
     return (
         <Pressable
+            testID={ TEST_IDS.notes.card(index) }
             onPress={ () => onPress(item) }
             style={ ({ pressed }) => [
                 styles.cardWrapper,

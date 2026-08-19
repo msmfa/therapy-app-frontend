@@ -12,6 +12,7 @@ import { handleError, validatePassword } from 'src/utils';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TextField from 'src/components/ui/TextField';
 import PasswordField from 'src/components/ui/PasswordField';
+import { TEST_IDS } from '../../src/constants/testIDs';
 import { Button } from 'src/components/ui/Button';
 import AppText from '../../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
@@ -66,7 +67,7 @@ export default function SignUpScreen() {
     return (
         <View style={ { flex: 1 } }>
             <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_LEFT } style={ styles.glassMorphism } />
-            <SafeAreaView edges={ ['top', 'left', 'right'] } style={ styles.root }>
+            <SafeAreaView edges={ ['top', 'left', 'right'] } style={ styles.root } testID={ TEST_IDS.auth.signupScreen }>
                 <KeyboardAvoidingView
                     behavior={ Platform.OS === 'ios' ? 'padding' : 'height' }
                 >
@@ -84,6 +85,7 @@ export default function SignUpScreen() {
                             </AppText>
                         </View>
                         <TextField
+                            testID={ TEST_IDS.auth.signupName }
                             label="Name"
                             value={ name }
                             onChangeText={ setName }
@@ -96,6 +98,7 @@ export default function SignUpScreen() {
                             editable={ !loading }
                         />
                         <TextField
+                            testID={ TEST_IDS.auth.signupEmail }
                             label="Email"
                             value={ email }
                             onChangeText={ setEmail }
@@ -109,6 +112,7 @@ export default function SignUpScreen() {
                             editable={ !loading }
                         />
                         <PasswordField
+                            testID={ TEST_IDS.auth.signupPassword }
                             label="Password"
                             value={ password }
                             onChangeText={ setPassword }
@@ -130,6 +134,7 @@ export default function SignUpScreen() {
                             editable={ !loading }
                         />
                         <Button
+                            testID={ TEST_IDS.auth.signupSubmit }
                             label="Create Account"
                             onPress={ onSubmit }
                             loading={ loading }

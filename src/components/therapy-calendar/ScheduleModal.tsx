@@ -12,6 +12,12 @@ import { Button } from '../ui/Button';
 import AppText from '../ui/AppText';
 import Badge from '../ui/Badge';
 import { CALENDAR_COLORS, COLOR_VARIANTS } from 'designs/designs-colors';
+import { TEST_IDS } from '../../constants/testIDs';
+
+const SCHEDULE_MODE_TEST_IDS: Record<ScheduleMode, string> = {
+    weekly_pattern: TEST_IDS.onboarding.scheduleModeWeekly,
+    single: TEST_IDS.onboarding.scheduleModeSingle,
+};
 
 interface Session {
     id: string;
@@ -84,7 +90,7 @@ export default function ScheduleModal({
 
     return (
         <Modal visible={visible} transparent animationType="slide" onRequestClose={onCancel}>
-            <View style={styles.modalOverlay}>
+            <View style={styles.modalOverlay} testID={ TEST_IDS.onboarding.scheduleModal }>
                 <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1} onPress={onCancel} />
                 <View style={styles.modalContent}>
                     {selectedDay && (
@@ -132,6 +138,7 @@ export default function ScheduleModal({
                             {scheduleModeOptions.map((mode) => (
                                 <RadioButton
                                     key={mode}
+                                    testID={ SCHEDULE_MODE_TEST_IDS[mode] }
                                     selectedValue={scheduleMode === mode}
                                     onPress={() => setScheduleMode(mode)}
                                 >
@@ -152,16 +159,16 @@ export default function ScheduleModal({
                         {existingSession ? (
                             <View style={styles.actionButtonsRow}>
                                 <View style={styles.actionButtonWrapper}>
-                                    <Button label="Delete" onPress={onDelete} />
+                                    <Button testID={ TEST_IDS.onboarding.scheduleDelete } label="Delete" onPress={onDelete} />
                                 </View>
                                 <View style={styles.actionButtonWrapper}>
-                                    <Button label="Update" onPress={handleConfirm} disabled={isUpdateDisabled} />
+                                    <Button testID={ TEST_IDS.onboarding.scheduleConfirm } label="Update" onPress={handleConfirm} disabled={isUpdateDisabled} />
                                 </View>
                             </View>
                         ) : (
                             <View style={styles.actionButtonsRow}>
                                 <View style={styles.actionButtonWrapper}>
-                                    <Button label="Add Session" onPress={handleConfirm} />
+                                    <Button testID={ TEST_IDS.onboarding.scheduleConfirm } label="Add Session" onPress={handleConfirm} />
                                 </View>
                             </View>
                         )}

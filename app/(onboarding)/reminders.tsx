@@ -14,6 +14,7 @@ import AppText from '../../src/components/ui/AppText';
 import ErrorModal from '../../src/components/ui/ErrorModal';
 import { GlassMorphismWithCircle } from 'src/components/ui/GlassMorphismWithCircle';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
+import { TEST_IDS } from '../../src/constants/testIDs';
 
 const LENGTH_OF_DAYS_TO_SHOW = 7;
 
@@ -128,7 +129,7 @@ export default function RemindersScreen(): JSX.Element | null {
             <View pointerEvents='none' style={ StyleSheet.absoluteFill }>
                 <GlassMorphismWithCircle circlePosition={ CirclePosition.TOP_LEFT } />
             </View>
-            <SafeAreaView style={ styles.container }>
+            <SafeAreaView style={ styles.container } testID={ TEST_IDS.onboarding.remindersScreen }>
                 <ScrollView style={ styles.scrollContent }>
                     <View style={ styles.header }>
                         <AppText
@@ -148,10 +149,11 @@ export default function RemindersScreen(): JSX.Element | null {
                 </ScrollView>
                 <View style={ styles.buttons }>
                     <View style={ styles.button }>
-                        <Button label='Back' onPress={ () => router.back() } />
+                        <Button testID={ TEST_IDS.onboarding.remindersBack } label='Back' onPress={ () => router.back() } />
                     </View >
                     <View  style={ styles.button }>
                         <Button
+                            testID={ TEST_IDS.onboarding.remindersNext }
                             label='Next'
                             onPress={ handleNext }
                             loading={ checkingPermission }

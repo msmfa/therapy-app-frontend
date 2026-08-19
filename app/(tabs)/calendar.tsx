@@ -17,6 +17,7 @@ import { GlassMorphismWithCircle } from '../../src/components/ui/GlassMorphismWi
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 import { useAppAlert } from '../../src/context/alert';
 import Loading from 'src/components/ui/Loading';
+import { TEST_IDS } from '../../src/constants/testIDs';
 
 const stepsText = {
     one: 'Press on a date on the calendar to update your therapy session. You can set one date and apply it to up to 2 months in advance',
@@ -212,7 +213,7 @@ export default function CalendarScreen() {
             <View pointerEvents='none' style={ styles.background }>
                 <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_LEFT } />
             </View>
-            <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] }>
+            <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] } testID={ TEST_IDS.calendar.screen }>
                 <TherapyCalendar
                     dotDates={ dotDates }
                     onSelectedSessionsChange={ handleSessionsChange }

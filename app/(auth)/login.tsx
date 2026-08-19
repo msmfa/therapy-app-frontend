@@ -22,6 +22,7 @@ import { InternalLink } from 'src/components/ui/InternalLink';
 import { GlassMorphismWithCircle } from 'src/components/ui/GlassMorphismWithCircle';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 import { useAppAlert } from '../../src/context/alert';
+import { TEST_IDS } from '../../src/constants/testIDs';
 
 export default function LoginScreen() {
     const router = useRouter();
@@ -53,7 +54,7 @@ export default function LoginScreen() {
     return (
         <View style={ { flex: 1 } }>
             <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_LEFT } style={ styles.glassMorphism } />
-            <SafeAreaView edges={ ['top', 'left', 'right'] } style={ styles.root }>
+            <SafeAreaView edges={ ['top', 'left', 'right'] } style={ styles.root } testID={ TEST_IDS.auth.loginScreen }>
                 <KeyboardAvoidingView
                     behavior={ Platform.OS === 'ios' ? 'padding' : 'height' }
                     style={ styles.kav }
@@ -71,6 +72,7 @@ export default function LoginScreen() {
 
                             <View style={ styles.formContainer }>
                                 <TextField
+                                    testID={ TEST_IDS.auth.loginEmail }
                                     label="Email"
                                     value={ email }
                                     onChangeText={ setEmail }
@@ -83,6 +85,7 @@ export default function LoginScreen() {
                                     editable={ !loading }
                                 />
                                 <PasswordField
+                                    testID={ TEST_IDS.auth.loginPassword }
                                     label="Password"
                                     value={ password }
                                     onChangeText={ setPassword }
@@ -92,12 +95,17 @@ export default function LoginScreen() {
                                     onSubmitEditing={ onSubmit }
                                     editable={ !loading }
                                 />
-                                <TouchableOpacity onPress={ () => router.push('/forgot-password') } style={ styles.forgotPassword } disabled={ loading }>
+                                <TouchableOpacity
+                                    testID={ TEST_IDS.auth.loginForgotPassword }
+                                    onPress={ () => router.push('/forgot-password') }
+                                    style={ styles.forgotPassword }
+                                    disabled={ loading }
+                                >
                                     <AppText variant='caption'>
                                         Forgot password?
                                     </AppText>
                                 </TouchableOpacity>
-                                <Button label='Sign in' onPress={ onSubmit } loading={ loading } />
+                                <Button testID={ TEST_IDS.auth.loginSubmit } label='Sign in' onPress={ onSubmit } loading={ loading } />
                                 <Spacer variant={ SpacerVariant.large } />
                                 <AppText variant='caption' align='center'>
                                     Or continue with
@@ -109,7 +117,7 @@ export default function LoginScreen() {
                                     <AppText variant='caption'>
                                         Don't have an account?
                                     </AppText>
-                                    <InternalLink href="/(auth)/signup">
+                                    <InternalLink href="/(auth)/signup" testID={ TEST_IDS.auth.loginSignupLink }>
                                         { ' ' } Sign up here
                                     </InternalLink>
                                 </View>

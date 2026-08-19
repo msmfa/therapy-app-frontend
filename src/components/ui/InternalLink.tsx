@@ -8,12 +8,14 @@ type InternalLinkProps = {
     href: Href;
     children: ReactNode;
     style?: StyleProp<TextStyle>;
+    testID?: string;
 };
 
-export function InternalLink({ href, children, style }: InternalLinkProps) {
+export function InternalLink({ href, children, style, testID }: InternalLinkProps) {
     return (
         <Link href={ href } asChild>
             <Pressable
+                testID={ testID }
                 android_ripple={ { color: 'transparent' } }
                 style={ ({ pressed }) => [styles.pressable, pressed && styles.pressablePressed] }
             >

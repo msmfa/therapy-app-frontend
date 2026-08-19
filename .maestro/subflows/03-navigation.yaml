@@ -1,0 +1,25 @@
+appId: com.plastic-brains.app
+name: 03 visit the remaining tabs
+---
+# Read-only pass over the tabs the earlier phases did not cover. The calendar
+# tab can save schedule changes back to staging, so this flow only looks at it:
+# no day is tapped and its save button is never pressed.
+- tapOn:
+    id: 'tab-calendar'
+- extendedWaitUntil:
+    visible:
+      id: 'calendar-screen'
+    timeout: 60000
+- takeScreenshot: artifacts/03-calendar
+
+- tapOn:
+    id: 'tab-settings'
+- extendedWaitUntil:
+    visible:
+      id: 'settings-screen'
+    timeout: 30000
+
+# The signed-in account's email is rendered on this screen, which confirms the
+# session in the UI belongs to the account the test signed in as.
+- assertVisible: ${E2E_EMAIL}
+- takeScreenshot: artifacts/03-settings

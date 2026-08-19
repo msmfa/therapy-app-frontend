@@ -1,0 +1,13 @@
+# Maestro workspace configuration.
+#
+# Only `smoke.yaml` is listed: it is the entry point that runs the phase flows
+# under `subflows/` in order. Listing the subflows here too would make Maestro
+# run each of them standalone, out of order and without the login that the
+# later phases depend on.
+flows:
+  - 'smoke.yaml'
+
+executionOrder:
+  continueOnFailure: false
+  flowsOrder:
+    - 'Plastic Brains iOS smoke'

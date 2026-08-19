@@ -32,6 +32,18 @@ yarn test
 
 Upgrade Node if Jest exits with optional-chaining syntax errors.
 
+### End-to-end
+
+A Maestro smoke test drives the real app on an iOS simulator against the
+staging backend, and runs on every pull request. See
+[docs/E2E_TESTING.md](docs/E2E_TESTING.md) for the required CI secrets, how to
+run it locally, and how it cleans up after itself.
+
+```bash
+EXPO_PUBLIC_API_URL=https://staging.plastic-brains.com yarn e2e:build:ios
+yarn e2e:run:ios   # needs E2E_APP_PATH, E2E_EMAIL, E2E_PASSWORD
+```
+
 ## Routes
 
 - Expo Router maps everything in `app/`.

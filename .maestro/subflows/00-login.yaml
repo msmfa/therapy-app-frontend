@@ -1,0 +1,45 @@
+appId: com.plastic-brains.app
+name: 00 sign in with the staging test account
+---
+# `clearState` wipes the app's AsyncStorage and its local SQLite notes DB, and
+# `clearKeychain` drops the expo-secure-store auth tokens. Together they make
+# the run repeatable: the app always starts logged out and never-onboarded,
+# whatever the previous run left behind. Both are device-local; neither touches
+# anything on the staging backend.
+- launchApp:
+    clearState: true
+    clearKeychain: true
+    permissions:
+      # Denying up front keeps the iOS system permission dialog from appearing
+      # mid-flow, where it would steal taps meant for the app.
+      notifications: deny
+
+- extendedWaitUntil:
+    visible:
+      id: 'login-screen'
+    timeout: 90000
+
+- tapOn:
+    id: 'login-email'
+- inputText: ${E2E_EMAIL}
+- hideKeyboard
+
+- tapOn:
+    id: 'login-password'
+- inputText: ${E2E_PASSWORD}
+- hideKeyboard
+
+- takeScreenshot: artifacts/00-login-filled
+
+- tapOn:
+    id: 'login-submit'
+
+# A fresh install has never onboarded, so a successful sign-in always lands on
+# the onboarding welcome screen. Generous timeout: this is the first real round
+# trip to staging and may include a cold start.
+- extendedWaitUntil:
+    visible:
+      id: 'onboarding-welcome-screen'
+    timeout: 90000
+
+- takeScreenshot: artifacts/00-signed-in

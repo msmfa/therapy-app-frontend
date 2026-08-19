@@ -5,12 +5,13 @@ import { COLOR_VARIANTS, COMPONENT_COLORS, PALETTE } from 'designs/designs-color
 
 type Props = {
     text: string;
+    testID?: string;
     onPress: () => void;
 }
 
-export function SettingsRow({ text, onPress }: Props) {
+export function SettingsRow({ text, testID, onPress }: Props) {
     return (
-        <TouchableOpacity onPress={ onPress } style={ styles.wrapper }>
+        <TouchableOpacity onPress={ onPress } style={ styles.wrapper } testID={ testID }>
             <AppText numberOfLines={ 3 }  variant={ "caption" } style={ styles.text }>
                 { text }
             </AppText>

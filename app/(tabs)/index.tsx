@@ -9,6 +9,7 @@ import ErrorMessage from '../../src/components/ui/ErrorMessage';
 import { GlassMorphismWithCircle } from '../../src/components/ui/GlassMorphismWithCircle';
 import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
+import { TEST_IDS } from '../../src/constants/testIDs';
 
 
 export default function NewNoteScreen() {
@@ -45,7 +46,7 @@ export default function NewNoteScreen() {
             <View pointerEvents='none' style={ styles.background }>
                 <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_RIGHT } />
             </View>
-            <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] }>
+            <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] } testID={ TEST_IDS.newNote.screen }>
                 <KeyboardAvoidingView
                     style={ styles.screen }
                     behavior={ Platform.OS === 'ios' ? 'padding' : 'height' }
@@ -55,6 +56,7 @@ export default function NewNoteScreen() {
                             <View style={ styles.cardWrapper }>
                                 <View style={ styles.cardOverlay }>
                                     <TextInput
+                                        testID={ TEST_IDS.newNote.input }
                                         placeholder="Add your notes here..."
                                         value={ text }
                                         onChangeText={ setText }
@@ -66,6 +68,9 @@ export default function NewNoteScreen() {
                                         selectionColor={ COLOR_VARIANTS.white.quaternary }
                                     />
                                     <TouchableOpacity
+                                        testID={ TEST_IDS.newNote.submit }
+                                        accessibilityRole="button"
+                                        accessibilityLabel="Save note"
                                         onPress={ handleNext }
                                         disabled={ isDisabled }
                                         style={ [styles.plusButton, isDisabled && styles.plusButtonDisabled] }

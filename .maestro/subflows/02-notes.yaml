@@ -1,0 +1,54 @@
+appId: com.plastic-brains.app
+name: 02 write a note and read it back
+---
+# Notes live in the app's own encrypted SQLite database on the device, not on
+# the backend, so everything this phase creates is removed by the `clearState`
+# at the start of the next run. Nothing here reaches staging.
+
+# A per-run marker makes a failure screenshot self-identifying and stops a
+# stale note from a previous run satisfying the assertions below.
+- evalScript: ${output.noteText = 'Maestro smoke note ' + new Date().toISOString()}
+
+- tapOn:
+    id: 'tab-new-note'
+- extendedWaitUntil:
+    visible:
+      id: 'new-note-screen'
+    timeout: 30000
+
+- tapOn:
+    id: 'new-note-input'
+- inputText: ${output.noteText}
+- hideKeyboard
+- takeScreenshot: artifacts/02-note-composed
+
+- tapOn:
+    id: 'new-note-submit'
+
+# Saving navigates to the notes tab, where the new note is the most recent and
+# therefore the first card.
+- extendedWaitUntil:
+    visible:
+      id: 'note-card-0'
+    timeout: 30000
+- assertVisible: ${output.noteText}
+- takeScreenshot: artifacts/02-note-in-list
+
+# Opening the card proves the note round-tripped through encryption and
+# decryption rather than merely rendering from in-memory state.
+- tapOn:
+    id: 'note-card-0'
+- extendedWaitUntil:
+    visible:
+      id: 'note-preview-modal'
+    timeout: 20000
+- assertVisible:
+    id: 'note-preview-text'
+    text: ${output.noteText}
+
+- tapOn:
+    id: 'note-preview-close'
+- extendedWaitUntil:
+    visible:
+      id: 'notes-list'
+    timeout: 20000

@@ -1,0 +1,117 @@
+name: E2E (iOS simulator)
+
+# Runs the Maestro smoke test against the staging backend on every pull
+# request, and on pushes to master so a regression that lands is still caught.
+#
+# Production is never involved: the API URL comes from the STAGING_API_URL
+# secret, and both the build script and the cleanup script refuse to run
+# against a known production hostname.
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  # The smoke test signs in as a single shared staging account and schedules
+  # sessions on it, so two runs at once would fight over the same rows.
+  # Queueing rather than cancelling keeps the cleanup step from being skipped
+  # halfway through a run.
+  group: e2e-ios-staging
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    name: iOS smoke test
+    runs-on: macos-15
+    timeout-minutes: 60
+
+    env:
+      EXPO_PUBLIC_API_URL: ${{ secrets.STAGING_API_URL }}
+      E2E_API_URL: ${{ secrets.STAGING_API_URL }}
+      E2E_EMAIL: ${{ secrets.STAGING_E2E_EMAIL }}
+      E2E_PASSWORD: ${{ secrets.STAGING_E2E_PASSWORD }}
+      E2E_SIMULATOR: iPhone 16
+      E2E_ARTIFACTS_DIR: ${{ github.workspace }}/build/e2e-artifacts
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check required secrets are present
+        # Without this the job fails much later, during the app build, with an
+        # error that does not mention the missing secret.
+        run: |
+          missing=()
+          [ -n "${{ secrets.STAGING_API_URL }}" ]      || missing+=(STAGING_API_URL)
+          [ -n "${{ secrets.STAGING_E2E_EMAIL }}" ]    || missing+=(STAGING_E2E_EMAIL)
+          [ -n "${{ secrets.STAGING_E2E_PASSWORD }}" ] || missing+=(STAGING_E2E_PASSWORD)
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "Missing repository secrets: ${missing[*]}" >&2
+            echo "See docs/E2E_TESTING.md for what each one is." >&2
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Cache CocoaPods downloads
+        uses: actions/cache@v4
+        with:
+          # Not ios/Pods: `expo prebuild --clean` deletes the whole ios/
+          # directory before pods are installed, so anything restored there is
+          # thrown away. The CocoaPods download cache lives outside the repo
+          # and does survive.
+          path: |
+            ~/Library/Caches/CocoaPods
+            ~/.cocoapods/repos
+          key: ${{ runner.os }}-pods-${{ hashFiles('yarn.lock') }}
+          restore-keys: ${{ runner.os }}-pods-
+
+      - name: Install Maestro
+        run: |
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+
+      - name: Build the app for the simulator
+        id: build
+        run: scripts/e2e/build-ios-sim.sh
+
+      - name: Run the smoke test
+        env:
+          E2E_APP_PATH: ${{ steps.build.outputs.app_path }}
+        run: scripts/e2e/run-ios-sim.sh
+
+      - name: Collect Maestro run logs
+        # `--debug-output` already writes screenshots and the command log into
+        # the artifacts directory. This adds Maestro's own per-run log
+        # directory, which carries the view hierarchy dumps that explain why a
+        # selector did not match.
+        if: failure()
+        continue-on-error: true
+        run: |
+          mkdir -p "$E2E_ARTIFACTS_DIR"
+          cp -R "$HOME/.maestro/tests" "$E2E_ARTIFACTS_DIR/maestro-tests" 2>/dev/null || true
+          xcrun simctl diagnose -b -X --output "$E2E_ARTIFACTS_DIR" 2>/dev/null || true
+
+      - name: Upload Maestro screenshots and logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-ios-artifacts-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ env.E2E_ARTIFACTS_DIR }}
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Remove the sessions this run created on staging
+        # `always()` so a failed or cancelled run still tidies up after itself.
+        # The script is scoped to the dedicated test account and to the date
+        # window the run writes to; it never resets shared staging data.
+        if: always()
+        continue-on-error: true
+        run: yarn e2e:cleanup

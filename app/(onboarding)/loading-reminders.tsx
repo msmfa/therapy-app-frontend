@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import DancingSquare from 'src/components/ui/PulsingSquare';
 import { GlassMorphismWithCircle } from 'src/components/ui/GlassMorphismWithCircle';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
+import { TEST_IDS } from '../../src/constants/testIDs';
 
 type LoadingParams = {
     sessions?: string | string[];
@@ -97,7 +98,7 @@ export default function LoadingReminders() {
     return (
         <View style={ styles.root }>
             <GlassMorphismWithCircle style={ { padding: 6 } } circlePosition={ CirclePosition.BOTTOM_RIGHT }>
-                <SafeAreaView edges={ ['left', 'right'] } style={ styles.inner }>
+                <SafeAreaView edges={ ['left', 'right'] } style={ styles.inner } testID={ TEST_IDS.onboarding.loadingScreen }>
                     <AppText variant="body" align="center">
                         Preparing your reminder schedule
                     </AppText>

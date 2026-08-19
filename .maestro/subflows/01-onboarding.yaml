@@ -1,0 +1,87 @@
+appId: com.plastic-brains.app
+name: 01 complete onboarding and schedule therapy sessions
+---
+# This is the only phase that writes to the staging backend: saving the
+# schedule POSTs to /api/therapy-sessions/sync. `scripts/e2e/cleanup-sessions.mjs`
+# removes exactly these rows afterwards, scoped to the dedicated test account
+# and to the date window created below.
+- assertVisible:
+    id: 'onboarding-welcome-screen'
+- tapOn:
+    id: 'onboarding-get-started'
+
+- extendedWaitUntil:
+    visible:
+      id: 'onboarding-sessions-screen'
+    timeout: 30000
+
+# The calendar disables everything before today (`minDate`), so today is the
+# one cell guaranteed to be both visible and tappable. react-native-calendars
+# derives a per-day id of `<root>.day_<YYYY-MM-DD>`; the date has to be built
+# in local time because the app keys its cells with local getFullYear/Month/Date.
+#
+# Kept on one line on purpose: a `${...}` expression split across lines is not
+# valid YAML here and Maestro's interpolation does not span newlines either.
+- evalScript: ${output.today = (function () { var d = new Date(); var pad = function (n) { return String(n).padStart(2, '0'); }; return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); })()}
+
+- tapOn:
+    id: 'therapy-calendar.day_${output.today}'
+
+- extendedWaitUntil:
+    visible:
+      id: 'schedule-modal'
+    timeout: 20000
+
+# "Every week" is the modal's default, but selecting it explicitly keeps the
+# flow correct if that default ever changes. It schedules 8 weekly sessions in
+# one action, clearing the screen's 4-session minimum without 4 separate taps.
+- tapOn:
+    id: 'schedule-mode-weekly'
+- tapOn:
+    id: 'schedule-confirm'
+
+- extendedWaitUntil:
+    visible:
+      id: 'onboarding-sessions-add'
+    timeout: 20000
+- takeScreenshot: artifacts/01-sessions-selected
+
+- tapOn:
+    id: 'onboarding-sessions-add'
+
+# The loading screen holds for a hard-coded 3s minimum on top of the sync round
+# trip, so this wait is deliberately long.
+- extendedWaitUntil:
+    visible:
+      id: 'onboarding-reminders-screen'
+    timeout: 120000
+- takeScreenshot: artifacts/01-reminder-plan
+
+- tapOn:
+    id: 'onboarding-reminders-next'
+
+# Notifications were denied at launch, so the app routes to its own permission
+# explainer rather than skipping straight to success. "Maybe later" continues
+# without touching the iOS system dialog.
+- extendedWaitUntil:
+    visible:
+      id: 'onboarding-notifications-screen'
+    timeout: 30000
+- tapOn:
+    id: 'onboarding-notifications-maybe-later'
+
+- extendedWaitUntil:
+    visible:
+      id: 'onboarding-success-screen'
+    timeout: 30000
+- tapOn:
+    id: 'onboarding-success-next'
+
+# Onboarding hands off to the notes tab. The tab bar is the stable anchor here:
+# the notes tab itself renders either the empty state or the list depending on
+# whether any notes exist yet.
+- extendedWaitUntil:
+    visible:
+      id: 'tab-notes'
+    timeout: 60000
+- takeScreenshot: artifacts/01-onboarding-complete

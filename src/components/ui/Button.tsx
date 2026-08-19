@@ -10,6 +10,7 @@ interface Props {
 	transparent?: boolean;
     addedStyles?: StyleProp<ViewStyle>;
     loading?: boolean;
+    testID?: string;
 	onPress: () => void;
 }
 
@@ -21,6 +22,7 @@ export function Button({
     transparent = false,
     addedStyles,
     loading = false,
+    testID,
 }: Props) {
     const isDisabled = disabled || loading;
     const showDisabledStyles = disabled && !loading;
@@ -40,6 +42,7 @@ export function Button({
             onPress={ onPress }
             disabled={ isDisabled }
             activeOpacity={ isDisabled ? 1 : 0.8 }
+            testID={ testID }
             accessibilityRole="button"
             accessibilityState={ { disabled: isDisabled } }
         >

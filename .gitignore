@@ -10,6 +10,10 @@ ios/
 dist/
 build/
 coverage/
+
+# Maestro screenshots, written relative to wherever the CLI was started
+artifacts/
+.maestro/artifacts/
 *.log
 TODO.md
 

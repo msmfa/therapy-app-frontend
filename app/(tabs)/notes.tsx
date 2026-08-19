@@ -10,6 +10,7 @@ import { useAppAlert } from '../../src/context/alert';
 import { GlassMorphismWithCircle } from '../../src/components/ui/GlassMorphismWithCircle';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 import { GRADIENTS } from 'designs/designs-gradients';
+import { TEST_IDS } from '../../src/constants/testIDs';
 
 export default function NotesScreen() {
     const { user } = useAuth();
@@ -46,7 +47,7 @@ export default function NotesScreen() {
     }
 
     return (
-        <View style={ styles.container }>
+        <View style={ styles.container } testID={ TEST_IDS.notes.screen }>
             <View pointerEvents='none' style={ styles.background }>
                 <GlassMorphismWithCircle circlePosition={ CirclePosition.TOP_LEFT } />
             </View>

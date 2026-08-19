@@ -8,6 +8,7 @@ import AppText from '../../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { GlassMorphismWithSquare } from 'src/components/ui/GlassMorphismWithSquare';
 import { SquarePosition } from 'src/components/ui/LinearGradientSquare';
+import { TEST_IDS } from '../../src/constants/testIDs';
 
 const ILLUSTRATION_SIZE = 600;
 
@@ -15,7 +16,7 @@ export default function WelcomeScreen() {
     const router = useRouter();
 
     return (
-        <SafeAreaView style={ styles.container } edges={ ['left', 'right', 'bottom', 'top'] }>
+        <SafeAreaView style={ styles.container } edges={ ['left', 'right', 'bottom', 'top'] } testID={ TEST_IDS.onboarding.welcomeScreen }>
             <View pointerEvents='none' style={ styles.background }>
                 <GlassMorphismWithSquare
                     squarePosition={ SquarePosition.BOTTOM_LEFT }
@@ -53,6 +54,7 @@ export default function WelcomeScreen() {
             </View>
 
             <Button
+                testID={ TEST_IDS.onboarding.welcomeGetStarted }
                 addedStyles={ styles.button }
                 label={ 'Get Started' }
                 onPress={ () => router.push('/(onboarding)/sessions') }

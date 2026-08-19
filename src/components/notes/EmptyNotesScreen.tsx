@@ -11,6 +11,7 @@ import { GradientCard } from '../ui/GradientCard';
 import ErrorModal from '../ui/ErrorModal';
 import { GlassMorphismWithSquare } from '../ui/GlassMorphismWithSquare';
 import { SquarePosition } from '../ui/LinearGradientSquare';
+import { TEST_IDS } from '../../constants/testIDs';
 
 export default function EmptyNotesScreen() {
     const router = useRouter();
@@ -65,7 +66,7 @@ export default function EmptyNotesScreen() {
                         <GlassMorphismWithSquare />
                         <GlassMorphismWithSquare squarePosition={SquarePosition.BOTTOM_LEFT} squareRotation='60deg' />
                     </View>
-                    <SafeAreaView style={ styles.root } edges={['left', 'right', 'top']}>
+                    <SafeAreaView style={ styles.root } edges={['left', 'right', 'top']} testID={ TEST_IDS.notes.emptyScreen }>
                         <View style={ styles.emptyContainer }>
                             <Spacer variant={ SpacerVariant.small } />
                             <GradientCard>

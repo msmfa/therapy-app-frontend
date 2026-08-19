@@ -9,6 +9,7 @@ import { NotePreviewModal } from './NotesListScreenModal';
 import { NoteCard } from './NoteCard';
 import AppText from '../ui/AppText';
 import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
+import { TEST_IDS } from '../../constants/testIDs';
 
 const BOTTOM_FADE = 96; // fade height at bottom (mask)
 
@@ -51,6 +52,7 @@ export default function NotesListScreen({ notes, loading, refresh, onUpdateNote 
                     }
                 >
                     <FlatList
+                        testID={ TEST_IDS.notes.list }
                         data={ notes }
                         keyExtractor={ (n) => n.id }
                         contentContainerStyle={ [

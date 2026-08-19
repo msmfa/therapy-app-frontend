@@ -12,6 +12,7 @@ import { GlassMorphismWithCircle } from 'src/components/ui/GlassMorphismWithCirc
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 import { ensureNotificationPermissions } from '../../src/services/notifications';
 import { THEME_COLORS } from 'designs/designs-colors';
+import { TEST_IDS } from '../../src/constants/testIDs';
 
 type PermissionState = 'unknown' | 'prompt' | 'granted' | 'blocked';
 
@@ -130,7 +131,7 @@ export default function NotificationsScreen() {
                 <GlassMorphismWithCircle circlePosition={ CirclePosition.TOP_RIGHT } />
                 <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_LEFT } />
             </View>
-            <SafeAreaView style={ styles.safeArea }>
+            <SafeAreaView style={ styles.safeArea } testID={ TEST_IDS.onboarding.notificationsScreen }>
                 <View style={ styles.content }>
                     <AppText variant='h1'>
                         Allow Notifications
@@ -169,12 +170,13 @@ export default function NotificationsScreen() {
                     ) : null }
                     <Spacer variant={ SpacerVariant.large } />
                     { isGranted ? (
-                        <Button label="Next" onPress={ handleContinue } />
+                        <Button testID={ TEST_IDS.onboarding.notificationsMaybeLater } label="Next" onPress={ handleContinue } />
                     ) : (
                         <>
                             { canRequestPermission ? (
                                 <>
                                     <Button
+                                        testID={ TEST_IDS.onboarding.notificationsEnable }
                                         label="Enable Notifications"
                                         onPress={ handleEnable }
                                         loading={ requesting }
@@ -193,6 +195,7 @@ export default function NotificationsScreen() {
                                 </>
                             ) : null }
                             <Button
+                                testID={ TEST_IDS.onboarding.notificationsMaybeLater }
                                 label="Maybe later"
                                 onPress={ handleContinue }
                                 transparent

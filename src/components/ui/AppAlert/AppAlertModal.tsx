@@ -6,6 +6,7 @@ import Spacer, { SpacerVariant } from '../Spacer';
 import ErrorGradients from '../ErrorGradients';
 import { Button } from '../Button';
 import { AppAlertOptions } from 'src/context/alert/types';
+import { TEST_IDS } from '../../../constants/testIDs';
 
 type Props = {
     title: string;
@@ -48,6 +49,7 @@ export function AppAlertModal({ title, message, options, onRequestClose }: Props
                     style={ styles.container }
                     accessibilityRole='alert'
                     accessibilityViewIsModal
+                    testID={ TEST_IDS.alert.container }
                 >
                     <Spacer variant={ SpacerVariant.large } />
                     <ErrorGradients />
@@ -64,6 +66,7 @@ export function AppAlertModal({ title, message, options, onRequestClose }: Props
                     { primaryAction ? (
                         <>
                             <Button
+                                testID={ TEST_IDS.alert.primaryAction }
                                 label={ primaryAction.label }
                                 onPress={ handlePrimaryPress }
                                 disabled={ primaryAction.disabled }
@@ -74,6 +77,7 @@ export function AppAlertModal({ title, message, options, onRequestClose }: Props
                         </>
                     ) : null }
                     <Button
+                        testID={ TEST_IDS.alert.dismiss }
                         label='Close'
                         onPress={ onRequestClose }
                         transparent={ Boolean(primaryAction) }

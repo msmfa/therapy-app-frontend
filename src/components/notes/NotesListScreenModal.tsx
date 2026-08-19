@@ -5,6 +5,7 @@ import { Note } from "../../features/notes/useNotes";
 import { Button } from "../ui/Button";
 import AppText from "../ui/AppText";
 import { COLOR_VARIANTS, THEME_COLORS } from 'designs/designs-colors';
+import { TEST_IDS } from '../../constants/testIDs';
 
 type NotePreviewModalProps = {
     visible: boolean;
@@ -90,7 +91,7 @@ export function NotePreviewModal({ visible, note, onClose, onUpdateNote }: NoteP
                 behavior={ Platform.OS === 'ios' ? 'padding' : undefined }
                 style={ styles.avoidingView }
             >
-                <SafeAreaView style={ styles.modalRoot }>
+                <SafeAreaView style={ styles.modalRoot } testID={ TEST_IDS.notes.previewModal }>
                     <ScrollView
                         contentContainerStyle={ styles.modalContent }
                         keyboardShouldPersistTaps="handled"
@@ -120,7 +121,7 @@ export function NotePreviewModal({ visible, note, onClose, onUpdateNote }: NoteP
                                     />
                                 </View>
                             ) : (
-                                <AppText style={ styles.modalText } variant="body" >
+                                <AppText style={ styles.modalText } variant="body" testID={ TEST_IDS.notes.previewText } >
                                     { note?.text ?? 'No note selected.' }
                                 </AppText>
                             ) }
@@ -155,6 +156,7 @@ export function NotePreviewModal({ visible, note, onClose, onUpdateNote }: NoteP
                                 />
                                 <View style={ styles.actionSpacer } />
                                 <Button
+                                    testID={ TEST_IDS.notes.previewClose }
                                     label="Close"
                                     onPress={ handleClose }
                                 />
