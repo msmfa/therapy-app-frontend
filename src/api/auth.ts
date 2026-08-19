@@ -10,10 +10,16 @@ export type AuthenticatedUser = {
 export type OAuthProvider = 'apple';
 
 export interface OAuthPayloadMap {
-  apple: {
-    idToken: string;
-    authorizationCode?: string;
-  };
+    apple: {
+        idToken: string;
+        authorizationCode?: string;
+        /**
+         * The user's full name as provided by Apple. Only available on the
+         * very first authorization, so it must be captured and sent then or
+         * never.
+         */
+        name?: string;
+    };
 }
 
 export type OAuthExchangeSuccess = {

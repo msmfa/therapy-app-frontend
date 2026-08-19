@@ -1,6 +1,6 @@
 import { ApiError } from '../../api/client';
 
-export type SessionErrorKey = 'timeout' | 'unauthorized' | 'forbidden' | 'notFound' | 'server' | 'maintenance' | 'network' | 'unknown';
+export type SessionErrorKey = 'timeout' | 'unauthorized' | 'forbidden' | 'notFound' | 'rateLimited' | 'server' | 'maintenance' | 'network' | 'unknown';
 
 export interface SessionErrorCopy {
     title: string;
@@ -31,6 +31,12 @@ const SESSION_ERROR_COPY: Record<SessionErrorKey, SessionErrorCopy> = {
         message: 'We couldn’t find upcoming therapy sessions. Add new sessions to see reminders here.',
         retryable: false,
     },
+    rateLimited: {
+        title: 'Please wait a moment',
+        message: 'We are loading your therapy sessions too quickly right now. Try again in a few seconds.',
+        actionLabel: 'Try again',
+        retryable: true,
+    },
     server: {
         title: 'Service unavailable',
         message: 'We’re having trouble loading sessions right now. Try again in a moment.',
@@ -59,6 +65,12 @@ const SESSION_ERROR_COPY: Record<SessionErrorKey, SessionErrorCopy> = {
 function classifySessionError(error: unknown): SessionErrorKey {
     if (error instanceof ApiError) {
         switch (error.status) {
+            case 0:
+                // The API client maps transport-level failures (offline, DNS,
+                // refused connections) to status 0 before callers see them,
+                // so the raw-TypeError branch below never fires for requests
+                // routed through it.
+                return 'network';
             case 401:
                 return 'unauthorized';
             case 403:
@@ -67,6 +79,8 @@ function classifySessionError(error: unknown): SessionErrorKey {
                 return 'notFound';
             case 408:
                 return 'timeout';
+            case 429:
+                return 'rateLimited';
             case 423:
             case 503:
                 return 'maintenance';

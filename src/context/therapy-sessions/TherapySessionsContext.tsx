@@ -24,6 +24,27 @@ interface TherapySessionsContextType {
 
 const TherapySessionsContext = createContext<TherapySessionsContextType | undefined>(undefined);
 
+/**
+ * The window of sessions the app fetches and edits: from the start of the
+ * user's local day one year ahead. The floor is local midnight, not UTC
+ * midnight: with a UTC floor, a session earlier today disappeared from the
+ * calendar every evening for anyone west of UTC (and every morning east of
+ * it), and anything that falls out of this window is also excluded from the
+ * sync's deletion scope, so it silently became undeletable dead weight.
+ * The same window is passed to syncSessions so the backend only deletes
+ * within what the user could actually see.
+ */
+const getSessionsWindow = () => {
+    const from = new Date();
+    from.setHours(0, 0, 0, 0);
+
+    const to = new Date();
+    to.setFullYear(to.getFullYear() + 1);
+    to.setHours(23, 59, 59, 999);
+
+    return { from, to };
+};
+
 interface TherapySessionsProviderProps {
     children: React.ReactNode;
 }
@@ -55,12 +76,7 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
             setLoading(true);
             try {
                 setError(null);
-                const from = new Date();
-                from.setUTCHours(0, 0, 0, 0);
-
-                const to = new Date();
-                to.setFullYear(to.getFullYear() + 1);
-                to.setUTCHours(23, 59, 59, 999);
+                const { from, to } = getSessionsWindow();
 
                 const data = await getTherapySessions(from, to);
                 setSessions(data);
@@ -106,7 +122,7 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
                 };
             });
 
-            await syncTherapySessionsApi(payload);
+            await syncTherapySessionsApi(payload, getSessionsWindow());
             await refreshSessions();
         },
         [isAuthenticated, sessions, refreshSessions],

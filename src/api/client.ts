@@ -220,12 +220,20 @@ export async function apiRequest<T = unknown>(path: string, options: ApiRequestO
 
         captureApiException(error, { url, method });
 
-        if (typeof DOMException !== 'undefined' && error instanceof DOMException && error.name === 'AbortError') {
+        // Detect aborts by name, not `instanceof DOMException`: Hermes has no
+        // global DOMException and React Native's fetch polyfill keeps its own
+        // DOMException class module-internal, so the instanceof check never
+        // matched in production even though it passed under Jest.
+        const errorName = (error as { name?: unknown } | null)?.name;
+        if (errorName === 'AbortError') {
             throw new ApiError(408, { message: 'Request timed out' });
         }
 
         const message = error instanceof Error ? error.message : 'Network request failed';
-        throw new ApiError(0, { message });
+        // Status 0 plus this code marks a transport-level failure (offline,
+        // DNS, refused connection) so error mapping can say "you're offline"
+        // instead of a generic failure message.
+        throw new ApiError(0, { message, code: 'network' });
     }
 
     clearTimeout(timeoutId);

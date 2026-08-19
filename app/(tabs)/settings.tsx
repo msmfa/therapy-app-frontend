@@ -50,8 +50,20 @@ export default function SettingsScreen() {
                 throw new Error('Unable to delete account right now.');
             }
 
-            await clearNotesForUser(user.id);
+            // Server first: local notes are irrecoverable (device-only, no
+            // backup), so they must not be destroyed until the account
+            // deletion has actually succeeded. If the request fails, the user
+            // keeps both the account and the notes.
             await deleteCurrentUser();
+
+            try {
+                await clearNotesForUser(user.id);
+            } catch (cleanupError) {
+                // The account is already gone; a failed local cleanup must
+                // not block signing out.
+                console.warn('[Settings] Failed to clear local notes after account deletion:', cleanupError);
+            }
+
             await signOut();
         } catch (error) {
             setDeleting(false);
