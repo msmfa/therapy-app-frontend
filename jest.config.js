@@ -15,6 +15,19 @@ module.exports = {
     ...((expoPreset.setupFilesAfterEnv ?? [])),
     '<rootDir>/jest.setup.js',
   ],
+  // Git worktrees are created inside the repo, under .claude/worktrees/, so
+  // Jest walks into them and runs another branch's tests against this branch's
+  // source, reporting failures that have nothing to do with the working tree.
+  // Ignored for module resolution too, otherwise every file duplicated in a
+  // worktree shows up as a haste collision.
+  testPathIgnorePatterns: [
+    ...(expoPreset.testPathIgnorePatterns ?? ['/node_modules/']),
+    '/\\.claude/worktrees/',
+  ],
+  modulePathIgnorePatterns: [
+    ...(expoPreset.modulePathIgnorePatterns ?? []),
+    '<rootDir>/\\.claude/worktrees/',
+  ],
   // @noble/ciphers ships ES modules. Metro handles that natively, but Jest
   // skips node_modules unless the package is added to the preset's allowlist.
   transformIgnorePatterns: (expoPreset.transformIgnorePatterns ?? []).map((pattern) =>
