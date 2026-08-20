@@ -1,10 +1,3 @@
-import dayjs, { Dayjs } from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
-
 // Neuroplasticity-aware reminder scheduler
 // --------------------------------------------------
 // For every gap between therapy sessions we surface up to four reminders:
@@ -15,19 +8,39 @@ dayjs.extend(timezone);
 // • pre_session  – evening before the next session (reflectionHour)
 //
 // All reminders are:
-// • future-facing (never before “now” inside the gap)
-// • clamped inside the gap between two sessions
+// • future-facing (never before "now" inside the gap)
+// • inside the gap between two sessions, and never during a session
 // • limited to maxPerDay with priority pre_session > post_session > post_sleep > mid_session
+//
+// Calendar arithmetic goes through src/utils/timeZone rather than dayjs's
+// timezone plugin. That plugin resolves offsets by round-tripping through
+// `new Date(d.toLocaleString('en-US', { timeZone }))`, which Hermes parses as
+// Invalid Date, so on device every reminder came out shifted by however many
+// minutes past the hour it happened to be. It only reproduced on device, never
+// in the Node tests.
+//
+// This mirrors the backend's src/utils/reminderSchedule.ts. The two decide the
+// same reminders and have to agree.
+import {
+    resolveTimeZone,
+    setHourInZone,
+    startOfDayInZone,
+    addDaysInZone,
+    calendarDaysBetweenInZone,
+    localDateKeyInZone,
+} from '../../utils/timeZone';
 
 export enum Reason {
-    PostSession = 'post_session',
-    PostSleep = 'post_sleep',
-    MidSession = 'mid_session',
-    PreSession = 'pre_session',
+  PostSession = 'post_session',
+  PostSleep = 'post_sleep',
+  MidSession = 'mid_session',
+  PreSession = 'pre_session',
 }
 
 export interface Reminder {
   atUtc: string;
+  reason: Reason;
+  gapIndex: number;
   /**
    * The calendar day this reminder belongs to in the user's zone, as
    * YYYY-MM-DD. 20:00 in Los Angeles is 04:00 UTC the next day, so deriving a
@@ -35,8 +48,6 @@ export interface Reminder {
    * should key off this instead.
    */
   localDate: string;
-  reason: Reason;
-  gapIndex: number;
 }
 
 export interface ScheduleParams {
@@ -50,9 +61,7 @@ export interface ScheduleParams {
   /**
    * IANA zone the reflection/morning hours are expressed in. Defaults to the
    * device zone, which is also what the app reports to the backend, so the
-   * schedule shown here matches when the push actually arrives. Computing in
-   * UTC put the "morning" reminder at 23:00 the previous night for anyone in
-   * the Americas.
+   * schedule shown here matches when the push actually arrives.
    */
   timeZone?: string;
   /**
@@ -72,107 +81,60 @@ const REASON_PRIORITY: Record<Reason, number> = {
     [Reason.MidSession]: 3,
 };
 
+/* ---------- Date helpers ---------- */
+
+function floorToMinute(d: Date): Date {
+    return new Date(Math.floor(d.getTime() / 60_000) * 60_000);
+}
+
+function addMs(d: Date, ms: number): Date {
+    return new Date(d.getTime() + ms);
+}
+
+function parseUtcToMinute(iso: string): Date | null {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return null;
+    return floorToMinute(d);
+}
+
+/* ---------- Gap scheduling ---------- */
+
 interface ReminderDraft {
-  at: Dayjs;
+  at: Date;
   reason: Reason;
   gapIndex: number;
 }
 
 interface GapWindow {
   index: number;
-  start: Dayjs;
+  start: Date;
   /** When the session at `start` finishes; the earliest a reminder may fire. */
-  sessionEnd: Dayjs;
-  end: Dayjs;
+  sessionEnd: Date;
+  end: Date;
   days: number;
 }
 
-interface GapContext {
-  now: Dayjs;
-  zone: string;
-  reflectionHour: number;
-  morningHour: number;
-  startAfterDays: number;
-  cadenceDays: number;
-}
+function createGapWindow(
+    index: number,
+    startIso: string,
+    endIso: string,
+    timeZone: string,
+    startDurationMin = 0,
+): GapWindow | null {
+    const start = parseUtcToMinute(startIso);
+    const end = parseUtcToMinute(endIso);
+    if (!start || !end || end.getTime() <= start.getTime()) return null;
 
-/* ---------- Day helpers ---------- */
+    const duration =
+    Number.isFinite(startDurationMin) && startDurationMin > 0 ? startDurationMin : 0;
 
-const UTC_ZONE = 'UTC';
-
-function isValidZone(zone: string | undefined): zone is string {
-    if (!zone) return false;
-    try {
-        new Intl.DateTimeFormat('en-US', { timeZone: zone });
-        return true;
-    } catch {
-        return false;
-    }
-}
-
-function resolveZone(requested?: string): string {
-    if (isValidZone(requested)) return requested;
-
-    try {
-        const device = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        if (isValidZone(device)) return device;
-    } catch {
-        // fall through
-    }
-
-    return UTC_ZONE;
-}
-
-/**
- * Parsed into the target zone, so every downstream calendar operation
- * (`hour()`, `startOf('day')`, `add(1, 'day')`) is evaluated against the
- * user's local clock rather than UTC. The emitted `atUtc` is unaffected.
- */
-function parseIsoToMinute(iso: string, zone: string): Dayjs | null {
-    const parsed = dayjs.utc(iso).tz(zone).second(0).millisecond(0);
-    return parsed.isValid() ? parsed : null;
-}
-
-/**
- * The local calendar date of a correctly-zoned instant, as YYYY-MM-DD.
- */
-function localDateKey(source: Dayjs): string {
-    return source.format('YYYY-MM-DD');
-}
-
-/**
- * `dayOffset` calendar days after `source`, at `hour`:00 local time.
- *
- * The day arithmetic is done on the bare calendar (in UTC space, where every
- * day is 24h) and the result is then *reinterpreted* in the zone. Doing it
- * with `source.add(n, 'day').hour(h)` is wrong across a DST transition: a
- * dayjs .tz() instance keeps the offset it was constructed with, so adding a
- * day to a PST instant and setting hour 7 produces 07:00 -08:00, which is
- * 08:00 PDT — an hour late — and every later reminder in the gap inherits the
- * drift. Rebuilding via dayjs.tz resolves the offset for the target date.
- */
-function atLocalHour(source: Dayjs, dayOffset: number, hour: number, zone: string): Dayjs {
-    const shifted = new Date(
-        Date.UTC(source.year(), source.month(), source.date() + dayOffset),
-    );
-
-    const y = shifted.getUTCFullYear();
-    const m = String(shifted.getUTCMonth() + 1).padStart(2, '0');
-    const d = String(shifted.getUTCDate()).padStart(2, '0');
-    const h = String(hour).padStart(2, '0');
-
-    return dayjs.tz(`${y}-${m}-${d}T${h}:00:00`, zone);
-}
-
-/**
- * Whole calendar days between two instants, counted on the local calendar.
- * Diffing local-midnight instants directly is off by one across a DST week,
- * because one of those "days" is 23 or 25 hours long.
- */
-function countLocalCalendarDays(start: Dayjs, end: Dayjs): number {
-    const startDay = Date.UTC(start.year(), start.month(), start.date());
-    const endDay = Date.UTC(end.year(), end.month(), end.date());
-    return Math.max(0, Math.round((endDay - startDay) / 86_400_000));
+    return {
+        index,
+        start,
+        sessionEnd: addMs(start, duration * 60_000),
+        end,
+        days: calendarDaysBetweenInZone(start, end, timeZone),
+    };
 }
 
 /**
@@ -183,61 +145,84 @@ function countLocalCalendarDays(start: Dayjs, end: Dayjs): number {
  * wording. Pulled forward, a 21:00 session made "20:00 on the session day"
  * earlier than the session itself and the reminder landed one minute into it.
  * Pushed back, a second session later the same day dragged the evening reminder
- * to one minute before that session, so "review today's notes" arrived as the
- * user was walking into their next appointment.
- *
- * Dropping is the honest outcome in both cases: there is no slot left, and the
- * next morning's reminder covers it.
+ * to one minute before that session.
  */
-function fitTimestampWithinGapWindow(candidate: Dayjs, gap: GapWindow): Dayjs | null {
-    const afterStart = gap.start.add(1, 'minute');
-    const earliest = gap.sessionEnd.isAfter(afterStart) ? gap.sessionEnd : afterStart;
-    const latest = gap.end.subtract(1, 'minute');
-    if (earliest.isAfter(latest)) return null;
+function fitWithinGap(candidate: Date, gap: GapWindow): Date | null {
+    const earliest = new Date(
+        Math.max(addMs(gap.start, 60_000).getTime(), gap.sessionEnd.getTime()),
+    );
+    const latest = addMs(gap.end, -60_000);
+    if (earliest.getTime() > latest.getTime()) return null;
 
-    if (candidate.isBefore(earliest)) return null;
-    if (candidate.isAfter(latest)) return null;
+    if (candidate.getTime() < earliest.getTime()) return null;
+    if (candidate.getTime() > latest.getTime()) return null;
 
-    return candidate.second(0).millisecond(0);
+    return floorToMinute(candidate);
 }
 
-
-
-/* ---------- Gap scheduling ---------- */
-
-function buildReminderDraftWithinGap(desired: Dayjs, reason: Reason, gap: GapWindow, ctx: GapContext): ReminderDraft | null {
-    const withinGap = fitTimestampWithinGapWindow(desired, gap);
-    if (!withinGap) return null;
-    if (!withinGap.isAfter(ctx.now)) return null;
-    if (!withinGap.isBefore(gap.end)) return null;
-
-    return {
-        at: withinGap,
-        reason,
-        gapIndex: gap.index,
-    };
+function buildDraft(
+    desired: Date,
+    reason: Reason,
+    gap: GapWindow,
+    now: Date,
+): ReminderDraft | null {
+    const fitted = fitWithinGap(desired, gap);
+    if (!fitted) return null;
+    if (fitted.getTime() <= now.getTime()) return null;
+    if (fitted.getTime() >= gap.end.getTime()) return null;
+    return { at: fitted, reason, gapIndex: gap.index };
 }
 
-function scheduleRemindersForGap(gap: GapWindow, ctx: GapContext): ReminderDraft[] {
-    if (!gap.end.isAfter(ctx.now)) return [];
+function scheduleForGap(
+    gap: GapWindow,
+    now: Date,
+    reflectionHour: number,
+    morningHour: number,
+    startAfterDays: number,
+    cadenceDays: number,
+    timeZone: string,
+): ReminderDraft[] {
+    if (gap.end.getTime() <= now.getTime()) return [];
 
     const drafts: ReminderDraft[] = [];
 
-    const postSession = buildReminderDraftWithinGap(atLocalHour(gap.start, 0, ctx.reflectionHour, ctx.zone), Reason.PostSession, gap, ctx);
+    const postSession = buildDraft(
+        setHourInZone(gap.start, reflectionHour, timeZone),
+        Reason.PostSession,
+        gap,
+        now,
+    );
     if (postSession) drafts.push(postSession);
 
-    const postSleep = buildReminderDraftWithinGap(atLocalHour(gap.start, 1, ctx.morningHour, ctx.zone), Reason.PostSleep, gap, ctx);
+    const postSleep = buildDraft(
+        setHourInZone(addDaysInZone(gap.start, 1, timeZone), morningHour, timeZone),
+        Reason.PostSleep,
+        gap,
+        now,
+    );
     if (postSleep) drafts.push(postSleep);
 
-    if (gap.days > ctx.startAfterDays) {
-        for (let dayOffset = ctx.startAfterDays; dayOffset < gap.days; dayOffset += ctx.cadenceDays) {
-            const midSession = buildReminderDraftWithinGap(atLocalHour(gap.start, dayOffset, ctx.reflectionHour, ctx.zone), Reason.MidSession, gap, ctx);
-            if (midSession) drafts.push(midSession);
+    if (gap.days > startAfterDays) {
+        const anchorBase = startOfDayInZone(gap.start, timeZone);
+        for (let dayOffset = startAfterDays; dayOffset < gap.days; dayOffset += cadenceDays) {
+            const anchor = addDaysInZone(anchorBase, dayOffset, timeZone);
+            const mid = buildDraft(
+                setHourInZone(anchor, reflectionHour, timeZone),
+                Reason.MidSession,
+                gap,
+                now,
+            );
+            if (mid) drafts.push(mid);
         }
     }
 
     if (gap.days >= 1) {
-        const preSession = buildReminderDraftWithinGap(atLocalHour(gap.end, -1, ctx.reflectionHour, ctx.zone), Reason.PreSession, gap, ctx);
+        const preSession = buildDraft(
+            setHourInZone(addDaysInZone(gap.end, -1, timeZone), reflectionHour, timeZone),
+            Reason.PreSession,
+            gap,
+            now,
+        );
         if (preSession) drafts.push(preSession);
     }
 
@@ -245,6 +230,7 @@ function scheduleRemindersForGap(gap: GapWindow, ctx: GapContext): ReminderDraft
 }
 
 /* ---------- Public API ---------- */
+
 export function scheduleNeuroplasticityReminders(params: ScheduleParams): Reminder[] {
     const {
         nowUtc,
@@ -260,90 +246,57 @@ export function scheduleNeuroplasticityReminders(params: ScheduleParams): Remind
 
     if (!sessionsUtc || sessionsUtc.length < 2) return [];
 
-    const zone = resolveZone(timeZone);
+    const zone = resolveTimeZone(timeZone);
 
-    const now = parseIsoToMinute(nowUtc, zone);
+    const now = parseUtcToMinute(nowUtc);
     if (!now) return [];
 
-    const sortedSessions = [...sessionsUtc].sort();
-    const windows: GapWindow[] = [];
-
-    for (let index = 0; index < sortedSessions.length - 1; index += 1) {
-        const window = createGapWindowFromIsoSessions(
+    const sorted = [...sessionsUtc].sort();
+    const gaps: GapWindow[] = [];
+    for (let index = 0; index < sorted.length - 1; index += 1) {
+        const gap = createGapWindow(
             index,
-            sortedSessions[index],
-            sortedSessions[index + 1],
+            sorted[index],
+            sorted[index + 1],
             zone,
-            sessionDurationsMin?.[sortedSessions[index]] ?? 0,
+            sessionDurationsMin?.[sorted[index]] ?? 0,
         );
-        if (window) windows.push(window);
+        if (gap) gaps.push(gap);
     }
 
-    if (!windows.length) return [];
+    if (!gaps.length) return [];
 
-    const ctx: GapContext = {
-        now,
-        zone,
-        reflectionHour,
-        morningHour,
-        startAfterDays,
-        cadenceDays,
-    };
+    const drafts = gaps.flatMap((gap) =>
+        scheduleForGap(gap, now, reflectionHour, morningHour, startAfterDays, cadenceDays, zone),
+    );
 
-    const drafts = windows.flatMap((gap) => scheduleRemindersForGap(gap, ctx));
     if (!drafts.length) return [];
 
-    const remindersByDay = new Map<string, ReminderDraft[]>();
-
+    // Group by the user's local calendar day and enforce maxPerDay
+    const byDay = new Map<number, ReminderDraft[]>();
     for (const draft of drafts) {
-        const key = localDateKey(draft.at);
-        if (!remindersByDay.has(key)) remindersByDay.set(key, []);
-    remindersByDay.get(key)!.push(draft);
+        const key = startOfDayInZone(draft.at, zone).getTime();
+        if (!byDay.has(key)) byDay.set(key, []);
+        byDay.get(key)!.push(draft);
     }
 
-    const trimmedDrafts: ReminderDraft[] = [];
-
-    for (const dayDrafts of remindersByDay.values()) {
+    const trimmed: ReminderDraft[] = [];
+    for (const dayDrafts of byDay.values()) {
         dayDrafts.sort((a, b) => {
-            const priorityDiff = REASON_PRIORITY[a.reason] - REASON_PRIORITY[b.reason];
-            if (priorityDiff !== 0) return priorityDiff;
-            return a.at.valueOf() - b.at.valueOf();
+            const priority = REASON_PRIORITY[a.reason] - REASON_PRIORITY[b.reason];
+            return priority !== 0 ? priority : a.at.getTime() - b.at.getTime();
         });
-        trimmedDrafts.push(...dayDrafts.slice(0, maxPerDay));
+        trimmed.push(...dayDrafts.slice(0, maxPerDay));
     }
 
-    trimmedDrafts.sort((a, b) => a.at.valueOf() - b.at.valueOf());
+    trimmed.sort((a, b) => a.at.getTime() - b.at.getTime());
 
-    return trimmedDrafts
-        .filter((draft) => draft.at.isAfter(now))
-        .map((draft) => ({
-            atUtc: draft.at.toISOString(),
-            localDate: localDateKey(draft.at),
-            reason: draft.reason,
-            gapIndex: draft.gapIndex,
+    return trimmed
+        .filter((d) => d.at.getTime() > now.getTime())
+        .map((d) => ({
+            atUtc: d.at.toISOString(),
+            reason: d.reason,
+            gapIndex: d.gapIndex,
+            localDate: localDateKeyInZone(d.at, zone),
         }));
-}
-
-/* ---------- Helpers ---------- */
-
-function createGapWindowFromIsoSessions(
-    index: number,
-    startIso: string,
-    endIso: string,
-    zone: string,
-    startDurationMin = 0,
-): GapWindow | null {
-    const start = parseIsoToMinute(startIso, zone);
-    const end = parseIsoToMinute(endIso, zone);
-    if (!start || !end || !end.isAfter(start)) return null;
-
-    const duration = Number.isFinite(startDurationMin) && startDurationMin > 0 ? startDurationMin : 0;
-
-    return {
-        index,
-        start,
-        sessionEnd: start.add(duration, 'minute'),
-        end,
-        days: countLocalCalendarDays(start, end),
-    };
 }
