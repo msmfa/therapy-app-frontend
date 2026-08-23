@@ -61,6 +61,8 @@ const response = (status: number, body: unknown) => ({
     text: async () => JSON.stringify(body),
 });
 
+const originalFetch = global.fetch;
+
 beforeEach(() => {
     requests.length = 0;
     // @ts-expect-error minimal fetch double
@@ -78,6 +80,11 @@ beforeEach(() => {
 
         return response(401, { error: 'Unauthorized' });
     });
+});
+
+afterEach(() => {
+    global.fetch = originalFetch;
+    jest.resetAllMocks();
 });
 
 import { AuthProvider, useAuth } from '../AuthContext';
