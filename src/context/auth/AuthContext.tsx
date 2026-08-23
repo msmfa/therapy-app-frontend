@@ -150,17 +150,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     return;
                 }
 
+                // The refresh token is published first, and nothing may await
+                // between here and the block below. `isAuthenticated` is
+                // derived from token + user, so the moment those land every
+                // effect keyed on it fires a request. Publishing the refresh
+                // token afterwards left a window in which a 401 found
+                // `refreshTokenRef` still empty: `refreshSession()` read it,
+                // returned false without ever calling /api/auth/refresh, and
+                // the api client went straight to `onAuthFailure()` and tore
+                // the session down, discarding a refresh token that was on
+                // disk the whole time. A single keychain write was enough to
+                // open it.
+                if (storedRefreshToken) {
+                    refreshTokenRef.current = storedRefreshToken;
+                    setRefreshToken(storedRefreshToken);
+                }
+
                 tokenRef.current = normalized;
                 setToken(normalized);
                 setUser(hydratedUser);
 
+                // Housekeeping, so it happens once the session is coherent
+                // rather than in the middle of announcing it.
                 if (normalized !== storedToken) {
                     await SecureStore.setItemAsync('token', normalized);
-                }
-
-                if (storedRefreshToken) {
-                    refreshTokenRef.current = storedRefreshToken;
-                    setRefreshToken(storedRefreshToken);
                 }
             } catch (error) {
                 console.error('[AuthProvider] hydration error:', error);
