@@ -217,6 +217,20 @@ function NotificationNavigationHandler({ isReady }: NotificationNavigationHandle
 
         try {
             router.replace('/(tabs)');
+
+            // Drop the response now that it has been acted on. This navigation
+            // remounts the root layout, and `getLastNotificationResponse()`
+            // otherwise keeps handing the same launch response back to the
+            // fresh mount forever. The id set above already stops the loop on
+            // its own; this removes the source rather than guarding against it,
+            // which is what expo documents the call for. It throws
+            // UnavailabilityError where the native method is missing, so a
+            // failure here must not take the navigation down with it.
+            try {
+                Notifications.clearLastNotificationResponse();
+            } catch (clearError) {
+                console.warn('[NotificationNavigationHandler] Could not clear last notification response:', clearError);
+            }
         } catch (error) {
             Sentry.withScope((scope) => {
                 scope.setTag('feature', 'notifications.navigation');
