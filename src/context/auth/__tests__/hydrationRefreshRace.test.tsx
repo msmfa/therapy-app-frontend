@@ -1,21 +1,29 @@
 /**
- * Regression test for the "reminder notification opens to a black screen" report.
+ * Regression test for spurious sign-outs on launch.
  *
- * AuthProvider hydration publishes the access token and the user (which is what
- * `isAuthenticated` is derived from) and only afterwards, on the far side of a
- * `SecureStore.setItemAsync` await, publishes the refresh token. Every effect
- * keyed on `isAuthenticated` fires the moment the first half lands, so a 401 can
- * arrive while `refreshTokenRef.current` is still null.
+ * AuthProvider hydration used to publish the access token and the user (which is
+ * what `isAuthenticated` is derived from) and only afterwards, on the far side of
+ * a `SecureStore.setItemAsync` await, publish the refresh token. Every effect
+ * keyed on `isAuthenticated` fires the moment the first half lands, so a 401 could
+ * arrive while `refreshTokenRef.current` was still null.
  *
- * `refreshSession()` reads that ref, sees null, and returns false WITHOUT making
- * a request, so the api client goes straight to `onAuthFailure()` and signs the
+ * `refreshSession()` read that ref, saw null, and returned false WITHOUT making
+ * a request, so the api client went straight to `onAuthFailure()` and signed the
  * user out, discarding a refresh token that was in SecureStore the whole time.
- * That matches production: the Sentry breadcrumbs for the incident contain no
+ * That matched production: the Sentry breadcrumbs for the incident contain no
  * POST /api/auth/refresh anywhere.
  *
- * Marked `test.failing`: it describes the behaviour we want, and will start
- * reporting a failure once hydration publishes the refresh token before it
- * announces the session as authenticated.
+ * Hydration now publishes the refresh token before it announces the session as
+ * authenticated, with no await in between, so the window is closed.
+ *
+ * Scope, so nobody over-reads this: the window only ever opened when hydration
+ * had a reason to await, which is `normalized !== storedToken` -- a token
+ * persisted with the Bearer prefix still on it, or with stray whitespace. With
+ * a clean stored token there is no await and no window. Reproducing it needs a
+ * keychain write slow enough for React to commit and flush effects, which this
+ * test forces with a 10ms write. On an iOS 26.3 simulator the write was fast
+ * enough that the refresh still went out even without the fix, so this is a
+ * latent ordering hazard rather than something confirmed in the wild.
  */
 import React from 'react';
 import { render, act } from '@testing-library/react-native';
@@ -85,7 +93,7 @@ function Probe() {
     return <Text>probe</Text>;
 }
 
-test.failing('a 401 during hydration refreshes the session instead of signing the user out', async () => {
+test('a 401 during hydration refreshes the session instead of signing the user out', async () => {
     render(
         <AuthProvider>
             <TherapySessionsProvider>
