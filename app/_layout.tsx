@@ -177,10 +177,23 @@ interface NotificationNavigationHandlerProps {
     isReady: boolean;
 }
 
+/**
+ * Notification ids already acted on, kept at module scope rather than in a ref.
+ *
+ * `router.replace()` here remounts the root layout, which would reset a ref and
+ * make the handler forget what it had just handled. Because
+ * `getLastNotificationResponse()` keeps returning the same launch response for
+ * the whole lifetime of the process, the handler would then treat it as new and
+ * navigate again: an unbounded remount loop that re-runs auth hydration and
+ * every effect keyed on it, firing a PATCH /api/users/me and a GET
+ * /api/therapy-sessions per pass until the app stops rendering entirely. This
+ * outlives the remount, so a given notification is acted on exactly once.
+ */
+const handledNotificationIds = new Set<string>();
+
 function NotificationNavigationHandler({ isReady }: NotificationNavigationHandlerProps) {
     const router = useRouter();
     const pendingResponseRef = useRef<Notifications.NotificationResponse | null>(null);
-    const handledNotificationIdsRef = useRef<Set<string>>(new Set());
 
     const handleNotificationResponse = useCallback((response: Notifications.NotificationResponse | null) => {
         if (!response) return;
@@ -188,16 +201,19 @@ function NotificationNavigationHandler({ isReady }: NotificationNavigationHandle
         const notificationId = response.notification.request.identifier;
 
         // Prevent duplicate handling
-        if (handledNotificationIdsRef.current.has(notificationId)) {
+        if (handledNotificationIds.has(notificationId)) {
             return;
         }
 
-        handledNotificationIdsRef.current.add(notificationId);
-
+        // Marked only once we are actually going to act on it. Marking before
+        // the readiness check burned the id on a response that was then
+        // dropped, so the tap did nothing.
         if (!isReady) {
             console.warn('[NotificationNavigationHandler] Attempted to handle notification before ready');
             return;
         }
+
+        handledNotificationIds.add(notificationId);
 
         try {
             router.replace('/(tabs)');
