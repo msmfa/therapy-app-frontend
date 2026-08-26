@@ -15,6 +15,7 @@ import { ErrorBoundaryUI } from '../src/components/ErrorBoundary';
 import * as Sentry from '@sentry/react-native';
 import { toError } from '../src/utils/errors';
 import * as Notifications from 'expo-notifications';
+import { resolveNotificationRoute } from '../src/services/notifications/routing';
 import { AppAlertProvider } from '../src/context/alert';
 
 const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN ?? process.env.SENTRY_DSN;
@@ -216,7 +217,9 @@ function NotificationNavigationHandler({ isReady }: NotificationNavigationHandle
         handledNotificationIds.add(notificationId);
 
         try {
-            router.replace('/(tabs)');
+            // The composer and the notes list are different destinations, and
+            // only the push payload says which one this notification wants.
+            router.replace(resolveNotificationRoute(response.notification.request.content.data));
 
             // Drop the response now that it has been acted on. This navigation
             // remounts the root layout, and `getLastNotificationResponse()`
