@@ -1,7 +1,7 @@
 {
   "expo": {
     "androidStatusBar": {
-      "backgroundColor": "transparent",
+      "backgroundColor": "#00000000",
       "barStyle": "dark-content"
     },
     "name": "Plastic Brains",
