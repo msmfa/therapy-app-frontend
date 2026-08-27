@@ -1,9 +1,5 @@
 {
   "expo": {
-    "androidStatusBar": {
-      "backgroundColor": "#00000000",
-      "barStyle": "dark-content"
-    },
     "name": "Plastic Brains",
     "slug": "therapy-app-frontend",
     "version": "1.0.0",
@@ -46,17 +42,6 @@
           }
         ]
       }
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/illustrations/brain-string.svg",
-        "backgroundColor": "transparent"
-      },
-      "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false,
-      "permissions": [
-        "POST_NOTIFICATIONS"
-      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
