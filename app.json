@@ -22,7 +22,9 @@
           "organization": "codemoore"
         }
       ],
-      "expo-router"
+      "expo-router",
+      "expo-secure-store",
+      "expo-web-browser"
     ],
     "splash": {
       "image": "./assets/brain-logo.png",
@@ -38,7 +40,9 @@
         "ITSAppUsesNonExemptEncryption": false,
         "CFBundleURLTypes": [
           {
-            "CFBundleURLSchemes": ["therapyapp"]
+            "CFBundleURLSchemes": [
+              "therapyapp"
+            ]
           }
         ]
       }
