@@ -10,8 +10,8 @@ interface GlassProps extends BlurViewProps {
 
 export default function GlassMorphism({ children, style, ...blurViewProps }: GlassProps) {
     return (
-        <View style={ [styles.glassContainer, style] }>
-            <BlurView tint={ blurViewProps.tint } { ...blurViewProps } style={ styles.glassPanel }>
+        <View pointerEvents="box-none" style={ [styles.glassContainer, style] }>
+            <BlurView pointerEvents="box-none" tint={ blurViewProps.tint } { ...blurViewProps } style={ styles.glassPanel }>
                 { children }
             </BlurView>
         </View>
