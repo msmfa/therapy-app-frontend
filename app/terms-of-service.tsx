@@ -27,7 +27,7 @@ export default function TermsOfServiceScreen() {
                     <AppText variant='h2'>Acceptance of these terms</AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     <AppText variant='body'>
-                        Therapy App ("we", "us", or "our") provides tools to help you prepare for, reflect on, and follow up
+                        Plastic Brains ("we", "us", or "our") provides tools to help you prepare for, reflect on, and follow up
                         on therapy sessions. By creating an account or using the app, you agree to these Terms of Service and our
                         Privacy Policy. If you do not agree, do not use the app.
                     </AppText>
@@ -61,7 +61,7 @@ export default function TermsOfServiceScreen() {
                     <AppText variant='h2'>Health & safety disclaimer</AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     <AppText variant='body'>
-                        Therapy App does not provide medical or mental health advice, diagnosis, or treatment. The information in
+                        Plastic Brains does not provide medical or mental health advice, diagnosis, or treatment. The information in
                         the app is for reflection and organization only. Always seek the advice of a licensed professional with
                         any questions about your mental health or medical condition. Call emergency services or a crisis hotline
                         if you are in danger or experiencing a mental health emergency.
@@ -70,12 +70,10 @@ export default function TermsOfServiceScreen() {
 
                 <Spacer variant={ SpacerVariant.large } />
                 <View style={ styles.section }>
-                    <AppText variant='h2'>Subscriptions & payments</AppText>
+                    <AppText variant='h2'>Price</AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     <AppText variant='body'>
-                        Some features may require a paid subscription through the Apple App Store. Payments, renewals, and refunds
-                        are managed by Apple and subject to App Store terms. If you cancel, you retain access to paid features until
-                        the end of the current billing period, unless the store provides a different remedy.
+                        Plastic Brains is completely free to download and use.
                     </AppText>
                 </View>
 
@@ -84,9 +82,10 @@ export default function TermsOfServiceScreen() {
                     <AppText variant='h2'>User content & data</AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     <AppText variant='body'>
-                        You retain ownership of the notes and information you store in the app. By using the service, you grant us
-                        a limited license to process your data only as needed to provide the features you request. Refer to the
-                        Privacy Policy for details on how we collect, use, and protect your data.
+                        You retain ownership of the notes and information you store in the app. Therapy note contents are processed
+                        locally on your device and are not uploaded to us. We process your account and therapy session information
+                        only as needed to provide the features you request. Refer to the Privacy Policy for details on how we collect,
+                        use, and protect your data.
                     </AppText>
                 </View>
 
@@ -119,10 +118,10 @@ export default function TermsOfServiceScreen() {
                     <AppText variant='h2'>Limitation of liability</AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     <AppText variant='body'>
-                        To the fullest extent permitted by law, Therapy App and its team are not liable for indirect, incidental,
-                        or consequential damages arising from your use of the app. Our total liability for any claim related to
-                        the app will not exceed the amounts you paid us during the prior twelve months, or ten U.S. dollars if no
-                        fees were paid.
+                        Nothing in these terms excludes or limits liability where doing so would be unlawful, including liability
+                        for death or personal injury caused by negligence, fraud, or fraudulent misrepresentation. Subject to that,
+                        Plastic Brains is not responsible for losses that were not reasonably foreseeable or that result from
+                        circumstances beyond our reasonable control. Nothing in these terms affects your statutory consumer rights.
                     </AppText>
                 </View>
 
@@ -131,8 +130,9 @@ export default function TermsOfServiceScreen() {
                     <AppText variant='h2'>Governing law</AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     <AppText variant='body'>
-                        These terms are governed by the laws of the State of California, USA, without regard to conflict of law
-                        principles. If any part of these terms is found unenforceable, the remaining provisions remain in effect.
+                        These terms are governed by the laws of England and Wales. If you live elsewhere, you keep any mandatory
+                        consumer protections provided by the laws of the country where you live. If any part of these terms is found
+                        unenforceable, the remaining provisions remain in effect.
                     </AppText>
                 </View>
 

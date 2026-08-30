@@ -7,7 +7,7 @@ import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { Button } from '../src/components/ui/Button';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 
-const EFFECTIVE_DATE = 'January 15, 2025';
+const EFFECTIVE_DATE = 'August 26, 2026';
 
 export default function PrivacyPolicyScreen() {
     const router = useRouter();
@@ -32,7 +32,7 @@ export default function PrivacyPolicyScreen() {
                     <AppText variant='h2'>About this policy</AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     <AppText variant='body'>
-                        Therapy App ("we", "us", or "our") helps you prepare for, reflect on, and follow up on therapy sessions. This policy explains how we handle your information in line with App Store requirements. By using the app, you agree to the practices described here.
+                        Plastic Brains ("we", "us", or "our") helps you prepare for, reflect on, and follow up on therapy sessions. This policy explains how we handle your information in line with App Store requirements. By using the app, you agree to the practices described here.
                     </AppText>
                 </View>
 
@@ -42,13 +42,34 @@ export default function PrivacyPolicyScreen() {
                     <Spacer variant={ SpacerVariant.small } />
                     <AppText variant='body'>
                         - Account details you provide, such as your name, email address, and authentication identifiers when you sign in with email or Apple.
-                        { '\n' }- Therapy-related entries you create, including notes, session dates, reminder preferences, and optional reflections.
+                        { '\n' }- Therapy session details you enter, including session dates and reminder preferences.
                         { '\n' }- Device and usage information, such as app version, device type, crash logs, and basic interactions used to keep the service reliable.
                         { '\n' }- Information from authentication partners (Apple), limited to the identifiers, names, and email addresses you authorize them to share with us.
                     </AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     <AppText variant='body'>
-                        Therapy notes stay on your phone. We store them using the device's encrypted secure storage so even if your phone is lost or stolen, no one, including our team, can access them without your device credentials.
+                        Therapy note contents are encrypted and stored locally on your iPhone. We do not collect, upload, or retain the contents of your therapy notes on our servers.
+                    </AppText>
+                </View>
+
+                <Spacer variant={ SpacerVariant.large } />
+                <View style={ styles.section }>
+                    <AppText variant='h2'>Website analytics & iOS release signup</AppText>
+                    <Spacer variant={ SpacerVariant.small } />
+                    <AppText variant='body'>
+                        On the Plastic Brains website, we use Google Analytics 4 to understand site visits, where visitors came from, general interactions such as scrolling and following links, and selected actions such as opening the release signup, completing or failing a signup, opening an FAQ answer, and following an evidence link.
+                    </AppText>
+                    <Spacer variant={ SpacerVariant.small } />
+                    <AppText variant='body'>
+                        Google Analytics does not set analytics cookies unless you choose “Allow analytics” on the website. Advertising storage, Google signals, and ad personalisation remain disabled. We do not send email addresses, therapy note contents, form text, or other health information to Google Analytics.
+                    </AppText>
+                    <Spacer variant={ SpacerVariant.small } />
+                    <AppText variant='body'>
+                        If you sign up for the iOS release notification, Loops receives your email address and adds it to the private Plastic Brains iOS release list. Loops will ask you to confirm your email address first. We use confirmed addresses only to send the App Store download link on release day, not for general marketing.
+                    </AppText>
+                    <Spacer variant={ SpacerVariant.small } />
+                    <AppText variant='body'>
+                        You can unsubscribe using the link in an email or by contacting us. We keep the signup record only while it is needed for the release notification. Loops may keep a suppression record after you unsubscribe so we can respect your choice and avoid emailing you again.
                     </AppText>
                 </View>
 
@@ -57,7 +78,7 @@ export default function PrivacyPolicyScreen() {
                     <AppText variant='h2'>How we use information</AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     <AppText variant='body'>
-                        - Deliver core features like saving notes, scheduling reminders, and syncing your therapy calendar.
+                        - Deliver core features such as storing notes locally, saving the therapy session dates you enter, and scheduling reminders.
                         { '\n' }- Authenticate your account, prevent fraud, and keep the app secure.
                         { '\n' }- Send optional push notifications about upcoming sessions or follow-up reminders when you enable them.
                         { '\n' }- Improve performance, troubleshoot issues, and develop new features based on aggregate usage trends.
@@ -71,7 +92,7 @@ export default function PrivacyPolicyScreen() {
                     <AppText variant='body'>
                         - Notifications: We request permission to send push notifications so you can receive reminders. You can change this at any time in your device settings.
                         { '\n' }- Secure storage: We use the device's secure storage APIs to keep authentication tokens protected locally.
-                        { '\n' }- Calendar data: The app stores session times you enter; it does not read your external calendars unless you choose to sync through our backend.
+                        { '\n' }- Session data: The app stores the session times you enter and syncs those times with our backend so we can schedule reminders. It does not read or sync with your external calendar.
                     </AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     <AppText variant='body'>
@@ -95,11 +116,11 @@ export default function PrivacyPolicyScreen() {
                     <AppText variant='h2'>Data retention & deletion</AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     <AppText variant='body'>
-                        We keep your notes, reminders, and account information for as long as you maintain an account. You can request deletion from the Settings screen or by contacting us. Once deleted, we remove personal data from active systems within 30 days unless we must retain it for legal obligations.
+                        We keep your account information, therapy session dates, reminder settings, and registered device information for as long as you maintain an account. You can request deletion from the Settings screen or by contacting us. Once deleted, we remove personal data from active systems within 30 days unless we must retain it for legal obligations.
                     </AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     <AppText variant='body'>
-                        Because your therapy notes remain locally encrypted on your device, they disappear when you delete the app or clear the secure storage. We never retain server copies of your notes.
+                        Your therapy notes are not part of your server account or its retention period. They remain encrypted on your iPhone until you delete them or remove the app. We never retain server copies of your notes.
                     </AppText>
                 </View>
 
@@ -126,7 +147,7 @@ export default function PrivacyPolicyScreen() {
                     <AppText variant='h2'>Children's privacy</AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     <AppText variant='body'>
-                        The app is designed for adults and is not intended for children under 13 (or the age required in your country). We do not knowingly collect personal information from children. If you believe a child has provided us with personal data, contact us so we can delete it.
+                        Plastic Brains is designed for adults aged 18 and over. We do not knowingly collect personal information from anyone under 18. If you believe someone under 18 has provided us with personal data, contact us so we can delete it.
                     </AppText>
                 </View>
 
