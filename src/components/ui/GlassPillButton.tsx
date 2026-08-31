@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleProp, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+import Svg, { Defs, Rect, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
 import AppText from './AppText';
 import { PALETTE } from 'designs/designs-colors';
 
@@ -16,8 +17,10 @@ type Props = {
     style?: StyleProp<ViewStyle>;
 };
 
-// The pill form of GlassCircleButton: the same clear blurred body, bright top
-// rim and shaded lower edge, sized to a word instead of an icon.
+// The pill form of GlassCircleButton, built the same way: an almost clear
+// blurred body, a bright specular edge along the top that fades around the
+// shoulders, a fainter reflection along the bottom, and a shaded lower-right
+// rim that gives the glass its thickness.
 export function GlassPillButton({
     label,
     height = 48,
@@ -27,6 +30,9 @@ export function GlassPillButton({
     disabled = false,
     style,
 }: Props) {
+    const [width, setWidth] = React.useState(0);
+    const radius = height / 2;
+
     return (
         <TouchableOpacity
             onPress={ onPress }
@@ -35,9 +41,19 @@ export function GlassPillButton({
             accessibilityRole="button"
             accessibilityLabel={ accessibilityLabel ?? label }
             accessibilityState={ { disabled } }
-            style={ [styles.shadowWrapper, { height, borderRadius: height / 2 }, disabled && styles.disabled, style] }
+            onLayout={ (event) => setWidth(event.nativeEvent.layout.width) }
+            style={ [
+                styles.shadowWrapper,
+                { height, borderRadius: radius },
+                disabled && styles.disabled,
+                style,
+            ] }
         >
-            <BlurView intensity={ 46 } tint="light" style={ [styles.pill, { height, borderRadius: height / 2 }] }>
+            <BlurView
+                intensity={ 46 }
+                tint="light"
+                style={ [styles.pill, { height, borderRadius: radius }] }
+            >
                 <LinearGradient
                     colors={ ['hsla(0, 0%, 100%, 0.42)', 'hsla(0, 0%, 100%, 0.08)'] }
                     style={ StyleSheet.absoluteFill }
@@ -46,8 +62,45 @@ export function GlassPillButton({
                     { label }
                 </AppText>
             </BlurView>
-            { /* Drawn over the blur so the lit top edge is not washed out by it. */ }
-            <View pointerEvents="none" style={ [styles.rim, { borderRadius: height / 2 }] } />
+            { width > 0 ? (
+                <View pointerEvents="none" style={ StyleSheet.absoluteFill }>
+                    <Svg width={ width } height={ height }>
+                        <Defs>
+                            <SvgGradient id="pillRimShade" x1="0" y1="0" x2="1" y2="1">
+                                <Stop offset="0" stopColor="#1b2a44" stopOpacity="0" />
+                                <Stop offset="0.55" stopColor="#1b2a44" stopOpacity="0.06" />
+                                <Stop offset="1" stopColor="#1b2a44" stopOpacity="0.22" />
+                            </SvgGradient>
+                            <SvgGradient id="pillSpec" x1="0" y1="0" x2="0" y2="1">
+                                <Stop offset="0" stopColor="#ffffff" stopOpacity="0.95" />
+                                <Stop offset="0.35" stopColor="#ffffff" stopOpacity="0.3" />
+                                <Stop offset="0.75" stopColor="#ffffff" stopOpacity="0.06" />
+                                <Stop offset="1" stopColor="#ffffff" stopOpacity="0.38" />
+                            </SvgGradient>
+                        </Defs>
+                        <Rect
+                            x={ 0.8 }
+                            y={ 0.8 }
+                            width={ width - 1.6 }
+                            height={ height - 1.6 }
+                            rx={ radius }
+                            stroke="url(#pillRimShade)"
+                            strokeWidth={ 1.6 }
+                            fill="none"
+                        />
+                        <Rect
+                            x={ 1.2 }
+                            y={ 1.2 }
+                            width={ width - 2.4 }
+                            height={ height - 2.4 }
+                            rx={ radius }
+                            stroke="url(#pillSpec)"
+                            strokeWidth={ 1.6 }
+                            fill="none"
+                        />
+                    </Svg>
+                </View>
+            ) : null }
         </TouchableOpacity>
     );
 }
@@ -55,21 +108,16 @@ export function GlassPillButton({
 const styles = StyleSheet.create({
     shadowWrapper: {
         shadowColor: PALETTE.neutral.black,
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.14,
-        shadowRadius: 12,
-        elevation: 6,
+        shadowOffset: { width: 0, height: 12 },
+        shadowOpacity: 0.16,
+        shadowRadius: 14,
+        elevation: 8,
     },
     pill: {
         overflow: 'hidden',
         paddingHorizontal: 22,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    rim: {
-        ...StyleSheet.absoluteFillObject,
-        borderWidth: 1,
-        borderColor: 'hsla(0, 0%, 100%, 0.55)',
     },
     label: {
         fontSize: 17,
