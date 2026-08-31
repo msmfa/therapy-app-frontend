@@ -1,8 +1,7 @@
 import React, { useState, useCallback } from 'react';
-import { View, TextInput, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, Pressable, Keyboard } from 'react-native';
+import { View, TextInput, StyleSheet, KeyboardAvoidingView, Platform, Pressable, Keyboard } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../src/context/auth/AuthContext';
 import { useNotes } from '../../src/features/notes/useNotes';
 import ErrorMessage from '../../src/components/ui/ErrorMessage';
@@ -66,13 +65,6 @@ export default function NewNoteScreen() {
                                         placeholderTextColor={ COLOR_VARIANTS.black.tertiary }
                                         selectionColor={ COLOR_VARIANTS.white.quaternary }
                                     />
-                                    <TouchableOpacity
-                                        onPress={ handleNext }
-                                        disabled={ isDisabled }
-                                        style={ [styles.plusButton, isDisabled && styles.plusButtonDisabled] }
-                                    >
-                                        <Feather name="plus" size={ 44 } color={ COLOR_VARIANTS.black.tertiary } />
-                                    </TouchableOpacity>
                                 </View>
                             </View>
                             { error ? <ErrorMessage message={ error } /> : null }
@@ -147,20 +139,6 @@ const styles = StyleSheet.create({
         textAlignVertical: 'top',
         padding: 0,
         paddingBottom: 70,
-    },
-    plusButton: {
-        position: 'absolute',
-        right: 16,
-        bottom: 16,
-        padding: 4,
-        // shadowColor: PALETTE.overlay.blueMildTransparent,
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.4,
-        shadowRadius: 12,
-        elevation: 10,
-    },
-    plusButtonDisabled: {
-        opacity: 0.5,
     },
     footer: {
         flexDirection: 'row',
