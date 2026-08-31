@@ -6,11 +6,16 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Note } from "../../features/notes/useNotes";
 import { useKeyboardInset } from "../../hooks/useKeyboardInset";
 import { GlassCircleButton } from '../ui/GlassCircleButton';
+import { GlassPillButton } from '../ui/GlassPillButton';
+import { GlassButtonOutline } from '../ui/GlassButtonOutline';
 import AppText from "../ui/AppText";
 import { COLOR_VARIANTS, THEME_COLORS } from 'designs/designs-colors';
 
 // Matches the cheatsheet's ink so the two paper screens read as a pair.
 const INK = 'hsl(219, 52%, 14%)';
+
+// Both header buttons share a height so the tray outline hugs them with one radius.
+const HEADER_BUTTON = 48;
 
 type NotePreviewModalProps = {
     visible: boolean;
@@ -131,14 +136,27 @@ export function NotePreviewModal({ visible, note, onClose, onUpdateNote }: NoteP
                     ] }
                 >
                     <View style={ styles.header }>
+                        <GlassButtonOutline buttonSize={ HEADER_BUTTON } color={ INK } opacity={ 0.22 } />
                         <GlassCircleButton
                             accessibilityLabel="Back"
                             icon="back"
                             iconColor={ INK }
-                            size={ 48 }
+                            size={ HEADER_BUTTON }
                             onPress={ handleClose }
-                            style={ styles.backButton }
                         />
+                        <GlassPillButton
+                            label="reviewed"
+                            labelColor={ INK }
+                            onPress={ handleClose }
+                            accessibilityLabel="Mark reviewed"
+                            height={ HEADER_BUTTON }
+                        />
+                    </View>
+                    <View style={ styles.rule } />
+                    <View style={ styles.dateRow }>
+                        <AppText style={ styles.headerDate } variant="body">
+                            { noteDate }
+                        </AppText>
                         { isEditing ? (
                             <View style={ styles.headerActions }>
                                 <TouchableOpacity
@@ -174,10 +192,6 @@ export function NotePreviewModal({ visible, note, onClose, onUpdateNote }: NoteP
                             </TouchableOpacity>
                         ) }
                     </View>
-                    <View style={ styles.rule } />
-                    <AppText style={ styles.headerDate } variant="body">
-                        { noteDate }
-                    </AppText>
                     <AppText style={ styles.noteHeading } variant="h1">
                         what was said
                     </AppText>
@@ -239,7 +253,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingRight: 24,
+        marginHorizontal: 24,
     },
     headerAction: {
         color: INK,
@@ -272,18 +286,19 @@ const styles = StyleSheet.create({
         marginHorizontal: 24,
         marginTop: 14,
     },
+    dateRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginHorizontal: 24,
+        marginTop: 14,
+    },
     headerDate: {
         color: 'hsla(219, 52%, 14%, 0.5)',
         fontSize: 15,
         letterSpacing: 1.2,
-        marginHorizontal: 24,
-        marginTop: 14,
     },
     readerMask: { flex: 1 },
-    backButton: {
-        marginLeft: 24,
-        marginBottom: 4,
-    },
     reader: { flex: 1 },
     readerContent: { padding: 24, paddingTop: 30 },
     editor: {

@@ -4,6 +4,9 @@ import Svg, { Path } from 'react-native-svg';
 
 type Props = {
     buttonSize: number;
+    // White disappears on pale backgrounds; paper screens pass their ink.
+    color?: string;
+    opacity?: number;
 };
 
 // Breathing room between the button edge and the outline.
@@ -17,7 +20,7 @@ const INSET = 4;
 // button to the other, wrapping around the far side of each button, and running
 // straight back along the bottom to close the loop. Render it absolutely inside
 // a row whose first and last children are the two buttons.
-export function GlassButtonOutline({ buttonSize }: Props) {
+export function GlassButtonOutline({ buttonSize, color = '#ffffff', opacity = 0.28 }: Props) {
     const [layout, setLayout] = useState({ width: 0, height: 0 });
 
     const handleLayout = (event: LayoutChangeEvent) => {
@@ -52,8 +55,8 @@ export function GlassButtonOutline({ buttonSize }: Props) {
                 >
                     <Path
                         d={ path }
-                        stroke="#ffffff"
-                        strokeOpacity={ 0.28 }
+                        stroke={ color }
+                        strokeOpacity={ opacity }
                         strokeWidth={ 1 }
                         fill="none"
                     />
