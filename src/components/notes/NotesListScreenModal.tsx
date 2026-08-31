@@ -1,11 +1,17 @@
 import React from 'react';
-import { Modal, ScrollView, TextInput, View, StyleSheet } from "react-native";
+import { ImageBackground, ImageSourcePropType, Modal, ScrollView, TextInput, TouchableOpacity, View, StyleSheet } from "react-native";
+import MaskedView from '@react-native-masked-view/masked-view';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Note } from "../../features/notes/useNotes";
 import { useKeyboardInset } from "../../hooks/useKeyboardInset";
 import { Button } from "../ui/Button";
+import { Feather } from '@expo/vector-icons';
 import AppText from "../ui/AppText";
 import { COLOR_VARIANTS, THEME_COLORS } from 'designs/designs-colors';
+
+// Matches the cheatsheet's ink so the two paper screens read as a pair.
+const INK = 'hsl(219, 52%, 14%)';
 
 type NotePreviewModalProps = {
     visible: boolean;
@@ -83,15 +89,15 @@ export function NotePreviewModal({ visible, note, onClose, onUpdateNote }: NoteP
         }
     }, [draft, note, onUpdateNote]);
 
-    const noteDate = note ?
-        new Date(note.createdAt).toLocaleString('en-US', {
-            weekday: 'long',
-            month: 'long',
-            day: 'numeric',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: '2-digit',
-        }) : null;
+    const noteDate = note ? (() => {
+        const created = new Date(note.createdAt);
+        const weekday = created.toLocaleString('en-US', { weekday: 'long' }).toUpperCase();
+        const time = created
+            .toLocaleString('en-US', { hour: 'numeric', minute: '2-digit' })
+            // The runtime puts a narrow no-break space before the meridiem.
+            .replace(/\s*(AM|PM)$/i, (_match, meridiem: string) => meridiem.toLowerCase());
+        return `${weekday} at ${time}`;
+    })() : null;
 
     const errorMessage = error ? (
         <AppText style={ styles.errorText } variant="caption">
@@ -108,90 +114,136 @@ export function NotePreviewModal({ visible, note, onClose, onUpdateNote }: NoteP
         >
             { /* The keyboard already covers the home indicator, so the bottom
                  inset is the larger of the two rather than their sum. */ }
-            <View
-                testID="note-modal-root"
-                style={ [
-                    styles.modalRoot,
-                    {
-                        paddingTop: insets.top,
-                        paddingBottom: Math.max(insets.bottom, keyboardInset),
-                    },
-                ] }
+            <ImageBackground
+                source={ require('../../../assets/textures/paper-blue.png') as ImageSourcePropType }
+                resizeMode="cover"
+                style={ styles.modalRoot }
             >
-                { isEditing ? (
+                { /* The padded box keeps its own testID: ImageBackground spreads
+                     stray props onto its inner Image, not onto the styled view. */ }
+                <View
+                    testID="note-modal-root"
+                    style={ [
+                        styles.modalInner,
+                        {
+                            paddingTop: insets.top,
+                            paddingBottom: Math.max(insets.bottom, keyboardInset),
+                        },
+                    ] }
+                >
+                    <View style={ styles.header }>
+                        <TouchableOpacity
+                            onPress={ handleClose }
+                            accessibilityRole="button"
+                            accessibilityLabel="Back"
+                            style={ styles.backButton }
+                            activeOpacity={ 0.7 }
+                        >
+                            <Feather name="arrow-left" size={ 22 } color={ INK } />
+                        </TouchableOpacity>
+                        <AppText style={ styles.headerDate } variant="body">
+                            { noteDate }
+                        </AppText>
+                    </View>
+                    { isEditing ? (
                     /* No ScrollView here on purpose: a multiline TextInput is a
                        UITextView, which scrolls itself and keeps the caret in
                        view as you type. Nesting it in a ScrollView makes it grow
                        instead, and nothing follows the caret. */
-                    <View style={ styles.editor }>
-                        <AppText style={ styles.modalDate } variant="body">
-                            { noteDate }
-                        </AppText>
-                        <TextInput
-                            value={ draft }
-                            onChangeText={ setDraft }
-                            multiline
-                            autoFocus
-                            style={ styles.editableText }
-                            textAlignVertical="top"
-                            accessibilityLabel="Edit note"
-                        />
-                        { errorMessage }
-                    </View>
-                ) : (
-                    <ScrollView
-                        style={ styles.reader }
-                        contentContainerStyle={ styles.readerContent }
-                        keyboardShouldPersistTaps="handled"
-                    >
-                        <AppText style={ styles.modalDate } variant="body">
-                            { noteDate }
-                        </AppText>
-                        <AppText style={ styles.modalText } variant="body" >
-                            { note?.text ?? 'No note selected.' }
-                        </AppText>
-                        { errorMessage }
-                    </ScrollView>
-                ) }
-                { /* A real sibling row, so it cannot overlap the text above it
-                     however the buttons or Dynamic Type change size. */ }
-                <View testID="note-modal-actions" style={ styles.modalActions }>
-                    { isEditing ? (
-                        <>
-                            <Button
-                                label="Save changes"
-                                onPress={ handleSave }
-                                loading={ saving }
+                        <View style={ styles.editor }>
+                            <TextInput
+                                value={ draft }
+                                onChangeText={ setDraft }
+                                multiline
+                                autoFocus
+                                style={ styles.editableText }
+                                textAlignVertical="top"
+                                accessibilityLabel="Edit note"
                             />
-                            <View style={ styles.actionSpacer } />
-                            <Button
-                                label="Cancel"
-                                onPress={ handleCancelEditing }
-                                disabled={ saving }
-                            />
-                        </>
+                            { errorMessage }
+                        </View>
                     ) : (
-                        <>
-                            <Button
-                                label="Edit"
-                                onPress={ handleStartEditing }
-                                disabled={ !note }
-                            />
-                            <View style={ styles.actionSpacer } />
-                            <Button
-                                label="Close"
-                                onPress={ handleClose }
-                            />
-                        </>
+                        <MaskedView
+                            style={ styles.readerMask }
+                            maskElement={
+                                <LinearGradient
+                                    colors={ ['transparent', 'black', 'black', 'transparent'] }
+                                    locations={ [0, 0.06, 0.93, 1] }
+                                    style={ StyleSheet.absoluteFill }
+                                />
+                            }
+                        >
+                            <ScrollView
+                                style={ styles.reader }
+                                contentContainerStyle={ styles.readerContent }
+                                keyboardShouldPersistTaps="handled"
+                            >
+                                <AppText style={ styles.modalText } variant="body" >
+                                    { note?.text ?? 'No note selected.' }
+                                </AppText>
+                                { errorMessage }
+                            </ScrollView>
+                        </MaskedView>
                     ) }
+                    { /* A real sibling row, so it cannot overlap the text above it
+                     however the buttons or Dynamic Type change size. */ }
+                    <View testID="note-modal-actions" style={ styles.modalActions }>
+                        { isEditing ? (
+                            <>
+                                <Button
+                                    label="Save changes"
+                                    onPress={ handleSave }
+                                    loading={ saving }
+                                />
+                                <View style={ styles.actionSpacer } />
+                                <Button
+                                    label="Cancel"
+                                    onPress={ handleCancelEditing }
+                                    disabled={ saving }
+                                />
+                            </>
+                        ) : (
+                            <>
+                                <Button
+                                    label="Edit"
+                                    onPress={ handleStartEditing }
+                                    disabled={ !note }
+                                />
+                            </>
+                        ) }
+                    </View>
                 </View>
-            </View>
+            </ImageBackground>
         </Modal>
     );
 }
 
 const styles = StyleSheet.create({
-    modalRoot: { flex: 1, backgroundColor: COLOR_VARIANTS.white.primary },
+    modalRoot: { flex: 1 },
+    modalInner: { flex: 1 },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 14,
+        paddingRight: 24,
+    },
+    headerDate: {
+        flex: 1,
+        color: INK,
+        fontSize: 15,
+        letterSpacing: 0.6,
+    },
+    readerMask: { flex: 1 },
+    backButton: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        marginLeft: 24,
+        marginBottom: 4,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'hsla(0, 0%, 0%, 0.06)',
+    },
     reader: { flex: 1 },
     readerContent: { padding: 24, paddingTop: 60 },
     editor: {
@@ -206,12 +258,6 @@ const styles = StyleSheet.create({
     },
     actionSpacer: {
         height: 12,
-    },
-    modalDate: {
-        fontSize: 14,
-        marginBottom: 16,
-        textTransform: 'uppercase',
-        letterSpacing: 0.6,
     },
     modalText: {
         fontSize: 18,
