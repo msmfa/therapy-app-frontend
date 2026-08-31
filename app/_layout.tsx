@@ -131,7 +131,6 @@ export default Sentry.wrap(function RootLayout() {
     // text mounts with the system font and swaps when the file is ready.
     useFonts({
         'DMSans-Bold': require('../assets/fonts/DMSans-Bold.ttf'),
-        'DMSans-Regular': require('../assets/fonts/DMSans-Regular.ttf'),
     });
 
     return (
