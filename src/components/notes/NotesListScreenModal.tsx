@@ -5,7 +5,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Note } from "../../features/notes/useNotes";
 import { useKeyboardInset } from "../../hooks/useKeyboardInset";
-import { Button } from "../ui/Button";
 import { GlassCircleButton } from '../ui/GlassCircleButton';
 import AppText from "../ui/AppText";
 import { COLOR_VARIANTS, THEME_COLORS } from 'designs/designs-colors';
@@ -140,7 +139,30 @@ export function NotePreviewModal({ visible, note, onClose, onUpdateNote }: NoteP
                             onPress={ handleClose }
                             style={ styles.backButton }
                         />
-                        { !isEditing ? (
+                        { isEditing ? (
+                            <View style={ styles.headerActions }>
+                                <TouchableOpacity
+                                    onPress={ handleCancelEditing }
+                                    accessibilityRole="button"
+                                    accessibilityLabel="Cancel edit"
+                                    disabled={ saving }
+                                    activeOpacity={ 0.7 }
+                                >
+                                    <AppText style={ styles.headerActionMuted } variant="body">cancel</AppText>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={ handleSave }
+                                    accessibilityRole="button"
+                                    accessibilityLabel="Save changes"
+                                    disabled={ saving }
+                                    activeOpacity={ 0.7 }
+                                >
+                                    <AppText style={ styles.headerAction } variant="body">
+                                        { saving ? 'saving' : 'save' }
+                                    </AppText>
+                                </TouchableOpacity>
+                            </View>
+                        ) : (
                             <TouchableOpacity
                                 onPress={ handleStartEditing }
                                 accessibilityRole="button"
@@ -150,7 +172,7 @@ export function NotePreviewModal({ visible, note, onClose, onUpdateNote }: NoteP
                             >
                                 <AppText style={ styles.headerAction } variant="body">edit</AppText>
                             </TouchableOpacity>
-                        ) : null }
+                        ) }
                     </View>
                     <View style={ styles.rule } />
                     <AppText style={ styles.headerDate } variant="body">
@@ -202,23 +224,7 @@ export function NotePreviewModal({ visible, note, onClose, onUpdateNote }: NoteP
                     { /* A real sibling row, so it cannot overlap the text above it
                      however the buttons or Dynamic Type change size. */ }
                     <View testID="note-modal-actions" style={ styles.modalActions }>
-                        { isEditing ? (
-                            <>
-                                <Button
-                                    label="Save changes"
-                                    onPress={ handleSave }
-                                    loading={ saving }
-                                />
-                                <View style={ styles.actionSpacer } />
-                                <Button
-                                    label="Cancel"
-                                    onPress={ handleCancelEditing }
-                                    disabled={ saving }
-                                />
-                            </>
-                        ) : (
-                            <View style={ styles.footerRule } />
-                        ) }
+                        <View style={ styles.footerRule } />
                     </View>
                 </View>
             </ImageBackground>
@@ -237,6 +243,15 @@ const styles = StyleSheet.create({
     },
     headerAction: {
         color: INK,
+        fontSize: 20,
+    },
+    headerActions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 20,
+    },
+    headerActionMuted: {
+        color: 'hsla(219, 52%, 14%, 0.5)',
         fontSize: 20,
     },
     rule: {
@@ -280,9 +295,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
         paddingTop: 16,
         paddingBottom: 16,
-    },
-    actionSpacer: {
-        height: 12,
     },
     modalText: {
         color: 'hsla(219, 52%, 14%, 0.62)',

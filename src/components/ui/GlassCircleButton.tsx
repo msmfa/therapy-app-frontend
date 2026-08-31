@@ -3,7 +3,7 @@ import { StyleProp, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Defs, Line, Path, LinearGradient as SvgGradient, Stop, Text as SvgText } from 'react-native-svg';
-import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
+import { PALETTE } from 'designs/designs-colors';
 
 export type GlassCircleIcon = 'plus' | 'question' | 'back';
 
@@ -41,6 +41,9 @@ export function GlassCircleButton({
 
     const plusArm = size * 0.21;
 
+    // The diagonal reads longer than the plus at the same arm, so it sits shorter.
+    const arrowArm = size * 0.155;
+
     // Specular arcs hug the rim; endpoints sit where the highlight has faded out.
     const arcRadius = radius - 1.4;
     const spreadX = arcRadius * 0.985;
@@ -62,14 +65,14 @@ export function GlassCircleButton({
             ] }
         >
             <BlurView
-                intensity={ 28 }
+                intensity={ 46 }
                 tint="light"
                 style={ [styles.circle, { borderRadius: radius }] }
             >
                 <LinearGradient
                     colors={ [
-                        PALETTE.overlay.whiteSoftTransparent,
-                        COLOR_VARIANTS.transparent,
+                        'hsla(0, 0%, 100%, 0.42)',
+                        'hsla(0, 0%, 100%, 0.08)',
                     ] }
                     style={ StyleSheet.absoluteFill }
                 />
@@ -84,6 +87,11 @@ export function GlassCircleButton({
                             <Stop offset="0.8" stopColor="#ffffff" stopOpacity="0.55" />
                             <Stop offset="1" stopColor="#ffffff" stopOpacity="0" />
                         </SvgGradient>
+                        <SvgGradient id="rimShade" x1="0" y1="0" x2="1" y2="1">
+                            <Stop offset="0" stopColor="#1b2a44" stopOpacity="0" />
+                            <Stop offset="0.55" stopColor="#1b2a44" stopOpacity="0.06" />
+                            <Stop offset="1" stopColor="#1b2a44" stopOpacity="0.22" />
+                        </SvgGradient>
                         <SvgGradient id="specBottom" x1="0" y1="0" x2="1" y2="0">
                             <Stop offset="0" stopColor="#ffffff" stopOpacity="0" />
                             <Stop offset="0.5" stopColor="#ffffff" stopOpacity="0.38" />
@@ -94,8 +102,16 @@ export function GlassCircleButton({
                         cx={ center }
                         cy={ center }
                         r={ radius - 0.8 }
+                        stroke="url(#rimShade)"
+                        strokeWidth={ 1.6 }
+                        fill="none"
+                    />
+                    <Circle
+                        cx={ center }
+                        cy={ center }
+                        r={ radius - 0.8 }
                         stroke="#ffffff"
-                        strokeOpacity={ 0.22 }
+                        strokeOpacity={ 0.3 }
                         strokeWidth={ 1 }
                         fill="none"
                     />
@@ -116,14 +132,14 @@ export function GlassCircleButton({
                     { icon === 'back' ? (
                         <>
                             <Path
-                                d={ `M ${center + plusArm} ${center + plusArm} L ${center - plusArm} ${center - plusArm}` }
+                                d={ `M ${center + arrowArm} ${center + arrowArm} L ${center - arrowArm} ${center - arrowArm}` }
                                 stroke={ iconColor }
                                 strokeWidth={ 2 }
                                 strokeLinecap="round"
                                 fill="none"
                             />
                             <Path
-                                d={ `M ${center - plusArm} ${center - plusArm + plusArm * 1.05} L ${center - plusArm} ${center - plusArm} L ${center - plusArm + plusArm * 1.05} ${center - plusArm}` }
+                                d={ `M ${center - arrowArm} ${center - arrowArm + arrowArm * 1.05} L ${center - arrowArm} ${center - arrowArm} L ${center - arrowArm + arrowArm * 1.05} ${center - arrowArm}` }
                                 stroke={ iconColor }
                                 strokeWidth={ 2 }
                                 strokeLinecap="round"
