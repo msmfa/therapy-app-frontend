@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: 40,
         lineHeight: 46,
-        fontWeight: '700',
+        fontFamily: 'DMSans-Bold',
         color: COLOR_VARIANTS.black.primary,
         textAlignVertical: 'top',
         padding: 0,
