@@ -14,32 +14,32 @@ type RationaleSection = {
 
 const SECTIONS: RationaleSection[] = [
     {
-        question: 'What stayed with me from today’s session?',
+        question: 'What stayed with you from today’s session?',
         paragraphs: [
             'The single best-evidenced way to keep something is to pull it back out of your head, not to read it again. A meta-analysis of 272 comparisons across 188 experiments found that people who practised recalling material later remembered substantially more than people who simply restudied it, and far more than people who did nothing extra.[3] Writing this line from memory, on a blank sheet, is that test. It is why the template gives you an empty line instead of a summary to tick.',
         ],
     },
     {
-        question: 'What situation, thought or feeling do I want to notice this week?',
+        question: 'What situation, thought or feeling do you want to notice this week?',
         paragraphs: [
             'What you do between sessions is not a supplement to therapy, it is a large part of what makes it work. Across 23 studies, how much between-session work people actually did predicted how well they came out of treatment, with a strong effect at the end of therapy (g = 0.79) across more than 1,500 people.[4] Naming one specific thing to watch for is the smallest version of that work.',
             'Naming the feeling earns its place separately. In a randomised experiment, spider-fearful people who put their fear into words during exposure showed a weaker physiological fear response a week later, facing a different spider in a different room, than people who reframed the fear, distracted themselves, or were simply exposed.[5] Putting it in words did more than trying to think about it differently.',
         ],
     },
     {
-        question: 'What did I understand differently?',
+        question: 'What did you understand differently?',
         paragraphs: [
             'This line asks for your own words on purpose. A meta-analysis of 64 research reports found that prompting people to explain material to themselves, rather than restate it, produced a substantial improvement in what they learned, and it held across subjects, ages and task types.[6] A sentence you built yourself is also a better hook to find the idea by later than one you copied down.',
         ],
     },
     {
-        question: 'Is there anything I want to try or remember?',
+        question: 'Is there anything you want to try or remember?',
         paragraphs: [
             'Naming the situation and the response together, in the form “if this happens, I will do that”, is one of the most reliable findings in the psychology of follow-through. A meta-analysis of 94 independent tests found a medium-to-large effect on whether people actually did the thing they intended.[7] A general intention to do better does not carry that effect. The line stays optional: if nothing was agreed in the session, an invented plan is worse than a blank.',
         ],
     },
     {
-        question: 'What do I want to return to in my next session?',
+        question: 'What do you want to return to in your next session?',
         paragraphs: [
             'Coming back to something across days beats going over it once, however hard. A synthesis of 839 comparisons drawn from 317 experiments found spaced review consistently outperformed massed review, and that the longer you need to hold on to something, the wider the gaps should be.[8] Choosing one subject now sets up the return, and means the next session opens on something rather than on a blank.',
         ],

@@ -44,19 +44,19 @@ describe('5 Minute Post Therapy Template', () => {
         getByText('5 Minute Post Therapy Template');
         getByText(/Write as much or as little as feels useful/);
 
-        getByText(/What stayed with me from today’s session\?/);
+        getByText(/What stayed with you from today’s session\?/);
         getByText('An idea, phrase, realisation or moment you do not want to lose.');
 
-        getByText(/What situation, thought or feeling do I want to notice this week\?/);
+        getByText(/What situation, thought or feeling do you want to notice this week\?/);
         getByText('Something connected to what you discussed, if there is one.');
 
-        getByText(/What did I understand differently\?/);
+        getByText(/What did you understand differently\?/);
         getByText('Keep this in your own words.');
 
-        getByText(/Is there anything I want to try or remember\?/);
+        getByText(/Is there anything you want to try or remember\?/);
         getByText('Leave this blank if nothing was agreed or suggested.');
 
-        getByText(/What do I want to return to in my next session\?/);
+        getByText(/What do you want to return to in your next session\?/);
         getByText('One subject is enough.');
     });
 
@@ -156,7 +156,7 @@ describe('New note screen help popup', () => {
 
         getByText(/Cheat/);
         getByText('sheet');
-        getByText(/What stayed with me from today’s session\?/);
+        getByText(/What stayed with you from today’s session\?/);
         getByText('One subject is enough.');
     });
 
