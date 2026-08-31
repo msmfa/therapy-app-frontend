@@ -5,7 +5,7 @@ import AppText from 'src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { ReminderRow } from 'src/features/reminders/ReminderRow';
 import { NEURO_REMINDER_COPY } from 'src/constants/neuroReminders';
-import { Reason } from 'src/features/reminders/reminder-schedule-v2';
+import { Reason } from 'src/features/reminders/types';
 import { GlassMorphismWithSquare } from 'src/components/ui/GlassMorphismWithSquare';
 import { SquarePosition } from 'src/components/ui/LinearGradientSquare';
 

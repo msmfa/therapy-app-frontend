@@ -5,10 +5,10 @@ import { useAuth } from '../auth/AuthContext';
 import {
     getTherapySessions,
     TherapySession,
-    toUtcDayRange,
     syncTherapySessions as syncTherapySessionsApi,
 } from '../../api/therapy';
-import { scheduleNeuroplasticityReminders, Reminder } from '../../features/reminders/reminder-schedule-v2';
+import type { Reminder } from '../../features/reminders/types';
+import { useNeuroReminders } from '../../features/reminders/useNeuroReminders';
 import { useDeviceTimeZone } from '../../hooks/useDeviceTimeZone';
 import { mapSessionError, SessionErrorCopy } from '../../features/therapy-sessions/session-error-map';
 import { toError } from '../../utils/errors';
@@ -24,25 +24,6 @@ interface TherapySessionsContextType {
 }
 
 const TherapySessionsContext = createContext<TherapySessionsContextType | undefined>(undefined);
-
-/**
- * Assumed length of a session whose duration was never recorded.
- *
- * `durationMin` is optional on the API, so a session can arrive without one.
- * Treating that as zero-length left the reminder plan with no session end to
- * stay clear of, and showed reminders landing inside the session. 50 is what
- * both write paths send, so an unknown session is assumed to look like every
- * session the app itself creates.
- *
- * Mirrors DEFAULT_SESSION_MINUTES in the backend's notificationCron.helpers.ts:
- * the two have to agree or the plan shown here drifts from the pushes sent.
- */
-const DEFAULT_SESSION_MINUTES = 50;
-
-const effectiveDurationMin = (durationMin?: number | null): number =>
-    typeof durationMin === 'number' && Number.isFinite(durationMin) && durationMin > 0
-        ? durationMin
-        : DEFAULT_SESSION_MINUTES;
 
 /**
  * The window of sessions the app fetches and edits: from the start of the
@@ -65,34 +46,6 @@ const getSessionsWindow = () => {
     return { from, to };
 };
 
-/**
- * The window the app *reads*, which reaches back a year before the editable
- * window starts.
- *
- * Reminders are derived from the gap between two consecutive sessions, so the
- * reminders still owed between the last session and the next one can only be
- * computed if that already-past session is in hand. Fetching from today
- * onwards dropped it, the current gap ceased to exist as far as the client was
- * concerned, and every remaining reminder in it vanished from the calendar the
- * day after each session, while the cron — which reads every session the user
- * has — went on sending those same pushes. The calendar disagreed with the
- * notifications the user actually received.
- *
- * Only the read widens. The editable set and the window handed to syncSessions
- * are unchanged, so the sync's deletion scope still cannot exceed what the user
- * could see and past sessions stay untouchable.
- */
-const SESSIONS_LOOKBACK_YEARS = 1;
-
-const getSessionsFetchWindow = () => {
-    const { from, to } = getSessionsWindow();
-
-    const fetchFrom = new Date(from);
-    fetchFrom.setFullYear(fetchFrom.getFullYear() - SESSIONS_LOOKBACK_YEARS);
-
-    return { from: fetchFrom, to };
-};
-
 interface TherapySessionsProviderProps {
     children: React.ReactNode;
 }
@@ -100,12 +53,12 @@ interface TherapySessionsProviderProps {
 export function TherapySessionsProvider({ children }: TherapySessionsProviderProps) {
     const { isAuthenticated } = useAuth();
     const [sessions, setSessions] = useState<TherapySession[]>([]);
-    // Everything the read window returned, including sessions before today.
-    // Only the reminder schedule uses these; the calendar edits `sessions`.
-    const [reminderSessions, setReminderSessions] = useState<TherapySession[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<SessionErrorCopy | null>(null);
-    const [neuroReminders, setNeuroReminders] = useState<Reminder[]>([]);
+    // Whether the sessions have been fetched at least once. The reminder
+    // cache is keyed on them, so revalidating before they land would miss on
+    // an empty signature and spend a request the next render invalidates.
+    const [sessionsReady, setSessionsReady] = useState(false);
     const deviceTimeZone = useDeviceTimeZone();
     const refreshInFlightRef = useRef<Promise<void> | null>(null);
     const sessionsCountRef = useRef(0);
@@ -128,21 +81,9 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
             try {
                 setError(null);
                 const { from, to } = getSessionsWindow();
-                const fetchWindow = getSessionsFetchWindow();
 
-                const data = await getTherapySessions(fetchWindow.from, fetchWindow.to);
-
-                // The editable set stays exactly what it was before the read
-                // widened: the same floor `getTherapySessions` would have
-                // applied to the un-widened window.
-                const { fromUTC } = toUtcDayRange(from, to);
-                setReminderSessions(data);
-                setSessions(
-                    data.filter(
-                        (session) =>
-                            new Date(session.startsAtUtc).getTime() >= fromUTC.getTime(),
-                    ),
-                );
+                const data = await getTherapySessions(from, to);
+                setSessions(data);
             } catch (err) {
                 const mapped = mapSessionError(err);
                 setError({ ...mapped });
@@ -160,6 +101,7 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
             } finally {
                 refreshInFlightRef.current = null;
                 setLoading(false);
+                setSessionsReady(true);
             }
         })();
 
@@ -207,57 +149,25 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
         return earliest;
     }, [sessions]);
 
-    useEffect(() => {
-        if (!reminderSessions.length) {
-            setNeuroReminders([]);
-            return;
-        }
-
-        // Scheduled from the read window rather than the editable one: the
-        // reminders still owed before the next session belong to the gap that
-        // opens at the *previous* session, which is already in the past.
-        const sessionsUtc = reminderSessions
-            .map((session) => session.startsAtUtc)
-            .filter((value): value is string => typeof value === 'string');
-
-        // Durations travel alongside the starts so the plan shown here never
-        // promises a reminder while a session is still running, matching what
-        // the backend cron will actually send.
-        const sessionDurationsMin: Record<string, number> = {};
-        for (const session of reminderSessions) {
-            if (typeof session.startsAtUtc === 'string') {
-                sessionDurationsMin[session.startsAtUtc] = effectiveDurationMin(session.durationMin);
-            }
-        }
-
-        const reminders = scheduleNeuroplasticityReminders({
-            nowUtc: new Date().toISOString(),
-            sessionsUtc,
-            reflectionHour: 20,
-            morningHour: 7,
-            startAfterDays: 3,
-            cadenceDays: 4,
-            timeZone: deviceTimeZone,
-            sessionDurationsMin,
-        });
-
-        setNeuroReminders(reminders);
-        // deviceTimeZone is a dependency because reminder instants are derived
-        // from it. Travelling does not change the user's sessions, so keying
-        // this only on [sessions] left the UI showing times computed for the
-        // previous zone while useTimeZoneSync had already moved the backend to
-        // the new one.
-    }, [reminderSessions, deviceTimeZone]);
+    // Fetched from the server rather than computed here, so the plan shown to
+    // the user is the plan the cron will send. deviceTimeZone is passed in
+    // because travelling has to invalidate the cached schedule: the sessions
+    // are unchanged, but the wall-clock times they resolve to are not.
+    const neuroReminders = useNeuroReminders(
+        sessions,
+        deviceTimeZone,
+        isAuthenticated,
+        sessionsReady,
+    );
 
     useEffect(() => {
         if (isAuthenticated) {
             refreshSessions();
         } else {
             setSessions([]);
-            setReminderSessions([]);
             setError(null);
             setLoading(false);
-            setNeuroReminders([]);
+            setSessionsReady(false);
         }
     }, [isAuthenticated, refreshSessions]);
 
