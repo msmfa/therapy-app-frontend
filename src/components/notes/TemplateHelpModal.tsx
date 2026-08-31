@@ -17,6 +17,9 @@ type TemplateHelpModalProps = {
 
 const CIRCLE_FILL = 'hsla(0, 0%, 0%, 0.06)';
 
+// Very dark blue: near-black in weight, but clearly blue against the paper.
+const INK = 'hsl(219, 52%, 14%)';
+
 export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) {
     const insets = useSafeAreaInsets();
 
@@ -43,7 +46,7 @@ export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) 
                         style={ styles.backButton }
                         activeOpacity={ 0.7 }
                     >
-                        <Feather name="arrow-left" size={ 22 } color={ COLOR_VARIANTS.black.primary } />
+                        <Feather name="arrow-left" size={ 22 } color={ INK } />
                     </TouchableOpacity>
                     <AppText variant="h1" style={ styles.headerWordSans }>
                         Cheat
@@ -100,18 +103,20 @@ const styles = StyleSheet.create({
         backgroundColor: CIRCLE_FILL,
     },
     headerWordSans: {
+        color: INK,
         fontWeight: '700',
         fontSize: 38,
         lineHeight: 46,
         letterSpacing: -0.5,
     },
     headerWordSerif: {
+        color: INK,
         fontFamily: 'InstrumentSerif-Italic',
         fontSize: 40,
         lineHeight: 46,
         fontWeight: '400',
     },
-    intro: { fontSize: 18, lineHeight: 26 },
-    questionText: { fontSize: 19, lineHeight: 26 },
-    hintText: { fontSize: 18, lineHeight: 26 },
+    intro: { color: INK, fontSize: 18, lineHeight: 26 },
+    questionText: { color: INK, fontSize: 19, lineHeight: 26 },
+    hintText: { color: INK, fontSize: 18, lineHeight: 26 },
 });
