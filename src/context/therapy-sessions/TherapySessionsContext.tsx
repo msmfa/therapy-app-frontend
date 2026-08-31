@@ -5,6 +5,7 @@ import { useAuth } from '../auth/AuthContext';
 import {
     getTherapySessions,
     TherapySession,
+    toUtcDayRange,
     syncTherapySessions as syncTherapySessionsApi,
 } from '../../api/therapy';
 import { scheduleNeuroplasticityReminders, Reminder } from '../../features/reminders/reminder-schedule-v2';
@@ -64,6 +65,34 @@ const getSessionsWindow = () => {
     return { from, to };
 };
 
+/**
+ * The window the app *reads*, which reaches back a year before the editable
+ * window starts.
+ *
+ * Reminders are derived from the gap between two consecutive sessions, so the
+ * reminders still owed between the last session and the next one can only be
+ * computed if that already-past session is in hand. Fetching from today
+ * onwards dropped it, the current gap ceased to exist as far as the client was
+ * concerned, and every remaining reminder in it vanished from the calendar the
+ * day after each session, while the cron — which reads every session the user
+ * has — went on sending those same pushes. The calendar disagreed with the
+ * notifications the user actually received.
+ *
+ * Only the read widens. The editable set and the window handed to syncSessions
+ * are unchanged, so the sync's deletion scope still cannot exceed what the user
+ * could see and past sessions stay untouchable.
+ */
+const SESSIONS_LOOKBACK_YEARS = 1;
+
+const getSessionsFetchWindow = () => {
+    const { from, to } = getSessionsWindow();
+
+    const fetchFrom = new Date(from);
+    fetchFrom.setFullYear(fetchFrom.getFullYear() - SESSIONS_LOOKBACK_YEARS);
+
+    return { from: fetchFrom, to };
+};
+
 interface TherapySessionsProviderProps {
     children: React.ReactNode;
 }
@@ -71,6 +100,9 @@ interface TherapySessionsProviderProps {
 export function TherapySessionsProvider({ children }: TherapySessionsProviderProps) {
     const { isAuthenticated } = useAuth();
     const [sessions, setSessions] = useState<TherapySession[]>([]);
+    // Everything the read window returned, including sessions before today.
+    // Only the reminder schedule uses these; the calendar edits `sessions`.
+    const [reminderSessions, setReminderSessions] = useState<TherapySession[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<SessionErrorCopy | null>(null);
     const [neuroReminders, setNeuroReminders] = useState<Reminder[]>([]);
@@ -96,9 +128,21 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
             try {
                 setError(null);
                 const { from, to } = getSessionsWindow();
+                const fetchWindow = getSessionsFetchWindow();
 
-                const data = await getTherapySessions(from, to);
-                setSessions(data);
+                const data = await getTherapySessions(fetchWindow.from, fetchWindow.to);
+
+                // The editable set stays exactly what it was before the read
+                // widened: the same floor `getTherapySessions` would have
+                // applied to the un-widened window.
+                const { fromUTC } = toUtcDayRange(from, to);
+                setReminderSessions(data);
+                setSessions(
+                    data.filter(
+                        (session) =>
+                            new Date(session.startsAtUtc).getTime() >= fromUTC.getTime(),
+                    ),
+                );
             } catch (err) {
                 const mapped = mapSessionError(err);
                 setError({ ...mapped });
@@ -164,12 +208,15 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
     }, [sessions]);
 
     useEffect(() => {
-        if (!sessions.length) {
+        if (!reminderSessions.length) {
             setNeuroReminders([]);
             return;
         }
 
-        const sessionsUtc = sessions
+        // Scheduled from the read window rather than the editable one: the
+        // reminders still owed before the next session belong to the gap that
+        // opens at the *previous* session, which is already in the past.
+        const sessionsUtc = reminderSessions
             .map((session) => session.startsAtUtc)
             .filter((value): value is string => typeof value === 'string');
 
@@ -177,7 +224,7 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
         // promises a reminder while a session is still running, matching what
         // the backend cron will actually send.
         const sessionDurationsMin: Record<string, number> = {};
-        for (const session of sessions) {
+        for (const session of reminderSessions) {
             if (typeof session.startsAtUtc === 'string') {
                 sessionDurationsMin[session.startsAtUtc] = effectiveDurationMin(session.durationMin);
             }
@@ -200,13 +247,14 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
         // this only on [sessions] left the UI showing times computed for the
         // previous zone while useTimeZoneSync had already moved the backend to
         // the new one.
-    }, [sessions, deviceTimeZone]);
+    }, [reminderSessions, deviceTimeZone]);
 
     useEffect(() => {
         if (isAuthenticated) {
             refreshSessions();
         } else {
             setSessions([]);
+            setReminderSessions([]);
             setError(null);
             setLoading(false);
             setNeuroReminders([]);

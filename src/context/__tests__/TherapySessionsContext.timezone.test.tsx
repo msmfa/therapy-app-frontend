@@ -21,6 +21,10 @@ jest.mock('../auth/AuthContext', () => ({
 }));
 
 jest.mock('../../api/therapy', () => ({
+  // Spread the real module so helpers the context relies on (toUtcDayRange,
+  // which separates the editable window from the wider read window) are not
+  // silently undefined here.
+  ...(jest.requireActual('../../api/therapy') as Record<string, unknown>),
   getTherapySessions: jest.fn(async () => [
     { id: 's1', startsAtUtc: '2030-01-06T18:00:00.000Z', durationMin: 60 },
     { id: 's2', startsAtUtc: '2030-01-20T18:00:00.000Z', durationMin: 60 },
