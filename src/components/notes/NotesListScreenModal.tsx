@@ -139,7 +139,7 @@ export function NotePreviewModal({ visible, note, onClose, onUpdateNote }: NoteP
                             style={ styles.backButton }
                             activeOpacity={ 0.7 }
                         >
-                            <Feather name="arrow-left" size={ 22 } color={ INK } />
+                            <Feather name="arrow-up-left" size={ 22 } color={ INK } />
                         </TouchableOpacity>
                         <AppText style={ styles.headerDate } variant="body">
                             { noteDate }
@@ -168,7 +168,7 @@ export function NotePreviewModal({ visible, note, onClose, onUpdateNote }: NoteP
                             maskElement={
                                 <LinearGradient
                                     colors={ ['transparent', 'black', 'black', 'transparent'] }
-                                    locations={ [0, 0.06, 0.93, 1] }
+                                    locations={ [0, 0.03, 0.93, 1] }
                                     style={ StyleSheet.absoluteFill }
                                 />
                             }
@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'hsla(0, 0%, 0%, 0.06)',
     },
     reader: { flex: 1 },
-    readerContent: { padding: 24, paddingTop: 60 },
+    readerContent: { padding: 24, paddingTop: 30 },
     editor: {
         flex: 1,
         paddingHorizontal: 24,
