@@ -161,11 +161,11 @@ describe('New note screen help popup', () => {
         getByText('One subject is enough.');
     });
 
-    it('closes the popup from its Close button', () => {
-        const { getByLabelText, getByText, queryByText } = render(<NewNoteScreen />);
+    it('closes the popup from the circled back arrow', () => {
+        const { getByLabelText, queryByText } = render(<NewNoteScreen />);
 
         fireEvent.press(getByLabelText('How to take notes'));
-        fireEvent.press(getByText('Close'));
+        fireEvent.press(getByLabelText('Back'));
 
         expect(queryByText('5 Minute Post Therapy Template')).toBeNull();
     });

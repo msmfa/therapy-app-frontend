@@ -1,9 +1,9 @@
 import React from 'react';
-import { Modal, ScrollView, StyleSheet, View } from 'react-native';
+import { Modal, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Feather } from '@expo/vector-icons';
 import AppText from '../ui/AppText';
 import Spacer, { SpacerVariant } from '../ui/Spacer';
-import { Button } from '../ui/Button';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 import {
     POST_THERAPY_QUESTIONS,
@@ -33,6 +33,15 @@ export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) 
                     { paddingTop: insets.top, paddingBottom: insets.bottom },
                 ] }
             >
+                <TouchableOpacity
+                    onPress={ onClose }
+                    accessibilityRole="button"
+                    accessibilityLabel="Back"
+                    style={ styles.backButton }
+                    activeOpacity={ 0.7 }
+                >
+                    <Feather name="arrow-left" size={ 22 } color={ COLOR_VARIANTS.black.primary } />
+                </TouchableOpacity>
                 <ScrollView
                     style={ styles.scroll }
                     contentContainerStyle={ styles.scrollContent }
@@ -58,10 +67,6 @@ export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) 
                         )) }
                     </View>
                 </ScrollView>
-
-                <View style={ styles.footer }>
-                    <Button label="Close" onPress={ onClose } />
-                </View>
             </View>
         </Modal>
     );
@@ -70,7 +75,16 @@ export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) 
 const styles = StyleSheet.create({
     modalRoot: { flex: 1, backgroundColor: COLOR_VARIANTS.white.primary },
     scroll: { flex: 1 },
-    scrollContent: { paddingHorizontal: 24, paddingTop: 32, paddingBottom: 32 },
+    scrollContent: { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 32 },
     questionList: { gap: 24 },
-    footer: { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 16 },
+    backButton: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        marginLeft: 24,
+        marginTop: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'hsla(0, 0%, 0%, 0.06)',
+    },
 });
