@@ -6,6 +6,9 @@ import dayjs from 'dayjs';
 import Badge from "../ui/Badge";
 import { PALETTE, TEXT_COLORS } from 'designs/designs-colors';
 
+const PREVIEW_LINES = 3;
+const PREVIEW_LINE_HEIGHT = 22;
+
 type Props = {
     item: Note;
     index: number;
@@ -23,7 +26,7 @@ export function NoteCard({ item, index, onPress }: Props) {
             ] }
         >
             <View style={ styles.noteHeader }>
-                <AppText variant='h3' >
+                <AppText variant='h3' numberOfLines={ 1 }>
                     { dayjs(item.createdAt).format('dddd, MMM D, YYYY') }
                 </AppText>
                 { index === 0 && (
@@ -32,7 +35,7 @@ export function NoteCard({ item, index, onPress }: Props) {
                     </View>
                 ) }
             </View>
-            <AppText variant='bodySecondary' numberOfLines={ 3 }>
+            <AppText variant='bodySecondary' numberOfLines={ PREVIEW_LINES } style={ styles.preview }>
                 { item.text }
             </AppText>
 
@@ -72,6 +75,11 @@ const styles = StyleSheet.create({
         elevation: 24,
         borderColor: PALETTE.overlay.whiteSurfaceTransparent,
         borderWidth: 1,
+    },
+    preview: {
+        // Fixed so every card is the same height, however short the note is.
+        height: PREVIEW_LINES * PREVIEW_LINE_HEIGHT,
+        lineHeight: PREVIEW_LINE_HEIGHT,
     },
     noteHeader: {
         flexDirection: 'row',
