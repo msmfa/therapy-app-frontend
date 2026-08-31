@@ -2,12 +2,15 @@ import React from 'react';
 import { StyleProp, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import Svg, { Circle, Defs, Line, Path, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
+import Svg, { Circle, Defs, Line, Path, LinearGradient as SvgGradient, Stop, Text as SvgText } from 'react-native-svg';
 import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
+
+export type GlassCircleIcon = 'plus' | 'question';
 
 type Props = {
     onPress: () => void;
     accessibilityLabel: string;
+    icon?: GlassCircleIcon;
     size?: number;
     disabled?: boolean;
     style?: StyleProp<ViewStyle>;
@@ -24,6 +27,7 @@ const CANVAS_PAD = 4;
 export function GlassCircleButton({
     onPress,
     accessibilityLabel,
+    icon = 'plus',
     size = 84,
     disabled = false,
     style,
@@ -106,24 +110,39 @@ export function GlassCircleButton({
                         strokeLinecap="round"
                         fill="none"
                     />
-                    <Line
-                        x1={ center - plusArm }
-                        y1={ center }
-                        x2={ center + plusArm }
-                        y2={ center }
-                        stroke="#ffffff"
-                        strokeWidth={ 2 }
-                        strokeLinecap="round"
-                    />
-                    <Line
-                        x1={ center }
-                        y1={ center - plusArm }
-                        x2={ center }
-                        y2={ center + plusArm }
-                        stroke="#ffffff"
-                        strokeWidth={ 2 }
-                        strokeLinecap="round"
-                    />
+                    { icon === 'plus' ? (
+                        <>
+                            <Line
+                                x1={ center - plusArm }
+                                y1={ center }
+                                x2={ center + plusArm }
+                                y2={ center }
+                                stroke="#ffffff"
+                                strokeWidth={ 2 }
+                                strokeLinecap="round"
+                            />
+                            <Line
+                                x1={ center }
+                                y1={ center - plusArm }
+                                x2={ center }
+                                y2={ center + plusArm }
+                                stroke="#ffffff"
+                                strokeWidth={ 2 }
+                                strokeLinecap="round"
+                            />
+                        </>
+                    ) : (
+                        <SvgText
+                            x={ center }
+                            y={ center + size * 0.15 }
+                            fill="#ffffff"
+                            fontSize={ size * 0.42 }
+                            fontWeight="300"
+                            textAnchor="middle"
+                        >
+                            ?
+                        </SvgText>
+                    ) }
                 </Svg>
             </View>
         </TouchableOpacity>

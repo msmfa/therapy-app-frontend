@@ -57,7 +57,7 @@ export default function NewNoteScreen() {
                             <View style={ styles.cardWrapper }>
                                 <View style={ styles.cardOverlay }>
                                     <TextInput
-                                        placeholder="Add your notes here..."
+                                        placeholder="Add today's therapy notes here..."
                                         value={ text }
                                         onChangeText={ setText }
                                         multiline
@@ -76,6 +76,7 @@ export default function NewNoteScreen() {
                             <GlassButtonOutline buttonSize={ saveButtonSize } />
                             <GlassCircleButton
                                 accessibilityLabel="Save note"
+                                icon="question"
                                 size={ saveButtonSize }
                                 onPress={ handleNext }
                                 disabled={ isDisabled }
@@ -139,8 +140,8 @@ const styles = StyleSheet.create({
     },
     textInput: {
         flex: 1,
-        fontSize: 18,
-        lineHeight: 26,
+        fontSize: 22,
+        lineHeight: 30,
         textAlignVertical: 'top',
         padding: 0,
         paddingBottom: 70,
