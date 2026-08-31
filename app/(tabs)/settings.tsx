@@ -138,7 +138,7 @@ export default function SettingsScreen() {
                                 onPress={ () => router.push('/interval-science') }
                             />
                             <SettingsRow
-                                text="How to get the most from note taking after a session"
+                                text="5 Minute Post Therapy Template"
                                 onPress={ () => router.push('/how-to-take-notes') }
                             />
                         </View>
