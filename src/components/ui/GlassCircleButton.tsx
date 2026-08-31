@@ -5,12 +5,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Defs, Line, Path, LinearGradient as SvgGradient, Stop, Text as SvgText } from 'react-native-svg';
 import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
 
-export type GlassCircleIcon = 'plus' | 'question';
+export type GlassCircleIcon = 'plus' | 'question' | 'back';
 
 type Props = {
     onPress: () => void;
     accessibilityLabel: string;
     icon?: GlassCircleIcon;
+    // White reads on the home screen's colour; paper screens pass their ink.
+    iconColor?: string;
     size?: number;
     disabled?: boolean;
     style?: StyleProp<ViewStyle>;
@@ -28,6 +30,7 @@ export function GlassCircleButton({
     onPress,
     accessibilityLabel,
     icon = 'plus',
+    iconColor = '#ffffff',
     size = 84,
     disabled = false,
     style,
@@ -110,14 +113,32 @@ export function GlassCircleButton({
                         strokeLinecap="round"
                         fill="none"
                     />
-                    { icon === 'plus' ? (
+                    { icon === 'back' ? (
+                        <>
+                            <Path
+                                d={ `M ${center + plusArm} ${center + plusArm} L ${center - plusArm} ${center - plusArm}` }
+                                stroke={ iconColor }
+                                strokeWidth={ 2 }
+                                strokeLinecap="round"
+                                fill="none"
+                            />
+                            <Path
+                                d={ `M ${center - plusArm} ${center - plusArm + plusArm * 1.05} L ${center - plusArm} ${center - plusArm} L ${center - plusArm + plusArm * 1.05} ${center - plusArm}` }
+                                stroke={ iconColor }
+                                strokeWidth={ 2 }
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                fill="none"
+                            />
+                        </>
+                    ) : icon === 'plus' ? (
                         <>
                             <Line
                                 x1={ center - plusArm }
                                 y1={ center }
                                 x2={ center + plusArm }
                                 y2={ center }
-                                stroke="#ffffff"
+                                stroke={ iconColor }
                                 strokeWidth={ 2 }
                                 strokeLinecap="round"
                             />
@@ -126,7 +147,7 @@ export function GlassCircleButton({
                                 y1={ center - plusArm }
                                 x2={ center }
                                 y2={ center + plusArm }
-                                stroke="#ffffff"
+                                stroke={ iconColor }
                                 strokeWidth={ 2 }
                                 strokeLinecap="round"
                             />
@@ -135,7 +156,7 @@ export function GlassCircleButton({
                         <SvgText
                             x={ center }
                             y={ center + size * 0.15 }
-                            fill="#ffffff"
+                            fill={ iconColor }
                             fontSize={ size * 0.42 }
                             fontWeight="300"
                             textAnchor="middle"

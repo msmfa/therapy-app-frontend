@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Note } from "../../features/notes/useNotes";
 import { useKeyboardInset } from "../../hooks/useKeyboardInset";
 import { Button } from "../ui/Button";
-import { Feather } from '@expo/vector-icons';
+import { GlassCircleButton } from '../ui/GlassCircleButton';
 import AppText from "../ui/AppText";
 import { COLOR_VARIANTS, THEME_COLORS } from 'designs/designs-colors';
 
@@ -132,19 +132,33 @@ export function NotePreviewModal({ visible, note, onClose, onUpdateNote }: NoteP
                     ] }
                 >
                     <View style={ styles.header }>
-                        <TouchableOpacity
-                            onPress={ handleClose }
-                            accessibilityRole="button"
+                        <GlassCircleButton
                             accessibilityLabel="Back"
+                            icon="back"
+                            iconColor={ INK }
+                            size={ 48 }
+                            onPress={ handleClose }
                             style={ styles.backButton }
-                            activeOpacity={ 0.7 }
-                        >
-                            <Feather name="arrow-up-left" size={ 22 } color={ INK } />
-                        </TouchableOpacity>
-                        <AppText style={ styles.headerDate } variant="body">
-                            { noteDate }
-                        </AppText>
+                        />
+                        { !isEditing ? (
+                            <TouchableOpacity
+                                onPress={ handleStartEditing }
+                                accessibilityRole="button"
+                                accessibilityLabel="Edit note"
+                                disabled={ !note }
+                                activeOpacity={ 0.7 }
+                            >
+                                <AppText style={ styles.headerAction } variant="body">edit</AppText>
+                            </TouchableOpacity>
+                        ) : null }
                     </View>
+                    <View style={ styles.rule } />
+                    <AppText style={ styles.headerDate } variant="body">
+                        { noteDate }
+                    </AppText>
+                    <AppText style={ styles.noteHeading } variant="h1">
+                        what was said
+                    </AppText>
                     { isEditing ? (
                     /* No ScrollView here on purpose: a multiline TextInput is a
                        UITextView, which scrolls itself and keeps the caret in
@@ -203,13 +217,7 @@ export function NotePreviewModal({ visible, note, onClose, onUpdateNote }: NoteP
                                 />
                             </>
                         ) : (
-                            <>
-                                <Button
-                                    label="Edit"
-                                    onPress={ handleStartEditing }
-                                    disabled={ !note }
-                                />
-                            </>
+                            <View style={ styles.footerRule } />
                         ) }
                     </View>
                 </View>
@@ -224,25 +232,42 @@ const styles = StyleSheet.create({
     header: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 14,
+        justifyContent: 'space-between',
         paddingRight: 24,
     },
-    headerDate: {
-        flex: 1,
+    headerAction: {
         color: INK,
+        fontSize: 20,
+    },
+    rule: {
+        height: StyleSheet.hairlineWidth,
+        backgroundColor: 'hsla(219, 52%, 14%, 0.35)',
+        marginHorizontal: 24,
+        marginTop: 12,
+    },
+    footerRule: {
+        height: StyleSheet.hairlineWidth,
+        backgroundColor: 'hsla(219, 52%, 14%, 0.35)',
+    },
+    noteHeading: {
+        color: INK,
+        fontSize: 40,
+        lineHeight: 48,
+        fontWeight: '400',
+        marginHorizontal: 24,
+        marginTop: 14,
+    },
+    headerDate: {
+        color: 'hsla(219, 52%, 14%, 0.5)',
         fontSize: 15,
-        letterSpacing: 0.6,
+        letterSpacing: 1.2,
+        marginHorizontal: 24,
+        marginTop: 14,
     },
     readerMask: { flex: 1 },
     backButton: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
         marginLeft: 24,
         marginBottom: 4,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'hsla(0, 0%, 0%, 0.06)',
     },
     reader: { flex: 1 },
     readerContent: { padding: 24, paddingTop: 30 },
@@ -260,6 +285,7 @@ const styles = StyleSheet.create({
         height: 12,
     },
     modalText: {
+        color: 'hsla(219, 52%, 14%, 0.62)',
         fontSize: 18,
         lineHeight: 28,
         marginHorizontal: 5,
