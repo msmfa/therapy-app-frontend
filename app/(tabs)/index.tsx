@@ -8,6 +8,7 @@ import ErrorMessage from '../../src/components/ui/ErrorMessage';
 import { GlassMorphismWithCircle } from '../../src/components/ui/GlassMorphismWithCircle';
 import { GlassCircleButton } from '../../src/components/ui/GlassCircleButton';
 import { GlassButtonOutline } from '../../src/components/ui/GlassButtonOutline';
+import { TemplateHelpModal } from '../../src/components/notes/TemplateHelpModal';
 import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 
@@ -19,6 +20,7 @@ export default function NewNoteScreen() {
     const { addNote } = useNotes(user?.id);
     const [text, setText] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [helpVisible, setHelpVisible] = useState(false);
 
     const handleNext = useCallback(async () => {
         const value = text.trim();
@@ -64,7 +66,7 @@ export default function NewNoteScreen() {
                                         numberOfLines={ 10 }
                                         underlineColorAndroid={ COLOR_VARIANTS.transparent }
                                         style={ styles.textInput }
-                                        placeholderTextColor={ COLOR_VARIANTS.black.tertiary }
+                                        placeholderTextColor={ COLOR_VARIANTS.black.primary }
                                         selectionColor={ COLOR_VARIANTS.white.quaternary }
                                     />
                                 </View>
@@ -75,11 +77,10 @@ export default function NewNoteScreen() {
                         <View style={ styles.footer }>
                             <GlassButtonOutline buttonSize={ saveButtonSize } />
                             <GlassCircleButton
-                                accessibilityLabel="Save note"
+                                accessibilityLabel="How to take notes"
                                 icon="question"
                                 size={ saveButtonSize }
-                                onPress={ handleNext }
-                                disabled={ isDisabled }
+                                onPress={ () => setHelpVisible(true) }
                             />
                             <GlassCircleButton
                                 accessibilityLabel="Save note"
@@ -90,6 +91,7 @@ export default function NewNoteScreen() {
                         </View>
                     </Pressable>
                 </KeyboardAvoidingView>
+                <TemplateHelpModal visible={ helpVisible } onClose={ () => setHelpVisible(false) } />
             </SafeAreaView>
         </View>
     );
@@ -140,8 +142,10 @@ const styles = StyleSheet.create({
     },
     textInput: {
         flex: 1,
-        fontSize: 22,
-        lineHeight: 30,
+        fontSize: 40,
+        lineHeight: 46,
+        fontWeight: '700',
+        color: COLOR_VARIANTS.black.primary,
         textAlignVertical: 'top',
         padding: 0,
         paddingBottom: 70,

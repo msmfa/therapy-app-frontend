@@ -5,6 +5,7 @@ import { fireEvent, render } from '@testing-library/react-native';
 
 import HowToTakeNotesScreen from '../how-to-take-notes';
 import WhyFiveQuestionsScreen from '../why-five-questions';
+import NewNoteScreen from '../(tabs)/index';
 
 const mockPush = jest.fn();
 const mockBack = jest.fn();
@@ -22,6 +23,14 @@ jest.mock('react-native-safe-area-context', () => {
         useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
     };
 });
+
+jest.mock('../../src/context/auth/AuthContext', () => ({
+    useAuth: () => ({ user: { id: 'user-1' } }),
+}));
+
+jest.mock('../../src/features/notes/useNotes', () => ({
+    useNotes: () => ({ addNote: jest.fn() }),
+}));
 
 beforeEach(() => {
     mockPush.mockClear();
@@ -135,5 +144,29 @@ describe('Why these five questions', () => {
         fireEvent.press(getByText('The science behind our reminder intervals'));
 
         expect(mockPush).toHaveBeenCalledWith('/interval-science');
+    });
+});
+
+describe('New note screen help popup', () => {
+    it('opens the 5 minute template advice when the question button is pressed', () => {
+        const { getByLabelText, getByText, queryByText } = render(<NewNoteScreen />);
+
+        expect(queryByText('5 Minute Post Therapy Template')).toBeNull();
+
+        fireEvent.press(getByLabelText('How to take notes'));
+
+        getByText('5 Minute Post Therapy Template');
+        getByText('Answer these 5 questions after your session');
+        getByText(/What stayed with me from today’s session\?/);
+        getByText('One subject is enough.');
+    });
+
+    it('closes the popup from its Close button', () => {
+        const { getByLabelText, getByText, queryByText } = render(<NewNoteScreen />);
+
+        fireEvent.press(getByLabelText('How to take notes'));
+        fireEvent.press(getByText('Close'));
+
+        expect(queryByText('5 Minute Post Therapy Template')).toBeNull();
     });
 });
