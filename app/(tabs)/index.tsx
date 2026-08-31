@@ -7,6 +7,7 @@ import { useAuth } from '../../src/context/auth/AuthContext';
 import { useNotes } from '../../src/features/notes/useNotes';
 import ErrorMessage from '../../src/components/ui/ErrorMessage';
 import { GlassMorphismWithCircle } from '../../src/components/ui/GlassMorphismWithCircle';
+import { GlassCircleButton } from '../../src/components/ui/GlassCircleButton';
 import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 
@@ -78,6 +79,16 @@ export default function NewNoteScreen() {
                         </View>
 
                         <View style={ styles.footer }>
+                            <GlassCircleButton
+                                accessibilityLabel="Save note"
+                                onPress={ handleNext }
+                                disabled={ isDisabled }
+                            />
+                            <GlassCircleButton
+                                accessibilityLabel="Save note"
+                                onPress={ handleNext }
+                                disabled={ isDisabled }
+                            />
                         </View>
                     </Pressable>
                 </KeyboardAvoidingView>
@@ -152,6 +163,8 @@ const styles = StyleSheet.create({
         opacity: 0.5,
     },
     footer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
         marginTop: 24,
         marginBottom: 12,
