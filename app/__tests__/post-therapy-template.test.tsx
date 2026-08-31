@@ -1,5 +1,6 @@
 import React from 'react';
 import { jest } from '@jest/globals';
+import { Linking } from 'react-native';
 import { fireEvent, render } from '@testing-library/react-native';
 
 import HowToTakeNotesScreen from '../how-to-take-notes';
@@ -89,6 +90,43 @@ describe('Why these five questions', () => {
         getByText(/^Bisra, Liu, Nesbit, Salimi & Winne \(2018\)/);
         getByText(/^Gollwitzer & Sheeran \(2006\)/);
         getByText(/^Cepeda, Pashler, Vul, Wixted & Rohrer \(2006\)/);
+    });
+
+    it('opens the source article when a reference is pressed', () => {
+        const openURL = jest
+            .spyOn(Linking, 'openURL')
+            .mockImplementation(() => Promise.resolve(true));
+
+        const { getByText } = render(<WhyFiveQuestionsScreen />);
+
+        fireEvent.press(getByText(/^Kessels \(2003\)/));
+        expect(openURL).toHaveBeenCalledWith('https://pmc.ncbi.nlm.nih.gov/articles/PMC539473/');
+
+        fireEvent.press(getByText(/^Cepeda, Pashler, Vul, Wixted & Rohrer \(2006\)/));
+        expect(openURL).toHaveBeenCalledWith('https://doi.org/10.1037/0033-2909.132.3.354');
+
+        openURL.mockRestore();
+    });
+
+    it('gives every reference a link', () => {
+        const openURL = jest
+            .spyOn(Linking, 'openURL')
+            .mockImplementation(() => Promise.resolve(true));
+
+        const { getAllByRole } = render(<WhyFiveQuestionsScreen />);
+        const links = getAllByRole('link');
+
+        expect(links).toHaveLength(8);
+
+        links.forEach((link) => fireEvent.press(link));
+        const called = openURL.mock.calls.map(([url]) => url);
+
+        expect(new Set(called).size).toBe(8);
+        called.forEach((url) => {
+            expect(url).toMatch(/^https:\/\/(doi\.org|pmc\.ncbi\.nlm\.nih\.gov)\//);
+        });
+
+        openURL.mockRestore();
     });
 
     it('links through to the reminder interval science page', () => {

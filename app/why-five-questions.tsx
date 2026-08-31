@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import AppText from '../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { Button } from '../src/components/ui/Button';
+import { ExternalLink } from 'src/components/ui/ExternalLink';
 
 type RationaleSection = {
     question: string;
@@ -45,15 +46,46 @@ const SECTIONS: RationaleSection[] = [
     },
 ];
 
-const REFERENCES: string[] = [
-    'Kessels (2003), Patients’ memory for medical information. Journal of the Royal Society of Medicine.',
-    'Dong, Zhao, Ong & Harvey (2017), Patient recall of specific cognitive therapy contents predicts adherence and outcome in adults with major depressive disorder. Behaviour Research and Therapy.',
-    'Adesope, Trevisan & Sundararajan (2017), Rethinking the use of tests: A meta-analysis of practice testing. Review of Educational Research. Practice testing beat restudying, g = 0.51, and beat no extra activity, g = 0.93.',
-    'Kazantzis, Whittington, Zelencich, Kyrios, Norton & Hofmann (2016), Quantity and quality of homework compliance: A meta-analysis of relations with outcome in cognitive behavior therapy. Behavior Therapy. Homework quantity and outcome at post-treatment, g = 0.79 across 15 comparisons and 1,537 people.',
-    'Kircanski, Lieberman & Craske (2012), Feelings into words: Contributions of language to exposure therapy. Psychological Science.',
-    'Bisra, Liu, Nesbit, Salimi & Winne (2018), Inducing self-explanation: A meta-analysis. Educational Psychology Review. 69 effect sizes from 64 studies, g = 0.55.',
-    'Gollwitzer & Sheeran (2006), Implementation intentions and goal achievement: A meta-analysis of effects and processes. Advances in Experimental Social Psychology. 94 independent tests, d = 0.65.',
-    'Cepeda, Pashler, Vul, Wixted & Rohrer (2006), Distributed practice in verbal recall tasks: A review and quantitative synthesis. Psychological Bulletin.',
+type Reference = {
+    text: string;
+    url: string;
+};
+
+// Links prefer free full text on PubMed Central where it exists, and fall back
+// to the publisher's DOI, which is the stable identifier for the article.
+const REFERENCES: Reference[] = [
+    {
+        text: 'Kessels (2003), Patients’ memory for medical information. Journal of the Royal Society of Medicine.',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC539473/',
+    },
+    {
+        text: 'Dong, Zhao, Ong & Harvey (2017), Patient recall of specific cognitive therapy contents predicts adherence and outcome in adults with major depressive disorder. Behaviour Research and Therapy.',
+        url: 'https://doi.org/10.1016/j.brat.2017.08.006',
+    },
+    {
+        text: 'Adesope, Trevisan & Sundararajan (2017), Rethinking the use of tests: A meta-analysis of practice testing. Review of Educational Research. Practice testing beat restudying, g = 0.51, and beat no extra activity, g = 0.93.',
+        url: 'https://doi.org/10.3102/0034654316689306',
+    },
+    {
+        text: 'Kazantzis, Whittington, Zelencich, Kyrios, Norton & Hofmann (2016), Quantity and quality of homework compliance: A meta-analysis of relations with outcome in cognitive behavior therapy. Behavior Therapy. Homework quantity and outcome at post-treatment, g = 0.79 across 15 comparisons and 1,537 people.',
+        url: 'https://doi.org/10.1016/j.beth.2016.05.002',
+    },
+    {
+        text: 'Kircanski, Lieberman & Craske (2012), Feelings into words: Contributions of language to exposure therapy. Psychological Science.',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC4721564/',
+    },
+    {
+        text: 'Bisra, Liu, Nesbit, Salimi & Winne (2018), Inducing self-explanation: A meta-analysis. Educational Psychology Review. 69 effect sizes from 64 studies, g = 0.55.',
+        url: 'https://doi.org/10.1007/s10648-018-9434-x',
+    },
+    {
+        text: 'Gollwitzer & Sheeran (2006), Implementation intentions and goal achievement: A meta-analysis of effects and processes. Advances in Experimental Social Psychology. 94 independent tests, d = 0.65.',
+        url: 'https://doi.org/10.1016/S0065-2601(06)38002-1',
+    },
+    {
+        text: 'Cepeda, Pashler, Vul, Wixted & Rohrer (2006), Distributed practice in verbal recall tasks: A review and quantitative synthesis. Psychological Bulletin.',
+        url: 'https://doi.org/10.1037/0033-2909.132.3.354',
+    },
 ];
 
 export default function WhyFiveQuestionsScreen() {
@@ -120,13 +152,16 @@ export default function WhyFiveQuestionsScreen() {
                 <Spacer variant={ SpacerVariant.small } />
                 <View style={ styles.referenceList }>
                     { REFERENCES.map((reference, index) => (
-                        <View key={ reference.slice(0, 40) } style={ styles.reference }>
+                        <View key={ reference.url } style={ styles.reference }>
                             <AppText variant="caption" style={ styles.referenceMarker }>
                                 { index + 1 }.
                             </AppText>
-                            <AppText variant="caption" style={ styles.referenceText }>
-                                { reference }
-                            </AppText>
+                            <ExternalLink
+                                variant="caption"
+                                text={ reference.text }
+                                url={ reference.url }
+                                containerStyle={ styles.referenceLink }
+                            />
                         </View>
                     )) }
                 </View>
@@ -146,7 +181,7 @@ const styles = StyleSheet.create({
     sectionList: { gap: 24 },
     referenceList: { gap: 12 },
     reference: { flexDirection: 'row', gap: 8 },
-    referenceMarker: { width: 20 },
-    referenceText: { flex: 1 },
+    referenceMarker: { width: 20, paddingTop: 6 },
+    referenceLink: { flex: 1 },
     footer: { paddingHorizontal: 24, paddingBottom: 24 },
 });
