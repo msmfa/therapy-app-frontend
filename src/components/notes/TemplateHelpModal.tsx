@@ -9,13 +9,17 @@ import {
     POST_THERAPY_QUESTIONS,
     POST_THERAPY_TEMPLATE_INTRO,
     POST_THERAPY_TEMPLATE_SUBTITLE,
-    POST_THERAPY_TEMPLATE_TITLE,
 } from '../../constants/postTherapyTemplate';
 
 type TemplateHelpModalProps = {
     visible: boolean;
     onClose: () => void;
 };
+
+// One tint for every circle, so the numbers read as siblings of the back button.
+const CIRCLE_FILL = 'hsla(0, 0%, 0%, 0.06)';
+
+const NUMBER_BADGE_SIZE = 34;
 
 export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) {
     const insets = useSafeAreaInsets();
@@ -55,22 +59,32 @@ export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) 
                     contentContainerStyle={ styles.scrollContent }
                     showsVerticalScrollIndicator={ false }
                 >
-                    <AppText variant="h1">{ POST_THERAPY_TEMPLATE_TITLE }</AppText>
-
-                    <Spacer variant={ SpacerVariant.large } />
-                    <AppText variant="h2">{ POST_THERAPY_TEMPLATE_SUBTITLE }</AppText>
+                    <AppText variant="h2" style={ styles.subtitle }>
+                        { POST_THERAPY_TEMPLATE_SUBTITLE }
+                    </AppText>
                     <Spacer variant={ SpacerVariant.small } />
-                    <AppText variant="body">{ POST_THERAPY_TEMPLATE_INTRO }</AppText>
+                    <AppText variant="body" style={ styles.intro }>
+                        { POST_THERAPY_TEMPLATE_INTRO }
+                    </AppText>
 
                     <Spacer variant={ SpacerVariant.large } />
                     <View style={ styles.questionList }>
                         { POST_THERAPY_QUESTIONS.map((item, index) => (
                             <View key={ item.question }>
-                                <AppText variant="h3">
-                                    { index + 1 }. { item.question }
-                                </AppText>
+                                <View style={ styles.questionRow }>
+                                    <View style={ styles.numberBadge }>
+                                        <AppText variant="h3" style={ styles.numberText }>
+                                            { index + 1 }
+                                        </AppText>
+                                    </View>
+                                    <AppText variant="h3" style={ styles.questionText }>
+                                        { item.question }
+                                    </AppText>
+                                </View>
                                 <Spacer variant={ SpacerVariant.small } />
-                                <AppText variant="body">{ item.hint }</AppText>
+                                <AppText variant="body" style={ styles.hintText }>
+                                    { item.hint }
+                                </AppText>
                             </View>
                         )) }
                     </View>
@@ -83,8 +97,8 @@ export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) 
 const styles = StyleSheet.create({
     modalRoot: { flex: 1, backgroundColor: COLOR_VARIANTS.white.primary },
     scroll: { flex: 1 },
-    scrollContent: { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 32 },
-    questionList: { gap: 24 },
+    scrollContent: { paddingHorizontal: 24, paddingTop: 20, paddingBottom: 32 },
+    questionList: { gap: 26 },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -98,7 +112,7 @@ const styles = StyleSheet.create({
         borderRadius: 22,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'hsla(0, 0%, 0%, 0.06)',
+        backgroundColor: CIRCLE_FILL,
     },
     headerWordSans: {
         fontWeight: '700',
@@ -112,4 +126,22 @@ const styles = StyleSheet.create({
         lineHeight: 46,
         fontWeight: '400',
     },
+    subtitle: { fontSize: 20, lineHeight: 28 },
+    intro: { fontSize: 18, lineHeight: 26 },
+    questionRow: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        gap: 12,
+    },
+    numberBadge: {
+        width: NUMBER_BADGE_SIZE,
+        height: NUMBER_BADGE_SIZE,
+        borderRadius: NUMBER_BADGE_SIZE / 2,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: CIRCLE_FILL,
+    },
+    numberText: { fontSize: 17, lineHeight: 22 },
+    questionText: { flex: 1, fontSize: 19, lineHeight: 26 },
+    hintText: { fontSize: 18, lineHeight: 26, marginLeft: NUMBER_BADGE_SIZE + 12 },
 });
