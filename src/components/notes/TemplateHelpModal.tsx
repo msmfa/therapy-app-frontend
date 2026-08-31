@@ -101,15 +101,15 @@ const styles = StyleSheet.create({
         backgroundColor: 'hsla(0, 0%, 0%, 0.06)',
     },
     headerWordSans: {
-        fontFamily: 'GeneralSans-Bold',
-        fontSize: 30,
-        lineHeight: 38,
+        fontWeight: '700',
+        fontSize: 38,
+        lineHeight: 46,
         letterSpacing: -0.5,
     },
     headerWordSerif: {
         fontFamily: 'InstrumentSerif-Italic',
-        fontSize: 32,
-        lineHeight: 38,
+        fontSize: 40,
+        lineHeight: 46,
         fontWeight: '400',
     },
 });
