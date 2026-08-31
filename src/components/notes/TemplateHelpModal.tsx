@@ -20,6 +20,12 @@ const CIRCLE_FILL = 'hsla(0, 0%, 0%, 0.06)';
 // Very dark blue: near-black in weight, but clearly blue against the paper.
 const INK = 'hsl(219, 52%, 14%)';
 
+// Same ink, eased back so the hints sit under the questions rather than beside them.
+const INK_SOFT = 'hsla(219, 52%, 14%, 0.68)';
+
+// One gutter for the header and the body, so the two columns line up.
+const H_PADDING = 30;
+
 export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) {
     const insets = useSafeAreaInsets();
 
@@ -85,13 +91,13 @@ export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) 
 const styles = StyleSheet.create({
     modalRoot: { flex: 1, backgroundColor: COLOR_VARIANTS.white.primary },
     scroll: { flex: 1 },
-    scrollContent: { paddingHorizontal: 24, paddingTop: 20, paddingBottom: 32 },
+    scrollContent: { paddingHorizontal: H_PADDING, paddingTop: 20, paddingBottom: 32 },
     questionList: { gap: 26 },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 14,
-        marginLeft: 24,
+        marginLeft: H_PADDING,
         marginTop: 8,
     },
     backButton: {
@@ -118,5 +124,5 @@ const styles = StyleSheet.create({
     },
     intro: { color: INK, fontSize: 18, lineHeight: 26 },
     questionText: { color: INK, fontSize: 19, lineHeight: 26 },
-    hintText: { color: INK, fontSize: 18, lineHeight: 26 },
+    hintText: { color: INK_SOFT, fontSize: 18, lineHeight: 26 },
 });
