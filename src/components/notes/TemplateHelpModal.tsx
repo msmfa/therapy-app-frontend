@@ -75,7 +75,6 @@ export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) 
                                 <AppText variant="h3" style={ styles.questionText }>
                                     { item.question }
                                 </AppText>
-                                <Spacer variant={ SpacerVariant.small } />
                                 <AppText variant="body" style={ styles.hintText }>
                                     { item.hint }
                                 </AppText>
@@ -124,5 +123,5 @@ const styles = StyleSheet.create({
     },
     intro: { color: INK, fontSize: 18, lineHeight: 26 },
     questionText: { color: INK, fontSize: 19, lineHeight: 26 },
-    hintText: { color: INK_SOFT, fontSize: 18, lineHeight: 26 },
+    hintText: { color: INK_SOFT, fontSize: 18, lineHeight: 26, marginTop: 2 },
 });
