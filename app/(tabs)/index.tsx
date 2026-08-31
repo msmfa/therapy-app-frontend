@@ -7,6 +7,7 @@ import { useNotes } from '../../src/features/notes/useNotes';
 import ErrorMessage from '../../src/components/ui/ErrorMessage';
 import { GlassMorphismWithCircle } from '../../src/components/ui/GlassMorphismWithCircle';
 import { GlassCircleButton } from '../../src/components/ui/GlassCircleButton';
+import { GlassButtonOutline } from '../../src/components/ui/GlassButtonOutline';
 import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 
@@ -39,6 +40,7 @@ export default function NewNoteScreen() {
     }, [addNote, router, text]);
 
     const isDisabled = text.trim().length === 0;
+    const saveButtonSize = 72;
 
     return (
         <View style={ styles.container }>
@@ -71,13 +73,16 @@ export default function NewNoteScreen() {
                         </View>
 
                         <View style={ styles.footer }>
+                            <GlassButtonOutline buttonSize={ saveButtonSize } />
                             <GlassCircleButton
                                 accessibilityLabel="Save note"
+                                size={ saveButtonSize }
                                 onPress={ handleNext }
                                 disabled={ isDisabled }
                             />
                             <GlassCircleButton
                                 accessibilityLabel="Save note"
+                                size={ saveButtonSize }
                                 onPress={ handleNext }
                                 disabled={ isDisabled }
                             />
