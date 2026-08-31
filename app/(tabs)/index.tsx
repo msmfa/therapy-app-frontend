@@ -150,6 +150,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginTop: 24,
-        marginBottom: 12,
+        marginBottom: 28,
     },
 });

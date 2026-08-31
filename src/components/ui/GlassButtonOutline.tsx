@@ -9,9 +9,6 @@ type Props = {
 // Breathing room between the button edge and the outline.
 const PADDING = 2;
 
-// The outline rides a little high on the buttons rather than dead centre.
-const LIFT = 3;
-
 // Extra svg canvas so the outline is not clipped at the row's edges.
 const INSET = 4;
 
@@ -32,7 +29,7 @@ export function GlassButtonOutline({ buttonSize }: Props) {
     const buttonRadius = buttonSize / 2;
     const outlineRadius = buttonRadius + PADDING;
 
-    const cy = INSET + height / 2 - LIFT;
+    const cy = INSET + height / 2;
     const leftCx = INSET + buttonRadius;
     const rightCx = INSET + width - buttonRadius;
 
