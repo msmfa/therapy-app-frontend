@@ -3,7 +3,7 @@ import { StyleProp, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Defs, Line, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
-import { PALETTE } from 'designs/designs-colors';
+import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
 
 type Props = {
     onPress: () => void;
@@ -13,9 +13,8 @@ type Props = {
     style?: StyleProp<ViewStyle>;
 };
 
-// How far the svg canvas extends past the touch target, so the companion
-// bubble can overlap the button edge without being clipped.
-const CANVAS_PAD = 14;
+// Small svg bleed past the touch target so round line caps are not clipped.
+const CANVAS_PAD = 4;
 
 // A round frosted-glass button modelled on the product shot: a blurred
 // translucent fill, a rim that fades from bright at the top left to almost
@@ -31,12 +30,6 @@ export function GlassCircleButton({
     const radius = size / 2;
     const canvasSize = size + CANVAS_PAD * 2;
     const center = CANVAS_PAD + radius;
-
-    // Companion bubble: slightly larger, drifted up and to the left, so the
-    // two rims run close together at the top left the way they do in the shot.
-    const haloRadius = radius + 2;
-    const haloCenterX = center - 3;
-    const haloCenterY = center - 3.5;
 
     const plusArm = size * 0.21;
 
@@ -62,8 +55,8 @@ export function GlassCircleButton({
             >
                 <LinearGradient
                     colors={ [
-                        PALETTE.overlay.whiteMediumTransparent,
                         PALETTE.overlay.whiteSoftTransparent,
+                        COLOR_VARIANTS.transparent,
                     ] }
                     style={ StyleSheet.absoluteFill }
                 />
@@ -72,24 +65,11 @@ export function GlassCircleButton({
                 <Svg width={ canvasSize } height={ canvasSize }>
                     <Defs>
                         <SvgGradient id="rim" x1="0" y1="0" x2="1" y2="1">
-                            <Stop offset="0" stopColor="#ffffff" stopOpacity="0.95" />
-                            <Stop offset="0.55" stopColor="#ffffff" stopOpacity="0.35" />
+                            <Stop offset="0" stopColor="#ffffff" stopOpacity="0.8" />
+                            <Stop offset="0.55" stopColor="#ffffff" stopOpacity="0.28" />
                             <Stop offset="1" stopColor="#ffffff" stopOpacity="0.06" />
                         </SvgGradient>
-                        <SvgGradient id="haloRim" x1="0" y1="0" x2="1" y2="1">
-                            <Stop offset="0" stopColor="#ffffff" stopOpacity="0.6" />
-                            <Stop offset="0.5" stopColor="#ffffff" stopOpacity="0.18" />
-                            <Stop offset="1" stopColor="#ffffff" stopOpacity="0" />
-                        </SvgGradient>
                     </Defs>
-                    <Circle
-                        cx={ haloCenterX }
-                        cy={ haloCenterY }
-                        r={ haloRadius }
-                        stroke="url(#haloRim)"
-                        strokeWidth={ 1.2 }
-                        fill="none"
-                    />
                     <Circle
                         cx={ center }
                         cy={ center }

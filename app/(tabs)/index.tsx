@@ -7,6 +7,7 @@ import { useNotes } from '../../src/features/notes/useNotes';
 import ErrorMessage from '../../src/components/ui/ErrorMessage';
 import { GlassMorphismWithCircle } from '../../src/components/ui/GlassMorphismWithCircle';
 import { GlassCircleButton } from '../../src/components/ui/GlassCircleButton';
+import { GlassButtonTrack } from '../../src/components/ui/GlassButtonTrack';
 import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 
@@ -71,6 +72,7 @@ export default function NewNoteScreen() {
                         </View>
 
                         <View style={ styles.footer }>
+                            <GlassButtonTrack buttonSize={ 84 } />
                             <GlassCircleButton
                                 accessibilityLabel="Save note"
                                 onPress={ handleNext }
