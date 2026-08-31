@@ -8,7 +8,6 @@ import { COLOR_VARIANTS } from 'designs/designs-colors';
 import {
     POST_THERAPY_QUESTIONS,
     POST_THERAPY_TEMPLATE_INTRO,
-    POST_THERAPY_TEMPLATE_SUBTITLE,
 } from '../../constants/postTherapyTemplate';
 
 type TemplateHelpModalProps = {
@@ -59,10 +58,6 @@ export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) 
                     contentContainerStyle={ styles.scrollContent }
                     showsVerticalScrollIndicator={ false }
                 >
-                    <AppText variant="h2" style={ styles.subtitle }>
-                        { POST_THERAPY_TEMPLATE_SUBTITLE }
-                    </AppText>
-                    <Spacer variant={ SpacerVariant.small } />
                     <AppText variant="body" style={ styles.intro }>
                         { POST_THERAPY_TEMPLATE_INTRO }
                     </AppText>
@@ -126,7 +121,6 @@ const styles = StyleSheet.create({
         lineHeight: 46,
         fontWeight: '400',
     },
-    subtitle: { fontSize: 20, lineHeight: 28 },
     intro: { fontSize: 18, lineHeight: 26 },
     questionRow: {
         flexDirection: 'row',
@@ -143,5 +137,5 @@ const styles = StyleSheet.create({
     },
     numberText: { fontSize: 17, lineHeight: 22 },
     questionText: { flex: 1, fontSize: 19, lineHeight: 26 },
-    hintText: { fontSize: 18, lineHeight: 26, marginLeft: NUMBER_BADGE_SIZE + 12 },
+    hintText: { fontSize: 18, lineHeight: 26 },
 });

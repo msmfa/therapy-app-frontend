@@ -42,7 +42,6 @@ describe('5 Minute Post Therapy Template', () => {
         const { getByText } = render(<HowToTakeNotesScreen />);
 
         getByText('5 Minute Post Therapy Template');
-        getByText('Answer these 5 questions after your session');
         getByText(/Write as much or as little as feels useful/);
 
         getByText(/What stayed with me from today’s session\?/);
@@ -151,13 +150,12 @@ describe('New note screen help popup', () => {
     it('opens the 5 minute template advice when the question button is pressed', () => {
         const { getByLabelText, getByText, queryByText } = render(<NewNoteScreen />);
 
-        expect(queryByText('Answer these 5 questions after your session')).toBeNull();
+        expect(queryByText(/An idea, phrase, realisation/)).toBeNull();
 
         fireEvent.press(getByLabelText('How to take notes'));
 
         getByText(/Cheat/);
         getByText('sheet');
-        getByText('Answer these 5 questions after your session');
         getByText(/What stayed with me from today’s session\?/);
         getByText('One subject is enough.');
     });
@@ -168,6 +166,6 @@ describe('New note screen help popup', () => {
         fireEvent.press(getByLabelText('How to take notes'));
         fireEvent.press(getByLabelText('Back'));
 
-        expect(queryByText('Answer these 5 questions after your session')).toBeNull();
+        expect(queryByText(/An idea, phrase, realisation/)).toBeNull();
     });
 });
