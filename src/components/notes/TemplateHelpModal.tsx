@@ -15,10 +15,7 @@ type TemplateHelpModalProps = {
     onClose: () => void;
 };
 
-// One tint for every circle, so the numbers read as siblings of the back button.
 const CIRCLE_FILL = 'hsla(0, 0%, 0%, 0.06)';
-
-const NUMBER_BADGE_SIZE = 34;
 
 export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) {
     const insets = useSafeAreaInsets();
@@ -64,18 +61,11 @@ export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) 
 
                     <Spacer variant={ SpacerVariant.large } />
                     <View style={ styles.questionList }>
-                        { POST_THERAPY_QUESTIONS.map((item, index) => (
+                        { POST_THERAPY_QUESTIONS.map((item) => (
                             <View key={ item.question }>
-                                <View style={ styles.questionRow }>
-                                    <View style={ styles.numberBadge }>
-                                        <AppText variant="h3" style={ styles.numberText }>
-                                            { index + 1 }
-                                        </AppText>
-                                    </View>
-                                    <AppText variant="h3" style={ styles.questionText }>
-                                        { item.question }
-                                    </AppText>
-                                </View>
+                                <AppText variant="h3" style={ styles.questionText }>
+                                    { item.question }
+                                </AppText>
                                 <Spacer variant={ SpacerVariant.small } />
                                 <AppText variant="body" style={ styles.hintText }>
                                     { item.hint }
@@ -122,20 +112,6 @@ const styles = StyleSheet.create({
         fontWeight: '400',
     },
     intro: { fontSize: 18, lineHeight: 26 },
-    questionRow: {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        gap: 12,
-    },
-    numberBadge: {
-        width: NUMBER_BADGE_SIZE,
-        height: NUMBER_BADGE_SIZE,
-        borderRadius: NUMBER_BADGE_SIZE / 2,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: CIRCLE_FILL,
-    },
-    numberText: { fontSize: 17, lineHeight: 22 },
-    questionText: { flex: 1, fontSize: 19, lineHeight: 26 },
+    questionText: { fontSize: 19, lineHeight: 26 },
     hintText: { fontSize: 18, lineHeight: 26 },
 });
