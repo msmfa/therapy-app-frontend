@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ImageBackground, ImageSourcePropType, Modal, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import AppText from '../ui/AppText';
@@ -26,22 +26,30 @@ export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) 
             animationType="slide"
             onRequestClose={ onClose }
         >
-            <View
+            <ImageBackground
                 testID="template-help-modal-root"
+                source={ require('../../../assets/textures/paper-green.png') as ImageSourcePropType }
+                resizeMode="cover"
                 style={ [
                     styles.modalRoot,
                     { paddingTop: insets.top, paddingBottom: insets.bottom },
                 ] }
             >
-                <TouchableOpacity
-                    onPress={ onClose }
-                    accessibilityRole="button"
-                    accessibilityLabel="Back"
-                    style={ styles.backButton }
-                    activeOpacity={ 0.7 }
-                >
-                    <Feather name="arrow-left" size={ 22 } color={ COLOR_VARIANTS.black.primary } />
-                </TouchableOpacity>
+                <View style={ styles.header }>
+                    <TouchableOpacity
+                        onPress={ onClose }
+                        accessibilityRole="button"
+                        accessibilityLabel="Back"
+                        style={ styles.backButton }
+                        activeOpacity={ 0.7 }
+                    >
+                        <Feather name="arrow-left" size={ 22 } color={ COLOR_VARIANTS.black.primary } />
+                    </TouchableOpacity>
+                    <AppText variant="h1" style={ styles.headerWordSans }>
+                        Cheat
+                        <AppText variant="h1" style={ styles.headerWordSerif }>sheet</AppText>
+                    </AppText>
+                </View>
                 <ScrollView
                     style={ styles.scroll }
                     contentContainerStyle={ styles.scrollContent }
@@ -67,7 +75,7 @@ export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) 
                         )) }
                     </View>
                 </ScrollView>
-            </View>
+            </ImageBackground>
         </Modal>
     );
 }
@@ -77,14 +85,31 @@ const styles = StyleSheet.create({
     scroll: { flex: 1 },
     scrollContent: { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 32 },
     questionList: { gap: 24 },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 14,
+        marginLeft: 24,
+        marginTop: 8,
+    },
     backButton: {
         width: 44,
         height: 44,
         borderRadius: 22,
-        marginLeft: 24,
-        marginTop: 8,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'hsla(0, 0%, 0%, 0.06)',
+    },
+    headerWordSans: {
+        fontFamily: 'GeneralSans-Bold',
+        fontSize: 30,
+        lineHeight: 38,
+        letterSpacing: -0.5,
+    },
+    headerWordSerif: {
+        fontFamily: 'InstrumentSerif-Italic',
+        fontSize: 32,
+        lineHeight: 38,
+        fontWeight: '400',
     },
 });

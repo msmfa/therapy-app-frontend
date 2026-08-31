@@ -130,7 +130,10 @@ export default Sentry.wrap(function RootLayout() {
     // Brand display font for the note prompt. Rendering is not gated on it:
     // text mounts with the system font and swaps when the file is ready.
     useFonts({
-        'DMSans-Bold': require('../assets/fonts/DMSans-Bold.ttf'),
+        // Metro turns asset requires into numeric module ids.
+        'DMSans-Bold': require('../assets/fonts/DMSans-Bold.ttf') as number,
+        'InstrumentSerif-Italic': require('../assets/fonts/InstrumentSerif-Italic.ttf') as number,
+        'GeneralSans-Bold': require('../assets/fonts/GeneralSans-Bold.otf') as number,
     });
 
     return (

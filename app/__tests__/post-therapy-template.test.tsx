@@ -155,6 +155,8 @@ describe('New note screen help popup', () => {
 
         fireEvent.press(getByLabelText('How to take notes'));
 
+        getByText(/Cheat/);
+        getByText('sheet');
         getByText('5 Minute Post Therapy Template');
         getByText('Answer these 5 questions after your session');
         getByText(/What stayed with me from today’s session\?/);
