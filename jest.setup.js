@@ -1,5 +1,22 @@
 require('@testing-library/jest-native/extend-expect');
 
+// AsyncStorage is a native module, so anything that reaches it (the reminder
+// schedule cache) fails to even import under Jest without this. Registered
+// globally rather than per suite: the cache sits behind the therapy-sessions
+// context, so suites pull it in without naming it.
+jest.mock('@react-native-async-storage/async-storage', () =>
+  require('@react-native-async-storage/async-storage/jest/async-storage-mock'));
+
+// Same reasoning: the reminder schedule is fetched behind the therapy-sessions
+// context, so any suite that renders the provider issues a request without
+// naming it. Unmocked, that is a real fetch to the placeholder API URL whose
+// rejection lands after the suite has finished, which fails the run under --ci
+// with "Cannot log after tests are done" even though every test passed.
+// Suites that care about the schedule mock this module themselves.
+jest.mock('./src/api/reminders', () => ({
+  getReminders: jest.fn(async () => ({ timeZone: 'UTC', reminders: [] })),
+}));
+
 process.env.EXPO_PUBLIC_API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://example.com/api';
 process.env.EXPO_PUBLIC_APPLE_SERVICE_ID = process.env.EXPO_PUBLIC_APPLE_SERVICE_ID ?? 'com.example.service';
 process.env.EXPO_PUBLIC_APPLE_REDIRECT_URI = process.env.EXPO_PUBLIC_APPLE_REDIRECT_URI ?? 'https://example.com/auth/callback';

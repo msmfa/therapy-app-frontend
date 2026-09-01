@@ -7,11 +7,8 @@ import {
     TherapySession,
     syncTherapySessions as syncTherapySessionsApi,
 } from '../../api/therapy';
-import { scheduleNeuroplasticityReminders, Reminder } from '../../features/reminders/reminder-schedule-v2';
-import {
-    REMINDER_SCHEDULE,
-    sessionScheduleInputs,
-} from '../../features/reminders/reminderScheduleConfig';
+import type { Reminder } from '../../features/reminders/types';
+import { useNeuroReminders } from '../../features/reminders/useNeuroReminders';
 import { useDeviceTimeZone } from '../../hooks/useDeviceTimeZone';
 import { mapSessionError, SessionErrorCopy } from '../../features/therapy-sessions/session-error-map';
 import { toError } from '../../utils/errors';
@@ -58,6 +55,10 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
     const [sessions, setSessions] = useState<TherapySession[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<SessionErrorCopy | null>(null);
+    // Whether the sessions have been fetched at least once. The reminder
+    // cache is keyed on them, so revalidating before they land would miss on
+    // an empty signature and spend a request the next render invalidates.
+    const [sessionsReady, setSessionsReady] = useState(false);
     const deviceTimeZone = useDeviceTimeZone();
     const refreshInFlightRef = useRef<Promise<void> | null>(null);
     const sessionsCountRef = useRef(0);
@@ -101,6 +102,7 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
             } finally {
                 refreshInFlightRef.current = null;
                 setLoading(false);
+                setSessionsReady(true);
             }
         })();
 
@@ -158,29 +160,16 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
         return earliest;
     }, [sessions]);
 
-    const neuroReminders = useMemo<Reminder[]>(() => {
-        if (!sessions.length) {
-            return [];
-        }
-
-        // Durations travel alongside the starts so the plan shown here never
-        // promises a reminder while a session is still running, matching what
-        // the backend cron will actually send.
-        const { sessionsUtc, sessionDurationsMin } = sessionScheduleInputs(sessions);
-
-        return scheduleNeuroplasticityReminders({
-            nowUtc: new Date().toISOString(),
-            sessionsUtc,
-            ...REMINDER_SCHEDULE,
-            timeZone: deviceTimeZone,
-            sessionDurationsMin,
-        });
-        // deviceTimeZone is a dependency because reminder instants are derived
-        // from it. Travelling does not change the user's sessions, so keying
-        // this only on [sessions] left the UI showing times computed for the
-        // previous zone while useTimeZoneSync had already moved the backend to
-        // the new one.
-    }, [sessions, deviceTimeZone]);
+    // Fetched from the server rather than computed here, so the plan shown to
+    // the user is the plan the cron will send. deviceTimeZone is passed in
+    // because travelling has to invalidate the cached schedule: the sessions
+    // are unchanged, but the wall-clock times they resolve to are not.
+    const neuroReminders = useNeuroReminders(
+        sessions,
+        deviceTimeZone,
+        isAuthenticated,
+        sessionsReady,
+    );
 
     useEffect(() => {
         if (isAuthenticated) {
@@ -189,6 +178,7 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
             setSessions([]);
             setError(null);
             setLoading(false);
+            setSessionsReady(false);
         }
     }, [isAuthenticated, refreshSessions]);
 
