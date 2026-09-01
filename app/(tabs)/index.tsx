@@ -1,12 +1,14 @@
 import React, { useState, useCallback } from 'react';
-import { View, TextInput, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, Pressable, Keyboard } from 'react-native';
+import { View, TextInput, StyleSheet, KeyboardAvoidingView, Platform, Pressable, Keyboard } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
 import { useAuth } from '../../src/context/auth/AuthContext';
 import { useNotes } from '../../src/features/notes/useNotes';
 import ErrorMessage from '../../src/components/ui/ErrorMessage';
 import { GlassMorphismWithCircle } from '../../src/components/ui/GlassMorphismWithCircle';
+import { GlassCircleButton } from '../../src/components/ui/GlassCircleButton';
+import { GlassButtonOutline } from '../../src/components/ui/GlassButtonOutline';
+import { TemplateHelpModal } from '../../src/components/notes/TemplateHelpModal';
 import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 
@@ -18,6 +20,7 @@ export default function NewNoteScreen() {
     const { addNote } = useNotes(user?.id);
     const [text, setText] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [helpVisible, setHelpVisible] = useState(false);
 
     const handleNext = useCallback(async () => {
         const value = text.trim();
@@ -39,6 +42,7 @@ export default function NewNoteScreen() {
     }, [addNote, router, text]);
 
     const isDisabled = text.trim().length === 0;
+    const saveButtonSize = 72;
 
     return (
         <View style={ styles.container }>
@@ -55,32 +59,40 @@ export default function NewNoteScreen() {
                             <View style={ styles.cardWrapper }>
                                 <View style={ styles.cardOverlay }>
                                     <TextInput
-                                        placeholder="Add your notes here..."
+                                        placeholder="Add today's therapy notes here..."
                                         value={ text }
                                         onChangeText={ setText }
                                         multiline
                                         numberOfLines={ 10 }
                                         underlineColorAndroid={ COLOR_VARIANTS.transparent }
                                         style={ styles.textInput }
-                                        placeholderTextColor={ COLOR_VARIANTS.black.tertiary }
+                                        placeholderTextColor={ COLOR_VARIANTS.black.primary }
                                         selectionColor={ COLOR_VARIANTS.white.quaternary }
                                     />
-                                    <TouchableOpacity
-                                        onPress={ handleNext }
-                                        disabled={ isDisabled }
-                                        style={ [styles.plusButton, isDisabled && styles.plusButtonDisabled] }
-                                    >
-                                        <Feather name="plus" size={ 44 } color={ COLOR_VARIANTS.black.tertiary } />
-                                    </TouchableOpacity>
                                 </View>
                             </View>
                             { error ? <ErrorMessage message={ error } /> : null }
                         </View>
 
                         <View style={ styles.footer }>
+                            <GlassButtonOutline buttonSize={ saveButtonSize } />
+                            <GlassCircleButton
+                                accessibilityLabel="How to take notes"
+                                icon="question"
+                                iconColor={ COLOR_VARIANTS.black.tertiary }
+                                size={ saveButtonSize }
+                                onPress={ () => setHelpVisible(true) }
+                            />
+                            <GlassCircleButton
+                                accessibilityLabel="Save note"
+                                size={ saveButtonSize }
+                                onPress={ handleNext }
+                                disabled={ isDisabled }
+                            />
                         </View>
                     </Pressable>
                 </KeyboardAvoidingView>
+                <TemplateHelpModal visible={ helpVisible } onClose={ () => setHelpVisible(false) } />
             </SafeAreaView>
         </View>
     );
@@ -131,29 +143,19 @@ const styles = StyleSheet.create({
     },
     textInput: {
         flex: 1,
-        fontSize: 18,
-        lineHeight: 26,
+        fontSize: 40,
+        lineHeight: 46,
+        fontFamily: 'DMSans-Bold',
+        color: COLOR_VARIANTS.black.primary,
         textAlignVertical: 'top',
         padding: 0,
         paddingBottom: 70,
     },
-    plusButton: {
-        position: 'absolute',
-        right: 16,
-        bottom: 16,
-        padding: 4,
-        // shadowColor: PALETTE.overlay.blueMildTransparent,
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.4,
-        shadowRadius: 12,
-        elevation: 10,
-    },
-    plusButtonDisabled: {
-        opacity: 0.5,
-    },
     footer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
         marginTop: 24,
-        marginBottom: 12,
+        marginBottom: 28,
     },
 });

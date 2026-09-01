@@ -17,6 +17,7 @@ import { toError } from '../src/utils/errors';
 import * as Notifications from 'expo-notifications';
 import { resolveNotificationRoute } from '../src/services/notifications/routing';
 import { AppAlertProvider } from '../src/context/alert';
+import { useFonts } from 'expo-font';
 
 const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN ?? process.env.SENTRY_DSN;
 
@@ -126,6 +127,18 @@ export function Gate() {
  * The Gate component waits for both Auth and Onboarding to hydrate before routing.
  */
 export default Sentry.wrap(function RootLayout() {
+    // Brand display font for the note prompt. Rendering is not gated on it:
+    // text mounts with the system font and swaps when the file is ready.
+    useFonts({
+        // Metro turns asset requires into numeric module ids.
+        'DMSans-Bold': require('../assets/fonts/DMSans-Bold.ttf') as number,
+        'InstrumentSerif-Italic': require('../assets/fonts/InstrumentSerif-Italic.ttf') as number,
+        'GeneralSans-Bold': require('../assets/fonts/GeneralSans-Bold.otf') as number,
+        'GeneralSans-Semibold': require('../assets/fonts/GeneralSans-Semibold.otf') as number,
+        'GeneralSans-Medium': require('../assets/fonts/GeneralSans-Medium.otf') as number,
+        'GeneralSans-Regular': require('../assets/fonts/GeneralSans-Regular.otf') as number,
+    });
+
     return (
         <ThemeProvider value={ theme }>
             <AppAlertProvider>

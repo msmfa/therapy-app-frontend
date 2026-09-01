@@ -65,7 +65,7 @@ describe('NotePreviewModal editing layout', () => {
         captureListeners();
         renderModal();
 
-        fireEvent.press(screen.getByText('Edit'));
+        fireEvent.press(screen.getByLabelText('Edit note'));
 
         // A multiline TextInput is a UITextView, which scrolls itself and keeps
         // the caret visible. Wrapping it in a ScrollView makes it grow instead,
@@ -77,7 +77,7 @@ describe('NotePreviewModal editing layout', () => {
         captureListeners();
         renderModal();
 
-        fireEvent.press(screen.getByText('Edit'));
+        fireEvent.press(screen.getByLabelText('Edit note'));
 
         const inputStyle = StyleSheet.flatten(screen.getByLabelText('Edit note').props.style);
         expect(inputStyle.flex).toBe(1);
@@ -88,7 +88,7 @@ describe('NotePreviewModal editing layout', () => {
         captureListeners();
         renderModal();
 
-        fireEvent.press(screen.getByText('Edit'));
+        fireEvent.press(screen.getByLabelText('Edit note'));
 
         const actionsStyle = styleOf('note-modal-actions');
         expect(actionsStyle.position).not.toBe('absolute');
@@ -101,7 +101,7 @@ describe('NotePreviewModal editing layout', () => {
         const listeners = captureListeners();
         renderModal();
 
-        fireEvent.press(screen.getByText('Edit'));
+        fireEvent.press(screen.getByLabelText('Edit note'));
         act(() => {
             listeners.keyboardWillChangeFrame(keyboardFrame(KEYBOARD_HEIGHT));
         });
@@ -115,7 +115,7 @@ describe('NotePreviewModal editing layout', () => {
         const listeners = captureListeners();
         renderModal();
 
-        fireEvent.press(screen.getByText('Edit'));
+        fireEvent.press(screen.getByLabelText('Edit note'));
         act(() => {
             listeners.keyboardWillChangeFrame(keyboardFrame(KEYBOARD_HEIGHT));
         });

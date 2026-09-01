@@ -1,5 +1,5 @@
 import { ReactNode, useMemo } from "react";
-import { View, StyleSheet, StyleProp, ViewStyle } from "react-native";
+import { View, StyleSheet, StyleProp, ViewStyle, ColorValue } from "react-native";
 import { PALETTE } from 'designs/designs-colors';
 import { SURFACE_TINTS } from 'designs/designs-gradients';
 
@@ -8,6 +8,8 @@ type Props = {
     addedStyles?: StyleProp<ViewStyle>;
     hue?: number;
     borderRadius?: number;
+    surfaceBackgroundColor?: ColorValue;
+    surfaceBorderColor?: ColorValue;
 };
 
 const DEFAULT_BACKGROUND = SURFACE_TINTS.defaultBackground;
@@ -16,7 +18,14 @@ const DEFAULT_RADIUS = 16;
 const MIN_HUE = 0;
 const MAX_HUE = 360;
 
-export function GradientCard({ children, addedStyles, hue, borderRadius }: Props) {
+export function GradientCard({
+    children,
+    addedStyles,
+    hue,
+    borderRadius,
+    surfaceBackgroundColor,
+    surfaceBorderColor,
+}: Props) {
     const normalizedHue = useMemo(
         () => Math.max(MIN_HUE, Math.min(MAX_HUE, hue ?? 0)),
         [hue]
@@ -24,13 +33,11 @@ export function GradientCard({ children, addedStyles, hue, borderRadius }: Props
 
     const hasHue = typeof hue === 'number';
 
-    const backgroundColor = hasHue
-        ? SURFACE_TINTS.tintedBackground(normalizedHue)
-        : DEFAULT_BACKGROUND;
+    const backgroundColor = surfaceBackgroundColor
+        ?? (hasHue ? SURFACE_TINTS.tintedBackground(normalizedHue) : DEFAULT_BACKGROUND);
 
-    const borderColor = hasHue
-        ? SURFACE_TINTS.tintedBorder(normalizedHue)
-        : DEFAULT_BORDER;
+    const borderColor = surfaceBorderColor
+        ?? (hasHue ? SURFACE_TINTS.tintedBorder(normalizedHue) : DEFAULT_BORDER);
 
     const computedBorderRadius = borderRadius ?? DEFAULT_RADIUS;
 

@@ -7,13 +7,21 @@ import {
     TherapySession,
     syncTherapySessions as syncTherapySessionsApi,
 } from '../../api/therapy';
-import { scheduleNeuroplasticityReminders, Reminder } from '../../features/reminders/reminder-schedule-v2';
+import type { Reminder } from '../../features/reminders/types';
+import { useNeuroReminders } from '../../features/reminders/useNeuroReminders';
 import { useDeviceTimeZone } from '../../hooks/useDeviceTimeZone';
 import { mapSessionError, SessionErrorCopy } from '../../features/therapy-sessions/session-error-map';
 import { toError } from '../../utils/errors';
 
 interface TherapySessionsContextType {
     sessions: TherapySession[];
+    /**
+     * The same sessions plus the recent past, for replaying the reminder
+     * schedule. Reviews attribute a note to the gap between two sessions, and
+     * the session that opened the gap is usually already behind `sessions`'
+     * midnight floor by the time a reminder is answered.
+     */
+    scheduleSessions: TherapySession[];
     loading: boolean;
     error: SessionErrorCopy | null;
     nextSession: TherapySession | null;
@@ -23,25 +31,6 @@ interface TherapySessionsContextType {
 }
 
 const TherapySessionsContext = createContext<TherapySessionsContextType | undefined>(undefined);
-
-/**
- * Assumed length of a session whose duration was never recorded.
- *
- * `durationMin` is optional on the API, so a session can arrive without one.
- * Treating that as zero-length left the reminder plan with no session end to
- * stay clear of, and showed reminders landing inside the session. 50 is what
- * both write paths send, so an unknown session is assumed to look like every
- * session the app itself creates.
- *
- * Mirrors DEFAULT_SESSION_MINUTES in the backend's notificationCron.helpers.ts:
- * the two have to agree or the plan shown here drifts from the pushes sent.
- */
-const DEFAULT_SESSION_MINUTES = 50;
-
-const effectiveDurationMin = (durationMin?: number | null): number =>
-    typeof durationMin === 'number' && Number.isFinite(durationMin) && durationMin > 0
-        ? durationMin
-        : DEFAULT_SESSION_MINUTES;
 
 /**
  * The window of sessions the app fetches and edits: from the start of the
@@ -64,19 +53,57 @@ const getSessionsWindow = () => {
     return { from, to };
 };
 
+/**
+ * How far behind the editable window the fetch reaches, so the reviews
+ * feature can still see the session that opened a note's gap. 90 days is
+ * far longer than any gap between sessions the schedule can span.
+ */
+const SCHEDULE_HISTORY_DAYS = 90;
+
+/**
+ * The window the app *fetches*: the editable window plus the recent past.
+ * Only the fetch is widened. The sync's deletion scope stays
+ * `getSessionsWindow`, so the backend still only deletes sessions the user
+ * can actually see and edit, and past sessions stay untouchable.
+ */
+const getFetchWindow = () => {
+    const { from, to } = getSessionsWindow();
+    const fetchFrom = new Date(from);
+    fetchFrom.setDate(fetchFrom.getDate() - SCHEDULE_HISTORY_DAYS);
+
+    return { from: fetchFrom, to };
+};
+
 interface TherapySessionsProviderProps {
     children: React.ReactNode;
 }
 
 export function TherapySessionsProvider({ children }: TherapySessionsProviderProps) {
     const { isAuthenticated } = useAuth();
-    const [sessions, setSessions] = useState<TherapySession[]>([]);
+    const [scheduleSessions, setScheduleSessions] = useState<TherapySession[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<SessionErrorCopy | null>(null);
-    const [neuroReminders, setNeuroReminders] = useState<Reminder[]>([]);
+    // Whether the sessions have been fetched at least once. The reminder
+    // cache is keyed on them, so revalidating before they land would miss on
+    // an empty signature and spend a request the next render invalidates.
+    const [sessionsReady, setSessionsReady] = useState(false);
     const deviceTimeZone = useDeviceTimeZone();
     const refreshInFlightRef = useRef<Promise<void> | null>(null);
     const sessionsCountRef = useRef(0);
+
+    // What the narrow fetch used to return: local midnight today onward. Every
+    // existing consumer (calendar, nextSession, sync payload, reminder cache
+    // signature) keeps seeing exactly this; only the reviews feature reads the
+    // wider scheduleSessions.
+    const sessions = useMemo(() => {
+        const floor = new Date();
+        floor.setHours(0, 0, 0, 0);
+        const floorMs = floor.getTime();
+
+        return scheduleSessions.filter(
+            (session) => new Date(session.startsAtUtc).getTime() >= floorMs,
+        );
+    }, [scheduleSessions]);
 
     useEffect(() => {
         sessionsCountRef.current = sessions.length;
@@ -95,10 +122,10 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
             setLoading(true);
             try {
                 setError(null);
-                const { from, to } = getSessionsWindow();
+                const { from, to } = getFetchWindow();
 
                 const data = await getTherapySessions(from, to);
-                setSessions(data);
+                setScheduleSessions(data);
             } catch (err) {
                 const mapped = mapSessionError(err);
                 setError({ ...mapped });
@@ -113,9 +140,11 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
                     });
                 }
                 console.error('Error loading sessions:', err);
+                throw err;
             } finally {
                 refreshInFlightRef.current = null;
                 setLoading(false);
+                setSessionsReady(true);
             }
         })();
 
@@ -142,6 +171,16 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
             });
 
             await syncTherapySessionsApi(payload, getSessionsWindow());
+
+            // A refresh that began before the write can resolve afterward with
+            // the old session list. Wait for it to finish, then start a fresh
+            // post-write GET so reminders can only be derived from canonical
+            // data that was fetched after the sync completed.
+            const staleRefresh = refreshInFlightRef.current;
+            if (staleRefresh) {
+                await staleRefresh.catch(() => {});
+            }
+
             await refreshSessions();
         },
         [isAuthenticated, sessions, refreshSessions],
@@ -163,58 +202,31 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
         return earliest;
     }, [sessions]);
 
-    useEffect(() => {
-        if (!sessions.length) {
-            setNeuroReminders([]);
-            return;
-        }
-
-        const sessionsUtc = sessions
-            .map((session) => session.startsAtUtc)
-            .filter((value): value is string => typeof value === 'string');
-
-        // Durations travel alongside the starts so the plan shown here never
-        // promises a reminder while a session is still running, matching what
-        // the backend cron will actually send.
-        const sessionDurationsMin: Record<string, number> = {};
-        for (const session of sessions) {
-            if (typeof session.startsAtUtc === 'string') {
-                sessionDurationsMin[session.startsAtUtc] = effectiveDurationMin(session.durationMin);
-            }
-        }
-
-        const reminders = scheduleNeuroplasticityReminders({
-            nowUtc: new Date().toISOString(),
-            sessionsUtc,
-            reflectionHour: 20,
-            morningHour: 7,
-            startAfterDays: 3,
-            cadenceDays: 4,
-            timeZone: deviceTimeZone,
-            sessionDurationsMin,
-        });
-
-        setNeuroReminders(reminders);
-        // deviceTimeZone is a dependency because reminder instants are derived
-        // from it. Travelling does not change the user's sessions, so keying
-        // this only on [sessions] left the UI showing times computed for the
-        // previous zone while useTimeZoneSync had already moved the backend to
-        // the new one.
-    }, [sessions, deviceTimeZone]);
+    // Fetched from the server rather than computed here, so the plan shown to
+    // the user is the plan the cron will send. deviceTimeZone is passed in
+    // because travelling has to invalidate the cached schedule: the sessions
+    // are unchanged, but the wall-clock times they resolve to are not.
+    const neuroReminders = useNeuroReminders(
+        sessions,
+        deviceTimeZone,
+        isAuthenticated,
+        sessionsReady,
+    );
 
     useEffect(() => {
         if (isAuthenticated) {
-            refreshSessions();
+            refreshSessions().catch(() => {});
         } else {
-            setSessions([]);
+            setScheduleSessions([]);
             setError(null);
             setLoading(false);
-            setNeuroReminders([]);
+            setSessionsReady(false);
         }
     }, [isAuthenticated, refreshSessions]);
 
     const value: TherapySessionsContextType = {
         sessions,
+        scheduleSessions,
         loading,
         error,
         nextSession,
