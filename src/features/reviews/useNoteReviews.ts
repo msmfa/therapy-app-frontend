@@ -6,6 +6,7 @@ import * as React from 'react';
 import { useTherapySessions } from '../../context/therapy-sessions/TherapySessionsContext';
 import { useDeviceTimeZone } from '../../hooks/useDeviceTimeZone';
 import { sessionScheduleInputs } from '../reminders/reminderScheduleConfig';
+import { useScheduleTimeZone } from '../reminders/useScheduleTimeZone';
 import { attributeReview, type ReviewAttribution } from './reviewAttribution';
 import {
     gapIndexForTimestamp,
@@ -40,16 +41,21 @@ export interface MarkReviewedResult {
 const EMPTY_SUMMARY: NoteReviewSummary = { count: 0, lastReviewedAt: null, days: [] };
 
 export function useNoteReviews(userId: string | undefined) {
-    const { sessions } = useTherapySessions();
-    const timeZone = useDeviceTimeZone();
+    // scheduleSessions, not sessions: the editable list starts at local
+    // midnight today, so the session that opened a note's gap has usually
+    // already fallen out of it by the time a reminder is answered, and the
+    // note could no longer be attributed to any gap.
+    const { scheduleSessions } = useTherapySessions();
+    const deviceTimeZone = useDeviceTimeZone();
+    const timeZone = useScheduleTimeZone(deviceTimeZone);
 
     const [reviews, setReviews] = React.useState<NoteReview[]>([]);
     const [loading, setLoading] = React.useState<boolean>(true);
     const [error, setError] = React.useState<string | null>(null);
 
     const scheduleInput = React.useMemo<ReviewScheduleInput>(
-        () => ({ ...sessionScheduleInputs(sessions), timeZone }),
-        [sessions, timeZone],
+        () => ({ ...sessionScheduleInputs(scheduleSessions), timeZone }),
+        [scheduleSessions, timeZone],
     );
 
     const refresh = React.useCallback(async (): Promise<void> => {

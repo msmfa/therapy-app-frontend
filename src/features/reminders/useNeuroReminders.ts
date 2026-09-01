@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AppState } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 
 import { getReminders } from '../../api/reminders';
@@ -28,9 +29,10 @@ interface SessionLike {
  * wait on a request to draw dots it already knows about.
  *
  * The cache is revalidated when the sessions change, when the device zone
- * changes, and once a day, since reminders drop out of the schedule as they
- * pass. A failed refresh leaves the last known schedule in place rather than
- * emptying the calendar.
+ * changes, on every return to the foreground, and at local midnight, since
+ * reminders drop out of the schedule as they pass. A failed refresh leaves the
+ * last known schedule in place rather than emptying the calendar; the next
+ * foreground revalidation retries it.
  *
  * `sessionsReady` exists because the sessions are the cache key. Revalidating
  * before they have loaded compares against an empty signature, misses, and
@@ -121,6 +123,40 @@ export function useNeuroReminders(
         if (!sessionsReady) return;
 
         void revalidate();
+    }, [isAuthenticated, sessionsReady, revalidate]);
+
+    // The effect above only re-runs when its inputs change, and neither a
+    // failed fetch nor the local day rolling over changes any of them. Two
+    // triggers cover those: returning to the foreground (which retries a
+    // failed fetch and catches any midnights that passed while backgrounded),
+    // and a timer for the midnight that passes while the app stays open.
+    // Revalidation is cheap when the cache is still usable, so firing these on
+    // a healthy cache costs a storage read, not a request.
+    useEffect(() => {
+        if (!isAuthenticated || !sessionsReady) return undefined;
+
+        const subscription = AppState.addEventListener('change', (state) => {
+            if (state === 'active') void revalidate();
+        });
+
+        let midnightTimer: ReturnType<typeof setTimeout>;
+        const armMidnightTimer = () => {
+            const now = new Date();
+            const justPastMidnight = new Date(now);
+            // A few seconds past, so the new local day key has definitely begun.
+            justPastMidnight.setHours(24, 0, 5, 0);
+
+            midnightTimer = setTimeout(() => {
+                void revalidate();
+                armMidnightTimer();
+            }, justPastMidnight.getTime() - now.getTime());
+        };
+        armMidnightTimer();
+
+        return () => {
+            subscription.remove();
+            clearTimeout(midnightTimer);
+        };
     }, [isAuthenticated, sessionsReady, revalidate]);
 
     return reminders;

@@ -15,6 +15,13 @@ import { toError } from '../../utils/errors';
 
 interface TherapySessionsContextType {
     sessions: TherapySession[];
+    /**
+     * The same sessions plus the recent past, for replaying the reminder
+     * schedule. Reviews attribute a note to the gap between two sessions, and
+     * the session that opened the gap is usually already behind `sessions`'
+     * midnight floor by the time a reminder is answered.
+     */
+    scheduleSessions: TherapySession[];
     loading: boolean;
     error: SessionErrorCopy | null;
     nextSession: TherapySession | null;
@@ -46,13 +53,34 @@ const getSessionsWindow = () => {
     return { from, to };
 };
 
+/**
+ * How far behind the editable window the fetch reaches, so the reviews
+ * feature can still see the session that opened a note's gap. 90 days is
+ * far longer than any gap between sessions the schedule can span.
+ */
+const SCHEDULE_HISTORY_DAYS = 90;
+
+/**
+ * The window the app *fetches*: the editable window plus the recent past.
+ * Only the fetch is widened. The sync's deletion scope stays
+ * `getSessionsWindow`, so the backend still only deletes sessions the user
+ * can actually see and edit, and past sessions stay untouchable.
+ */
+const getFetchWindow = () => {
+    const { from, to } = getSessionsWindow();
+    const fetchFrom = new Date(from);
+    fetchFrom.setDate(fetchFrom.getDate() - SCHEDULE_HISTORY_DAYS);
+
+    return { from: fetchFrom, to };
+};
+
 interface TherapySessionsProviderProps {
     children: React.ReactNode;
 }
 
 export function TherapySessionsProvider({ children }: TherapySessionsProviderProps) {
     const { isAuthenticated } = useAuth();
-    const [sessions, setSessions] = useState<TherapySession[]>([]);
+    const [scheduleSessions, setScheduleSessions] = useState<TherapySession[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<SessionErrorCopy | null>(null);
     // Whether the sessions have been fetched at least once. The reminder
@@ -62,6 +90,20 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
     const deviceTimeZone = useDeviceTimeZone();
     const refreshInFlightRef = useRef<Promise<void> | null>(null);
     const sessionsCountRef = useRef(0);
+
+    // What the narrow fetch used to return: local midnight today onward. Every
+    // existing consumer (calendar, nextSession, sync payload, reminder cache
+    // signature) keeps seeing exactly this; only the reviews feature reads the
+    // wider scheduleSessions.
+    const sessions = useMemo(() => {
+        const floor = new Date();
+        floor.setHours(0, 0, 0, 0);
+        const floorMs = floor.getTime();
+
+        return scheduleSessions.filter(
+            (session) => new Date(session.startsAtUtc).getTime() >= floorMs,
+        );
+    }, [scheduleSessions]);
 
     useEffect(() => {
         sessionsCountRef.current = sessions.length;
@@ -80,10 +122,10 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
             setLoading(true);
             try {
                 setError(null);
-                const { from, to } = getSessionsWindow();
+                const { from, to } = getFetchWindow();
 
                 const data = await getTherapySessions(from, to);
-                setSessions(data);
+                setScheduleSessions(data);
             } catch (err) {
                 const mapped = mapSessionError(err);
                 setError({ ...mapped });
@@ -175,7 +217,7 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
         if (isAuthenticated) {
             refreshSessions().catch(() => {});
         } else {
-            setSessions([]);
+            setScheduleSessions([]);
             setError(null);
             setLoading(false);
             setSessionsReady(false);
@@ -184,6 +226,7 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
 
     const value: TherapySessionsContextType = {
         sessions,
+        scheduleSessions,
         loading,
         error,
         nextSession,
