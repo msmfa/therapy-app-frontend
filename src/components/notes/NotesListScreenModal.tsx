@@ -136,7 +136,8 @@ export function NotePreviewModal({ visible, note, onClose, onUpdateNote }: NoteP
                     ] }
                 >
                     <View style={ styles.header }>
-                        <GlassButtonOutline buttonSize={ HEADER_BUTTON } color={ INK } opacity={ 0.22 } />
+                        { /* Brighter than the home screen's: pale paper needs more white to read. */ }
+                        <GlassButtonOutline buttonSize={ HEADER_BUTTON } opacity={ 0.9 } />
                         <GlassCircleButton
                             accessibilityLabel="Back"
                             icon="back"

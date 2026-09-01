@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     },
     pill: {
         overflow: 'hidden',
-        paddingHorizontal: 22,
+        paddingHorizontal: 38,
         justifyContent: 'center',
         alignItems: 'center',
     },
