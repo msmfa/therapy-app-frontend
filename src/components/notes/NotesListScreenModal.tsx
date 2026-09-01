@@ -153,7 +153,6 @@ export function NotePreviewModal({ visible, note, onClose, onUpdateNote }: NoteP
                             height={ HEADER_BUTTON }
                         />
                     </View>
-                    <View style={ styles.rule } />
                     <View style={ styles.dateRow }>
                         <AppText style={ styles.headerDate } variant="body">
                             { noteDate }
@@ -239,7 +238,6 @@ export function NotePreviewModal({ visible, note, onClose, onUpdateNote }: NoteP
                     { /* A real sibling row, so it cannot overlap the text above it
                      however the buttons or Dynamic Type change size. */ }
                     <View testID="note-modal-actions" style={ styles.modalActions }>
-                        <View style={ styles.footerRule } />
                     </View>
                 </View>
             </ImageBackground>
@@ -269,30 +267,22 @@ const styles = StyleSheet.create({
         color: 'hsla(219, 52%, 14%, 0.5)',
         fontSize: 20,
     },
-    rule: {
-        height: StyleSheet.hairlineWidth,
-        backgroundColor: 'hsla(219, 52%, 14%, 0.35)',
-        marginHorizontal: 24,
-        marginTop: 12,
-    },
-    footerRule: {
-        height: StyleSheet.hairlineWidth,
-        backgroundColor: 'hsla(219, 52%, 14%, 0.35)',
-    },
     noteHeading: {
         color: INK,
         fontSize: 40,
         lineHeight: 48,
         fontWeight: '400',
         marginHorizontal: 24,
-        marginTop: 14,
+        marginTop: -2,
     },
     dateRow: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         marginHorizontal: 24,
-        marginTop: 14,
+        // Pushed down and the heading's gap pulled in by the same amount, so
+        // the date sits near the heading without the heading moving.
+        marginTop: 30,
     },
     headerDate: {
         color: 'hsla(219, 52%, 14%, 0.5)',

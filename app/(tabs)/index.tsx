@@ -79,6 +79,7 @@ export default function NewNoteScreen() {
                             <GlassCircleButton
                                 accessibilityLabel="How to take notes"
                                 icon="question"
+                                iconColor={ COLOR_VARIANTS.black.tertiary }
                                 size={ saveButtonSize }
                                 onPress={ () => setHelpVisible(true) }
                             />
