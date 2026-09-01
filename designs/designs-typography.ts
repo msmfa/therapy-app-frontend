@@ -1,5 +1,16 @@
 import { TEXT_COLORS } from './designs-colors';
 
+// General Sans, used on the reminder carousel's cards. React Native picks a
+// custom font by family name rather than by weight, so every weight is its own
+// family, and a style that names one leaves fontWeight off: setting both makes
+// Android synthesise a bold on top of an already-bold file.
+export const BRAND_FONTS = {
+  regular: 'GeneralSans-Regular',
+  medium: 'GeneralSans-Medium',
+  semibold: 'GeneralSans-Semibold',
+  bold: 'GeneralSans-Bold',
+} as const;
+
 export const TYPOGRAPHY = {
   h1: {
     fontSize: 18,

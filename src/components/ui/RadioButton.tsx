@@ -1,4 +1,4 @@
-import { COLOR_VARIANTS } from 'designs/designs-colors';
+import { ACTION_BLUE_DARK, PALETTE } from 'designs/designs-colors';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
@@ -32,26 +32,30 @@ export default function RadioButton({ selectedValue, onPress, children }: RadioB
 
 const styles = StyleSheet.create({
     circleNotSelected: {
-        borderColor: COLOR_VARIANTS.blue.light,
+        borderColor: 'hsla(222, 30%, 40%, 0.35)',
     },
+    // Unselected is the same white box, just sitting flatter on the sheet.
     notSelectedWrapper: {
-        backgroundColor: COLOR_VARIANTS.transparent,
-        borderColor: COLOR_VARIANTS.blue.light,
+        backgroundColor: 'hsla(0, 0%, 100%, 0.55)',
+        borderColor: 'hsla(0, 0%, 100%, 0.70)',
+        shadowOpacity: 0.05,
     },
     selectedDot: {
-        backgroundColor: COLOR_VARIANTS.blue.dark,
-        borderRadius: 5,
-        height: 10,
-        width: 10,
+        backgroundColor: ACTION_BLUE_DARK,
+        borderRadius: 6.5,
+        height: 13,
+        width: 13,
     },
+    // Selected is the same box lifted off the sheet: solid white with a
+    // stronger shadow, so the choice reads without a second colour.
     selectedWrapper: {
-        backgroundColor: COLOR_VARIANTS.blue.lightest,
-        borderColor: COLOR_VARIANTS.blue.mid,
-        borderWidth: 1,
+        backgroundColor: 'hsl(0, 0%, 100%)',
+        borderColor: 'hsl(0, 0%, 100%)',
+        shadowOpacity: 0.16,
     },
     sharedDot: {
         alignItems: 'center',
-        borderColor: COLOR_VARIANTS.blue.dark,
+        borderColor: ACTION_BLUE_DARK,
         borderRadius: 10,
         borderWidth: 2,
         height: 20,
@@ -60,10 +64,18 @@ const styles = StyleSheet.create({
     },
     sharedWrapper: {
         alignItems: 'center',
-        borderRadius: 8,
+        borderRadius: 18,
         borderWidth: 1,
+        elevation: 6,
         flexDirection: 'row',
-        padding: 14,
+        // Fixed rather than minimum: the badge on one option makes its content
+        // taller than the other's, and the two boxes have to match.
+        height: 72,
+        paddingHorizontal: 16,
+        paddingVertical: 0,
+        shadowColor: PALETTE.neutral.black,
+        shadowOffset: { width: 0, height: 8 },
+        shadowRadius: 14,
     },
     children: {
         flex: 1,

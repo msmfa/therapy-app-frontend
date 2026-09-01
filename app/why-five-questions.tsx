@@ -5,6 +5,8 @@ import { useRouter } from 'expo-router';
 import AppText from '../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { Button } from '../src/components/ui/Button';
+import { GlassCircleButton } from '../src/components/ui/GlassCircleButton';
+import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { ExternalLink } from 'src/components/ui/ExternalLink';
 
 type RationaleSection = {
@@ -95,6 +97,15 @@ export default function WhyFiveQuestionsScreen() {
 
     return (
         <SafeAreaView style={ styles.container }>
+            <View style={ styles.pageHeader }>
+                <GlassCircleButton
+                    accessibilityLabel="Back"
+                    icon="back"
+                    iconColor={ COLOR_VARIANTS.black.primary }
+                    size={ 48 }
+                    onPress={ handleBack }
+                />
+            </View>
             <ScrollView
                 style={ styles.scroll }
                 contentContainerStyle={ styles.scrollContent }
@@ -167,14 +178,18 @@ export default function WhyFiveQuestionsScreen() {
                 </View>
             </ScrollView>
 
-            <View style={ styles.footer }>
-                <Button label="Back" onPress={ handleBack } />
-            </View>
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
+    pageHeader: {
+        alignItems: 'center',
+        flexDirection: 'row',
+        paddingBottom: 8,
+        paddingHorizontal: 24,
+        paddingTop: 8,
+    },
     container: { flex: 1 },
     scroll: { flex: 1 },
     scrollContent: { paddingHorizontal: 24, paddingTop: 24, paddingBottom: 32 },
@@ -183,5 +198,4 @@ const styles = StyleSheet.create({
     reference: { flexDirection: 'row', gap: 8 },
     referenceMarker: { width: 20, paddingTop: 6 },
     referenceLink: { flex: 1 },
-    footer: { paddingHorizontal: 24, paddingBottom: 24 },
 });

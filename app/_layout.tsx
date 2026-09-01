@@ -134,6 +134,9 @@ export default Sentry.wrap(function RootLayout() {
         'DMSans-Bold': require('../assets/fonts/DMSans-Bold.ttf') as number,
         'InstrumentSerif-Italic': require('../assets/fonts/InstrumentSerif-Italic.ttf') as number,
         'GeneralSans-Bold': require('../assets/fonts/GeneralSans-Bold.otf') as number,
+        'GeneralSans-Semibold': require('../assets/fonts/GeneralSans-Semibold.otf') as number,
+        'GeneralSans-Medium': require('../assets/fonts/GeneralSans-Medium.otf') as number,
+        'GeneralSans-Regular': require('../assets/fonts/GeneralSans-Regular.otf') as number,
     });
 
     return (

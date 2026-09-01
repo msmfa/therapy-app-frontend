@@ -17,7 +17,7 @@ jest.mock('../../api/therapy', () => ({
   syncTherapySessions: jest.fn(),
 }));
 
-const { getTherapySessions } = jest.mocked(therapyModule);
+const { getTherapySessions, syncTherapySessions } = jest.mocked(therapyModule);
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <TherapySessionsProvider>{children}</TherapySessionsProvider>
@@ -40,6 +40,7 @@ describe('TherapySessionsProvider', () => {
     jest.clearAllMocks();
     mockIsAuthenticated = true;
     getTherapySessions.mockResolvedValue([]);
+    syncTherapySessions.mockResolvedValue({ created: 0, updated: 0, deleted: 0 });
   });
 
   it('dedupes concurrent refreshes into a single network request', async () => {
@@ -72,5 +73,74 @@ describe('TherapySessionsProvider', () => {
     });
 
     expect(getTherapySessions).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects a sync when the required post-save refresh fails', async () => {
+    const { result } = renderHook(() => useTherapySessions(), { wrapper });
+
+    await waitFor(() => expect(getTherapySessions).toHaveBeenCalledTimes(1));
+
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const refreshError = new Error('refresh failed');
+    getTherapySessions.mockRejectedValueOnce(refreshError);
+
+    let caught: unknown;
+    await act(async () => {
+      try {
+        await result.current.syncSessions(
+          { '2026-09-02': new Date('2026-09-02T10:00:00.000Z') },
+          50,
+        );
+      } catch (error) {
+        caught = error;
+      }
+    });
+
+    expect(caught).toBe(refreshError);
+    expect(syncTherapySessions).toHaveBeenCalledTimes(1);
+    expect(result.current.error).not.toBeNull();
+    consoleError.mockRestore();
+  });
+
+  it('performs a fresh GET after sync instead of reusing a pre-save refresh', async () => {
+    const { result } = renderHook(() => useTherapySessions(), { wrapper });
+
+    await waitFor(() => expect(getTherapySessions).toHaveBeenCalledTimes(1));
+
+    const staleRefresh = createDeferred<therapyModule.TherapySession[]>();
+    getTherapySessions.mockImplementationOnce(() => staleRefresh.promise);
+
+    let staleRefreshPromise!: Promise<void>;
+    let syncPromise!: Promise<void>;
+    await act(async () => {
+      staleRefreshPromise = result.current.refreshSessions();
+      syncPromise = result.current.syncSessions(
+        { '2026-09-02': new Date('2026-09-02T10:00:00.000Z') },
+        50,
+      );
+      await Promise.resolve();
+    });
+
+    const firstSession = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const secondSession = new Date(Date.now() + 8 * 24 * 60 * 60 * 1000);
+    const freshSessions: therapyModule.TherapySession[] = [
+      { _id: 'fresh-1', startsAtUtc: firstSession.toISOString(), durationMin: 50 },
+      { _id: 'fresh-2', startsAtUtc: secondSession.toISOString(), durationMin: 50 },
+    ];
+    getTherapySessions.mockResolvedValueOnce(freshSessions);
+
+    staleRefresh.resolve([]);
+
+    await act(async () => {
+      await staleRefreshPromise;
+      await syncPromise;
+    });
+
+    expect(getTherapySessions).toHaveBeenCalledTimes(3);
+    expect(result.current.sessions).toEqual(freshSessions);
+    // The reminder plan is no longer derived here, so its contents are not this
+    // test's business any more; the fresh session list above is what the
+    // schedule request is keyed on. Reminder behaviour is covered in
+    // TherapySessionsContext.reminders.test.tsx.
   });
 });

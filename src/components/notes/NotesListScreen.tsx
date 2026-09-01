@@ -5,37 +5,74 @@ import {  useHeaderHeight } from '@react-navigation/elements';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Note } from '../../features/notes/useNotes';
+import type { NoteReviewProgress } from '../../features/reviews';
 import { NotePreviewModal } from './NotesListScreenModal';
 import { NoteCard } from './NoteCard';
+import { ReviewProgressGallery } from './ReviewProgressGallery';
+import { EmptyNoteCard } from './EmptyNoteCard';
+import { SampleNoteCard } from './SampleNoteCard';
+import { GradientCard } from '../ui/GradientCard';
 import AppText from '../ui/AppText';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 
 const BOTTOM_FADE = 96; // fade height at bottom (mask)
-const HEADER_GAP = 28; // gap between the pinned header and the first note
-const TOP_FADE = HEADER_GAP; // notes fade in across that gap, so nothing shows through the header itself
+const HEADER_GAP = 20; // gap between the pinned header and the first note
+// The fade is longer than the gap: a note scrolling up under the header has to
+// be gone before it reaches the box, and at the gap's length it cut off hard.
+const TOP_FADE = 44;
 
 interface NotesListScreenProps {
 	notes: Note[];
 	loading: boolean;
 	refresh: () => void;
 	onUpdateNote: (id: string, text: string) => Promise<void>;
+	progressFor?: (note: Note) => NoteReviewProgress;
+	/** False when nothing is answerable right now, or the slot is already ticked. */
+	canReview?: (note: Note) => boolean;
+	onReviewed?: (note: Note) => Promise<void>;
 }
 
-function NotesHeader() {
+type PinnedHeaderProps = {
+    expanded: boolean;
+    onToggle: () => void;
+};
+
+/**
+ * The page label plus the explainer box, pinned together.
+ *
+ * Rendered twice: once absolutely over the list, and once inside it at zero
+ * opacity so the content starts below and fades away underneath the whole
+ * block rather than only under the label.
+ */
+function PinnedHeader({ expanded, onToggle }: PinnedHeaderProps) {
     return (
         <View style={ styles.header }>
-            <AppText variant='body' style={ styles.headerLabel }>
-                Tap on a note to view it
+            <AppText variant='h3' style={ styles.headerLabel }>
+                Notes
             </AppText>
+            <View style={ styles.gallery }>
+                <ReviewProgressGallery expanded={ expanded } onToggle={ onToggle } />
+            </View>
         </View>
     );
 }
 
-export default function NotesListScreen({ notes, loading, refresh, onUpdateNote }: NotesListScreenProps) {
+export default function NotesListScreen({
+    notes,
+    loading,
+    refresh,
+    onUpdateNote,
+    progressFor,
+    canReview,
+    onReviewed,
+}: NotesListScreenProps) {
     const headerHeight = useHeaderHeight();
     const [listHeight, setListHeight] = React.useState(0);
     const [headerBlockHeight, setHeaderBlockHeight] = React.useState(0);
     const [previewNote, setPreviewNote] = React.useState<Note | null>(null);
+    const [galleryExpanded, setGalleryExpanded] = React.useState(false);
+
+    const toggleGallery = React.useCallback(() => setGalleryExpanded((open) => !open), []);
 
     const nominal = listHeight || 600;
     // Notes are masked out above the bottom of the pinned header, then fade in
@@ -108,16 +145,39 @@ export default function NotesListScreen({ notes, loading, refresh, onUpdateNote 
                             />
                         }
                         ItemSeparatorComponent={ () => <View style={ { height: 12 } } /> }
-                        renderItem={ ({ item, index }) => <NoteCard item={ item } index={ index } onPress={ setPreviewNote } /> }
+                        renderItem={ ({ item, index }) => (
+                            <NoteCard
+                                item={ item }
+                                index={ index }
+                                onPress={ setPreviewNote }
+                                progress={ progressFor?.(item) }
+                            />
+                        ) }
+                        ListEmptyComponent={
+                            <GradientCard>
+                                { /* The card supplies 20 horizontally; this
+                                     matches it vertically. */ }
+                                <View style={ styles.emptyCard }>
+                                    <EmptyNoteCard>
+                                        <SampleNoteCard />
+                                    </EmptyNoteCard>
+                                </View>
+                            </GradientCard>
+                        }
                         ListHeaderComponent={
-                            <View style={ styles.headerSpacer } onLayout={ onSpacerLayout }>
-                                <NotesHeader />
+                            <View
+                                style={ styles.headerSpacer }
+                                pointerEvents='none'
+                                onLayout={ onSpacerLayout }
+                            >
+                                <PinnedHeader expanded={ galleryExpanded } onToggle={ toggleGallery } />
                             </View>
                         }
                     />
                 </MaskedView>
-                <View pointerEvents='none' style={ [styles.pinnedHeader, { top: headerHeight }] }>
-                    <NotesHeader />
+                { /* box-none, not none: the explainer inside is tappable. */ }
+                <View pointerEvents='box-none' style={ [styles.pinnedHeader, { top: headerHeight }] }>
+                    <PinnedHeader expanded={ galleryExpanded } onToggle={ toggleGallery } />
                 </View>
             </View>
             <NotePreviewModal
@@ -125,6 +185,8 @@ export default function NotesListScreen({ notes, loading, refresh, onUpdateNote 
                 note={ previewNote }
                 onClose={ () => setPreviewNote(null) }
                 onUpdateNote={ onUpdateNote }
+                canReview={ previewNote ? (canReview?.(previewNote) ?? false) : false }
+                onReviewed={ onReviewed }
             />
         </SafeAreaView>
     );
@@ -138,14 +200,23 @@ const styles = StyleSheet.create({
     listContent: {
         paddingHorizontal: 16,
     },
+    emptyCard: {
+        paddingVertical: 20,
+    },
     header: {
         paddingTop: 20,
     },
     headerLabel: {
-        fontSize: 18,
-        lineHeight: 26,
+        // Indented to the same left edge as the content inside the cards and
+        // the explainer box, which sit at the list padding plus their own.
+        paddingLeft: 22,
+        fontSize: 20,
+        lineHeight: 28,
         textTransform: 'uppercase',
         letterSpacing: 0.5,
+    },
+    gallery: {
+        marginTop: 10,
     },
     headerSpacer: {
         opacity: 0,

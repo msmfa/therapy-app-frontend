@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Defs, Line, Path, LinearGradient as SvgGradient, Stop, Text as SvgText } from 'react-native-svg';
 import { PALETTE } from 'designs/designs-colors';
 
-export type GlassCircleIcon = 'plus' | 'question' | 'back';
+export type GlassCircleIcon = 'plus' | 'question' | 'back' | 'forward' | 'close';
 
 type Props = {
     onPress: () => void;
@@ -43,6 +43,7 @@ export function GlassCircleButton({
 
     // The diagonal reads longer than the plus at the same arm, so it sits shorter.
     const arrowArm = size * 0.155;
+    const closeArm = size * 0.16;
 
     // Specular arcs hug the rim; endpoints sit where the highlight has faded out.
     const arcRadius = radius - 1.4;
@@ -129,7 +130,25 @@ export function GlassCircleButton({
                         strokeLinecap="round"
                         fill="none"
                     />
-                    { icon === 'back' ? (
+                    { icon === 'forward' ? (
+                        <>
+                            <Path
+                                d={ `M ${center - arrowArm} ${center + arrowArm} L ${center + arrowArm} ${center - arrowArm}` }
+                                stroke={ iconColor }
+                                strokeWidth={ 2 }
+                                strokeLinecap="round"
+                                fill="none"
+                            />
+                            <Path
+                                d={ `M ${center + arrowArm - arrowArm * 1.05} ${center - arrowArm} L ${center + arrowArm} ${center - arrowArm} L ${center + arrowArm} ${center - arrowArm + arrowArm * 1.05}` }
+                                stroke={ iconColor }
+                                strokeWidth={ 2 }
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                fill="none"
+                            />
+                        </>
+                    ) : icon === 'back' ? (
                         <>
                             <Path
                                 d={ `M ${center + arrowArm} ${center + arrowArm} L ${center - arrowArm} ${center - arrowArm}` }
@@ -145,6 +164,27 @@ export function GlassCircleButton({
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                                 fill="none"
+                            />
+                        </>
+                    ) : icon === 'close' ? (
+                        <>
+                            <Line
+                                x1={ center - closeArm }
+                                y1={ center - closeArm }
+                                x2={ center + closeArm }
+                                y2={ center + closeArm }
+                                stroke={ iconColor }
+                                strokeWidth={ 2 }
+                                strokeLinecap="round"
+                            />
+                            <Line
+                                x1={ center + closeArm }
+                                y1={ center - closeArm }
+                                x2={ center - closeArm }
+                                y2={ center + closeArm }
+                                stroke={ iconColor }
+                                strokeWidth={ 2 }
+                                strokeLinecap="round"
                             />
                         </>
                     ) : icon === 'plus' ? (

@@ -8,10 +8,9 @@ import advancedFormat from 'dayjs/plugin/advancedFormat';
 dayjs.extend(advancedFormat);
 
 import RadioButton from '../ui/RadioButton';
-import { Button } from '../ui/Button';
+import { GlassPillButton } from '../ui/GlassPillButton';
 import AppText from '../ui/AppText';
-import Badge from '../ui/Badge';
-import { CALENDAR_COLORS, COLOR_VARIANTS } from 'designs/designs-colors';
+import { ACTION_ORANGE, CALENDAR_COLORS, COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
 
 interface Session {
     id: string;
@@ -70,14 +69,9 @@ export default function ScheduleModal({
 
     const selectedDay = selectedDate ? dayjs(selectedDate) : null;
     const scheduleModeOptions: ScheduleMode[] = ['weekly_pattern', 'single'];
-    const scheduleModeDictionary = {
-        single: { title: 'This day only', subtext: 'Schedule just for selected date' },
-        weekly_pattern: {
-            title: 'Every week',
-            subtext: selectedDay
-                ? `Every ${selectedDay.format('dddd')} for the next 2 months`
-                : 'Every week for the next 2 months',
-        },
+    const scheduleModeDictionary: Record<string, { title: string; note?: string }> = {
+        single: { title: 'This day only' },
+        weekly_pattern: { title: 'Every week', note: 'For the next two months' },
     };
 
     if (!visible) return null;
@@ -88,9 +82,16 @@ export default function ScheduleModal({
                 <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1} onPress={onCancel} />
                 <View style={styles.modalContent}>
                     {selectedDay && (
-                        <Badge addedStyles={styles.badge} tabWithBorder hue={220}>
-                            {selectedDay.format('dddd Do')}
-                        </Badge>
+                        <View style={ styles.selectedDayBlock }>
+                            <AppText variant="h2" style={ styles.selectedDay }>
+                                { selectedDay.format('dddd Do') }
+                            </AppText>
+                            <View style={ styles.selectedDayRule }>
+                                { Array.from({ length: 18 }, (_unused, index) => (
+                                    <View key={ index } style={ styles.selectedDayRuleDot } />
+                                )) }
+                            </View>
+                        </View>
                     )}
 
                     <View style={styles.datePicker}>
@@ -135,13 +136,19 @@ export default function ScheduleModal({
                                     selectedValue={scheduleMode === mode}
                                     onPress={() => setScheduleMode(mode)}
                                 >
-                                    <View>
-                                        <AppText variant='body'>
-                                            {scheduleModeDictionary[mode].title}
+                                    <View style={ styles.modeRow }>
+                                        <AppText
+                                            variant="body"
+                                            numberOfLines={ 1 }
+                                            style={ styles.modeTitle }
+                                        >
+                                            { scheduleModeDictionary[mode].title.toUpperCase() }
                                         </AppText>
-                                        <AppText variant='caption'>
-                                            {scheduleModeDictionary[mode].subtext}
-                                        </AppText>
+                                        { scheduleModeDictionary[mode].note ? (
+                                            <AppText variant="caption" style={ styles.modeNote }>
+                                                { scheduleModeDictionary[mode].note?.toUpperCase() }
+                                            </AppText>
+                                        ) : null }
                                     </View>
                                 </RadioButton>
                             ))}
@@ -151,17 +158,40 @@ export default function ScheduleModal({
                     <View style={styles.buttonRow}>
                         {existingSession ? (
                             <View style={styles.actionButtonsRow}>
-                                <View style={styles.actionButtonWrapper}>
-                                    <Button label="Delete" onPress={onDelete} />
+                                <View style={ styles.actionButtonWrapper }>
+                                    <GlassPillButton
+                                        label="Delete"
+                                        height={ 60 }
+                                        labelSize={ 16 }
+                                        labelColor={ ACTION_ORANGE }
+                                        onPress={ onDelete }
+                                        style={ styles.actionPill }
+                                    />
                                 </View>
-                                <View style={styles.actionButtonWrapper}>
-                                    <Button label="Update" onPress={handleConfirm} disabled={isUpdateDisabled} />
+                                <View style={ styles.actionButtonWrapper }>
+                                    <GlassPillButton
+                                        label="Update"
+                                        height={ 60 }
+                                        labelSize={ 16 }
+                                        labelColor={ ACTION_ORANGE }
+                                        disabledLabelColor={ COLOR_VARIANTS.white.quaternary }
+                                        onPress={ handleConfirm }
+                                        disabled={ isUpdateDisabled }
+                                        style={ styles.actionPill }
+                                    />
                                 </View>
                             </View>
                         ) : (
                             <View style={styles.actionButtonsRow}>
-                                <View style={styles.actionButtonWrapper}>
-                                    <Button label="Add Session" onPress={handleConfirm} />
+                                <View style={ styles.actionButtonWrapper }>
+                                    <GlassPillButton
+                                        label="Add Session"
+                                        height={ 60 }
+                                        labelSize={ 16 }
+                                        labelColor={ ACTION_ORANGE }
+                                        onPress={ handleConfirm }
+                                        style={ styles.actionPill }
+                                    />
                                 </View>
                             </View>
                         )}
@@ -173,14 +203,29 @@ export default function ScheduleModal({
 }
 
 const styles = StyleSheet.create({
-    badge: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        position: 'absolute',
+    // Shrinks to the date's width so the rule under it matches the text.
+    selectedDayBlock: {
         left: 20,
-        top: 0,
-        height: 45,
-        width: 180,
+        position: 'absolute',
+        top: 24,
+    },
+    selectedDay: {
+        color: TEXT_COLORS.secondary,
+        fontSize: 20,
+        fontWeight: '300',
+    },
+    // Drawn rather than a text decoration, which sits tight under the baseline
+    // with no way to open a gap.
+    selectedDayRule: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 7,
+    },
+    selectedDayRuleDot: {
+        backgroundColor: ACTION_ORANGE,
+        borderRadius: 1.5,
+        height: 3,
+        width: 3,
     },
     buttonRow: {
         alignItems: 'center',
@@ -197,6 +242,29 @@ const styles = StyleSheet.create({
     actionButtonWrapper: {
         flex: 1,
         minWidth: 0,
+    },
+    actionPill: {
+        width: '100%',
+    },
+    modeRow: {
+        alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    // The title holds its line; the note beside it is what gives way and wraps.
+    modeTitle: {
+        flexShrink: 0,
+        fontWeight: '600',
+        letterSpacing: 0.8,
+    },
+    modeNote: {
+        color: TEXT_COLORS.quaternary,
+        flexShrink: 1,
+        fontSize: 10,
+        letterSpacing: 0.6,
+        lineHeight: 14,
+        marginLeft: 12,
+        textAlign: 'right',
     },
     sectionApplyTo: {
         gap: 10,

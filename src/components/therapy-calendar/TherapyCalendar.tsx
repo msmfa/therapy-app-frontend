@@ -1,9 +1,10 @@
 import React, { useMemo, useCallback, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, TextStyle, View, ViewStyle } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import ScheduleModal from './ScheduleModal';
 import { GradientCard } from '../ui/GradientCard';
-import { CALENDAR_COLORS, COLOR_VARIANTS } from 'designs/designs-colors';
+import { CALENDAR_COLORS, CALENDAR_DARK_COLORS, COLOR_VARIANTS } from 'designs/designs-colors';
+import { DarkCalendarDay, DarkDayKind } from './DarkCalendarDay';
 
 export const COLORS = {
     todayBackground: CALENDAR_COLORS.todayBackground,
@@ -21,7 +22,27 @@ export const COLORS = {
     calendarMonthText: CALENDAR_COLORS.calendarMonthText,
     calendarWeekdayHeader: CALENDAR_COLORS.calendarWeekdayHeader,
     arrows: CALENDAR_COLORS.arrows,
+    reminderBackground: CALENDAR_COLORS.reminderBackground,
+    reminderBorder: CALENDAR_COLORS.reminderBorder,
+    reminderText: CALENDAR_COLORS.reminderText,
     dotIndicator: CALENDAR_COLORS.dotIndicator,
+};
+
+export type TherapyCalendarVariant = 'light' | 'dark';
+
+// The shape react-native-calendars reads back off `markedDates` when
+// markingType is "custom".
+type DayMarking = {
+    marked?: boolean;
+    dotColor?: string;
+    /** Dark variant only: which of the two discs this day wears. */
+    kind?: DarkDayKind;
+    /** Dark variant only: the day whose schedule sheet is open. */
+    pressed?: boolean;
+    customStyles?: {
+        container?: ViewStyle;
+        text?: TextStyle;
+    };
 };
 
 type SelectedSessions = Record<string, Date>;
@@ -31,6 +52,10 @@ interface TherapyCalendarProps {
     selectedSessions: SelectedSessions;
     children?: React.ReactNode;
     dotDates?: Array<string | Date>;
+    fillAvailableSpace?: boolean;
+    hideExtraDays?: boolean;
+    /** `dark` drops the card and puts the month straight onto the backdrop. */
+    variant?: TherapyCalendarVariant;
     onSelectedSessionsChange: (sessions: SelectedSessions) => void;
 }
 
@@ -45,14 +70,78 @@ const createDateFromKey = (dateKey: string) => {
     return new Date(year, month - 1, day);
 };
 
+const LIGHT_THEME = {
+    arrowColor: COLORS.arrows,
+    backgroundColor: COLOR_VARIANTS.transparent,
+    calendarBackground: COLOR_VARIANTS.transparent,
+    dayTextColor: COLORS.calendarDayDefault,
+    monthTextColor: COLORS.calendarMonthText,
+    selectedDayBackgroundColor: COLORS.calendarSelectedBackground,
+    selectedDayTextColor: COLORS.activeSessionBorder,
+    textDisabledColor: COLORS.calendarDayDisabled,
+    textSectionTitleColor: COLORS.calendarWeekdayHeader,
+    todayTextColor: COLORS.scheduledText,
+    textDayFontFamily: 'System',
+    textDayFontSize: 16,
+    textDayHeaderFontFamily: 'System',
+    textDayHeaderFontSize: 14,
+    textMonthFontFamily: 'System',
+    textMonthFontSize: 20,
+};
+
+const DARK_THEME = {
+    arrowColor: CALENDAR_DARK_COLORS.arrows,
+    backgroundColor: COLOR_VARIANTS.transparent,
+    calendarBackground: COLOR_VARIANTS.transparent,
+    dayTextColor: CALENDAR_DARK_COLORS.dayDefault,
+    monthTextColor: CALENDAR_DARK_COLORS.monthText,
+    selectedDayBackgroundColor: COLOR_VARIANTS.transparent,
+    selectedDayTextColor: CALENDAR_DARK_COLORS.dayDefault,
+    textDisabledColor: CALENDAR_DARK_COLORS.dayDisabled,
+    textSectionTitleColor: CALENDAR_DARK_COLORS.weekdayHeader,
+    todayTextColor: CALENDAR_DARK_COLORS.todayText,
+    textDayFontFamily: 'System',
+    textDayFontSize: 17,
+    textDayFontWeight: '400',
+    textDayHeaderFontFamily: 'System',
+    textDayHeaderFontSize: 15,
+    textDayHeaderFontWeight: '400',
+    textMonthFontFamily: 'System',
+    textMonthFontSize: 26,
+    textMonthFontWeight: '400',
+    weekVerticalMargin: 8,
+    // Weekday labels default to a fixed 32pt width while the day cells below
+    // them are flex, which leaves the two grids a couple of points out of step.
+    // Flexing the labels lines the columns up exactly.
+    'stylesheet.calendar.header': {
+        week: {
+            marginTop: 16,
+            marginBottom: 12,
+            flexDirection: 'row',
+            justifyContent: 'space-around',
+        },
+        dayHeader: {
+            flex: 1,
+            textAlign: 'center',
+            fontSize: 15,
+            fontWeight: '400',
+            color: CALENDAR_DARK_COLORS.weekdayHeader,
+        },
+    },
+};
+
 export default function TherapyCalendar({
     onSelectedSessionsChange,
     selectedSessions,
     dotDates = [],
     children,
+    fillAvailableSpace = true,
+    hideExtraDays = true,
+    variant = 'light',
 }: TherapyCalendarProps) {
     const [activeDateKey, setActiveDateKey] = useState<string | null>(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const isDark = variant === 'dark';
 
     const dotDateKeys = useMemo(() => {
         if (!dotDates?.length) {
@@ -88,25 +177,60 @@ export default function TherapyCalendar({
         return Array.from(keys);
     }, [dotDates]);
 
-    const markedDates = useMemo(() => {
+    // The dark variant renders its own day cell, so the marking map only has to
+    // say which disc each day wears; DarkCalendarDay owns the drawing.
+    const buildDarkMarkings = useCallback(() => {
+        const entries: Record<string, DayMarking> = {};
+
+        // Reminders first, so a day that is both falls through to the session
+        // disc below.
+        dotDateKeys.forEach((dateKey) => {
+            entries[dateKey] = { kind: 'reminder' };
+        });
+
+        Object.keys(selectedSessions).forEach((dateKey) => {
+            entries[dateKey] = { kind: 'session' };
+        });
+
+        if (activeDateKey) {
+            entries[activeDateKey] = { ...(entries[activeDateKey] ?? {}), pressed: true };
+        }
+
+        return entries;
+    }, [selectedSessions, activeDateKey, dotDateKeys]);
+
+    const buildLightMarkings = useCallback(() => {
         // ODO:: change dots to text color on the day so key will be text is red and circle will be therapy day
-        const circleBaseStyle = {
+        const circleBaseStyle: ViewStyle = {
             alignItems: 'center',
             borderRadius: 20,
-            // height: 40,
             justifyContent: 'center',
-            // width: 40,
         };
 
-        const entries = Object.keys(selectedSessions).reduce<Record<string, any>>((acc, dateKey) => {
+        // Lifts session days off the card. Only they carry it, so a glance at
+        // the month picks out the therapy dates before you read any numbers.
+        const sessionShadow: ViewStyle = {
+            shadowColor: COLORS.activeSessionBorder,
+            shadowOffset: { width: 0, height: 5 },
+            shadowOpacity: 0.68,
+            shadowRadius: 9,
+            elevation: 10,
+        };
+
+        const sessionBorder: ViewStyle = {
+            borderColor: COLORS.activeSessionBorder,
+            borderWidth: 1,
+        };
+
+        const entries = Object.keys(selectedSessions).reduce<Record<string, DayMarking>>((acc, dateKey) => {
             const isActive = activeDateKey === dateKey;
             acc[dateKey] = {
                 customStyles: {
                     container: {
                         ...circleBaseStyle,
+                        ...sessionShadow,
+                        ...sessionBorder,
                         backgroundColor: isActive ? COLORS.activeSessionBackground : COLORS.scheduledBackground,
-                        borderColor: COLORS.activeSessionBorder,
-                        borderWidth: 1,
                     },
                     text: {
                         color: isActive ? COLORS.activeSessionText : COLORS.scheduledText,
@@ -122,9 +246,8 @@ export default function TherapyCalendar({
                 customStyles: {
                     container: {
                         ...circleBaseStyle,
+                        ...sessionBorder,
                         backgroundColor: COLORS.unscheduledBackground,
-                        borderColor: COLORS.activeSessionBorder,
-                        borderWidth: 1,
                     },
                     text: {
                         color: COLORS.pressedText,
@@ -151,33 +274,37 @@ export default function TherapyCalendar({
             };
         }
 
-        if (dotDateKeys.length > 0) {
-            dotDateKeys.forEach((dateKey) => {
-                const entryWithoutDots = { ...(entries[dateKey] ?? {}) };
-                delete entryWithoutDots.marked;
-                delete entryWithoutDots.dotColor;
+        dotDateKeys.forEach((dateKey) => {
+            const entryWithoutDots = { ...(entries[dateKey] ?? {}) };
+            const isTherapySession = Object.prototype.hasOwnProperty.call(selectedSessions, dateKey);
+            delete entryWithoutDots.marked;
+            delete entryWithoutDots.dotColor;
 
-                const {
-                    text: existingTextStyles = {},
-                    ...otherCustomStyles
-                } = entryWithoutDots.customStyles ?? {};
+            const {
+                text: existingTextStyles = {},
+                ...otherCustomStyles
+            } = entryWithoutDots.customStyles ?? {};
 
-                entries[dateKey] = {
-                    ...entryWithoutDots,
-                    customStyles: {
-                        ...otherCustomStyles,
-                        text: {
-                            ...existingTextStyles,
-                            color: COLORS.scheduledText,
-                            fontWeight: '600',
-                        },
+            entries[dateKey] = {
+                ...entryWithoutDots,
+                customStyles: {
+                    ...otherCustomStyles,
+                    text: {
+                        ...existingTextStyles,
+                        color: isTherapySession ? COLORS.scheduledText : COLORS.dotIndicator,
+                        fontWeight: '600',
                     },
-                };
-            });
-        }
+                },
+            };
+        });
 
         return entries;
     }, [selectedSessions, activeDateKey, dotDateKeys]);
+
+    const markedDates = useMemo(
+        () => (isDark ? buildDarkMarkings() : buildLightMarkings()),
+        [isDark, buildDarkMarkings, buildLightMarkings],
+    );
 
     const openModalForDate = useCallback((dateKey: string) => {
         setActiveDateKey(dateKey);
@@ -235,78 +362,72 @@ export default function TherapyCalendar({
         closeModal();
     }, [activeDateKey, closeModal, onSelectedSessionsChange, selectedSessions]);
 
-    const calendarTheme = {
-        arrowColor: COLORS.arrows,
-        backgroundColor: COLOR_VARIANTS.transparent,
-        calendarBackground: COLOR_VARIANTS.transparent,
-        dayTextColor: COLORS.calendarDayDefault,
-        monthTextColor: COLORS.calendarMonthText,
-        selectedDayBackgroundColor: COLORS.calendarSelectedBackground,
-        selectedDayTextColor: COLORS.activeSessionBorder,
-        textDisabledColor: COLORS.calendarDayDisabled,
-        textSectionTitleColor: COLORS.calendarWeekdayHeader,
-        todayTextColor: COLORS.scheduledText,
-        // fonts
-        textDayFontFamily: 'System',
-        textDayFontSize: 16,
-        textDayHeaderFontFamily: 'System',
-        textDayHeaderFontSize: 14,
-        textMonthFontFamily: 'System',
-        textMonthFontSize: 20,
-        dotStyle: {
-            // marginTop: 2,
-        },
-    };
+    const calendarTheme = isDark ? DARK_THEME : LIGHT_THEME;
+
+    const calendar = (
+        <Calendar
+            dayComponent={ isDark ? DarkCalendarDay : undefined }
+            hideExtraDays={ hideExtraDays }
+            markedDates={ markedDates }
+            markingType="custom"
+            minDate={ formatDateKey(new Date()) }
+            onDayPress={ handleDayPress }
+            theme={ calendarTheme as never }
+            style={ isDark ? styles.calendarDark : styles.calendar }
+            testID="therapy-calendar"
+        />
+    );
 
     return (
         <>
-            <View style={styles.content}>
-                <GradientCard addedStyles={styles.calendarWrapper}>
-                    <Calendar
-                        hideExtraDays
-                        markedDates={markedDates}
-                        markingType="custom"
-                        minDate={formatDateKey(new Date())}
-                        onDayPress={handleDayPress}
-                        theme={calendarTheme}
-                        style={styles.calendar}
-                    />
-                </GradientCard>
-                {children}
+            <View style={ [styles.content, fillAvailableSpace && styles.contentFill] }>
+                { isDark ? calendar : (
+                    <GradientCard addedStyles={ styles.calendarWrapper }>
+                        { calendar }
+                    </GradientCard>
+                ) }
+                { children }
             </View>
-            {isModalVisible && activeDateKey && (
+            { isModalVisible && activeDateKey && (
                 <ScheduleModal
-                    defaultTime={DEFAULT_TIME}
+                    defaultTime={ DEFAULT_TIME }
                     existingSession={
                         selectedSessions[activeDateKey]
                             ? {
-                                  date: activeDateKey,
-                                  id: activeDateKey,
-                                  time: selectedSessions[activeDateKey],
-                              }
+                                date: activeDateKey,
+                                id: activeDateKey,
+                                time: selectedSessions[activeDateKey],
+                            }
                             : null
                     }
-                    onCancel={closeModal}
-                    onConfirm={applySession}
-                    onDelete={handleDelete}
-                    selectedDate={activeDateKey}
-                    visible={isModalVisible}
+                    onCancel={ closeModal }
+                    onConfirm={ applySession }
+                    onDelete={ handleDelete }
+                    selectedDate={ activeDateKey }
+                    visible={ isModalVisible }
                 />
-            )}
+            ) }
         </>
     );
 }
 
 const styles = StyleSheet.create({
     content: {
-        flex: 1,
         paddingHorizontal: 4,
         position: 'relative',
+    },
+    contentFill: {
+        flex: 1,
     },
     calendarWrapper: {
         paddingHorizontal: 4,
     },
     calendar: {
         paddingVertical: 14,
+    },
+    calendarDark: {
+        paddingHorizontal: 10,
+        paddingTop: 4,
+        paddingBottom: 22,
     },
 });

@@ -9,10 +9,15 @@ import { PALETTE } from 'designs/designs-colors';
 type Props = {
     label: string;
     height?: number;
+    /** Scales with `height` where the caller wants a larger pill. */
+    labelSize?: number;
     onPress: () => void;
     accessibilityLabel?: string;
     // White reads on the home screen's colour; paper screens pass their ink.
     labelColor?: string;
+    // When given, the disabled label takes this colour outright instead of the
+    // default fade, so it can be dialled to a specific grey.
+    disabledLabelColor?: string;
     disabled?: boolean;
     style?: StyleProp<ViewStyle>;
 };
@@ -24,12 +29,15 @@ type Props = {
 export function GlassPillButton({
     label,
     height = 48,
+    labelSize = 17,
     onPress,
     accessibilityLabel,
     labelColor = '#ffffff',
+    disabledLabelColor,
     disabled = false,
     style,
 }: Props) {
+    const resolvedLabelColor = disabled && disabledLabelColor ? disabledLabelColor : labelColor;
     const [width, setWidth] = React.useState(0);
     const radius = height / 2;
 
@@ -58,7 +66,14 @@ export function GlassPillButton({
                     colors={ ['hsla(0, 0%, 100%, 0.42)', 'hsla(0, 0%, 100%, 0.08)'] }
                     style={ StyleSheet.absoluteFill }
                 />
-                <AppText variant="body" style={ [styles.label, { color: labelColor }] }>
+                <AppText
+                    variant="body"
+                    style={ [
+                        styles.label,
+                        { color: resolvedLabelColor, fontSize: labelSize },
+                        disabled && !disabledLabelColor && styles.disabledLabel,
+                    ] }
+                >
                     { label }
                 </AppText>
             </BlurView>
@@ -121,8 +136,14 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: 17,
+        letterSpacing: 1.2,
     },
     disabled: {
-        opacity: 0.5,
+        opacity: 0.6,
+    },
+    // The glass itself stays readable when disabled; the label is what carries
+    // the "nothing to do here" signal, so it fades further than the pill does.
+    disabledLabel: {
+        opacity: 0.55,
     },
 });

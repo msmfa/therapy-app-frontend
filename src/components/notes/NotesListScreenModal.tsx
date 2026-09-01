@@ -15,16 +15,29 @@ import { COLOR_VARIANTS, THEME_COLORS } from 'designs/designs-colors';
 const INK = 'hsl(219, 52%, 14%)';
 
 // Both header buttons share a height so the tray outline hugs them with one radius.
-const HEADER_BUTTON = 48;
+const HEADER_BUTTON = 56;
 
 type NotePreviewModalProps = {
     visible: boolean;
     note: Note | null;
     onClose: () => void;
     onUpdateNote: (id: string, text: string) => Promise<void>;
+    /**
+     * False when no reminder is currently answerable, or when this slot has
+     * already been ticked. Either way there is nothing a press could record.
+     */
+    canReview?: boolean;
+    onReviewed?: (note: Note) => Promise<void> | void;
 };
 
-export function NotePreviewModal({ visible, note, onClose, onUpdateNote }: NotePreviewModalProps) {
+export function NotePreviewModal({
+    visible,
+    note,
+    onClose,
+    onUpdateNote,
+    canReview = false,
+    onReviewed,
+}: NotePreviewModalProps) {
     const [isEditing, setIsEditing] = React.useState(false);
     const [draft, setDraft] = React.useState('');
     const [saving, setSaving] = React.useState(false);
@@ -54,6 +67,13 @@ export function NotePreviewModal({ visible, note, onClose, onUpdateNote }: NoteP
         setDraft(note?.text ?? '');
         onClose();
     }, [note, onClose]);
+
+    const handleReviewed = React.useCallback(async () => {
+        if (note && onReviewed) {
+            await onReviewed(note);
+        }
+        handleClose();
+    }, [handleClose, note, onReviewed]);
 
     const handleStartEditing = React.useCallback(() => {
         if (!note) return;
@@ -146,9 +166,11 @@ export function NotePreviewModal({ visible, note, onClose, onUpdateNote }: NoteP
                             onPress={ handleClose }
                         />
                         <GlassPillButton
-                            label="reviewed"
+                            label="REVIEWED"
                             labelColor={ INK }
-                            onPress={ handleClose }
+                            labelSize={ 18 }
+                            onPress={ () => { void handleReviewed(); } }
+                            disabled={ !canReview }
                             accessibilityLabel="Mark reviewed"
                             height={ HEADER_BUTTON }
                         />

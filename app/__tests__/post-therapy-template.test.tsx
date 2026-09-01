@@ -37,35 +37,51 @@ beforeEach(() => {
     mockBack.mockClear();
 });
 
-describe('5 Minute Post Therapy Template', () => {
-    it('renders the title, the intro and all five questions with their hints', () => {
-        const { getByText } = render(<HowToTakeNotesScreen />);
+describe('Template screen', () => {
+    it('shows the questions as a picture of the sheet rather than retyping them', () => {
+        const { getByText, getByLabelText, queryByText } = render(<HowToTakeNotesScreen />);
 
-        getByText('5 Minute Post Therapy Template');
-        getByText(/Write as much or as little as feels useful/);
+        getByText('Template');
+        getByLabelText('The five questions, as they appear on the cheatsheet');
+
+        // The sheet carries the wording now, so the page must not repeat it.
+        expect(queryByText(/Write as much or as little as feels useful/)).toBeNull();
+        expect(queryByText(/What stayed with you from today’s session\?/)).toBeNull();
+    });
+
+    it('opens the cheatsheet popup from the link', () => {
+        const { getByText, queryByText } = render(<HowToTakeNotesScreen />);
+
+        expect(queryByText(/An idea, phrase, realisation/)).toBeNull();
+
+        fireEvent.press(getByText('cheatsheet'));
 
         getByText(/What stayed with you from today’s session\?/);
-        getByText('An idea, phrase, realisation or moment you do not want to lose.');
-
-        getByText(/What situation, thought or feeling do you want to notice this week\?/);
-        getByText('Something connected to what you discussed, if there is one.');
-
-        getByText(/What did you understand differently\?/);
-        getByText('Keep this in your own words.');
-
-        getByText(/Is there anything you want to try or remember\?/);
-        getByText('Leave this blank if nothing was agreed or suggested.');
-
-        getByText(/What do you want to return to in your next session\?/);
         getByText('One subject is enough.');
     });
 
-    it('navigates to the rationale page from the bottom button', () => {
+    it('opens the research article from the link', () => {
+        const openURL = jest
+            .spyOn(Linking, 'openURL')
+            .mockImplementation(() => Promise.resolve(true));
+
         const { getByText } = render(<HowToTakeNotesScreen />);
 
-        fireEvent.press(getByText('Why these five questions'));
+        fireEvent.press(getByText('click here'));
 
-        expect(mockPush).toHaveBeenCalledWith('/why-five-questions');
+        expect(openURL).toHaveBeenCalledWith(
+            'https://www.plastic-brains.com/after-therapy-note-template/',
+        );
+
+        openURL.mockRestore();
+    });
+
+    it('goes back from the arrow', () => {
+        const { getByLabelText } = render(<HowToTakeNotesScreen />);
+
+        fireEvent.press(getByLabelText('Back'));
+
+        expect(mockBack).toHaveBeenCalled();
     });
 });
 
