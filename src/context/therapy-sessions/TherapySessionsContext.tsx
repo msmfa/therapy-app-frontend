@@ -8,6 +8,10 @@ import {
     syncTherapySessions as syncTherapySessionsApi,
 } from '../../api/therapy';
 import { scheduleNeuroplasticityReminders, Reminder } from '../../features/reminders/reminder-schedule-v2';
+import {
+    REMINDER_SCHEDULE,
+    sessionScheduleInputs,
+} from '../../features/reminders/reminderScheduleConfig';
 import { useDeviceTimeZone } from '../../hooks/useDeviceTimeZone';
 import { mapSessionError, SessionErrorCopy } from '../../features/therapy-sessions/session-error-map';
 import { toError } from '../../utils/errors';
@@ -23,25 +27,6 @@ interface TherapySessionsContextType {
 }
 
 const TherapySessionsContext = createContext<TherapySessionsContextType | undefined>(undefined);
-
-/**
- * Assumed length of a session whose duration was never recorded.
- *
- * `durationMin` is optional on the API, so a session can arrive without one.
- * Treating that as zero-length left the reminder plan with no session end to
- * stay clear of, and showed reminders landing inside the session. 50 is what
- * both write paths send, so an unknown session is assumed to look like every
- * session the app itself creates.
- *
- * Mirrors DEFAULT_SESSION_MINUTES in the backend's notificationCron.helpers.ts:
- * the two have to agree or the plan shown here drifts from the pushes sent.
- */
-const DEFAULT_SESSION_MINUTES = 50;
-
-const effectiveDurationMin = (durationMin?: number | null): number =>
-    typeof durationMin === 'number' && Number.isFinite(durationMin) && durationMin > 0
-        ? durationMin
-        : DEFAULT_SESSION_MINUTES;
 
 /**
  * The window of sessions the app fetches and edits: from the start of the
@@ -73,7 +58,6 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
     const [sessions, setSessions] = useState<TherapySession[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<SessionErrorCopy | null>(null);
-    const [neuroReminders, setNeuroReminders] = useState<Reminder[]>([]);
     const deviceTimeZone = useDeviceTimeZone();
     const refreshInFlightRef = useRef<Promise<void> | null>(null);
     const sessionsCountRef = useRef(0);
@@ -113,6 +97,7 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
                     });
                 }
                 console.error('Error loading sessions:', err);
+                throw err;
             } finally {
                 refreshInFlightRef.current = null;
                 setLoading(false);
@@ -142,6 +127,16 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
             });
 
             await syncTherapySessionsApi(payload, getSessionsWindow());
+
+            // A refresh that began before the write can resolve afterward with
+            // the old session list. Wait for it to finish, then start a fresh
+            // post-write GET so reminders can only be derived from canonical
+            // data that was fetched after the sync completed.
+            const staleRefresh = refreshInFlightRef.current;
+            if (staleRefresh) {
+                await staleRefresh.catch(() => {});
+            }
+
             await refreshSessions();
         },
         [isAuthenticated, sessions, refreshSessions],
@@ -163,38 +158,23 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
         return earliest;
     }, [sessions]);
 
-    useEffect(() => {
+    const neuroReminders = useMemo<Reminder[]>(() => {
         if (!sessions.length) {
-            setNeuroReminders([]);
-            return;
+            return [];
         }
-
-        const sessionsUtc = sessions
-            .map((session) => session.startsAtUtc)
-            .filter((value): value is string => typeof value === 'string');
 
         // Durations travel alongside the starts so the plan shown here never
         // promises a reminder while a session is still running, matching what
         // the backend cron will actually send.
-        const sessionDurationsMin: Record<string, number> = {};
-        for (const session of sessions) {
-            if (typeof session.startsAtUtc === 'string') {
-                sessionDurationsMin[session.startsAtUtc] = effectiveDurationMin(session.durationMin);
-            }
-        }
+        const { sessionsUtc, sessionDurationsMin } = sessionScheduleInputs(sessions);
 
-        const reminders = scheduleNeuroplasticityReminders({
+        return scheduleNeuroplasticityReminders({
             nowUtc: new Date().toISOString(),
             sessionsUtc,
-            reflectionHour: 20,
-            morningHour: 7,
-            startAfterDays: 3,
-            cadenceDays: 4,
+            ...REMINDER_SCHEDULE,
             timeZone: deviceTimeZone,
             sessionDurationsMin,
         });
-
-        setNeuroReminders(reminders);
         // deviceTimeZone is a dependency because reminder instants are derived
         // from it. Travelling does not change the user's sessions, so keying
         // this only on [sessions] left the UI showing times computed for the
@@ -204,12 +184,11 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
 
     useEffect(() => {
         if (isAuthenticated) {
-            refreshSessions();
+            refreshSessions().catch(() => {});
         } else {
             setSessions([]);
             setError(null);
             setLoading(false);
-            setNeuroReminders([]);
         }
     }, [isAuthenticated, refreshSessions]);
 
