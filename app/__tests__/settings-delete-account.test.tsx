@@ -2,7 +2,8 @@ import React from 'react';
 import { jest } from '@jest/globals';
 import { act, fireEvent, render } from '@testing-library/react-native';
 
-import SettingsScreen from '../(tabs)/settings';
+// Delete account now lives on the Settings category page, not the index.
+import AccountSettingsScreen from '../account';
 import { deleteCurrentUser } from '../../src/api/users';
 import { clearNotesForUser } from '../../src/features/notes/useNotes';
 
@@ -103,7 +104,7 @@ describe('SettingsScreen account deletion', () => {
         mockedDeleteCurrentUser.mockResolvedValueOnce(undefined);
         mockedClearNotesForUser.mockResolvedValueOnce(undefined);
 
-        const { getByText } = render(<SettingsScreen />);
+        const { getByText } = render(<AccountSettingsScreen />);
         await confirmAccountDeletion(getByText);
 
         expect(mockedDeleteCurrentUser).toHaveBeenCalledTimes(1);
@@ -119,7 +120,7 @@ describe('SettingsScreen account deletion', () => {
     it('keeps local notes when the server deletion fails', async () => {
         mockedDeleteCurrentUser.mockRejectedValueOnce(new Error('Network request failed'));
 
-        const { getByText } = render(<SettingsScreen />);
+        const { getByText } = render(<AccountSettingsScreen />);
         await confirmAccountDeletion(getByText);
 
         expect(mockedClearNotesForUser).not.toHaveBeenCalled();
@@ -131,7 +132,7 @@ describe('SettingsScreen account deletion', () => {
         mockedDeleteCurrentUser.mockResolvedValueOnce(undefined);
         mockedClearNotesForUser.mockRejectedValueOnce(new Error('sqlite unavailable'));
 
-        const { getByText } = render(<SettingsScreen />);
+        const { getByText } = render(<AccountSettingsScreen />);
         await confirmAccountDeletion(getByText);
 
         expect(mockSignOut).toHaveBeenCalledTimes(1);

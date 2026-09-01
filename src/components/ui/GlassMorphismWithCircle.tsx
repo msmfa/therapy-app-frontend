@@ -12,8 +12,8 @@ type Props = {
 
 export const GlassMorphismWithCircle = ({ children, style, circlePosition, circleStyle }: Props) => {
     return (
-        <View style={ styles.container }>
-            <View style={ styles.colorfulCardsContainer }>
+        <View pointerEvents="box-none" style={ styles.container }>
+            <View pointerEvents="none" style={ styles.colorfulCardsContainer }>
                 <LinearGradientCircle position={ circlePosition } style={ circleStyle } />
             </View>
             <GlassMorphism tint="light" style={ style }>

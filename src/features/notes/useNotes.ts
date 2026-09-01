@@ -51,12 +51,40 @@ const getDb = async (): Promise<SQLiteDatabase> => {
                 `CREATE INDEX IF NOT EXISTS idx_notes_user_createdAt
                  ON notes (userId, createdAt DESC);`,
             );
+            // One row per note per attributed day. The unique index below is
+            // what enforces "a note counts once a day" - a second tick on the
+            // same day is a no-op rather than an inflated count.
+            await db.execAsync(
+                `CREATE TABLE IF NOT EXISTS note_reviews (
+                    noteId TEXT NOT NULL,
+                    userId TEXT NOT NULL,
+                    localDate TEXT NOT NULL,
+                    reviewedAt INTEGER NOT NULL,
+                    gapIndex INTEGER,
+                    reason TEXT,
+                    occurrenceAtUtc TEXT
+                );`,
+            );
+            await db.execAsync(
+                `CREATE UNIQUE INDEX IF NOT EXISTS idx_note_reviews_note_day
+                 ON note_reviews (noteId, localDate);`,
+            );
+            await db.execAsync(
+                `CREATE INDEX IF NOT EXISTS idx_note_reviews_user_date
+                 ON note_reviews (userId, localDate);`,
+            );
         })();
     }
 
     await initPromise;
     return db;
 };
+
+/**
+ * The reviews feature stores its rows in this same database, so it has to go
+ * through the same initialisation rather than opening `notes.db` a second time.
+ */
+export const getNotesDb = getDb;
 
 const sortNotes = (items: Note[]) => [...items].sort((a, b) => b.createdAt - a.createdAt);
 
@@ -128,6 +156,7 @@ async function deleteNotesForUser(db: SQLiteDatabase, userId: string) {
         await Promise.all(cancellations);
     }
 
+    await db.runAsync(`DELETE FROM note_reviews WHERE userId = ?`, userId);
     await db.runAsync(`DELETE FROM notes WHERE userId = ?`, userId);
 }
 
@@ -294,6 +323,7 @@ export function useNotes(userId: string | undefined) {
 
             try {
                 const db = await getDb();
+                await db.runAsync(`DELETE FROM note_reviews WHERE noteId = ? AND userId = ?`, id, userId);
                 await db.runAsync(`DELETE FROM notes WHERE id = ? AND userId = ?`, id, userId);
                 setNotes((prev) => prev.filter((n) => n.id !== id));
                 setError(null);

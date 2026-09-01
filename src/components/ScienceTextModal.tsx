@@ -1,68 +1,63 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet, View } from 'react-native';
 import { ReminderType } from '../utils/types';
 import { REMINDER_SCIENCE_COPY } from '../constants/neuroReminders';
 import AppText from './ui/AppText';
 import Spacer, { SpacerVariant } from './ui/Spacer';
+import { CitedText } from './ui/CitedText';
 import { ExternalLink } from './ui/ExternalLink';
-import { COMPONENT_COLORS } from 'designs/designs-colors';
-import { Fragment } from 'react';
 import { GradientCard } from './ui/GradientCard';
 
 type Props = {
     type: ReminderType;
 };
 
+/**
+ * The science write-up behind one reminder interval. It has no scroll view or
+ * safe area of its own: AppModal supplies both, so the page scrolls as one
+ * column rather than as a scroll view nested inside another.
+ */
 export function ScienceTextModal({ type }: Props) {
-    const { title, body, sources } = REMINDER_SCIENCE_COPY[type];
+    const { body, sources } = REMINDER_SCIENCE_COPY[type];
 
     return (
-        <SafeAreaView style={ styles.safeArea } edges={ ['left', 'right', 'bottom', 'top'] }>
-            <ScrollView
-                showsVerticalScrollIndicator={ false }
-            >
-                <GradientCard addedStyles={ styles.gradientContainer }>
-                    <Spacer />
-                    <View style={ styles.badge }>
-                        <AppText variant="h3">{ title }</AppText>
-                    </View>
-                    <Spacer variant={ SpacerVariant.medium } />
+        <>
+            <GradientCard addedStyles={ styles.gradientContainer }>
+                <Spacer />
 
-                    { body.map((paragraph, index) => (
-                        <View key={ `paragraph-${index}` }>
-                            <AppText variant="body">{ paragraph }</AppText>
-                            { index < body.length - 1 && <Spacer variant={ SpacerVariant.small } /> }
+                { body.map((paragraph, index) => (
+                    <View key={ `paragraph-${index}` }>
+                        <CitedText variant="body" text={ paragraph } sources={ sources } />
+                        { index < body.length - 1 && <Spacer variant={ SpacerVariant.small } /> }
+                    </View>
+                )) }
+                <Spacer variant={ SpacerVariant.large } />
+            </GradientCard>
+
+            { sources.length > 0 && (
+                <View style={ styles.sourcesSection }>
+                    <Spacer variant={ SpacerVariant.large } />
+                    <AppText variant="h3">Sources</AppText>
+                    <Spacer variant={ SpacerVariant.small } />
+                    { sources.map((source, index) => (
+                        <View key={ source.url } style={ styles.source }>
+                            <AppText variant="caption" style={ styles.sourceMarker }>
+                                { index + 1 }.
+                            </AppText>
+                            <ExternalLink
+                                variant="caption"
+                                text={ source.text }
+                                url={ source.url }
+                                containerStyle={ styles.sourceLink }
+                            />
                         </View>
                     )) }
-                    <Spacer variant={ SpacerVariant.large } />
-                </GradientCard>
-
-                { sources.length > 0 && (
-                    <View style={ styles.sourcesSection }>
-                        <Spacer variant={ SpacerVariant.large } />
-                        <AppText variant="h3">Sources</AppText>
-                        <Spacer variant={ SpacerVariant.small } />
-                        { sources.map((source) => (
-                            <Fragment key={ source.url }>
-                                <ExternalLink
-                                    text={ source.text }
-                                    url={ source.url }
-                                />
-                                <Spacer variant={ SpacerVariant.small } />
-                            </Fragment>
-                        )) }
-                    </View>
-                ) }
-            </ScrollView>
-        </SafeAreaView>
+                </View>
+            ) }
+        </>
     );
 }
 
 const styles = StyleSheet.create({
-    safeArea: {
-        flex: 1,
-        paddingVertical: 12,
-    },
     gradientContainer: {
         backgroundColor: '#dbdbdb91',
     },
@@ -70,12 +65,17 @@ const styles = StyleSheet.create({
         alignSelf: 'stretch',
         paddingHorizontal: 12,
     },
-    badge: {
-        borderWidth: 1,
-        borderColor: COMPONENT_COLORS.scienceBadgeBorder,
-        borderRadius: 20,
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        alignSelf: 'flex-end',
-    }
+    // The numbered list the inline markers count into, laid out like the one
+    // on the references page: the number in its own gutter, the link beside it.
+    source: {
+        flexDirection: 'row',
+        gap: 8,
+    },
+    sourceMarker: {
+        width: 20,
+        paddingTop: 6,
+    },
+    sourceLink: {
+        flex: 1,
+    },
 });

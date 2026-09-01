@@ -30,25 +30,16 @@ import {
     localDateKeyInZone,
 } from '../../utils/timeZone';
 
-export enum Reason {
-  PostSession = 'post_session',
-  PostSleep = 'post_sleep',
-  MidSession = 'mid_session',
-  PreSession = 'pre_session',
-}
-
-export interface Reminder {
-  atUtc: string;
-  reason: Reason;
-  gapIndex: number;
-  /**
-   * The calendar day this reminder belongs to in the user's zone, as
-   * YYYY-MM-DD. 20:00 in Los Angeles is 04:00 UTC the next day, so deriving a
-   * day key from `atUtc` puts calendar markers on the wrong date; consumers
-   * should key off this instead.
-   */
-  localDate: string;
-}
+// The schedule the server now owns is fetched, not computed here. This module
+// survives only to replay *past* occurrences, which the reviews feature needs
+// to work out which reminder a note review answered and which `GET /reminders`
+// does not serve — it returns the plan ahead of now. The vocabulary is
+// re-exported from the wire types so there is still exactly one definition of
+// a reminder in the app.
+export { Reason } from './types';
+export type { Reminder } from './types';
+import { Reason } from './types';
+import type { Reminder } from './types';
 
 export interface ScheduleParams {
   nowUtc: string;

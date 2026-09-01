@@ -3,16 +3,24 @@ import { Note } from "../../features/notes/useNotes";
 import AppText from "../ui/AppText";
 import Spacer from "../ui/Spacer";
 import dayjs from 'dayjs';
-import Badge from "../ui/Badge";
-import { PALETTE, TEXT_COLORS } from 'designs/designs-colors';
+import { COLOR_VARIANTS, PALETTE, TEXT_COLORS } from 'designs/designs-colors';
+import { GlassCircleButton } from '../ui/GlassCircleButton';
+import type { NoteReviewProgress } from '../../features/reviews';
+import { ReviewProgressBar } from './ReviewProgressBar';
+
+const PREVIEW_LINES = 4;
+const OPEN_BUTTON = 32;
+const PREVIEW_LINE_HEIGHT = 22;
 
 type Props = {
     item: Note;
     index: number;
     onPress: (item: Note) => void;
+    /** From `useNoteReviews().progressFor(note)`. */
+    progress?: NoteReviewProgress;
 }
 
-export function NoteCard({ item, index, onPress }: Props) {
+export function NoteCard({ item, index, onPress, progress }: Props) {
     return (
         <Pressable
             onPress={ () => onPress(item) }
@@ -22,24 +30,35 @@ export function NoteCard({ item, index, onPress }: Props) {
                 index === 0 && styles.firstCard,
             ] }
         >
-            <View style={ styles.noteHeader }>
-                <AppText variant='h3' >
-                    { dayjs(item.createdAt).format('dddd, MMM D, YYYY') }
-                </AppText>
-                { index === 0 && (
-                    <View style={ styles.latestBadge }>
-                        <Badge>Last session</Badge>
-                    </View>
-                ) }
+            { /* Decoration, not a second target: the whole card is already
+                 pressable, so this lets the tap fall through to it. The `back`
+                 glyph points up-left, mirrored here to point out of the card. */ }
+            <View pointerEvents='none' style={ styles.openButton }>
+                <GlassCircleButton
+                    accessibilityLabel='Open note'
+                    icon='back'
+                    iconColor={ COLOR_VARIANTS.red.primary }
+                    size={ OPEN_BUTTON }
+                    onPress={ () => onPress(item) }
+                    style={ styles.openButtonGlass }
+                />
             </View>
-            <AppText variant='bodySecondary' numberOfLines={ 3 }>
+            <View style={ styles.noteHeader }>
+                <AppText variant='h3' numberOfLines={ 1 } style={ styles.date }>
+                    { dayjs(item.createdAt).format('dddd, MMM D') }
+                </AppText>
+                <AppText variant='caption' style={ styles.time }>
+                    { dayjs(item.createdAt).format('h:mm A') }
+                </AppText>
+            </View>
+            <AppText variant='bodySecondary' numberOfLines={ PREVIEW_LINES } style={ styles.preview }>
                 { item.text }
             </AppText>
 
             <Spacer />
-            <AppText variant="caption" style={ { color: TEXT_COLORS.tertiary } }>
-                { dayjs(item.createdAt).format('h:mm A') }
-            </AppText>
+            { progress && (
+                <ReviewProgressBar progress={ progress } showCaption={ false } />
+            ) }
 
         </Pressable>
     );
@@ -56,7 +75,8 @@ const styles = StyleSheet.create({
         shadowRadius: 140,
         elevation: 20,
         alignSelf: 'stretch',
-        paddingVertical: 22,
+        paddingTop: 28,
+        paddingBottom: 22,
         paddingHorizontal: 22,
     },
     noteCardPressed: {
@@ -73,19 +93,33 @@ const styles = StyleSheet.create({
         borderColor: PALETTE.overlay.whiteSurfaceTransparent,
         borderWidth: 1,
     },
+    preview: {
+        // Fixed so every card is the same height, however short the note is.
+        height: PREVIEW_LINES * PREVIEW_LINE_HEIGHT,
+        lineHeight: PREVIEW_LINE_HEIGHT,
+    },
     noteHeader: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 2,
+        alignItems: 'baseline',
+        gap: 8,
+        marginBottom: 10,
     },
-    latestBadge: {
-        paddingHorizontal: 2,
-        paddingVertical: 2,
-        borderRadius: 4,
-        borderTopRightRadius: 8,
+    date: {
+        textTransform: 'uppercase',
+    },
+    openButton: {
         position: 'absolute',
-        right: -16,
-        top: -16,
+        top: 16,
+        right: 16,
+        zIndex: 1,
+        // Sits behind the note itself: present enough to read as a way in,
+        // faint enough not to compete with the date and the text.
+        opacity: 0.55,
+    },
+    openButtonGlass: {
+        transform: [{ scaleX: -1 }],
+    },
+    time: {
+        color: TEXT_COLORS.tertiary,
     },
 });
