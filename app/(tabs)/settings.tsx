@@ -128,7 +128,7 @@ export default function SettingsScreen() {
                 <Spacer variant={ SpacerVariant.small } />
                 <FrostedCard contentStyle={ { paddingVertical: 22 } }>
                     <View>
-                        <AppText variant='h2'>
+                        <AppText variant='h3' style={ styles.sectionHeading }>
                             References
                         </AppText>
                         <Spacer />
@@ -143,7 +143,7 @@ export default function SettingsScreen() {
                             />
                         </View>
                         <Spacer />
-                        <AppText variant='h2'>
+                        <AppText variant='h3' style={ styles.sectionHeading }>
                             Settings
                         </AppText>
                         <Spacer />
@@ -182,6 +182,10 @@ const styles = StyleSheet.create({
     user: {
         padding: 12,
         alignItems: 'center',
+    },
+    // Matches the note cards' date titles.
+    sectionHeading: {
+        textTransform: 'uppercase',
     },
 });
 
