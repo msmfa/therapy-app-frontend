@@ -18,6 +18,9 @@ import * as Notifications from 'expo-notifications';
 import { resolveNotificationRoute } from '../src/services/notifications/routing';
 import { AppAlertProvider } from '../src/context/alert';
 import { useFonts } from 'expo-font';
+import { DemoSeedRunner } from '../src/features/dev/DemoSeedRunner';
+import { DemoAutoLogin } from '../src/features/dev/DemoAutoLogin';
+import { DemoNotificationPermission } from '../src/features/dev/DemoNotificationPermission';
 
 const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN ?? process.env.SENTRY_DSN;
 
@@ -147,6 +150,10 @@ export default Sentry.wrap(function RootLayout() {
                         <OnboardingProvider>
                             <SafeAreaProvider>
                                 <Initializer />
+                                { /* Inert unless EXPO_PUBLIC_SEED_DEMO=1 in a dev build. */ }
+                                <DemoSeedRunner />
+                                <DemoAutoLogin />
+                                <DemoNotificationPermission />
                                 <Gate />
                             </SafeAreaProvider>
                         </OnboardingProvider>
