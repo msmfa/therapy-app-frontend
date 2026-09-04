@@ -5,7 +5,6 @@ import {
 	REMINDER_TIMES_COPY,
 	SUBSCRIPTION_COPY,
 	SUCCESS_COPY,
-	cadenceScheduleDisclosure,
 	notificationsHeadline,
 	planCtaLabel,
 	planBody,
@@ -96,26 +95,6 @@ describe('variable session copy', () => {
 	it('does not promise review dates before another session is known', () => {
 		expect(planBody('varies')).toMatch(/Add your following session/);
 		expect(planBody('weekly')).toMatch(/revisit it through the gap/);
-	});
-});
-
-describe('cadence schedule disclosure', () => {
-	it('states the six-month weekly schedule before it is created', () => {
-		expect(cadenceScheduleDisclosure('weekly', true)).toBe(
-			"We'll add weekly sessions at this time for the next six months. You can edit individual dates.",
-		);
-	});
-
-	it('does not claim that example sessions will be saved', () => {
-		expect(cadenceScheduleDisclosure('weekly', false)).toBe(
-			"No sessions will be added yet. Add your first booked date in Calendar and we'll build the schedule from there.",
-		);
-	});
-
-	it('does not invent recurring dates when cadence varies', () => {
-		expect(cadenceScheduleDisclosure('varies', true)).toBe(
-			"We'll add this session only. Add future dates as you book them.",
-		);
 	});
 });
 

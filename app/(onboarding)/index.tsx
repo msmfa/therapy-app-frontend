@@ -69,8 +69,12 @@ export default function WelcomeScreen() {
                 showsVerticalScrollIndicator={ false }
             >
                 <View style={ styles.wordmark } accessible accessibilityRole="header" accessibilityLabel="Plastic Brains">
+                    { /* A cut-out of the same mark, kept as a separate file on
+                         purpose. brain-logo.png is also the app icon, and iOS
+                         rejects an icon containing an alpha channel, so the
+                         two cannot be the same asset. */ }
                     <Image
-                        source={ require('../../assets/brain-logo.png') as ImageSourcePropType }
+                        source={ require('../../assets/brain-logo-transparent.png') as ImageSourcePropType }
                         style={ styles.wordmarkMark }
                         contentFit="contain"
                     />

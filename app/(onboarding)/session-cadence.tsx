@@ -7,7 +7,6 @@ import { SelectableCard } from '../../src/components/onboarding/SelectableCard';
 import {
     CADENCE_COPY,
     CADENCE_OPTIONS,
-    cadenceScheduleDisclosure,
 } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { TEXT_COLORS } from 'designs/designs-colors';
@@ -43,12 +42,6 @@ export default function SessionCadenceScreen() {
             <AppText variant="body" style={ styles.supporting }>
                 { CADENCE_COPY.supporting }
             </AppText>
-
-            { answers.cadence !== null && (
-                <AppText variant="body" style={ styles.disclosure }>
-                    { cadenceScheduleDisclosure(answers.cadence, answers.sessionAt !== null) }
-                </AppText>
-            ) }
         </OnboardingScreen>
     );
 }
@@ -61,9 +54,5 @@ const styles = StyleSheet.create({
     supporting: {
         marginTop: 20,
         color: TEXT_COLORS.secondary,
-    },
-    disclosure: {
-        marginTop: 10,
-        color: TEXT_COLORS.primary,
     },
 });

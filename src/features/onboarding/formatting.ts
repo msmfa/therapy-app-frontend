@@ -19,9 +19,52 @@ const safeFormat = (date: Date, options: Intl.DateTimeFormatOptions, fallback: s
 export const weekdayName = (date: Date): string =>
     safeFormat(date, { weekday: 'long' }, date.toDateString());
 
-/** "20:00" or "8:00 pm", following the device's clock convention. */
-export const timeLabel = (date: Date): string =>
-    safeFormat(date, { hour: 'numeric', minute: '2-digit' }, date.toTimeString().slice(0, 5));
+/**
+ * "20:00" or "8:00 pm", following the device's clock convention.
+ *
+ * The digits come from the Date, never from the formatter. Intl is used only
+ * for the parts around them: the separator, the order, and whether there is a
+ * day period. This app has already been bitten once by an Intl call that
+ * returns a plausible but wrong answer on Hermes and the right one under
+ * Node's full ICU (see utils/timeZone.ts), which is a failure no unit test on
+ * a laptop can see. A clock that quietly reads 0:00 whatever the user picked
+ * is that same shape of bug, so the hour and minute are taken from the value
+ * itself and only the presentation is delegated.
+ */
+export const timeLabel = (date: Date): string => {
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    if (Number.isNaN(hours) || Number.isNaN(minutes)) return '';
+
+    const minuteText = String(minutes).padStart(2, '0');
+
+    try {
+        const parts = new Intl.DateTimeFormat(undefined, {
+            hour: 'numeric',
+            minute: '2-digit',
+        }).formatToParts(date);
+
+        const hourPart = parts.find((part) => part.type === 'hour');
+        if (hourPart === undefined) throw new Error('no hour part');
+
+        const twelveHour = parts.some((part) => part.type === 'dayPeriod');
+        const hour = twelveHour ? (hours % 12 === 0 ? 12 : hours % 12) : hours;
+        // Follow the locale's own choice about padding the hour.
+        const hourText = hourPart.value.length > 1 && hourPart.value.startsWith('0')
+            ? String(hour).padStart(2, '0')
+            : String(hour);
+
+        return parts
+            .map((part) => {
+                if (part.type === 'hour') return hourText;
+                if (part.type === 'minute') return minuteText;
+                return part.value;
+            })
+            .join('');
+    } catch {
+        return `${String(hours).padStart(2, '0')}:${minuteText}`;
+    }
+};
 
 /** "Tue 4 Mar" — short enough for a timeline row, still unambiguous. */
 export const shortDateLabel = (date: Date): string =>

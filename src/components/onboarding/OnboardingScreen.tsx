@@ -59,15 +59,25 @@ export function OnboardingScreen({
 }: Props) {
     const { fontScale } = useWindowDimensions();
     const useCombinedScroll = shouldUseCombinedOnboardingScroll(fontScale);
+
+    // The four personalisation questions keep the large headline over the body:
+    // each one is a question being asked, and it should read like one. The
+    // screens after them are review and preview screens whose title is a label
+    // for what is already on screen, so it sits beside the back arrow instead
+    // and gives the content the vertical space.
+    const titleBesideBack = step === undefined && showBack;
+
     const body = (
         <>
-            <AppText
-                variant="h1"
-                style={ styles.headline }
-                accessibilityRole="header"
-            >
-                { headline }
-            </AppText>
+            { !titleBesideBack && (
+                <AppText
+                    variant="h1"
+                    style={ styles.headline }
+                    accessibilityRole="header"
+                >
+                    { headline }
+                </AppText>
+            ) }
 
             { supporting !== undefined && (
                 <AppText variant="body" style={ styles.supporting }>
@@ -83,6 +93,18 @@ export function OnboardingScreen({
         <SafeAreaView style={ styles.safeArea } edges={ ['top', 'left', 'right', 'bottom'] }>
             <View style={ styles.header }>
                 { showBack && <BackButton fallbackHref={ backHref } /> }
+
+                { titleBesideBack && (
+                    <AppText
+                        testID="onboarding-header-title"
+                        variant="h3"
+                        style={ styles.headerTitle }
+                        accessibilityRole="header"
+                        numberOfLines={ 1 }
+                    >
+                        { headline }
+                    </AppText>
+                ) }
             </View>
 
             { step !== undefined && <OnboardingProgress step={ step } /> }
@@ -134,7 +156,13 @@ const styles = StyleSheet.create({
     header: {
         paddingHorizontal: 20,
         minHeight: 44,
-        justifyContent: 'center',
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+    },
+    headerTitle: {
+        flex: 1,
+        fontSize: 17,
     },
     scroll: {
         flex: 1,

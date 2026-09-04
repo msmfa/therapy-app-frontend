@@ -18,7 +18,7 @@ The implementation source of truth is `src/features/onboarding/onboardingCopy.ts
 
 | Screen         | Headline                                             | Supporting copy                                                                                                                 | Primary action               |
 | -------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
-| Welcome        | Keep therapy with you between sessions               | Capture what mattered in five minutes, revisit it at useful moments, and bring a clear thread back to your next session.        | Build my plan                |
+| Welcome        | Get more from your therapy sessions.               | A therapy journal that helps you remember what came up and prepare for your next session.        | Build my plan                |
 | Goal           | What would help you get more from therapy?           | Choose the outcome that matters most to you.                                                                                     | Continue                     |
 | Next session   | When is your next session?                           | We'll use it to time your first note and shape the reviews that follow.                                                         | Continue / I haven't booked it yet |
 | Cadence        | How often are your sessions usually?                 | This helps us space reviews across the real gap between sessions. The chosen option then explains exactly which sessions will be added. | Choose reminder times        |

@@ -15,8 +15,8 @@ import type {
 export const ONBOARDING_QUESTION_COUNT = 4;
 
 export const WELCOME_COPY = {
-    headline: 'Keep therapy with you between sessions',
-    body: 'Capture what mattered in five minutes, revisit it at useful moments, and bring a clear thread back to your next session.',
+    headline: 'Get more from your therapy sessions.',
+    body: 'A therapy journal that helps you remember what came up and prepare for your next session.',
     primaryCta: 'Build my plan',
     secondaryCta: 'I already have an account',
 } as const;
@@ -85,31 +85,10 @@ export const CADENCE_OPTIONS: CadenceOption[] = [
 ];
 
 export const CADENCE_COPY = {
-    headline: 'How often are your sessions usually?',
+    headline: 'How often are your sessions?',
     supporting: 'This helps us space reviews across the real gap between sessions.',
     primaryCta: 'Choose reminder times',
 } as const;
-
-/** Explains exactly what selecting a cadence will add to the calendar. */
-export const cadenceScheduleDisclosure = (
-    cadence: CadenceId,
-    hasBookedSession: boolean,
-): string => {
-    if (!hasBookedSession) {
-        return "No sessions will be added yet. Add your first booked date in Calendar and we'll build the schedule from there.";
-    }
-
-    switch (cadence) {
-        case 'weekly':
-            return "We'll add weekly sessions at this time for the next six months. You can edit individual dates.";
-        case 'fortnightly':
-            return "We'll add sessions every two weeks at this time for the next six months. You can edit individual dates.";
-        case 'monthly':
-            return "We'll add monthly sessions at this time for the next six months. You can edit individual dates.";
-        case 'varies':
-            return "We'll add this session only. Add future dates as you book them.";
-    }
-};
 
 export const REMINDER_TIMES_COPY = {
     headline: 'Choose times that fit your routine',
