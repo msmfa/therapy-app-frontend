@@ -117,7 +117,7 @@ export function planTimeline({
         {
             id: 'log_note',
             label: 'After your session',
-            body: 'Capture what mattered in five focused questions.',
+            body: `We will send you a notification just after your session on ${session.format('dddd')} to remind you to take a note on what you discussed during your session. If you're not sure where to start we have a 5 minute, 5 questions template that makes it easy.`,
             researchTarget: null,
             at: logNoteAt.toDate(),
             occurrences: [logNoteAt.toDate()],

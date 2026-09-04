@@ -49,7 +49,7 @@ jest.mock('../../src/components/onboarding/OnboardingScreen', () => {
 });
 
 import NotePreviewScreen from '../(onboarding)/note-preview';
-import { NOTE_PREVIEW_COPY, notePreviewBody } from '../../src/features/onboarding/onboardingCopy';
+import { NOTE_PREVIEW_COPY } from '../../src/features/onboarding/onboardingCopy';
 
 describe('onboarding note preview', () => {
     beforeEach(() => {
@@ -64,25 +64,6 @@ describe('onboarding note preview', () => {
         expect(NOTE_PREVIEW_COPY.headline).toBe('Your notes');
     });
 
-    it('opens with the goal the user chose, not one line for everyone', () => {
-        const prepare = render(<NotePreviewScreen />);
-        expect(prepare.getByText(notePreviewBody('prepare'))).toBeTruthy();
-        prepare.unmount();
-
-        mockGoal = 'habit';
-        const habit = render(<NotePreviewScreen />);
-        expect(habit.getByText(notePreviewBody('habit'))).toBeTruthy();
-
-        expect(notePreviewBody('prepare')).not.toBe(notePreviewBody('habit'));
-    });
-
-    it('still says something sensible when no goal was recorded', () => {
-        mockGoal = null;
-        const { getByText } = render(<NotePreviewScreen />);
-
-        expect(getByText(notePreviewBody(null))).toBeTruthy();
-    });
-
     it('keeps the encryption note above the notes image', () => {
         const { getByText, getByLabelText } = render(<NotePreviewScreen />);
 
@@ -91,6 +72,19 @@ describe('onboarding note preview', () => {
         expect(
             getByLabelText('A list of past therapy notes, each with the date of its session'),
         ).toBeTruthy();
+    });
+
+    it("shows Mark's words under the encryption note", () => {
+        const { getByText } = render(<NotePreviewScreen />);
+
+        expect(getByText(new RegExp('keeps me accountable'))).toBeTruthy();
+        expect(getByText('Mark')).toBeTruthy();
+    });
+
+    it('carries no description under the headline', () => {
+        const { queryByText } = render(<NotePreviewScreen />);
+
+        expect(queryByText(/Your notes hold what came up/)).toBeNull();
     });
 
     it('renders the screenshot full width, undistorted, and in plain numbers', () => {

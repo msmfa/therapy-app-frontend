@@ -2,14 +2,13 @@ import { Image, StyleSheet, View, useWindowDimensions } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { QuoteCard } from '../../src/components/onboarding/QuoteCard';
+import { SURFACE_BLUE, SURFACE_BLUE_FADE } from 'designs/designs-colors';
 import { Button } from '../../src/components/ui/Button';
 import AppText from '../../src/components/ui/AppText';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
-import {
-    NOTE_PREVIEW_COPY,
-    notePreviewBody,
-} from '../../src/features/onboarding/onboardingCopy';
-import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
+import { NOTE_PREVIEW_COPY } from '../../src/features/onboarding/onboardingCopy';
 import { TEXT_COLORS } from 'designs/designs-colors';
 
 /** The screenshot's own proportions, so nothing is stretched. */
@@ -27,7 +26,6 @@ const NOTES_IMAGE_ASPECT = 1290 / 2616;
 
 export default function NotePreviewScreen() {
     const router = useRouter();
-    const { answers } = useOnboardingAnswers();
     const { width: screenWidth, height: screenHeight } = useWindowDimensions();
 
     // Explicit numbers, not a percentage plus an aspect ratio: on the new
@@ -42,13 +40,11 @@ export default function NotePreviewScreen() {
         <OnboardingScreen
             backHref="/(onboarding)/reviews-preview"
             headline={ NOTE_PREVIEW_COPY.headline }
-            // Answers the goal chosen in the first question rather than
-            // describing the notes the same way to everyone.
-            supporting={ notePreviewBody(answers.goal) }
             // Starts a margin below the content and runs to the bottom edge
             // of the screen, cut off by it, so the list reads as continuing
             // below the fold.
             bottomBackdrop={
+                <>
                 <Image
                     source={ require('../../assets/illustrations/notes-list-preview.png') as ImageSourcePropType }
                     style={ [styles.previewImage, { width: imageWidth, height: imageHeight, marginTop: imageTop }] }
@@ -56,6 +52,17 @@ export default function NotePreviewScreen() {
                     accessible
                     accessibilityLabel="A list of past therapy notes, each with the date of its session"
                 />
+                { /* Settles the list into the page just above the button. */ }
+                <LinearGradient
+                    colors={ [SURFACE_BLUE_FADE, SURFACE_BLUE, SURFACE_BLUE] }
+                    // Fully solid by halfway down, so the dissolve is finished
+                    // just above the button rather than at the screen edge
+                    // behind it.
+                    locations={ [0, 0.55, 1] }
+                    style={ styles.fade }
+                    pointerEvents="none"
+                />
+                </>
             }
             footer={
                 <Button
@@ -82,6 +89,13 @@ export default function NotePreviewScreen() {
                 </View>
             </View>
 
+            <View style={ styles.quote }>
+                <QuoteCard
+                    quote={ NOTE_PREVIEW_COPY.testimonial.quote }
+                    name={ NOTE_PREVIEW_COPY.testimonial.name }
+                    role={ NOTE_PREVIEW_COPY.testimonial.role }
+                />
+            </View>
         </OnboardingScreen>
     );
 }
@@ -111,5 +125,15 @@ const styles = StyleSheet.create({
     previewImage: {
         alignSelf: 'center',
         borderRadius: 28,
+    },
+    fade: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        height: 260,
+    },
+    quote: {
+        marginTop: 20,
     },
 });

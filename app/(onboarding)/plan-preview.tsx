@@ -10,13 +10,11 @@ import { PlanTimeline } from '../../src/components/onboarding/PlanTimeline';
 import {
     NOTE_PREVIEW_COPY,
     PLAN_COPY,
-    planBody,
     planHeadline,
     samplePlanBody,
 } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { planTimeline } from '../../src/features/onboarding/planTimeline';
-import { weekdayName } from '../../src/features/onboarding/formatting';
 import { TEXT_COLORS } from 'designs/designs-colors';
 import { sampleSessionAt } from '../../src/features/onboarding/samplePlan';
 
@@ -60,8 +58,8 @@ export default function PlanPreviewScreen() {
     return (
         <OnboardingScreen
             backHref="/(onboarding)/reminder-times"
-            headline={ isSamplePlan ? PLAN_COPY.sampleHeadline : planHeadline(weekdayName(sessionAt)) }
-            supporting={ isSamplePlan ? samplePlanBody(answers.cadence) : planBody(answers.cadence) }
+            headline={ isSamplePlan ? PLAN_COPY.sampleHeadline : planHeadline() }
+            supporting={ isSamplePlan ? samplePlanBody(answers.cadence) : undefined }
             // The note itself, as a background image behind the content,
             // tilted a little so it reads as a sheet lying on the surface.
             bottomBackdrop={
@@ -106,7 +104,7 @@ export default function PlanPreviewScreen() {
 }
 
 /** Matches the notes screen, so the two artworks sit identically. */
-const IMAGE_ASPECT = 1290 / 2616;
+const IMAGE_ASPECT = 1290 / 2796;
 
 /**
  * Where the artwork's rounded top edge sits, as a fraction of screen height.

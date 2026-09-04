@@ -7,7 +7,6 @@ import {
 	SUCCESS_COPY,
 	notificationsHeadline,
 	planCtaLabel,
-	planBody,
 	planPriceLine,
 	planRenewalLine,
 	successCopy,
@@ -88,13 +87,6 @@ describe('reminder-time copy', () => {
 		expect(notificationsHeadline('Tuesday', '6:00 pm')).toBe(
 			'Get your first note reminder Tuesday at 6:00 pm',
 		);
-	});
-});
-
-describe('variable session copy', () => {
-	it('does not promise review dates before another session is known', () => {
-		expect(planBody('varies')).toMatch(/Add your following session/);
-		expect(planBody('weekly')).toMatch(/revisit it through the gap/);
 	});
 });
 

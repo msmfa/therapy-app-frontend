@@ -53,7 +53,7 @@ export default function ReviewsPreviewScreen() {
         <OnboardingScreen
             backHref="/(onboarding)/plan-preview"
             headline={ REVIEWS_PREVIEW_COPY.headline }
-            supporting={ PLAN_COPY.researchBody }
+            supporting={ PLAN_COPY.evidenceStatement }
             footer={
                 <Button
                     label={ REVIEWS_PREVIEW_COPY.primaryCta }
@@ -70,11 +70,6 @@ export default function ReviewsPreviewScreen() {
             <View style={ styles.timeline }>
                 <PlanTimeline entries={ reviews } />
             </View>
-
-            { /* Qualifies the list, so it stays underneath it. */ }
-            <AppText variant="caption" style={ styles.evidence }>
-                { PLAN_COPY.evidenceStatement }
-            </AppText>
         </OnboardingScreen>
     );
 }
@@ -87,9 +82,5 @@ const styles = StyleSheet.create({
         marginTop: 16,
         color: TEXT_COLORS.secondary,
         fontWeight: '600',
-    },
-    evidence: {
-        marginTop: 20,
-        color: TEXT_COLORS.secondary,
     },
 });

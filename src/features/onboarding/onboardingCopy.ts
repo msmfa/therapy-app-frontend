@@ -103,65 +103,40 @@ export const REMINDER_TIMES_COPY = {
 } as const;
 
 export const PLAN_COPY = {
-    body: 'Capture what mattered, revisit it through the gap, then choose what to bring back.',
-    variableBody:
-		'Your first note is timed. Add your following session later to place reviews in the gap.',
     sampleLabel: 'Illustrative plan — these dates will not be saved',
     sampleHeadline: 'See how your plan could work',
     sampleBody:
         "This example shows how reminders can fit between sessions. Add your booked session later and we'll replace these dates with your real plan.",
     sampleVariableBody:
         "This example uses a one-week gap to show how reminders work. Add your booked sessions later and we'll use the real gap between them.",
-    researchTitle: 'Why these reminder moments?',
-    researchBody:
-        'Open any reminder below to see the specific memory principle and sources behind that point in the plan.',
     evidenceStatement:
         'The timing draws on research into memory consolidation, sleep, spaced retrieval and context reinstatement.',
-    primaryCta: 'What happens after you take your note',
+    primaryCta: 'After your note',
 } as const;
 
 export const REVIEWS_PREVIEW_COPY = {
     headline: 'Why these times?',
-    primaryCta: 'After you take your note',
+    primaryCta: 'Your notes',
 } as const;
 
-export const planHeadline = (weekday: string): string =>
-    `Your plan starts after your ${weekday} session`;
-
-export const planBody = (cadence: CadenceId | null): string =>
-    cadence === 'varies' ? PLAN_COPY.variableBody : PLAN_COPY.body;
+export const planHeadline = (): string => 'Your custom plan';
 
 export const samplePlanBody = (cadence: CadenceId | null): string =>
     cadence === 'varies' ? PLAN_COPY.sampleVariableBody : PLAN_COPY.sampleBody;
 
 export const NOTE_PREVIEW_COPY = {
     headline: 'Your notes',
+    testimonial: {
+        quote: "I like that the app keeps me accountable for reviewing my notes weekly. Makes me feel like I'm actually doing the work when I look back and see my week full of green bars.",
+        name: 'Mark',
+        role: 'Plastic Brains user',
+    },
     researchLink: 'Why these five questions?',
     privacyTitle: 'Your note stays yours',
     privacyBody:
 		'The contents of your therapy notes are encrypted and stored only on this iPhone. They are never uploaded to our servers.',
     primaryCta: 'See plans',
 } as const;
-
-/**
- * The opening line on the notes screen, answering the goal they chose.
- *
- * The goal question is the first thing onboarding asks, so the notes should be
- * described in terms of the outcome that person said they wanted rather than a
- * single line written for everyone.
- */
-export const notePreviewBody = (goal: GoalId | null): string => {
-    switch (goal) {
-        case 'practise':
-            return 'Your notes hold what came up, so you can put it into practice during the week rather than losing it by Wednesday.';
-        case 'prepare':
-            return 'Your notes build a clear thread you can look back over, so you arrive at your next session knowing what you want to raise.';
-        case 'habit':
-            return 'Your notes build a record across sessions, so you can look back and see what has actually changed.';
-        default:
-            return 'Your notes hold what mattered in each session, so you can revisit it and bring a clear thread back.';
-    }
-};
 
 export const remainingQuestions = (shown: number, total: number): string => {
     const remaining = total - shown;

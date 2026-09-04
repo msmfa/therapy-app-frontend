@@ -39,20 +39,12 @@ describe('the plan is split across two screens', () => {
         expect(queryByText('Later that evening')).toBeNull();
     });
 
-    it('does not strand the reasoning away from the reminders it explains', () => {
-        const { queryByText } = render(<PlanPreviewScreen />);
-
-        expect(queryByText(PLAN_COPY.researchBody)).toBeNull();
-    });
-
-    it('leads the reviews screen with why the moments are where they are', () => {
+    it('leads the reviews screen with the evidence line', () => {
         const { getByText } = render(<ReviewsPreviewScreen />);
 
         expect(getByText(REVIEWS_PREVIEW_COPY.headline)).toBeTruthy();
         expect(REVIEWS_PREVIEW_COPY.headline).toBe('Why these times?');
-        // Points down at the list now, not up at it.
-        expect(getByText(PLAN_COPY.researchBody)).toBeTruthy();
-        expect(PLAN_COPY.researchBody).toContain('below');
+        expect(getByText(PLAN_COPY.evidenceStatement)).toBeTruthy();
     });
 
     it('shows the five-minute note under the point it belongs to', () => {
@@ -97,6 +89,6 @@ describe('the plan is split across two screens', () => {
 
     it('titles the reviews screen distinctly from its button', () => {
         expect(REVIEWS_PREVIEW_COPY.headline).not.toBe(REVIEWS_PREVIEW_COPY.primaryCta);
-        expect(REVIEWS_PREVIEW_COPY.primaryCta).toBe('After you take your note');
+        expect(REVIEWS_PREVIEW_COPY.primaryCta).toBe('Your notes');
     });
 });
