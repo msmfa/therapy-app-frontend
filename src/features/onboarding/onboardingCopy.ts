@@ -122,7 +122,13 @@ export const PLAN_COPY = {
         name: 'Sarah',
         role: 'Plastic Brains user',
     },
-    primaryCta: 'See the five-minute note',
+    primaryCta: 'See the reviews that follow',
+} as const;
+
+export const REVIEWS_PREVIEW_COPY = {
+    headline: 'Your reviews between sessions',
+    body: 'Your note comes back at the moments it is most useful, spaced across the gap before your next session.',
+    primaryCta: 'After you take your note',
 } as const;
 
 export const planHeadline = (weekday: string): string =>

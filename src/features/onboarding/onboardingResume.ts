@@ -7,6 +7,7 @@ const ROUTE_BY_SCREEN = {
     'session-cadence': '/(onboarding)/session-cadence',
     'reminder-times': '/(onboarding)/reminder-times',
     'plan-preview': '/(onboarding)/plan-preview',
+    'reviews-preview': '/(onboarding)/reviews-preview',
     'note-preview': '/(onboarding)/note-preview',
     'subscription-preview': '/(onboarding)/subscription-preview',
     'account-preview': '/(onboarding)/account-preview',

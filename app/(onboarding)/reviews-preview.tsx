@@ -5,20 +5,23 @@ import { Button } from '../../src/components/ui/Button';
 import AppText from '../../src/components/ui/AppText';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import { PlanTimeline } from '../../src/components/onboarding/PlanTimeline';
-import { QuoteCard } from '../../src/components/onboarding/QuoteCard';
 import {
     PLAN_COPY,
-    planBody,
-    planHeadline,
-    samplePlanBody,
+    REVIEWS_PREVIEW_COPY,
 } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { planTimeline } from '../../src/features/onboarding/planTimeline';
-import { weekdayName } from '../../src/features/onboarding/formatting';
-import { TEXT_COLORS } from 'designs/designs-colors';
 import { sampleSessionAt } from '../../src/features/onboarding/samplePlan';
+import { TEXT_COLORS } from 'designs/designs-colors';
 
-export default function PlanPreviewScreen() {
+/**
+ * Everything the plan does after the note is written.
+ *
+ * The plan preview keeps the first point on its own, because capturing the
+ * note is the one thing the user does; these are what the app does for them
+ * afterwards, and a single list mixed the two together.
+ */
+export default function ReviewsPreviewScreen() {
     const router = useRouter();
     const { answers } = useOnboardingAnswers();
 
@@ -27,36 +30,31 @@ export default function PlanPreviewScreen() {
         () => answers.sessionAt ?? sampleSessionAt(answers.eveningMinutes),
         [answers.eveningMinutes, answers.sessionAt],
     );
-    // A variable schedule has no calculable gap. For the explicitly labelled
-    // sample only, show a one-week example so the user can still understand the
-    // full product before booking; the example is never persisted.
     const previewCadence = isSamplePlan && answers.cadence === 'varies'
         ? 'weekly'
         : answers.cadence;
 
-    // Only the first point: writing the note is the thing the user does, and
-    // it earns the whole screen. Everything the plan does afterwards lives on
-    // the next screen rather than in one list that mixes the two.
-    const noteEntry = useMemo(
+    // The first entry is the note itself and stays on the previous screen.
+    const reviews = useMemo(
         () =>
             planTimeline({
                 sessionAt,
                 cadence: previewCadence,
                 morningMinutes: answers.morningMinutes,
                 eveningMinutes: answers.eveningMinutes,
-            }).slice(0, 1),
+            }).slice(1),
         [answers.eveningMinutes, answers.morningMinutes, previewCadence, sessionAt],
     );
 
     return (
         <OnboardingScreen
-            backHref="/(onboarding)/reminder-times"
-            headline={ isSamplePlan ? PLAN_COPY.sampleHeadline : planHeadline(weekdayName(sessionAt)) }
-            supporting={ isSamplePlan ? samplePlanBody(answers.cadence) : planBody(answers.cadence) }
+            backHref="/(onboarding)/plan-preview"
+            headline={ REVIEWS_PREVIEW_COPY.headline }
+            supporting={ REVIEWS_PREVIEW_COPY.body }
             footer={
                 <Button
-                    label={ PLAN_COPY.primaryCta }
-                    onPress={ () => router.push('/(onboarding)/reviews-preview') }
+                    label={ REVIEWS_PREVIEW_COPY.primaryCta }
+                    onPress={ () => router.push('/(onboarding)/note-preview') }
                 />
             }
         >
@@ -67,15 +65,21 @@ export default function PlanPreviewScreen() {
             ) }
 
             <View style={ styles.timeline }>
-                <PlanTimeline entries={ noteEntry } />
+                <PlanTimeline entries={ reviews } />
             </View>
 
-            <View style={ styles.quote }>
-                <QuoteCard
-                    quote={ PLAN_COPY.testimonial.quote }
-                    name={ PLAN_COPY.testimonial.name }
-                    role={ PLAN_COPY.testimonial.role }
-                />
+            { /* Moved with the reminders it describes: the body refers to
+                 "any reminder above", which is now only true here. */ }
+            <View style={ styles.research }>
+                <AppText variant="h3" style={ styles.researchTitle }>
+                    { PLAN_COPY.researchTitle }
+                </AppText>
+                <AppText variant="body" style={ styles.researchBody }>
+                    { PLAN_COPY.researchBody }
+                </AppText>
+                <AppText variant="caption" style={ styles.evidence }>
+                    { PLAN_COPY.evidenceStatement }
+                </AppText>
             </View>
         </OnboardingScreen>
     );
@@ -90,7 +94,17 @@ const styles = StyleSheet.create({
         color: TEXT_COLORS.secondary,
         fontWeight: '600',
     },
-    quote: {
-        marginTop: 20,
+    research: {
+        marginTop: 4,
+    },
+    researchTitle: {
+        fontSize: 17,
+    },
+    researchBody: {
+        marginTop: 6,
+    },
+    evidence: {
+        marginTop: 10,
+        color: TEXT_COLORS.secondary,
     },
 });
