@@ -68,16 +68,15 @@ describe('the bottom backdrop', () => {
     it('is pinned, decorative, and behind everything else', () => {
         const { getByTestId } = renderScreen({ bottomBackdrop: backdrop });
 
-        const region = getByTestId('onboarding-backdrop');
-        // Fills everything between the content and the bottom edge, and is
-        // untouchable so it can never swallow a tap meant for the footer.
-        expect(region.props.pointerEvents).toBe('none');
-        expect(region.props.style[0].flex).toBe(1);
-        // The footer floats over the artwork rather than sitting below it, so
-        // the artwork itself reaches the screen's bottom edge.
+        const layer = getByTestId('onboarding-backdrop');
+        // A background layer: absolutely positioned so it takes no part in
+        // layout, and untouchable so it can never swallow a tap.
+        expect(layer.props.pointerEvents).toBe('none');
+        expect(layer.props.style[0].position).toBe('absolute');
+        // The footer keeps its ordinary in-flow position: artwork must not
+        // move the buttons.
         const footer = getByTestId('onboarding-footer');
-        expect(footer.props.style[1].position).toBe('absolute');
-        expect(footer.props.style[1].bottom).toBe(0);
+        expect(footer.props.style.position).toBeUndefined();
     });
 
     it('does not exist at all when a screen has no artwork', () => {

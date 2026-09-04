@@ -15,11 +15,11 @@ type BaseProps = {
     /** Buttons and links. Pinned normally, then placed in-flow at accessibility text sizes. */
     footer: React.ReactNode;
     /**
-     * Artwork that starts a margin below the content and runs to the physical
-     * bottom edge of the screen, with the footer floating over it. Purely
-     * decorative: it cannot be interacted with, and at accessibility text
-     * sizes it moves into the flow at the end of the combined scroll so it can
-     * never cover the actions.
+     * A background image for the lower part of the screen. Purely decorative
+     * and purely behind: it changes nothing about the layout, the scroll or
+     * the footer, which sit exactly where they would without it. At
+     * accessibility text sizes it moves into the flow at the end of the
+     * combined scroll so it can never sit behind the actions.
      */
     bottomBackdrop?: React.ReactNode;
 };
@@ -141,43 +141,31 @@ export function OnboardingScreen({
                 </ScrollView>
             ) : (
                 <>
-                    { bottomBackdrop === undefined ? (
-                        <ScrollView
-                            style={ styles.scroll }
-                            contentContainerStyle={ styles.scrollContent }
-                            showsVerticalScrollIndicator={ false }
-                            keyboardShouldPersistTaps="handled"
+                    { bottomBackdrop !== undefined && (
+                        // First in source order so everything else stacks
+                        // above it; shifted past the safe-area padding so the
+                        // artwork sits against the physical bottom edge.
+                        <View
+                            testID="onboarding-backdrop"
+                            pointerEvents="none"
+                            style={ [styles.backdrop, { bottom: -insets.bottom }] }
                         >
-                            { body }
-                        </ScrollView>
-                    ) : (
-                        <>
-                            { /* The content sits fixed above the artwork rather
-                                 than scrolling: screens that carry a backdrop
-                                 keep their body short, and the artwork owns
-                                 whatever the body does not use. */ }
-                            <View style={ styles.backdropBody }>
-                                { body }
-                            </View>
-
-                            { /* From a margin below the content all the way to
-                                 the physical bottom edge, under the footer. */ }
-                            <View
-                                testID="onboarding-backdrop"
-                                pointerEvents="none"
-                                style={ [styles.backdropRegion, { marginBottom: -insets.bottom }] }
-                            >
-                                { bottomBackdrop }
-                            </View>
-                        </>
+                            { bottomBackdrop }
+                        </View>
                     ) }
 
                     <ScrollView
+                        style={ styles.scroll }
+                        contentContainerStyle={ styles.scrollContent }
+                        showsVerticalScrollIndicator={ false }
+                        keyboardShouldPersistTaps="handled"
+                    >
+                        { body }
+                    </ScrollView>
+
+                    <ScrollView
                         testID="onboarding-footer"
-                        style={ [
-                            styles.footer,
-                            bottomBackdrop !== undefined ? styles.footerOverArtwork : null,
-                        ] }
+                        style={ styles.footer }
                         contentContainerStyle={ styles.footerContent }
                         showsVerticalScrollIndicator={ false }
                         alwaysBounceVertical={ false }
@@ -243,22 +231,11 @@ const styles = StyleSheet.create({
         paddingTop: 24,
         gap: 12,
     },
-    backdropBody: {
-        paddingHorizontal: 24,
-        paddingTop: 16,
-    },
-    backdropRegion: {
-        flex: 1,
-        marginTop: 16,
-        overflow: 'hidden',
-    },
-    footerOverArtwork: {
-        // Floats over the artwork instead of sitting below it, so the artwork
-        // itself can reach the bottom edge of the screen.
+    backdrop: {
         position: 'absolute',
         left: 0,
         right: 0,
-        bottom: 0,
+        alignItems: 'center',
     },
     combinedBackdrop: {
         marginTop: 24,

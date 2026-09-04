@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import type { ImageSourcePropType } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Button } from '../../src/components/ui/Button';
 import AppText from '../../src/components/ui/AppText';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import { PlanTimeline } from '../../src/components/onboarding/PlanTimeline';
-import { NoteTemplateSheet } from '../../src/components/onboarding/NoteTemplateSheet';
 import {
     NOTE_PREVIEW_COPY,
     PLAN_COPY,
@@ -23,6 +23,12 @@ import { sampleSessionAt } from '../../src/features/onboarding/samplePlan';
 export default function PlanPreviewScreen() {
     const router = useRouter();
     const { answers } = useOnboardingAnswers();
+    const { width: screenWidth } = useWindowDimensions();
+
+    // Plain numbers: a percentage width plus an aspect ratio leaves an Image
+    // unconstrained on the new architecture and it renders at intrinsic size.
+    const imageWidth = Math.round(screenWidth * IMAGE_SCALE);
+    const imageHeight = Math.round(imageWidth / IMAGE_ASPECT);
 
     const isSamplePlan = answers.sessionAt === null && answers.sessionDateSkipped;
     const sessionAt = useMemo(
@@ -55,10 +61,17 @@ export default function PlanPreviewScreen() {
             backHref="/(onboarding)/reminder-times"
             headline={ isSamplePlan ? PLAN_COPY.sampleHeadline : planHeadline(weekdayName(sessionAt)) }
             supporting={ isSamplePlan ? samplePlanBody(answers.cadence) : planBody(answers.cadence) }
-            // The note itself, starting a margin below the point that
-            // describes it and running to the bottom edge of the screen, cut
-            // off by it so it reads as a real sheet continuing past the fold.
-            bottomBackdrop={ <NoteTemplateSheet style={ styles.sheet } /> }
+            // The note itself, as a background image behind the content,
+            // tilted a little so it reads as a sheet lying on the surface.
+            bottomBackdrop={
+                <Image
+                    source={ require('../../assets/illustrations/note-cheatsheet-preview.png') as ImageSourcePropType }
+                    style={ [styles.sheetImage, { width: imageWidth, height: imageHeight }] }
+                    resizeMode="contain"
+                    accessible
+                    accessibilityLabel="The five-question note sheet"
+                />
+            }
             footer={
                 <Button
                     label={ PLAN_COPY.primaryCta }
@@ -91,6 +104,10 @@ export default function PlanPreviewScreen() {
     );
 }
 
+/** Matches the notes screen, so the two artworks sit identically. */
+const IMAGE_SCALE = 0.52;
+const IMAGE_ASPECT = 1290 / 2616;
+
 const styles = StyleSheet.create({
     timeline: {
         marginTop: 24,
@@ -100,10 +117,8 @@ const styles = StyleSheet.create({
         color: TEXT_COLORS.secondary,
         fontWeight: '600',
     },
-    sheet: {
-        // Stretch the paper to the region so the screen edge always cuts it,
-        // whatever the device height.
-        flex: 1,
+    sheetImage: {
+        transform: [{ rotate: '2.5deg' }],
     },
     researchLink: {
         minHeight: 44,
