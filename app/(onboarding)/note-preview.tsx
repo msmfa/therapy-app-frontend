@@ -24,7 +24,7 @@ const NOTES_IMAGE_ASPECT = 1290 / 2616;
  * at the sides is invisible: the screenshot's own background is SURFACE_BLUE,
  * the same colour this screen sits on.
  */
-const IMAGE_SCALE = 0.7;
+const IMAGE_SCALE = 0.52;
 
 export default function NotePreviewScreen() {
     const router = useRouter();

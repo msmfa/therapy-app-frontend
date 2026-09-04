@@ -100,7 +100,7 @@ describe('onboarding note preview', () => {
 
         // Reduced, so a phone screenshot does not render its interface at
         // life size, and centred; the artwork region clips the bottom.
-        expect(image.props.style.width).toBe('70%');
+        expect(image.props.style.width).toBe('52%');
         expect(image.props.style.alignSelf).toBe('center');
         // Its own proportions, so nothing is stretched.
         expect(image.props.style.aspectRatio).toBeCloseTo(1290 / 2616, 5);
