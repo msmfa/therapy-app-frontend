@@ -60,6 +60,7 @@ export const SESSION_DATE_COPY = {
     dateLabel: 'Date',
     timeLabel: 'Time',
     validation: 'Choose a future therapy session.',
+    rangeValidation: 'Choose a session within the next six months.',
     primaryCta: 'Continue',
     sampleCta: "I haven't booked it yet",
 } as const;

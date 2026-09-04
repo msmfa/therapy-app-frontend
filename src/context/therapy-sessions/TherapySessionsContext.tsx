@@ -17,6 +17,7 @@ import { clearRemindersCache } from '../../features/reminders/remindersCache';
 import { useDeviceTimeZone } from '../../hooks/useDeviceTimeZone';
 import { mapSessionError, SessionErrorCopy } from '../../features/therapy-sessions/session-error-map';
 import { toError } from '../../utils/errors';
+import { getSessionsWindow as sharedSessionsWindow } from '../../utils/sessionWindow';
 
 interface TherapySessionsContextType {
     sessions: TherapySession[];
@@ -45,25 +46,11 @@ interface TherapySessionsContextType {
 const TherapySessionsContext = createContext<TherapySessionsContextType | undefined>(undefined);
 
 /**
- * The window of sessions the app fetches and edits: from the start of the
- * user's local day one year ahead. The floor is local midnight, not UTC
- * midnight: with a UTC floor, a session earlier today disappeared from the
- * calendar every evening for anyone west of UTC (and every morning east of
- * it), and anything that falls out of this window is also excluded from the
- * sync's deletion scope, so it silently became undeletable dead weight.
- * The same window is passed to syncSessions so the backend only deletes
- * within what the user could actually see.
+ * The window of sessions the app fetches and edits. Defined in the shared
+ * window module alongside the onboarding limit, so a first session the user is
+ * allowed to choose can never project a series this query would not return.
  */
-const getSessionsWindow = () => {
-    const from = new Date();
-    from.setHours(0, 0, 0, 0);
-
-    const to = new Date();
-    to.setFullYear(to.getFullYear() + 1);
-    to.setHours(23, 59, 59, 999);
-
-    return { from, to };
-};
+const getSessionsWindow = () => sharedSessionsWindow();
 
 /**
  * How far behind the editable window the fetch reaches, so the reviews

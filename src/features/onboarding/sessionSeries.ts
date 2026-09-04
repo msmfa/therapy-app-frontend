@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import type { CadenceId } from './onboardingCopy';
+import { SERIES_MONTHS_AHEAD } from '../../utils/sessionWindow';
 
 /**
  * The recurring therapy schedule, projected from one confirmed appointment.
@@ -14,7 +15,12 @@ import type { CadenceId } from './onboardingCopy';
  * user has never booked.
  */
 
-export const SERIES_MONTHS_AHEAD = 6;
+/**
+ * Re-exported so existing callers keep their import, but owned by the shared
+ * window module: onboarding's date limit is derived from the same number, and
+ * a second copy here is exactly how the two would drift apart.
+ */
+export { SERIES_MONTHS_AHEAD };
 
 /** Defensive ceiling: six months of weekly sessions is 27. */
 const MAX_SESSIONS = 32;

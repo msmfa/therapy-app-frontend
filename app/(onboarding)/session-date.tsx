@@ -9,6 +9,10 @@ import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScre
 import { SESSION_DATE_COPY } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { longDateLabel, timeLabel } from '../../src/features/onboarding/formatting';
+import {
+    isWithinFirstSessionWindow,
+    latestFirstSessionAt,
+} from '../../src/utils/sessionWindow';
 import { COLOR_VARIANTS, PALETTE, TEXT_COLORS, THEME_COLORS } from 'designs/designs-colors';
 
 type Field = 'date' | 'time';
@@ -40,7 +44,13 @@ export default function SessionDateScreen() {
 
     const complete = dateChosen && timeChosen;
     const isFuture = useMemo(() => draft.getTime() > Date.now(), [draft]);
-    const canContinue = complete && isFuture;
+    // A session beyond the series horizon would be projected into records the
+    // calendar never fetches, so the user could not see, edit or delete them.
+    const inRange = useMemo(() => isWithinFirstSessionWindow(draft), [draft]);
+    // The whole of the final day counts, so an evening appointment on the last
+    // permitted date is still a valid choice.
+    const latestAllowed = useMemo(() => latestFirstSessionAt(), []);
+    const canContinue = complete && isFuture && inRange;
 
     const applyDate = useCallback((_event: DateTimePickerEvent, picked?: Date) => {
         if (Platform.OS !== 'ios') setOpen(null);
@@ -79,7 +89,11 @@ export default function SessionDateScreen() {
     }, [open]);
 
     const handleContinue = useCallback(() => {
-        if (!canContinue) return;
+        // Re-checked against the clock at the moment of saving rather than
+        // trusting the picker: a restored draft arrives without passing
+        // through it at all, and on Android the dialog is a separate surface
+        // whose bounds we cannot assume were honoured.
+        if (!canContinue || !isWithinFirstSessionWindow(draft)) return;
         setAnswer('sessionAt', draft);
         setAnswer('sessionDateSkipped', false);
         setAnswer('reminderScheduled', false);
@@ -164,6 +178,7 @@ export default function SessionDateScreen() {
                                     mode={ row.field }
                                     display={ Platform.OS === 'ios' ? 'spinner' : 'default' }
                                     minimumDate={ row.field === 'date' ? new Date() : undefined }
+                                    maximumDate={ row.field === 'date' ? latestAllowed : undefined }
                                     themeVariant="light"
                                     textColor={ COLOR_VARIANTS.black.primary }
                                     onChange={ row.field === 'date' ? applyDate : applyTime }
@@ -177,6 +192,15 @@ export default function SessionDateScreen() {
             { complete && !isFuture && (
                 <AppText variant="body" style={ styles.validation } accessibilityLiveRegion="polite">
                     { SESSION_DATE_COPY.validation }
+                </AppText>
+            ) }
+
+            { /* A restored draft can be out of range without the picker ever
+                 having been opened. Say why Continue is disabled rather than
+                 quietly rewriting the date the user chose. */ }
+            { complete && isFuture && !inRange && (
+                <AppText variant="body" style={ styles.validation } accessibilityLiveRegion="polite">
+                    { SESSION_DATE_COPY.rangeValidation }
                 </AppText>
             ) }
         </OnboardingScreen>
