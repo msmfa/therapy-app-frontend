@@ -24,18 +24,18 @@ const NOTES_IMAGE_ASPECT = 1290 / 2616;
  * at the sides is invisible: the screenshot's own background is SURFACE_BLUE,
  * the same colour this screen sits on.
  */
-const IMAGE_SCALE = 0.52;
 
 export default function NotePreviewScreen() {
     const router = useRouter();
     const { answers } = useOnboardingAnswers();
-    const { width: screenWidth } = useWindowDimensions();
+    const { width: screenWidth, height: screenHeight } = useWindowDimensions();
 
     // Explicit numbers, not a percentage plus an aspect ratio: on the new
     // architecture that combination left the image unconstrained, so it
     // rendered at its intrinsic 1290pt and filled the screen with a corner of
     // itself. Sizes computed here cannot be misread by the layout engine.
-    const imageWidth = Math.round(screenWidth * IMAGE_SCALE);
+    const imageWidth = screenWidth;
+    const imageTop = Math.round(screenHeight * IMAGE_TOP_FRACTION);
     const imageHeight = Math.round(imageWidth / NOTES_IMAGE_ASPECT);
 
     return (
@@ -51,7 +51,7 @@ export default function NotePreviewScreen() {
             bottomBackdrop={
                 <Image
                     source={ require('../../assets/illustrations/notes-list-preview.png') as ImageSourcePropType }
-                    style={ [styles.previewImage, { width: imageWidth, height: imageHeight }] }
+                    style={ [styles.previewImage, { width: imageWidth, height: imageHeight, marginTop: imageTop }] }
                     resizeMode="contain"
                     accessible
                     accessibilityLabel="A list of past therapy notes, each with the date of its session"
@@ -86,6 +86,13 @@ export default function NotePreviewScreen() {
     );
 }
 
+/**
+ * Where the artwork's rounded top edge sits, as a fraction of screen height.
+ * The image is full width and taller than the space below this line, so the
+ * screen's bottom edge cuts it, never its own frame.
+ */
+const IMAGE_TOP_FRACTION = 0.46;
+
 const styles = StyleSheet.create({
     privacy: {
         marginTop: 24,
@@ -103,5 +110,6 @@ const styles = StyleSheet.create({
     },
     previewImage: {
         alignSelf: 'center',
+        borderRadius: 28,
     },
 });

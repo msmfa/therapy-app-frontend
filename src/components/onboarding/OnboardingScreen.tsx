@@ -232,9 +232,14 @@ const styles = StyleSheet.create({
         gap: 12,
     },
     backdrop: {
+        // A full-screen background sheet: the artwork inside positions itself
+        // with a top margin, shows its rounded top, and bleeds past the
+        // bottom, where the screen edge clips it.
         position: 'absolute',
+        top: 0,
         left: 0,
         right: 0,
+        overflow: 'hidden',
         alignItems: 'center',
     },
     combinedBackdrop: {

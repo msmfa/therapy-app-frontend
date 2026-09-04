@@ -23,11 +23,12 @@ import { sampleSessionAt } from '../../src/features/onboarding/samplePlan';
 export default function PlanPreviewScreen() {
     const router = useRouter();
     const { answers } = useOnboardingAnswers();
-    const { width: screenWidth } = useWindowDimensions();
+    const { width: screenWidth, height: screenHeight } = useWindowDimensions();
 
     // Plain numbers: a percentage width plus an aspect ratio leaves an Image
     // unconstrained on the new architecture and it renders at intrinsic size.
-    const imageWidth = Math.round(screenWidth * IMAGE_SCALE);
+    const imageWidth = screenWidth;
+    const imageTop = Math.round(screenHeight * IMAGE_TOP_FRACTION);
     const imageHeight = Math.round(imageWidth / IMAGE_ASPECT);
 
     const isSamplePlan = answers.sessionAt === null && answers.sessionDateSkipped;
@@ -66,7 +67,7 @@ export default function PlanPreviewScreen() {
             bottomBackdrop={
                 <Image
                     source={ require('../../assets/illustrations/note-cheatsheet-preview.png') as ImageSourcePropType }
-                    style={ [styles.sheetImage, { width: imageWidth, height: imageHeight }] }
+                    style={ [styles.sheetImage, { width: imageWidth, height: imageHeight, marginTop: imageTop }] }
                     resizeMode="contain"
                     accessible
                     accessibilityLabel="The five-question note sheet"
@@ -105,8 +106,14 @@ export default function PlanPreviewScreen() {
 }
 
 /** Matches the notes screen, so the two artworks sit identically. */
-const IMAGE_SCALE = 0.52;
 const IMAGE_ASPECT = 1290 / 2616;
+
+/**
+ * Where the artwork's rounded top edge sits, as a fraction of screen height.
+ * The image is full width and taller than the space below this line, so the
+ * screen's bottom edge cuts it, never its own frame.
+ */
+const IMAGE_TOP_FRACTION = 0.46;
 
 const styles = StyleSheet.create({
     timeline: {
@@ -119,6 +126,7 @@ const styles = StyleSheet.create({
     },
     sheetImage: {
         transform: [{ rotate: '2.5deg' }],
+        borderRadius: 28,
     },
     researchLink: {
         minHeight: 44,

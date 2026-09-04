@@ -93,7 +93,7 @@ describe('onboarding note preview', () => {
         ).toBeTruthy();
     });
 
-    it('renders the screenshot reduced, undistorted, and in plain numbers', () => {
+    it('renders the screenshot full width, undistorted, and in plain numbers', () => {
         const { Dimensions } = require('react-native');
         const { getByLabelText } = render(<NotePreviewScreen />);
 
@@ -105,10 +105,13 @@ describe('onboarding note preview', () => {
         // rendered at its intrinsic 1290pt. Numbers cannot be misread.
         expect(typeof flat.width).toBe('number');
         expect(typeof flat.height).toBe('number');
-        expect(flat.width / Dimensions.get('window').width).toBeCloseTo(0.52, 2);
+        expect(flat.width).toBe(Dimensions.get('window').width);
         // Its own proportions, so nothing is stretched.
         expect(flat.width / flat.height).toBeCloseTo(1290 / 2616, 2);
-        expect(flat.alignSelf).toBe('center');
+        // A rounded card whose top edge is shown in full; the screen's bottom
+        // edge is what cuts it, never its own frame.
+        expect(flat.borderRadius).toBe(28);
+        expect(flat.marginTop).toBeGreaterThan(0);
         expect(image.props.resizeMode).toBe('contain');
     });
 });
