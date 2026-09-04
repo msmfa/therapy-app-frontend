@@ -29,11 +29,13 @@ jest.mock('../../src/components/onboarding/OnboardingScreen', () => {
             supporting,
             children,
             footer,
+            bottomBackdrop,
         }: {
             headline: string;
             supporting?: string;
             children?: React.ReactNode;
             footer?: React.ReactNode;
+            bottomBackdrop?: React.ReactNode;
         }) => ReactForMock.createElement(
             MockView,
             null,
@@ -41,6 +43,7 @@ jest.mock('../../src/components/onboarding/OnboardingScreen', () => {
             supporting === undefined ? null : ReactForMock.createElement(MockText, null, supporting),
             children,
             footer,
+            bottomBackdrop,
         ),
     };
 });

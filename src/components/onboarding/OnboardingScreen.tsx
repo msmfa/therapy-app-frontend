@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import type { Href } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import AppText from '../ui/AppText';
 import { OnboardingProgress } from './OnboardingProgress';
 import { BackButton } from '../ui/BackButton';
@@ -14,6 +14,16 @@ type BaseProps = {
     children?: React.ReactNode;
     /** Buttons and links. Pinned normally, then placed in-flow at accessibility text sizes. */
     footer: React.ReactNode;
+    /**
+     * Artwork fixed to the physical bottom edge of the screen, behind the
+     * footer, regardless of how much content there is or where it is
+     * scrolled. Purely decorative: it cannot be interacted with, and at
+     * accessibility text sizes it moves into the flow at the end of the
+     * combined scroll so it can never cover the actions.
+     */
+    bottomBackdrop?: React.ReactNode;
+    /** The backdrop's visible height, so scrolled content can clear it. */
+    bottomBackdropHeight?: number;
 };
 
 /**
@@ -54,9 +64,12 @@ export function OnboardingScreen({
     supporting,
     children,
     footer,
+    bottomBackdrop,
+    bottomBackdropHeight = 0,
     showBack = true,
     backHref,
 }: Props) {
+    const insets = useSafeAreaInsets();
     const { fontScale } = useWindowDimensions();
     const useCombinedScroll = shouldUseCombinedOnboardingScroll(fontScale);
 
@@ -122,12 +135,36 @@ export function OnboardingScreen({
                     <View testID="onboarding-footer" style={ styles.combinedFooter }>
                         { footer }
                     </View>
+
+                    { bottomBackdrop !== undefined && (
+                        <View testID="onboarding-backdrop" style={ styles.combinedBackdrop }>
+                            { bottomBackdrop }
+                        </View>
+                    ) }
                 </ScrollView>
             ) : (
                 <>
+                    { bottomBackdrop !== undefined && (
+                        // First in source order, so the scroll and footer that
+                        // follow stack naturally above it. Shifted past the
+                        // safe-area padding to reach the physical edge.
+                        <View
+                            testID="onboarding-backdrop"
+                            pointerEvents="none"
+                            style={ [styles.backdrop, { bottom: -insets.bottom }] }
+                        >
+                            { bottomBackdrop }
+                        </View>
+                    ) }
+
                     <ScrollView
                         style={ styles.scroll }
-                        contentContainerStyle={ styles.scrollContent }
+                        contentContainerStyle={ [
+                            styles.scrollContent,
+                            bottomBackdropHeight > 0
+                                ? { paddingBottom: bottomBackdropHeight + 24 }
+                                : null,
+                        ] }
                         showsVerticalScrollIndicator={ false }
                         keyboardShouldPersistTaps="handled"
                     >
@@ -201,5 +238,13 @@ const styles = StyleSheet.create({
     combinedFooter: {
         paddingTop: 24,
         gap: 12,
+    },
+    backdrop: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+    },
+    combinedBackdrop: {
+        marginTop: 24,
     },
 });

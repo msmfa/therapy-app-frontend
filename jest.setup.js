@@ -99,3 +99,9 @@ jest.mock(
   },
   { virtual: true },
 );
+
+// OnboardingScreen reads the safe-area insets to pin artwork to the physical
+// bottom edge. The real hook throws without a provider, which no test should
+// have to arrange, so use the library's own mock (insets all zero).
+jest.mock('react-native-safe-area-context', () =>
+    require('react-native-safe-area-context/jest/mock').default);

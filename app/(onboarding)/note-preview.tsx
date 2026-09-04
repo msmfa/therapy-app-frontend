@@ -12,9 +12,6 @@ import {
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { TEXT_COLORS } from 'designs/designs-colors';
 
-/** The scroll padding this screen's image deliberately breaks out of. */
-const CONTENT_PADDING = 24;
-
 /** The screenshot's own proportions, so nothing is stretched. */
 const NOTES_IMAGE_ASPECT = 1290 / 2616;
 
@@ -39,6 +36,22 @@ export default function NotePreviewScreen() {
             // Answers the goal chosen in the first question rather than
             // describing the notes the same way to everyone.
             supporting={ notePreviewBody(answers.goal) }
+            // Fixed to the bottom edge of the screen rather than placed in the
+            // flow, where it ended wherever the content happened to end. The
+            // first note is cut at its midpoint by the screen edge, so the
+            // list reads as continuing below it.
+            bottomBackdrop={
+                <View style={ styles.previewWindow }>
+                    <Image
+                        source={ require('../../assets/illustrations/notes-list-preview.png') as ImageSourcePropType }
+                        style={ styles.previewImage }
+                        resizeMode="contain"
+                        accessible
+                        accessibilityLabel="A list of past therapy notes, each with the date of its session"
+                    />
+                </View>
+            }
+            bottomBackdropHeight={ VISIBLE_HEIGHT }
             footer={
                 <Button
                     label={ NOTE_PREVIEW_COPY.primaryCta }
@@ -64,20 +77,6 @@ export default function NotePreviewScreen() {
                 </View>
             </View>
 
-            { /* Sits on the bottom edge showing only the top of the list, so
-                 the first note is cut mid-card and the list reads as carrying
-                 on past the screen. Breaks out of the scroll padding to reach
-                 the edges; the image is absolutely positioned so the window
-                 clips it from the top instead of scaling it to fit. */ }
-            <View style={ styles.previewWindow }>
-                <Image
-                    source={ require('../../assets/illustrations/notes-list-preview.png') as ImageSourcePropType }
-                    style={ styles.previewImage }
-                    resizeMode="contain"
-                    accessible
-                    accessibilityLabel="A list of past therapy notes, each with the date of its session"
-                />
-            </View>
         </OnboardingScreen>
     );
 }
@@ -98,10 +97,6 @@ const styles = StyleSheet.create({
         marginTop: 4,
     },
     previewWindow: {
-        marginTop: 24,
-        marginHorizontal: -CONTENT_PADDING,
-        // Cancels the scroll's bottom padding so the image meets the edge.
-        marginBottom: -CONTENT_PADDING,
         height: VISIBLE_HEIGHT,
         overflow: 'hidden',
     },

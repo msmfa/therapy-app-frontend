@@ -55,6 +55,15 @@ export default function PlanPreviewScreen() {
             backHref="/(onboarding)/reminder-times"
             headline={ isSamplePlan ? PLAN_COPY.sampleHeadline : planHeadline(weekdayName(sessionAt)) }
             supporting={ isSamplePlan ? samplePlanBody(answers.cadence) : planBody(answers.cadence) }
+            // The note itself, fixed to the bottom edge of the screen below
+            // the point that describes it, cut off by the edge so it reads as
+            // a real sheet continuing past the screen.
+            bottomBackdrop={
+                <View style={ styles.sheetWindow }>
+                    <NoteTemplateSheet />
+                </View>
+            }
+            bottomBackdropHeight={ SHEET_VISIBLE_HEIGHT }
             footer={
                 <Button
                     label={ PLAN_COPY.primaryCta }
@@ -72,11 +81,6 @@ export default function PlanPreviewScreen() {
                 <PlanTimeline entries={ noteEntry } />
             </View>
 
-            { /* The note itself, directly under the point that describes it. */ }
-            <View style={ styles.sheet }>
-                <NoteTemplateSheet />
-            </View>
-
             <TouchableOpacity
                 onPress={ () => router.push('/why-five-questions') }
                 accessibilityRole="link"
@@ -92,6 +96,9 @@ export default function PlanPreviewScreen() {
     );
 }
 
+/** How much of the note sheet stays visible above the screen edge. */
+const SHEET_VISIBLE_HEIGHT = 240;
+
 const styles = StyleSheet.create({
     timeline: {
         marginTop: 24,
@@ -101,8 +108,10 @@ const styles = StyleSheet.create({
         color: TEXT_COLORS.secondary,
         fontWeight: '600',
     },
-    sheet: {
-        marginTop: 20,
+    sheetWindow: {
+        height: SHEET_VISIBLE_HEIGHT,
+        overflow: 'hidden',
+        paddingHorizontal: 24,
     },
     researchLink: {
         minHeight: 44,
