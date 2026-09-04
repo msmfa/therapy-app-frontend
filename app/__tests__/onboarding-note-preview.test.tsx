@@ -93,17 +93,22 @@ describe('onboarding note preview', () => {
         ).toBeTruthy();
     });
 
-    it('renders the screenshot reduced and undistorted', () => {
+    it('renders the screenshot reduced, undistorted, and in plain numbers', () => {
+        const { Dimensions } = require('react-native');
         const { getByLabelText } = render(<NotePreviewScreen />);
 
         const image = getByLabelText('A list of past therapy notes, each with the date of its session');
+        const flat = Object.assign({}, ...[image.props.style].flat());
 
-        // Reduced, so a phone screenshot does not render its interface at
-        // life size, and centred; the artwork region clips the bottom.
-        expect(image.props.style.width).toBe('52%');
-        expect(image.props.style.alignSelf).toBe('center');
+        // Explicit numeric dimensions: a percentage width with an aspect
+        // ratio left the image unconstrained on the new architecture, and it
+        // rendered at its intrinsic 1290pt. Numbers cannot be misread.
+        expect(typeof flat.width).toBe('number');
+        expect(typeof flat.height).toBe('number');
+        expect(flat.width / Dimensions.get('window').width).toBeCloseTo(0.52, 2);
         // Its own proportions, so nothing is stretched.
-        expect(image.props.style.aspectRatio).toBeCloseTo(1290 / 2616, 5);
+        expect(flat.width / flat.height).toBeCloseTo(1290 / 2616, 2);
+        expect(flat.alignSelf).toBe('center');
         expect(image.props.resizeMode).toBe('contain');
     });
 });

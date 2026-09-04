@@ -1,4 +1,4 @@
-import { Image, StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View, useWindowDimensions } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
@@ -29,6 +29,14 @@ const IMAGE_SCALE = 0.52;
 export default function NotePreviewScreen() {
     const router = useRouter();
     const { answers } = useOnboardingAnswers();
+    const { width: screenWidth } = useWindowDimensions();
+
+    // Explicit numbers, not a percentage plus an aspect ratio: on the new
+    // architecture that combination left the image unconstrained, so it
+    // rendered at its intrinsic 1290pt and filled the screen with a corner of
+    // itself. Sizes computed here cannot be misread by the layout engine.
+    const imageWidth = Math.round(screenWidth * IMAGE_SCALE);
+    const imageHeight = Math.round(imageWidth / NOTES_IMAGE_ASPECT);
 
     return (
         <OnboardingScreen
@@ -43,7 +51,7 @@ export default function NotePreviewScreen() {
             bottomBackdrop={
                 <Image
                     source={ require('../../assets/illustrations/notes-list-preview.png') as ImageSourcePropType }
-                    style={ styles.previewImage }
+                    style={ [styles.previewImage, { width: imageWidth, height: imageHeight }] }
                     resizeMode="contain"
                     accessible
                     accessibilityLabel="A list of past therapy notes, each with the date of its session"
@@ -94,10 +102,6 @@ const styles = StyleSheet.create({
         marginTop: 4,
     },
     previewImage: {
-        // Its natural proportions at a reduced scale, anchored to the top of
-        // the artwork region; the region clips whatever runs past the screen.
-        width: `${IMAGE_SCALE * 100}%`,
         alignSelf: 'center',
-        aspectRatio: NOTES_IMAGE_ASPECT,
     },
 });
