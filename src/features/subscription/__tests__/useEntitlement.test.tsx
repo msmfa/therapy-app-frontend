@@ -91,6 +91,32 @@ describe('useEntitlement', () => {
         expect(removeListener).toHaveBeenCalled();
     });
 
+    it('keeps the last answer on screen while a foreground recheck is in flight', async () => {
+        let resolveSecond!: (value: { status: 'inactive' }) => void;
+        mockGetEntitlement
+            .mockResolvedValueOnce({
+                status: 'active',
+                plan: 'annual',
+                productId: 'com.plasticbrains.app.subscription.annual',
+                expiresAt: null,
+            })
+            .mockImplementationOnce(() => new Promise((resolve) => {
+                resolveSecond = resolve;
+            }));
+
+        const { result } = renderHook(() => useEntitlement());
+        await waitFor(() => expect(result.current.state.status).toBe('active'));
+
+        act(() => appStateHandler?.('active'));
+
+        // Never 'loading': that would unmount everything behind the gate on
+        // every app foreground, discarding in-progress work such as a note.
+        expect(result.current.state.status).toBe('active');
+
+        act(() => resolveSecond({ status: 'inactive' }));
+        await waitFor(() => expect(result.current.state.status).toBe('inactive'));
+    });
+
     it('reports a store error instead of leaving the guard loading forever', async () => {
         mockGetEntitlement.mockRejectedValue(new Error('StoreKit failed'));
 

@@ -39,7 +39,14 @@ export function useEntitlement(): {
         // Entitlement belongs to an app account, not merely to the boolean
         // state "someone is signed in". A direct account switch must never
         // render with the previous user's answer while the new one is checked.
-        setSnapshot({ ownerKey, state: { status: 'loading' } });
+        // For the same owner, though, keep the last answer while rechecking:
+        // this runs on every app foreground, and a reset to loading would
+        // unmount everything behind the gate, discarding in-progress work.
+        setSnapshot((current) => (
+            current.ownerKey === ownerKey
+                ? current
+                : { ownerKey, state: { status: 'loading' } }
+        ));
 
         getEntitlement({ syncWithServer: isAuthenticated })
             .then((result) => {
