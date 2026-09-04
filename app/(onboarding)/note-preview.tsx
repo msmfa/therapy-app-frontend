@@ -16,14 +16,26 @@ import { TEXT_COLORS } from 'designs/designs-colors';
 const NOTES_IMAGE_ASPECT = 1290 / 2616;
 
 /**
+ * The screenshot's scale on screen.
+ *
+ * At full width a screenshot of a phone renders its interface life-size, which
+ * reads as a second screen pasted over this one rather than an illustration of
+ * it. Scaled down it becomes a picture of the notes list. The gap this leaves
+ * at the sides is invisible: the screenshot's own background is SURFACE_BLUE,
+ * the same colour this screen sits on.
+ */
+const IMAGE_SCALE = 0.7;
+
+/**
  * How much of the screenshot to leave visible.
  *
  * Measured against the artwork: the first note card runs from 435 to 1085 in
- * the trimmed image, so this cuts it at its midpoint. The card is visibly
- * mid-sentence at the edge, which is the point; any more and it reads as a
- * framed thumbnail rather than a list carrying on past the screen.
+ * the trimmed image, and at IMAGE_SCALE of a 390pt screen this cuts it at its
+ * midpoint. The card is visibly mid-sentence at the edge, which is the point;
+ * any more and it reads as a framed thumbnail rather than a list carrying on
+ * past the screen.
  */
-const VISIBLE_HEIGHT = 230;
+const VISIBLE_HEIGHT = 165;
 
 export default function NotePreviewScreen() {
     const router = useRouter();
@@ -103,11 +115,12 @@ const styles = StyleSheet.create({
     previewImage: {
         // Absolute, so the window's height clips the image from the top rather
         // than squashing it. resizeMode "cover" centred the crop, which showed
-        // the middle of the list instead of the top of it.
+        // the middle of the list instead of the top of it. Inset from both
+        // sides equally to render at IMAGE_SCALE, centred.
         position: 'absolute',
         top: 0,
-        left: 0,
-        right: 0,
+        left: `${(100 * (1 - IMAGE_SCALE)) / 2}%`,
+        right: `${(100 * (1 - IMAGE_SCALE)) / 2}%`,
         aspectRatio: NOTES_IMAGE_ASPECT,
     },
 });

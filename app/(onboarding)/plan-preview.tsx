@@ -111,7 +111,6 @@ const styles = StyleSheet.create({
     sheetWindow: {
         height: SHEET_VISIBLE_HEIGHT,
         overflow: 'hidden',
-        paddingHorizontal: 24,
     },
     researchLink: {
         minHeight: 44,
