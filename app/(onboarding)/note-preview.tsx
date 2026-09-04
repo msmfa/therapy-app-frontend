@@ -26,17 +26,6 @@ const NOTES_IMAGE_ASPECT = 1290 / 2616;
  */
 const IMAGE_SCALE = 0.7;
 
-/**
- * How much of the screenshot to leave visible.
- *
- * Measured against the artwork: the first note card runs from 435 to 1085 in
- * the trimmed image, and at IMAGE_SCALE of a 390pt screen this cuts it at its
- * midpoint. The card is visibly mid-sentence at the edge, which is the point;
- * any more and it reads as a framed thumbnail rather than a list carrying on
- * past the screen.
- */
-const VISIBLE_HEIGHT = 165;
-
 export default function NotePreviewScreen() {
     const router = useRouter();
     const { answers } = useOnboardingAnswers();
@@ -48,22 +37,18 @@ export default function NotePreviewScreen() {
             // Answers the goal chosen in the first question rather than
             // describing the notes the same way to everyone.
             supporting={ notePreviewBody(answers.goal) }
-            // Fixed to the bottom edge of the screen rather than placed in the
-            // flow, where it ended wherever the content happened to end. The
-            // first note is cut at its midpoint by the screen edge, so the
-            // list reads as continuing below it.
+            // Starts a margin below the content and runs to the bottom edge
+            // of the screen, cut off by it, so the list reads as continuing
+            // below the fold.
             bottomBackdrop={
-                <View style={ styles.previewWindow }>
-                    <Image
-                        source={ require('../../assets/illustrations/notes-list-preview.png') as ImageSourcePropType }
-                        style={ styles.previewImage }
-                        resizeMode="contain"
-                        accessible
-                        accessibilityLabel="A list of past therapy notes, each with the date of its session"
-                    />
-                </View>
+                <Image
+                    source={ require('../../assets/illustrations/notes-list-preview.png') as ImageSourcePropType }
+                    style={ styles.previewImage }
+                    resizeMode="contain"
+                    accessible
+                    accessibilityLabel="A list of past therapy notes, each with the date of its session"
+                />
             }
-            bottomBackdropHeight={ VISIBLE_HEIGHT }
             footer={
                 <Button
                     label={ NOTE_PREVIEW_COPY.primaryCta }
@@ -108,19 +93,11 @@ const styles = StyleSheet.create({
     privacyBody: {
         marginTop: 4,
     },
-    previewWindow: {
-        height: VISIBLE_HEIGHT,
-        overflow: 'hidden',
-    },
     previewImage: {
-        // Absolute, so the window's height clips the image from the top rather
-        // than squashing it. resizeMode "cover" centred the crop, which showed
-        // the middle of the list instead of the top of it. Inset from both
-        // sides equally to render at IMAGE_SCALE, centred.
-        position: 'absolute',
-        top: 0,
-        left: `${(100 * (1 - IMAGE_SCALE)) / 2}%`,
-        right: `${(100 * (1 - IMAGE_SCALE)) / 2}%`,
+        // Its natural proportions at a reduced scale, anchored to the top of
+        // the artwork region; the region clips whatever runs past the screen.
+        width: `${IMAGE_SCALE * 100}%`,
+        alignSelf: 'center',
         aspectRatio: NOTES_IMAGE_ASPECT,
     },
 });

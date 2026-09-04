@@ -15,15 +15,13 @@ type BaseProps = {
     /** Buttons and links. Pinned normally, then placed in-flow at accessibility text sizes. */
     footer: React.ReactNode;
     /**
-     * Artwork fixed to the physical bottom edge of the screen, behind the
-     * footer, regardless of how much content there is or where it is
-     * scrolled. Purely decorative: it cannot be interacted with, and at
-     * accessibility text sizes it moves into the flow at the end of the
-     * combined scroll so it can never cover the actions.
+     * Artwork that starts a margin below the content and runs to the physical
+     * bottom edge of the screen, with the footer floating over it. Purely
+     * decorative: it cannot be interacted with, and at accessibility text
+     * sizes it moves into the flow at the end of the combined scroll so it can
+     * never cover the actions.
      */
     bottomBackdrop?: React.ReactNode;
-    /** The backdrop's visible height, so scrolled content can clear it. */
-    bottomBackdropHeight?: number;
 };
 
 /**
@@ -65,7 +63,6 @@ export function OnboardingScreen({
     children,
     footer,
     bottomBackdrop,
-    bottomBackdropHeight = 0,
     showBack = true,
     backHref,
 }: Props) {
@@ -144,36 +141,43 @@ export function OnboardingScreen({
                 </ScrollView>
             ) : (
                 <>
-                    { bottomBackdrop !== undefined && (
-                        // First in source order, so the scroll and footer that
-                        // follow stack naturally above it. Shifted past the
-                        // safe-area padding to reach the physical edge.
-                        <View
-                            testID="onboarding-backdrop"
-                            pointerEvents="none"
-                            style={ [styles.backdrop, { bottom: -insets.bottom }] }
+                    { bottomBackdrop === undefined ? (
+                        <ScrollView
+                            style={ styles.scroll }
+                            contentContainerStyle={ styles.scrollContent }
+                            showsVerticalScrollIndicator={ false }
+                            keyboardShouldPersistTaps="handled"
                         >
-                            { bottomBackdrop }
-                        </View>
+                            { body }
+                        </ScrollView>
+                    ) : (
+                        <>
+                            { /* The content sits fixed above the artwork rather
+                                 than scrolling: screens that carry a backdrop
+                                 keep their body short, and the artwork owns
+                                 whatever the body does not use. */ }
+                            <View style={ styles.backdropBody }>
+                                { body }
+                            </View>
+
+                            { /* From a margin below the content all the way to
+                                 the physical bottom edge, under the footer. */ }
+                            <View
+                                testID="onboarding-backdrop"
+                                pointerEvents="none"
+                                style={ [styles.backdropRegion, { marginBottom: -insets.bottom }] }
+                            >
+                                { bottomBackdrop }
+                            </View>
+                        </>
                     ) }
 
                     <ScrollView
-                        style={ styles.scroll }
-                        contentContainerStyle={ [
-                            styles.scrollContent,
-                            bottomBackdropHeight > 0
-                                ? { paddingBottom: bottomBackdropHeight + 24 }
-                                : null,
-                        ] }
-                        showsVerticalScrollIndicator={ false }
-                        keyboardShouldPersistTaps="handled"
-                    >
-                        { body }
-                    </ScrollView>
-
-                    <ScrollView
                         testID="onboarding-footer"
-                        style={ styles.footer }
+                        style={ [
+                            styles.footer,
+                            bottomBackdrop !== undefined ? styles.footerOverArtwork : null,
+                        ] }
                         contentContainerStyle={ styles.footerContent }
                         showsVerticalScrollIndicator={ false }
                         alwaysBounceVertical={ false }
@@ -239,10 +243,22 @@ const styles = StyleSheet.create({
         paddingTop: 24,
         gap: 12,
     },
-    backdrop: {
+    backdropBody: {
+        paddingHorizontal: 24,
+        paddingTop: 16,
+    },
+    backdropRegion: {
+        flex: 1,
+        marginTop: 16,
+        overflow: 'hidden',
+    },
+    footerOverArtwork: {
+        // Floats over the artwork instead of sitting below it, so the artwork
+        // itself can reach the bottom edge of the screen.
         position: 'absolute',
         left: 0,
         right: 0,
+        bottom: 0,
     },
     combinedBackdrop: {
         marginTop: 24,

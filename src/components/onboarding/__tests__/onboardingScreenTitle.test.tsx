@@ -66,16 +66,18 @@ describe('the bottom backdrop', () => {
     const backdrop = <Text>notes artwork</Text>;
 
     it('is pinned, decorative, and behind everything else', () => {
-        const { getByTestId } = renderScreen({
-            bottomBackdrop: backdrop,
-            bottomBackdropHeight: 230,
-        });
+        const { getByTestId } = renderScreen({ bottomBackdrop: backdrop });
 
-        const pinned = getByTestId('onboarding-backdrop');
-        // Fixed to the screen edge, not part of the scrolled content, and
+        const region = getByTestId('onboarding-backdrop');
+        // Fills everything between the content and the bottom edge, and is
         // untouchable so it can never swallow a tap meant for the footer.
-        expect(pinned.props.pointerEvents).toBe('none');
-        expect(pinned.props.style[0].position).toBe('absolute');
+        expect(region.props.pointerEvents).toBe('none');
+        expect(region.props.style[0].flex).toBe(1);
+        // The footer floats over the artwork rather than sitting below it, so
+        // the artwork itself reaches the screen's bottom edge.
+        const footer = getByTestId('onboarding-footer');
+        expect(footer.props.style[1].position).toBe('absolute');
+        expect(footer.props.style[1].bottom).toBe(0);
     });
 
     it('does not exist at all when a screen has no artwork', () => {
@@ -93,7 +95,6 @@ describe('the bottom backdrop at accessibility text sizes', () => {
 
         const { getByTestId } = renderScreen({
             bottomBackdrop: <Text>notes artwork</Text>,
-            bottomBackdropHeight: 230,
         });
 
         const inFlow = getByTestId('onboarding-backdrop');

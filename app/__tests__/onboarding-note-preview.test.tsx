@@ -93,15 +93,15 @@ describe('onboarding note preview', () => {
         ).toBeTruthy();
     });
 
-    it('shows the top of the list and clips the rest, rather than the middle', () => {
+    it('renders the screenshot reduced and undistorted', () => {
         const { getByLabelText } = render(<NotePreviewScreen />);
 
         const image = getByLabelText('A list of past therapy notes, each with the date of its session');
 
-        // Anchored to the top of the screenshot. A centred crop showed the
-        // middle of the list, which is where the previous version went wrong.
-        expect(image.props.style.position).toBe('absolute');
-        expect(image.props.style.top).toBe(0);
+        // Reduced, so a phone screenshot does not render its interface at
+        // life size, and centred; the artwork region clips the bottom.
+        expect(image.props.style.width).toBe('70%');
+        expect(image.props.style.alignSelf).toBe('center');
         // Its own proportions, so nothing is stretched.
         expect(image.props.style.aspectRatio).toBeCloseTo(1290 / 2616, 5);
         expect(image.props.resizeMode).toBe('contain');

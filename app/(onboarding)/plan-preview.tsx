@@ -55,15 +55,10 @@ export default function PlanPreviewScreen() {
             backHref="/(onboarding)/reminder-times"
             headline={ isSamplePlan ? PLAN_COPY.sampleHeadline : planHeadline(weekdayName(sessionAt)) }
             supporting={ isSamplePlan ? samplePlanBody(answers.cadence) : planBody(answers.cadence) }
-            // The note itself, fixed to the bottom edge of the screen below
-            // the point that describes it, cut off by the edge so it reads as
-            // a real sheet continuing past the screen.
-            bottomBackdrop={
-                <View style={ styles.sheetWindow }>
-                    <NoteTemplateSheet />
-                </View>
-            }
-            bottomBackdropHeight={ SHEET_VISIBLE_HEIGHT }
+            // The note itself, starting a margin below the point that
+            // describes it and running to the bottom edge of the screen, cut
+            // off by it so it reads as a real sheet continuing past the fold.
+            bottomBackdrop={ <NoteTemplateSheet style={ styles.sheet } /> }
             footer={
                 <Button
                     label={ PLAN_COPY.primaryCta }
@@ -96,9 +91,6 @@ export default function PlanPreviewScreen() {
     );
 }
 
-/** How much of the note sheet stays visible above the screen edge. */
-const SHEET_VISIBLE_HEIGHT = 240;
-
 const styles = StyleSheet.create({
     timeline: {
         marginTop: 24,
@@ -108,9 +100,10 @@ const styles = StyleSheet.create({
         color: TEXT_COLORS.secondary,
         fontWeight: '600',
     },
-    sheetWindow: {
-        height: SHEET_VISIBLE_HEIGHT,
-        overflow: 'hidden',
+    sheet: {
+        // Stretch the paper to the region so the screen edge always cuts it,
+        // whatever the device height.
+        flex: 1,
     },
     researchLink: {
         minHeight: 44,

@@ -1,5 +1,6 @@
 import React from 'react';
 import { ImageBackground, StyleSheet, View } from 'react-native';
+import type { StyleProp, ViewStyle } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
 import AppText from '../ui/AppText';
 import {
@@ -24,7 +25,7 @@ const QUESTIONS_SHOWN = 2;
  * question, so the questions are the accessible elements and the ruled lines
  * beneath them are hidden as decoration.
  */
-export function NoteTemplateSheet() {
+export function NoteTemplateSheet({ style }: { style?: StyleProp<ViewStyle> }) {
     const shown = POST_THERAPY_QUESTIONS.slice(0, QUESTIONS_SHOWN);
 
     return (
@@ -32,7 +33,7 @@ export function NoteTemplateSheet() {
             source={ require('../../../assets/textures/paper-green.png') as ImageSourcePropType }
             resizeMode="cover"
             imageStyle={ styles.sheetImage }
-            style={ styles.sheet }
+            style={ [styles.sheet, style] }
         >
             <AppText variant="h2" style={ styles.sheetTitle } accessibilityRole="header">
                 { POST_THERAPY_TEMPLATE_TITLE }
