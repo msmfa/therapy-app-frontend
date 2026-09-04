@@ -78,8 +78,11 @@ export default function ReminderSettingsScreen() {
     }, [refreshPermission, showAlert]);
 
     const change = useCallback(
-        (slot: Slot) => (_event: DateTimePickerEvent, picked?: Date) => {
+        (slot: Slot) => (event: DateTimePickerEvent, picked?: Date) => {
             setAndroidSlot(null);
+            // A dismissed picker reports the value it was already showing, not
+            // a choice; writing it back overwrites the pick just made.
+            if (event.type === 'dismissed') return;
             if (!picked) return;
 
             const value = dateToMinutes(picked);

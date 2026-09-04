@@ -52,8 +52,10 @@ export default function SessionDateScreen() {
     const latestAllowed = useMemo(() => latestFirstSessionAt(), []);
     const canContinue = complete && isFuture && inRange;
 
-    const applyDate = useCallback((_event: DateTimePickerEvent, picked?: Date) => {
+    const applyDate = useCallback((event: DateTimePickerEvent, picked?: Date) => {
         if (Platform.OS !== 'ios') setOpen(null);
+        // A dismissed picker echoes the value it was showing; it is not a pick.
+        if (event.type === 'dismissed') return;
         if (!picked) return;
         setDateChosen(true);
         setDraft((current) => {
@@ -63,8 +65,10 @@ export default function SessionDateScreen() {
         });
     }, []);
 
-    const applyTime = useCallback((_event: DateTimePickerEvent, picked?: Date) => {
+    const applyTime = useCallback((event: DateTimePickerEvent, picked?: Date) => {
         if (Platform.OS !== 'ios') setOpen(null);
+        // A dismissed picker echoes the value it was showing; it is not a pick.
+        if (event.type === 'dismissed') return;
         if (!picked) return;
         setTimeChosen(true);
         setDraft((current) => {

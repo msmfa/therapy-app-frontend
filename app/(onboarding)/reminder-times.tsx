@@ -19,8 +19,15 @@ export default function ReminderTimesScreen() {
     const [androidSlot, setAndroidSlot] = useState<Slot | null>(null);
 
     const change = useCallback(
-        (slot: Slot) => (_event: DateTimePickerEvent, picked?: Date) => {
+        (slot: Slot) => (event: DateTimePickerEvent, picked?: Date) => {
             setAndroidSlot(null);
+            // Closing the picker reports a "dismissed" change carrying the value
+            // this render was already showing, not anything the user chose. The
+            // iOS compact popover fires it every time it closes (the library's
+            // own source marks the date it attaches as a TODO to remove), so
+            // treating it as a pick overwrote the real choice made a moment
+            // earlier and snapped the field back to what it showed before.
+            if (event.type === 'dismissed') return;
             if (!picked) return;
             setAnswer(slot === 'morning' ? 'morningMinutes' : 'eveningMinutes', dateToMinutes(picked));
         },
@@ -28,15 +35,11 @@ export default function ReminderTimesScreen() {
     );
 
     /**
-     * Both the value and the handler have to keep their identity between
-     * renders.
+     * Stable values and handlers, recomputed only when the answer changes.
      *
-     * The iOS picker is controlled: it takes `value` and pushes it back down to
-     * the native control whenever the prop changes. Building the Date inline
-     * made a new object on every render, so the moment anything re-rendered the
-     * screen the native picker was handed a "new" value and snapped back to it,
-     * throwing away what the user had just scrolled to. Tapping the field and
-     * letting go was enough to trigger it.
+     * Note this is hygiene, not the snap-back fix: the picker wrapper converts
+     * `value` to milliseconds before it reaches native, so object identity
+     * never crossed the bridge. The snap-back was the "dismissed" event above.
      */
     const morningValue = useMemo(
         () => minutesToDate(answers.morningMinutes),

@@ -18,6 +18,15 @@ export default function OnboardingLayout() {
         <Stack screenOptions={ {
             headerShown: false,
             contentStyle: { backgroundColor: colors.background },
+            // A resumed flow arrives by replace, which makes the current
+            // screen the root of the stack. Back from there cannot pop, so
+            // the BackButton falls back to replacing with the logical
+            // previous screen. A replace animates like a forward push by
+            // default, so pressing Back slid the screen in from the right
+            // exactly as going forwards did. Replaces inside onboarding are
+            // back-shaped, so they animate as pops; the one forward replace
+            // opts back in to push below.
+            animationTypeForReplace: 'pop',
         } } >
             <Stack.Screen name="index" />
             <Stack.Screen name="goal" />
@@ -28,7 +37,14 @@ export default function OnboardingLayout() {
             <Stack.Screen name="note-preview" />
             <Stack.Screen name="subscription-preview" />
             <Stack.Screen name="account-preview" />
-            <Stack.Screen name="notifications-preview" />
+            <Stack.Screen
+                name="notifications-preview"
+                options={ {
+                    // The one forward replace: account creation replaces into
+                    // this screen so the account step cannot be returned to.
+                    animationTypeForReplace: 'push',
+                } }
+            />
             <Stack.Screen
                 name="success"
                 options={ {

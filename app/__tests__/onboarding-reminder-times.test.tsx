@@ -95,6 +95,32 @@ describe('reminder times: picking a time', () => {
         view.unmount();
     });
 
+    it('does not let closing the picker overwrite the pick just made', async () => {
+        const view = renderScreen();
+        await waitFor(() => expect(morningPicker()).toBeDefined());
+
+        // Scroll to 6:45, then let go. Closing the compact popover fires a
+        // second change of type "dismissed" whose date is the value the render
+        // that opened it was showing, which is the old time, not the choice.
+        // This is the event sequence the device produces for "tap, pick,
+        // release", and it is what kept snapping the field back.
+        const picker = morningPicker()!;
+        const fire = picker.onChange as (e: unknown, d?: Date) => void;
+        await act(async () => {
+            fire({ type: 'set' }, at(6, 45));
+        });
+        await act(async () => {
+            fire({ type: 'dismissed' }, at(7, 30));
+        });
+
+        await waitFor(() => {
+            const after = morningPicker()!;
+            expect((after.value as Date).getHours()).toBe(6);
+            expect((after.value as Date).getMinutes()).toBe(45);
+        });
+        view.unmount();
+    });
+
     it('hands the picker the same value object across re-renders', async () => {
         const view = renderScreen();
         await waitFor(() => expect(morningPicker()).toBeDefined());
