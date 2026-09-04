@@ -1,12 +1,14 @@
 import { useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Feather } from '@expo/vector-icons';
 import { Button } from '../../src/components/ui/Button';
 import AppText from '../../src/components/ui/AppText';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import { PlanTimeline } from '../../src/components/onboarding/PlanTimeline';
-import { QuoteCard } from '../../src/components/onboarding/QuoteCard';
+import { NoteTemplateSheet } from '../../src/components/onboarding/NoteTemplateSheet';
 import {
+    NOTE_PREVIEW_COPY,
     PLAN_COPY,
     planBody,
     planHeadline,
@@ -70,13 +72,22 @@ export default function PlanPreviewScreen() {
                 <PlanTimeline entries={ noteEntry } />
             </View>
 
-            <View style={ styles.quote }>
-                <QuoteCard
-                    quote={ PLAN_COPY.testimonial.quote }
-                    name={ PLAN_COPY.testimonial.name }
-                    role={ PLAN_COPY.testimonial.role }
-                />
+            { /* The note itself, directly under the point that describes it. */ }
+            <View style={ styles.sheet }>
+                <NoteTemplateSheet />
             </View>
+
+            <TouchableOpacity
+                onPress={ () => router.push('/why-five-questions') }
+                accessibilityRole="link"
+                accessibilityLabel={ NOTE_PREVIEW_COPY.researchLink }
+                style={ styles.researchLink }
+            >
+                <AppText variant="body" style={ styles.researchLinkLabel }>
+                    { NOTE_PREVIEW_COPY.researchLink }
+                </AppText>
+                <Feather name="arrow-right" size={ 18 } color={ TEXT_COLORS.primary } />
+            </TouchableOpacity>
         </OnboardingScreen>
     );
 }
@@ -90,7 +101,18 @@ const styles = StyleSheet.create({
         color: TEXT_COLORS.secondary,
         fontWeight: '600',
     },
-    quote: {
+    sheet: {
         marginTop: 20,
+    },
+    researchLink: {
+        minHeight: 44,
+        marginTop: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    researchLinkLabel: {
+        color: TEXT_COLORS.primary,
+        textDecorationLine: 'underline',
     },
 });

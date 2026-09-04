@@ -114,20 +114,14 @@ export const PLAN_COPY = {
         "This example uses a one-week gap to show how reminders work. Add your booked sessions later and we'll use the real gap between them.",
     researchTitle: 'Why these reminder moments?',
     researchBody:
-        'Open any reminder above to see the specific memory principle and sources behind that point in the plan.',
+        'Open any reminder below to see the specific memory principle and sources behind that point in the plan.',
     evidenceStatement:
         'The timing draws on research into memory consolidation, sleep, spaced retrieval and context reinstatement.',
-    testimonial: {
-        quote: 'I love that I can look over my notes from previous sessions and see what we were talking about and which aspects have improved.',
-        name: 'Sarah',
-        role: 'Plastic Brains user',
-    },
-    primaryCta: 'See the reviews that follow',
+    primaryCta: 'What happens after you take your note',
 } as const;
 
 export const REVIEWS_PREVIEW_COPY = {
-    headline: 'Your reviews between sessions',
-    body: 'Your note comes back at the moments it is most useful, spaced across the gap before your next session.',
+    headline: 'Why these times?',
     primaryCta: 'After you take your note',
 } as const;
 
@@ -141,14 +135,33 @@ export const samplePlanBody = (cadence: CadenceId | null): string =>
     cadence === 'varies' ? PLAN_COPY.sampleVariableBody : PLAN_COPY.sampleBody;
 
 export const NOTE_PREVIEW_COPY = {
-    headline: 'Capture what mattered in five minutes',
-    body: 'Five focused questions turn a session into something you can revisit and bring back.',
+    headline: 'Your notes',
     researchLink: 'Why these five questions?',
     privacyTitle: 'Your note stays yours',
     privacyBody:
 		'The contents of your therapy notes are encrypted and stored only on this iPhone. They are never uploaded to our servers.',
     primaryCta: 'See plans',
 } as const;
+
+/**
+ * The opening line on the notes screen, answering the goal they chose.
+ *
+ * The goal question is the first thing onboarding asks, so the notes should be
+ * described in terms of the outcome that person said they wanted rather than a
+ * single line written for everyone.
+ */
+export const notePreviewBody = (goal: GoalId | null): string => {
+    switch (goal) {
+        case 'practise':
+            return 'Your notes hold what came up, so you can put it into practice during the week rather than losing it by Wednesday.';
+        case 'prepare':
+            return 'Your notes build a clear thread you can look back over, so you arrive at your next session knowing what you want to raise.';
+        case 'habit':
+            return 'Your notes build a record across sessions, so you can look back and see what has actually changed.';
+        default:
+            return 'Your notes hold what mattered in each session, so you can revisit it and bring a clear thread back.';
+    }
+};
 
 export const remainingQuestions = (shown: number, total: number): string => {
     const remaining = total - shown;

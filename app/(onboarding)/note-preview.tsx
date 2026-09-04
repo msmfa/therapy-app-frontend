@@ -1,21 +1,31 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
+import type { ImageSourcePropType } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { Button } from '../../src/components/ui/Button';
 import AppText from '../../src/components/ui/AppText';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
-import { NoteTemplateSheet } from '../../src/components/onboarding/NoteTemplateSheet';
-import { NOTE_PREVIEW_COPY } from '../../src/features/onboarding/onboardingCopy';
+import {
+    NOTE_PREVIEW_COPY,
+    notePreviewBody,
+} from '../../src/features/onboarding/onboardingCopy';
+import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { TEXT_COLORS } from 'designs/designs-colors';
+
+/** The scroll padding this screen's image deliberately breaks out of. */
+const CONTENT_PADDING = 24;
 
 export default function NotePreviewScreen() {
     const router = useRouter();
+    const { answers } = useOnboardingAnswers();
 
     return (
         <OnboardingScreen
-            backHref="/(onboarding)/plan-preview"
+            backHref="/(onboarding)/reviews-preview"
             headline={ NOTE_PREVIEW_COPY.headline }
-            supporting={ NOTE_PREVIEW_COPY.body }
+            // Answers the goal chosen in the first question rather than
+            // describing the notes the same way to everyone.
+            supporting={ notePreviewBody(answers.goal) }
             footer={
                 <Button
                     label={ NOTE_PREVIEW_COPY.primaryCta }
@@ -23,20 +33,6 @@ export default function NotePreviewScreen() {
                 />
             }
         >
-            <NoteTemplateSheet />
-
-            <TouchableOpacity
-                onPress={ () => router.push('/why-five-questions') }
-                accessibilityRole="link"
-                accessibilityLabel={ NOTE_PREVIEW_COPY.researchLink }
-                style={ styles.researchLink }
-            >
-                <AppText variant="body" style={ styles.researchLinkLabel }>
-                    { NOTE_PREVIEW_COPY.researchLink }
-                </AppText>
-                <Feather name="arrow-right" size={ 18 } color={ TEXT_COLORS.primary } />
-            </TouchableOpacity>
-
             <View style={ styles.privacy }>
                 <Feather
                     name="lock"
@@ -54,24 +50,27 @@ export default function NotePreviewScreen() {
                     </AppText>
                 </View>
             </View>
+
+            { /* Runs off the bottom of the screen on purpose: the list carries
+                 on past the fold, which says "these accumulate" better than a
+                 neatly framed thumbnail would. Breaks out of the scroll
+                 padding so it reaches all three edges. */ }
+            <View style={ styles.previewWindow }>
+                <Image
+                    source={ require('../../assets/illustrations/notes-list-preview.png') as ImageSourcePropType }
+                    style={ styles.previewImage }
+                    resizeMode="cover"
+                    accessible
+                    accessibilityLabel="A list of past therapy notes, each with the date of its session"
+                />
+            </View>
         </OnboardingScreen>
     );
 }
 
 const styles = StyleSheet.create({
-    researchLink: {
-        minHeight: 44,
-        marginTop: 10,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    researchLinkLabel: {
-        color: TEXT_COLORS.primary,
-        textDecorationLine: 'underline',
-    },
     privacy: {
-        marginTop: 22,
+        marginTop: 24,
         flexDirection: 'row',
         gap: 12,
     },
@@ -83,5 +82,19 @@ const styles = StyleSheet.create({
     },
     privacyBody: {
         marginTop: 4,
+    },
+    previewWindow: {
+        marginTop: 24,
+        marginHorizontal: -CONTENT_PADDING,
+        // Cancels the scroll's bottom padding so the image meets the edge.
+        marginBottom: -CONTENT_PADDING,
+        height: 260,
+        overflow: 'hidden',
+    },
+    previewImage: {
+        width: '100%',
+        // Taller than the window, anchored at the top, so the list is cut off
+        // rather than squashed.
+        height: 560,
     },
 });

@@ -1,7 +1,8 @@
 import React from 'react';
-import { fireEvent, render } from '@testing-library/react-native';
+import { render } from '@testing-library/react-native';
 
 const mockPush = jest.fn();
+let mockGoal: string | null = 'prepare';
 
 jest.mock('expo-router', () => ({
     useRouter: () => ({ push: mockPush }),
@@ -11,49 +12,90 @@ jest.mock('@expo/vector-icons', () => ({
     Feather: () => null,
 }));
 
+jest.mock('../../src/features/onboarding/OnboardingAnswersContext', () => ({
+    useOnboardingAnswers: () => ({
+        answers: { goal: mockGoal },
+        setAnswer: jest.fn(),
+        hydrated: true,
+    }),
+}));
+
 jest.mock('../../src/components/onboarding/OnboardingScreen', () => {
     const ReactForMock = require('react');
     const { Text: MockText, View: MockView } = require('react-native');
     return {
         OnboardingScreen: ({
             headline,
+            supporting,
             children,
             footer,
         }: {
             headline: string;
+            supporting?: string;
             children?: React.ReactNode;
             footer?: React.ReactNode;
         }) => ReactForMock.createElement(
             MockView,
             null,
             ReactForMock.createElement(MockText, null, headline),
+            supporting === undefined ? null : ReactForMock.createElement(MockText, null, supporting),
             children,
             footer,
         ),
     };
 });
 
-jest.mock('../../src/components/onboarding/NoteTemplateSheet', () => {
-    const ReactForMock = require('react');
-    const { Text: MockText } = require('react-native');
-    return {
-        NoteTemplateSheet: () => ReactForMock.createElement(MockText, null, 'Five-question preview'),
-    };
-});
-
 import NotePreviewScreen from '../(onboarding)/note-preview';
+import { NOTE_PREVIEW_COPY, notePreviewBody } from '../../src/features/onboarding/onboardingCopy';
 
 describe('onboarding note preview', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        mockGoal = 'prepare';
     });
 
-    it('places the five-question research link beside the question preview', () => {
-        const { getByText, getByRole } = render(<NotePreviewScreen />);
+    it('is about the notes themselves', () => {
+        const { getByText } = render(<NotePreviewScreen />);
 
-        expect(getByText('Five-question preview')).toBeTruthy();
-        fireEvent.press(getByRole('link', { name: 'Why these five questions?' }));
+        expect(getByText('Your notes')).toBeTruthy();
+        expect(NOTE_PREVIEW_COPY.headline).toBe('Your notes');
+    });
 
-        expect(mockPush).toHaveBeenCalledWith('/why-five-questions');
+    it('opens with the goal the user chose, not one line for everyone', () => {
+        const prepare = render(<NotePreviewScreen />);
+        expect(prepare.getByText(notePreviewBody('prepare'))).toBeTruthy();
+        prepare.unmount();
+
+        mockGoal = 'habit';
+        const habit = render(<NotePreviewScreen />);
+        expect(habit.getByText(notePreviewBody('habit'))).toBeTruthy();
+
+        expect(notePreviewBody('prepare')).not.toBe(notePreviewBody('habit'));
+    });
+
+    it('still says something sensible when no goal was recorded', () => {
+        mockGoal = null;
+        const { getByText } = render(<NotePreviewScreen />);
+
+        expect(getByText(notePreviewBody(null))).toBeTruthy();
+    });
+
+    it('keeps the encryption note above the notes image', () => {
+        const { getByText, getByLabelText } = render(<NotePreviewScreen />);
+
+        expect(getByText(NOTE_PREVIEW_COPY.privacyTitle)).toBeTruthy();
+        expect(getByText(NOTE_PREVIEW_COPY.privacyBody)).toBeTruthy();
+        expect(
+            getByLabelText('A list of past therapy notes, each with the date of its session'),
+        ).toBeTruthy();
+    });
+
+    it('lets the notes image run past the bottom edge', () => {
+        const { getByLabelText } = render(<NotePreviewScreen />);
+
+        const image = getByLabelText('A list of past therapy notes, each with the date of its session');
+        // Taller than the window that clips it, so the list is cut off rather
+        // than squashed into a thumbnail.
+        expect(image.props.style.height).toBeGreaterThan(260);
     });
 });

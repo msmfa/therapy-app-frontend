@@ -20,6 +20,9 @@ import { TEXT_COLORS } from 'designs/designs-colors';
  * The plan preview keeps the first point on its own, because capturing the
  * note is the one thing the user does; these are what the app does for them
  * afterwards, and a single list mixed the two together.
+ *
+ * The screen leads with why the moments are where they are, so the reasoning
+ * is read before the list rather than found underneath it.
  */
 export default function ReviewsPreviewScreen() {
     const router = useRouter();
@@ -50,7 +53,7 @@ export default function ReviewsPreviewScreen() {
         <OnboardingScreen
             backHref="/(onboarding)/plan-preview"
             headline={ REVIEWS_PREVIEW_COPY.headline }
-            supporting={ REVIEWS_PREVIEW_COPY.body }
+            supporting={ PLAN_COPY.researchBody }
             footer={
                 <Button
                     label={ REVIEWS_PREVIEW_COPY.primaryCta }
@@ -68,19 +71,10 @@ export default function ReviewsPreviewScreen() {
                 <PlanTimeline entries={ reviews } />
             </View>
 
-            { /* Moved with the reminders it describes: the body refers to
-                 "any reminder above", which is now only true here. */ }
-            <View style={ styles.research }>
-                <AppText variant="h3" style={ styles.researchTitle }>
-                    { PLAN_COPY.researchTitle }
-                </AppText>
-                <AppText variant="body" style={ styles.researchBody }>
-                    { PLAN_COPY.researchBody }
-                </AppText>
-                <AppText variant="caption" style={ styles.evidence }>
-                    { PLAN_COPY.evidenceStatement }
-                </AppText>
-            </View>
+            { /* Qualifies the list, so it stays underneath it. */ }
+            <AppText variant="caption" style={ styles.evidence }>
+                { PLAN_COPY.evidenceStatement }
+            </AppText>
         </OnboardingScreen>
     );
 }
@@ -94,17 +88,8 @@ const styles = StyleSheet.create({
         color: TEXT_COLORS.secondary,
         fontWeight: '600',
     },
-    research: {
-        marginTop: 4,
-    },
-    researchTitle: {
-        fontSize: 17,
-    },
-    researchBody: {
-        marginTop: 6,
-    },
     evidence: {
-        marginTop: 10,
+        marginTop: 20,
         color: TEXT_COLORS.secondary,
     },
 });

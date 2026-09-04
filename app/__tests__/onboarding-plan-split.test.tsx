@@ -39,12 +39,35 @@ describe('the plan is split across two screens', () => {
         expect(queryByText('Later that evening')).toBeNull();
     });
 
-    it('does not strand the research note that points at the reminders', () => {
-        // Its body reads "Open any reminder above", which is only true on the
-        // screen that actually lists them.
+    it('does not strand the reasoning away from the reminders it explains', () => {
         const { queryByText } = render(<PlanPreviewScreen />);
 
-        expect(queryByText(PLAN_COPY.researchTitle)).toBeNull();
+        expect(queryByText(PLAN_COPY.researchBody)).toBeNull();
+    });
+
+    it('leads the reviews screen with why the moments are where they are', () => {
+        const { getByText } = render(<ReviewsPreviewScreen />);
+
+        expect(getByText(REVIEWS_PREVIEW_COPY.headline)).toBeTruthy();
+        expect(REVIEWS_PREVIEW_COPY.headline).toBe('Why these times?');
+        // Points down at the list now, not up at it.
+        expect(getByText(PLAN_COPY.researchBody)).toBeTruthy();
+        expect(PLAN_COPY.researchBody).toContain('below');
+    });
+
+    it('shows the five-minute note under the point it belongs to', () => {
+        const { getByLabelText } = render(<PlanPreviewScreen />);
+
+        // The link explaining the questions travels with the sheet.
+        expect(getByLabelText('Why these five questions?')).toBeTruthy();
+    });
+
+    it('no longer carries a testimonial on the plan preview', () => {
+        const { queryByText } = render(<PlanPreviewScreen />);
+
+        expect(
+            queryByText(/I love that I can look over my notes from previous sessions/),
+        ).toBeNull();
     });
 
     it('sends the plan preview on to the reviews screen', () => {
@@ -69,7 +92,6 @@ describe('the plan is split across two screens', () => {
         expect(getByText('Later that evening')).toBeTruthy();
         // The note point stays behind on the previous screen.
         expect(queryByText('After your session')).toBeNull();
-        expect(getByText(PLAN_COPY.researchTitle)).toBeTruthy();
         expect(getByLabelText(REVIEWS_PREVIEW_COPY.primaryCta)).toBeTruthy();
     });
 
