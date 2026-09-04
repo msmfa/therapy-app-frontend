@@ -15,6 +15,19 @@ import { TEXT_COLORS } from 'designs/designs-colors';
 /** The scroll padding this screen's image deliberately breaks out of. */
 const CONTENT_PADDING = 24;
 
+/** The screenshot's own proportions, so nothing is stretched. */
+const NOTES_IMAGE_ASPECT = 1290 / 2616;
+
+/**
+ * How much of the screenshot to leave visible.
+ *
+ * Measured against the artwork: the first note card runs from 435 to 1085 in
+ * the trimmed image, so this cuts it at its midpoint. The card is visibly
+ * mid-sentence at the edge, which is the point; any more and it reads as a
+ * framed thumbnail rather than a list carrying on past the screen.
+ */
+const VISIBLE_HEIGHT = 230;
+
 export default function NotePreviewScreen() {
     const router = useRouter();
     const { answers } = useOnboardingAnswers();
@@ -51,15 +64,16 @@ export default function NotePreviewScreen() {
                 </View>
             </View>
 
-            { /* Runs off the bottom of the screen on purpose: the list carries
-                 on past the fold, which says "these accumulate" better than a
-                 neatly framed thumbnail would. Breaks out of the scroll
-                 padding so it reaches all three edges. */ }
+            { /* Sits on the bottom edge showing only the top of the list, so
+                 the first note is cut mid-card and the list reads as carrying
+                 on past the screen. Breaks out of the scroll padding to reach
+                 the edges; the image is absolutely positioned so the window
+                 clips it from the top instead of scaling it to fit. */ }
             <View style={ styles.previewWindow }>
                 <Image
                     source={ require('../../assets/illustrations/notes-list-preview.png') as ImageSourcePropType }
                     style={ styles.previewImage }
-                    resizeMode="cover"
+                    resizeMode="contain"
                     accessible
                     accessibilityLabel="A list of past therapy notes, each with the date of its session"
                 />
@@ -88,13 +102,17 @@ const styles = StyleSheet.create({
         marginHorizontal: -CONTENT_PADDING,
         // Cancels the scroll's bottom padding so the image meets the edge.
         marginBottom: -CONTENT_PADDING,
-        height: 260,
+        height: VISIBLE_HEIGHT,
         overflow: 'hidden',
     },
     previewImage: {
-        width: '100%',
-        // Taller than the window, anchored at the top, so the list is cut off
-        // rather than squashed.
-        height: 560,
+        // Absolute, so the window's height clips the image from the top rather
+        // than squashing it. resizeMode "cover" centred the crop, which showed
+        // the middle of the list instead of the top of it.
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        aspectRatio: NOTES_IMAGE_ASPECT,
     },
 });

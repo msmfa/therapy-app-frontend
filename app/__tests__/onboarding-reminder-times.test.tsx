@@ -95,6 +95,48 @@ describe('reminder times: picking a time', () => {
         view.unmount();
     });
 
+    it('hands the picker the same value object across re-renders', async () => {
+        const view = renderScreen();
+        await waitFor(() => expect(morningPicker()).toBeDefined());
+
+        const first = morningPicker()!;
+        mockPickers.length = 0;
+
+        // Anything at all that re-renders the screen. The iOS picker is
+        // controlled: a value it has not seen before is pushed down to the
+        // native control, which snaps the wheel back and discards whatever the
+        // user had just scrolled to. Tapping and releasing was enough.
+        view.rerender(
+            <OnboardingAnswersProvider>
+                <ReminderTimesScreen />
+            </OnboardingAnswersProvider>,
+        );
+
+        await waitFor(() => expect(morningPicker()).toBeDefined());
+        const second = morningPicker()!;
+
+        expect(second.value).toBe(first.value);
+        expect(second.onChange).toBe(first.onChange);
+        view.unmount();
+    });
+
+    it('gives the picker a new value only when the answer actually changes', async () => {
+        const view = renderScreen();
+        await waitFor(() => expect(morningPicker()).toBeDefined());
+
+        const before = morningPicker()!;
+        await act(async () => {
+            (before.onChange as (e: unknown, d?: Date) => void)({ type: 'set' }, at(6, 45));
+        });
+
+        await waitFor(() => {
+            const after = morningPicker()!;
+            expect((after.value as Date).getHours()).toBe(6);
+            expect((after.value as Date).getMinutes()).toBe(45);
+        });
+        view.unmount();
+    });
+
     it('keeps the picked time when navigating away and back', async () => {
         const first = renderScreen();
         await waitFor(() => expect(morningPicker()).toBeDefined());

@@ -90,12 +90,17 @@ describe('onboarding note preview', () => {
         ).toBeTruthy();
     });
 
-    it('lets the notes image run past the bottom edge', () => {
+    it('shows the top of the list and clips the rest, rather than the middle', () => {
         const { getByLabelText } = render(<NotePreviewScreen />);
 
         const image = getByLabelText('A list of past therapy notes, each with the date of its session');
-        // Taller than the window that clips it, so the list is cut off rather
-        // than squashed into a thumbnail.
-        expect(image.props.style.height).toBeGreaterThan(260);
+
+        // Anchored to the top of the screenshot. A centred crop showed the
+        // middle of the list, which is where the previous version went wrong.
+        expect(image.props.style.position).toBe('absolute');
+        expect(image.props.style.top).toBe(0);
+        // Its own proportions, so nothing is stretched.
+        expect(image.props.style.aspectRatio).toBeCloseTo(1290 / 2616, 5);
+        expect(image.props.resizeMode).toBe('contain');
     });
 });

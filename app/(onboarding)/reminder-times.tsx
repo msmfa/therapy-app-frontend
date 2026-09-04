@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -27,18 +27,48 @@ export default function ReminderTimesScreen() {
         [setAnswer],
     );
 
-    const rows: { slot: Slot; label: string; hint: string; minutes: number }[] = [
+    /**
+     * Both the value and the handler have to keep their identity between
+     * renders.
+     *
+     * The iOS picker is controlled: it takes `value` and pushes it back down to
+     * the native control whenever the prop changes. Building the Date inline
+     * made a new object on every render, so the moment anything re-rendered the
+     * screen the native picker was handed a "new" value and snapped back to it,
+     * throwing away what the user had just scrolled to. Tapping the field and
+     * letting go was enough to trigger it.
+     */
+    const morningValue = useMemo(
+        () => minutesToDate(answers.morningMinutes),
+        [answers.morningMinutes],
+    );
+    const eveningValue = useMemo(
+        () => minutesToDate(answers.eveningMinutes),
+        [answers.eveningMinutes],
+    );
+    const onMorningChange = useMemo(() => change('morning'), [change]);
+    const onEveningChange = useMemo(() => change('evening'), [change]);
+
+    const rows: {
+        slot: Slot;
+        label: string;
+        hint: string;
+        value: Date;
+        onChange: (event: DateTimePickerEvent, picked?: Date) => void;
+    }[] = [
         {
             slot: 'morning',
             label: REMINDER_TIMES_COPY.morningLabel,
             hint: REMINDER_TIMES_COPY.morningHint,
-            minutes: answers.morningMinutes,
+            value: morningValue,
+            onChange: onMorningChange,
         },
         {
             slot: 'evening',
             label: REMINDER_TIMES_COPY.eveningLabel,
             hint: REMINDER_TIMES_COPY.eveningHint,
-            minutes: answers.eveningMinutes,
+            value: eveningValue,
+            onChange: onEveningChange,
         },
     ];
 
@@ -57,7 +87,7 @@ export default function ReminderTimesScreen() {
         >
             <View style={ styles.rows }>
                 { rows.map((row, index) => {
-                    const value = minutesToDate(row.minutes);
+                    const { value } = row;
 
                     return (
                         <View key={ row.slot }>
@@ -80,7 +110,7 @@ export default function ReminderTimesScreen() {
                                         display="compact"
                                         themeVariant="light"
                                         accessibilityLabel={ `${row.label}, ${timeLabel(value)}` }
-                                        onChange={ change(row.slot) }
+                                        onChange={ row.onChange }
                                     />
                                 ) : (
                                     <Button
@@ -101,12 +131,10 @@ export default function ReminderTimesScreen() {
 
             { androidSlot !== null && (
                 <DateTimePicker
-                    value={ minutesToDate(
-                        androidSlot === 'morning' ? answers.morningMinutes : answers.eveningMinutes,
-                    ) }
+                    value={ androidSlot === 'morning' ? morningValue : eveningValue }
                     mode="time"
                     display="default"
-                    onChange={ change(androidSlot) }
+                    onChange={ androidSlot === 'morning' ? onMorningChange : onEveningChange }
                 />
             ) }
         </OnboardingScreen>
