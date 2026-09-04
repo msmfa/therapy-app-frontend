@@ -4,10 +4,10 @@ import LinearGradientCircle, { CirclePosition } from './LinearGradientCircle';
 import GlassMorphism from './GlassMorphism';
 
 type Props = {
-  children?: React.ReactNode;
-  style?: StyleProp<ViewStyle>;
-  circleStyle?: StyleProp<ViewStyle>;
-  circlePosition?: CirclePosition;
+    children?: React.ReactNode;
+    style?: StyleProp<ViewStyle>;
+    circleStyle?: StyleProp<ViewStyle>;
+    circlePosition?: CirclePosition;
 };
 
 export const GlassMorphismWithCircle = ({ children, style, circlePosition, circleStyle }: Props) => {

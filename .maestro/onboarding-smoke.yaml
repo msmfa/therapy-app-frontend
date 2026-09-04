@@ -1,0 +1,65 @@
+appId: com.plastic-brains.app
+name: Onboarding navigation and reminder separation
+---
+- clearKeychain
+- launchApp:
+      clearState: true
+- runFlow:
+      when:
+          visible: Sign in to Apple.*Account
+      commands:
+          - tapOn: Cancel
+- runFlow:
+      when:
+          visible: http://localhost:8081
+      commands:
+          - tapOn: http://localhost:8081
+- runFlow:
+      when:
+          visible: This is the developer menu.*
+      commands:
+          - tapOn: Continue
+- runFlow:
+      when:
+          visible: Connected to:.*
+      commands:
+          - tapOn: Close
+- extendedWaitUntil:
+      visible: Keep therapy with you between sessions
+      timeout: 30000
+- assertVisible: Keep therapy with you between sessions
+- tapOn: Build my plan
+- assertVisible: What would help you get more from therapy?
+- tapOn: Put therapy insights into practice throughout the week
+- tapOn: Continue
+- assertVisible: When is your next session?
+- tapOn: Date. Not chosen
+- assertVisible: Date. .*
+- tapOn: Time. Not chosen
+- assertVisible: Time. 17:00
+- tapOn: Continue
+- assertVisible: How often are your sessions usually?
+- tapOn: Every week
+- tapOn: Choose reminder times
+- assertVisible: Choose times that fit your routine
+- assertVisible: Morning reviews
+- assertVisible: Evening reviews
+- assertVisible: For returning to it later in the week
+- tapOn: See my plan
+- assertVisible: Your plan starts after your .* session
+# The session is 17:00 and lasts 50 minutes. The note prompt is ten minutes
+# after it ends (18:00), not at the separate 20:00 evening reflection time.
+- assertVisible: .*18:00.*
+- assertVisible: .*20:00.*
+- tapOn: See the five-minute note
+- assertVisible: Capture what mattered in five minutes
+- tapOn: See plans
+- extendedWaitUntil:
+      visible: Annual.*
+      timeout: 30000
+- assertVisible: Monthly.*
+- assertVisible: 1 month free
+- assertVisible: 1 week free
+- tapOn: Monthly
+- assertVisible: Start my 1-week free trial
+- assertVisible: Restore purchases

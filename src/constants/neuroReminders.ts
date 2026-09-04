@@ -21,26 +21,22 @@ interface ReminderScienceCopy {
 export const NEURO_REMINDER_COPY: Record<Reason, NeuroReminderCopy> = {
     [Reason.PostSession]: {
         time: 'Evening of your session',
-        reason:
-            "Right after therapy your brain starts forming new pathways. Reviewing your notes this evening strengthens those fresh changes before they fade. This is known as early consolidation.",
+        reason: 'A same-day return gives you another chance to recall what stood out while the session is still recent.',
         link: ReminderType.EarlyConsolidation,
     },
     [Reason.PostSleep]: {
         time: 'Morning after your session',
-        reason:
-            "During sleep your brain replays what it learned. A quick review the next morning helps those pathways settle in and grow stronger. This is known as sleep-dependent consolidation.",
+        reason: 'A short review the next morning separates your second look from the first instead of repeating it all at once.',
         link: ReminderType.SleepDependentConsolidation,
     },
     [Reason.MidSession]: {
         time: 'Between your sessions',
-        reason:
-            'New brain pathways need to be reactivated to grow stronger. This is known as spaced reactivation.',
+        reason: 'Brief returns across the gap use spaced retrieval: revisiting after a delay rather than rereading repeatedly in one sitting.',
         link: ReminderType.SpacedReactivation,
     },
     [Reason.PreSession]: {
         time: 'Evening before your next session',
-        reason:
-            "Bringing the insight back the night before therapy reactivates the pathway, so the next session builds on it instead of starting fresh. This is known as state reinstatement.",
+        reason: 'A final review puts your own note back in view while you choose what you want to bring into the next session.',
         link: ReminderType.StateReinstatement,
     },
 };
@@ -55,14 +51,14 @@ export const REMINDER_SCIENCE_COPY: Record<ReminderType, ReminderScienceCopy> = 
     [ReminderType.EarlyConsolidation]: {
         title: 'Early Consolidation',
         body: [
-            "In the first few hours after learning something new, your brain enters the early phase of memory formation, where proteins activate and synaptic connections begin to strengthen.[1] This is a critical window.",
+            'In the first few hours after learning something new, your brain enters the early phase of memory formation, where proteins activate and synaptic connections begin to strengthen.[1] This is a critical window.',
             "That strengthening does not arrive all at once. Tracking it directly, researchers found it comes in waves: one in the hippocampus straight after learning, a second during that night's sleep, and a third the following night in the cortex, each doing a different job.[1] Reviewing your notes the same evening falls between the first wave and the second.",
-            "Until that work is done the memory stays open to disruption. The protein building that fixes a change in place is not finished for a day or two after learning,[3] and a new memory stays vulnerable to interference while it is still settling.[2] Going back to your notes inside that window protects a fragile insight from being crowded out by the rest of your day.",
-            "What is happening in your brain: neurons ramp up receptor sensitivity and activate the protein machinery that rewires a connection.[1, 2] Looking back at your notes while that is running deepens the imprint of the session and makes the change more durable.",
+            'Until that work is done the memory stays open to disruption. The protein building that fixes a change in place is not finished for a day or two after learning,[3] and a new memory stays vulnerable to interference while it is still settling.[2] Going back to your notes inside that window protects a fragile insight from being crowded out by the rest of your day.',
+            'What is happening in your brain: neurons ramp up receptor sensitivity and activate the protein machinery that rewires a connection.[1, 2] Looking back at your notes while that is running deepens the imprint of the session and makes the change more durable.',
         ],
         sources: [
             {
-                text: 'Goto et al. (2021), Stepwise synaptic plasticity events drive the early phase of memory consolidation. Science 374, 857-863. Plasticity arrives in waves: the hippocampus after learning, again in that night\'s sleep, then the cortex the next night.',
+                text: "Goto et al. (2021), Stepwise synaptic plasticity events drive the early phase of memory consolidation. Science 374, 857-863. Plasticity arrives in waves: the hippocampus after learning, again in that night's sleep, then the cortex the next night.",
                 url: 'https://www.science.org/doi/10.1126/science.abj9195',
             },
             {
@@ -78,10 +74,10 @@ export const REMINDER_SCIENCE_COPY: Record<ReminderType, ReminderScienceCopy> = 
     [ReminderType.SleepDependentConsolidation]: {
         title: 'Sleep-Dependent Consolidation',
         body: [
-            "Sleep is when your brain does heavy memory work. During slow wave sleep it replays the neural patterns from your daily activities (which in our case includes a therapy session) and shifts them from temporary storage in the hippocampus toward longer term cortical networks.[1, 6]",
-            "You can picture it as your brain organizing files overnight. The hippocampus reactivates memories alongside sharp wave ripples and sleep spindles that help move information into long term storage.[2]",
-            "Both slow wave sleep and REM sleep contribute to emotional memory consolidation.[3, 5] Slow wave sleep handles the transfer and restructuring and REM helps stabilize the transformed insights, which is especially important for emotionally charged material.",
-            "Why review in the morning: sleep dependent consolidation varies with the amount and quality of slow wave sleep,[4] so the morning after a session is a sweet spot when the reorganized memory is still easy to access. A quick review catches those changes and strengthens them again before they drift.",
+            'Sleep is when your brain does heavy memory work. During slow wave sleep it replays the neural patterns from your daily activities (which in our case includes a therapy session) and shifts them from temporary storage in the hippocampus toward longer term cortical networks.[1, 6]',
+            'You can picture it as your brain organizing files overnight. The hippocampus reactivates memories alongside sharp wave ripples and sleep spindles that help move information into long term storage.[2]',
+            'Both slow wave sleep and REM sleep contribute to emotional memory consolidation.[3, 5] Slow wave sleep handles the transfer and restructuring and REM helps stabilize the transformed insights, which is especially important for emotionally charged material.',
+            'Why review in the morning: sleep dependent consolidation varies with the amount and quality of slow wave sleep,[4] so the morning after a session is a sweet spot when the reorganized memory is still easy to access. A quick review catches those changes and strengthens them again before they drift.',
         ],
         sources: [
             {
@@ -113,11 +109,11 @@ export const REMINDER_SCIENCE_COPY: Record<ReminderType, ReminderScienceCopy> = 
     [ReminderType.SpacedReactivation]: {
         title: 'Spaced Reactivation',
         body: [
-            "When you reactivate a memory after a delay it briefly opens up for modification before it settles again.[2] That reconsolidation window is why spaced follow ups are more potent than cramming everything at once.[1]",
-            "Decades of research on the spacing effect show that repetitions spread over time build much stronger memories than massed practice.[1, 2, 3] Strategic reactivation engages different mechanisms than immediate repetition and triggers reconsolidation that strengthens the trace.[2]",
-            "Think of the neural pathway like a garden path that needs to be walked. Each time you revisit your notes you recruit many of the same neurons that fired in session, and the reactivation stabilizes the pathway in a more resilient form.[1]",
-            "The gap between sessions matters because a memory needs time to consolidate before the next reactivation can build on it.[2] That leaves a window either side of the right moment. Too soon and the circuit has not reset, so a second pass adds little to the first. Too long and the memory has faded far enough that bringing it back is work rather than a refresh.[4] Where the window sits depends on how long you need to hold on to the material: for something you need weeks from now, the best gap is around a fifth of that span, and the proportion shrinks as the span grows.[5] The schedule here follows that shape. Rather than spacing reminders evenly, it widens the gaps as your next session approaches: the evening of your session, the next morning, then a few days later, then the night before you go back.",
-            "What is happening in your brain: bringing a memory back after a delay switches on genes in the cells that hold it, and the proteins they build reinforce the connection. The delay is what triggers that rebuilding, which is why spacing reviews out does more than repeating them close together.[2]",
+            'When you reactivate a memory after a delay it briefly opens up for modification before it settles again.[2] That reconsolidation window is why spaced follow ups are more potent than cramming everything at once.[1]',
+            'Decades of research on the spacing effect show that repetitions spread over time build much stronger memories than massed practice.[1, 2, 3] Strategic reactivation engages different mechanisms than immediate repetition and triggers reconsolidation that strengthens the trace.[2]',
+            'Think of the neural pathway like a garden path that needs to be walked. Each time you revisit your notes you recruit many of the same neurons that fired in session, and the reactivation stabilizes the pathway in a more resilient form.[1]',
+            'The gap between sessions matters because a memory needs time to consolidate before the next reactivation can build on it.[2] That leaves a window either side of the right moment. Too soon and the circuit has not reset, so a second pass adds little to the first. Too long and the memory has faded far enough that bringing it back is work rather than a refresh.[4] Where the window sits depends on how long you need to hold on to the material: for something you need weeks from now, the best gap is around a fifth of that span, and the proportion shrinks as the span grows.[5] The schedule here follows that shape. Rather than spacing reminders evenly, it widens the gaps as your next session approaches: the evening of your session, the next morning, then a few days later, then the night before you go back.',
+            'What is happening in your brain: bringing a memory back after a delay switches on genes in the cells that hold it, and the proteins they build reinforce the connection. The delay is what triggers that rebuilding, which is why spacing reviews out does more than repeating them close together.[2]',
         ],
         sources: [
             {
@@ -145,10 +141,10 @@ export const REMINDER_SCIENCE_COPY: Record<ReminderType, ReminderScienceCopy> = 
     [ReminderType.StateReinstatement]: {
         title: 'State Reinstatement',
         body: [
-            "Memory is easier to reach when the state you are in matches the state you were in when you formed it. A meta-analysis of the environmental version of this found the effect reliable across studies,[1] and work on internal brain state shows the same pattern: retrieval succeeds best when the state at recall matches the state at encoding.[3]",
+            'Memory is easier to reach when the state you are in matches the state you were in when you formed it. A meta-analysis of the environmental version of this found the effect reliable across studies,[1] and work on internal brain state shows the same pattern: retrieval succeeds best when the state at recall matches the state at encoding.[3]',
             "You cannot go back and sit in last week's session, but you do not have to. In that same meta-analysis, mentally reinstating the context at the point of recall reduced the penalty for being somewhere different.[1] Reading your notes the night before does that job: it puts you back in the session without the room.",
-            "The practical effect is on how the next session opens. Arriving with the material already loaded means the first part of the hour goes on the work rather than on rebuilding where you left off.",
-            "What is happening in your brain: remembering an episode partially reactivates the regions that were active when you first encoded it, and the closer that overlap, the better the retrieval.[2] Reviewing the night before starts that reactivation early, while there is still time for it to be useful.",
+            'The practical effect is on how the next session opens. Arriving with the material already loaded means the first part of the hour goes on the work rather than on rebuilding where you left off.',
+            'What is happening in your brain: remembering an episode partially reactivates the regions that were active when you first encoded it, and the closer that overlap, the better the retrieval.[2] Reviewing the night before starts that reactivation early, while there is still time for it to be useful.',
         ],
         sources: [
             {

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, TouchableOpacity, Modal, Platform, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker, {
+    type DateTimePickerEvent,
+} from '@react-native-community/datetimepicker';
 import dayjs from 'dayjs';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
 
@@ -50,7 +52,7 @@ export default function ScheduleModal({
         }
     }, [visible, existingSession, defaultTime]);
 
-    const handleTimeChange = (event: any, selectedTime?: Date) => {
+    const handleTimeChange = (event: DateTimePickerEvent, selectedTime?: Date) => {
         if (Platform.OS === 'android') {
             setShowPicker(false);
             if (event.type === 'dismissed') return;
@@ -77,11 +79,11 @@ export default function ScheduleModal({
     if (!visible) return null;
 
     return (
-        <Modal visible={visible} transparent animationType="slide" onRequestClose={onCancel}>
-            <View style={styles.modalOverlay}>
-                <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1} onPress={onCancel} />
-                <View style={styles.modalContent}>
-                    {selectedDay && (
+        <Modal visible={ visible } transparent animationType="slide" onRequestClose={ onCancel }>
+            <View style={ styles.modalOverlay }>
+                <TouchableOpacity style={ styles.modalBackdrop } activeOpacity={ 1 } onPress={ onCancel } />
+                <View style={ styles.modalContent }>
+                    { selectedDay && (
                         <View style={ styles.selectedDayBlock }>
                             <AppText variant="h2" style={ styles.selectedDay }>
                                 { selectedDay.format('dddd Do') }
@@ -92,49 +94,49 @@ export default function ScheduleModal({
                                 )) }
                             </View>
                         </View>
-                    )}
+                    ) }
 
-                    <View style={styles.datePicker}>
-                        {Platform.OS === 'ios' ? (
-                            <View style={styles.iosPickerWrapper}>
+                    <View style={ styles.datePicker }>
+                        { Platform.OS === 'ios' ? (
+                            <View style={ styles.iosPickerWrapper }>
                                 <DateTimePicker
-                                    value={time}
+                                    value={ time }
                                     mode="time"
                                     display="spinner"
-                                    onChange={handleTimeChange}
-                                    textColor={COLOR_VARIANTS.black.secondary}
+                                    onChange={ handleTimeChange }
+                                    textColor={ COLOR_VARIANTS.black.secondary }
                                     themeVariant="light"
-                                    style={styles.iosPicker}
+                                    style={ styles.iosPicker }
                                 />
                             </View>
                         ) : (
                             <>
-                                <TouchableOpacity style={styles.timeButton} onPress={() => setShowPicker(true)}>
-                                    <Ionicons name="time-outline" size={20} />
-                                    <AppText style={styles.timeLabel} variant='body'>
-                                        {dayjs(time).format('h:mm A')}
+                                <TouchableOpacity style={ styles.timeButton } onPress={ () => setShowPicker(true) }>
+                                    <Ionicons name="time-outline" size={ 20 } />
+                                    <AppText style={ styles.timeLabel } variant='body'>
+                                        { dayjs(time).format('h:mm A') }
                                     </AppText>
                                 </TouchableOpacity>
-                                {showPicker && (
+                                { showPicker && (
                                     <DateTimePicker
-                                        value={time}
+                                        value={ time }
                                         mode="time"
                                         display="default"
-                                        onChange={handleTimeChange}
+                                        onChange={ handleTimeChange }
                                         themeVariant="light"
                                     />
-                                )}
+                                ) }
                             </>
-                        )}
+                        ) }
                     </View>
 
-                    {!existingSession && selectedDay && (
-                        <View style={styles.sectionApplyTo}>
-                            {scheduleModeOptions.map((mode) => (
+                    { !existingSession && selectedDay && (
+                        <View style={ styles.sectionApplyTo }>
+                            { scheduleModeOptions.map((mode) => (
                                 <RadioButton
-                                    key={mode}
-                                    selectedValue={scheduleMode === mode}
-                                    onPress={() => setScheduleMode(mode)}
+                                    key={ mode }
+                                    selectedValue={ scheduleMode === mode }
+                                    onPress={ () => setScheduleMode(mode) }
                                 >
                                     <View style={ styles.modeRow }>
                                         <AppText
@@ -151,13 +153,13 @@ export default function ScheduleModal({
                                         ) : null }
                                     </View>
                                 </RadioButton>
-                            ))}
+                            )) }
                         </View>
-                    )}
+                    ) }
 
-                    <View style={styles.buttonRow}>
-                        {existingSession ? (
-                            <View style={styles.actionButtonsRow}>
+                    <View style={ styles.buttonRow }>
+                        { existingSession ? (
+                            <View style={ styles.actionButtonsRow }>
                                 <View style={ styles.actionButtonWrapper }>
                                     <GlassPillButton
                                         label="Delete"
@@ -182,7 +184,7 @@ export default function ScheduleModal({
                                 </View>
                             </View>
                         ) : (
-                            <View style={styles.actionButtonsRow}>
+                            <View style={ styles.actionButtonsRow }>
                                 <View style={ styles.actionButtonWrapper }>
                                     <GlassPillButton
                                         label="Add Session"
@@ -194,7 +196,7 @@ export default function ScheduleModal({
                                     />
                                 </View>
                             </View>
-                        )}
+                        ) }
                     </View>
                 </View>
             </View>
@@ -237,7 +239,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         flex: 1,
         flexDirection: 'row',
-		gap: 8,
+        gap: 8,
     },
     actionButtonWrapper: {
         flex: 1,
@@ -300,7 +302,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
 
     },
-   iosPickerWrapper: {
+    iosPickerWrapper: {
         // backgroundColor: 'hsl(220, 40%, 97%)',
         borderRadius: 18,
         overflow: 'hidden',

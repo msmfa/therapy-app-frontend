@@ -1,123 +1,75 @@
-import { useEffect, useRef } from 'react';
-import { Platform } from 'react-native';
+import { useEffect } from 'react';
+import { AppState } from 'react-native';
 import * as Notifications from 'expo-notifications';
-import * as Device from 'expo-device';
-import Constants from 'expo-constants';
-import * as Sentry from '@sentry/react-native';
 import { useAuth } from 'src/context/auth/AuthContext';
-import { registerDeviceToken, unregisterDeviceToken } from 'src/api/devices';
-import { toError } from 'src/utils/errors';
+import {
+    ensurePushRegistration,
+    resetPushRegistrationState,
+    unregisterCurrentPushDevice,
+} from '../services/notifications/pushRegistration';
 
 // Show push notifications even when the app is in the foreground
 Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
+    handleNotification: async () => ({
+        shouldShowBanner: true,
+        shouldShowList: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+    }),
 });
 
-async function getPermissionsGranted(): Promise<boolean> {
-  let { status } = await Notifications.getPermissionsAsync();
-  if (status !== 'granted') {
-    const result = await Notifications.requestPermissionsAsync();
-    status = result.status;
-  }
-  return status === 'granted';
-}
-
-function getProjectId(): string | undefined {
-  return (Constants.default ?? Constants)?.expoConfig?.extra?.eas?.projectId as string | undefined;
-}
-
 export function usePushNotifications(): void {
-  const { isAuthenticated, registerSignOutTask } = useAuth();
-  const pushTokenRef = useRef<string | null>(null);
-  const listenerRef = useRef<Notifications.Subscription | null>(null);
+    const { isAuthenticated, registerSignOutTask } = useAuth();
 
-  // De-registering has to happen while the access token is still valid. By the
-  // time `isAuthenticated` flips to false the credentials are already gone, so
-  // the request would go out unauthenticated and the device would keep
-  // receiving reminders after logout.
-  useEffect(
-    () =>
-      registerSignOutTask(async () => {
-        const tokenToRemove = pushTokenRef.current;
-        if (!tokenToRemove) return;
+    // De-registering has to happen while the access token is still valid. By the
+    // time `isAuthenticated` flips to false the credentials are already gone, so
+    // the request would go out unauthenticated and the device would keep
+    // receiving reminders after logout.
+    useEffect(
+        () =>
+            registerSignOutTask(async () => {
+                try {
+                    await unregisterCurrentPushDevice();
+                } catch (err) {
+                    console.warn('[PushNotifications] Failed to unregister token on logout:', err);
+                }
+            }),
+        [registerSignOutTask],
+    );
 
-        pushTokenRef.current = null;
-        try {
-          await unregisterDeviceToken(tokenToRemove);
-        } catch (err) {
-          console.warn('[PushNotifications] Failed to unregister token on logout:', err);
-        }
-      }),
-    [registerSignOutTask],
-  );
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      // The de-registration itself is handled by the sign-out task above; all
-      // that is left here is local teardown.
-      pushTokenRef.current = null;
-      listenerRef.current?.remove();
-      listenerRef.current = null;
-      return;
-    }
-
-    // Only real devices can receive push notifications
-    if (!Device.isDevice) {
-      console.info('[PushNotifications] Skipping — not a real device');
-      return;
-    }
-
-    let cancelled = false;
-
-    async function registerToken() {
-      try {
-        const granted = await getPermissionsGranted();
-        if (!granted) {
-          console.info('[PushNotifications] Permission denied — skipping token registration');
-          return;
+    useEffect(() => {
+        if (!isAuthenticated) {
+            // Server de-registration is handled by the sign-out task above. An auth
+            // failure deliberately skips network cleanup, but must still release the
+            // listener and forget the previous account's token locally.
+            resetPushRegistrationState();
+            return;
         }
 
-        const projectId = getProjectId();
-        const { data: token } = await Notifications.getExpoPushTokenAsync({ projectId });
+        let cancelled = false;
 
-        if (cancelled) return;
+        const register = async () => {
+            const outcome = await ensurePushRegistration();
+            if (cancelled) return;
 
-        pushTokenRef.current = token;
-        const platform = Platform.OS === 'android' ? 'android' : 'ios';
-        await registerDeviceToken(token, platform);
+            if (outcome.status === 'permission_denied') {
+                console.info('[PushNotifications] Permission denied — skipping token registration');
+            } else if (outcome.status === 'unsupported') {
+                console.info('[PushNotifications] Skipping — not a real device');
+            }
+        };
 
-        // Listen for token refreshes
-        listenerRef.current = Notifications.addPushTokenListener((newToken) => {
-          pushTokenRef.current = newToken.data;
-          registerDeviceToken(newToken.data, platform).catch((err) => {
-            console.warn('[PushNotifications] Failed to update refreshed token:', err);
-          });
+        void register();
+
+        // Covers an existing user enabling notifications in iPhone Settings and a
+        // transient registration failure while the app was backgrounded.
+        const appStateSubscription = AppState.addEventListener('change', (state) => {
+            if (state === 'active') void register();
         });
-      } catch (err) {
-        if (!cancelled) {
-          console.warn('[PushNotifications] Registration failed:', err);
-          Sentry.withScope((scope) => {
-            scope.setTag('feature', 'push-notifications.registration');
-            scope.setContext('device', {
-              isDevice: Device.isDevice,
-              platform: Platform.OS,
-              projectId: getProjectId(),
-            });
-            Sentry.captureException(toError(err));
-          });
-        }
-      }
-    }
 
-    registerToken();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [isAuthenticated]);
+        return () => {
+            cancelled = true;
+            appStateSubscription.remove();
+        };
+    }, [isAuthenticated]);
 }

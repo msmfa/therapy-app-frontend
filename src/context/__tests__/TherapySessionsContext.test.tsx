@@ -143,4 +143,68 @@ describe('TherapySessionsProvider', () => {
     // schedule request is keyed on. Reminder behaviour is covered in
     // TherapySessionsContext.reminders.test.tsx.
   });
+
+  it('waits for the initial calendar and adds onboarding sessions without deleting existing ones', async () => {
+    const existingAt = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
+    const addedAt = new Date(Date.now() + 9 * 24 * 60 * 60 * 1000);
+    const existing: therapyModule.TherapySession = {
+      _id: 'existing-session',
+      startsAtUtc: existingAt.toISOString(),
+      durationMin: 60,
+    };
+    const initial = createDeferred<therapyModule.TherapySession[]>();
+    getTherapySessions.mockImplementationOnce(() => initial.promise);
+    getTherapySessions.mockResolvedValueOnce([
+      existing,
+      { _id: 'added-session', startsAtUtc: addedAt.toISOString(), durationMin: 50 },
+    ]);
+
+    const { result } = renderHook(() => useTherapySessions(), { wrapper });
+    await waitFor(() => expect(getTherapySessions).toHaveBeenCalledTimes(1));
+
+    let addPromise!: Promise<void>;
+    await act(async () => {
+      addPromise = result.current.addSessions([addedAt], 50);
+      await Promise.resolve();
+    });
+
+    // Building a replacement payload from the initial empty state was the
+    // destructive race. No sync may start until the canonical GET resolves.
+    expect(syncTherapySessions).not.toHaveBeenCalled();
+
+    initial.resolve([existing]);
+    await act(async () => {
+      await addPromise;
+    });
+
+    expect(syncTherapySessions).toHaveBeenCalledTimes(1);
+    expect(syncTherapySessions.mock.calls[0][0]).toEqual(expect.arrayContaining([
+      {
+        id: 'existing-session',
+        startsAtUtc: existingAt.toISOString(),
+        durationMin: 60,
+      },
+      {
+        id: undefined,
+        startsAtUtc: addedAt.toISOString(),
+        durationMin: 50,
+      },
+    ]));
+
+    const syncWindow = syncTherapySessions.mock.calls[0][1];
+    expect(syncWindow).toBeDefined();
+    expect(syncWindow?.from.getHours()).toBe(0);
+    expect(syncWindow?.from.getMinutes()).toBe(0);
+    expect(syncWindow?.to.getHours()).toBe(23);
+    expect(syncWindow?.to.getMinutes()).toBe(59);
+
+    // The post-save fetch is committed into the same provider the calendar,
+    // next-session card and reminder hook consume. This is the downstream
+    // handoff onboarding depends on, not just a successful API response.
+    expect(result.current.sessions).toEqual([
+      existing,
+      { _id: 'added-session', startsAtUtc: addedAt.toISOString(), durationMin: 50 },
+    ]);
+    expect(result.current.nextSession?._id).toBe('existing-session');
+  });
 });

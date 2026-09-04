@@ -53,6 +53,9 @@ describe('TherapySessionsProvider session windows', () => {
         await waitFor(() => {
             expect(result.current.scheduleSessions).toHaveLength(2);
         });
+        await waitFor(() => {
+            expect(result.current.reminderScheduleSettings?.timeZone).toBe('UTC');
+        });
 
         // The replay list holds both ends of the gap.
         expect(result.current.scheduleSessions.map((s) => s._id)).toEqual(['past', 'future']);
@@ -61,10 +64,13 @@ describe('TherapySessionsProvider session windows', () => {
     });
 
     it('fetches from well before today so the gap-opening session is included', async () => {
-        renderHook(() => useTherapySessions(), { wrapper });
+        const { result } = renderHook(() => useTherapySessions(), { wrapper });
 
         await waitFor(() => {
             expect(getTherapySessions).toHaveBeenCalled();
+        });
+        await waitFor(() => {
+            expect(result.current.reminderScheduleSettings?.timeZone).toBe('UTC');
         });
 
         const [from, to] = getTherapySessions.mock.calls[0];

@@ -1,0 +1,69 @@
+import { StyleSheet, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Button } from '../../src/components/ui/Button';
+import AppText from '../../src/components/ui/AppText';
+import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
+import { SelectableCard } from '../../src/components/onboarding/SelectableCard';
+import {
+    CADENCE_COPY,
+    CADENCE_OPTIONS,
+    cadenceScheduleDisclosure,
+} from '../../src/features/onboarding/onboardingCopy';
+import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
+import { TEXT_COLORS } from 'designs/designs-colors';
+
+export default function SessionCadenceScreen() {
+    const router = useRouter();
+    const { answers, setAnswer } = useOnboardingAnswers();
+
+    return (
+        <OnboardingScreen
+            step={ 3 }
+            backHref="/(onboarding)/session-date"
+            headline={ CADENCE_COPY.headline }
+            footer={
+                <Button
+                    label={ CADENCE_COPY.primaryCta }
+                    disabled={ answers.cadence === null }
+                    onPress={ () => router.push('/(onboarding)/reminder-times') }
+                />
+            }
+        >
+            <View style={ styles.options } accessibilityRole="radiogroup">
+                { CADENCE_OPTIONS.map((option) => (
+                    <SelectableCard
+                        key={ option.id }
+                        label={ option.label }
+                        selected={ answers.cadence === option.id }
+                        onPress={ () => setAnswer('cadence', option.id) }
+                    />
+                )) }
+            </View>
+
+            <AppText variant="body" style={ styles.supporting }>
+                { CADENCE_COPY.supporting }
+            </AppText>
+
+            { answers.cadence !== null && (
+                <AppText variant="body" style={ styles.disclosure }>
+                    { cadenceScheduleDisclosure(answers.cadence, answers.sessionAt !== null) }
+                </AppText>
+            ) }
+        </OnboardingScreen>
+    );
+}
+
+const styles = StyleSheet.create({
+    options: {
+        marginTop: 24,
+        gap: 12,
+    },
+    supporting: {
+        marginTop: 20,
+        color: TEXT_COLORS.secondary,
+    },
+    disclosure: {
+        marginTop: 10,
+        color: TEXT_COLORS.primary,
+    },
+});

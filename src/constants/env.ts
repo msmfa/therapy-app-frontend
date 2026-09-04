@@ -15,3 +15,15 @@ export const STORE_URLS = {
     android: process.env.EXPO_PUBLIC_PLAY_STORE_URL ?? '',
     web: process.env.EXPO_PUBLIC_WEB_STORE_URL ?? '',
 } as const;
+
+/**
+ * Fills the paywall with placeholder products so the onboarding flow can be
+ * walked before StoreKit exists.
+ *
+ * Off unless the flag is explicitly set, and inert in any release build: the
+ * `__DEV__` guard at the call site means a shipped binary can never reach the
+ * fixture, whatever the environment says. Delete this once storeKit.ts talks to
+ * the real store.
+ */
+export const USE_DEV_SUBSCRIPTION_FIXTURE =
+    process.env.EXPO_PUBLIC_DEV_SUBSCRIPTION_FIXTURE === '1';

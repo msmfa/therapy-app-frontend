@@ -16,6 +16,8 @@ const SESSIONS = [{ _id: 's1', startsAtUtc: '2026-09-02T10:00:00.000Z' }];
 const response = (id: string) => ({
     reminders: [{ id } as never],
     timeZone: 'Europe/London',
+    morningReminderMinutes: 450,
+    eveningReminderMinutes: 1215,
 });
 
 type Listener = (state: AppStateStatus) => void;
@@ -42,12 +44,26 @@ describe('useNeuroReminders revalidation triggers', () => {
         await AsyncStorage.clear();
     });
 
+    afterEach(() => {
+        jest.useRealTimers();
+    });
+
     it('retries a failed fetch when the app returns to the foreground', async () => {
+        const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
         const listeners = captureAppStateListener();
+        const status = jest.fn();
         getReminders.mockRejectedValueOnce(new Error('offline'));
 
         const { result } = renderHook(() =>
-            useNeuroReminders(SESSIONS, 'Europe/London', true, true),
+            useNeuroReminders(
+                SESSIONS,
+                'Europe/London',
+                true,
+                true,
+                0,
+                undefined,
+                status,
+            ),
         );
 
         // The initial revalidation fails and, by design, leaves what it had.
@@ -55,6 +71,7 @@ describe('useNeuroReminders revalidation triggers', () => {
             expect(getReminders).toHaveBeenCalledTimes(1);
         });
         expect(result.current).toEqual([]);
+        expect(status).toHaveBeenLastCalledWith('error');
 
         // Connectivity is back; the user foregrounds the app. Before the
         // foreground trigger existed, nothing retried until a session or zone
@@ -71,9 +88,15 @@ describe('useNeuroReminders revalidation triggers', () => {
         await waitFor(() => {
             expect(result.current).toEqual(response('after-retry').reminders);
         });
+        expect(status).toHaveBeenLastCalledWith('ready');
+        expect(warn).toHaveBeenCalledWith(
+            '[Reminders] Failed to load reminder schedule:',
+            expect.any(Error),
+        );
     });
 
     it('arms a timer for the midnight that passes while the app stays open', async () => {
+        jest.useFakeTimers();
         captureAppStateListener();
         const setTimeoutSpy = jest.spyOn(global, 'setTimeout');
         getReminders.mockResolvedValue(response('initial'));

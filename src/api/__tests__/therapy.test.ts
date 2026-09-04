@@ -55,13 +55,14 @@ describe('therapy api helpers', () => {
     expect(result).toBe(response);
   });
 
-  it('sends the edited window with the sync payload using the same UTC bounds as fetching', async () => {
+  it('keeps the sync deletion window at the exact editable instants', async () => {
     const payload = [{ startsAtUtc: '2024-02-02T10:00:00.000Z', durationMin: 60 }];
     const response = { created: 0, updated: 0, deleted: 0 };
     apiPost.mockResolvedValueOnce(response);
 
-    // Same instants as the fetch test above: the sync window must widen to
-    // identical UTC day bounds, or deletion could reach outside the fetch.
+    // Fetching may widen safely, but deletion must not. These could be local
+    // midnight boundaries in a non-UTC zone; widening them to their UTC day
+    // would include appointments from a hidden part of the previous local day.
     const from = new Date('2024-02-01T06:12:00.000Z');
     const to = new Date('2024-02-05T21:30:00.000Z');
 
@@ -69,8 +70,8 @@ describe('therapy api helpers', () => {
 
     expect(apiPost).toHaveBeenCalledWith('/api/therapy-sessions/sync', {
       sessions: payload,
-      from: '2024-02-01T00:00:00.000Z',
-      to: '2024-02-05T23:59:59.999Z',
+      from: '2024-02-01T06:12:00.000Z',
+      to: '2024-02-05T21:30:00.000Z',
     });
   });
 });

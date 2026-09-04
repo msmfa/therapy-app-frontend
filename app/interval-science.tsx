@@ -1,78 +1,140 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import AppText from 'src/components/ui/AppText';
 import { Carousel } from 'src/components/ui/Carousel';
 import { GlassCircleButton } from 'src/components/ui/GlassCircleButton';
+import { Button } from 'src/components/ui/Button';
 import { ReminderCard } from 'src/features/reminders/ReminderCard';
 import { NEURO_REMINDER_COPY } from 'src/constants/neuroReminders';
-import { Reason } from 'src/features/reminders/types';
 import { ChartBackground } from 'src/components/ui/ChartBackground';
 import { GlassMorphismWithSquare } from 'src/components/ui/GlassMorphismWithSquare';
 import { SquarePosition } from 'src/components/ui/LinearGradientSquare';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
+import { useOnboardingAnswers } from 'src/features/onboarding/OnboardingAnswersContext';
+import { planTimeline } from 'src/features/onboarding/planTimeline';
+import {
+    intervalCardsFromPlan,
+    intervalCardsFromSchedule,
+} from 'src/features/reminders/intervalCards';
+import { useTherapySessions } from 'src/context/therapy-sessions/TherapySessionsContext';
 
 const HEADER_BUTTON_SIZE = 48;
 
-type IntervalCard = {
-    reason: Reason;
-    /** Only where the carousel names the interval differently. */
-    title?: string;
-    /** Spelled out on the card's aura panel. */
-    time: string;
-    /** The line under it, inside the panel. */
-    caption: string;
-};
-
-const INTERVAL_CARDS: IntervalCard[] = [
-    { reason: Reason.PostSession, time: '8PM', caption: 'After your session' },
-    { reason: Reason.PostSleep, time: '9AM', caption: 'Morning after' },
-    {
-        reason: Reason.MidSession,
-        title: 'Based on how many weekly sessions',
-        time: '7PM',
-        caption: 'Based on how many sessions you have a week',
-    },
-    { reason: Reason.PreSession, time: '9PM', caption: 'Before your next session' },
-];
-
 export default function IntervalScienceScreen() {
     const router = useRouter();
+    const { source } = useLocalSearchParams<{ source?: string | string[] }>();
+    const showingOnboardingPlan = (Array.isArray(source) ? source[0] : source) === 'onboarding';
+    const { answers, hydrated: answersHydrated } = useOnboardingAnswers();
+    const {
+        sessions,
+        loading: sessionsLoading,
+        neuroReminders,
+        reminderScheduleSettings,
+        reminderScheduleStatus,
+        refreshReminderSchedule,
+    } = useTherapySessions();
+
+    const cards = useMemo(() => {
+        if (showingOnboardingPlan) {
+            if (!answersHydrated || answers.sessionAt === null) return [];
+
+            return intervalCardsFromPlan(planTimeline({
+                sessionAt: answers.sessionAt,
+                cadence: answers.cadence,
+                morningMinutes: answers.morningMinutes,
+                eveningMinutes: answers.eveningMinutes,
+            }));
+        }
+
+        if (reminderScheduleSettings === null) return [];
+        return intervalCardsFromSchedule(
+            neuroReminders,
+            reminderScheduleSettings.timeZone,
+        );
+    }, [
+        answers.cadence,
+        answers.eveningMinutes,
+        answers.morningMinutes,
+        answers.sessionAt,
+        answersHydrated,
+        neuroReminders,
+        reminderScheduleSettings,
+        showingOnboardingPlan,
+    ]);
+
+    const waiting = showingOnboardingPlan
+        ? !answersHydrated
+        : sessionsLoading || (reminderScheduleStatus === 'loading' && cards.length === 0);
+    const failed = !showingOnboardingPlan
+        && reminderScheduleStatus === 'error'
+        && cards.length === 0;
+
+    const emptyBody = showingOnboardingPlan
+        ? 'Add your following session to place exact review times in the gap.'
+        : sessions.length === 0
+            ? 'Add your next therapy sessions in Calendar to build a review schedule.'
+            : 'There are no upcoming reviews in your current schedule.';
 
     return (
-
         <SafeAreaView style={ styles.container } edges={ ['top', 'left', 'right'] }>
             <ChartBackground />
             <GlassMorphismWithSquare squarePosition={ SquarePosition.BOTTOM_LEFT } />
             <View style={ styles.pageHeader }>
                 <GlassCircleButton
-                    accessibilityLabel='Back'
-                    icon='back'
+                    accessibilityLabel="Back"
+                    icon="back"
                     iconColor={ COLOR_VARIANTS.black.primary }
                     size={ HEADER_BUTTON_SIZE }
                     onPress={ () => router.back() }
                     style={ styles.back }
                 />
-                <AppText variant='h3' align='center' style={ styles.title }>
-                    Reminder Intervals
+                <AppText variant="h3" align="center" style={ styles.title }>
+                    Why these review moments
                 </AppText>
             </View>
 
             <View style={ styles.deck }>
-                <Carousel
-                    data={ INTERVAL_CARDS }
-                    keyExtractor={ (card) => card.reason }
-                    renderItem={ (card) => (
-                        <ReminderCard
-                            date={ card.title ?? NEURO_REMINDER_COPY[card.reason].time }
-                            description={ NEURO_REMINDER_COPY[card.reason].reason }
-                            link={ NEURO_REMINDER_COPY[card.reason].link }
-                            time={ card.time }
-                            caption={ card.caption }
-                        />
-                    ) }
-                />
+                { waiting ? (
+                    <View style={ styles.state }>
+                        <AppText variant="h2" align="center">Loading your review times</AppText>
+                    </View>
+                ) : failed ? (
+                    <View style={ styles.state }>
+                        <AppText variant="h2" align="center">We couldn't load your review times</AppText>
+                        <AppText variant="body" align="center" style={ styles.stateBody }>
+                            Check your connection and try again.
+                        </AppText>
+                        <View style={ styles.retry }>
+                            <Button
+                                label="Try again"
+                                onPress={ () => void refreshReminderSchedule() }
+                            />
+                        </View>
+                    </View>
+                ) : cards.length === 0 ? (
+                    <View style={ styles.state }>
+                        <AppText variant="h2" align="center">No review times yet</AppText>
+                        <AppText variant="body" align="center" style={ styles.stateBody }>
+                            { emptyBody }
+                        </AppText>
+                    </View>
+                ) : (
+                    <Carousel
+                        data={ cards }
+                        keyExtractor={ (card) => card.reason }
+                        renderItem={ (card) => (
+                            <ReminderCard
+                                date={ NEURO_REMINDER_COPY[card.reason].time }
+                                description={ NEURO_REMINDER_COPY[card.reason].reason }
+                                link={ NEURO_REMINDER_COPY[card.reason].link }
+                                time={ card.time }
+                                caption={ card.caption }
+                            />
+                        ) }
+                    />
+                ) }
             </View>
         </SafeAreaView>
     );
@@ -103,5 +165,18 @@ const styles = StyleSheet.create({
     },
     deck: {
         paddingTop: 8,
+    },
+    state: {
+        minHeight: 280,
+        paddingHorizontal: 32,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    stateBody: {
+        marginTop: 10,
+    },
+    retry: {
+        alignSelf: 'stretch',
+        marginTop: 20,
     },
 });

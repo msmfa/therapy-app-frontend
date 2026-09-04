@@ -4226,6 +4226,11 @@ expo-font@~14.0.12:
   dependencies:
     fontfaceobserver "^2.1.0"
 
+expo-iap@^5.5.0:
+  version "5.5.0"
+  resolved "https://registry.yarnpkg.com/expo-iap/-/expo-iap-5.5.0.tgz#10e485cd96e4bd09dd4a311768c879a06bc3792b"
+  integrity sha512-tgNdvkAsgeXnMbPnLaPBV3OEOJfVbdBxud0J2vduY89rfmwGwUGlXZYr1ssAWSm+jCH+/c1Qdcvg/byaH51M0w==
+
 expo-image@~3.0.11:
   version "3.0.11"
   resolved "https://registry.yarnpkg.com/expo-image/-/expo-image-3.0.11.tgz#54195565dc710e632c10414c3609deebb7149ac5"

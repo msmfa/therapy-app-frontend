@@ -1,4 +1,5 @@
-import { apiDelete, apiPatch } from './client';
+import { apiDelete, apiGet, apiPatch } from './client';
+import type { GoalId } from '../features/onboarding/onboardingCopy';
 
 export const deleteCurrentUser = async (): Promise<void> => {
     await apiDelete<void>('/api/users/me', { parseJson: false });
@@ -7,6 +8,35 @@ export const deleteCurrentUser = async (): Promise<void> => {
 export type UpdateCurrentUserInput = {
     /** IANA identifier, e.g. "Europe/London". */
     timeZone?: string;
+    /**
+     * Reminder times as minutes from local midnight: 07:30 is 450, 20:15 is
+     * 1215. Minutes rather than an hour because the app lets people choose a
+     * time, and the backend schedules against exactly what is stored here.
+     */
+    morningReminderMinutes?: number;
+    eveningReminderMinutes?: number;
+    /** Ongoing note-writing focus chosen during onboarding. */
+    reflectionGoal?: GoalId;
+    /** Server marker used to restore completion on another device. */
+    onboardingCompleted?: boolean;
+};
+
+export type CurrentUserSettings = {
+    morningReminderMinutes?: number;
+    eveningReminderMinutes?: number;
+    reflectionGoal?: GoalId;
+    onboardingCompleted?: boolean;
+    timeZone?: string;
+};
+
+type CurrentUserResponse = {
+    user: CurrentUserSettings;
+};
+
+/** Reads the server-owned preferences shown in Settings. */
+export const getCurrentUserSettings = async (): Promise<CurrentUserSettings> => {
+    const response = await apiGet<CurrentUserResponse>('/api/users/me');
+    return response.user;
 };
 
 /**

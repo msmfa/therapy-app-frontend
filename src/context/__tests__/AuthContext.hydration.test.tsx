@@ -40,9 +40,16 @@ const renderAuth = async () => {
 const validUser = { id: 'u1', email: 'a@b.com', name: 'A' };
 
 describe('hydrating a partial persisted session', () => {
+  let warning: jest.SpiedFunction<typeof console.warn>;
+
   beforeEach(() => {
     mockStore.clear();
     jest.clearAllMocks();
+    warning = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    warning.mockRestore();
   });
 
   it('restores a complete session', async () => {
@@ -55,6 +62,7 @@ describe('hydrating a partial persisted session', () => {
     expect(result.current.isAuthenticated).toBe(true);
     expect(result.current.user).toEqual(validUser);
     expect(result.current.token).toBe('access-token');
+    expect(warning).not.toHaveBeenCalled();
   });
 
   it('refuses a token with no stored user and clears it', async () => {

@@ -96,6 +96,10 @@ export default function AccountSettingsScreen() {
         <SettingsPageShell title="Settings" onBack={ () => router.back() }>
             <FrostedCard contentStyle={ styles.card }>
                 <View style={ styles.rows }>
+                    <SettingsRow
+                        text="Reminder settings"
+                        onPress={ () => router.push('/reminder-settings') }
+                    />
                     <SettingsRow text="Contact us" onPress={ handleContactUs } />
                     <SettingsRow text="Privacy Policy" onPress={ handlePrivacyPolicy } />
                     <SettingsRow text="Delete account" onPress={ onDeleteAccount } />

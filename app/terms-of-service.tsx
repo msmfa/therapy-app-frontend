@@ -43,6 +43,11 @@ export default function TermsOfServiceScreen() {
                     showsVerticalScrollIndicator={ false }
                 >
                     <AppText variant='h1'>Terms of Service</AppText>
+                    <Spacer variant={ SpacerVariant.small } />
+                    <AppText variant='caption' style={ styles.reviewNotice }>
+                        Draft pending legal review. The subscription, billing and cancellation wording below has not yet
+                        been reviewed by a qualified lawyer and must be before release.
+                    </AppText>
                     <Spacer variant={ SpacerVariant.large } />
                     <View style={ styles.section }>
                         <AppText variant='h2'>Acceptance of these terms</AppText>
@@ -91,10 +96,46 @@ export default function TermsOfServiceScreen() {
 
                     <Spacer variant={ SpacerVariant.large } />
                     <View style={ styles.section }>
-                        <AppText variant='h2'>Price</AppText>
+                        <AppText variant='h2'>Subscriptions and billing</AppText>
                         <Spacer variant={ SpacerVariant.small } />
                         <AppText variant='body'>
-                            Plastic Brains is completely free to download.
+                            Plastic Brains is free to download. Access to the note, review and preparation features
+                            requires a paid subscription, offered as an auto-renewing monthly plan or an auto-renewing
+                            annual plan. Prices are shown in the app in your local currency before you confirm, and are
+                            set by us through the App Store.
+                        </AppText>
+                        <Spacer variant={ SpacerVariant.small } />
+                        <AppText variant='body'>
+                            Eligible subscribers receive a one-month free trial with the annual plan or a one-week free
+                            trial with the monthly plan. Apple decides whether your Apple ID is eligible for an
+                            introductory offer. If you are not eligible, no trial is shown and billing begins
+                            immediately. Unless you cancel at least 24 hours before the trial ends, your selected
+                            subscription begins automatically at the price shown.
+                        </AppText>
+                        <Spacer variant={ SpacerVariant.small } />
+                        <AppText variant='body'>
+                            Payment is charged to your Apple ID account at confirmation of purchase. Subscriptions renew
+                            automatically unless auto-renew is turned off at least 24 hours before the end of the current
+                            period, and your account is charged for renewal within 24 hours of the end of that period.
+                        </AppText>
+                        <Spacer variant={ SpacerVariant.small } />
+                        <AppText variant='body'>
+                            You can manage or cancel a subscription, and turn off auto-renewal, in your Apple ID
+                            subscription settings on your device. Cancelling stops future renewals; access continues
+                            until the end of the period you have already paid for. We cannot cancel an Apple
+                            subscription on your behalf.
+                        </AppText>
+                        <Spacer variant={ SpacerVariant.small } />
+                        <AppText variant='body'>
+                            If you reinstall the app or use another device signed in to the same Apple ID, use Restore
+                            Purchases to reconnect an existing subscription. Restoring finds subscriptions bought with
+                            that Apple ID only.
+                        </AppText>
+                        <Spacer variant={ SpacerVariant.small } />
+                        <AppText variant='body'>
+                            Purchases are made through Apple, so refunds are handled by Apple under their terms. Requests
+                            are made through Apple Support, and we cannot grant or guarantee a refund. Your statutory
+                            rights, where they apply, are unaffected.
                         </AppText>
                     </View>
 
@@ -174,6 +215,9 @@ export default function TermsOfServiceScreen() {
 }
 
 const styles = StyleSheet.create({
+    reviewNotice: {
+        color: COLOR_VARIANTS.red.dark,
+    },
     pageHeader: {
         alignItems: 'center',
         flexDirection: 'row',

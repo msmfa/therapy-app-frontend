@@ -1,0 +1,101 @@
+appId: com.plastic-brains.app
+name: Complete a local StoreKit onboarding purchase
+---
+# Start this flow with the app already running from Xcode's
+# PlasticBrains-LocalStoreKit scheme. A Maestro launchApp command would start a
+# new process outside that scheme and silently fall back to Apple's sandbox.
+- runFlow:
+      when:
+          visible: http://localhost:8081
+      commands:
+          - tapOn: http://localhost:8081
+- runFlow:
+      when:
+          visible: This is the developer menu.*
+      commands:
+          - tapOn: Continue
+- runFlow:
+      when:
+          visible: Connected to:.*
+      commands:
+          - tapOn: Close
+- extendedWaitUntil:
+      visible: Keep therapy with you between sessions
+      timeout: 30000
+- runFlow:
+      when:
+      visible: What would help you get more from therapy\?
+      commands:
+          - tapOn:
+                point: 8%, 8%
+- assertVisible: Keep therapy with you between sessions
+- tapOn: Build my plan
+- tapOn: Put therapy insights into practice throughout the week
+- tapOn: Continue
+- runFlow:
+      when:
+          visible: Date. Not chosen
+      commands:
+          - tapOn: Date. Not chosen
+- runFlow:
+      when:
+          visible: Time. Not chosen
+      commands:
+          - tapOn: Time. Not chosen
+- tapOn: Continue
+- tapOn: Every week
+- tapOn: Choose reminder times
+- tapOn: See my plan
+- tapOn: See the five-minute note
+- tapOn: See plans
+- extendedWaitUntil:
+      visible: Start my 1-month free trial
+      timeout: 30000
+- tapOn: Start my 1-month free trial
+- extendedWaitUntil:
+      visible: Save your between-session plan
+      timeout: 30000
+- runFlow:
+      when:
+          visible: Already have an account\? Sign in
+      commands:
+          - tapOn: Already have an account\? Sign in
+          - extendedWaitUntil:
+                visible: Sign in
+                timeout: 30000
+          - tapOn: you@example.com
+          - inputText: ${APP_TEST_EMAIL}
+          - tapOn: ••••••••
+          - inputText: ${APP_TEST_PASSWORD}
+          - hideKeyboard
+          - tapOn:
+                point: 50%, 63%
+# The account return automatically resumes the purchase that opened sign-in.
+# Apple's local StoreKit and password sheets are not exposed to Maestro's
+# accessibility hierarchy, so these taps target their stable relative buttons.
+- waitForAnimationToEnd
+- takeScreenshot: local-storekit-confirmation
+- tapOn:
+      point: 50%, 92%
+- waitForAnimationToEnd
+- tapOn:
+      point: 50%, 59%
+- waitForAnimationToEnd
+- tapOn:
+      point: 31%, 63%
+- waitForAnimationToEnd
+- tapOn: Not now
+- extendedWaitUntil:
+      visible: Your between-session plan is ready
+      timeout: 30000
+- tapOn: Save and see my plan
+- extendedWaitUntil:
+      visible: NEXT SESSION
+      timeout: 30000
+- assertVisible: NEXT REMINDER
+# The goal chosen at the start of onboarding is account-owned and must reach
+# the actual note composer, not disappear after personalising the paywall.
+- tapOn: New Note
+- extendedWaitUntil:
+      visible: What insight do you want to try in daily life\?
+      timeout: 10000

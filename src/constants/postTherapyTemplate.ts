@@ -3,9 +3,9 @@ export type TemplateQuestion = {
     hint: string;
 };
 
-export const POST_THERAPY_TEMPLATE_TITLE = '5 Minute Post Therapy Template';
+export const POST_THERAPY_TEMPLATE_TITLE = 'Your five-minute therapy note';
 
-export const POST_THERAPY_TEMPLATE_SUBTITLE = 'Answer these 5 questions after your session';
+export const POST_THERAPY_TEMPLATE_SUBTITLE = 'Five questions to capture what mattered';
 
 export const POST_THERAPY_TEMPLATE_INTRO =
     'Write as much or as little as feels useful. This is your private note, not a record you need to make perfect.';

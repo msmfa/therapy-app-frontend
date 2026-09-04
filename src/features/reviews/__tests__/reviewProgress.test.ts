@@ -132,6 +132,22 @@ describe('noteReviewProgress', () => {
             occurrencesForGap(0, { sessionsUtc: SESSIONS, timeZone: 'UTC' }).length,
         );
     });
+
+    it('replays review windows at the saved minute-level times', () => {
+        const occurrences = occurrencesForGap(0, {
+            sessionsUtc: SESSIONS,
+            timeZone: 'UTC',
+            morningMinutes: 7 * 60 + 30,
+            reflectionMinutes: 20 * 60 + 15,
+        });
+
+        expect(occurrences.map((occurrence) => occurrence.atUtc)).toEqual([
+            '2024-01-01T20:15:00.000Z',
+            '2024-01-02T07:30:00.000Z',
+            '2024-01-04T20:15:00.000Z',
+            '2024-01-07T20:15:00.000Z',
+        ]);
+    });
 });
 
 describe('summariseReviewsByNote', () => {

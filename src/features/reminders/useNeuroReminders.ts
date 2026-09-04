@@ -19,6 +19,14 @@ interface SessionLike {
     startsAtUtc?: string;
 }
 
+export interface ReminderScheduleSettings {
+    timeZone: string;
+    morningReminderMinutes: number;
+    eveningReminderMinutes: number;
+}
+
+export type ReminderScheduleStatus = 'idle' | 'loading' | 'ready' | 'error';
+
 /**
  * The reminder schedule, fetched from the server and cached on the device.
  *
@@ -43,6 +51,9 @@ export function useNeuroReminders(
     deviceTimeZone: string,
     isAuthenticated: boolean,
     sessionsReady: boolean,
+    refreshSignal = 0,
+    onScheduleSettings?: (settings: ReminderScheduleSettings | null) => void,
+    onScheduleStatus?: (status: ReminderScheduleStatus) => void,
 ): Reminder[] {
     const [reminders, setReminders] = useState<Reminder[]>([]);
     // Guards against a slow response for a stale input overwriting a newer one.
@@ -59,6 +70,8 @@ export function useNeuroReminders(
     useEffect(() => {
         if (!isAuthenticated) return undefined;
 
+        onScheduleStatus?.('loading');
+
         let cancelled = false;
 
         void (async () => {
@@ -66,12 +79,18 @@ export function useNeuroReminders(
             if (cancelled || !cached) return;
             // Never clobber a fresher answer that won the race.
             setReminders((current) => (current.length ? current : cached.reminders));
+            onScheduleSettings?.({
+                timeZone: cached.timeZone,
+                morningReminderMinutes: cached.morningReminderMinutes,
+                eveningReminderMinutes: cached.eveningReminderMinutes,
+            });
+            onScheduleStatus?.('ready');
         })();
 
         return () => {
             cancelled = true;
         };
-    }, [isAuthenticated]);
+    }, [isAuthenticated, onScheduleSettings, onScheduleStatus]);
 
     const revalidate = useCallback(async () => {
         const requestId = requestIdRef.current + 1;
@@ -82,18 +101,34 @@ export function useNeuroReminders(
         if (isCacheUsable(cached, sessionsSignature, deviceTimeZone, getLocalDateKey())) {
             if (requestIdRef.current === requestId) {
                 setReminders(cached.reminders);
+                onScheduleSettings?.({
+                    timeZone: cached.timeZone,
+                    morningReminderMinutes: cached.morningReminderMinutes,
+                    eveningReminderMinutes: cached.eveningReminderMinutes,
+                });
+                onScheduleStatus?.('ready');
             }
             return;
         }
+
+        onScheduleStatus?.('loading');
 
         try {
             const response = await getReminders();
             if (requestIdRef.current !== requestId) return;
 
             setReminders(response.reminders);
+            onScheduleSettings?.({
+                timeZone: response.timeZone,
+                morningReminderMinutes: response.morningReminderMinutes,
+                eveningReminderMinutes: response.eveningReminderMinutes,
+            });
+            onScheduleStatus?.('ready');
             await writeRemindersCache({
                 reminders: response.reminders,
                 timeZone: response.timeZone,
+                morningReminderMinutes: response.morningReminderMinutes,
+                eveningReminderMinutes: response.eveningReminderMinutes,
                 deviceTimeZone,
                 sessionsSignature,
                 // Read again rather than reusing an earlier value: the request
@@ -109,21 +144,27 @@ export function useNeuroReminders(
                 Sentry.captureException(toError(err));
             });
             console.warn('[Reminders] Failed to load reminder schedule:', err);
+            if (requestIdRef.current === requestId) onScheduleStatus?.('error');
         }
-    }, [sessionsSignature, deviceTimeZone]);
+    }, [sessionsSignature, deviceTimeZone, onScheduleSettings, onScheduleStatus]);
 
     useEffect(() => {
         if (!isAuthenticated) {
             requestIdRef.current += 1;
             setReminders([]);
+            onScheduleSettings?.(null);
+            onScheduleStatus?.('idle');
             void clearRemindersCache();
             return;
         }
 
-        if (!sessionsReady) return;
+        if (!sessionsReady) {
+            onScheduleStatus?.('loading');
+            return;
+        }
 
         void revalidate();
-    }, [isAuthenticated, sessionsReady, revalidate]);
+    }, [isAuthenticated, sessionsReady, refreshSignal, revalidate, onScheduleStatus]);
 
     // The effect above only re-runs when its inputs change, and neither a
     // failed fetch nor the local day rolling over changes any of them. Two

@@ -4,13 +4,13 @@ import { spacing } from '../../constants';
 import { BUTTON_COLORS } from 'designs/designs-colors';
 
 interface Props {
-	label: string;
-	icon?: React.ReactNode;
-	disabled?: boolean;
-	transparent?: boolean;
+    label: string;
+    icon?: React.ReactNode;
+    disabled?: boolean;
+    transparent?: boolean;
     addedStyles?: StyleProp<ViewStyle>;
     loading?: boolean;
-	onPress: () => void;
+    onPress: () => void;
 }
 
 export function Button({
@@ -26,7 +26,7 @@ export function Button({
     const showDisabledStyles = disabled && !loading;
 
     const baseTextColor = transparent ? BUTTON_COLORS.secondaryText: BUTTON_COLORS.primaryText;
-    const textColor = showDisabledStyles ? BUTTON_COLORS.disabledLight  : baseTextColor;
+    const textColor = showDisabledStyles ? BUTTON_COLORS.disabledText : baseTextColor;
     const spinnerColor = loading ? baseTextColor : textColor;
 
     return (
@@ -41,7 +41,12 @@ export function Button({
             disabled={ isDisabled }
             activeOpacity={ isDisabled ? 1 : 0.8 }
             accessibilityRole="button"
-            accessibilityState={ { disabled: isDisabled } }
+            // `busy` is what tells VoiceOver the tap was heard and something is
+            // happening; without it a loading button is only announced as
+            // dimmed, which reads as "unavailable" rather than "working".
+            accessibilityState={ { disabled: isDisabled, busy: loading } }
+            accessibilityLabel={ label }
+            accessibilityValue={ loading ? { text: 'Loading' } : undefined }
         >
             { loading ? (
                 <ActivityIndicator color={ spinnerColor } />
@@ -78,8 +83,8 @@ const styles = StyleSheet.create({
         borderColor: BUTTON_COLORS.secondaryText,
     },
     actionButtonDisabled: {
-        backgroundColor: 'transparent',
-        borderColor: BUTTON_COLORS.disabledLight,
+        backgroundColor: BUTTON_COLORS.disabledSurface,
+        borderColor: BUTTON_COLORS.disabledDark,
     },
     iconWrapper: {
         marginRight: spacing.sm,

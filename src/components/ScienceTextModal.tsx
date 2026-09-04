@@ -24,6 +24,11 @@ export function ScienceTextModal({ type }: Props) {
             <GradientCard addedStyles={ styles.gradientContainer }>
                 <Spacer />
 
+                <AppText variant="body" style={ styles.caveat }>
+                    This research explains the memory methods that inform the schedule.
+                </AppText>
+                <Spacer variant={ SpacerVariant.small } />
+
                 { body.map((paragraph, index) => (
                     <View key={ `paragraph-${index}` }>
                         <CitedText variant="body" text={ paragraph } sources={ sources } />
@@ -60,6 +65,9 @@ export function ScienceTextModal({ type }: Props) {
 const styles = StyleSheet.create({
     gradientContainer: {
         backgroundColor: '#dbdbdb91',
+    },
+    caveat: {
+        fontWeight: '600',
     },
     sourcesSection: {
         alignSelf: 'stretch',

@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/auth/AuthContext';
 import { useNotes } from '../../src/features/notes/useNotes';
+import { useNotePrompt } from '../../src/features/notes/useNotePrompt';
 import ErrorMessage from '../../src/components/ui/ErrorMessage';
 import { GlassMorphismWithCircle } from '../../src/components/ui/GlassMorphismWithCircle';
 import { GlassCircleButton } from '../../src/components/ui/GlassCircleButton';
@@ -18,6 +19,7 @@ export default function NewNoteScreen() {
     const { user } = useAuth();
 
     const { addNote } = useNotes(user?.id);
+    const notePrompt = useNotePrompt(user?.id);
     const [text, setText] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [helpVisible, setHelpVisible] = useState(false);
@@ -59,7 +61,7 @@ export default function NewNoteScreen() {
                             <View style={ styles.cardWrapper }>
                                 <View style={ styles.cardOverlay }>
                                     <TextInput
-                                        placeholder="Add today's therapy notes here..."
+                                        placeholder={ notePrompt }
                                         value={ text }
                                         onChangeText={ setText }
                                         multiline

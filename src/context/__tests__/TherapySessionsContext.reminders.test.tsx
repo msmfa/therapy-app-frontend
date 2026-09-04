@@ -56,6 +56,8 @@ jest.mock('../../api/therapy', () => ({
 jest.mock('../../api/reminders', () => ({
   getReminders: jest.fn(async () => ({
     timeZone: 'Europe/London',
+    morningReminderMinutes: 450,
+    eveningReminderMinutes: 1215,
     reminders: [SEP_1, SEP_2],
   })),
 }));
@@ -118,6 +120,11 @@ describe('reminder schedule comes from the server', () => {
       '2026-09-09T16:00:00.000Z',
     ]);
     expect(result.current.neuroReminders.map((r) => r.localDate)).toContain('2026-09-01');
+    expect(result.current.reminderScheduleSettings).toEqual({
+      timeZone: 'Europe/London',
+      morningReminderMinutes: 450,
+      eveningReminderMinutes: 1215,
+    });
   });
 
   it('serves a second mount from the cache instead of refetching', async () => {
@@ -173,6 +180,7 @@ describe('reminder schedule comes from the server', () => {
   });
 
   it('keeps the last known schedule when the refresh fails', async () => {
+    const warning = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
     const first = renderHook(() => useTherapySessions(), { wrapper });
     await waitFor(() => expect(first.result.current.neuroReminders.length).toBeGreaterThan(0));
     first.unmount();
@@ -189,6 +197,11 @@ describe('reminder schedule comes from the server', () => {
     // An empty calendar would be worse than a schedule that is a little stale.
     await waitFor(() => expect(second.result.current.neuroReminders.length).toBeGreaterThan(0));
     expect(second.result.current.neuroReminders.map((r) => r.localDate)).toContain('2026-09-01');
+    await waitFor(() => expect(warning).toHaveBeenCalledWith(
+      '[Reminders] Failed to load reminder schedule:',
+      expect.any(Error),
+    ));
+    warning.mockRestore();
   });
 
   it('refetches on a new day even when nothing else moved', async () => {

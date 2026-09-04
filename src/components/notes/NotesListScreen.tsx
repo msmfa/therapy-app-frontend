@@ -22,14 +22,14 @@ const HEADER_GAP = 20; // gap between the pinned header and the first note
 const TOP_FADE = 44;
 
 interface NotesListScreenProps {
-	notes: Note[];
-	loading: boolean;
-	refresh: () => void;
-	onUpdateNote: (id: string, text: string) => Promise<void>;
-	progressFor?: (note: Note) => NoteReviewProgress;
-	/** False when nothing is answerable right now, or the slot is already ticked. */
-	canReview?: (note: Note) => boolean;
-	onReviewed?: (note: Note) => Promise<void>;
+    notes: Note[];
+    loading: boolean;
+    refresh: () => void;
+    onUpdateNote: (id: string, text: string) => Promise<void>;
+    progressFor?: (note: Note) => NoteReviewProgress;
+    /** False when nothing is answerable right now, or the slot is already ticked. */
+    canReview?: (note: Note) => boolean;
+    onReviewed?: (note: Note) => Promise<void>;
 }
 
 type PinnedHeaderProps = {

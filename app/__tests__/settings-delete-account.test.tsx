@@ -129,6 +129,7 @@ describe('SettingsScreen account deletion', () => {
     });
 
     it('still signs out when local note cleanup fails after a successful deletion', async () => {
+        const warning = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
         mockedDeleteCurrentUser.mockResolvedValueOnce(undefined);
         mockedClearNotesForUser.mockRejectedValueOnce(new Error('sqlite unavailable'));
 
@@ -136,5 +137,10 @@ describe('SettingsScreen account deletion', () => {
         await confirmAccountDeletion(getByText);
 
         expect(mockSignOut).toHaveBeenCalledTimes(1);
+        expect(warning).toHaveBeenCalledWith(
+            '[Settings] Failed to clear local notes after account deletion:',
+            expect.any(Error),
+        );
+        warning.mockRestore();
     });
 });

@@ -20,12 +20,12 @@ export default function OnboardingSteps({ title, steps, activeStep }: Props) {
         <View >
             { title && (
                 <>
-                <Spacer variant={ SpacerVariant.medium } />
-                <AppText variant='body'>
-                    { title }
-                </AppText>
-                 <Spacer variant={ SpacerVariant.medium } />
-                 <View style={ styles.line } />
+                    <Spacer variant={ SpacerVariant.medium } />
+                    <AppText variant='body'>
+                        { title }
+                    </AppText>
+                    <Spacer variant={ SpacerVariant.medium } />
+                    <View style={ styles.line } />
                 </>
             ) }
             <Spacer variant={ SpacerVariant.large } />

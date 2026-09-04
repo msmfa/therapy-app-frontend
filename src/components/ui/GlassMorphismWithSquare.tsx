@@ -4,11 +4,11 @@ import LinearGradientSquare, { SquarePosition } from './LinearGradientSquare';
 import GlassMorphism from './GlassMorphism';
 
 type Props = {
-  children?: React.ReactNode;
-  style?: StyleProp<ViewStyle>;
-  squareStyle?: StyleProp<ViewStyle>;
-  squarePosition?: SquarePosition;
-  squareRotation?: string;
+    children?: React.ReactNode;
+    style?: StyleProp<ViewStyle>;
+    squareStyle?: StyleProp<ViewStyle>;
+    squarePosition?: SquarePosition;
+    squareRotation?: string;
 };
 
 export const GlassMorphismWithSquare = ({ children, style, squarePosition, squareStyle, squareRotation }: Props) => {

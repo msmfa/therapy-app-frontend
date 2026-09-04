@@ -6,12 +6,15 @@ import type { Reminder } from './types';
  * Versioned so a change to the entry shape retires old entries rather than
  * being parsed into something half-valid.
  */
-const CACHE_KEY = 'neuroReminders:v1';
+const CACHE_KEY = 'neuroReminders:v2';
 
 export interface CachedReminders {
     reminders: Reminder[];
     /** The zone the server resolved the schedule in. */
     timeZone: string;
+    /** Resolved preferences the server used for this schedule. */
+    morningReminderMinutes: number;
+    eveningReminderMinutes: number;
     /**
      * The device zone when the entry was written, which is what travel
      * actually changes. Compared against the live device zone rather than
@@ -58,6 +61,8 @@ export const readRemindersCache = async (): Promise<CachedReminders | null> => {
         if (
             !Array.isArray(parsed.reminders)
             || typeof parsed.timeZone !== 'string'
+            || typeof parsed.morningReminderMinutes !== 'number'
+            || typeof parsed.eveningReminderMinutes !== 'number'
             || typeof parsed.deviceTimeZone !== 'string'
             || typeof parsed.sessionsSignature !== 'string'
             || typeof parsed.localDate !== 'string'

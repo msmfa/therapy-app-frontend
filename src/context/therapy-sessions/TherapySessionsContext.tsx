@@ -8,7 +8,12 @@ import {
     syncTherapySessions as syncTherapySessionsApi,
 } from '../../api/therapy';
 import type { Reminder } from '../../features/reminders/types';
-import { useNeuroReminders } from '../../features/reminders/useNeuroReminders';
+import {
+    useNeuroReminders,
+    type ReminderScheduleSettings,
+    type ReminderScheduleStatus,
+} from '../../features/reminders/useNeuroReminders';
+import { clearRemindersCache } from '../../features/reminders/remindersCache';
 import { useDeviceTimeZone } from '../../hooks/useDeviceTimeZone';
 import { mapSessionError, SessionErrorCopy } from '../../features/therapy-sessions/session-error-map';
 import { toError } from '../../utils/errors';
@@ -26,8 +31,15 @@ interface TherapySessionsContextType {
     error: SessionErrorCopy | null;
     nextSession: TherapySession | null;
     neuroReminders: Reminder[];
+    /** The exact zone and minute-level choices used for the fetched schedule. */
+    reminderScheduleSettings: ReminderScheduleSettings | null;
+    reminderScheduleStatus: ReminderScheduleStatus;
     refreshSessions: () => Promise<void>;
     syncSessions: (selected: Record<string, Date>, duration: number) => Promise<void>;
+    /** Adds appointments without deleting sessions already on the calendar. */
+    addSessions: (dates: Date[], duration: number) => Promise<void>;
+    /** Invalidates cached times and fetches the schedule with new preferences. */
+    refreshReminderSchedule: () => Promise<void>;
 }
 
 const TherapySessionsContext = createContext<TherapySessionsContextType | undefined>(undefined);
@@ -74,6 +86,16 @@ const getFetchWindow = () => {
     return { from: fetchFrom, to };
 };
 
+const editableSessionsFrom = (allSessions: TherapySession[]): TherapySession[] => {
+    const floor = new Date();
+    floor.setHours(0, 0, 0, 0);
+    const floorMs = floor.getTime();
+
+    return allSessions.filter(
+        (session) => new Date(session.startsAtUtc).getTime() >= floorMs,
+    );
+};
+
 interface TherapySessionsProviderProps {
     children: React.ReactNode;
 }
@@ -87,23 +109,25 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
     // cache is keyed on them, so revalidating before they land would miss on
     // an empty signature and spend a request the next render invalidates.
     const [sessionsReady, setSessionsReady] = useState(false);
+    const [reminderRefreshSignal, setReminderRefreshSignal] = useState(0);
+    const [reminderScheduleSettings, setReminderScheduleSettings] =
+        useState<ReminderScheduleSettings | null>(null);
+    const [reminderScheduleStatus, setReminderScheduleStatus] =
+        useState<ReminderScheduleStatus>('idle');
     const deviceTimeZone = useDeviceTimeZone();
     const refreshInFlightRef = useRef<Promise<void> | null>(null);
     const sessionsCountRef = useRef(0);
+    const scheduleSessionsRef = useRef<TherapySession[]>([]);
+    const sessionsReadyRef = useRef(false);
 
     // What the narrow fetch used to return: local midnight today onward. Every
     // existing consumer (calendar, nextSession, sync payload, reminder cache
     // signature) keeps seeing exactly this; only the reviews feature reads the
     // wider scheduleSessions.
-    const sessions = useMemo(() => {
-        const floor = new Date();
-        floor.setHours(0, 0, 0, 0);
-        const floorMs = floor.getTime();
-
-        return scheduleSessions.filter(
-            (session) => new Date(session.startsAtUtc).getTime() >= floorMs,
-        );
-    }, [scheduleSessions]);
+    const sessions = useMemo(
+        () => editableSessionsFrom(scheduleSessions),
+        [scheduleSessions],
+    );
 
     useEffect(() => {
         sessionsCountRef.current = sessions.length;
@@ -125,6 +149,11 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
                 const { from, to } = getFetchWindow();
 
                 const data = await getTherapySessions(from, to);
+                // Keep an imperative copy too. A caller awaiting this request
+                // resumes before React has committed setState, and must still
+                // see the canonical sessions that just arrived.
+                scheduleSessionsRef.current = data;
+                sessionsReadyRef.current = true;
                 setScheduleSessions(data);
             } catch (err) {
                 const mapped = mapSessionError(err);
@@ -158,8 +187,20 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
                 throw new Error('Not authenticated');
             }
 
+            // Do not build an all-or-nothing sync against the initial empty
+            // state while the first GET is still in flight. That race dropped
+            // every pre-existing appointment not present in `selected`.
+            const initialRefresh = refreshInFlightRef.current;
+            if (initialRefresh) {
+                await initialRefresh;
+            } else if (!sessionsReadyRef.current) {
+                await refreshSessions();
+            }
+
+            const currentSessions = editableSessionsFrom(scheduleSessionsRef.current);
+
             const payload = Object.values(selected).map((date) => {
-                const existing = sessions.find(
+                const existing = currentSessions.find(
                     (session) => new Date(session.startsAtUtc).getTime() === date.getTime(),
                 );
 
@@ -183,7 +224,37 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
 
             await refreshSessions();
         },
-        [isAuthenticated, sessions, refreshSessions],
+        [isAuthenticated, refreshSessions],
+    );
+
+    const addSessions = useCallback(
+        async (dates: Date[], duration: number) => {
+            if (!isAuthenticated) {
+                throw new Error('Not authenticated');
+            }
+
+            const initialRefresh = refreshInFlightRef.current;
+            if (initialRefresh) {
+                await initialRefresh;
+            } else if (!sessionsReadyRef.current) {
+                await refreshSessions();
+            }
+
+            // Onboarding adds its projected schedule to an account. It must
+            // not behave like the calendar's replace operation and silently
+            // delete appointments a returning user already has.
+            const selected: Record<string, Date> = {};
+            for (const session of editableSessionsFrom(scheduleSessionsRef.current)) {
+                const date = new Date(session.startsAtUtc);
+                selected[date.toISOString()] = date;
+            }
+            for (const date of dates) {
+                selected[date.toISOString()] = date;
+            }
+
+            await syncSessions(selected, duration);
+        },
+        [isAuthenticated, refreshSessions, syncSessions],
     );
 
     const nextSession = useMemo(() => {
@@ -211,16 +282,29 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
         deviceTimeZone,
         isAuthenticated,
         sessionsReady,
+        reminderRefreshSignal,
+        setReminderScheduleSettings,
+        setReminderScheduleStatus,
     );
+
+    const refreshReminderSchedule = useCallback(async () => {
+        await clearRemindersCache();
+        setReminderScheduleSettings(null);
+        setReminderScheduleStatus('loading');
+        setReminderRefreshSignal((current) => current + 1);
+    }, []);
 
     useEffect(() => {
         if (isAuthenticated) {
             refreshSessions().catch(() => {});
         } else {
+            scheduleSessionsRef.current = [];
+            sessionsReadyRef.current = false;
             setScheduleSessions([]);
             setError(null);
             setLoading(false);
             setSessionsReady(false);
+            setReminderScheduleStatus('idle');
         }
     }, [isAuthenticated, refreshSessions]);
 
@@ -231,8 +315,12 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
         error,
         nextSession,
         neuroReminders,
+        reminderScheduleSettings,
+        reminderScheduleStatus,
         refreshSessions,
         syncSessions,
+        addSessions,
+        refreshReminderSchedule,
     };
 
     return (

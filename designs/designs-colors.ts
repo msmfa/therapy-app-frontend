@@ -74,6 +74,11 @@ export const BUTTON_COLORS = {
   disabledBackground: COLOR_VARIANTS.transparent,
   disabledLight: COLOR_VARIANTS.white.tertiary,
   disabledDark: 'hsla(0, 0%, 0%, 0.15)',
+  // A disabled primary sits on the pale app background, where a white-tinted
+  // outline disappears entirely. These two keep it visible while still reading
+  // as unavailable.
+  disabledSurface: 'hsla(0, 0%, 0%, 0.05)',
+  disabledText: COLOR_VARIANTS.black.quaternary,
 } as const;
 
 export const THEME_COLORS = {

@@ -1,0 +1,63 @@
+appId: com.plastic-brains.app
+name: Prepare a real sandbox subscription purchase
+---
+- clearKeychain
+- launchApp:
+      clearState: true
+- runFlow:
+      when:
+          visible: Sign in to Apple.*Account
+      commands:
+          - tapOn: Cancel
+- runFlow:
+      when:
+          visible: http://localhost:8081
+      commands:
+          - tapOn: http://localhost:8081
+- runFlow:
+      when:
+          visible: This is the developer menu.*
+      commands:
+          - tapOn: Continue
+- runFlow:
+      when:
+          visible: Connected to:.*
+      commands:
+          - tapOn: Close
+- extendedWaitUntil:
+      visible: Keep therapy with you between sessions
+      timeout: 30000
+- tapOn: Build my plan
+- tapOn: Put therapy insights into practice throughout the week
+- tapOn: Continue
+- tapOn: Date. Not chosen
+- tapOn: Time. Not chosen
+- tapOn: Continue
+- tapOn: Every week
+- tapOn: Choose reminder times
+- tapOn: See my plan
+- tapOn: See the five-minute note
+- tapOn: See plans
+- extendedWaitUntil:
+      visible: (Start my 1-month free trial|Continue with annual)
+      timeout: 30000
+- tapOn: (Start my 1-month free trial|Continue with annual)
+- extendedWaitUntil:
+      visible: Save your between-session plan
+      timeout: 30000
+- tapOn: Already have an account\? Sign in
+- extendedWaitUntil:
+      visible: Sign in
+      timeout: 30000
+- tapOn: you@example.com
+- inputText: ${APP_TEST_EMAIL}
+- tapOn: ••••••••
+- inputText: ${APP_TEST_PASSWORD}
+- hideKeyboard
+- tapOn:
+      point: 50%, 63%
+# The account return resumes the pending purchase and opens Apple's own
+# sandbox sheet. Authentication and confirmation are intentionally manual; no
+# sandbox password belongs in this repository or test logs.
+- waitForAnimationToEnd
+- takeScreenshot: sandbox-apple-account-sheet

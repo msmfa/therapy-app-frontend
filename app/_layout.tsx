@@ -1,9 +1,17 @@
 import { ErrorBoundaryProps, Stack, useRouter } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ThemeProvider, DefaultTheme, Theme } from '@react-navigation/native';
 import { AuthProvider, useAuth } from '../src/context/auth/AuthContext';
 import { OnboardingProvider, useOnboarding } from '../src/context/onboarding/OnboardingContext';
+import {
+    OnboardingAnswersProvider,
+    useOnboardingAnswers,
+} from '../src/features/onboarding/OnboardingAnswersContext';
+import {
+    EntitlementProvider,
+    useEntitlementState,
+} from '../src/features/subscription/EntitlementContext';
 import { TherapySessionsProvider } from '../src/context/therapy-sessions/TherapySessionsContext';
 import { usePushNotifications } from '../src/hooks/usePushNotifications';
 import { useTimeZoneSync } from '../src/hooks/useTimeZoneSync';
@@ -18,6 +26,7 @@ import * as Notifications from 'expo-notifications';
 import { resolveNotificationRoute } from '../src/services/notifications/routing';
 import { AppAlertProvider } from '../src/context/alert';
 import { useFonts } from 'expo-font';
+import { initializeStoreKit } from '../src/features/subscription/storeKit';
 
 const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN ?? process.env.SENTRY_DSN;
 
@@ -64,22 +73,50 @@ const theme: Theme = {
  * Waits for both auth and onboarding to hydrate before determining which route to show.
  *
  * Navigation flow:
- * 1. Not authenticated → (auth) screens (login/signup)
- * 2. Authenticated but not onboarded → (onboarding) screens
+ * 1. Not onboarded → (onboarding) screens, signed in or not. Onboarding is the
+ *    entry point; authentication happens partway through it, at the account step.
+ * 2. Not authenticated → (auth) screens stay mounted alongside onboarding so the
+ *    account step, and Welcome's "I already have an account", can reach them.
  * 3. Authenticated and onboarded → (tabs) main app
  */
 export function Gate() {
     const { isAuthenticated, hydrated: authHydrated } = useAuth();
     const { hasOnboarded, hydrated: onboardingHydrated } = useOnboarding();
+    const { hydrated: answersHydrated } = useOnboardingAnswers();
+    const { state: entitlement } = useEntitlementState();
 
-    // Both providers must be hydrated before we can route
-    const isFullyHydrated = authHydrated && onboardingHydrated;
+    // A subscriber whose plan lapsed has finished onboarding but still needs the
+    // paywall, so the group stays mounted for them. Without this the paid area's
+    // guard would redirect to a route that is not registered.
+    const needsSubscriptionFlow = entitlement.status === 'inactive';
+
+    // All persisted state must be hydrated before we can route.
+    const isFullyHydrated = authHydrated && onboardingHydrated && answersHydrated;
+
+    // Latches on the first successful hydration.
+    //
+    // OnboardingProvider re-hydrates whenever the user id changes, which is
+    // exactly what signing in does. Swapping the navigator for a loading screen
+    // at that moment unmounted the whole stack and threw away the back history,
+    // so a user who authenticated at the account step found Back took them to
+    // the start of onboarding rather than the screen they came from. After the
+    // first hydration the routing values are good enough to keep rendering
+    // through a re-hydration, and the stack survives.
+    const [hasHydratedOnce, setHasHydratedOnce] = useState(false);
+    useEffect(() => {
+        if (isFullyHydrated) setHasHydratedOnce(true);
+    }, [isFullyHydrated]);
+
+    // The guards below must latch too. Keying them on `isFullyHydrated` alone
+    // would unmount the onboarding group for the duration of the re-hydration,
+    // which is the same teardown by another route.
+    const routingReady = isFullyHydrated || hasHydratedOnce;
     // Routing follows the same definition the API client uses (presence of a
     // token). Keying off `user` instead let the two disagree: a restored user
     // object with no token routed into the app, where every request 401s.
     const isMainAppReady = isAuthenticated && isFullyHydrated && hasOnboarded;
 
-    if (!isFullyHydrated) {
+    if (!isFullyHydrated && !hasHydratedOnce) {
         return (
             <View style={ styles.root }>
                 <NotificationNavigationHandler isReady={ false } />
@@ -92,18 +129,24 @@ export function Gate() {
         <View style={ styles.root }>
             <NotificationNavigationHandler isReady={ isMainAppReady } />
             <Stack screenOptions={ { headerShown: false } }>
-                { /* Route 1: Authentication screens - show when not authenticated */ }
+                { /* Route 1: Authentication screens - reachable whenever nobody is signed
+                      in, so a logged-out visitor can deliberately choose sign-in or
+                      signup from onboarding instead of being forced through it first. */ }
                 <Stack.Protected guard={ !isAuthenticated && authHydrated }>
                     <Stack.Screen name="(auth)" />
                 </Stack.Protected>
 
-                { /* Route 2: Onboarding screens - show when authenticated but not onboarded */ }
-                <Stack.Protected guard={ isAuthenticated && isFullyHydrated && !hasOnboarded }>
+                { /* Route 2: Onboarding screens - show whenever onboarding is unfinished,
+                      whether or not the visitor has an account yet. */ }
+                <Stack.Protected guard={ routingReady && (!hasOnboarded || needsSubscriptionFlow) }>
                     <Stack.Screen name="(onboarding)" />
                 </Stack.Protected>
 
                 { /* Route 3: Main app - show when authenticated and onboarded */ }
-                <Stack.Protected guard={ isAuthenticated && isFullyHydrated && hasOnboarded }>
+                { /* Requiring the freshly hydrated account here prevents one
+                      render of the previous account's onboarding state from
+                      opening the paid app during an account switch. */ }
+                <Stack.Protected guard={ isMainAppReady }>
                     <Stack.Screen name="(tabs)" options={ { headerShown: false } } />
                 </Stack.Protected>
 
@@ -122,7 +165,8 @@ export function Gate() {
  * 2. AuthProvider - hydrates first, determines user
  * 3. TherapySessionsProvider - can mount early, doesn't depend on user
  * 4. OnboardingProvider - waits for auth to hydrate, then hydrates based on user
- * 5. SafeAreaProvider - handles device safe areas
+ * 5. OnboardingAnswersProvider - restores the encrypted in-progress draft
+ * 6. SafeAreaProvider - handles device safe areas
  *
  * The Gate component waits for both Auth and Onboarding to hydrate before routing.
  */
@@ -145,10 +189,17 @@ export default Sentry.wrap(function RootLayout() {
                 <AuthProvider>
                     <TherapySessionsProvider>
                         <OnboardingProvider>
-                            <SafeAreaProvider>
-                                <Initializer />
-                                <Gate />
-                            </SafeAreaProvider>
+                            { /* Above the Gate on purpose: the Gate unmounts the
+                                 navigator while onboarding state re-hydrates after
+                                 sign-in, and the answers have to outlive that. */ }
+                            <OnboardingAnswersProvider>
+                                <EntitlementProvider>
+                                    <SafeAreaProvider>
+                                        <Initializer />
+                                        <Gate />
+                                    </SafeAreaProvider>
+                                </EntitlementProvider>
+                            </OnboardingAnswersProvider>
                         </OnboardingProvider>
                     </TherapySessionsProvider>
                 </AuthProvider>
@@ -172,6 +223,11 @@ function Initializer() {
     useTimeZoneSync();
 
     useEffect(() => {
+        // Observe StoreKit for the whole app lifetime so an Ask to Buy or other
+        // pending transaction can be verified and finished when Apple approves
+        // it later, even after the paywall has closed.
+        void initializeStoreKit();
+
         // Android requires a notification channel for push notifications to appear
         if (Platform.OS === 'android') {
             Notifications.setNotificationChannelAsync('default', {

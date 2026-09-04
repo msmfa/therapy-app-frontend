@@ -15,10 +15,13 @@ export default function ReferencesScreen() {
                 <View style={ styles.rows }>
                     <SettingsRow
                         text="The science behind our reminder intervals"
-                        onPress={ () => router.push('/interval-science') }
+                        onPress={ () => router.push({
+                            pathname: '/interval-science',
+                            params: { source: 'saved' },
+                        }) }
                     />
                     <SettingsRow
-                        text="5 Minute Post Therapy Template"
+                        text="Your five-minute therapy note"
                         onPress={ () => router.push('/how-to-take-notes') }
                     />
                 </View>

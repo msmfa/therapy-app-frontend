@@ -8,7 +8,7 @@ import {
     Keyboard,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { requestPasswordReset, resetPassword } from '../src/api/auth';
 import TextField from 'src/components/ui/TextField';
 import PasswordField from 'src/components/ui/PasswordField';
@@ -18,11 +18,16 @@ import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { GlassMorphismWithCircle } from 'src/components/ui/GlassMorphismWithCircle';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 import { useAppAlert } from 'src/context/alert';
+import { PASSWORD_RESET_AUTH_SOURCE } from '../src/features/onboarding/authReturn';
 
 const MIN_PASSWORD_LENGTH = 8;
 
 export default function ForgotPasswordScreen() {
     const router = useRouter();
+    const { returnTo, source } = useLocalSearchParams<{
+        returnTo?: string;
+        source?: string;
+    }>();
     const { showAlert } = useAppAlert();
     const [email, setEmail] = useState('');
     const [token, setToken] = useState('');
@@ -90,7 +95,13 @@ export default function ForgotPasswordScreen() {
     };
 
     const handleReturnToLogin = () => {
-        router.replace('/(auth)/login');
+        router.replace({
+            pathname: '/(auth)/login',
+            params: {
+                ...(returnTo === undefined ? {} : { returnTo }),
+                source: source ?? PASSWORD_RESET_AUTH_SOURCE,
+            },
+        });
     };
 
     return (

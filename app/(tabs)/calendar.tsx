@@ -197,7 +197,10 @@ export default function CalendarScreen() {
 
     const hasChanges = selectedSignature !== initialSignature;
 
-    const canSave = hasChanges && sessionCount !== 0;
+    // One-off and irregular therapy are valid onboarding choices, so the main
+    // calendar must be able to save one session too. An empty changed selection
+    // is also valid: it is how someone removes a schedule that no longer exists.
+    const canSave = hasChanges;
 
     const nextSessionDate = useMemo(() => {
         const now = Date.now();
@@ -230,32 +233,23 @@ export default function CalendarScreen() {
     const handleSavePress = useCallback(async () => {
         setSaveStatus('loading');
         try {
-            if (sessionCount < 5) {
-                showAlert('Oops', 'Please select at least five therapy sessions to continue.');
-                setSaveStatus(null); // ← Reset here since we're returning early
-                return;
-            }
             await syncSessions(selectedSessions, 50);
             setSelectedSessionsDraft(null);
             setReminderDatesDraft(null);
             setSaveStatus('success');
-
-            // Auto-dismiss after showing success - no setTimeout here!
-
         } catch (error) {
             console.error('syncSessions failed', error);
             showAlert('Error', 'Unable to save sessions right now.');
             setSaveStatus(null);
         }
-    // ← Remove the finally block that was setting loading to null
-    }, [selectedSessions, sessionCount, showAlert, syncSessions]);
+    }, [selectedSessions, showAlert, syncSessions]);
 
-    // Delay resetting loading state after success
+    // Leave the confirmation visible long enough to be noticed.
     useEffect(() => {
         if (saveStatus === 'success') {
             const timer = setTimeout(() => {
                 setSaveStatus(null);
-            }, 2500); // Show success for 2.5 seconds
+            }, 2500);
 
             return () => clearTimeout(timer);
         }
@@ -289,9 +283,20 @@ export default function CalendarScreen() {
         }
     }, [sessionsError, refreshSessions, handleErrorModalClose]);
 
-    // TODO: fix this tp still show tabs and be conststant with update loader
     if (sessionsLoading && !sessions.length) {
-        return <Loading transparent={ false } />;
+        // Keep this loader inside the tab screen. Loading's default Modal
+        // covers the navigator, including the tab bar, and made a normal data
+        // refresh look like the whole app had disappeared.
+        return (
+            <View style={ styles.container }>
+                <DarkBackdrop />
+                <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'top'] }>
+                    <View style={ styles.loadingBody }>
+                        <Loading fullScreen={ false } />
+                    </View>
+                </SafeAreaView>
+            </View>
+        );
     }
 
     return (
@@ -404,6 +409,10 @@ const styles = StyleSheet.create({
     },
     root: {
         flex: 1,
+    },
+    loadingBody: {
+        flex: 1,
+        justifyContent: 'center',
     },
     // Runs to the bottom of the screen and under the tab bar, so only the top
     // corners are rounded.

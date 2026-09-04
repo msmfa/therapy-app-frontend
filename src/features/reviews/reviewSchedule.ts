@@ -23,6 +23,8 @@ export interface ReviewScheduleInput {
     sessionsUtc: string[];
     timeZone?: string;
     sessionDurationsMin?: Record<string, number>;
+    reflectionMinutes?: number;
+    morningMinutes?: number;
     reflectionHour?: number;
     morningHour?: number;
     startAfterDays?: number;
@@ -33,6 +35,8 @@ const runSchedule = (nowUtc: string, input: ReviewScheduleInput): Reminder[] =>
     scheduleNeuroplasticityReminders({
         nowUtc,
         sessionsUtc: input.sessionsUtc,
+        reflectionMinutes: input.reflectionMinutes,
+        morningMinutes: input.morningMinutes,
         reflectionHour: input.reflectionHour ?? REMINDER_SCHEDULE.reflectionHour,
         morningHour: input.morningHour ?? REMINDER_SCHEDULE.morningHour,
         startAfterDays: input.startAfterDays ?? REMINDER_SCHEDULE.startAfterDays,

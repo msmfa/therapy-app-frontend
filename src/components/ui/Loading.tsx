@@ -4,7 +4,7 @@ import { PALETTE } from 'designs/designs-colors';
 import DancingSquare from './PulsingSquare';
 
 type LoadingProps = {
-	fullScreen?: boolean;
+    fullScreen?: boolean;
     transparent?: boolean;
 };
 
@@ -21,7 +21,7 @@ export default function Loading({
                 statusBarTranslucent
             >
                 <View style={ styles.fullScreenContainer } pointerEvents="auto">
-                    <DancingSquare/>
+                    <DancingSquare />
                 </View>
             </Modal>
         );
@@ -29,8 +29,8 @@ export default function Loading({
 
     return (
         <View style={ styles.container }>
-           <View style={ styles.fullScreenContainer } pointerEvents="auto">
-                 <DancingSquare/>
+            <View style={ styles.fullScreenContainer } pointerEvents="auto">
+                <DancingSquare />
             </View>
         </View>
     );
@@ -48,9 +48,5 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: PALETTE.overlay.taupeTransparent,
         paddingHorizontal: 24,
-    },
-    text: {
-        marginTop: 12,
-        fontSize: 16,
     },
 });
