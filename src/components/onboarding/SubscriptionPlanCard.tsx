@@ -7,6 +7,10 @@ import { ACTION_BLUE_DARK, COLOR_VARIANTS, PALETTE, TEXT_COLORS } from 'designs/
 type Props = {
     title: string;
     badge: string;
+    /** One line under the title saying what the plan is. */
+    description?: string;
+    /** The trial's three moments, shown only on the featured, trial-bearing card. */
+    timeline?: { icon: 'unlock' | 'bell' | 'star'; text: string }[];
     /** Shown only where the user is eligible for the introductory offer. */
     trialBadge?: string;
     priceLine: string;
@@ -27,6 +31,8 @@ type Props = {
 export function SubscriptionPlanCard({
     title,
     badge,
+    description,
+    timeline,
     trialBadge,
     priceLine,
     secondaryLine,
@@ -73,9 +79,30 @@ export function SubscriptionPlanCard({
                 ) }
             </View>
 
+            { description !== undefined && (
+                <AppText variant="body" style={ styles.description }>
+                    { description }
+                </AppText>
+            ) }
+
             <AppText variant="h3" style={ styles.price }>
                 { priceLine }
             </AppText>
+
+            { timeline !== undefined && (
+                <View style={ styles.timeline }>
+                    { timeline.map((step) => (
+                        <View key={ step.text } style={ styles.timelineRow }>
+                            <View style={ styles.timelineIcon }>
+                                <Feather name={ step.icon } size={ 14 } color={ ACTION_BLUE_DARK } />
+                            </View>
+                            <AppText variant="body" style={ styles.timelineText }>
+                                { step.text }
+                            </AppText>
+                        </View>
+                    )) }
+                </View>
+            ) }
 
             { secondaryLine !== undefined && (
                 <AppText variant="caption" style={ styles.secondary }>
@@ -91,6 +118,31 @@ export function SubscriptionPlanCard({
 }
 
 const styles = StyleSheet.create({
+    description: {
+        marginTop: 8,
+        color: TEXT_COLORS.secondary,
+    },
+    timeline: {
+        marginTop: 12,
+        gap: 10,
+    },
+    timelineRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+    },
+    timelineIcon: {
+        width: 26,
+        height: 26,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'hsla(216, 78%, 92%, 1)',
+    },
+    timelineText: {
+        flex: 1,
+        fontSize: 15,
+    },
     card: {
         borderRadius: 18,
         borderWidth: 1,

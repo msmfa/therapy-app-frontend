@@ -74,11 +74,10 @@ describe('onboarding note preview', () => {
         ).toBeTruthy();
     });
 
-    it("shows Mark's words under the encryption note", () => {
-        const { getByText } = render(<NotePreviewScreen />);
+    it('carries no testimonial; Mark now lives on the reminder times screen', () => {
+        const { queryByText } = render(<NotePreviewScreen />);
 
-        expect(getByText(new RegExp('keeps me accountable'))).toBeTruthy();
-        expect(getByText('Mark')).toBeTruthy();
+        expect(queryByText(/keeps me accountable/)).toBeNull();
     });
 
     it('carries no description under the headline', () => {

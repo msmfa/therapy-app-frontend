@@ -6,6 +6,7 @@ import type { DateTimePickerEvent } from '@react-native-community/datetimepicker
 import { Button } from '../../src/components/ui/Button';
 import AppText from '../../src/components/ui/AppText';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
+import { QuoteCard } from '../../src/components/onboarding/QuoteCard';
 import { REMINDER_TIMES_COPY } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { dateToMinutes, minutesToDate, timeLabel } from '../../src/features/onboarding/formatting';
@@ -128,9 +129,13 @@ export default function ReminderTimesScreen() {
                 }) }
             </View>
 
-            <AppText variant="body" style={ styles.reassurance }>
-                { REMINDER_TIMES_COPY.reassurance }
-            </AppText>
+            <View style={ styles.quote }>
+                <QuoteCard
+                    quote={ REMINDER_TIMES_COPY.testimonial.quote }
+                    name={ REMINDER_TIMES_COPY.testimonial.name }
+                    role={ REMINDER_TIMES_COPY.testimonial.role }
+                />
+            </View>
 
             { androidSlot !== null && (
                 <DateTimePicker
@@ -175,8 +180,7 @@ const styles = StyleSheet.create({
         height: 1,
         backgroundColor: COLOR_VARIANTS.white.tertiary,
     },
-    reassurance: {
+    quote: {
         marginTop: 20,
-        color: TEXT_COLORS.secondary,
     },
 });

@@ -93,12 +93,16 @@ export const CADENCE_COPY = {
 export const REMINDER_TIMES_COPY = {
     headline: 'Choose times that fit your routine',
     supporting:
-		"We'll choose the useful days between sessions. You choose when morning and evening reviews feel manageable.",
+		"We'll choose the useful days between sessions. You choose when morning and evening reviews feel manageable. You can update these in Settings at any time.",
     morningLabel: 'Morning reviews',
     morningHint: 'For revisiting a note after sleep',
     eveningLabel: 'Evening reviews',
     eveningHint: 'For returning to it later in the week',
-    reassurance: 'You can change these at any time.',
+    testimonial: {
+        quote: "I like that the app keeps me accountable for reviewing my notes weekly. Makes me feel like I'm actually doing the work when I look back and see my week full of green bars.",
+        name: 'Mark',
+        role: 'Plastic Brains user',
+    },
     primaryCta: 'See my plan',
 } as const;
 
@@ -126,11 +130,6 @@ export const samplePlanBody = (cadence: CadenceId | null): string =>
 
 export const NOTE_PREVIEW_COPY = {
     headline: 'Your notes',
-    testimonial: {
-        quote: "I like that the app keeps me accountable for reviewing my notes weekly. Makes me feel like I'm actually doing the work when I look back and see my week full of green bars.",
-        name: 'Mark',
-        role: 'Plastic Brains user',
-    },
     researchLink: 'Why these five questions?',
     privacyTitle: 'Your note stays yours',
     privacyBody:
@@ -176,6 +175,15 @@ export const SUBSCRIPTION_COPY = {
     monthlyBadge: 'Flexible',
     monthlyRenewal: 'Renews monthly until cancelled.',
     monthlyRenewalNoTrial: 'Billed today. Renews monthly until cancelled.',
+    trialHeadline: "Your first week's on us",
+    choosePlan: 'Choose your plan',
+    compare: 'Compare',
+    compareHide: 'Hide',
+    whatYouGet: 'What you get',
+    annualDescription: 'Notes, reviews, reminders and more',
+    monthlyDescription: 'The same plan, month by month',
+    trialCta: 'Start your free trial',
+    cancelAnytime: 'Cancel anytime',
     trialTodayLabel: 'Today',
     trialTodayBody: 'Full access begins',
     trialCancelNote: 'Cancel anytime in your Apple ID subscription settings.',
@@ -210,6 +218,41 @@ export const planPriceLine = (plan: PlanId, price: string, showTrial: boolean): 
 export const trialBadgeLine = (trial: SubscriptionTrial): string =>
     `${trialDurationLine(trial)} free`;
 export const monthlyEquivalentLine = (price: string): string => `${price} per month`;
+/** "£79.99/year (that's £6.67/month)" for the featured card. */
+export const cardPriceLine = (
+    plan: PlanId,
+    price: string,
+    monthlyEquivalent: string | null,
+): string => {
+    const per = `${price}/${planBillingPeriod(plan)}`;
+    return monthlyEquivalent === null
+        ? per
+        : `${per} (that's ${monthlyEquivalent}/month)`;
+};
+
+const trialLengthDays = (trial: SubscriptionTrial): number => {
+    switch (trial.period) {
+        case 'day': return trial.periods;
+        case 'week': return trial.periods * 7;
+        case 'month': return trial.periods * 30;
+        case 'year': return trial.periods * 365;
+    }
+};
+
+/** The three moments of the trial, phrased for the featured card. */
+export const trialTimeline = (
+    plan: PlanId,
+    price: string,
+    trial: SubscriptionTrial,
+): { icon: 'unlock' | 'bell' | 'star'; text: string }[] => {
+    const days = trialLengthDays(trial);
+    return [
+        { icon: 'unlock', text: 'Today: Start your free trial' },
+        { icon: 'bell', text: `Day ${Math.max(days - 2, 1)}: Get a trial reminder` },
+        { icon: 'star', text: `Day ${days}: You'll be charged ${price}/${planBillingPeriod(plan)}` },
+    ];
+};
+
 export const trialEndLine = (plan: PlanId, price: string): string =>
     `Your ${plan} subscription begins at ${price} per ${planBillingPeriod(plan)} unless cancelled.`;
 

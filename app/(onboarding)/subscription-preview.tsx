@@ -1,35 +1,27 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Redirect, useRouter } from 'expo-router';
-import dayjs from 'dayjs';
 import { Feather } from '@expo/vector-icons';
 import { Button } from '../../src/components/ui/Button';
 import AppText from '../../src/components/ui/AppText';
 import Loading from '../../src/components/ui/Loading';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import { SubscriptionPlanCard } from '../../src/components/onboarding/SubscriptionPlanCard';
-import { QuoteCard } from '../../src/components/onboarding/QuoteCard';
 import {
     ERROR_COPY,
     GOAL_OPTIONS,
     SUBSCRIPTION_COPY,
-    monthlyEquivalentLine,
     planCtaLabel,
     planPriceLine,
     planRenewalLine,
     trialBadgeLine,
-    trialEndLine,
+    cardPriceLine,
+    trialTimeline,
 } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { useSubscriptionOffer } from '../../src/features/subscription/useSubscriptionOffer';
 import { restore } from '../../src/features/subscription/storeKit';
 import { PURCHASE_COPY } from '../../src/features/onboarding/onboardingCopy';
-import {
-    longDateLabel,
-    minutesToDate,
-    timeLabel,
-    weekdayName,
-} from '../../src/features/onboarding/formatting';
 import { useAppAlert } from '../../src/context/alert';
 import { useAuth } from '../../src/context/auth/AuthContext';
 import { useEntitlementState } from '../../src/features/subscription/EntitlementContext';
@@ -41,10 +33,9 @@ import {
 } from '../../src/features/onboarding/authReturn';
 import { PALETTE, TEXT_COLORS, THEME_COLORS } from 'designs/designs-colors';
 import { firstIncompletePlanRoute } from '../../src/features/onboarding/flowGuard';
-import { sampleSessionAt } from '../../src/features/onboarding/samplePlan';
-import { postSessionNoteAt } from '../../src/features/onboarding/planTimeline';
 
 export default function SubscriptionPreviewScreen() {
+    const [compareOpen, setCompareOpen] = useState(false);
     const router = useRouter();
     const { answers, setAnswer } = useOnboardingAnswers();
     const { state, reload } = useSubscriptionOffer();
@@ -193,10 +184,6 @@ export default function SubscriptionPreviewScreen() {
     const showAnnualTrial = offer.trialEligible && offer.annual.trial !== null;
     const showMonthlyTrial = offer.trialEligible && offer.monthly.trial !== null;
     const showSelectedTrial = offer.trialEligible && selectedProduct.trial !== null;
-    const isSamplePlan = answers.sessionAt === null && answers.sessionDateSkipped;
-    const planSessionAt = answers.sessionAt ?? sampleSessionAt(answers.eveningMinutes);
-    const firstNoteAt = postSessionNoteAt(planSessionAt);
-    const reviewTimes = `${timeLabel(minutesToDate(answers.morningMinutes))} and ${timeLabel(minutesToDate(answers.eveningMinutes))}`;
     const selectedPriceSummary = `${
         selected === 'annual'
             ? SUBSCRIPTION_COPY.annualTitle
@@ -206,17 +193,11 @@ export default function SubscriptionPreviewScreen() {
             ? `${trialBadgeLine(selectedProduct.trial)}. `
             : ''
     }${planPriceLine(selected, selectedProduct.price, showSelectedTrial)}`;
-    const trialEndsAt = selectedProduct.trial === null
-        ? null
-        : dayjs()
-            .add(selectedProduct.trial.periods, selectedProduct.trial.period)
-            .toDate();
 
     return (
         <OnboardingScreen
             backHref="/(onboarding)/note-preview"
-            headline={ headline }
-            supporting={ SUBSCRIPTION_COPY.body }
+            headline={ showSelectedTrial ? SUBSCRIPTION_COPY.trialHeadline : headline }
             footer={
                 <>
                     <View style={ styles.footerPrice }>
@@ -229,13 +210,15 @@ export default function SubscriptionPreviewScreen() {
                     </View>
 
                     <Button
-                        label={ planCtaLabel(
-                            selected,
-                            showSelectedTrial,
-                            selectedProduct.trial,
-                        ) }
+                        label={ showSelectedTrial
+                            ? SUBSCRIPTION_COPY.trialCta
+                            : planCtaLabel(selected, showSelectedTrial, selectedProduct.trial) }
                         onPress={ () => router.push('/(onboarding)/account-preview') }
                     />
+
+                    <AppText variant="caption" style={ styles.cancelAnytime }>
+                        { SUBSCRIPTION_COPY.cancelAnytime }
+                    </AppText>
 
                     <View style={ styles.links }>
                         <TouchableOpacity
@@ -278,66 +261,19 @@ export default function SubscriptionPreviewScreen() {
                 </>
             }
         >
-            <View style={ styles.planSummary }>
-                <AppText variant="h3" style={ styles.planSummaryTitle }>
-                    { isSamplePlan
-                        ? SUBSCRIPTION_COPY.samplePlanTitle
-                        : SUBSCRIPTION_COPY.planTitle }
+            <View style={ styles.choosePlanRow }>
+                <AppText variant="h3" style={ styles.choosePlanLabel }>
+                    { SUBSCRIPTION_COPY.choosePlan }
                 </AppText>
-
-                <View style={ styles.planSummaryRows }>
-                    <View style={ styles.planSummaryRow }>
-                        <AppText variant="caption" style={ styles.planSummaryLabel }>
-                            { isSamplePlan
-                                ? SUBSCRIPTION_COPY.sampleSessionLabel
-                                : SUBSCRIPTION_COPY.nextSessionLabel }
-                        </AppText>
-                        <AppText variant="body" style={ styles.planSummaryValue }>
-                            { `${longDateLabel(planSessionAt)}, ${timeLabel(planSessionAt)}` }
-                        </AppText>
-                    </View>
-                    <View style={ styles.planSummaryRow }>
-                        <AppText variant="caption" style={ styles.planSummaryLabel }>
-                            { SUBSCRIPTION_COPY.firstNoteLabel }
-                        </AppText>
-                        <AppText variant="body" style={ styles.planSummaryValue }>
-                            { `${weekdayName(firstNoteAt)} at ${timeLabel(firstNoteAt)}` }
-                        </AppText>
-                    </View>
-                    <View style={ styles.planSummaryRow }>
-                        <AppText variant="caption" style={ styles.planSummaryLabel }>
-                            { SUBSCRIPTION_COPY.reviewTimesLabel }
-                        </AppText>
-                        <AppText variant="body" style={ styles.planSummaryValue }>
-                            { reviewTimes }
-                        </AppText>
-                    </View>
-                </View>
-
-                { isSamplePlan && (
-                    <AppText variant="caption" style={ styles.planSummaryNote }>
-                        { SUBSCRIPTION_COPY.samplePlanNote }
+                <TouchableOpacity
+                    onPress={ () => setCompareOpen((open) => !open) }
+                    accessibilityRole="button"
+                    accessibilityState={ { expanded: compareOpen } }
+                >
+                    <AppText variant="body" style={ styles.compareLink }>
+                        { compareOpen ? SUBSCRIPTION_COPY.compareHide : SUBSCRIPTION_COPY.compare }
                     </AppText>
-                ) }
-            </View>
-
-            <View style={ styles.benefits }>
-                { SUBSCRIPTION_COPY.benefits.map((benefit) => (
-                    <View key={ benefit } style={ styles.benefit }>
-                        <Feather name="check" size={ 18 } color={ THEME_COLORS.success } />
-                        <AppText variant="body" style={ styles.benefitText }>
-                            { benefit }
-                        </AppText>
-                    </View>
-                )) }
-            </View>
-
-            <View style={ styles.testimonial }>
-                <QuoteCard
-                    quote={ SUBSCRIPTION_COPY.testimonial.quote }
-                    name={ SUBSCRIPTION_COPY.testimonial.name }
-                    role={ SUBSCRIPTION_COPY.testimonial.role }
-                />
+                </TouchableOpacity>
             </View>
 
             <View style={ styles.plans } accessibilityRole="radiogroup">
@@ -349,10 +285,11 @@ export default function SubscriptionPreviewScreen() {
                             ? trialBadgeLine(offer.annual.trial)
                             : undefined
                     }
-                    priceLine={ planPriceLine('annual', offer.annual.price, showAnnualTrial) }
-                    secondaryLine={
-                        offer.annual.monthlyEquivalent !== null
-                            ? monthlyEquivalentLine(offer.annual.monthlyEquivalent)
+                    description={ SUBSCRIPTION_COPY.annualDescription }
+                    priceLine={ cardPriceLine('annual', offer.annual.price, offer.annual.monthlyEquivalent) }
+                    timeline={
+                        showAnnualTrial && offer.annual.trial !== null
+                            ? trialTimeline('annual', offer.annual.price, offer.annual.trial)
                             : undefined
                     }
                     renewalLine={ planRenewalLine('annual', showAnnualTrial) }
@@ -373,7 +310,8 @@ export default function SubscriptionPreviewScreen() {
                             ? trialBadgeLine(offer.monthly.trial)
                             : undefined
                     }
-                    priceLine={ planPriceLine('monthly', offer.monthly.price, showMonthlyTrial) }
+                    description={ SUBSCRIPTION_COPY.monthlyDescription }
+                    priceLine={ cardPriceLine('monthly', offer.monthly.price, null) }
                     renewalLine={ planRenewalLine('monthly', showMonthlyTrial) }
                     selected={ selected === 'monthly' }
                     onPress={ () => setAnswer('plan', 'monthly') }
@@ -385,29 +323,19 @@ export default function SubscriptionPreviewScreen() {
                 />
             </View>
 
-            { showSelectedTrial && trialEndsAt !== null && (
-                <View style={ styles.trial }>
-                    <View style={ styles.trialRow }>
-                        <AppText variant="h3" style={ styles.trialWhen }>
-                            { SUBSCRIPTION_COPY.trialTodayLabel }
-                        </AppText>
-                        <AppText variant="body" style={ styles.trialWhat }>
-                            { SUBSCRIPTION_COPY.trialTodayBody }
-                        </AppText>
-                    </View>
-
-                    <View style={ styles.trialRow }>
-                        <AppText variant="h3" style={ styles.trialWhen }>
-                            { longDateLabel(trialEndsAt) }
-                        </AppText>
-                        <AppText variant="body" style={ styles.trialWhat }>
-                            { trialEndLine(selected, selectedProduct.price) }
-                        </AppText>
-                    </View>
-
-                    <AppText variant="caption" style={ styles.trialNote }>
-                        { SUBSCRIPTION_COPY.trialCancelNote }
+            { compareOpen && (
+                <View style={ styles.whatYouGet }>
+                    <AppText variant="h3" style={ styles.whatYouGetTitle }>
+                        { SUBSCRIPTION_COPY.whatYouGet }
                     </AppText>
+                    { SUBSCRIPTION_COPY.benefits.map((benefit) => (
+                        <View key={ benefit } style={ styles.whatYouGetRow }>
+                            <AppText variant="body" style={ styles.whatYouGetText }>
+                                { benefit }
+                            </AppText>
+                            <Feather name="check" size={ 18 } color={ THEME_COLORS.success } />
+                        </View>
+                    )) }
                 </View>
             ) }
         </OnboardingScreen>
@@ -415,6 +343,48 @@ export default function SubscriptionPreviewScreen() {
 }
 
 const styles = StyleSheet.create({
+    choosePlanRow: {
+        marginTop: 20,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    choosePlanLabel: {
+        fontSize: 17,
+    },
+    compareLink: {
+        textDecorationLine: 'underline',
+        color: TEXT_COLORS.primary,
+    },
+    whatYouGet: {
+        marginTop: 20,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: PALETTE.overlay.whiteBorderTransparent,
+        backgroundColor: 'hsla(0, 0%, 100%, 0.55)',
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+    },
+    whatYouGetTitle: {
+        fontSize: 17,
+        paddingVertical: 8,
+    },
+    whatYouGetRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 12,
+        paddingVertical: 10,
+        borderTopWidth: 1,
+        borderTopColor: PALETTE.overlay.whiteBorderTransparent,
+    },
+    whatYouGetText: {
+        flex: 1,
+    },
+    cancelAnytime: {
+        textAlign: 'center',
+        color: TEXT_COLORS.secondary,
+    },
     footerPrice: {
         alignItems: 'center',
         gap: 2,

@@ -41,8 +41,20 @@ jest.mock('../../src/components/onboarding/OnboardingScreen', () => {
     const R = require('react');
     const { View } = require('react-native');
     return {
-        OnboardingScreen: ({ children, footer }: { children?: React.ReactNode; footer?: React.ReactNode }) =>
-            R.createElement(View, null, children, footer),
+        OnboardingScreen: ({
+            supporting,
+            children,
+            footer,
+        }: { supporting?: string; children?: React.ReactNode; footer?: React.ReactNode }) => {
+            const { Text } = require('react-native');
+            return R.createElement(
+                View,
+                null,
+                supporting === undefined ? null : R.createElement(Text, null, supporting),
+                children,
+                footer,
+            );
+        },
     };
 });
 
@@ -70,6 +82,30 @@ const morningPicker = () => mockPickers.filter((p) => String(p.accessibilityLabe
  * separately in features/onboarding/__tests__/timeLabel.test.ts, because a
  * correct stored value and a wrong label look identical to a user.
  */
+describe('reminder times: what surrounds the pickers', () => {
+    beforeEach(() => {
+        mockStore = {};
+        mockPickers.length = 0;
+    });
+
+    it("shows Mark's words beneath the time rows", async () => {
+        const view = renderScreen();
+        await waitFor(() => expect(morningPicker()).toBeDefined());
+
+        expect(view.getByText(/keeps me accountable/)).toBeTruthy();
+        expect(view.getByText('Mark')).toBeTruthy();
+        view.unmount();
+    });
+
+    it('tells people in the opening text that the times can be changed later', async () => {
+        const view = renderScreen();
+        await waitFor(() => expect(morningPicker()).toBeDefined());
+
+        expect(view.getByText(/You can update these in Settings at any time/)).toBeTruthy();
+        view.unmount();
+    });
+});
+
 describe('reminder times: picking a time', () => {
     beforeEach(() => {
         mockStore = {};

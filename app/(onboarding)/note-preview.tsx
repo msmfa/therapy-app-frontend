@@ -3,7 +3,6 @@ import type { ImageSourcePropType } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { QuoteCard } from '../../src/components/onboarding/QuoteCard';
 import { SURFACE_BLUE, SURFACE_BLUE_FADE } from 'designs/designs-colors';
 import { Button } from '../../src/components/ui/Button';
 import AppText from '../../src/components/ui/AppText';
@@ -88,14 +87,6 @@ export default function NotePreviewScreen() {
                     </AppText>
                 </View>
             </View>
-
-            <View style={ styles.quote }>
-                <QuoteCard
-                    quote={ NOTE_PREVIEW_COPY.testimonial.quote }
-                    name={ NOTE_PREVIEW_COPY.testimonial.name }
-                    role={ NOTE_PREVIEW_COPY.testimonial.role }
-                />
-            </View>
         </OnboardingScreen>
     );
 }
@@ -132,8 +123,5 @@ const styles = StyleSheet.create({
         right: 0,
         bottom: 0,
         height: 260,
-    },
-    quote: {
-        marginTop: 20,
     },
 });
