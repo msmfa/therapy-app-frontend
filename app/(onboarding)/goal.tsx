@@ -2,13 +2,17 @@ import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
-import { SelectableCard } from '../../src/components/onboarding/SelectableCard';
+import {
+    SelectableCard,
+    useEqualSelectableCardHeights,
+} from '../../src/components/onboarding/SelectableCard';
 import { GOAL_COPY, GOAL_OPTIONS } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 
 export default function GoalScreen() {
     const router = useRouter();
     const { answers, setAnswer } = useOnboardingAnswers();
+    const { height: cardHeight, onCardLayout } = useEqualSelectableCardHeights();
 
     return (
         <OnboardingScreen
@@ -30,6 +34,11 @@ export default function GoalScreen() {
                         key={ option.id }
                         label={ option.label }
                         selected={ answers.goal === option.id }
+                        // One height for every option: a shorter card for a
+                        // shorter label read as a different control rather than
+                        // the same question asked three ways.
+                        height={ cardHeight }
+                        onLayout={ onCardLayout }
                         // Selection never advances on its own: the user should be
                         // able to change their mind before committing.
                         onPress={ () => setAnswer('goal', option.id) }

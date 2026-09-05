@@ -3,7 +3,10 @@ import { useRouter } from 'expo-router';
 import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
 import AppText from '../../src/components/ui/AppText';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
-import { SelectableCard } from '../../src/components/onboarding/SelectableCard';
+import {
+    SelectableCard,
+    useEqualSelectableCardHeights,
+} from '../../src/components/onboarding/SelectableCard';
 import {
     CADENCE_COPY,
     CADENCE_OPTIONS,
@@ -14,6 +17,7 @@ import { TEXT_COLORS } from 'designs/designs-colors';
 export default function SessionCadenceScreen() {
     const router = useRouter();
     const { answers, setAnswer } = useOnboardingAnswers();
+    const { height: cardHeight, onCardLayout } = useEqualSelectableCardHeights();
 
     return (
         <OnboardingScreen
@@ -34,6 +38,8 @@ export default function SessionCadenceScreen() {
                         key={ option.id }
                         label={ option.label }
                         selected={ answers.cadence === option.id }
+                        height={ cardHeight }
+                        onLayout={ onCardLayout }
                         onPress={ () => setAnswer('cadence', option.id) }
                     />
                 )) }

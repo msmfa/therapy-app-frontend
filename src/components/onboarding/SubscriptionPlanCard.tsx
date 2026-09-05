@@ -75,9 +75,11 @@ export function SubscriptionPlanCard({
                     </View>
                 </View>
 
-                { selected && (
-                    <Feather name="check" size={ 18 } color={ TEXT_COLORS.primary } />
-                ) }
+                <View style={ styles.check }>
+                    { selected && (
+                        <Feather name="check" size={ 18 } color={ TEXT_COLORS.primary } />
+                    ) }
+                </View>
             </View>
 
             { description !== undefined && (
@@ -161,6 +163,7 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
     },
     radio: {
+        flexShrink: 0,
         width: 22,
         height: 22,
         borderRadius: 11,
@@ -177,6 +180,15 @@ const styles = StyleSheet.create({
         height: 12,
         borderRadius: 6,
         backgroundColor: ACTION_ORANGE,
+    },
+    // Keep this space when unselected so choosing a plan cannot wrap the
+    // header onto another line and change the card's height.
+    check: {
+        width: 18,
+        height: 18,
+        flexShrink: 0,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     title: {
         fontSize: 18,
