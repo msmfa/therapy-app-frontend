@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import AppText from '../ui/AppText';
-import { COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
+import { ACTION_ORANGE, TEXT_COLORS } from 'designs/designs-colors';
 import { ONBOARDING_QUESTION_COUNT } from '../../features/onboarding/onboardingCopy';
 
 type Props = {
@@ -43,20 +43,23 @@ const styles = StyleSheet.create({
     container: {
         paddingHorizontal: 24,
         paddingTop: 8,
-        gap: 8,
+        gap: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     track: {
         flexDirection: 'row',
-        height: 4,
-        borderRadius: 2,
+        flex: 1,
+        height: 5,
+        borderRadius: 3,
         overflow: 'hidden',
         backgroundColor: 'hsla(0, 0%, 0%, 0.10)',
     },
     fill: {
-        backgroundColor: COLOR_VARIANTS.black.primary,
-        borderRadius: 2,
+        backgroundColor: ACTION_ORANGE,
+        borderRadius: 3,
     },
     label: {
-        color: TEXT_COLORS.tertiary,
+        color: TEXT_COLORS.secondary,
     },
 });

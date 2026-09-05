@@ -1,11 +1,11 @@
 import { useCallback, useRef, useState } from 'react';
 import { Image } from 'expo-image';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
 import { Redirect, useFocusEffect, useRouter } from 'expo-router';
 import type { Href } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button } from '../../src/components/ui/Button';
+import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
 import AppText from '../../src/components/ui/AppText';
 import { useAuth } from '../../src/context/auth/AuthContext';
 import {
@@ -19,9 +19,17 @@ import { safeOnboardingResumeRoute } from '../../src/features/onboarding/onboard
 import Loading from '../../src/components/ui/Loading';
 import brainIllustration from '../../assets/illustrations/brain-elastic.svg';
 import { TEXT_COLORS } from 'designs/designs-colors';
+import { GlassMorphismWithCircle } from '../../src/components/ui/GlassMorphismWithCircle';
+import { CirclePosition } from '../../src/components/ui/LinearGradientCircle';
+import { onboardingStyles } from '../../src/components/onboarding/onboardingStyles';
+import { shouldUseCombinedOnboardingScroll } from '../../src/components/onboarding/OnboardingScreen';
 
 export default function WelcomeScreen() {
     const router = useRouter();
+    const { width, height, fontScale } = useWindowDimensions();
+    const useCombinedScroll = shouldUseCombinedOnboardingScroll(fontScale);
+    const compact = height < 750;
+    const illustrationSize = Math.min(320, height * (compact ? 0.24 : 0.28), Math.max(0, width - 96));
     const { isAuthenticated, user } = useAuth();
     const { answers, hydrated: answersHydrated } = useOnboardingAnswers();
     const draftOwner = isAuthenticated ? `user:${user?.id ?? 'unknown'}` : 'anonymous';
@@ -61,73 +69,83 @@ export default function WelcomeScreen() {
         return <Redirect href={ draftResumeHref } />;
     }
 
-    return (
-        <SafeAreaView style={ styles.safeArea } edges={ ['top', 'left', 'right', 'bottom'] }>
-            <ScrollView
-                style={ styles.scroll }
-                contentContainerStyle={ styles.scrollContent }
-                showsVerticalScrollIndicator={ false }
+    const footer = (
+        <View style={ styles.footer }>
+            <OnboardingButton
+                label={ WELCOME_COPY.primaryCta }
+                onPress={ () => router.push('/(onboarding)/goal') }
+            />
+
+            <TouchableOpacity
+                onPress={ () => router.push({
+                    pathname: '/(auth)/login',
+                    params: { source: WELCOME_AUTH_SOURCE },
+                }) }
+                accessibilityRole="button"
+                accessibilityLabel={ WELCOME_COPY.secondaryCta }
+                style={ styles.secondaryAction }
             >
-                <View style={ styles.wordmark } accessible accessibilityRole="header" accessibilityLabel="Plastic Brains">
-                    { /* A cut-out of the same mark, kept as a separate file on
-                         purpose. brain-logo.png is also the app icon, and iOS
-                         rejects an icon containing an alpha channel, so the
-                         two cannot be the same asset. */ }
-                    <Image
-                        source={ require('../../assets/brain-logo-transparent.png') as ImageSourcePropType }
-                        style={ styles.wordmarkMark }
-                        contentFit="contain"
-                    />
-                    <AppText variant="h2" style={ styles.wordmarkSans }>
-                        Plastic
-                        <AppText variant="h2" style={ styles.wordmarkSerif }> Brains</AppText>
-                    </AppText>
-                </View>
-
-                <AppText
-                    variant="h1"
-                    style={ styles.headline }
-                    accessibilityRole="header"
-                >
-                    { WELCOME_COPY.headline }
+                <AppText variant="body" style={ styles.secondaryLabel }>
+                    { WELCOME_COPY.secondaryCta }
                 </AppText>
+            </TouchableOpacity>
+        </View>
+    );
 
-                <AppText variant="body" style={ styles.body }>
-                    { WELCOME_COPY.body }
-                </AppText>
-
-                <View style={ styles.illustrationWrapper }>
-                    <Image
-                        source={ brainIllustration }
-                        style={ styles.illustration }
-                        contentFit="contain"
-                        accessible
-                        accessibilityLabel="An illustration of a brain being gently stretched"
-                    />
-                </View>
-            </ScrollView>
-
-            <View style={ styles.footer }>
-                <Button
-                    label={ WELCOME_COPY.primaryCta }
-                    onPress={ () => router.push('/(onboarding)/goal') }
-                />
-
-                <TouchableOpacity
-                    onPress={ () => router.push({
-                        pathname: '/(auth)/login',
-                        params: { source: WELCOME_AUTH_SOURCE },
-                    }) }
-                    accessibilityRole="button"
-                    accessibilityLabel={ WELCOME_COPY.secondaryCta }
-                    style={ styles.secondaryAction }
+    return (
+        <View style={ styles.safeArea }>
+            <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_RIGHT } />
+            <SafeAreaView style={ styles.safeArea } edges={ ['top', 'left', 'right', 'bottom'] }>
+                <ScrollView
+                    style={ styles.scroll }
+                    contentContainerStyle={ styles.scrollContent }
+                    showsVerticalScrollIndicator={ false }
                 >
-                    <AppText variant="body" style={ styles.secondaryLabel }>
-                        { WELCOME_COPY.secondaryCta }
-                    </AppText>
-                </TouchableOpacity>
-            </View>
-        </SafeAreaView>
+                    <View style={ styles.wordmark } accessible accessibilityRole="header" accessibilityLabel="Plastic Brains">
+                        { /* A cut-out of the same mark, kept as a separate file on
+                             purpose. brain-logo.png is also the app icon, and iOS
+                             rejects an icon containing an alpha channel, so the
+                             two cannot be the same asset. */ }
+                        <Image
+                            source={ require('../../assets/brain-logo-transparent.png') as ImageSourcePropType }
+                            style={ styles.wordmarkMark }
+                            contentFit="contain"
+                        />
+                        <AppText variant="h2" style={ styles.wordmarkSans }>
+                            Plastic
+                            <AppText variant="h2" style={ styles.wordmarkSerif }> Brains</AppText>
+                        </AppText>
+                    </View>
+
+                    <View style={ [onboardingStyles.card, styles.hero] }>
+                        <AppText
+                            variant="h1"
+                            style={ [onboardingStyles.headline, compact && styles.compactHeadline] }
+                            accessibilityRole="header"
+                        >
+                            { WELCOME_COPY.headline }
+                        </AppText>
+
+                        <AppText variant="body" style={ [onboardingStyles.body, styles.body] }>
+                            { WELCOME_COPY.body }
+                        </AppText>
+
+                        <View style={ styles.illustrationWrapper }>
+                            <Image
+                                source={ brainIllustration }
+                                style={ { width: illustrationSize, height: illustrationSize } }
+                                contentFit="contain"
+                                accessible
+                                accessibilityLabel="An illustration of a brain being gently stretched"
+                            />
+                        </View>
+                    </View>
+
+                    { useCombinedScroll && footer }
+                </ScrollView>
+                { !useCombinedScroll && <View style={ styles.pinnedFooter }>{ footer }</View> }
+            </SafeAreaView>
+        </View>
     );
 }
 
@@ -139,14 +157,16 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     scrollContent: {
+        flexGrow: 1,
         paddingHorizontal: 24,
         paddingTop: 16,
-        paddingBottom: 16,
+        paddingBottom: 20,
     },
     wordmark: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
+        paddingBottom: 24,
     },
     wordmarkMark: {
         width: 28,
@@ -161,30 +181,31 @@ const styles = StyleSheet.create({
         fontSize: 22,
         fontWeight: '400',
     },
-    headline: {
-        marginTop: 28,
-        fontSize: 30,
-        lineHeight: 37,
-        letterSpacing: -0.5,
+    hero: {
+        flexGrow: 1,
+        padding: 24,
+        borderRadius: 30,
+    },
+    compactHeadline: {
+        fontSize: 28,
+        lineHeight: 34,
     },
     body: {
         marginTop: 14,
-        fontSize: 17,
-        lineHeight: 26,
     },
     illustrationWrapper: {
         alignItems: 'center',
+        justifyContent: 'center',
+        flexGrow: 1,
         marginTop: 8,
     },
-    illustration: {
-        width: 320,
-        height: 320,
+    pinnedFooter: {
+        paddingHorizontal: 24,
+        paddingBottom: 16,
     },
     footer: {
-        paddingHorizontal: 24,
-        paddingTop: 12,
-        paddingBottom: 8,
-        gap: 4,
+        paddingTop: 16,
+        gap: 12,
     },
     secondaryAction: {
         minHeight: 44,

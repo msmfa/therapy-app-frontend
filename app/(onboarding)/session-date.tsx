@@ -3,9 +3,10 @@ import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import type { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import { Button } from '../../src/components/ui/Button';
+import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
 import AppText from '../../src/components/ui/AppText';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
+import { onboardingStyles } from '../../src/components/onboarding/onboardingStyles';
 import { SESSION_DATE_COPY } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { longDateLabel, timeLabel } from '../../src/features/onboarding/formatting';
@@ -13,7 +14,7 @@ import {
     isWithinFirstSessionWindow,
     latestFirstSessionAt,
 } from '../../src/utils/sessionWindow';
-import { COLOR_VARIANTS, PALETTE, TEXT_COLORS, THEME_COLORS } from 'designs/designs-colors';
+import { COLOR_VARIANTS, TEXT_COLORS, THEME_COLORS } from 'designs/designs-colors';
 
 type Field = 'date' | 'time';
 
@@ -135,12 +136,12 @@ export default function SessionDateScreen() {
             supporting={ SESSION_DATE_COPY.supporting }
             footer={
                 <>
-                    <Button
+                    <OnboardingButton
                         label={ SESSION_DATE_COPY.primaryCta }
                         disabled={ !canContinue }
                         onPress={ handleContinue }
                     />
-                    <Button
+                    <OnboardingButton
                         label={ SESSION_DATE_COPY.sampleCta }
                         transparent
                         onPress={ handleSamplePlan }
@@ -148,7 +149,7 @@ export default function SessionDateScreen() {
                 </>
             }
         >
-            <View style={ styles.fields }>
+            <View style={ [onboardingStyles.card, styles.fields] }>
                 { rows.map((row, index) => {
                     const placeholder = `Choose a ${row.label.toLowerCase()}`;
                     const isOpen = open === row.field;
@@ -165,7 +166,7 @@ export default function SessionDateScreen() {
                                 accessibilityState={ { expanded: isOpen } }
                                 style={ styles.row }
                             >
-                                <AppText variant="h3" style={ styles.rowLabel }>
+                                <AppText variant="h3" style={ [onboardingStyles.title, styles.rowLabel] }>
                                     { row.label }
                                 </AppText>
                                 <AppText
@@ -214,14 +215,10 @@ export default function SessionDateScreen() {
 const styles = StyleSheet.create({
     fields: {
         marginTop: 24,
-        borderRadius: 16,
-        borderWidth: 1,
-        borderColor: PALETTE.overlay.whiteBorderTransparent,
-        backgroundColor: 'hsla(0, 0%, 100%, 0.55)',
-        paddingHorizontal: 16,
+        paddingHorizontal: 20,
     },
     row: {
-        minHeight: 56,
+        minHeight: 72,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -239,7 +236,7 @@ const styles = StyleSheet.create({
     placeholder: {
         flexShrink: 1,
         textAlign: 'right',
-        color: TEXT_COLORS.quaternary,
+        color: TEXT_COLORS.secondary,
     },
     divider: {
         height: 1,

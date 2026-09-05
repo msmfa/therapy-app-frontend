@@ -9,6 +9,7 @@ import { ReminderType } from '../../utils/types';
 import { REMINDER_SCIENCE_COPY } from '../../constants/neuroReminders';
 import { AppModal } from '../Modal';
 import { ScienceTextModal } from '../ScienceTextModal';
+import { onboardingStyles } from './onboardingStyles';
 
 type Props = {
     entries: PlanTimelineEntry[];
@@ -46,14 +47,14 @@ export function PlanTimeline({ entries }: Props) {
                                 { !isLast && <View style={ styles.railLine } /> }
                             </View>
 
-                            <View style={ styles.content }>
-                                <AppText variant="h3" style={ styles.label }>
+                            <View style={ [onboardingStyles.card, styles.content] }>
+                                <AppText variant="h3" style={ [onboardingStyles.title, styles.label] }>
                                     { entry.label }
                                 </AppText>
                                 <AppText variant="caption" style={ styles.when }>
                                     { occurrencesLabel(entry.occurrences) }
                                 </AppText>
-                                <AppText variant="body" style={ styles.body }>
+                                <AppText variant="body" style={ [onboardingStyles.body, styles.body] }>
                                     { entry.body }
                                 </AppText>
                                 { researchLabel !== null && (
@@ -125,7 +126,7 @@ const styles = StyleSheet.create({
         width: 12,
         height: 12,
         borderRadius: 6,
-        marginTop: 6,
+        marginTop: 24,
     },
     railLine: {
         width: 2,
@@ -136,7 +137,8 @@ const styles = StyleSheet.create({
     },
     content: {
         flex: 1,
-        paddingBottom: 22,
+        padding: 20,
+        marginBottom: 16,
     },
     label: {
         fontSize: 17,
@@ -157,6 +159,7 @@ const styles = StyleSheet.create({
         gap: 6,
     },
     researchLinkLabel: {
+        flexShrink: 1,
         color: TEXT_COLORS.secondary,
         textDecorationLine: 'underline',
     },

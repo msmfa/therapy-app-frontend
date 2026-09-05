@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Redirect, useRouter } from 'expo-router';
-import { Button } from '../../src/components/ui/Button';
+import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
 import AppText from '../../src/components/ui/AppText';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import { AppleSignInButton } from '../../src/components/onboarding/AppleSignInButton';
@@ -19,6 +19,7 @@ import { purchase } from '../../src/features/subscription/storeKit';
 import { useEntitlementState } from '../../src/features/subscription/EntitlementContext';
 import { useOnboarding } from '../../src/context/onboarding/OnboardingContext';
 import { TEXT_COLORS } from 'designs/designs-colors';
+import { onboardingStyles } from '../../src/components/onboarding/onboardingStyles';
 import { firstIncompletePlanRoute } from '../../src/features/onboarding/flowGuard';
 
 type Stage = 'account' | 'purchasing' | 'purchase_failed' | 'purchase_unlinked';
@@ -177,11 +178,11 @@ export default function AccountPreviewScreen() {
                 supporting={ failedCopy.body }
                 footer={
                     <>
-                        <Button
+                        <OnboardingButton
                             label={ PURCHASE_COPY.errorPrimary }
                             onPress={ () => void startPurchase() }
                         />
-                        <Button
+                        <OnboardingButton
                             label={ PURCHASE_COPY.errorSecondary }
                             transparent
                             onPress={ () => router.replace('/(onboarding)/subscription-preview') }
@@ -204,7 +205,7 @@ export default function AccountPreviewScreen() {
             footer={
                 <>
                     { isAuthenticated ? (
-                        <Button
+                        <OnboardingButton
                             label={ ACCOUNT_COPY.continue }
                             loading={ busy }
                             onPress={ () => void startPurchase() }
@@ -221,7 +222,7 @@ export default function AccountPreviewScreen() {
                                 />
                             ) }
 
-                            <Button
+                            <OnboardingButton
                                 label={ ACCOUNT_COPY.email }
                                 transparent
                                 disabled={ busy }
@@ -244,7 +245,7 @@ export default function AccountPreviewScreen() {
                 </>
             }
         >
-            <View style={ styles.legal }>
+            <View style={ [onboardingStyles.card, styles.legal] }>
                 <AppText variant="caption" style={ styles.legalText }>
                     { `${ACCOUNT_COPY.legalPrefix}${ACCOUNT_COPY.legalTerms}${ACCOUNT_COPY.legalMiddle}${ACCOUNT_COPY.legalPrivacy}${ACCOUNT_COPY.legalSuffix}` }
                 </AppText>
@@ -281,6 +282,7 @@ export default function AccountPreviewScreen() {
 
 const styles = StyleSheet.create({
     legal: {
+        padding: 20,
         marginTop: 28,
     },
     legalText: {

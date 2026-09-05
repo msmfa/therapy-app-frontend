@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, useWindowDimensions } from 'react-native';
-import { render } from '@testing-library/react-native';
+import { fireEvent, render, within } from '@testing-library/react-native';
 import { SelectableCard } from '../SelectableCard';
 import { SubscriptionPlanCard } from '../SubscriptionPlanCard';
 import { OnboardingProgress } from '../OnboardingProgress';
@@ -8,9 +8,13 @@ import {
 	OnboardingScreen,
 	shouldUseCombinedOnboardingScroll,
 } from '../OnboardingScreen';
-import { Button } from '../../ui/Button';
+import { OnboardingButton as Button } from '../OnboardingButton';
 import { NoteTemplateSheet } from '../NoteTemplateSheet';
 import { POST_THERAPY_QUESTIONS } from '../../../constants/postTherapyTemplate';
+
+jest.mock('expo-router', () => ({
+    useRouter: () => ({ canGoBack: () => true, back: jest.fn(), replace: jest.fn() }),
+}));
 
 jest.mock('@expo/vector-icons', () => ({
 	Feather: () => null,
@@ -99,6 +103,17 @@ describe('OnboardingProgress accessibility', () => {
 });
 
 describe('Button accessibility states', () => {
+    it.each([false, true])('blocks repeat taps while loading (secondary: %s)', (transparent) => {
+        const onPress = jest.fn();
+        const screen = render(<Button label="Continue" loading transparent={transparent} onPress={onPress} />);
+        fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
+        expect(onPress).not.toHaveBeenCalled();
+
+        screen.rerender(<Button label="Continue" transparent={transparent} onPress={onPress} />);
+        fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
+        expect(onPress).toHaveBeenCalledTimes(1);
+    });
+
 	it('reports busy while loading so VoiceOver does not read it as unavailable', () => {
 		const { getByRole } = render(
 			<Button label="Continue with Apple" loading onPress={() => {}} />,
@@ -141,6 +156,21 @@ describe('Note preview questions', () => {
 });
 
 describe('OnboardingScreen layout contract', () => {
+    it('keeps a long title in the scroll with its actions at accessibility sizes', () => {
+        mockUseWindowDimensions.mockReturnValue({ width: 375, height: 667, scale: 2, fontScale: 3.12 });
+        const headline = 'Your account is ready, but your purchase could not be completed';
+        const screen = render(
+            <OnboardingScreen
+                backHref="/(onboarding)/subscription-preview"
+                headline={headline}
+                footer={<Button label="Try again" onPress={() => {}} />}
+            />,
+        );
+        const scroll = within(screen.getByTestId('onboarding-combined-scroll'));
+        expect(scroll.getByRole('header', { name: headline })).toBeTruthy();
+        expect(scroll.getByRole('button', { name: 'Try again' })).toBeTruthy();
+    });
+
 	it('uses one continuous scroll only for accessibility text sizes', () => {
 		expect(shouldUseCombinedOnboardingScroll(1.35)).toBe(false);
 		expect(shouldUseCombinedOnboardingScroll(1.5)).toBe(true);

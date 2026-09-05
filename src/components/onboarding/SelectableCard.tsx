@@ -2,7 +2,8 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import AppText from '../ui/AppText';
-import { ACTION_BLUE_DARK, COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
+import { ACTION_ORANGE, COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
+import { onboardingStyles } from './onboardingStyles';
 
 type Props = {
     label: string;
@@ -25,18 +26,18 @@ export function SelectableCard({ label, selected, onPress }: Props) {
             accessibilityRole="radio"
             accessibilityLabel={ label }
             accessibilityState={ { selected, checked: selected } }
-            style={ [styles.card, selected ? styles.cardSelected : styles.cardIdle] }
+            style={ [onboardingStyles.card, styles.card, selected && styles.cardSelected] }
         >
             <View style={ [styles.radio, selected && styles.radioSelected] }>
                 { selected && <View style={ styles.radioDot } /> }
             </View>
 
-            <AppText variant="h3" style={ styles.label }>
+            <AppText variant="h3" style={ [onboardingStyles.title, styles.label] }>
                 { label }
             </AppText>
 
             { selected && (
-                <Feather name="check" size={ 20 } color={ ACTION_BLUE_DARK } style={ styles.check } />
+                <Feather name="check" size={ 20 } color={ TEXT_COLORS.primary } style={ styles.check } />
             ) }
         </TouchableOpacity>
     );
@@ -47,20 +48,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 14,
-        minHeight: 60,
-        paddingVertical: 14,
-        paddingHorizontal: 16,
-        borderRadius: 16,
-        borderWidth: 1,
-    },
-    cardIdle: {
-        backgroundColor: 'hsla(0, 0%, 100%, 0.55)',
-        borderColor: PALETTE.overlay.whiteBorderTransparent,
+        minHeight: 72,
+        paddingVertical: 18,
+        paddingHorizontal: 20,
+        borderWidth: 2,
     },
     cardSelected: {
         backgroundColor: COLOR_VARIANTS.white.primary,
-        borderColor: ACTION_BLUE_DARK,
-        borderWidth: 2,
+        borderColor: ACTION_ORANGE,
     },
     radio: {
         width: 22,
@@ -72,13 +67,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     radioSelected: {
-        borderColor: ACTION_BLUE_DARK,
+        borderColor: ACTION_ORANGE,
     },
     radioDot: {
         width: 12,
         height: 12,
         borderRadius: 6,
-        backgroundColor: ACTION_BLUE_DARK,
+        backgroundColor: ACTION_ORANGE,
     },
     label: {
         flex: 1,

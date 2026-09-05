@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Button } from '../../src/components/ui/Button';
+import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
 import AppText from '../../src/components/ui/AppText';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import { SelectableCard } from '../../src/components/onboarding/SelectableCard';
@@ -21,7 +21,7 @@ export default function SessionCadenceScreen() {
             backHref="/(onboarding)/session-date"
             headline={ CADENCE_COPY.headline }
             footer={
-                <Button
+                <OnboardingButton
                     label={ CADENCE_COPY.primaryCta }
                     disabled={ answers.cadence === null }
                     onPress={ () => router.push('/(onboarding)/reminder-times') }

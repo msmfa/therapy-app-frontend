@@ -6,7 +6,7 @@ import {
     useOnboarding,
 } from '../../src/context/onboarding/OnboardingContext';
 import { useTherapySessions } from '../../src/context/therapy-sessions/TherapySessionsContext';
-import { Button } from '../../src/components/ui/Button';
+import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import { useAppAlert } from '../../src/context/alert';
 import {
@@ -135,7 +135,7 @@ export default function SuccessScreen() {
             headline={ headline }
             supporting={ body }
             footer={
-                <Button
+                <OnboardingButton
                     label={ firstReminderAt === null
                         ? SUCCESS_COPY.samplePrimaryCta
                         : SUCCESS_COPY.primaryCta }

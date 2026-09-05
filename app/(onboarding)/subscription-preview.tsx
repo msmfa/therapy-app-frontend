@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Redirect, useRouter } from 'expo-router';
-import { Button } from '../../src/components/ui/Button';
+import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
 import AppText from '../../src/components/ui/AppText';
 import Loading from '../../src/components/ui/Loading';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
@@ -58,7 +58,7 @@ export default function SubscriptionPreviewScreen() {
     // Account controls must remain available even when no products can load
     // or this account has no subscription.
     const accountSettings = isAuthenticated ? (
-        <Button label="Account settings" transparent onPress={ () => router.push('/account') } />
+        <OnboardingButton label="Account settings" transparent onPress={ () => router.push('/account') } />
     ) : null;
 
     const goalHeadline = useMemo(() => {
@@ -188,7 +188,7 @@ export default function SubscriptionPreviewScreen() {
                 headline={ failure.headline }
                 supporting={ failure.body }
                 footer={ <>
-                    <Button label={ ERROR_COPY.retryCta } onPress={ reload } />
+                    <OnboardingButton label={ ERROR_COPY.retryCta } onPress={ reload } />
                     { accountSettings }
                 </> }
             />
@@ -208,7 +208,7 @@ export default function SubscriptionPreviewScreen() {
             headline={ SUBSCRIPTION_COPY.planHeader }
             footer={
                 <>
-                    <Button
+                    <OnboardingButton
                         label={ showSelectedTrial
                             ? SUBSCRIPTION_COPY.trialCta
                             : planCtaLabel(selected) }

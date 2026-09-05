@@ -4,11 +4,12 @@ import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SURFACE_BLUE, SURFACE_BLUE_FADE } from 'designs/designs-colors';
-import { Button } from '../../src/components/ui/Button';
+import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
 import AppText from '../../src/components/ui/AppText';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import { NOTE_PREVIEW_COPY } from '../../src/features/onboarding/onboardingCopy';
 import { TEXT_COLORS } from 'designs/designs-colors';
+import { onboardingStyles } from '../../src/components/onboarding/onboardingStyles';
 
 /** The screenshot's own proportions, so nothing is stretched. */
 const NOTES_IMAGE_ASPECT = 1290 / 2616;
@@ -64,13 +65,13 @@ export default function NotePreviewScreen() {
                 </>
             }
             footer={
-                <Button
+                <OnboardingButton
                     label={ NOTE_PREVIEW_COPY.primaryCta }
                     onPress={ () => router.push('/(onboarding)/subscription-preview') }
                 />
             }
         >
-            <View style={ styles.privacy }>
+            <View style={ [onboardingStyles.card, styles.privacy] }>
                 <Feather
                     name="lock"
                     size={ 18 }
@@ -79,10 +80,10 @@ export default function NotePreviewScreen() {
                     importantForAccessibility="no-hide-descendants"
                 />
                 <View style={ styles.privacyText }>
-                    <AppText variant="h3" style={ styles.privacyTitle } accessibilityRole="header">
+                    <AppText variant="h3" style={ [onboardingStyles.title, styles.privacyTitle] } accessibilityRole="header">
                         { NOTE_PREVIEW_COPY.privacyTitle }
                     </AppText>
-                    <AppText variant="body" style={ styles.privacyBody }>
+                    <AppText variant="body" style={ [onboardingStyles.body, styles.privacyBody] }>
                         { NOTE_PREVIEW_COPY.privacyBody }
                     </AppText>
                 </View>
@@ -100,6 +101,7 @@ const IMAGE_TOP_FRACTION = 0.46;
 
 const styles = StyleSheet.create({
     privacy: {
+        padding: 20,
         marginTop: 24,
         flexDirection: 'row',
         gap: 12,

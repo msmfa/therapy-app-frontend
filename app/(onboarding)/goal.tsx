@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Button } from '../../src/components/ui/Button';
+import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import { SelectableCard } from '../../src/components/onboarding/SelectableCard';
 import { GOAL_COPY, GOAL_OPTIONS } from '../../src/features/onboarding/onboardingCopy';
@@ -17,7 +17,7 @@ export default function GoalScreen() {
             headline={ GOAL_COPY.headline }
             supporting={ GOAL_COPY.supporting }
             footer={
-                <Button
+                <OnboardingButton
                     label={ GOAL_COPY.primaryCta }
                     disabled={ answers.goal === null }
                     onPress={ () => router.push('/(onboarding)/session-date') }

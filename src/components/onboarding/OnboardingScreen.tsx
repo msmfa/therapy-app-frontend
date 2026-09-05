@@ -5,6 +5,9 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import AppText from '../ui/AppText';
 import { OnboardingProgress } from './OnboardingProgress';
 import { BackButton } from '../ui/BackButton';
+import { GlassMorphismWithCircle } from '../ui/GlassMorphismWithCircle';
+import { CirclePosition } from '../ui/LinearGradientCircle';
+import { onboardingStyles } from './onboardingStyles';
 
 type BaseProps = {
     /** 1-4 for the personalisation questions; omitted elsewhere. */
@@ -75,14 +78,14 @@ export function OnboardingScreen({
     // screens after them are review and preview screens whose title is a label
     // for what is already on screen, so it sits beside the back arrow instead
     // and gives the content the vertical space.
-    const titleBesideBack = step === undefined && showBack;
+    const titleBesideBack = step === undefined && showBack && !useCombinedScroll;
 
     const body = (
         <>
             { !titleBesideBack && (
                 <AppText
                     variant="h1"
-                    style={ styles.headline }
+                    style={ onboardingStyles.headline }
                     accessibilityRole="header"
                 >
                     { headline }
@@ -90,7 +93,7 @@ export function OnboardingScreen({
             ) }
 
             { supporting !== undefined && (
-                <AppText variant="body" style={ styles.supporting }>
+                <AppText variant="body" style={ [onboardingStyles.body, styles.supporting] }>
                     { supporting }
                 </AppText>
             ) }
@@ -100,81 +103,83 @@ export function OnboardingScreen({
     );
 
     return (
-        <SafeAreaView style={ styles.safeArea } edges={ ['top', 'left', 'right', 'bottom'] }>
-            <View style={ styles.header }>
-                { showBack && <BackButton fallbackHref={ backHref } /> }
+        <View style={ styles.safeArea }>
+            <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_LEFT } />
+            <SafeAreaView style={ styles.safeArea } edges={ ['top', 'left', 'right', 'bottom'] }>
+                <View style={ styles.header }>
+                    { showBack && <BackButton fallbackHref={ backHref } appearance="glass" /> }
 
-                { titleBesideBack && (
-                    <AppText
-                        testID="onboarding-header-title"
-                        variant="h3"
-                        style={ styles.headerTitle }
-                        accessibilityRole="header"
-                        numberOfLines={ 1 }
-                    >
-                        { headline }
-                    </AppText>
-                ) }
-            </View>
-
-            { step !== undefined && <OnboardingProgress step={ step } /> }
-
-            { useCombinedScroll ? (
-                <ScrollView
-                    testID="onboarding-combined-scroll"
-                    style={ styles.scroll }
-                    contentContainerStyle={ styles.combinedScrollContent }
-                    showsVerticalScrollIndicator={ false }
-                    keyboardShouldPersistTaps="handled"
-                >
-                    { body }
-
-                    <View testID="onboarding-footer" style={ styles.combinedFooter }>
-                        { footer }
-                    </View>
-
-                    { bottomBackdrop !== undefined && (
-                        <View testID="onboarding-backdrop" style={ styles.combinedBackdrop }>
-                            { bottomBackdrop }
-                        </View>
-                    ) }
-                </ScrollView>
-            ) : (
-                <>
-                    { bottomBackdrop !== undefined && (
-                        // First in source order so everything else stacks
-                        // above it; shifted past the safe-area padding so the
-                        // artwork sits against the physical bottom edge.
-                        <View
-                            testID="onboarding-backdrop"
-                            pointerEvents="none"
-                            style={ [styles.backdrop, { bottom: -insets.bottom }] }
+                    { titleBesideBack && (
+                        <AppText
+                            testID="onboarding-header-title"
+                            variant="h3"
+                            style={ styles.headerTitle }
+                            accessibilityRole="header"
                         >
-                            { bottomBackdrop }
-                        </View>
+                            { headline }
+                        </AppText>
                     ) }
+                </View>
 
+                { step !== undefined && <OnboardingProgress step={ step } /> }
+
+                { useCombinedScroll ? (
                     <ScrollView
+                        testID="onboarding-combined-scroll"
                         style={ styles.scroll }
-                        contentContainerStyle={ styles.scrollContent }
+                        contentContainerStyle={ styles.combinedScrollContent }
                         showsVerticalScrollIndicator={ false }
                         keyboardShouldPersistTaps="handled"
                     >
                         { body }
-                    </ScrollView>
 
-                    <ScrollView
-                        testID="onboarding-footer"
-                        style={ styles.footer }
-                        contentContainerStyle={ styles.footerContent }
-                        showsVerticalScrollIndicator={ false }
-                        alwaysBounceVertical={ false }
-                    >
-                        { footer }
+                        <View testID="onboarding-footer" style={ styles.combinedFooter }>
+                            { footer }
+                        </View>
+
+                        { bottomBackdrop !== undefined && (
+                            <View testID="onboarding-backdrop" style={ styles.combinedBackdrop }>
+                                { bottomBackdrop }
+                            </View>
+                        ) }
                     </ScrollView>
-                </>
-            ) }
-        </SafeAreaView>
+                ) : (
+                    <>
+                        { bottomBackdrop !== undefined && (
+                            // First in source order so everything else stacks
+                            // above it; shifted past the safe-area padding so the
+                            // artwork sits against the physical bottom edge.
+                            <View
+                                testID="onboarding-backdrop"
+                                pointerEvents="none"
+                                style={ [styles.backdrop, { bottom: -insets.bottom }] }
+                            >
+                                { bottomBackdrop }
+                            </View>
+                        ) }
+
+                        <ScrollView
+                            style={ styles.scroll }
+                            contentContainerStyle={ styles.scrollContent }
+                            showsVerticalScrollIndicator={ false }
+                            keyboardShouldPersistTaps="handled"
+                        >
+                            { body }
+                        </ScrollView>
+
+                        <ScrollView
+                            testID="onboarding-footer"
+                            style={ styles.footer }
+                            contentContainerStyle={ styles.footerContent }
+                            showsVerticalScrollIndicator={ false }
+                            alwaysBounceVertical={ false }
+                        >
+                            { footer }
+                        </ScrollView>
+                    </>
+                ) }
+            </SafeAreaView>
+        </View>
     );
 }
 
@@ -183,38 +188,36 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     header: {
-        paddingHorizontal: 20,
-        minHeight: 44,
+        paddingHorizontal: 24,
+        paddingTop: 4,
+        paddingBottom: 12,
+        minHeight: 60,
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
+        gap: 14,
     },
     headerTitle: {
         flex: 1,
         fontSize: 17,
+        lineHeight: 24,
+        letterSpacing: 0.5,
+        textTransform: 'uppercase',
     },
     scroll: {
         flex: 1,
     },
     scrollContent: {
         paddingHorizontal: 24,
-        paddingTop: 16,
+        paddingTop: 24,
         paddingBottom: 24,
     },
     combinedScrollContent: {
         paddingHorizontal: 24,
-        paddingTop: 16,
+        paddingTop: 24,
         paddingBottom: 8,
     },
-    headline: {
-        fontSize: 28,
-        lineHeight: 34,
-        letterSpacing: -0.4,
-    },
     supporting: {
-        marginTop: 10,
-        fontSize: 17,
-        lineHeight: 25,
+        marginTop: 14,
     },
     footer: {
         flexGrow: 0,
@@ -223,8 +226,8 @@ const styles = StyleSheet.create({
     },
     footerContent: {
         paddingHorizontal: 24,
-        paddingTop: 12,
-        paddingBottom: 8,
+        paddingTop: 16,
+        paddingBottom: 16,
         gap: 12,
     },
     combinedFooter: {

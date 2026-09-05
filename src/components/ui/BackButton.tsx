@@ -4,10 +4,12 @@ import { useRouter } from 'expo-router';
 import type { Href } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { TEXT_COLORS } from 'designs/designs-colors';
+import { GlassCircleButton } from './GlassCircleButton';
 
 type Props = {
     /** Logical previous screen to use when this route has no navigation history. */
     fallbackHref?: Href;
+    appearance?: 'plain' | 'glass';
 };
 
 /**
@@ -18,7 +20,7 @@ type Props = {
  * VoiceOver. A resumed or deep-linked flow can make a later screen the root of
  * its stack, so callers can supply the logical previous route as a fallback.
  */
-export function BackButton({ fallbackHref }: Props) {
+export function BackButton({ fallbackHref, appearance = 'plain' }: Props) {
     const router = useRouter();
     const canGoBack = router.canGoBack();
 
@@ -36,6 +38,18 @@ export function BackButton({ fallbackHref }: Props) {
             router.replace(fallbackHref);
         }
     };
+
+    if (appearance === 'glass') {
+        return (
+            <GlassCircleButton
+                accessibilityLabel="Back"
+                icon="back"
+                iconColor={ TEXT_COLORS.primary }
+                size={ 48 }
+                onPress={ handlePress }
+            />
+        );
+    }
 
     return (
         <TouchableOpacity

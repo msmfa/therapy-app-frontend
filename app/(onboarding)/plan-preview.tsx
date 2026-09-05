@@ -3,7 +3,7 @@ import { Image, StyleSheet, TouchableOpacity, View, useWindowDimensions } from '
 import type { ImageSourcePropType } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { Button } from '../../src/components/ui/Button';
+import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
 import AppText from '../../src/components/ui/AppText';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import { PlanTimeline } from '../../src/components/onboarding/PlanTimeline';
@@ -72,7 +72,7 @@ export default function PlanPreviewScreen() {
                 />
             }
             footer={
-                <Button
+                <OnboardingButton
                     label={ PLAN_COPY.primaryCta }
                     onPress={ () => router.push('/(onboarding)/reviews-preview') }
                 />

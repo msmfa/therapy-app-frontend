@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState, Linking, StyleSheet, View } from 'react-native';
 import { Redirect, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { Button } from '../../src/components/ui/Button';
+import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
 import AppText from '../../src/components/ui/AppText';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import {
@@ -21,6 +21,7 @@ import {
 import { ensurePushRegistration } from '../../src/services/notifications/pushRegistration';
 import { useAppAlert } from '../../src/context/alert';
 import { TEXT_COLORS } from 'designs/designs-colors';
+import { onboardingStyles } from '../../src/components/onboarding/onboardingStyles';
 
 type PermissionStage = 'checking' | 'askable' | 'blocked' | 'requesting';
 
@@ -159,13 +160,13 @@ export default function NotificationsPreviewScreen() {
                 supporting={ NOTIFICATIONS_COPY.deniedBody }
                 footer={
                     <>
-                        <Button
+                        <OnboardingButton
                             label={ NOTIFICATIONS_COPY.deniedPrimaryCta }
                             onPress={ () => {
                                 void Linking.openSettings();
                             } }
                         />
-                        <Button
+                        <OnboardingButton
                             label={ NOTIFICATIONS_COPY.secondaryCta }
                             transparent
                             onPress={ handleSkip }
@@ -186,12 +187,12 @@ export default function NotificationsPreviewScreen() {
             supporting={ NOTIFICATIONS_COPY.body }
             footer={
                 <>
-                    <Button
+                    <OnboardingButton
                         label={ NOTIFICATIONS_COPY.primaryCta }
                         loading={ stage === 'requesting' }
                         onPress={ () => void handleEnable() }
                     />
-                    <Button
+                    <OnboardingButton
                         label={ NOTIFICATIONS_COPY.secondaryCta }
                         transparent
                         disabled={ stage === 'requesting' }
@@ -200,7 +201,7 @@ export default function NotificationsPreviewScreen() {
                 </>
             }
         >
-            <View style={ styles.privacy }>
+            <View style={ [onboardingStyles.card, styles.privacy] }>
                 <Feather name="lock" size={ 18 } color={ TEXT_COLORS.secondary } />
                 <AppText variant="body" style={ styles.privacyText }>
                     { NOTIFICATIONS_COPY.privacy }
@@ -212,6 +213,7 @@ export default function NotificationsPreviewScreen() {
 
 const styles = StyleSheet.create({
     privacy: {
+        padding: 20,
         marginTop: 24,
         flexDirection: 'row',
         gap: 12,

@@ -2,7 +2,8 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import AppText from '../ui/AppText';
-import { ACTION_BLUE_DARK, COLOR_VARIANTS, PALETTE, TEXT_COLORS } from 'designs/designs-colors';
+import { ACTION_ORANGE, COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
+import { onboardingStyles } from './onboardingStyles';
 
 type Props = {
     title: string;
@@ -48,14 +49,14 @@ export function SubscriptionPlanCard({
             accessibilityRole="radio"
             accessibilityLabel={ accessibilityLabel }
             accessibilityState={ { selected, checked: selected } }
-            style={ [styles.card, selected ? styles.cardSelected : styles.cardIdle] }
+            style={ [onboardingStyles.card, styles.card, selected && styles.cardSelected] }
         >
             <View style={ styles.headerRow }>
                 <View style={ [styles.radio, selected && styles.radioSelected] }>
                     { selected && <View style={ styles.radioDot } /> }
                 </View>
 
-                <AppText variant="h2" style={ styles.title }>
+                <AppText variant="h2" style={ [onboardingStyles.title, styles.title] }>
                     { title }
                 </AppText>
 
@@ -75,7 +76,7 @@ export function SubscriptionPlanCard({
                 </View>
 
                 { selected && (
-                    <Feather name="check" size={ 18 } color={ ACTION_BLUE_DARK } />
+                    <Feather name="check" size={ 18 } color={ TEXT_COLORS.primary } />
                 ) }
             </View>
 
@@ -94,7 +95,7 @@ export function SubscriptionPlanCard({
                     { timeline.map((step) => (
                         <View key={ step.text } style={ styles.timelineRow }>
                             <View style={ styles.timelineIcon }>
-                                <Feather name={ step.icon } size={ 14 } color={ ACTION_BLUE_DARK } />
+                                <Feather name={ step.icon } size={ 14 } color={ TEXT_COLORS.primary } />
                             </View>
                             <AppText variant="body" style={ styles.timelineText }>
                                 { step.text }
@@ -134,30 +135,24 @@ const styles = StyleSheet.create({
     timelineIcon: {
         width: 26,
         height: 26,
-        borderRadius: 8,
+        borderRadius: 13,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'hsla(216, 78%, 92%, 1)',
+        backgroundColor: 'hsla(21, 75%, 54%, 0.12)',
     },
     timelineText: {
         flex: 1,
         fontSize: 15,
     },
     card: {
-        borderRadius: 18,
-        borderWidth: 1,
-        paddingHorizontal: 16,
-        paddingVertical: 16,
+        borderWidth: 2,
+        paddingHorizontal: 20,
+        paddingVertical: 20,
         minHeight: 44,
-    },
-    cardIdle: {
-        backgroundColor: 'hsla(0, 0%, 100%, 0.55)',
-        borderColor: PALETTE.overlay.whiteBorderTransparent,
     },
     cardSelected: {
         backgroundColor: COLOR_VARIANTS.white.primary,
-        borderColor: ACTION_BLUE_DARK,
-        borderWidth: 2,
+        borderColor: ACTION_ORANGE,
     },
     headerRow: {
         flexDirection: 'row',
@@ -175,13 +170,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     radioSelected: {
-        borderColor: ACTION_BLUE_DARK,
+        borderColor: ACTION_ORANGE,
     },
     radioDot: {
         width: 12,
         height: 12,
         borderRadius: 6,
-        backgroundColor: ACTION_BLUE_DARK,
+        backgroundColor: ACTION_ORANGE,
     },
     title: {
         fontSize: 18,
@@ -190,11 +185,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         gap: 6,
         flexShrink: 1,
+        flexWrap: 'wrap',
     },
     badge: {
         paddingHorizontal: 8,
         paddingVertical: 3,
-        borderRadius: 6,
+        borderRadius: 12,
         backgroundColor: 'hsla(0, 0%, 0%, 0.06)',
     },
     badgeText: {
@@ -202,11 +198,11 @@ const styles = StyleSheet.create({
         color: TEXT_COLORS.secondary,
     },
     trialBadge: {
-        backgroundColor: 'hsla(222, 70%, 26%, 0.10)',
+        backgroundColor: 'hsla(21, 75%, 54%, 0.12)',
     },
     trialBadgeText: {
         fontSize: 14,
-        color: ACTION_BLUE_DARK,
+        color: TEXT_COLORS.primary,
     },
     price: {
         marginTop: 12,

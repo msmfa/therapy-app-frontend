@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Button } from '../../src/components/ui/Button';
+import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import { PlanTimeline } from '../../src/components/onboarding/PlanTimeline';
 import {
@@ -53,7 +53,7 @@ export default function ReviewsPreviewScreen() {
             headline={ REVIEWS_PREVIEW_COPY.headline }
             supporting={ PLAN_COPY.evidenceStatement }
             footer={
-                <Button
+                <OnboardingButton
                     label={ REVIEWS_PREVIEW_COPY.primaryCta }
                     onPress={ () => router.push('/(onboarding)/note-preview') }
                 />

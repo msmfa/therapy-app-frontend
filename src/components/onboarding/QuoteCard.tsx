@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import AppText from '../ui/AppText';
-import FrostedCard from '../ui/FrostedCard';
+import { onboardingStyles } from './onboardingStyles';
 import { TEXT_COLORS } from 'designs/designs-colors';
 
 type Props = {
@@ -13,25 +13,25 @@ type Props = {
 /** One tester's words. No stars, no counts, no carousel. */
 export function QuoteCard({ quote, name, role }: Props) {
     return (
-        <FrostedCard contentStyle={ styles.card }>
-            <AppText variant="body" style={ styles.quote }>
+        <View style={ [onboardingStyles.card, styles.card] }>
+            <AppText variant="body" style={ [onboardingStyles.body, styles.quote] }>
                 { `“${quote}”` }
             </AppText>
             <View style={ styles.attribution }>
-                <AppText variant="h3" style={ styles.name }>
+                <AppText variant="h3" style={ [onboardingStyles.title, styles.name] }>
                     { name }
                 </AppText>
                 <AppText variant="caption" style={ styles.role }>
                     { role }
                 </AppText>
             </View>
-        </FrostedCard>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
     card: {
-        paddingVertical: 18,
+        padding: 22,
     },
     // Body face, not the serif accent: this is a paragraph, and the brand serif
     // is reserved for short accents.

@@ -1,21 +1,24 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import type { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import { Button } from '../../src/components/ui/Button';
+import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
 import AppText from '../../src/components/ui/AppText';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
+import { onboardingStyles } from '../../src/components/onboarding/onboardingStyles';
 import { QuoteCard } from '../../src/components/onboarding/QuoteCard';
 import { REMINDER_TIMES_COPY } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { dateToMinutes, minutesToDate, timeLabel } from '../../src/features/onboarding/formatting';
-import { COLOR_VARIANTS, PALETTE, TEXT_COLORS } from 'designs/designs-colors';
+import { COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
 
 type Slot = 'morning' | 'evening';
 
 export default function ReminderTimesScreen() {
     const router = useRouter();
+    const { width, fontScale } = useWindowDimensions();
+    const stackTimeFields = width < 380 || fontScale >= 1.5 || Platform.OS !== 'ios';
     const { answers, setAnswer } = useOnboardingAnswers();
     const [androidSlot, setAndroidSlot] = useState<Slot | null>(null);
 
@@ -83,13 +86,13 @@ export default function ReminderTimesScreen() {
             headline={ REMINDER_TIMES_COPY.headline }
             supporting={ REMINDER_TIMES_COPY.supporting }
             footer={
-                <Button
+                <OnboardingButton
                     label={ REMINDER_TIMES_COPY.primaryCta }
                     onPress={ () => router.push('/(onboarding)/plan-preview') }
                 />
             }
         >
-            <View style={ styles.rows }>
+            <View style={ [onboardingStyles.card, styles.rows] }>
                 { rows.map((row, index) => {
                     const { value } = row;
 
@@ -97,9 +100,9 @@ export default function ReminderTimesScreen() {
                         <View key={ row.slot }>
                             { index > 0 && <View style={ styles.divider } /> }
 
-                            <View style={ styles.row }>
+                            <View style={ [styles.row, stackTimeFields && styles.stackedRow] }>
                                 <View style={ styles.rowText }>
-                                    <AppText variant="h3" style={ styles.rowLabel }>
+                                    <AppText variant="h3" style={ [onboardingStyles.title, styles.rowLabel] }>
                                         { row.label }
                                     </AppText>
                                     <AppText variant="caption" style={ styles.rowHint }>
@@ -117,7 +120,7 @@ export default function ReminderTimesScreen() {
                                         onChange={ row.onChange }
                                     />
                                 ) : (
-                                    <Button
+                                    <OnboardingButton
                                         label={ timeLabel(value) }
                                         transparent
                                         onPress={ () => setAndroidSlot(row.slot) }
@@ -152,19 +155,19 @@ export default function ReminderTimesScreen() {
 const styles = StyleSheet.create({
     rows: {
         marginTop: 24,
-        borderRadius: 16,
-        borderWidth: 1,
-        borderColor: PALETTE.overlay.whiteBorderTransparent,
-        backgroundColor: 'hsla(0, 0%, 100%, 0.55)',
-        paddingHorizontal: 16,
+        paddingHorizontal: 20,
     },
     row: {
-        minHeight: 64,
+        minHeight: 88,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: 12,
-        paddingVertical: 12,
+        paddingVertical: 18,
+    },
+    stackedRow: {
+        flexDirection: 'column',
+        alignItems: 'flex-start',
     },
     rowText: {
         flex: 1,
