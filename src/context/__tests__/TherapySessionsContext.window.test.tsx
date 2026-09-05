@@ -9,6 +9,7 @@ let mockIsAuthenticated = true;
 jest.mock('../auth/AuthContext', () => ({
     useAuth: () => ({
         isAuthenticated: mockIsAuthenticated,
+        user: { id: 'user-1' },
     }),
 }));
 

@@ -45,11 +45,11 @@ describe('local StoreKit configuration', () => {
         ).toBe(true);
     });
 
-    it('mirrors the annual one-month and monthly one-week free trials', () => {
+    it('mirrors the annual two-week and monthly one-week free trials', () => {
         expect(subscription(PRODUCT_IDS.annual).introductoryOffer).toMatchObject({
             numberOfPeriods: 1,
             paymentMode: 'free',
-            subscriptionPeriod: 'P1M',
+            subscriptionPeriod: 'P2W',
         });
         expect(subscription(PRODUCT_IDS.monthly).introductoryOffer).toMatchObject({
             numberOfPeriods: 1,

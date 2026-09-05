@@ -1,7 +1,7 @@
 import React from 'react';
 import { jest } from '@jest/globals';
 import { Linking } from 'react-native';
-import { fireEvent, render } from '@testing-library/react-native';
+import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 
 import HowToTakeNotesScreen from '../how-to-take-notes';
 import WhyFiveQuestionsScreen from '../why-five-questions';
@@ -9,14 +9,17 @@ import NewNoteScreen from '../(tabs)/index';
 
 const mockPush = jest.fn();
 const mockBack = jest.fn();
+const mockReplace = jest.fn();
+const mockAddNote = jest.fn<() => Promise<void>>();
 let mockNotePrompt = 'What mattered in your therapy session?';
 
 jest.mock('expo-router', () => ({
-	useRouter: () => ({ push: mockPush, back: mockBack }),
+	useRouter: () => ({ push: mockPush, back: mockBack, replace: mockReplace }),
 }));
 
 jest.mock('@expo/vector-icons', () => ({
 	Feather: () => null,
+	Ionicons: () => null,
 }));
 
 jest.mock('react-native-safe-area-context', () => {
@@ -34,7 +37,7 @@ jest.mock('../../src/context/auth/AuthContext', () => ({
 }));
 
 jest.mock('../../src/features/notes/useNotes', () => ({
-	useNotes: () => ({ addNote: jest.fn() }),
+	useNotes: () => ({ addNote: mockAddNote }),
 }));
 
 jest.mock('../../src/features/notes/useNotePrompt', () => ({
@@ -44,6 +47,8 @@ jest.mock('../../src/features/notes/useNotePrompt', () => ({
 beforeEach(() => {
 	mockPush.mockClear();
 	mockBack.mockClear();
+	mockReplace.mockClear();
+	mockAddNote.mockReset();
 	mockNotePrompt = 'What mattered in your therapy session?';
 });
 
@@ -171,6 +176,42 @@ describe('Why these five questions', () => {
 });
 
 describe('New note screen help popup', () => {
+	it('retains a failed draft, then clears it only after a successful retry', async () => {
+		const errorLog = jest.spyOn(console, 'error').mockImplementation(() => {});
+		mockAddNote.mockRejectedValueOnce(new Error('Storage unavailable')).mockResolvedValueOnce(undefined);
+		const view = render(<NewNoteScreen />);
+		const input = view.getByPlaceholderText(mockNotePrompt);
+		fireEvent.changeText(input, 'Keep this private reflection');
+
+		await act(async () => { fireEvent.press(view.getByLabelText('Save note')); });
+
+		expect(input.props.value).toBe('Keep this private reflection');
+		expect(view.getByText('Unable to save note right now.')).toBeTruthy();
+		expect(mockReplace).not.toHaveBeenCalled();
+
+		await act(async () => { fireEvent.press(view.getByLabelText('Save note')); });
+		await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/(tabs)/notes'));
+		expect(input.props.value).toBe('');
+		expect(mockAddNote).toHaveBeenCalledTimes(2);
+		errorLog.mockRestore();
+	});
+
+	it('accepts only one save while the write is pending', async () => {
+		let finishSave!: () => void;
+		mockAddNote.mockImplementationOnce(() => new Promise<void>(resolve => { finishSave = resolve; }));
+		const view = render(<NewNoteScreen />);
+		const input = view.getByPlaceholderText(mockNotePrompt);
+		fireEvent.changeText(input, 'Save once');
+		act(() => {
+			fireEvent.press(view.getByLabelText('Save note'));
+			fireEvent.press(view.getByLabelText('Save note'));
+		});
+		expect(mockAddNote).toHaveBeenCalledTimes(1);
+		expect(input.props.editable).toBe(false);
+		await act(async () => { finishSave(); });
+		await waitFor(() => expect(mockReplace).toHaveBeenCalledTimes(1));
+	});
+
 	it('shows the note prompt selected by onboarding', () => {
 		mockNotePrompt = 'What insight do you want to try in daily life?';
 

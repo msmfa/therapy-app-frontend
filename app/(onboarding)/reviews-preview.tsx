@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Button } from '../../src/components/ui/Button';
-import AppText from '../../src/components/ui/AppText';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import { PlanTimeline } from '../../src/components/onboarding/PlanTimeline';
 import {
@@ -12,7 +11,6 @@ import {
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { planTimeline } from '../../src/features/onboarding/planTimeline';
 import { sampleSessionAt } from '../../src/features/onboarding/samplePlan';
-import { TEXT_COLORS } from 'designs/designs-colors';
 
 /**
  * Everything the plan does after the note is written.
@@ -61,12 +59,6 @@ export default function ReviewsPreviewScreen() {
                 />
             }
         >
-            { isSamplePlan && (
-                <AppText variant="caption" style={ styles.sampleLabel }>
-                    { PLAN_COPY.sampleLabel }
-                </AppText>
-            ) }
-
             <View style={ styles.timeline }>
                 <PlanTimeline entries={ reviews } />
             </View>
@@ -77,10 +69,5 @@ export default function ReviewsPreviewScreen() {
 const styles = StyleSheet.create({
     timeline: {
         marginTop: 24,
-    },
-    sampleLabel: {
-        marginTop: 16,
-        color: TEXT_COLORS.secondary,
-        fontWeight: '600',
     },
 });

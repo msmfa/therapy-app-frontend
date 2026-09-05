@@ -43,11 +43,6 @@ export default function TermsOfServiceScreen() {
                     showsVerticalScrollIndicator={ false }
                 >
                     <AppText variant='h1'>Terms of Service</AppText>
-                    <Spacer variant={ SpacerVariant.small } />
-                    <AppText variant='caption' style={ styles.reviewNotice }>
-                        Draft pending legal review. The subscription, billing and cancellation wording below has not yet
-                        been reviewed by a qualified lawyer and must be before release.
-                    </AppText>
                     <Spacer variant={ SpacerVariant.large } />
                     <View style={ styles.section }>
                         <AppText variant='h2'>Acceptance of these terms</AppText>
@@ -106,7 +101,7 @@ export default function TermsOfServiceScreen() {
                         </AppText>
                         <Spacer variant={ SpacerVariant.small } />
                         <AppText variant='body'>
-                            Eligible subscribers receive a one-month free trial with the annual plan or a one-week free
+                            Eligible subscribers receive a two-week free trial with the annual plan or a one-week free
                             trial with the monthly plan. Apple decides whether your Apple ID is eligible for an
                             introductory offer. If you are not eligible, no trial is shown and billing begins
                             immediately. Unless you cancel at least 24 hours before the trial ends, your selected
@@ -215,9 +210,6 @@ export default function TermsOfServiceScreen() {
 }
 
 const styles = StyleSheet.create({
-    reviewNotice: {
-        color: COLOR_VARIANTS.red.dark,
-    },
     pageHeader: {
         alignItems: 'center',
         flexDirection: 'row',

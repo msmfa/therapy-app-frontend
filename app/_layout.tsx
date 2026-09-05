@@ -12,7 +12,7 @@ import {
     EntitlementProvider,
     useEntitlementState,
 } from '../src/features/subscription/EntitlementContext';
-import { TherapySessionsProvider } from '../src/context/therapy-sessions/TherapySessionsContext';
+import { TherapySessionsProvider, useTherapySessions } from '../src/context/therapy-sessions/TherapySessionsContext';
 import { usePushNotifications } from '../src/hooks/usePushNotifications';
 import { useTimeZoneSync } from '../src/hooks/useTimeZoneSync';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
@@ -150,6 +150,12 @@ export function Gate() {
                     <Stack.Screen name="(tabs)" options={ { headerShown: false } } />
                 </Stack.Protected>
 
+                { /* Account deletion and logout are available without payment
+                      or onboarding completion. Logout also removes this route. */ }
+                <Stack.Protected guard={ isAuthenticated && authHydrated }>
+                    <Stack.Screen name="account" />
+                </Stack.Protected>
+
                 { /* Catch-all for unmatched routes (e.g., from notification deep links) */ }
                 <Stack.Screen name="+not-found" />
             </Stack>
@@ -220,7 +226,8 @@ function Initializer() {
     usePushNotifications();
 
     // Tell the backend which zone to place reminder wall-clock times in
-    useTimeZoneSync();
+    const { refreshReminderSchedule } = useTherapySessions();
+    useTimeZoneSync(refreshReminderSchedule);
 
     useEffect(() => {
         // Observe StoreKit for the whole app lifetime so an Ask to Buy or other

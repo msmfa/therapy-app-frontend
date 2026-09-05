@@ -3,12 +3,14 @@ import { act, renderHook, waitFor } from '@testing-library/react-native';
 import { describe, beforeEach, expect, it, jest } from '@jest/globals';
 import { TherapySessionsProvider, useTherapySessions } from '../therapy-sessions/TherapySessionsContext';
 import * as therapyModule from '../../api/therapy';
+import { getSessionsWindow } from '../../utils/sessionWindow';
 
 let mockIsAuthenticated = true;
 
 jest.mock('../auth/AuthContext', () => ({
   useAuth: () => ({
     isAuthenticated: mockIsAuthenticated,
+    user: { id: 'user-1' },
   }),
 }));
 
@@ -75,6 +77,18 @@ describe('TherapySessionsProvider', () => {
     expect(getTherapySessions).toHaveBeenCalledTimes(1);
   });
 
+  it.each(['before', 'after', 'invalid'] as const)('rejects an appointment %s the editable range without submitting a sync', async (position) => {
+    const { result } = renderHook(() => useTherapySessions(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    const window = getSessionsWindow();
+    const selected = position === 'invalid' ? new Date(NaN)
+      : new Date(position === 'before' ? window.from.getTime() - 1 : window.to.getTime() + 1);
+    await act(async () => {
+      await expect(result.current.syncSessions({ selected }, 50)).rejects.toThrow('Appointments must be between today and one year ahead');
+    });
+    expect(syncTherapySessions).not.toHaveBeenCalled();
+  });
+
   it('rejects a sync when the required post-save refresh fails', async () => {
     const { result } = renderHook(() => useTherapySessions(), { wrapper });
 
@@ -88,7 +102,7 @@ describe('TherapySessionsProvider', () => {
     await act(async () => {
       try {
         await result.current.syncSessions(
-          { '2026-09-02': new Date('2026-09-02T10:00:00.000Z') },
+          { selected: new Date(Date.now() + 86400000) },
           50,
         );
       } catch (error) {
@@ -115,7 +129,7 @@ describe('TherapySessionsProvider', () => {
     await act(async () => {
       staleRefreshPromise = result.current.refreshSessions();
       syncPromise = result.current.syncSessions(
-        { '2026-09-02': new Date('2026-09-02T10:00:00.000Z') },
+        { selected: new Date(Date.now() + 86400000) },
         50,
       );
       await Promise.resolve();

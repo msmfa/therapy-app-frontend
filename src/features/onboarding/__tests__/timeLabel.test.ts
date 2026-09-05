@@ -7,12 +7,17 @@ const at = (h: number, m: number) => {
 };
 
 describe('timeLabel', () => {
-    it('formats times in the device convention', () => {
-        expect(timeLabel(at(6, 45))).toBe('6:45');
-        expect(timeLabel(at(20, 0))).toBe('20:00');
-        // Midnight legitimately reads as 0:00 here, which is exactly why a
-        // broken formatter showing 0:00 was indistinguishable from a real time.
-        expect(timeLabel(at(0, 0))).toBe('0:00');
+    const RealDateTimeFormat = Intl.DateTimeFormat;
+    afterEach(() => jest.restoreAllMocks());
+
+    it.each(['en-GB', 'en-US'])('follows the %s device convention', (locale) => {
+        jest.spyOn(Intl, 'DateTimeFormat').mockImplementation((_locale, options) =>
+            new RealDateTimeFormat(locale, options),
+        );
+        const expected = new RealDateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' });
+        for (const date of [at(6, 45), at(20, 0), at(0, 0)]) {
+            expect(timeLabel(date)).toBe(expected.formatToParts(date).map(part => part.value).join(''));
+        }
     });
 
     it('returns an empty string for an unusable date rather than a wrong time', () => {

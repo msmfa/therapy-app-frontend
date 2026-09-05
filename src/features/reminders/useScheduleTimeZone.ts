@@ -13,15 +13,15 @@ import { AppState } from 'react-native';
 
 import { readRemindersCache } from './remindersCache';
 
-export function useScheduleTimeZone(deviceTimeZone: string): string {
-    const [serverTimeZone, setServerTimeZone] = useState<string | null>(null);
+export function useScheduleTimeZone(deviceTimeZone: string, userId?: string): string {
+    const [snapshot, setSnapshot] = useState<{ userId?: string; zone: string | null }>({ userId, zone: null });
 
     useEffect(() => {
         let disposed = false;
 
         const readZone = async () => {
-            const cached = await readRemindersCache();
-            if (!disposed) setServerTimeZone(cached?.timeZone ?? null);
+            const cached = await readRemindersCache(userId);
+            if (!disposed) setSnapshot({ userId, zone: cached?.timeZone ?? null });
         };
 
         void readZone();
@@ -36,7 +36,7 @@ export function useScheduleTimeZone(deviceTimeZone: string): string {
             disposed = true;
             subscription.remove();
         };
-    }, []);
+    }, [userId]);
 
-    return serverTimeZone ?? deviceTimeZone;
+    return (snapshot.userId === userId ? snapshot.zone : null) ?? deviceTimeZone;
 }

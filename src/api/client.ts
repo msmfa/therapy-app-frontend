@@ -26,6 +26,8 @@ export type ApiClientConfig = {
     baseUrl: string;
     defaultTimeoutMs: number;
     getToken?: () => string | null | Promise<string | null>;
+    /** Changes on login/logout, but not on an access-token refresh. */
+    getSessionVersion?: () => number;
     refreshAuth?: () => Promise<boolean>;
     onAuthFailure?: () => Promise<void> | void;
 };
@@ -36,7 +38,7 @@ const DEFAULT_CONFIG: ApiClientConfig = {
 };
 
 let config: ApiClientConfig = { ...DEFAULT_CONFIG };
-let refreshInFlight: Promise<boolean> | null = null;
+let refreshInFlight: { version: number | undefined; promise: Promise<boolean> } | null = null;
 
 export const configureApiClient = (overrides: Partial<ApiClientConfig>) => {
     config = { ...config, ...overrides };
@@ -141,20 +143,22 @@ const ensureRefresh = async (): Promise<boolean> => {
         return false;
     }
 
-    if (!refreshInFlight) {
-        refreshInFlight = (async () => {
+    const version = config.getSessionVersion?.();
+    if (!refreshInFlight || refreshInFlight.version !== version) {
+        const promise = (async () => {
             try {
                 return await config.refreshAuth!();
             } catch (error) {
                 console.warn('[apiClient] refreshAuth failed', error);
                 return false;
-            } finally {
-                refreshInFlight = null;
             }
-        })();
+        })().finally(() => {
+            if (refreshInFlight?.promise === promise) refreshInFlight = null;
+        });
+        refreshInFlight = { version, promise };
     }
 
-    return refreshInFlight;
+    return refreshInFlight.promise;
 };
 
 export type ApiRequestOptions = {
@@ -200,10 +204,17 @@ export async function apiRequest<T = unknown>(path: string, options: ApiRequestO
     } = options;
 
     const url = path.startsWith('http') ? path : `${config.baseUrl}${path}`;
+    const sessionVersion = config.getSessionVersion?.();
+    const assertCurrentSession = () => {
+        if (auth && sessionVersion !== config.getSessionVersion?.()) {
+            throw new ApiError(401, { message: 'Session changed', code: 'session_changed' });
+        }
+    };
     const initialHeaders = auth
         ? await withAuthHeader(headers)
         : new Headers(headers ?? {});
     const serializedBody = serializeBody(body, initialHeaders);
+    assertCurrentSession();
     const { controller, timeoutId } = createTimeoutController(timeoutMs);
 
     let response: Response;
@@ -239,7 +250,11 @@ export async function apiRequest<T = unknown>(path: string, options: ApiRequestO
     clearTimeout(timeoutId);
 
     if (response.status === 401 && auth && retryOnAuthFailure) {
+        // Never retry an old account's request with a new account's token, or
+        // let an old refresh failure sign out the newly selected account.
+        assertCurrentSession();
         const refreshed = await ensureRefresh();
+        assertCurrentSession();
         if (refreshed) {
             return apiRequest<T>(path, { ...options, retryOnAuthFailure: false });
         }

@@ -78,12 +78,6 @@ export default function PlanPreviewScreen() {
                 />
             }
         >
-            { isSamplePlan && (
-                <AppText variant="caption" style={ styles.sampleLabel }>
-                    { PLAN_COPY.sampleLabel }
-                </AppText>
-            ) }
-
             <View style={ styles.timeline }>
                 <PlanTimeline entries={ noteEntry } />
             </View>
@@ -116,11 +110,6 @@ const IMAGE_TOP_FRACTION = 0.46;
 const styles = StyleSheet.create({
     timeline: {
         marginTop: 24,
-    },
-    sampleLabel: {
-        marginTop: 16,
-        color: TEXT_COLORS.secondary,
-        fontWeight: '600',
     },
     sheetImage: {
         transform: [{ rotate: '2.5deg' }],

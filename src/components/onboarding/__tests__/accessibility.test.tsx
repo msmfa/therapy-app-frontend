@@ -67,17 +67,17 @@ describe('SubscriptionPlanCard accessibility', () => {
 			<SubscriptionPlanCard
 				title="Annual"
 				badge="Best value"
-				trialBadge="1 month free"
+				trialBadge="2 weeks free"
 				priceLine="Then £39.99 per year"
 				renewalLine="Renews annually until cancelled."
 				selected
 				onPress={() => {}}
-				accessibilityLabel="Annual. 1 month free. £39.99 per year. Renews annually until cancelled."
+				accessibilityLabel="Annual. 2 weeks free. £39.99 per year. Renews annually until cancelled."
 			/>,
 		);
 
 		const card = getByRole('radio', {
-			name: 'Annual. 1 month free. £39.99 per year. Renews annually until cancelled.',
+			name: 'Annual. 2 weeks free. £39.99 per year. Renews annually until cancelled.',
 		});
 		expect(card.props.accessibilityState.selected).toBe(true);
 	});
@@ -175,12 +175,12 @@ describe('OnboardingScreen layout contract', () => {
 			<OnboardingScreen
 				showBack={false}
 				headline="Put your plan into practice"
-				footer={<Button label="Start my free month" onPress={() => {}} />}
+				footer={<Button label="Start my free trial" onPress={() => {}} />}
 			/>,
 		);
 
 		expect(getByTestId('onboarding-combined-scroll')).toBeTruthy();
 		expect(getByTestId('onboarding-footer')).toBeTruthy();
-		expect(getByRole('button', { name: 'Start my free month' })).toBeTruthy();
+		expect(getByRole('button', { name: 'Start my free trial' })).toBeTruthy();
 	});
 });

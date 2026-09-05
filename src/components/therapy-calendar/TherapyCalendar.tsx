@@ -5,6 +5,8 @@ import ScheduleModal from './ScheduleModal';
 import { GradientCard } from '../ui/GradientCard';
 import { CALENDAR_COLORS, CALENDAR_DARK_COLORS, COLOR_VARIANTS } from 'designs/designs-colors';
 import { DarkCalendarDay, DarkDayKind } from './DarkCalendarDay';
+import { getSessionsWindow, isWithinSessionsWindow } from '../../utils/sessionWindow';
+import { calendarSessionDates, WEEKLY_REPEAT_COUNT } from '../../features/therapy-sessions/calendarSchedule';
 
 export const COLORS = {
     todayBackground: CALENDAR_COLORS.todayBackground,
@@ -59,7 +61,6 @@ interface TherapyCalendarProps {
     onSelectedSessionsChange: (sessions: SelectedSessions) => void;
 }
 
-const WEEKLY_REPEAT_COUNT = 8;
 const DEFAULT_TIME = new Date(2024, 0, 1, 9, 0, 0);
 
 const formatDateKey = (date: Date) =>
@@ -307,6 +308,7 @@ export default function TherapyCalendar({
     );
 
     const openModalForDate = useCallback((dateKey: string) => {
+        if (!isWithinSessionsWindow(createDateFromKey(dateKey))) return;
         setActiveDateKey(dateKey);
         setIsModalVisible(true);
     }, []);
@@ -328,24 +330,15 @@ export default function TherapyCalendar({
             if (!activeDateKey) return;
 
             const next: SelectedSessions = { ...selectedSessions };
-
-            const applyTimeToDate = (dateKey: string, baseDate: Date) => {
-                const sessionDate = new Date(baseDate);
-                sessionDate.setHours(time.getHours(), time.getMinutes(), 0, 0);
-                next[dateKey] = sessionDate;
-            };
-
-            if (mode === 'single') {
-                const baseDate = createDateFromKey(activeDateKey);
-                applyTimeToDate(activeDateKey, baseDate);
-            } else if (mode === 'weekly_pattern') {
-                const startDate = createDateFromKey(activeDateKey);
-                for (let index = 0; index < WEEKLY_REPEAT_COUNT; index += 1) {
-                    const date = new Date(startDate);
-                    date.setDate(startDate.getDate() + index * 7);
-                    const dateKey = formatDateKey(date);
-                    applyTimeToDate(dateKey, date);
-                }
+            const startDate = createDateFromKey(activeDateKey);
+            startDate.setHours(time.getHours(), time.getMinutes(), 0, 0);
+            const dates = calendarSessionDates(startDate, mode === 'single' ? 1 : WEEKLY_REPEAT_COUNT);
+            if (!dates.length) {
+                closeModal();
+                return;
+            }
+            for (const date of dates) {
+                next[formatDateKey(date)] = date;
             }
 
             onSelectedSessionsChange(next);
@@ -363,6 +356,7 @@ export default function TherapyCalendar({
     }, [activeDateKey, closeModal, onSelectedSessionsChange, selectedSessions]);
 
     const calendarTheme = isDark ? DARK_THEME : LIGHT_THEME;
+    const calendarWindow = getSessionsWindow();
 
     const calendar = (
         <Calendar
@@ -370,7 +364,9 @@ export default function TherapyCalendar({
             hideExtraDays={ hideExtraDays }
             markedDates={ markedDates }
             markingType="custom"
-            minDate={ formatDateKey(new Date()) }
+            minDate={ formatDateKey(calendarWindow.from) }
+            maxDate={ formatDateKey(calendarWindow.to) }
+            disableAllTouchEventsForDisabledDays
             onDayPress={ handleDayPress }
             theme={ calendarTheme as never }
             style={ isDark ? styles.calendarDark : styles.calendar }
@@ -404,6 +400,7 @@ export default function TherapyCalendar({
                     onConfirm={ applySession }
                     onDelete={ handleDelete }
                     selectedDate={ activeDateKey }
+                    weeklyRepeatCount={ calendarSessionDates(createDateFromKey(activeDateKey), WEEKLY_REPEAT_COUNT).length }
                     visible={ isModalVisible }
                 />
             ) }

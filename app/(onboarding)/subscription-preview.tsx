@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Redirect, useRouter } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
 import { Button } from '../../src/components/ui/Button';
 import AppText from '../../src/components/ui/AppText';
 import Loading from '../../src/components/ui/Loading';
@@ -12,9 +11,9 @@ import {
     GOAL_OPTIONS,
     SUBSCRIPTION_COPY,
     planCtaLabel,
-    planPriceLine,
     planRenewalLine,
     trialBadgeLine,
+    trialHeadline,
     cardPriceLine,
     trialTimeline,
 } from '../../src/features/onboarding/onboardingCopy';
@@ -31,11 +30,10 @@ import {
     setPendingOnboardingStep,
     SUBSCRIPTION_STEP_RETURN,
 } from '../../src/features/onboarding/authReturn';
-import { PALETTE, TEXT_COLORS, THEME_COLORS } from 'designs/designs-colors';
+import { TEXT_COLORS } from 'designs/designs-colors';
 import { firstIncompletePlanRoute } from '../../src/features/onboarding/flowGuard';
 
 export default function SubscriptionPreviewScreen() {
-    const [compareOpen, setCompareOpen] = useState(false);
     const router = useRouter();
     const { answers, setAnswer } = useOnboardingAnswers();
     const { state, reload } = useSubscriptionOffer();
@@ -50,7 +48,20 @@ export default function SubscriptionPreviewScreen() {
 
     const incompletePlanRoute = hasOnboarded ? null : firstIncompletePlanRoute(answers);
 
-    const headline = useMemo(() => {
+    // A lapsed subscriber is sent here by the paid area's guard, not by the
+    // preview screens, so Back would walk them into onboarding with an empty
+    // draft. Only a first run has somewhere to go back to.
+    const backNavigation = hasOnboarded
+        ? { showBack: false as const }
+        : { backHref: '/(onboarding)/note-preview' as const };
+
+    // Account controls must remain available even when no products can load
+    // or this account has no subscription.
+    const accountSettings = isAuthenticated ? (
+        <Button label="Account settings" transparent onPress={ () => router.push('/account') } />
+    ) : null;
+
+    const goalHeadline = useMemo(() => {
         const goal = GOAL_OPTIONS.find((option) => option.id === answers.goal);
         return goal?.subscriptionHeadline ?? SUBSCRIPTION_COPY.fallbackHeadline;
     }, [answers.goal]);
@@ -145,12 +156,15 @@ export default function SubscriptionPreviewScreen() {
         return <Redirect href={ incompletePlanRoute } />;
     }
 
-    if (isAuthenticated && (entitlement.status === 'loading' || entitlement.status === 'active')) {
-        return <Loading fullScreen />;
-    }
-
-    if (state.status === 'loading') {
-        return <Loading fullScreen />;
+    if (
+        (isAuthenticated && (entitlement.status === 'loading' || entitlement.status === 'active'))
+        || state.status === 'loading'
+    ) {
+        return (
+            <OnboardingScreen { ...backNavigation } headline="Loading subscriptions" footer={ accountSettings }>
+                <Loading fullScreen={ false } />
+            </OnboardingScreen>
+        );
     }
 
     // No invented fallback prices: with nothing from the store there is nothing
@@ -170,10 +184,13 @@ export default function SubscriptionPreviewScreen() {
 
         return (
             <OnboardingScreen
-                backHref="/(onboarding)/note-preview"
+                { ...backNavigation }
                 headline={ failure.headline }
                 supporting={ failure.body }
-                footer={ <Button label={ ERROR_COPY.retryCta } onPress={ reload } /> }
+                footer={ <>
+                    <Button label={ ERROR_COPY.retryCta } onPress={ reload } />
+                    { accountSettings }
+                </> }
             />
         );
     }
@@ -184,35 +201,17 @@ export default function SubscriptionPreviewScreen() {
     const showAnnualTrial = offer.trialEligible && offer.annual.trial !== null;
     const showMonthlyTrial = offer.trialEligible && offer.monthly.trial !== null;
     const showSelectedTrial = offer.trialEligible && selectedProduct.trial !== null;
-    const selectedPriceSummary = `${
-        selected === 'annual'
-            ? SUBSCRIPTION_COPY.annualTitle
-            : SUBSCRIPTION_COPY.monthlyTitle
-    } plan: ${
-        showSelectedTrial && selectedProduct.trial !== null
-            ? `${trialBadgeLine(selectedProduct.trial)}. `
-            : ''
-    }${planPriceLine(selected, selectedProduct.price, showSelectedTrial)}`;
 
     return (
         <OnboardingScreen
-            backHref="/(onboarding)/note-preview"
-            headline={ showSelectedTrial ? SUBSCRIPTION_COPY.trialHeadline : headline }
+            { ...backNavigation }
+            headline={ SUBSCRIPTION_COPY.planHeader }
             footer={
                 <>
-                    <View style={ styles.footerPrice }>
-                        <AppText variant="h3" style={ styles.footerPriceLine }>
-                            { selectedPriceSummary }
-                        </AppText>
-                        <AppText variant="caption" style={ styles.footerRenewalLine }>
-                            { planRenewalLine(selected, showSelectedTrial) }
-                        </AppText>
-                    </View>
-
                     <Button
                         label={ showSelectedTrial
                             ? SUBSCRIPTION_COPY.trialCta
-                            : planCtaLabel(selected, showSelectedTrial, selectedProduct.trial) }
+                            : planCtaLabel(selected) }
                         onPress={ () => router.push('/(onboarding)/account-preview') }
                     />
 
@@ -258,23 +257,15 @@ export default function SubscriptionPreviewScreen() {
                             </AppText>
                         </TouchableOpacity>
                     </View>
+                    { accountSettings }
                 </>
             }
         >
-            <View style={ styles.choosePlanRow }>
-                <AppText variant="h3" style={ styles.choosePlanLabel }>
-                    { SUBSCRIPTION_COPY.choosePlan }
-                </AppText>
-                <TouchableOpacity
-                    onPress={ () => setCompareOpen((open) => !open) }
-                    accessibilityRole="button"
-                    accessibilityState={ { expanded: compareOpen } }
-                >
-                    <AppText variant="body" style={ styles.compareLink }>
-                        { compareOpen ? SUBSCRIPTION_COPY.compareHide : SUBSCRIPTION_COPY.compare }
-                    </AppText>
-                </TouchableOpacity>
-            </View>
+            <AppText variant="h2" style={ styles.planTitle } accessibilityRole="header">
+                { showSelectedTrial && selectedProduct.trial !== null
+                    ? trialHeadline(selectedProduct.trial)
+                    : goalHeadline }
+            </AppText>
 
             <View style={ styles.plans } accessibilityRole="radiogroup">
                 <SubscriptionPlanCard
@@ -323,145 +314,23 @@ export default function SubscriptionPreviewScreen() {
                 />
             </View>
 
-            { compareOpen && (
-                <View style={ styles.whatYouGet }>
-                    <AppText variant="h3" style={ styles.whatYouGetTitle }>
-                        { SUBSCRIPTION_COPY.whatYouGet }
-                    </AppText>
-                    { SUBSCRIPTION_COPY.benefits.map((benefit) => (
-                        <View key={ benefit } style={ styles.whatYouGetRow }>
-                            <AppText variant="body" style={ styles.whatYouGetText }>
-                                { benefit }
-                            </AppText>
-                            <Feather name="check" size={ 18 } color={ THEME_COLORS.success } />
-                        </View>
-                    )) }
-                </View>
-            ) }
         </OnboardingScreen>
     );
 }
 
 const styles = StyleSheet.create({
-    choosePlanRow: {
+    planTitle: {
         marginTop: 20,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-    },
-    choosePlanLabel: {
-        fontSize: 17,
-    },
-    compareLink: {
-        textDecorationLine: 'underline',
-        color: TEXT_COLORS.primary,
-    },
-    whatYouGet: {
-        marginTop: 20,
-        borderRadius: 16,
-        borderWidth: 1,
-        borderColor: PALETTE.overlay.whiteBorderTransparent,
-        backgroundColor: 'hsla(0, 0%, 100%, 0.55)',
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-    },
-    whatYouGetTitle: {
-        fontSize: 17,
-        paddingVertical: 8,
-    },
-    whatYouGetRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 12,
-        paddingVertical: 10,
-        borderTopWidth: 1,
-        borderTopColor: PALETTE.overlay.whiteBorderTransparent,
-    },
-    whatYouGetText: {
-        flex: 1,
-    },
-    cancelAnytime: {
-        textAlign: 'center',
-        color: TEXT_COLORS.secondary,
-    },
-    footerPrice: {
-        alignItems: 'center',
-        gap: 2,
-        paddingHorizontal: 4,
-    },
-    footerPriceLine: {
-        fontSize: 17,
-        lineHeight: 23,
-        textAlign: 'center',
-    },
-    footerRenewalLine: {
-        color: TEXT_COLORS.secondary,
-        textAlign: 'center',
-    },
-    planSummary: {
-        marginTop: 22,
-        padding: 16,
-        borderRadius: 16,
-        borderWidth: 1,
-        borderColor: PALETTE.overlay.whiteBorderTransparent,
-        backgroundColor: 'hsla(0, 0%, 100%, 0.55)',
-    },
-    planSummaryTitle: {
-        fontSize: 17,
-    },
-    planSummaryRows: {
-        marginTop: 12,
-        gap: 10,
-    },
-    planSummaryRow: {
-        gap: 2,
-    },
-    planSummaryLabel: {
-        color: TEXT_COLORS.tertiary,
-    },
-    planSummaryValue: {
-        color: TEXT_COLORS.primary,
-    },
-    planSummaryNote: {
-        marginTop: 12,
-        color: TEXT_COLORS.secondary,
-    },
-    benefits: {
-        marginTop: 18,
-        gap: 10,
-    },
-    benefit: {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        gap: 10,
-    },
-    benefitText: {
-        flex: 1,
-    },
-    testimonial: {
-        marginTop: 20,
+        fontSize: 22,
+        lineHeight: 28,
     },
     plans: {
         marginTop: 24,
         gap: 12,
     },
-    trial: {
-        marginTop: 20,
-        gap: 10,
-    },
-    trialRow: {
-        gap: 2,
-    },
-    trialWhen: {
-        fontSize: 15,
-    },
-    trialWhat: {
+    cancelAnytime: {
+        textAlign: 'center',
         color: TEXT_COLORS.secondary,
-    },
-    trialNote: {
-        marginTop: 2,
-        color: TEXT_COLORS.tertiary,
     },
     links: {
         flexDirection: 'row',

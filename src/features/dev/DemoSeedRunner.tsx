@@ -22,7 +22,7 @@ export function DemoSeedRunner(): null {
     const { scheduleSessions } = useTherapySessions();
     const { hasOnboarded, hydrated: onboardingHydrated, finishOnboarding } = useOnboarding();
     const deviceTimeZone = useDeviceTimeZone();
-    const timeZone = useScheduleTimeZone(deviceTimeZone);
+    const timeZone = useScheduleTimeZone(deviceTimeZone, user?.id ?? 'signed-out');
 
     const userId = user?.id;
     // A gap needs two sessions. Below that there is no schedule to hang a note

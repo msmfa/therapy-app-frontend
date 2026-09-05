@@ -15,7 +15,7 @@ Under the app with bundle id `com.plastic-brains.app`:
    - `com.plasticbrains.app.subscription.annual`
    - `com.plasticbrains.app.subscription.monthly`
 4. Set the price and localised name/description for each product.
-5. Add a one-month free introductory offer to the annual product and a one-week
+5. Add a two-week free introductory offer to the annual product and a one-week
    free introductory offer to the monthly product. The app displays each offer
    only when StoreKit reports that the Apple ID is eligible. Both products are
    in the same subscription group, so each person can redeem only one of those
@@ -46,7 +46,7 @@ The normal `PlasticBrains` scheme does not reference the local StoreKit file.
 Use that scheme for App Store sandbox, TestFlight and release builds.
 
 The local product prices are test data only. The fixture mirrors the annual
-one-month and monthly one-week free trials; edit it with Xcode's StoreKit
+two-week and monthly one-week free trials; edit it with Xcode's StoreKit
 configuration editor if the App Store Connect offers change.
 
 Once Xcode has launched the app with that scheme, the local purchase path can

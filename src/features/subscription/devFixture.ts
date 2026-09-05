@@ -16,7 +16,7 @@ export const DEV_FIXTURE_OFFER: SubscriptionOffer = {
         productId: PRODUCT_IDS.annual,
         price: '£39.99',
         monthlyEquivalent: '£3.33',
-        trial: { periods: 1, period: 'month' },
+        trial: { periods: 2, period: 'week' },
     },
     monthly: {
         id: 'monthly',

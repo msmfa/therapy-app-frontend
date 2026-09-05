@@ -20,7 +20,7 @@ describe('goal copy', () => {
 		expect(GOAL_OPTIONS.map(({ label }) => label)).toEqual([
 			'Put therapy insights into practice throughout the week',
 			'Be better prepared for my next session',
-			'Gain insight into areas I can improve across my therapy sessions',
+			'Track my progress over time',
 		]);
 	});
 });
@@ -60,12 +60,13 @@ describe('subscription offer copy', () => {
 	});
 
 	it('uses the duration and billing cycle of the selected product', () => {
+		const annualTrial = { periods: 2, period: 'week' } as const;
 		const monthlyTrial = { periods: 1, period: 'week' } as const;
 
+		expect(trialBadgeLine(annualTrial)).toBe('2 weeks free');
+		expect(planCtaLabel('annual')).toBe('Continue with annual');
 		expect(trialBadgeLine(monthlyTrial)).toBe('1 week free');
-		expect(planCtaLabel('monthly', true, monthlyTrial)).toBe(
-			'Start my 1-week free trial',
-		);
+		expect(planCtaLabel('monthly')).toBe('Continue with monthly');
 		expect(planPriceLine('monthly', '£4.99', true)).toBe('Then £4.99 per month');
 		expect(trialEndLine('monthly', '£4.99')).toBe(
 			'Your monthly subscription begins at £4.99 per month unless cancelled.',

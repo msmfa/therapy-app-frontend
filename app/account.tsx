@@ -13,12 +13,26 @@ import { useAppAlert } from '../src/context/alert';
 
 /** Where support mail from the app goes. */
 const SUPPORT_EMAIL = 'michael@plastic-brains.com';
+const APPLE_SUBSCRIPTIONS_URL = 'https://apps.apple.com/account/subscriptions';
 
 export default function AccountSettingsScreen() {
     const { user, signOut } = useAuth();
     const router = useRouter();
     const [deleting, setDeleting] = useState(false);
+    const [loggingOut, setLoggingOut] = useState(false);
     const { showAlert } = useAppAlert();
+
+    const handleLogout = useCallback(async () => {
+        if (loggingOut || deleting) return;
+        setLoggingOut(true);
+        try {
+            await signOut();
+        } catch {
+            showAlert('Error', 'Could not log out. Please try again.');
+        } finally {
+            setLoggingOut(false);
+        }
+    }, [deleting, loggingOut, showAlert, signOut]);
 
     const performDeleteAccount = useCallback(async () => {
         setDeleting(true);
@@ -55,6 +69,14 @@ export default function AccountSettingsScreen() {
         });
     }, [showAlert]);
 
+    const handleManageSubscription = useCallback(async () => {
+        try {
+            await Linking.openURL(APPLE_SUBSCRIPTIONS_URL);
+        } catch {
+            showAlert('Unable to open subscriptions', 'Open Settings on your iPhone or iPad, tap your name, then Subscriptions to manage your App Store subscription.');
+        }
+    }, [showAlert]);
+
     const handlePrivacyPolicy = useCallback(
         createPrivacyPolicyHandler(router.push),
         [router],
@@ -66,13 +88,17 @@ export default function AccountSettingsScreen() {
     );
 
     const onDeleteAccount = useCallback(() => {
-        if (deleting) {
+        if (deleting || loggingOut) {
             return;
         }
         showAlert(
             'Delete account',
-            'This will permanently remove your account and all stored data. This action cannot be undone.',
+            'This will permanently remove your account and all stored data. This action cannot be undone.\n\nDeleting your account does not cancel an App Store subscription or free trial. Apple billing will continue unless you cancel it in Subscriptions. Please cancel before deleting your account. You can still delete your account immediately.',
             {
+                secondaryAction: {
+                    label: 'Manage subscription',
+                    onPress: handleManageSubscription,
+                },
                 primaryAction: {
                     label: 'Delete account',
                     tone: 'danger',
@@ -80,7 +106,7 @@ export default function AccountSettingsScreen() {
                 },
             }
         );
-    }, [deleting, performDeleteAccount, showAlert]);
+    }, [deleting, loggingOut, handleManageSubscription, performDeleteAccount, showAlert]);
 
     if (!user) {
         return (
@@ -104,6 +130,10 @@ export default function AccountSettingsScreen() {
                     <SettingsRow text="Privacy Policy" onPress={ handlePrivacyPolicy } />
                     <SettingsRow text="Delete account" onPress={ onDeleteAccount } />
                     <SettingsRow text="Terms of Service" onPress={ handleTermsOfService } />
+                    <SettingsRow
+                        text={ loggingOut ? 'Logging out…' : 'Log out' }
+                        onPress={ () => void handleLogout() }
+                    />
                 </View>
             </FrostedCard>
         </SettingsPageShell>

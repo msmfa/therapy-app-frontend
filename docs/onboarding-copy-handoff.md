@@ -44,7 +44,7 @@ The plan preview uses Sarah's testimonial to validate reviewing previous notes. 
 | ---------------------------- | ------------------------------------ |
 | Put therapy insights into practice throughout the week             | Put therapy insights into practice      |
 | Be better prepared for my next session                             | Feel prepared for your next session     |
-| Gain insight into areas I can improve across my therapy sessions   | See where you can improve over time     |
+| Track my progress over time   | Track your progress over time     |
 
 ## Copy guardrails
 

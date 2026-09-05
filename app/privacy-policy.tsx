@@ -47,11 +47,6 @@ export default function PrivacyPolicyScreen() {
                     <AppText variant='h1'>Privacy Policy</AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     <AppText variant='body'>Effective date: { EFFECTIVE_DATE }</AppText>
-                    <Spacer variant={ SpacerVariant.small } />
-                    <AppText variant='caption' style={ styles.reviewNotice }>
-                        Draft pending legal review. The subscription and entitlement wording below has not yet been
-                        reviewed by a qualified lawyer and must be before release.
-                    </AppText>
 
                     <Spacer variant={ SpacerVariant.large } />
                     <View style={ styles.section }>
@@ -247,9 +242,6 @@ export default function PrivacyPolicyScreen() {
 }
 
 const styles = StyleSheet.create({
-    reviewNotice: {
-        color: COLOR_VARIANTS.red.dark,
-    },
     pageHeader: {
         alignItems: 'center',
         flexDirection: 'row',

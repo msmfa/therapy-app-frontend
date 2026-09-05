@@ -81,3 +81,11 @@ export const getSessionsWindow = (now: Date = new Date()) => {
 
     return { from: startOfLocalDay(now), to: endOfLocalDay(to) };
 };
+
+export const isWithinSessionsWindow = (
+    candidate: Date,
+    window = getSessionsWindow(),
+): boolean => {
+    const time = candidate.getTime();
+    return Number.isFinite(time) && time >= window.from.getTime() && time <= window.to.getTime();
+};

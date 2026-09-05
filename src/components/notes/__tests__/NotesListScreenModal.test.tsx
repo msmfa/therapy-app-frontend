@@ -41,14 +41,14 @@ function captureListeners() {
     return listeners;
 }
 
-function renderModal() {
+function renderModal(onUpdateNote = jest.fn().mockResolvedValue(undefined)) {
     return render(
         <SafeAreaProvider initialMetrics={ METRICS }>
             <NotePreviewModal
                 visible
                 note={ note }
                 onClose={ jest.fn() }
-                onUpdateNote={ jest.fn().mockResolvedValue(undefined) }
+                onUpdateNote={ onUpdateNote }
             />
         </SafeAreaProvider>,
     );
@@ -61,6 +61,41 @@ afterEach(() => {
 });
 
 describe('NotePreviewModal editing layout', () => {
+    it('retains an edit after saving fails and allows retrying it', async () => {
+        const updateNote = jest.fn()
+            .mockRejectedValueOnce(new Error('Unable to update note right now.'))
+            .mockResolvedValueOnce(undefined);
+        renderModal(updateNote);
+        fireEvent.press(screen.getByLabelText('Edit note'));
+        fireEvent.changeText(screen.getByLabelText('Edit note'), 'Keep the revised reflection');
+
+        await act(async () => { fireEvent.press(screen.getByLabelText('Save changes')); });
+
+        expect(screen.getByLabelText('Edit note').props.value).toBe('Keep the revised reflection');
+        expect(screen.getByText('Unable to update note right now.')).toBeTruthy();
+
+        await act(async () => { fireEvent.press(screen.getByLabelText('Save changes')); });
+        expect(updateNote).toHaveBeenNthCalledWith(2, 'note-1', 'Keep the revised reflection');
+        expect(screen.queryByLabelText('Save changes')).toBeNull();
+    });
+
+    it('prevents duplicate saves and keeps the editor open while saving', async () => {
+        let finishSave!: () => void;
+        const updateNote = jest.fn(() => new Promise<void>(resolve => { finishSave = resolve; }));
+        renderModal(updateNote);
+        fireEvent.press(screen.getByLabelText('Edit note'));
+        fireEvent.changeText(screen.getByLabelText('Edit note'), 'Pending edit');
+        act(() => {
+            fireEvent.press(screen.getByLabelText('Save changes'));
+            fireEvent.press(screen.getByLabelText('Save changes'));
+            fireEvent.press(screen.getByLabelText('Back'));
+        });
+
+        expect(updateNote).toHaveBeenCalledTimes(1);
+        expect(screen.getByLabelText('Edit note').props.editable).toBe(false);
+        await act(async () => { finishSave(); });
+    });
+
     it('leaves the text input as the only scroller while editing', () => {
         captureListeners();
         renderModal();

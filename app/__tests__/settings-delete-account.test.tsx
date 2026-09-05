@@ -1,6 +1,8 @@
 import React from 'react';
 import { jest } from '@jest/globals';
 import { act, fireEvent, render } from '@testing-library/react-native';
+import { Linking } from 'react-native';
+import type { AppAlertOptions } from '../../src/context/alert/types';
 
 // Delete account now lives on the Settings category page, not the index.
 import AccountSettingsScreen from '../account';
@@ -98,6 +100,47 @@ const confirmAccountDeletion = async (getByText: (text: string) => unknown) => {
 describe('SettingsScreen account deletion', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+    });
+
+    afterEach(() => { jest.restoreAllMocks(); });
+
+    it('warns that Apple billing continues and offers subscription management before deletion', async () => {
+        const openURL = jest.spyOn(Linking, 'openURL').mockResolvedValue(true);
+        const { getByText } = render(<AccountSettingsScreen />);
+        fireEvent.press(getByText('Delete account'));
+
+        const [title, message, rawOptions] = mockShowAlert.mock.calls[0];
+        const options = rawOptions as AppAlertOptions;
+        expect(title).toBe('Delete account');
+        expect(message).toContain('does not cancel an App Store subscription or free trial');
+        expect(message).toContain('Apple billing will continue');
+        expect(options.primaryAction?.label).toBe('Delete account');
+        expect(options.secondaryAction?.label).toBe('Manage subscription');
+
+        await act(async () => { await options.secondaryAction?.onPress(); });
+        expect(openURL).toHaveBeenCalledWith('https://apps.apple.com/account/subscriptions');
+        expect(mockedDeleteCurrentUser).not.toHaveBeenCalled();
+        expect(mockedClearNotesForUser).not.toHaveBeenCalled();
+    });
+
+    it('provides cancellation instructions if subscription management cannot open', async () => {
+        jest.spyOn(Linking, 'openURL').mockRejectedValueOnce(new Error('unavailable'));
+        const { getByText } = render(<AccountSettingsScreen />);
+        fireEvent.press(getByText('Delete account'));
+        const options = mockShowAlert.mock.calls[0][2] as AppAlertOptions;
+        await act(async () => { await options.secondaryAction?.onPress(); });
+
+        expect(mockShowAlert).toHaveBeenLastCalledWith('Unable to open subscriptions', expect.stringContaining('then Subscriptions'));
+        expect(mockedDeleteCurrentUser).not.toHaveBeenCalled();
+    });
+
+    it('allows logout from account settings without touching notes or deleting the account', async () => {
+        const { getByText } = render(<AccountSettingsScreen />);
+        await act(async () => { fireEvent.press(getByText('Log out')); });
+
+        expect(mockSignOut).toHaveBeenCalledTimes(1);
+        expect(mockedDeleteCurrentUser).not.toHaveBeenCalled();
+        expect(mockedClearNotesForUser).not.toHaveBeenCalled();
     });
 
     it('deletes the server account before destroying local notes, then signs out', async () => {

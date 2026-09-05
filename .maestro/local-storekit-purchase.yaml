@@ -49,9 +49,9 @@ name: Complete a local StoreKit onboarding purchase
 - tapOn: See the five-minute note
 - tapOn: See plans
 - extendedWaitUntil:
-      visible: Start my 1-month free trial
+      visible: Start your free trial
       timeout: 30000
-- tapOn: Start my 1-month free trial
+- tapOn: Start your free trial
 - extendedWaitUntil:
       visible: Save your between-session plan
       timeout: 30000

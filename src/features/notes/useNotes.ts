@@ -233,7 +233,8 @@ export function useNotes(userId: string | undefined) {
     const addNote = React.useCallback(
         async (text: string): Promise<void> => {
             const clean = text.trim();
-            if (!clean || !userId) return;
+            if (!userId) throw new Error('Sign in to save a note.');
+            if (!clean) throw new Error('Notes cannot be empty.');
 
             const now = Date.now();
             const note: Note = { id: createNoteId(now), text: clean, createdAt: now };
@@ -256,6 +257,7 @@ export function useNotes(userId: string | undefined) {
             } catch (err) {
                 console.warn('useNotes.addNote', err);
                 setError('Failed to add note');
+                throw new Error('Unable to save note right now.');
             }
         },
         [userId],
@@ -263,7 +265,7 @@ export function useNotes(userId: string | undefined) {
 
     const updateNote = React.useCallback(
         async (id: string, patch: Partial<Pick<Note, 'text' | 'remindAt' | 'notifId'>>): Promise<void> => {
-            if (!userId) return;
+            if (!userId) throw new Error('Sign in to save a note.');
 
             const updates: string[] = [];
             const values: Array<string | number | null> = [];
@@ -307,6 +309,7 @@ export function useNotes(userId: string | undefined) {
             } catch (err) {
                 console.warn('useNotes.updateNote', err);
                 setError('Failed to update note');
+                throw new Error('Unable to update note right now.');
             }
         },
         [userId],

@@ -4,6 +4,7 @@ import { act, renderHook, waitFor } from '@testing-library/react-native';
 
 import { useNeuroReminders } from '../useNeuroReminders';
 import * as remindersApi from '../../../api/reminders';
+import { getLocalDateKey, getSessionsSignature, readRemindersCache, writeRemindersCache } from '../remindersCache';
 
 jest.mock('../../../api/reminders', () => ({
     getReminders: jest.fn(),
@@ -46,6 +47,50 @@ describe('useNeuroReminders revalidation triggers', () => {
 
     afterEach(() => {
         jest.useRealTimers();
+    });
+
+    it('does not show another account’s cache, even when both have the same sessions', async () => {
+        const cachedA = {
+            ...response('account-a-private-reminder'),
+            deviceTimeZone: 'Europe/London',
+            sessionsSignature: getSessionsSignature(SESSIONS),
+            localDate: getLocalDateKey(),
+        };
+        await writeRemindersCache(cachedA, 'user-a');
+        // An older app version could have left a cache without an owner too.
+        await writeRemindersCache(cachedA);
+        getReminders.mockResolvedValueOnce(response('account-b-reminder'));
+
+        const { result, rerender } = renderHook(
+            ({ account }) => useNeuroReminders(SESSIONS, 'Europe/London', true, true, 0, undefined, undefined, account),
+            { initialProps: { account: 'user-a' } },
+        );
+        await waitFor(() => expect(result.current).toEqual(cachedA.reminders));
+        expect(getReminders).not.toHaveBeenCalled();
+        rerender({ account: 'user-b' });
+        expect(result.current).toEqual([]);
+        await waitFor(() => expect(result.current).toEqual(response('account-b-reminder').reminders));
+        expect(getReminders).toHaveBeenCalledTimes(1);
+        expect((await readRemindersCache('user-a'))?.reminders).toEqual(cachedA.reminders);
+        expect((await readRemindersCache('user-b'))?.reminders).toEqual(response('account-b-reminder').reminders);
+    });
+
+    it('ignores a late account A reminder response after account B signs in', async () => {
+        let finishA!: (value: ReturnType<typeof response>) => void;
+        getReminders.mockImplementationOnce(() => new Promise(resolve => { finishA = resolve; }))
+            .mockResolvedValueOnce(response('account-b-reminder'));
+        const { result, rerender } = renderHook(
+            ({ account }) => useNeuroReminders(SESSIONS, 'Europe/London', true, true, 0, undefined, undefined, account),
+            { initialProps: { account: 'user-a' } },
+        );
+        await waitFor(() => expect(getReminders).toHaveBeenCalledTimes(1));
+        rerender({ account: 'user-b' });
+        await waitFor(() => expect(result.current).toEqual(response('account-b-reminder').reminders));
+        await act(async () => { finishA(response('late-account-a-reminder')); });
+
+        expect(result.current).toEqual(response('account-b-reminder').reminders);
+        expect(await readRemindersCache('user-a')).toBeNull();
+        expect((await readRemindersCache('user-b'))?.reminders).toEqual(response('account-b-reminder').reminders);
     });
 
     it('retries a failed fetch when the app returns to the foreground', async () => {

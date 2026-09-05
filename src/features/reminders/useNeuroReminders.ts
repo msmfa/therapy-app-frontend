@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type SetStateAction } from 'react';
 import { AppState } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 
@@ -8,6 +8,7 @@ import type { Reminder } from './types';
 import {
     clearRemindersCache,
     getLocalDateKey,
+    getRemindersCacheRevision,
     getSessionsSignature,
     isCacheUsable,
     readRemindersCache,
@@ -54,10 +55,27 @@ export function useNeuroReminders(
     refreshSignal = 0,
     onScheduleSettings?: (settings: ReminderScheduleSettings | null) => void,
     onScheduleStatus?: (status: ReminderScheduleStatus) => void,
+    accountKey?: string,
 ): Reminder[] {
-    const [reminders, setReminders] = useState<Reminder[]>([]);
+    const [snapshot, setSnapshot] = useState<{ owner: string | undefined; reminders: Reminder[] }>(
+        () => ({ owner: accountKey, reminders: [] }),
+    );
     // Guards against a slow response for a stale input overwriting a newer one.
     const requestIdRef = useRef(0);
+    const ownerRef = useRef(accountKey);
+    if (ownerRef.current !== accountKey) {
+        ownerRef.current = accountKey;
+        requestIdRef.current += 1;
+    }
+    const setReminders = useCallback((update: SetStateAction<Reminder[]>) => {
+        if (ownerRef.current !== accountKey) return;
+        setSnapshot((current) => ({
+            owner: accountKey,
+            reminders: typeof update === 'function'
+                ? update(current.owner === accountKey ? current.reminders : [])
+                : update,
+        }));
+    }, [accountKey]);
 
     const sessionsSignature = useMemo(
         () => getSessionsSignature(sessions),
@@ -73,10 +91,11 @@ export function useNeuroReminders(
         onScheduleStatus?.('loading');
 
         let cancelled = false;
+        const revision = getRemindersCacheRevision(accountKey);
 
         void (async () => {
-            const cached = await readRemindersCache();
-            if (cancelled || !cached) return;
+            const cached = await readRemindersCache(accountKey);
+            if (cancelled || !cached || revision !== getRemindersCacheRevision(accountKey)) return;
             // Never clobber a fresher answer that won the race.
             setReminders((current) => (current.length ? current : cached.reminders));
             onScheduleSettings?.({
@@ -90,16 +109,20 @@ export function useNeuroReminders(
         return () => {
             cancelled = true;
         };
-    }, [isAuthenticated, onScheduleSettings, onScheduleStatus]);
+    }, [accountKey, isAuthenticated, onScheduleSettings, onScheduleStatus, setReminders]);
 
     const revalidate = useCallback(async () => {
         const requestId = requestIdRef.current + 1;
         requestIdRef.current = requestId;
+        const revision = getRemindersCacheRevision(accountKey);
+        const isCurrent = () => requestIdRef.current === requestId
+            && revision === getRemindersCacheRevision(accountKey);
 
-        const cached = await readRemindersCache();
+        const cached = await readRemindersCache(accountKey);
+        if (!isCurrent()) return;
 
         if (isCacheUsable(cached, sessionsSignature, deviceTimeZone, getLocalDateKey())) {
-            if (requestIdRef.current === requestId) {
+            if (isCurrent()) {
                 setReminders(cached.reminders);
                 onScheduleSettings?.({
                     timeZone: cached.timeZone,
@@ -115,7 +138,7 @@ export function useNeuroReminders(
 
         try {
             const response = await getReminders();
-            if (requestIdRef.current !== requestId) return;
+            if (!isCurrent()) return;
 
             setReminders(response.reminders);
             onScheduleSettings?.({
@@ -135,8 +158,9 @@ export function useNeuroReminders(
                 // may have spanned midnight, and stamping the older day would
                 // revalidate immediately on the next render.
                 localDate: getLocalDateKey(),
-            });
+            }, accountKey, revision);
         } catch (err) {
+            if (!isCurrent()) return;
             // Non-fatal. The calendar keeps whatever it last knew, and the next
             // foreground or session change tries again.
             Sentry.withScope((scope) => {
@@ -144,9 +168,9 @@ export function useNeuroReminders(
                 Sentry.captureException(toError(err));
             });
             console.warn('[Reminders] Failed to load reminder schedule:', err);
-            if (requestIdRef.current === requestId) onScheduleStatus?.('error');
+            onScheduleStatus?.('error');
         }
-    }, [sessionsSignature, deviceTimeZone, onScheduleSettings, onScheduleStatus]);
+    }, [accountKey, sessionsSignature, deviceTimeZone, onScheduleSettings, onScheduleStatus, setReminders]);
 
     useEffect(() => {
         if (!isAuthenticated) {
@@ -164,7 +188,7 @@ export function useNeuroReminders(
         }
 
         void revalidate();
-    }, [isAuthenticated, sessionsReady, refreshSignal, revalidate, onScheduleStatus]);
+    }, [isAuthenticated, sessionsReady, refreshSignal, revalidate, onScheduleStatus, onScheduleSettings, setReminders]);
 
     // The effect above only re-runs when its inputs change, and neither a
     // failed fetch nor the local day rolling over changes any of them. Two
@@ -200,5 +224,5 @@ export function useNeuroReminders(
         };
     }, [isAuthenticated, sessionsReady, revalidate]);
 
-    return reminders;
+    return isAuthenticated && snapshot.owner === accountKey ? snapshot.reminders : [];
 }

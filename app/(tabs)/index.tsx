@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { View, TextInput, StyleSheet, KeyboardAvoidingView, Platform, Pressable, Keyboard } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -23,13 +23,17 @@ export default function NewNoteScreen() {
     const [text, setText] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [helpVisible, setHelpVisible] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const saveInFlight = useRef(false);
 
     const handleNext = useCallback(async () => {
         const value = text.trim();
-        if (!value) {
+        if (!value || saveInFlight.current) {
             return;
         }
 
+        saveInFlight.current = true;
+        setSaving(true);
         try {
             await addNote(value);
             setText('');
@@ -40,10 +44,13 @@ export default function NewNoteScreen() {
         } catch (err) {
             console.error('addNote failed', err);
             setError('Unable to save note right now.');
+        } finally {
+            saveInFlight.current = false;
+            setSaving(false);
         }
     }, [addNote, router, text]);
 
-    const isDisabled = text.trim().length === 0;
+    const isDisabled = saving || text.trim().length === 0;
     const saveButtonSize = 72;
 
     return (
@@ -63,6 +70,7 @@ export default function NewNoteScreen() {
                                     <TextInput
                                         placeholder={ notePrompt }
                                         value={ text }
+                                        editable={ !saving }
                                         onChangeText={ setText }
                                         multiline
                                         numberOfLines={ 10 }

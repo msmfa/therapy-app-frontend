@@ -58,8 +58,8 @@ name: Onboarding navigation and reminder separation
       visible: Annual.*
       timeout: 30000
 - assertVisible: Monthly.*
-- assertVisible: 1 month free
+- assertVisible: 2 weeks free
 - assertVisible: 1 week free
 - tapOn: Monthly
-- assertVisible: Start my 1-week free trial
+- assertVisible: Start your free trial
 - assertVisible: Restore purchases

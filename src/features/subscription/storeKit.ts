@@ -564,6 +564,13 @@ export async function getEntitlement(
                 // cannot be turned into a restore for an arbitrary account.
                 return { status: 'inactive' };
             }
+
+            // An empty receipt list only describes this device's Apple ID.
+            // It cannot disprove an app-account subscription bought elsewhere
+            // when the account server is unavailable.
+            if (local.status === 'inactive' && !serverEntitlementKnown) {
+                return { status: 'unknown', reason: 'network' };
+            }
         }
 
         return local;

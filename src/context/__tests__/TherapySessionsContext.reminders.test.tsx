@@ -44,7 +44,7 @@ jest.mock('../../hooks/useTimeZoneSync', () => ({
 }));
 
 jest.mock('../auth/AuthContext', () => ({
-  useAuth: () => ({ isAuthenticated: true }),
+  useAuth: () => ({ isAuthenticated: true, user: { id: 'user-1' } }),
 }));
 
 jest.mock('../../api/therapy', () => ({

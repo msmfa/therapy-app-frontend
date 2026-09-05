@@ -14,6 +14,7 @@ const mockConsumePending = jest.fn<string | null, [string?]>(() => null);
 const mockSetPending = jest.fn();
 
 let mockIsAuthenticated = false;
+let mockOfferStatus: 'ready' | 'loading' | 'unavailable' = 'ready';
 let mockHasOnboarded = false;
 let mockEntitlementState: EntitlementState = { status: 'inactive' };
 let mockAnswers: OnboardingAnswers = {
@@ -59,7 +60,7 @@ jest.mock('../../src/features/onboarding/OnboardingAnswersContext', () => ({
 
 jest.mock('../../src/features/subscription/useSubscriptionOffer', () => ({
     useSubscriptionOffer: () => ({
-        state: {
+        state: mockOfferStatus === 'ready' ? {
             status: 'ready',
             offer: {
                 annual: {
@@ -67,7 +68,7 @@ jest.mock('../../src/features/subscription/useSubscriptionOffer', () => ({
                     productId: 'com.plasticbrains.app.subscription.annual',
                     price: '£39.99',
                     monthlyEquivalent: '£3.33',
-                    trial: { periods: 1, period: 'month' },
+                    trial: { periods: 2, period: 'week' },
                 },
                 monthly: {
                     id: 'monthly',
@@ -78,7 +79,9 @@ jest.mock('../../src/features/subscription/useSubscriptionOffer', () => ({
                 },
                 trialEligible: true,
             },
-        },
+        } : mockOfferStatus === 'loading'
+            ? { status: 'loading' }
+            : { status: 'unavailable', reason: 'network' },
         reload: jest.fn(),
     }),
 }));
@@ -141,8 +144,24 @@ jest.mock('../../src/components/onboarding/SubscriptionPlanCard', () => {
     const ReactForMock = require('react');
     const { Text: MockText } = require('react-native');
     return {
-        SubscriptionPlanCard: ({ title }: { title: string }) =>
-            ReactForMock.createElement(MockText, null, title),
+        SubscriptionPlanCard: ({
+            title,
+            trialBadge,
+            priceLine,
+            renewalLine,
+        }: {
+            title: string;
+            trialBadge?: string;
+            priceLine: string;
+            renewalLine: string;
+        }) =>
+            ReactForMock.createElement(
+                MockText,
+                null,
+                [title, trialBadge, priceLine, renewalLine]
+                    .filter(Boolean)
+                    .join(' '),
+            ),
     };
 });
 
@@ -174,6 +193,7 @@ describe('restored-subscription onboarding routing', () => {
         jest.clearAllMocks();
         mockConsumePending.mockReturnValue(null);
         mockIsAuthenticated = false;
+        mockOfferStatus = 'ready';
         mockHasOnboarded = false;
         mockEntitlementState = { status: 'inactive' };
         mockAnswers = {
@@ -191,11 +211,38 @@ describe('restored-subscription onboarding routing', () => {
         mockRestore.mockResolvedValue({ status: 'restored' });
     });
 
+    it.each(['ready', 'loading', 'unavailable'] as const)(
+        'allows a signed-in user to reach account settings when offers are %s',
+        (offerStatus) => {
+            mockIsAuthenticated = true;
+            mockHasOnboarded = true;
+            mockOfferStatus = offerStatus;
+
+            const screen = render(<SubscriptionPreviewScreen />);
+            fireEvent.press(screen.getByText('Account settings'));
+
+            expect(mockPush).toHaveBeenCalledWith('/account');
+        },
+    );
+
+    it('keeps account settings accessible while entitlement is loading', () => {
+        mockIsAuthenticated = true;
+        mockHasOnboarded = true;
+        mockEntitlementState = { status: 'loading' };
+
+        const screen = render(<SubscriptionPreviewScreen />);
+        fireEvent.press(screen.getByText('Account settings'));
+
+        expect(mockPush).toHaveBeenCalledWith('/account');
+    });
+
     it('requires app authentication before asking Apple to restore', async () => {
         const { getByText } = render(<SubscriptionPreviewScreen />);
 
-        expect(getByText('Annual plan: 1 month free. Then £39.99 per year')).toBeTruthy();
-        expect(getByText('Renews annually until cancelled.')).toBeTruthy();
+        expect(getByText("Your first 2 weeks are on us")).toBeTruthy();
+        expect(
+            getByText("Annual 2 weeks free £39.99/year (that's £3.33/month) Renews annually until cancelled."),
+        ).toBeTruthy();
 
         fireEvent.press(getByText('Restore purchases'));
 
@@ -210,13 +257,26 @@ describe('restored-subscription onboarding routing', () => {
         expect(mockSetAnswer).not.toHaveBeenCalled();
     });
 
-    it('keeps the selected monthly trial and full price beside the purchase action', () => {
+    it('keeps the selected monthly trial and full price on its plan card', () => {
         mockAnswers = { ...mockAnswers, plan: 'monthly' };
 
         const { getByText } = render(<SubscriptionPreviewScreen />);
 
-        expect(getByText('Monthly plan: 1 week free. Then £4.99 per month')).toBeTruthy();
-        expect(getByText('Renews monthly until cancelled.')).toBeTruthy();
+        expect(getByText("Your first week's on us")).toBeTruthy();
+        expect(
+            getByText('Monthly 1 week free £4.99/month Renews monthly until cancelled.'),
+        ).toBeTruthy();
+    });
+
+    it('heads the screen with the trial the selected plan actually carries', () => {
+        const { getByText, rerender } = render(<SubscriptionPreviewScreen />);
+
+        expect(getByText('Your first 2 weeks are on us')).toBeTruthy();
+
+        mockAnswers = { ...mockAnswers, plan: 'monthly' };
+        rerender(<SubscriptionPreviewScreen />);
+
+        expect(getByText("Your first week's on us")).toBeTruthy();
     });
 
     it('verifies a restore against the signed-in app account before continuing', async () => {

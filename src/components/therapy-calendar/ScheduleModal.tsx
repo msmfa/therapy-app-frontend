@@ -30,6 +30,7 @@ interface ScheduleModalProps {
     onConfirm: (mode: ScheduleMode, time: Date) => void;
     onDelete: () => void;
     onCancel: () => void;
+    weeklyRepeatCount?: number;
 }
 
 export default function ScheduleModal({
@@ -40,6 +41,7 @@ export default function ScheduleModal({
     onConfirm,
     onDelete,
     onCancel,
+    weeklyRepeatCount = 8,
 }: ScheduleModalProps) {
     const [time, setTime] = useState(defaultTime);
     const [scheduleMode, setScheduleMode] = useState<ScheduleMode>('weekly_pattern');
@@ -48,7 +50,7 @@ export default function ScheduleModal({
     useEffect(() => {
         if (visible) {
             setTime(existingSession?.time || defaultTime);
-            setScheduleMode('weekly_pattern');
+            setScheduleMode(existingSession ? 'single' : 'weekly_pattern');
         }
     }, [visible, existingSession, defaultTime]);
 
@@ -73,7 +75,12 @@ export default function ScheduleModal({
     const scheduleModeOptions: ScheduleMode[] = ['weekly_pattern', 'single'];
     const scheduleModeDictionary: Record<string, { title: string; note?: string }> = {
         single: { title: 'This day only' },
-        weekly_pattern: { title: 'Every week', note: 'For the next two months' },
+        weekly_pattern: {
+            title: 'Every week',
+            note: weeklyRepeatCount === 8
+                ? 'For the next two months'
+                : `${weeklyRepeatCount} ${weeklyRepeatCount === 1 ? 'session' : 'sessions'}`,
+        },
     };
 
     if (!visible) return null;

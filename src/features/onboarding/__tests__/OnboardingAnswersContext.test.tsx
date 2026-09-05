@@ -57,6 +57,14 @@ describe('OnboardingAnswersProvider persistence', () => {
         mockCancelOnboardingReminder.mockResolvedValue(undefined);
     });
 
+    it('starts a first run on the annual plan', async () => {
+        const { result } = renderHook(() => useOnboardingAnswers(), { wrapper });
+
+        await waitFor(() => expect(result.current.hydrated).toBe(true));
+
+        expect(result.current.answers.plan).toBe('annual');
+    });
+
     it('records the focused onboarding screen in the encrypted draft', async () => {
         const { rerender } = renderHook(() => useOnboardingAnswers(), { wrapper });
         await waitFor(() => expect(mockReadDraft).toHaveBeenCalled());

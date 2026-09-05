@@ -43,8 +43,8 @@ export const GOAL_OPTIONS: GoalOption[] = [
     },
     {
         id: 'habit',
-        label: 'Gain insight into areas I can improve across my therapy sessions',
-        subscriptionHeadline: 'See where you can improve over time',
+        label: 'Track my progress over time',
+        subscriptionHeadline: 'Track your progress over time',
     },
 ];
 
@@ -107,7 +107,6 @@ export const REMINDER_TIMES_COPY = {
 } as const;
 
 export const PLAN_COPY = {
-    sampleLabel: 'Illustrative plan — these dates will not be saved',
     sampleHeadline: 'See how your plan could work',
     sampleBody:
         "This example shows how reminders can fit between sessions. Add your booked session later and we'll replace these dates with your real plan.",
@@ -157,12 +156,6 @@ export const SUBSCRIPTION_COPY = {
         name: 'Catherine',
         role: 'CBT therapist',
     },
-    benefits: [
-        'Capture what mattered in five focused questions',
-        'Revisit your note at useful moments',
-        'Choose a clear thread to bring back',
-        'Keep note contents encrypted on this iPhone',
-    ],
     annualCta: 'Continue with annual',
     monthlyCta: 'Continue with monthly',
     annualTitle: 'Annual',
@@ -175,11 +168,7 @@ export const SUBSCRIPTION_COPY = {
     monthlyBadge: 'Flexible',
     monthlyRenewal: 'Renews monthly until cancelled.',
     monthlyRenewalNoTrial: 'Billed today. Renews monthly until cancelled.',
-    trialHeadline: "Your first week's on us",
-    choosePlan: 'Choose your plan',
-    compare: 'Compare',
-    compareHide: 'Hide',
-    whatYouGet: 'What you get',
+    planHeader: 'Your plan',
     annualDescription: 'Notes, reviews, reminders and more',
     monthlyDescription: 'The same plan, month by month',
     trialCta: 'Start your free trial',
@@ -202,16 +191,15 @@ const planBillingPeriod = (plan: PlanId): 'year' | 'month' =>
 const trialDurationLine = (trial: SubscriptionTrial): string =>
     `${trial.periods} ${trial.period}${trial.periods === 1 ? '' : 's'}`;
 
-export const planCtaLabel = (
-    plan: PlanId,
-    showTrial: boolean,
-    trial: SubscriptionTrial | null,
-): string => {
-    if (!showTrial || trial === null) {
-        return plan === 'annual' ? SUBSCRIPTION_COPY.annualCta : SUBSCRIPTION_COPY.monthlyCta;
-    }
-    return `Start my ${trialDurationLine(trial).replace(' ', '-')} free trial`;
-};
+/** The purchase button when no trial is on offer; a trial uses `trialCta`. */
+export const planCtaLabel = (plan: PlanId): string =>
+    plan === 'annual' ? SUBSCRIPTION_COPY.annualCta : SUBSCRIPTION_COPY.monthlyCta;
+
+/** A plain-language headline for whichever trial the selected plan carries. */
+export const trialHeadline = (trial: SubscriptionTrial): string =>
+    trial.periods === 1
+        ? `Your first ${trial.period}'s on us`
+        : `Your first ${trial.periods} ${trial.period}s are on us`;
 
 export const planPriceLine = (plan: PlanId, price: string, showTrial: boolean): string =>
     `${showTrial ? 'Then ' : ''}${price} per ${planBillingPeriod(plan)}`;

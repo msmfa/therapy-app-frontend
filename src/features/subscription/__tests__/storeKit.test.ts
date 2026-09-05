@@ -116,8 +116,8 @@ describe('real StoreKit bridge', () => {
         mockFetchProducts.mockResolvedValue([
             product('com.plasticbrains.app.subscription.annual', {
                 introductoryPricePaymentModeIOS: 'free-trial',
-                introductoryPriceNumberOfPeriodsIOS: '1',
-                introductoryPriceSubscriptionPeriodIOS: 'month',
+                introductoryPriceNumberOfPeriodsIOS: '2',
+                introductoryPriceSubscriptionPeriodIOS: 'week',
                 subscriptionGroupIdIOS: 'therapy-subscriptions',
             }),
             product('com.plasticbrains.app.subscription.monthly', {
@@ -143,7 +143,7 @@ describe('real StoreKit bridge', () => {
             offer: {
                 annual: {
                     price: '£39.99',
-                    trial: { periods: 1, period: 'month' },
+                    trial: { periods: 2, period: 'week' },
                 },
                 monthly: {
                     price: '£4.99',
@@ -439,6 +439,21 @@ describe('real StoreKit bridge', () => {
             status: 'active',
             plan: 'monthly',
         });
+    });
+
+    it('returns unknown when local receipts are empty and the account server is unavailable', async () => {
+        const { getEntitlement } = loadStoreKit();
+        mockGetServerEntitlement.mockRejectedValue(
+            new ApiError(0, { message: 'Offline', code: 'network' }),
+        );
+        await expect(getEntitlement({ syncWithServer: true })).resolves.toEqual({
+            status: 'unknown', reason: 'network',
+        });
+    });
+
+    it('returns inactive when the server conclusively reports no account subscription', async () => {
+        const { getEntitlement } = loadStoreKit();
+        await expect(getEntitlement({ syncWithServer: true })).resolves.toEqual({ status: 'inactive' });
     });
 
     it('uses the app-account entitlement on a device with no local purchase', async () => {
