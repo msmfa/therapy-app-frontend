@@ -78,7 +78,9 @@ const EMPTY: NoteReviewProgress = {
  */
 const isAnsweredBy = (occurrence: Reminder, review: NoteReview): boolean =>
     review.localDate === occurrence.localDate &&
-    (review.gapIndex === null || review.gapIndex === occurrence.gapIndex);
+    // gapIndex is a position in a rolling list, not an identity. Persisted
+    // occurrence timestamps survive earlier appointments leaving that list.
+    (review.occurrenceAtUtc == null || review.occurrenceAtUtc === occurrence.atUtc);
 
 export function noteReviewProgress(
     params: NoteReviewProgressParams,

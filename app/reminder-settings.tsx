@@ -18,7 +18,8 @@ import {
     DEFAULT_EVENING_MINUTES,
     DEFAULT_MORNING_MINUTES,
 } from '../src/features/onboarding/OnboardingAnswersContext';
-import { readNotificationPermission } from '../src/features/onboarding/onboardingNotifications';
+import { readNotificationPermission, requestNotificationPermission } from '../src/features/onboarding/onboardingNotifications';
+import { ensurePushRegistration } from '../src/services/notifications/pushRegistration';
 import { dateToMinutes, minutesToDate, timeLabel } from '../src/features/onboarding/formatting';
 import { COLOR_VARIANTS, PALETTE, TEXT_COLORS } from '../designs/designs-colors';
 
@@ -76,6 +77,27 @@ export default function ReminderSettingsScreen() {
             subscription.remove();
         };
     }, [refreshPermission, showAlert]);
+
+    const enableNotifications = useCallback(async () => {
+        try {
+            let permission = await readNotificationPermission();
+            if (!permission.granted && permission.canAskAgain) {
+                permission = await requestNotificationPermission();
+            } else if (!permission.granted || notificationStatus === 'on') {
+                await Linking.openSettings();
+                return;
+            }
+            setNotificationStatus(permission.granted ? 'on' : 'off');
+            if (permission.granted) {
+                const registration = await ensurePushRegistration();
+                if (registration.status === 'failed') {
+                    showAlert("We couldn't enable reminders", 'Please try again when you are online.');
+                }
+            }
+        } catch {
+            showAlert("We couldn't update notification access", 'Please try again.');
+        }
+    }, [notificationStatus, showAlert]);
 
     const change = useCallback(
         (slot: Slot) => (event: DateTimePickerEvent, picked?: Date) => {
@@ -180,14 +202,7 @@ export default function ReminderSettingsScreen() {
                 <View style={ styles.notificationSection }>
                     <SettingsRow
                         text={ `Notification permissions: ${notificationStatus === 'on' ? 'On' : 'Off'}` }
-                        onPress={ () => {
-                            void Linking.openSettings().catch(() => {
-                                showAlert(
-                                    "We couldn't open Settings",
-                                    'Open the Settings app to change notification access.',
-                                );
-                            });
-                        } }
+                        onPress={ () => { void enableNotifications(); } }
                     />
                 </View>
 

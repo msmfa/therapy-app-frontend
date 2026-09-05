@@ -58,6 +58,7 @@ export default function AccountSettingsScreen() {
             await signOut();
         } catch (error) {
             setDeleting(false);
+            if ((error as { code?: string })?.code === 'ERR_REQUEST_CANCELED') return;
             const message = error instanceof Error ? error.message : 'Failed to delete account';
             showAlert('Error', message);
         }

@@ -51,6 +51,7 @@ describe('therapy api helpers', () => {
 
     expect(apiPost).toHaveBeenCalledWith('/api/therapy-sessions/sync', {
       sessions: payload,
+      baseSessions: [],
     });
     expect(result).toBe(response);
   });
@@ -70,6 +71,7 @@ describe('therapy api helpers', () => {
 
     expect(apiPost).toHaveBeenCalledWith('/api/therapy-sessions/sync', {
       sessions: payload,
+      baseSessions: [],
       from: '2024-02-01T06:12:00.000Z',
       to: '2024-02-05T21:30:00.000Z',
     });

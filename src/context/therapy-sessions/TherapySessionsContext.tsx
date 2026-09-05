@@ -36,7 +36,7 @@ interface TherapySessionsContextType {
     reminderScheduleSettings: ReminderScheduleSettings | null;
     reminderScheduleStatus: ReminderScheduleStatus;
     refreshSessions: () => Promise<void>;
-    syncSessions: (selected: Record<string, Date>, duration: number) => Promise<void>;
+    syncSessions: (selected: Record<string, Date>, duration: number, baseSessions?: TherapySession[]) => Promise<void>;
     /** Adds appointments without deleting sessions already on the calendar. */
     addSessions: (dates: Date[], duration: number) => Promise<void>;
     /** Invalidates cached times and fetches the schedule with new preferences. */
@@ -202,7 +202,7 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
     }, [account, updateSnapshot]);
 
     const syncSessions = useCallback(
-        async (selected: Record<string, Date>, duration: number) => {
+        async (selected: Record<string, Date>, duration: number, baseSessions?: TherapySession[]) => {
             assertCurrentAccount();
 
             // Do not build an all-or-nothing sync against the initial empty
@@ -216,16 +216,16 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
             }
 
             assertCurrentAccount();
-            const currentSessions = editableSessionsFrom(account.sessions);
+            const currentSessions = baseSessions ?? editableSessionsFrom(account.sessions);
             const window = getSessionsWindow();
             if (Object.values(selected).some(date => !isWithinSessionsWindow(date, window))) {
                 throw new Error('Appointments must be between today and one year ahead. Please update your selection.');
             }
 
-            const payload = Object.values(selected).map((date) => {
-                const existing = currentSessions.find(
-                    (session) => new Date(session.startsAtUtc).getTime() === date.getTime(),
-                );
+            const payload = Object.entries(selected).map(([key, date]) => {
+                const existing = currentSessions.find(session => session._id === key)
+                    ?? currentSessions.find(session => !(session._id in selected)
+                        && new Date(session.startsAtUtc).getTime() === date.getTime());
 
                 return {
                     id: existing?._id,
@@ -234,7 +234,7 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
                 };
             });
 
-            await syncTherapySessionsApi(payload, window);
+            await syncTherapySessionsApi(payload, window, currentSessions);
             assertCurrentAccount();
 
             // A refresh that began before the write can resolve afterward with

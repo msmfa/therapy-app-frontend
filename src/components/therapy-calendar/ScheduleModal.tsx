@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, TouchableOpacity, Modal, Platform, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Modal, Platform, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker, {
     type DateTimePickerEvent,
@@ -31,6 +31,8 @@ interface ScheduleModalProps {
     onDelete: () => void;
     onCancel: () => void;
     weeklyRepeatCount?: number;
+    sessionsOnDay?: Session[];
+    onSelectSession?: (id: string | null) => void;
 }
 
 export default function ScheduleModal({
@@ -42,6 +44,8 @@ export default function ScheduleModal({
     onDelete,
     onCancel,
     weeklyRepeatCount = 8,
+    sessionsOnDay = [],
+    onSelectSession,
 }: ScheduleModalProps) {
     const [time, setTime] = useState(defaultTime);
     const [scheduleMode, setScheduleMode] = useState<ScheduleMode>('weekly_pattern');
@@ -103,67 +107,83 @@ export default function ScheduleModal({
                         </View>
                     ) }
 
-                    <View style={ styles.datePicker }>
-                        { Platform.OS === 'ios' ? (
-                            <View style={ styles.iosPickerWrapper }>
-                                <DateTimePicker
-                                    value={ time }
-                                    mode="time"
-                                    display="spinner"
-                                    onChange={ handleTimeChange }
-                                    textColor={ COLOR_VARIANTS.black.secondary }
-                                    themeVariant="light"
-                                    style={ styles.iosPicker }
-                                />
-                            </View>
-                        ) : (
-                            <>
-                                <TouchableOpacity style={ styles.timeButton } onPress={ () => setShowPicker(true) }>
-                                    <Ionicons name="time-outline" size={ 20 } />
-                                    <AppText style={ styles.timeLabel } variant='body'>
-                                        { dayjs(time).format('h:mm A') }
-                                    </AppText>
+                    <ScrollView style={ styles.scrollContent } bounces={ false }>
+                        { sessionsOnDay.length > 0 && onSelectSession && (
+                            <View>
+                                { sessionsOnDay.map(session => (
+                                    <TouchableOpacity key={ session.id } accessibilityRole="button"
+                                        accessibilityState={ { selected: session.id === existingSession?.id } }
+                                        onPress={ () => onSelectSession(session.id) } style={ styles.timeButton }>
+                                        <AppText variant="body">{ `Appointment at ${dayjs(session.time).format('h:mm A')}` }</AppText>
+                                    </TouchableOpacity>
+                                )) }
+                                <TouchableOpacity accessibilityRole="button" onPress={ () => onSelectSession(null) } style={ styles.timeButton }>
+                                    <AppText variant="body">Add another appointment</AppText>
                                 </TouchableOpacity>
-                                { showPicker && (
+                            </View>
+                        ) }
+                        <View style={ styles.datePicker }>
+                            { Platform.OS === 'ios' ? (
+                                <View style={ styles.iosPickerWrapper }>
                                     <DateTimePicker
                                         value={ time }
                                         mode="time"
-                                        display="default"
+                                        display="spinner"
                                         onChange={ handleTimeChange }
+                                        textColor={ COLOR_VARIANTS.black.secondary }
                                         themeVariant="light"
+                                        style={ styles.iosPicker }
                                     />
-                                ) }
-                            </>
-                        ) }
-                    </View>
-
-                    { !existingSession && selectedDay && (
-                        <View style={ styles.sectionApplyTo }>
-                            { scheduleModeOptions.map((mode) => (
-                                <RadioButton
-                                    key={ mode }
-                                    selectedValue={ scheduleMode === mode }
-                                    onPress={ () => setScheduleMode(mode) }
-                                >
-                                    <View style={ styles.modeRow }>
-                                        <AppText
-                                            variant="body"
-                                            numberOfLines={ 1 }
-                                            style={ styles.modeTitle }
-                                        >
-                                            { scheduleModeDictionary[mode].title.toUpperCase() }
+                                </View>
+                            ) : (
+                                <>
+                                    <TouchableOpacity style={ styles.timeButton } onPress={ () => setShowPicker(true) }>
+                                        <Ionicons name="time-outline" size={ 20 } />
+                                        <AppText style={ styles.timeLabel } variant='body'>
+                                            { dayjs(time).format('h:mm A') }
                                         </AppText>
-                                        { scheduleModeDictionary[mode].note ? (
-                                            <AppText variant="caption" style={ styles.modeNote }>
-                                                { scheduleModeDictionary[mode].note?.toUpperCase() }
-                                            </AppText>
-                                        ) : null }
-                                    </View>
-                                </RadioButton>
-                            )) }
+                                    </TouchableOpacity>
+                                    { showPicker && (
+                                        <DateTimePicker
+                                            value={ time }
+                                            mode="time"
+                                            display="default"
+                                            onChange={ handleTimeChange }
+                                            themeVariant="light"
+                                        />
+                                    ) }
+                                </>
+                            ) }
                         </View>
-                    ) }
 
+                        { !existingSession && selectedDay && (
+                            <View style={ styles.sectionApplyTo }>
+                                { scheduleModeOptions.map((mode) => (
+                                    <RadioButton
+                                        key={ mode }
+                                        selectedValue={ scheduleMode === mode }
+                                        onPress={ () => setScheduleMode(mode) }
+                                    >
+                                        <View style={ styles.modeRow }>
+                                            <AppText
+                                                variant="body"
+                                                numberOfLines={ 1 }
+                                                style={ styles.modeTitle }
+                                            >
+                                                { scheduleModeDictionary[mode].title.toUpperCase() }
+                                            </AppText>
+                                            { scheduleModeDictionary[mode].note ? (
+                                                <AppText variant="caption" style={ styles.modeNote }>
+                                                    { scheduleModeDictionary[mode].note?.toUpperCase() }
+                                                </AppText>
+                                            ) : null }
+                                        </View>
+                                    </RadioButton>
+                                )) }
+                            </View>
+                        ) }
+
+                    </ScrollView>
                     <View style={ styles.buttonRow }>
                         { existingSession ? (
                             <View style={ styles.actionButtonsRow }>
@@ -289,6 +309,7 @@ const styles = StyleSheet.create({
 
     },
     modalContent: {
+        maxHeight: '92%',
         // backgroundColor: CALENDAR_COLORS.modalSurface,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
@@ -303,6 +324,10 @@ const styles = StyleSheet.create({
         backgroundColor: CALENDAR_COLORS.modalOverlayTransparent,
         flex: 1,
         justifyContent: 'flex-end',
+    },
+    scrollContent: {
+        flexGrow: 0,
+        flexShrink: 1,
     },
     datePicker: {
         marginBottom: 20,

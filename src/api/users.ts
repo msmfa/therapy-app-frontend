@@ -1,8 +1,20 @@
-import { apiDelete, apiGet, apiPatch } from './client';
+import { ApiError, apiDelete, apiGet, apiPatch } from './client';
 import type { GoalId } from '../features/onboarding/onboardingCopy';
 
 export const deleteCurrentUser = async (): Promise<void> => {
-    await apiDelete<void>('/api/users/me', { parseJson: false });
+    try {
+        await apiDelete<void>('/api/users/me', { parseJson: false });
+    } catch (error) {
+        if (!(error instanceof ApiError) || error.code !== 'apple_reauthentication_required') throw error;
+        const AppleAuthentication = require('expo-apple-authentication') as typeof import('expo-apple-authentication');
+        const credential = await AppleAuthentication.signInAsync({ requestedScopes: [] });
+        if (!credential.authorizationCode) throw new Error('Apple confirmation was incomplete. Please try again.');
+        await apiDelete<void>('/api/users/me', {
+            body: { appleAuthorizationCode: credential.authorizationCode },
+            parseJson: false,
+            timeoutMs: 30_000,
+        });
+    }
 };
 
 export type UpdateCurrentUserInput = {

@@ -100,8 +100,8 @@ describe('noteReviewProgress', () => {
         expect(result.segments[1].status).toBe('done');
     });
 
-    it('ignores a review recorded against another gap', () => {
-        const result = progress([review('2024-01-02', 1)], '2024-01-03T09:00:00.000Z');
+    it('ignores a review recorded against another occurrence', () => {
+        const result = progress([{ ...review('2024-01-02', 1), occurrenceAtUtc: '2024-01-09T07:00:00.000Z' }], '2024-01-03T09:00:00.000Z');
 
         expect(result.completed).toBe(0);
     });

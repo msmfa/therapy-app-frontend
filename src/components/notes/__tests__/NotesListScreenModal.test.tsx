@@ -169,3 +169,17 @@ describe('NotePreviewModal editing layout', () => {
         expect(screen.getByText('A short note.')).toBeTruthy();
     });
 });
+
+it('keeps a failed review open, shows the error, and allows a successful retry', async () => {
+    const close = jest.fn();
+    const reviewed = jest.fn().mockRejectedValueOnce(new Error('Failed to save review. Please try again.')).mockResolvedValueOnce(undefined);
+    render(<SafeAreaProvider initialMetrics={METRICS}>
+        <NotePreviewModal visible note={note} canReview onClose={close} onUpdateNote={jest.fn()} onReviewed={reviewed} />
+    </SafeAreaProvider>);
+    await act(async () => { fireEvent.press(screen.getByLabelText('Mark reviewed')); });
+    expect(close).not.toHaveBeenCalled();
+    expect(screen.getByText('Failed to save review. Please try again.')).toBeTruthy();
+    await act(async () => { fireEvent.press(screen.getByLabelText('Mark reviewed')); });
+    expect(reviewed).toHaveBeenCalledTimes(2);
+    expect(close).toHaveBeenCalledTimes(1);
+});

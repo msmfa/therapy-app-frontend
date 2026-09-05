@@ -21,6 +21,7 @@ import { Platform, StatusBar, StyleSheet, View } from 'react-native';
 import Loading from '../src/components/ui/Loading';
 import { ErrorBoundaryUI } from '../src/components/ErrorBoundary';
 import * as Sentry from '@sentry/react-native';
+import { sanitizeTelemetry } from '../src/utils/telemetry';
 import { toError } from '../src/utils/errors';
 import * as Notifications from 'expo-notifications';
 import { resolveNotificationRoute } from '../src/services/notifications/routing';
@@ -43,10 +44,9 @@ Sentry.init({
     dsn: SENTRY_DSN,
     enabled: Boolean(SENTRY_DSN),
     sendDefaultPii: false,
-    enableCaptureFailedRequests: true,
-    tracesSampleRate: process.env.NODE_ENV === 'development' ? 1 : 0.2,
-    // @ts-ignore
-    enableLogs: true,
+    enableCaptureFailedRequests: false,
+    beforeSend: sanitizeTelemetry,
+    tracesSampleRate: 0,
     replaysSessionSampleRate: 0,
     replaysOnErrorSampleRate: 0,
     integrations: [

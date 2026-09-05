@@ -51,14 +51,13 @@ const captureApiException = (
     Sentry.withScope((scope) => {
         scope.setTag('api.method', metadata.method);
         scope.setContext('api.request', {
-            url: metadata.url,
+            url: metadata.url.split(/[?#]/, 1)[0],
             method: metadata.method,
         });
 
         if (metadata.status !== undefined) {
             scope.setContext('api.response', {
                 status: metadata.status,
-                payload: metadata.payload,
             });
         }
 
@@ -66,7 +65,7 @@ const captureApiException = (
             'api',
             metadata.method,
             metadata.status !== undefined ? String(metadata.status) : 'network',
-            metadata.url,
+            metadata.url.split(/[?#]/, 1)[0],
         ];
         scope.setFingerprint(fingerprintParts);
         Sentry.captureException(toError(error));
@@ -150,7 +149,7 @@ const ensureRefresh = async (): Promise<boolean> => {
                 return await config.refreshAuth!();
             } catch (error) {
                 console.warn('[apiClient] refreshAuth failed', error);
-                return false;
+                throw error;
             }
         })().finally(() => {
             if (refreshInFlight?.promise === promise) refreshInFlight = null;

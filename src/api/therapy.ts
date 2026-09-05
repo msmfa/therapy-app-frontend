@@ -73,12 +73,17 @@ export async function getTherapySessions(
 export async function syncTherapySessions(
     payload: TherapySessionSyncPayload[],
     window?: SessionsWindow,
+    baseSessions: TherapySession[] = [],
 ): Promise<TherapySessionSyncResult> {
     const body: {
         sessions: TherapySessionSyncPayload[];
+        baseSessions: TherapySessionSyncPayload[];
         from?: string;
         to?: string;
-    } = { sessions: payload };
+    } = {
+        sessions: payload,
+        baseSessions: baseSessions.map(session => ({ id: session._id, startsAtUtc: session.startsAtUtc, durationMin: session.durationMin })),
+    };
 
     if (window) {
         // These Dates are already the exact local-midnight boundaries of the

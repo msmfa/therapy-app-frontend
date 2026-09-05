@@ -135,7 +135,7 @@ export function useNoteReviews(userId: string | undefined) {
             } catch (err) {
                 console.warn('useNoteReviews.markReviewed', err);
                 setError('Failed to save review');
-                return { recorded: false, attribution };
+                throw new Error('Failed to save review. Please try again.');
             }
         },
         [attributionFor, userId],

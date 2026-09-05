@@ -7,6 +7,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import TherapyCalendar from '../../src/components/therapy-calendar/TherapyCalendar';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTherapySessions } from '../../src/context/therapy-sessions/TherapySessionsContext';
+import type { TherapySession } from '../../src/api/therapy';
+import { ApiError } from '../../src/api/client';
 import { convertSessionsToCalendarFormat } from '../../src/utils/calendar';
 import { useFocusEffect } from 'expo-router';
 import LoadingSuccess from 'src/components/ui/LoadingWithSuccess';
@@ -132,6 +134,7 @@ export default function CalendarScreen() {
     );
 
     const [selectedSessionsDraft, setSelectedSessionsDraft] = useState<SelectedSessions | null>(null);
+    const [draftBase, setDraftBase] = useState<TherapySession[] | null>(null);
     const selectedSessions = selectedSessionsDraft ?? initialSessions;
     const { showAlert } = useAppAlert();
     const normalizeReminderDates = useCallback((values: typeof neuroReminders) =>
@@ -179,6 +182,7 @@ export default function CalendarScreen() {
     useFocusEffect(
         useCallback(() => () => {
             setSelectedSessionsDraft(null);
+            setDraftBase(null);
             setReminderDatesDraft(null);
         }, []),
     );
@@ -222,27 +226,40 @@ export default function CalendarScreen() {
     }, [neuroReminders, reminderDatesDraft]);
 
     const handleSessionsChange = useCallback((next: SessionsMapInput) => {
+        setDraftBase(base => base ?? sessions.map(session => ({ ...session })));
         setSelectedSessionsDraft(cloneSessionsMap(next));
-    }, []);
+    }, [sessions]);
 
     const handleClearPress = useCallback(() => {
+        setDraftBase(base => base ?? sessions.map(session => ({ ...session })));
         setSelectedSessionsDraft({});
         setReminderDatesDraft([]);
-    }, []);
+    }, [sessions]);
 
     const handleSavePress = useCallback(async () => {
         setSaveStatus('loading');
         try {
-            await syncSessions(selectedSessions, 50);
+            await syncSessions(selectedSessions, 50, draftBase ?? sessions);
             setSelectedSessionsDraft(null);
+            setDraftBase(null);
             setReminderDatesDraft(null);
             setSaveStatus('success');
         } catch (error) {
             console.error('syncSessions failed', error);
-            showAlert('Error', 'Unable to save sessions right now.');
+            if (error instanceof ApiError && (error.status === 409 || error.status === 428)) {
+                showAlert('Calendar changed', error.message, { primaryAction: {
+                    label: 'Refresh calendar', onPress: async () => {
+                        await refreshSessions();
+                        setSelectedSessionsDraft(null);
+                        setDraftBase(null);
+                    },
+                } });
+            } else {
+                showAlert('Error', error instanceof Error ? error.message : 'Unable to save sessions right now.');
+            }
             setSaveStatus(null);
         }
-    }, [selectedSessions, showAlert, syncSessions]);
+    }, [selectedSessions, showAlert, syncSessions, draftBase, sessions, refreshSessions]);
 
     // Leave the confirmation visible long enough to be noticed.
     useEffect(() => {

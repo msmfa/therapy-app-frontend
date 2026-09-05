@@ -89,6 +89,25 @@ describe('TherapySessionsProvider', () => {
     expect(syncTherapySessions).not.toHaveBeenCalled();
   });
 
+  it('keeps appointment identity when moving it and adding another at its old time', async () => {
+    const oldTime = new Date(Date.now() + 2 * 86400000);
+    const newTime = new Date(Date.now() + 3 * 86400000);
+    const baseline = [{ _id: 'existing', startsAtUtc: oldTime.toISOString(), durationMin: 60 }];
+    getTherapySessions.mockResolvedValue(baseline);
+    const { result } = renderHook(() => useTherapySessions(), { wrapper });
+    await waitFor(() => expect(result.current.sessions).toEqual(baseline));
+
+    await act(async () => {
+      await result.current.syncSessions({ existing: newTime, added: oldTime }, 50, baseline);
+    });
+
+    expect(syncTherapySessions.mock.calls[0][0]).toEqual([
+      { id: 'existing', startsAtUtc: newTime.toISOString(), durationMin: 60 },
+      { id: undefined, startsAtUtc: oldTime.toISOString(), durationMin: 50 },
+    ]);
+    expect(syncTherapySessions.mock.calls[0][2]).toEqual(baseline);
+  });
+
   it('rejects a sync when the required post-save refresh fails', async () => {
     const { result } = renderHook(() => useTherapySessions(), { wrapper });
 

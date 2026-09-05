@@ -72,10 +72,20 @@ export function NotePreviewModal({
 
     const handleReviewed = React.useCallback(async () => {
         if (saveInFlight.current) return;
-        if (note && onReviewed) {
+        if (!note || !onReviewed) return;
+        saveInFlight.current = true;
+        setSaving(true);
+        setError(null);
+        try {
             await onReviewed(note);
+            saveInFlight.current = false;
+            handleClose();
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to save review. Please try again.');
+        } finally {
+            saveInFlight.current = false;
+            setSaving(false);
         }
-        handleClose();
     }, [handleClose, note, onReviewed]);
 
     const handleStartEditing = React.useCallback(() => {

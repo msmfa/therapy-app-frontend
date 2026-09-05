@@ -134,6 +134,7 @@ describe('calendar session counts accepted by onboarding', () => {
         await waitFor(() => expect(mockSyncSessions).toHaveBeenCalledWith(
             { '2026-09-08': new Date('2026-09-08T17:00:00.000Z') },
             50,
+            expect.any(Array),
         ));
     });
 
@@ -146,7 +147,7 @@ describe('calendar session counts accepted by onboarding', () => {
         fireEvent.press(getByText('Choose no sessions'));
         fireEvent.press(getByLabelText('Save therapy sessions'));
 
-        await waitFor(() => expect(mockSyncSessions).toHaveBeenCalledWith({}, 50));
+        await waitFor(() => expect(mockSyncSessions).toHaveBeenCalledWith({}, 50, expect.any(Array)));
     });
 
     it('keeps initial loading inside the tab screen instead of opening a modal', () => {

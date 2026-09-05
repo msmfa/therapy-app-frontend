@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import * as SecureStore from 'expo-secure-store';
 
-import { configureApiClient } from '../../api/client';
+import { ApiError, configureApiClient } from '../../api/client';
 import { refreshAuthToken } from '../../api/auth';
 
 const normalizeToken = (value: string | null | undefined): string | null => {
@@ -258,8 +258,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await commitAuth(t, u, refresh, version);
     }, [commitAuth]);
 
-    const refreshSession = useCallback(async (): Promise<boolean> => {
-        if (signingOutRef.current) return false;
+    const refreshSession = useCallback(async (forSignOut = false): Promise<boolean> => {
+        if (signingOutRef.current && !forSignOut) return false;
         if (refreshInFlight.current) {
             return refreshInFlight.current;
         }
@@ -287,7 +287,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 return version === sessionVersionRef.current;
             } catch (error) {
                 console.warn('[AuthProvider] refreshSession failed:', error);
-                return false;
+                if (error instanceof ApiError && (error.status === 400 || error.status === 401 || error.status === 403)) return false;
+                throw error;
             }
         })().finally(() => {
             if (refreshInFlight.current === request) refreshInFlight.current = null;
@@ -305,9 +306,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     const signOut = useCallback(async (options?: SignOutOptions) => {
-        const version = ++sessionVersionRef.current;
+        // Keep the generation while bounded cleanup runs so an already-started
+        // refresh can supply its successor. Completion invalidates late work.
+        const version = sessionVersionRef.current;
         signingOutRef.current = true;
-        refreshInFlight.current = null;
         // Cleanup runs FIRST, while the token is still live. Clearing
         // credentials up front meant the push de-registration went out
         // unauthenticated, failed with a 401, and left the device row on the
@@ -318,7 +320,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             let cancelCleanupTimeout: (() => void) | undefined;
             try {
                 await Promise.race([
-                    Promise.allSettled(tasks.map((task) => task())),
+                    (async () => {
+                        // Cleanup must work after the hour-long access token expires.
+                        // This refresh alone may run while normal refresh is disabled.
+                        await refreshSession(true).catch(() => undefined);
+                        if (version !== sessionVersionRef.current) return;
+                        await Promise.allSettled(tasks.map((task) => task()));
+                    })(),
                     new Promise((resolve) => {
                         const cleanupTimeout = setTimeout(resolve, SIGN_OUT_CLEANUP_TIMEOUT_MS);
                         cancelCleanupTimeout = () => clearTimeout(cleanupTimeout);
@@ -333,6 +341,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         // Cleanup may finish after another account has signed in.
         if (version !== sessionVersionRef.current) return;
+        // Invalidate a cleanup refresh that outlives the bounded wait.
+        const clearedVersion = ++sessionVersionRef.current;
         tokenRef.current = null;
         refreshTokenRef.current = null;
         userRef.current = null;
@@ -342,12 +352,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         try {
             await enqueueSessionWrite(async () => {
-                if (version === sessionVersionRef.current) await clearPersistedSession();
+                if (clearedVersion === sessionVersionRef.current) await clearPersistedSession();
             });
         } catch (error) {
             console.error('[AuthProvider] signOut storage error:', error);
         }
-    }, [enqueueSessionWrite]);
+    }, [enqueueSessionWrite, refreshSession]);
 
     useEffect(() => {
         configureApiClient({

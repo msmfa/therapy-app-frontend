@@ -51,3 +51,16 @@ it('allows a single appointment on the final day', () => {
     fireEvent.press(view.getByText('Add Session'));
     expect(Object.keys(changed.mock.calls[0][0])).toEqual(['2027-09-05']);
 });
+
+it('shows both same-day appointments and deletes only the chosen appointment', () => {
+    const changed = jest.fn();
+    const morning = new Date(2026, 8, 15, 9);
+    const afternoon = new Date(2026, 8, 15, 16);
+    const view = render(<TherapyCalendar selectedSessions={{ first: morning, second: afternoon }} onSelectedSessionsChange={changed} />);
+    act(() => { view.UNSAFE_getByType(Calendar).props.onDayPress({ dateString: '2026-09-15' }); });
+    expect(view.getByText('Appointment at 9:00 AM')).toBeTruthy();
+    expect(view.getByText('Appointment at 4:00 PM')).toBeTruthy();
+    fireEvent.press(view.getByText('Appointment at 4:00 PM'));
+    fireEvent.press(view.getByText('Delete'));
+    expect(changed).toHaveBeenCalledWith({ first: morning });
+});

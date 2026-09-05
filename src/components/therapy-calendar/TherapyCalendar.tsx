@@ -142,6 +142,12 @@ export default function TherapyCalendar({
 }: TherapyCalendarProps) {
     const [activeDateKey, setActiveDateKey] = useState<string | null>(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [activeSessionKey, setActiveSessionKey] = useState<string | null>(null);
+    const sessionDateKeys = useMemo(() => Array.from(new Set(Object.values(selectedSessions).map(formatDateKey))), [selectedSessions]);
+    const sessionsOnDay = useMemo(() => Object.entries(selectedSessions)
+        .filter(([, time]) => formatDateKey(time) === activeDateKey)
+        .sort((a, b) => a[1].getTime() - b[1].getTime())
+        .map(([id, time]) => ({ id, time, date: formatDateKey(time) })), [activeDateKey, selectedSessions]);
     const isDark = variant === 'dark';
 
     const dotDateKeys = useMemo(() => {
@@ -189,7 +195,7 @@ export default function TherapyCalendar({
             entries[dateKey] = { kind: 'reminder' };
         });
 
-        Object.keys(selectedSessions).forEach((dateKey) => {
+        sessionDateKeys.forEach((dateKey) => {
             entries[dateKey] = { kind: 'session' };
         });
 
@@ -198,7 +204,7 @@ export default function TherapyCalendar({
         }
 
         return entries;
-    }, [selectedSessions, activeDateKey, dotDateKeys]);
+    }, [sessionDateKeys, activeDateKey, dotDateKeys]);
 
     const buildLightMarkings = useCallback(() => {
         // ODO:: change dots to text color on the day so key will be text is red and circle will be therapy day
@@ -223,7 +229,7 @@ export default function TherapyCalendar({
             borderWidth: 1,
         };
 
-        const entries = Object.keys(selectedSessions).reduce<Record<string, DayMarking>>((acc, dateKey) => {
+        const entries = sessionDateKeys.reduce<Record<string, DayMarking>>((acc, dateKey) => {
             const isActive = activeDateKey === dateKey;
             acc[dateKey] = {
                 customStyles: {
@@ -277,7 +283,7 @@ export default function TherapyCalendar({
 
         dotDateKeys.forEach((dateKey) => {
             const entryWithoutDots = { ...(entries[dateKey] ?? {}) };
-            const isTherapySession = Object.prototype.hasOwnProperty.call(selectedSessions, dateKey);
+            const isTherapySession = sessionDateKeys.includes(dateKey);
             delete entryWithoutDots.marked;
             delete entryWithoutDots.dotColor;
 
@@ -300,7 +306,7 @@ export default function TherapyCalendar({
         });
 
         return entries;
-    }, [selectedSessions, activeDateKey, dotDateKeys]);
+    }, [sessionDateKeys, activeDateKey, dotDateKeys]);
 
     const markedDates = useMemo(
         () => (isDark ? buildDarkMarkings() : buildLightMarkings()),
@@ -310,8 +316,9 @@ export default function TherapyCalendar({
     const openModalForDate = useCallback((dateKey: string) => {
         if (!isWithinSessionsWindow(createDateFromKey(dateKey))) return;
         setActiveDateKey(dateKey);
+        setActiveSessionKey(Object.entries(selectedSessions).find(([, date]) => formatDateKey(date) === dateKey)?.[0] ?? null);
         setIsModalVisible(true);
-    }, []);
+    }, [selectedSessions]);
 
     const closeModal = useCallback(() => {
         setIsModalVisible(false);
@@ -337,23 +344,27 @@ export default function TherapyCalendar({
                 closeModal();
                 return;
             }
-            for (const date of dates) {
-                next[formatDateKey(date)] = date;
+            for (const [index, date] of dates.entries()) {
+                const dayKey = formatDateKey(date);
+                const existingKey = index === 0 ? activeSessionKey
+                    : Object.entries(next).find(([, value]) => formatDateKey(value) === dayKey)?.[0];
+                const key = existingKey ?? (next[dayKey] ? `${dayKey}:${date.getTime()}` : dayKey);
+                next[key] = date;
             }
 
             onSelectedSessionsChange(next);
             closeModal();
         },
-        [activeDateKey, closeModal, onSelectedSessionsChange, selectedSessions],
+        [activeDateKey, activeSessionKey, closeModal, onSelectedSessionsChange, selectedSessions],
     );
 
     const handleDelete = useCallback(() => {
         if (!activeDateKey) return;
         const next = { ...selectedSessions };
-        delete next[activeDateKey];
+        if (activeSessionKey) delete next[activeSessionKey];
         onSelectedSessionsChange(next);
         closeModal();
-    }, [activeDateKey, closeModal, onSelectedSessionsChange, selectedSessions]);
+    }, [activeDateKey, activeSessionKey, closeModal, onSelectedSessionsChange, selectedSessions]);
 
     const calendarTheme = isDark ? DARK_THEME : LIGHT_THEME;
     const calendarWindow = getSessionsWindow();
@@ -387,15 +398,9 @@ export default function TherapyCalendar({
             { isModalVisible && activeDateKey && (
                 <ScheduleModal
                     defaultTime={ DEFAULT_TIME }
-                    existingSession={
-                        selectedSessions[activeDateKey]
-                            ? {
-                                date: activeDateKey,
-                                id: activeDateKey,
-                                time: selectedSessions[activeDateKey],
-                            }
-                            : null
-                    }
+                    existingSession={ sessionsOnDay.find(session => session.id === activeSessionKey) ?? null }
+                    sessionsOnDay={ sessionsOnDay }
+                    onSelectSession={ setActiveSessionKey }
                     onCancel={ closeModal }
                     onConfirm={ applySession }
                     onDelete={ handleDelete }
