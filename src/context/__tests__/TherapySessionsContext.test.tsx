@@ -108,6 +108,24 @@ describe('TherapySessionsProvider', () => {
     expect(syncTherapySessions.mock.calls[0][2]).toEqual(baseline);
   });
 
+  it('keeps an existing session when onboarding proposes a different time on that day', async () => {
+    const existingAt = new Date();
+    existingAt.setDate(existingAt.getDate() + 2);
+    existingAt.setHours(9, 0, 0, 0);
+    const proposedAt = new Date(existingAt);
+    proposedAt.setHours(16);
+    const baseline = [{ _id: 'existing', startsAtUtc: existingAt.toISOString(), durationMin: 60 }];
+    getTherapySessions.mockResolvedValue(baseline);
+    const { result } = renderHook(() => useTherapySessions(), { wrapper });
+    await waitFor(() => expect(result.current.sessions).toEqual(baseline));
+
+    await act(async () => { await result.current.addSessions([proposedAt], 50); });
+
+    expect(syncTherapySessions.mock.calls[0][0]).toEqual([
+      { id: 'existing', startsAtUtc: existingAt.toISOString(), durationMin: 60 },
+    ]);
+  });
+
   it('rejects a sync when the required post-save refresh fails', async () => {
     const { result } = renderHook(() => useTherapySessions(), { wrapper });
 

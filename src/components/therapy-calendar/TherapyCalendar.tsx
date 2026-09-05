@@ -148,6 +148,7 @@ export default function TherapyCalendar({
         .filter(([, time]) => formatDateKey(time) === activeDateKey)
         .sort((a, b) => a[1].getTime() - b[1].getTime())
         .map(([id, time]) => ({ id, time, date: formatDateKey(time) })), [activeDateKey, selectedSessions]);
+    const activeSession = sessionsOnDay.find(session => session.id === activeSessionKey) ?? sessionsOnDay[0] ?? null;
     const isDark = variant === 'dark';
 
     const dotDateKeys = useMemo(() => {
@@ -346,8 +347,8 @@ export default function TherapyCalendar({
             }
             for (const [index, date] of dates.entries()) {
                 const dayKey = formatDateKey(date);
-                const existingKey = index === 0 ? activeSessionKey
-                    : Object.entries(next).find(([, value]) => formatDateKey(value) === dayKey)?.[0];
+                const existingKey = (index === 0 ? activeSession?.id : null)
+                    ?? Object.entries(next).find(([, value]) => formatDateKey(value) === dayKey)?.[0];
                 const key = existingKey ?? (next[dayKey] ? `${dayKey}:${date.getTime()}` : dayKey);
                 next[key] = date;
             }
@@ -355,16 +356,16 @@ export default function TherapyCalendar({
             onSelectedSessionsChange(next);
             closeModal();
         },
-        [activeDateKey, activeSessionKey, closeModal, onSelectedSessionsChange, selectedSessions],
+        [activeDateKey, activeSession, closeModal, onSelectedSessionsChange, selectedSessions],
     );
 
     const handleDelete = useCallback(() => {
         if (!activeDateKey) return;
         const next = { ...selectedSessions };
-        if (activeSessionKey) delete next[activeSessionKey];
+        if (activeSession) delete next[activeSession.id];
         onSelectedSessionsChange(next);
         closeModal();
-    }, [activeDateKey, activeSessionKey, closeModal, onSelectedSessionsChange, selectedSessions]);
+    }, [activeDateKey, activeSession, closeModal, onSelectedSessionsChange, selectedSessions]);
 
     const calendarTheme = isDark ? DARK_THEME : LIGHT_THEME;
     const calendarWindow = getSessionsWindow();
@@ -398,7 +399,7 @@ export default function TherapyCalendar({
             { isModalVisible && activeDateKey && (
                 <ScheduleModal
                     defaultTime={ DEFAULT_TIME }
-                    existingSession={ sessionsOnDay.find(session => session.id === activeSessionKey) ?? null }
+                    existingSession={ activeSession }
                     sessionsOnDay={ sessionsOnDay }
                     onSelectSession={ setActiveSessionKey }
                     onCancel={ closeModal }

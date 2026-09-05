@@ -13,7 +13,7 @@ medium-priority findings, in addition to the earlier branch review fixes.
 | P1-03: Sensitive Sentry request data | Both apps remove HTTP bodies, credentials, query values and account context before sending error events. HTTP tracing and automatic failed-request capture are disabled. |
 | P1-04: Extreme appointment dates stall scheduling | API writes enforce date/count limits; scheduling and database reads stay bounded even for old outliers. |
 | P1-05: Stale saves delete other-device appointments | Calendar saves send the snapshot the person edited. The backend preserves unseen additions and rejects conflicting changes with a refresh action in the app. |
-| P1-06: Same-day appointments collapse | Appointments retain stable IDs. The day sheet lists every appointment and edits or deletes only the selected one. |
+| P1-06: Same-day appointments collapse | Appointments retain stable IDs so existing data is preserved. New bookings are limited to one session per local day in the calendar and backend. Existing same-day records can still be removed individually. |
 | P1-07: Old refund replaces current subscription | Renewal purchase dates determine period ordering. Signing dates order updates to the same transaction. |
 | P1-08: Temporary Apple verification error rejects purchase | Retryable verifier failures return 503, preserving the client's temporary-failure/retry behavior. |
 | P1-09: Apple authorization survives deletion | Deletion requests fresh Apple confirmation, verifies the account, and revokes Apple access before removing app data. Apple failures keep the account available for retry. |
@@ -47,8 +47,8 @@ In particular, confirm the intended sandbox/App Review access policy when deploy
 
 ## Verification
 
-- Frontend: 92 Jest suites, 564 tests passed; TypeScript passed.
-- Backend: 24 Jest suites, 231 tests passed in an isolated copy of the exact commit; production TypeScript build passed. The original working tree, including your separate environment-policy edits, also passed all 228 of its tests.
+- Frontend: 92 Jest suites, 566 tests passed after restoring the one-session-per-day constraint; TypeScript passed.
+- The initial backend audit-fix commit passed 231 tests in an isolated copy, and the working tree with your separate environment-policy edits passed 228. The later one-session-per-day correction passed all 35 focused calendar and API integration tests and the production build; the pre-push hook also runs the full backend suite.
 - Calendar integration tests use a disposable MongoDB replica set, including an injected write failure to prove rollback.
 - Authentication tests exercise the actual API and deterministically pause database insertion around password reset.
 - Apple transaction and deletion tests mock Apple boundaries; no production purchases, account deletions, email, or push deliveries are used in the tests.

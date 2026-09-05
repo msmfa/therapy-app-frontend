@@ -32,7 +32,7 @@ interface ScheduleModalProps {
     onCancel: () => void;
     weeklyRepeatCount?: number;
     sessionsOnDay?: Session[];
-    onSelectSession?: (id: string | null) => void;
+    onSelectSession?: (id: string) => void;
 }
 
 export default function ScheduleModal({
@@ -108,7 +108,7 @@ export default function ScheduleModal({
                     ) }
 
                     <ScrollView style={ styles.scrollContent } bounces={ false }>
-                        { sessionsOnDay.length > 0 && onSelectSession && (
+                        { sessionsOnDay.length > 1 && onSelectSession && (
                             <View>
                                 { sessionsOnDay.map(session => (
                                     <TouchableOpacity key={ session.id } accessibilityRole="button"
@@ -117,9 +117,6 @@ export default function ScheduleModal({
                                         <AppText variant="body">{ `Appointment at ${dayjs(session.time).format('h:mm A')}` }</AppText>
                                     </TouchableOpacity>
                                 )) }
-                                <TouchableOpacity accessibilityRole="button" onPress={ () => onSelectSession(null) } style={ styles.timeButton }>
-                                    <AppText variant="body">Add another appointment</AppText>
-                                </TouchableOpacity>
                             </View>
                         ) }
                         <View style={ styles.datePicker }>

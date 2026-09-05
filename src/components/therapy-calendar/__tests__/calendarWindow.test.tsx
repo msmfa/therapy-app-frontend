@@ -2,6 +2,7 @@ import React from 'react';
 import { act, fireEvent, render } from '@testing-library/react-native';
 import { Calendar } from 'react-native-calendars';
 import TherapyCalendar from '../TherapyCalendar';
+import ScheduleModal from '../ScheduleModal';
 
 jest.mock('react-native-calendars', () => ({
     Calendar: (props: object) => {
@@ -52,7 +53,20 @@ it('allows a single appointment on the final day', () => {
     expect(Object.keys(changed.mock.calls[0][0])).toEqual(['2027-09-05']);
 });
 
-it('shows both same-day appointments and deletes only the chosen appointment', () => {
+it('edits the session on an occupied day without offering another session', () => {
+    const changed = jest.fn();
+    const morning = new Date(2026, 8, 15, 9);
+    const view = render(<TherapyCalendar selectedSessions={{ existing: morning }} onSelectedSessionsChange={changed} />);
+    act(() => { view.UNSAFE_getByType(Calendar).props.onDayPress({ dateString: '2026-09-15' }); });
+    expect(view.queryByText('Add another appointment')).toBeNull();
+    expect(view.queryByText('Add Session')).toBeNull();
+    expect(view.queryByText('Appointment at 9:00 AM')).toBeNull();
+    expect(view.getByText('Update')).toBeTruthy();
+    act(() => { view.UNSAFE_getByType(ScheduleModal).props.onConfirm('single', new Date(2026, 8, 15, 10)); });
+    expect(changed).toHaveBeenCalledWith({ existing: new Date(2026, 8, 15, 10) });
+});
+
+it('preserves legacy same-day appointments and deletes only the chosen appointment', () => {
     const changed = jest.fn();
     const morning = new Date(2026, 8, 15, 9);
     const afternoon = new Date(2026, 8, 15, 16);
@@ -60,6 +74,7 @@ it('shows both same-day appointments and deletes only the chosen appointment', (
     act(() => { view.UNSAFE_getByType(Calendar).props.onDayPress({ dateString: '2026-09-15' }); });
     expect(view.getByText('Appointment at 9:00 AM')).toBeTruthy();
     expect(view.getByText('Appointment at 4:00 PM')).toBeTruthy();
+    expect(view.queryByText('Add another appointment')).toBeNull();
     fireEvent.press(view.getByText('Appointment at 4:00 PM'));
     fireEvent.press(view.getByText('Delete'));
     expect(changed).toHaveBeenCalledWith({ first: morning });

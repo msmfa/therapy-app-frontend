@@ -268,12 +268,16 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
             // not behave like the calendar's replace operation and silently
             // delete appointments a returning user already has.
             const selected: Record<string, Date> = {};
+            const occupiedDays = new Set<string>();
             for (const session of editableSessionsFrom(account.sessions)) {
                 const date = new Date(session.startsAtUtc);
-                selected[date.toISOString()] = date;
+                selected[session._id] = date;
+                occupiedDays.add(date.toDateString());
             }
             for (const date of dates) {
+                if (occupiedDays.has(date.toDateString())) continue;
                 selected[date.toISOString()] = date;
+                occupiedDays.add(date.toDateString());
             }
 
             await syncSessions(selected, duration);
