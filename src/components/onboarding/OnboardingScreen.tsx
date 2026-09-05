@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import type { Href } from 'expo-router';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import MaskedView from '@react-native-masked-view/masked-view';
+import { LinearGradient } from 'expo-linear-gradient';
+import { COLOR_VARIANTS } from 'designs/designs-colors';
 import AppText from '../ui/AppText';
 import { OnboardingProgress } from './OnboardingProgress';
 import { BackButton } from '../ui/BackButton';
@@ -50,6 +53,9 @@ type Props = BaseProps & NavigationProps;
 
 /** The first iOS accessibility text category starts above the standard 1.35 scale. */
 export const shouldUseCombinedOnboardingScroll = (fontScale: number): boolean => fontScale >= 1.5;
+
+const BODY_BOTTOM_FADE = 48;
+const BUTTON_SHADOW_SPACE = 48;
 
 /**
  * The shell every onboarding screen sits in.
@@ -164,14 +170,27 @@ export function OnboardingScreen({
                             </View>
                         ) }
 
-                        <ScrollView
+                        <MaskedView
                             style={ styles.scroll }
-                            contentContainerStyle={ styles.scrollContent }
-                            showsVerticalScrollIndicator={ false }
-                            keyboardShouldPersistTaps="handled"
+                            maskElement={
+                                <View style={ styles.scroll } pointerEvents="none">
+                                    <View style={ styles.solidMask } />
+                                    <LinearGradient
+                                        colors={ [COLOR_VARIANTS.black.primary, COLOR_VARIANTS.transparent] }
+                                        style={ styles.bottomFade }
+                                    />
+                                </View>
+                            }
                         >
-                            { body }
-                        </ScrollView>
+                            <ScrollView
+                                style={ styles.scroll }
+                                contentContainerStyle={ styles.scrollContent }
+                                showsVerticalScrollIndicator={ false }
+                                keyboardShouldPersistTaps="handled"
+                            >
+                                { body }
+                            </ScrollView>
+                        </MaskedView>
 
                         <ScrollView
                             testID="onboarding-footer"
@@ -216,15 +235,25 @@ const styles = StyleSheet.create({
     scroll: {
         flex: 1,
     },
+    solidMask: {
+        flex: 1,
+        backgroundColor: COLOR_VARIANTS.black.primary,
+    },
+    bottomFade: {
+        height: BODY_BOTTOM_FADE,
+    },
     scrollContent: {
         paddingHorizontal: 24,
         paddingTop: 24,
-        paddingBottom: 24,
+        // At the end of the list the last card must clear the fade completely.
+        paddingBottom: BODY_BOTTOM_FADE + 24,
     },
     combinedScrollContent: {
         paddingHorizontal: 24,
         paddingTop: 24,
-        paddingBottom: 8,
+        // This footer is inside a clipping scroll view, so reserve the shadow's
+        // space in its content instead of letting it end at the button's edge.
+        paddingBottom: BUTTON_SHADOW_SPACE,
     },
     supporting: {
         marginTop: 14,
