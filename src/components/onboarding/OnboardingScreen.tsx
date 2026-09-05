@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import type { Href } from 'expo-router';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -72,6 +72,12 @@ export function OnboardingScreen({
     const insets = useSafeAreaInsets();
     const { fontScale } = useWindowDimensions();
     const useCombinedScroll = shouldUseCombinedOnboardingScroll(fontScale);
+    const [footerContentHeight, setFooterContentHeight] = useState(0);
+    const [footerViewportHeight, setFooterViewportHeight] = useState(0);
+    // A fitted footer needs no clipping: its glass-button shadow must be able
+    // to fade into the bottom safe area. Keep clipping for an overflowing
+    // footer so scrolling actions cannot paint over the body or home indicator.
+    const footerOverflows = footerContentHeight > footerViewportHeight + 1;
 
     // The four personalisation questions keep the large headline over the body:
     // each one is a question being asked, and it should read like one. The
@@ -169,8 +175,12 @@ export function OnboardingScreen({
 
                         <ScrollView
                             testID="onboarding-footer"
-                            style={ styles.footer }
+                            style={ [styles.footer, { overflow: footerOverflows ? 'hidden' : 'visible' }] }
                             contentContainerStyle={ styles.footerContent }
+                            onContentSizeChange={ (_width, height) => setFooterContentHeight(height) }
+                            onLayout={ (event) => setFooterViewportHeight(event.nativeEvent.layout.height) }
+                            removeClippedSubviews={ false }
+                            scrollEnabled={ footerOverflows }
                             showsVerticalScrollIndicator={ false }
                             alwaysBounceVertical={ false }
                         >
