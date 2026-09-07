@@ -1,5 +1,6 @@
 import React from 'react';
-import { ImageBackground, ImageSourcePropType, Modal, ScrollView, TextInput, TouchableOpacity, View, StyleSheet } from "react-native";
+import { ImageSourcePropType, Modal, ScrollView, TextInput, TouchableOpacity, View, StyleSheet } from "react-native";
+import { ImageBackground } from 'expo-image';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -155,8 +156,8 @@ export function NotePreviewModal({
             { /* The keyboard already covers the home indicator, so the bottom
                  inset is the larger of the two rather than their sum. */ }
             <ImageBackground
-                source={ require('../../../assets/textures/paper-blue.png') as ImageSourcePropType }
-                resizeMode="cover"
+                source={ require('../../../assets/textures/paper-blue.webp') as ImageSourcePropType }
+                contentFit="cover"
                 style={ styles.modalRoot }
             >
                 { /* The padded box keeps its own testID: ImageBackground spreads

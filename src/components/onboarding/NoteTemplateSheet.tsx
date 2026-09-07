@@ -1,5 +1,6 @@
 import React from 'react';
-import { ImageBackground, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { ImageBackground } from 'expo-image';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
 import AppText from '../ui/AppText';
@@ -30,8 +31,8 @@ export function NoteTemplateSheet({ style }: { style?: StyleProp<ViewStyle> }) {
 
     return (
         <ImageBackground
-            source={ require('../../../assets/textures/paper-green.png') as ImageSourcePropType }
-            resizeMode="cover"
+            source={ require('../../../assets/textures/paper-green.webp') as ImageSourcePropType }
+            contentFit="cover"
             imageStyle={ styles.sheetImage }
             style={ [styles.sheet, style] }
         >

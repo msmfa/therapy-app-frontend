@@ -101,7 +101,7 @@ export default function WelcomeScreen() {
                          rejects an icon containing an alpha channel, so the
                          two cannot be the same asset. */ }
                     <Image
-                        source={ require('../../assets/brain-logo-transparent.png') as ImageSourcePropType }
+                        source={ require('../../assets/brain-logo-transparent.webp') as ImageSourcePropType }
                         style={ styles.wordmarkMark }
                         contentFit="contain"
                     />
