@@ -1,4 +1,5 @@
-import { Image, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Image } from 'expo-image';
 import type { ImageSourcePropType } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useIsFocused } from '@react-navigation/native';
@@ -71,7 +72,7 @@ export default function NotePreviewScreen() {
             bottomBackdrop={ (contentBottom) => (
                 <>
                 <Image
-                    source={ require('../../assets/illustrations/notes-list-preview.png') as ImageSourcePropType }
+                    source={ require('../../assets/illustrations/notes-list-preview.webp') as ImageSourcePropType }
                     style={ [
                         styles.previewImage,
                         {
@@ -80,7 +81,7 @@ export default function NotePreviewScreen() {
                             marginTop: contentBottom > 0 ? contentBottom + IMAGE_GAP : 0,
                         },
                     ] }
-                    resizeMode="contain"
+                    contentFit="contain"
                     accessible
                     accessibilityLabel="A list of past therapy notes, each with the date of its session"
                 />

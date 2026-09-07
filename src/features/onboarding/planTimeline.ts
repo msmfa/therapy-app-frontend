@@ -154,7 +154,7 @@ export function planTimeline({
     if (postSleep !== null && nextSession !== null && postSleep.isBefore(nextSession)) {
         entries.push({
             id: 'post_sleep',
-            label: `${postSleep.format('dddd')} morning`,
+            label: `${postSleep.format('dddd')} Morning`,
             body: 'Revisit what you discussed in your session the day before.',
             researchTarget: ReminderType.SleepDependentConsolidation,
             at: postSleep.toDate(),

@@ -139,7 +139,9 @@ describe('onboarding note preview', () => {
         // Under the content, not at a fraction of the screen: the cards are
         // sized by their text, so only their real bottom edge places this.
         expect(flat.marginTop).toBeGreaterThan(MOCK_CONTENT_BOTTOM);
-        expect(image.props.resizeMode).toBe('contain');
+        // expo-image, which is what decodes the WebP; React Native's own Image
+        // cannot on iOS, and the artwork is a third of the size as WebP.
+        expect(image.props.contentFit).toBe('contain');
     });
 
     it('says the chosen goal back, with what the notes do for it', () => {

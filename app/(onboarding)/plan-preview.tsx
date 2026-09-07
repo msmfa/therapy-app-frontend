@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { Image, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Image } from 'expo-image';
 import type { ImageSourcePropType } from 'react-native';
 import { useRouter } from 'expo-router';
 import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
@@ -59,7 +60,7 @@ export default function PlanPreviewScreen() {
             // tilted a little so it reads as a sheet lying on the surface.
             bottomBackdrop={ (contentBottom) => (
                 <Image
-                    source={ require('../../assets/illustrations/note-cheatsheet-preview.png') as ImageSourcePropType }
+                    source={ require('../../assets/illustrations/note-cheatsheet-preview.webp') as ImageSourcePropType }
                     style={ [
                         styles.sheetImage,
                         {
@@ -68,7 +69,7 @@ export default function PlanPreviewScreen() {
                             marginTop: contentBottom > 0 ? contentBottom + IMAGE_GAP : 0,
                         },
                     ] }
-                    resizeMode="contain"
+                    contentFit="contain"
                     accessible
                     accessibilityLabel="The five-question note sheet"
                 />
