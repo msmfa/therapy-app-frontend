@@ -48,6 +48,14 @@ export default function AccountPreviewScreen() {
         if (purchaseStartedRef.current || !onboardingHydrated || entitlement.status === 'loading')
             return;
 
+        // The sign-in handoff effect can run even when this render redirects.
+        // Recheck the plan before opening Apple's purchase sheet.
+        const incompleteRoute = hasOnboarded ? null : firstIncompletePlanRoute(answers);
+        if (incompleteRoute !== null) {
+            router.replace(incompleteRoute);
+            return;
+        }
+
         // Restore can happen on the plans screen before app authentication.
         // Once the account is connected, continue without asking Apple to sell
         // the same subscription again.
@@ -108,8 +116,12 @@ export default function AccountPreviewScreen() {
 
         setStage('purchase_failed');
     }, [
+        answers.cadence,
         answers.entitlementConfirmedThisSession,
+        answers.goal,
         answers.plan,
+        answers.sessionAt,
+        answers.sessionDateSkipped,
         entitlement.status,
         hasOnboarded,
         isAuthenticated,

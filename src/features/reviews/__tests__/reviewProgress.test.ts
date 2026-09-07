@@ -114,7 +114,7 @@ describe('noteReviewProgress', () => {
 
     it('keeps timestamped reviews answered when a rolling session list changes their gap index', () => {
         const result = progress([
-            { ...review('2024-01-02', 1), occurrenceAtUtc: '2024-01-02T07:00:00.000Z' },
+            { ...review('2024-01-02', 1), reason: Reason.PostSleep, occurrenceAtUtc: '2024-01-02T07:00:00.000Z' },
         ], '2024-01-03T09:00:00.000Z');
 
         expect(result.gapIndex).toBe(0);

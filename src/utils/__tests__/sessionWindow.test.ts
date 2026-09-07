@@ -13,6 +13,14 @@ const at = (iso: string) => new Date(iso);
 describe('the latest first session onboarding accepts', () => {
     const now = at('2026-09-04T10:00:00');
 
+    it.each([
+        ['invalid', new Date(NaN)],
+        ['past', new Date(now.getTime() - 1)],
+        ['present', new Date(now.getTime())],
+    ] as const)('rejects a %s first session', (_label, candidate) => {
+        expect(isWithinFirstSessionWindow(candidate, now)).toBe(false);
+    });
+
     it('accepts the maximum permitted date', () => {
         expect(isWithinFirstSessionWindow(latestFirstSessionAt(now), now)).toBe(true);
     });

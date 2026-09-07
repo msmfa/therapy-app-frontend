@@ -211,6 +211,25 @@ describe('restored-subscription onboarding routing', () => {
         mockRestore.mockResolvedValue({ status: 'restored' });
     });
 
+    it.each([
+        ['purchase', new Date(NaN)],
+        ['purchase', new Date(Date.now() + 400 * 24 * 60 * 60 * 1000)],
+        ['restore', new Date(NaN)],
+        ['restore', new Date(Date.now() + 400 * 24 * 60 * 60 * 1000)],
+    ] as const)('blocks an automatic %s handoff with an invalid first session (%s)', (action, sessionAt) => {
+        mockIsAuthenticated = true;
+        mockAnswers = { ...mockAnswers, sessionAt };
+        mockConsumePending.mockReturnValue('pending-auth-return');
+        mockPurchase.mockResolvedValue({ status: 'cancelled' });
+
+        const screen = render(action === 'purchase' ? <AccountPreviewScreen /> : <SubscriptionPreviewScreen />);
+
+        expect(screen.getByText('redirect:/(onboarding)/session-date')).toBeTruthy();
+        expect(mockPurchase).not.toHaveBeenCalled();
+        expect(mockRestore).not.toHaveBeenCalled();
+        expect(mockSetAnswer).not.toHaveBeenCalled();
+    });
+
     it.each(['ready', 'loading', 'unavailable'] as const)(
         'allows a signed-in user to reach account settings when offers are %s',
         (offerStatus) => {

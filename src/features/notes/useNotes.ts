@@ -2,6 +2,7 @@ import * as React from 'react';
 import { openDatabaseAsync, type SQLiteDatabase } from 'expo-sqlite';
 import { cancelNotificationById } from '../../services/notifications';
 import { encryptNoteText, decryptNoteText, isEncrypted } from './noteCrypto';
+import { migrateReviewIdentity } from '../reviews/reviewSchema';
 
 type SqlRow = {
     id: string;
@@ -62,7 +63,8 @@ const getDb = async (): Promise<SQLiteDatabase> => {
                     reviewedAt INTEGER NOT NULL,
                     gapIndex INTEGER,
                     reason TEXT,
-                    occurrenceAtUtc TEXT
+                    occurrenceAtUtc TEXT,
+                    occurrenceId TEXT
                 );`,
             );
             await db.execAsync(
@@ -73,7 +75,13 @@ const getDb = async (): Promise<SQLiteDatabase> => {
                 `CREATE INDEX IF NOT EXISTS idx_note_reviews_user_date
                  ON note_reviews (userId, localDate);`,
             );
-        })();
+            await migrateReviewIdentity(db);
+        })().catch((error) => {
+            // A failed migration or transient storage error must remain
+            // retryable. Concurrent callers still share this rejected run.
+            initPromise = null;
+            throw error;
+        });
     }
 
     await initPromise;

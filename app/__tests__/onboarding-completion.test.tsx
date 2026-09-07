@@ -235,6 +235,21 @@ describe('onboarding completion', () => {
 		expect(mockFinishOnboarding).not.toHaveBeenCalled();
 	});
 
+	it('rechecks a session that expires while the completion screen is open', () => {
+		const { getByText } = render(<SuccessScreen />);
+		const clock = jest.spyOn(Date, 'now').mockReturnValue(mockSessionAt.getTime());
+		try {
+			fireEvent.press(getByText('Save and see my plan'));
+			expect(mockAddSessions).not.toHaveBeenCalled();
+			expect(mockUpdateCurrentUser).not.toHaveBeenCalled();
+			expect(mockFinishOnboarding).not.toHaveBeenCalled();
+			expect(mockDiscardDraft).not.toHaveBeenCalled();
+			expect(mockReplace).toHaveBeenCalledWith('/(onboarding)/session-date');
+		} finally {
+			clock.mockRestore();
+		}
+	});
+
 	it('cannot complete through a deep link that skipped the paywall', () => {
 		mockEntitlementConfirmed = false;
 

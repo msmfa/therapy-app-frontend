@@ -1,5 +1,6 @@
 import type { Href } from 'expo-router';
 import type { OnboardingAnswers } from './OnboardingAnswersContext';
+import { isWithinFirstSessionWindow } from '../../utils/sessionWindow';
 
 /**
  * Earliest unanswered piece required to build and save a real plan.
@@ -14,8 +15,9 @@ export function firstIncompletePlanRoute(
 ): Href | null {
     if (answers.goal === null) return '/(onboarding)/goal';
     if (
-        !answers.sessionDateSkipped
-        && (answers.sessionAt === null || answers.sessionAt.getTime() <= nowMs)
+        answers.sessionAt === null
+            ? !answers.sessionDateSkipped
+            : !isWithinFirstSessionWindow(answers.sessionAt, new Date(nowMs))
     ) {
         return '/(onboarding)/session-date';
     }

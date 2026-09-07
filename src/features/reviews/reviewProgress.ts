@@ -5,9 +5,9 @@
 // asked for. So a note has a fixed denominator the moment its gap exists -
 // typically four - and the card can draw a bar that fills as the reminders are
 // answered.
-import type { Reminder } from '../reminders/types';
+import { Reason, type Reminder } from '../reminders/types';
 import { occurrenceWindows } from './reviewAttribution';
-import { gapIndexForTimestamp, occurrencesForGap, type ReviewScheduleInput } from './reviewSchedule';
+import { gapIndexForReview, occurrencesForGap, reviewGapBounds, type ReviewOccurrence, type ReviewScheduleInput } from './reviewSchedule';
 import type { NoteReview } from './reviewStore';
 
 export type ReviewSegmentStatus =
@@ -72,31 +72,42 @@ const EMPTY: NoteReviewProgress = {
 };
 
 /**
- * A reminder counts as answered by a review on its day, unless that review
- * belongs to a different gap. Unprompted reviews carry no gap, so they can
- * answer whatever was due that day.
+ * New rows identify the logical reminder, independent of rescheduled clock
+ * times and rolling gap positions. Older rows lack session identities, so
+ * recover only what their recorded kind, day and instant can establish.
  */
-const isAnsweredBy = (occurrence: Reminder, review: NoteReview): boolean =>
-    review.localDate === occurrence.localDate &&
-    // gapIndex is a position in a rolling list, not an identity. Persisted
-    // occurrence timestamps survive earlier appointments leaving that list.
-    // Without a timestamp, only an unprompted review may match any gap.
-    (review.occurrenceAtUtc == null
-        ? review.gapIndex === null || review.gapIndex === occurrence.gapIndex
-        : review.occurrenceAtUtc === occurrence.atUtc);
+export function isOccurrenceAnswered(
+    occurrence: ReviewOccurrence,
+    review: NoteReview,
+    gapBounds: [number, number] | null,
+): boolean {
+    if (review.occurrenceId) return review.occurrenceId === occurrence.occurrenceId;
+    if (review.occurrenceAtUtc != null) {
+        if (review.reason !== occurrence.reason) return false;
+        if (review.occurrenceAtUtc === occurrence.atUtc) return true;
+        const recordedAt = Date.parse(review.occurrenceAtUtc);
+        if (!gapBounds || recordedAt < gapBounds[0] || recordedAt >= gapBounds[1] || !Number.isFinite(recordedAt)) return false;
+        // There is only one of each other kind per gap. Repeated legacy mids
+        // need their recorded day too: the old zone/anchor cannot be recovered.
+        return occurrence.reason !== Reason.MidSession || review.localDate === occurrence.localDate;
+    }
+    return review.localDate === occurrence.localDate
+        && (review.gapIndex === null || review.gapIndex === occurrence.gapIndex);
+}
 
 export function noteReviewProgress(
     params: NoteReviewProgressParams,
 ): NoteReviewProgress {
     const { createdAt, reviews, noteId, now = new Date(), ...scheduleInput } = params;
 
-    const gapIndex = gapIndexForTimestamp(createdAt, scheduleInput.sessionsUtc);
+    const relevant = noteId ? reviews.filter((r) => r.noteId === noteId) : reviews;
+    const gapIndex = gapIndexForReview(createdAt, scheduleInput, relevant);
     if (gapIndex === null) return EMPTY;
 
     const occurrences = occurrencesForGap(gapIndex, scheduleInput);
     if (occurrences.length === 0) return { ...EMPTY, gapIndex };
 
-    const relevant = noteId ? reviews.filter((r) => r.noteId === noteId) : reviews;
+    const gapBounds = reviewGapBounds(gapIndex, scheduleInput);
     const nowMs = now.getTime();
 
     let completed = 0;
@@ -108,7 +119,7 @@ export function noteReviewProgress(
     const segments: ReviewSegment[] = occurrenceWindows(occurrences).map((window) => {
         const { occurrence, atMs, closesAtMs } = window;
 
-        if (relevant.some((review) => isAnsweredBy(occurrence, review))) {
+        if (relevant.some((review) => isOccurrenceAnswered(occurrence, review, gapBounds))) {
             completed += 1;
             return { occurrence, status: 'done' };
         }

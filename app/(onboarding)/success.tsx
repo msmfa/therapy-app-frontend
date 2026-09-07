@@ -40,6 +40,12 @@ export default function SuccessScreen() {
             return;
         }
 
+        const incompleteRoute = firstIncompletePlanRoute(answers);
+        if (incompleteRoute !== null) {
+            router.replace(incompleteRoute);
+            return;
+        }
+
         completionTriggeredRef.current = true;
         setIsCompleting(true);
 
@@ -101,6 +107,7 @@ export default function SuccessScreen() {
         answers.goal,
         answers.morningMinutes,
         answers.sessionAt,
+        answers.sessionDateSkipped,
         discardDraft,
         finishOnboarding,
         router,

@@ -35,22 +35,24 @@ export default function SessionDateScreen() {
     const router = useRouter();
     const { answers, setAnswer } = useOnboardingAnswers();
 
-    const saved = answers.sessionAt;
+    const saved = answers.sessionAt && Number.isFinite(answers.sessionAt.getTime())
+        ? answers.sessionAt : null;
     const [draft, setDraft] = useState<Date>(() => saved ?? pickerSeed());
     // Tracked separately so a value the user never touched is never presented
     // as their answer. Coming back to a saved date counts as chosen.
     const [dateChosen, setDateChosen] = useState(() => saved !== null);
     const [timeChosen, setTimeChosen] = useState(() => saved !== null);
     const [open, setOpen] = useState<Field | null>(null);
+    const [validationNow, setValidationNow] = useState(() => new Date());
 
     const complete = dateChosen && timeChosen;
-    const isFuture = useMemo(() => draft.getTime() > Date.now(), [draft]);
+    const isFuture = draft.getTime() > validationNow.getTime();
     // A session beyond the series horizon would be projected into records the
     // calendar never fetches, so the user could not see, edit or delete them.
-    const inRange = useMemo(() => isWithinFirstSessionWindow(draft), [draft]);
+    const inRange = useMemo(() => isWithinFirstSessionWindow(draft, validationNow), [draft, validationNow]);
     // The whole of the final day counts, so an evening appointment on the last
     // permitted date is still a valid choice.
-    const latestAllowed = useMemo(() => latestFirstSessionAt(), []);
+    const latestAllowed = useMemo(() => latestFirstSessionAt(validationNow), [validationNow]);
     const canContinue = complete && isFuture && inRange;
 
     const applyDate = useCallback((event: DateTimePickerEvent, picked?: Date) => {
@@ -98,12 +100,14 @@ export default function SessionDateScreen() {
         // trusting the picker: a restored draft arrives without passing
         // through it at all, and on Android the dialog is a separate surface
         // whose bounds we cannot assume were honoured.
-        if (!canContinue || !isWithinFirstSessionWindow(draft)) return;
+        const now = new Date();
+        setValidationNow(now);
+        if (!complete || !isWithinFirstSessionWindow(draft, now)) return;
         setAnswer('sessionAt', draft);
         setAnswer('sessionDateSkipped', false);
         setAnswer('reminderScheduled', false);
         router.push('/(onboarding)/session-cadence');
-    }, [canContinue, draft, router, setAnswer]);
+    }, [complete, draft, router, setAnswer]);
 
     const handleSamplePlan = useCallback(() => {
         // Keep the absence of a booking explicit. The preview creates its own

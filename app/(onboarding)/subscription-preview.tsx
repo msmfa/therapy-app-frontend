@@ -69,6 +69,12 @@ export default function SubscriptionPreviewScreen() {
     const handleRestore = useCallback(async () => {
         if (restoreInFlightRef.current) return;
 
+        const incompleteRoute = hasOnboarded ? null : firstIncompletePlanRoute(answers);
+        if (incompleteRoute !== null) {
+            router.replace(incompleteRoute);
+            return;
+        }
+
         // Apple owns the purchase, but Plastic Brains still has to know which
         // signed-in account it belongs to. Never mark a signed-out local Apple
         // receipt as restored and carry it through onboarding unlinked.
@@ -118,7 +124,7 @@ export default function SubscriptionPreviewScreen() {
             restoreInFlightRef.current = false;
             setRestoreInProgress(false);
         }
-    }, [hasOnboarded, isAuthenticated, refreshEntitlement, router, setAnswer, showAlert]);
+    }, [answers.cadence, answers.goal, answers.sessionAt, answers.sessionDateSkipped, hasOnboarded, isAuthenticated, refreshEntitlement, router, setAnswer, showAlert]);
 
     // Restore is one action, even when app sign-in is needed in the middle.
     // The Welcome redirect only peeks at this handoff, so this destination can

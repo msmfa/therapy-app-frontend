@@ -3,6 +3,7 @@ import {
     onboardingRouteForSegments,
     safeOnboardingResumeRoute,
 } from '../onboardingResume';
+import { latestFirstSessionAt } from '../../../utils/sessionWindow';
 
 const futureSession = new Date('2026-09-10T17:00:00.000Z');
 const now = new Date('2026-09-04T12:00:00.000Z').getTime();
@@ -75,5 +76,21 @@ describe('onboarding route persistence', () => {
             cadence: 'weekly',
             resumeRoute: '/(onboarding)/plan-preview',
         }, now)).toBe('/(onboarding)/plan-preview');
+    });
+
+    it.each([
+        '/(onboarding)/session-cadence',
+        '/(onboarding)/plan-preview',
+        '/(onboarding)/account-preview',
+        '/(onboarding)/success',
+    ] as const)('returns invalid restored dates to the date step before resuming %s', (resumeRoute) => {
+        const latest = latestFirstSessionAt(new Date(now));
+        for (const sessionAt of [new Date(NaN), new Date(now), new Date(latest.getTime() + 1)]) {
+            for (const sessionDateSkipped of [false, true]) {
+                expect(safeOnboardingResumeRoute({
+                    goal: 'remember', sessionAt, sessionDateSkipped, cadence: 'weekly', resumeRoute,
+                }, now)).toBe('/(onboarding)/session-date');
+            }
+        }
     });
 });

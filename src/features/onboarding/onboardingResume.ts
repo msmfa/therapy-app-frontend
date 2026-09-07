@@ -1,5 +1,6 @@
 import type { Href } from 'expo-router';
 import type { CadenceId, GoalId } from './onboardingCopy';
+import { isWithinFirstSessionWindow } from '../../utils/sessionWindow';
 
 const ROUTE_BY_SCREEN = {
     goal: '/(onboarding)/goal',
@@ -61,12 +62,9 @@ export function safeOnboardingResumeRoute(
 
     if (route === '/(onboarding)/session-date') return route;
     if (
-        !answers.sessionDateSkipped
-        && (
-            answers.sessionAt === null
-            || Number.isNaN(answers.sessionAt.getTime())
-            || answers.sessionAt.getTime() <= nowMs
-        )
+        answers.sessionAt === null
+            ? !answers.sessionDateSkipped
+            : !isWithinFirstSessionWindow(answers.sessionAt, new Date(nowMs))
     ) {
         return '/(onboarding)/session-date';
     }

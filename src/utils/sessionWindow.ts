@@ -59,11 +59,16 @@ const startOfLocalDay = (date: Date): Date => {
 export const latestFirstSessionAt = (now: Date = new Date()): Date =>
     endOfLocalDay(addCalendarMonths(now, SERIES_MONTHS_AHEAD));
 
-/** Whether a chosen first session is close enough to be projected and shown. */
+/** A first session must still be in the future and inside the editable horizon. */
 export const isWithinFirstSessionWindow = (
     candidate: Date,
     now: Date = new Date(),
-): boolean => candidate.getTime() <= latestFirstSessionAt(now).getTime();
+): boolean => {
+    const time = candidate.getTime();
+    return Number.isFinite(time)
+        && time > now.getTime()
+        && time <= latestFirstSessionAt(now).getTime();
+};
 
 /**
  * The window of sessions the app fetches and edits: from the start of the
