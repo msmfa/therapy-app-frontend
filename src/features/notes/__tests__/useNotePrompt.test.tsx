@@ -57,4 +57,26 @@ describe('useNotePrompt', () => {
 
 		expect(result.current).toBe('What clear thread do you want to bring back next time?');
 	});
+
+	it.each(['user-b', undefined])('hides a loaded account prompt in every render after switching to %s', async (nextUserId) => {
+		mockGetCurrentUserSettings
+			.mockResolvedValueOnce({ reflectionGoal: 'practise' })
+			.mockReturnValueOnce(new Promise(() => {}));
+		const renders: { userId: string | undefined; prompt: string }[] = [];
+		const { result, rerender } = renderHook(
+			({ userId }: { userId: string | undefined }) => {
+				const prompt = useNotePrompt(userId);
+				renders.push({ userId, prompt });
+				return prompt;
+			},
+			{ initialProps: { userId: 'user-a' as string | undefined } },
+		);
+		await waitFor(() => expect(result.current).toBe('What insight do you want to try in daily life?'));
+
+		rerender({ userId: nextUserId });
+
+		const newAccountRenders = renders.filter((render) => render.userId === nextUserId);
+		expect(newAccountRenders.length).toBeGreaterThan(0);
+		expect(newAccountRenders.every((render) => render.prompt === DEFAULT_NOTE_PROMPT)).toBe(true);
+	});
 });

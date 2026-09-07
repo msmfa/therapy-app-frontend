@@ -4,11 +4,11 @@ import { DEFAULT_NOTE_PROMPT, notePromptForGoal } from './reflectionGoalPrompt';
 
 /** Reads the account-owned onboarding goal without making note entry depend on the network. */
 export const useNotePrompt = (userId: string | undefined): string => {
-    const [prompt, setPrompt] = useState(DEFAULT_NOTE_PROMPT);
+    const [prompt, setPrompt] = useState({ userId, text: DEFAULT_NOTE_PROMPT });
 
     useEffect(() => {
         let cancelled = false;
-        setPrompt(DEFAULT_NOTE_PROMPT);
+        setPrompt({ userId, text: DEFAULT_NOTE_PROMPT });
 
         if (!userId) return () => {
             cancelled = true;
@@ -16,7 +16,7 @@ export const useNotePrompt = (userId: string | undefined): string => {
 
         void getCurrentUserSettings()
             .then((settings) => {
-                if (!cancelled) setPrompt(notePromptForGoal(settings.reflectionGoal));
+                if (!cancelled) setPrompt({ userId, text: notePromptForGoal(settings.reflectionGoal) });
             })
             .catch((error) => {
                 // Note entry remains fully usable offline; only the optional
@@ -29,5 +29,7 @@ export const useNotePrompt = (userId: string | undefined): string => {
         };
     }, [userId]);
 
-    return prompt;
+    // Effects run after render, so hide the previous account's loaded prompt
+    // synchronously while the new account's settings are being requested.
+    return prompt.userId === userId ? prompt.text : DEFAULT_NOTE_PROMPT;
 };

@@ -59,18 +59,19 @@ describe('useNeuroReminders revalidation triggers', () => {
         await writeRemindersCache(cachedA, 'user-a');
         // An older app version could have left a cache without an owner too.
         await writeRemindersCache(cachedA);
-        getReminders.mockResolvedValueOnce(response('account-b-reminder'));
+        getReminders.mockResolvedValueOnce(response('account-a-private-reminder'))
+            .mockResolvedValueOnce(response('account-b-reminder'));
 
         const { result, rerender } = renderHook(
             ({ account }) => useNeuroReminders(SESSIONS, 'Europe/London', true, true, 0, undefined, undefined, account),
             { initialProps: { account: 'user-a' } },
         );
         await waitFor(() => expect(result.current).toEqual(cachedA.reminders));
-        expect(getReminders).not.toHaveBeenCalled();
+        await waitFor(() => expect(getReminders).toHaveBeenCalledTimes(1));
         rerender({ account: 'user-b' });
         expect(result.current).toEqual([]);
         await waitFor(() => expect(result.current).toEqual(response('account-b-reminder').reminders));
-        expect(getReminders).toHaveBeenCalledTimes(1);
+        expect(getReminders).toHaveBeenCalledTimes(2);
         expect((await readRemindersCache('user-a'))?.reminders).toEqual(cachedA.reminders);
         expect((await readRemindersCache('user-b'))?.reminders).toEqual(response('account-b-reminder').reminders);
     });
@@ -138,6 +139,103 @@ describe('useNeuroReminders revalidation triggers', () => {
             '[Reminders] Failed to load reminder schedule:',
             expect.any(Error),
         );
+    });
+
+    it('revalidates surviving disk cache on a cold mount before marking the schedule ready', async () => {
+        const oldCache = {
+            ...response('old-preference-reminder'),
+            deviceTimeZone: 'Europe/London',
+            sessionsSignature: getSessionsSignature(SESSIONS),
+            localDate: getLocalDateKey(),
+        };
+        // This is what a new process sees if a previous process failed to
+        // delete the cache after saving changed preferences on the server.
+        await AsyncStorage.setItem('neuroReminders:v3:restarted-account', JSON.stringify(oldCache));
+        let finishFetch!: (value: ReturnType<typeof response>) => void;
+        getReminders.mockImplementationOnce(() => new Promise((resolve) => { finishFetch = resolve; }));
+        const status = jest.fn();
+        const settings = jest.fn();
+        const listeners = captureAppStateListener();
+        const { result } = renderHook(() => useNeuroReminders(
+            SESSIONS, 'Europe/London', true, true, 0, settings, status, 'restarted-account',
+        ));
+
+        await waitFor(() => expect(getReminders).toHaveBeenCalledTimes(1));
+        expect(result.current).toEqual(oldCache.reminders);
+        expect(status).not.toHaveBeenCalledWith('ready');
+
+        const updated = { ...response('new-preference-reminder'), morningReminderMinutes: 480 };
+        await act(async () => { finishFetch(updated); });
+        await waitFor(() => expect(result.current).toEqual(updated.reminders));
+        expect(settings).toHaveBeenLastCalledWith({
+            timeZone: updated.timeZone,
+            morningReminderMinutes: 480,
+            eveningReminderMinutes: updated.eveningReminderMinutes,
+        });
+        expect(status).toHaveBeenLastCalledWith('ready');
+        expect((await readRemindersCache('restarted-account'))?.morningReminderMinutes).toBe(480);
+
+        await act(async () => { listeners.forEach((listener) => listener('active')); });
+        expect(getReminders).toHaveBeenCalledTimes(1);
+    });
+
+    it('keeps the offline cache visible but retries initial validation on foreground', async () => {
+        jest.spyOn(console, 'warn').mockImplementation(() => {});
+        const cached = {
+            ...response('offline-reminder'),
+            deviceTimeZone: 'Europe/London',
+            sessionsSignature: getSessionsSignature(SESSIONS),
+            localDate: getLocalDateKey(),
+        };
+        await writeRemindersCache(cached, 'offline-account');
+        getReminders.mockRejectedValueOnce(new Error('offline'))
+            .mockResolvedValueOnce(response('fresh-reminder'));
+        const listeners = captureAppStateListener();
+        const status = jest.fn();
+        const { result } = renderHook(() => useNeuroReminders(
+            SESSIONS, 'Europe/London', true, true, 0, undefined, status, 'offline-account',
+        ));
+
+        await waitFor(() => expect(status).toHaveBeenLastCalledWith('error'));
+        expect(result.current).toEqual(cached.reminders);
+        expect(status).not.toHaveBeenCalledWith('ready');
+
+        await act(async () => { listeners.forEach((listener) => listener('active')); });
+        expect(getReminders).toHaveBeenCalledTimes(2);
+        expect(result.current).toEqual(response('fresh-reminder').reminders);
+        expect(status).toHaveBeenLastCalledWith('ready');
+    });
+
+    it('does not revert to stale disk preferences when persisting a fresh response fails', async () => {
+        const oldCache = {
+            ...response('old-reminder'),
+            deviceTimeZone: 'Europe/London',
+            sessionsSignature: getSessionsSignature(SESSIONS),
+            localDate: getLocalDateKey(),
+        };
+        await AsyncStorage.setItem('neuroReminders:v3:failed-refresh-write', JSON.stringify(oldCache));
+        jest.mocked(AsyncStorage.setItem).mockRejectedValueOnce(new Error('storage unavailable'));
+        const updated = { ...response('fresh-reminder'), morningReminderMinutes: 480 };
+        getReminders.mockResolvedValue(updated);
+        const listeners = captureAppStateListener();
+        const settings = jest.fn();
+        const { result } = renderHook(() => useNeuroReminders(
+            SESSIONS, 'Europe/London', true, true, 0, settings, undefined, 'failed-refresh-write',
+        ));
+
+        await waitFor(() => expect(result.current).toEqual(updated.reminders));
+        expect((await readRemindersCache('failed-refresh-write'))?.morningReminderMinutes).toBe(450);
+
+        await act(async () => { listeners.forEach((listener) => listener('active')); });
+
+        expect(getReminders).toHaveBeenCalledTimes(2);
+        expect(result.current).toEqual(updated.reminders);
+        expect(settings).toHaveBeenLastCalledWith({
+            timeZone: updated.timeZone,
+            morningReminderMinutes: 480,
+            eveningReminderMinutes: updated.eveningReminderMinutes,
+        });
+        expect((await readRemindersCache('failed-refresh-write'))?.morningReminderMinutes).toBe(480);
     });
 
     it('arms a timer for the midnight that passes while the app stays open', async () => {

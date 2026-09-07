@@ -15,8 +15,8 @@ import {
  *
  * Keys are scoped per user id. Two accounts on one device therefore read
  * different records and one can never be shown the other's answers; the
- * anonymous record exists only for the part of the flow before sign-in, and is
- * moved onto the user and deleted the moment they authenticate.
+ * anonymous record exists only for the part of the flow before sign-in. It is
+ * claimed by the user when they authenticate and removed once the copy succeeds.
  */
 
 /** Mirrors the provider's defaults, kept here so parsing never returns 0:00. */
@@ -25,6 +25,7 @@ const DEFAULT_EVENING_MINUTES = 20 * 60;
 
 const KEY_PREFIX = 'onboarding.draft.v1.';
 const ANON_KEY = `${KEY_PREFIX}anon`;
+let pendingPromotion: Promise<unknown> = Promise.resolve();
 
 /** SecureStore keys accept alphanumerics, '.', '-' and '_' only. */
 const userKey = (userId: string): string => `${KEY_PREFIX}user.${userId.replace(/[^A-Za-z0-9._-]/g, '')}`;
@@ -113,12 +114,22 @@ export function parseDraft(raw: string): OnboardingDraft | null {
 export async function readDraft(userId: string | null): Promise<OnboardingDraft | null> {
     try {
         const raw = await SecureStore.getItemAsync(keyFor(userId));
+        // A failed account write leaves an owned recovery copy here. It must
+        // never become the next signed-out visitor's answers.
+        if (userId === null && raw !== null && promotionOwner(raw) !== undefined) return null;
         return raw === null ? null : parseDraft(raw);
     } catch {
         // An unreadable keychain must not block onboarding; the user just
         // starts from the beginning.
         return null;
     }
+}
+
+function promotionOwner(raw: string): unknown {
+    const parsed: unknown = JSON.parse(raw);
+    return typeof parsed === 'object' && parsed !== null && 'promotionUserId' in parsed
+        ? parsed.promotionUserId
+        : undefined;
 }
 
 export async function writeDraft(userId: string | null, draft: OnboardingDraft): Promise<void> {
@@ -143,22 +154,65 @@ export async function clearDraft(userId: string | null): Promise<void> {
  * Runs once, at the moment the user id appears. If that account already has a
  * draft, its own record wins: what they saved while signed in is theirs, and an
  * anonymous draft from whoever used the device before must not overwrite it.
- * The anonymous record is deleted either way, so it cannot leak to the next
- * person to open the app signed out.
+ * Claim the source before copying it. A failed account write can then retain
+ * the only durable copy without giving it to another account on a later run.
  */
-export async function promoteAnonDraft(userId: string): Promise<OnboardingDraft | null> {
-    const [existing, anonymous] = await Promise.all([readDraft(userId), readDraft(null)]);
+export function promoteAnonDraft(userId: string): Promise<OnboardingDraft | null> {
+    // Account changes can overlap hydration. Only one account may claim the
+    // anonymous source, including while an earlier storage operation is slow.
+    const promotion = pendingPromotion.then(() => promoteDraft(userId));
+    pendingPromotion = promotion.catch(() => undefined);
+    return promotion;
+}
+
+async function promoteDraft(userId: string): Promise<OnboardingDraft | null> {
+    // Unlike an ordinary best-effort read, failure here must not be mistaken
+    // for an absent account draft and allow its contents to be overwritten.
+    const existingRaw = await SecureStore.getItemAsync(userKey(userId));
+    const existing = existingRaw === null ? null : parseDraft(existingRaw);
+    let anonymousRaw: string | null;
+    try {
+        anonymousRaw = await SecureStore.getItemAsync(ANON_KEY);
+    } catch (error) {
+        // Anonymous cleanup must not hide an account draft we already read.
+        if (existing !== null) return existing;
+        throw error;
+    }
+    const anonymous = anonymousRaw === null ? null : parseDraft(anonymousRaw);
+    const promotionUserId = anonymousRaw === null || anonymous === null ? undefined : promotionOwner(anonymousRaw);
+    const ownsSource = promotionUserId === undefined || promotionUserId === userId;
+
+    if (anonymous !== null && ownsSource && promotionUserId === undefined) {
+        // Claim before either copying or discarding. A failed native delete
+        // must not expose this source even when the account's own draft wins.
+        try {
+            await SecureStore.setItemAsync(ANON_KEY, JSON.stringify({ ...anonymous, promotionUserId: userId }));
+        } catch (error) {
+            // An existing account draft is already safe to show. Otherwise do
+            // not begin a transfer unless ownership itself is durable.
+            if (existing === null) throw error;
+            console.warn('[onboarding] could not claim anonymous draft:', error);
+            return existing;
+        }
+    }
 
     if (existing !== null) {
-        await clearDraft(null);
+        if (ownsSource) await clearDraft(null);
         return existing;
     }
 
-    if (anonymous === null) {
+    if (anonymous === null || !ownsSource) {
         return null;
     }
 
-    await writeDraft(userId, anonymous);
+    try {
+        await SecureStore.setItemAsync(userKey(userId), JSON.stringify(anonymous));
+    } catch (error) {
+        console.warn('[onboarding] could not promote draft:', error);
+        // Keep these answers in the current flow; hydration after a restart
+        // retries the copy for this owner only.
+        return anonymous;
+    }
     await clearDraft(null);
     return anonymous;
 }

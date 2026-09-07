@@ -293,24 +293,20 @@ type ServerSyncResult = {
     entitlement: EntitlementResult | null;
     /** The server conclusively rejected the signed transaction/account link. */
     rejected: boolean;
-    /** StoreKit supplied a signed transaction the backend could attempt to link. */
-    hadSignedTransaction: boolean;
 };
 
 const syncActiveSubscriptions = async (
     subscriptions: ActiveSubscription[],
 ): Promise<ServerSyncResult> => {
     let rejected = false;
-    let hadSignedTransaction = false;
     for (const subscription of subscriptions) {
         if (!subscription.isActive || planForProductId(subscription.productId) === null) continue;
         if (!subscription.purchaseToken) continue;
-        hadSignedTransaction = true;
 
         try {
             const result = await verifySubscriptionTransaction(subscription.purchaseToken);
             if (result.status === 'active') {
-                return { entitlement: result, rejected: false, hadSignedTransaction: true };
+                return { entitlement: result, rejected: false };
             }
             rejected = true;
         } catch (error) {
@@ -325,7 +321,7 @@ const syncActiveSubscriptions = async (
             // update an already-linked subscription without the app running.
         }
     }
-    return { entitlement: null, rejected, hadSignedTransaction };
+    return { entitlement: null, rejected };
 };
 
 export type LoadOfferResult =
@@ -533,42 +529,32 @@ export async function getEntitlement(
 
         if (options.syncWithServer) {
             let localReceiptRejected = false;
-            let localHadSignedTransaction = false;
             if (local.status === 'active') {
                 const synced = await syncActiveSubscriptions(subscriptions);
                 if (synced.entitlement) return synced.entitlement;
                 localReceiptRejected = synced.rejected;
-                localHadSignedTransaction = synced.hadSignedTransaction;
             }
 
-            let serverEntitlementKnown = false;
             try {
-                const stored = await getServerEntitlement();
-                serverEntitlementKnown = true;
-                // An account entitlement is valid across devices even if this
-                // device is signed into another Apple ID.
-                if (stored.status === 'active') return stored;
+                // The account's server answer is authoritative, including
+                // inactive. A signed local transaction alone does not prove
+                // it belongs to this account when verification could not run.
+                return await getServerEntitlement();
             } catch {
                 // Local StoreKit remains a safe short-term fallback; server
                 // state is retried on every foreground.
             }
 
-            if (
-                localReceiptRejected
-                || (local.status === 'active' && serverEntitlementKnown && !localHadSignedTransaction)
-            ) {
-                // The receipt is real, but not valid for this app account, and
-                // this account has no separate server entitlement of its own.
-                // A local subscription without a signed transaction cannot be
-                // linked at all, so a conclusive inactive server answer also
-                // cannot be turned into a restore for an arbitrary account.
+            if (localReceiptRejected) {
+                // An unavailable account check cannot override a conclusive
+                // rejection of this receipt for the signed-in account.
                 return { status: 'inactive' };
             }
 
             // An empty receipt list only describes this device's Apple ID.
             // It cannot disprove an app-account subscription bought elsewhere
             // when the account server is unavailable.
-            if (local.status === 'inactive' && !serverEntitlementKnown) {
+            if (local.status === 'inactive') {
                 return { status: 'unknown', reason: 'network' };
             }
         }

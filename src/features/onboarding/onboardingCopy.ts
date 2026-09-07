@@ -227,16 +227,15 @@ const trialLengthDays = (trial: SubscriptionTrial): number => {
     }
 };
 
-/** The three moments of the trial, phrased for the featured card. */
+/** Trial access and billing, phrased for the featured card. */
 export const trialTimeline = (
     plan: PlanId,
     price: string,
     trial: SubscriptionTrial,
-): { icon: 'unlock' | 'bell' | 'star'; text: string }[] => {
+): { icon: 'unlock' | 'star'; text: string }[] => {
     const days = trialLengthDays(trial);
     return [
         { icon: 'unlock', text: 'Today: Start your free trial' },
-        { icon: 'bell', text: `Day ${Math.max(days - 2, 1)}: Get a trial reminder` },
         { icon: 'star', text: `Day ${days}: You'll be charged ${price}/${planBillingPeriod(plan)}` },
     ];
 };

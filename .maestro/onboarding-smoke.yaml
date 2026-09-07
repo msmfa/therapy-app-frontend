@@ -25,20 +25,20 @@ name: Onboarding navigation and reminder separation
       commands:
           - tapOn: Close
 - extendedWaitUntil:
-      visible: Keep therapy with you between sessions
+      visible: Get more from your therapy sessions\.
       timeout: 30000
-- assertVisible: Keep therapy with you between sessions
+- assertVisible: Get more from your therapy sessions\.
 - tapOn: Build my plan
-- assertVisible: What would help you get more from therapy?
+- assertVisible: What would help you get more from therapy\?
 - tapOn: Put therapy insights into practice throughout the week
 - tapOn: Continue
-- assertVisible: When is your next session?
+- assertVisible: When is your next session\?
 - tapOn: Date. Not chosen
 - assertVisible: Date. .*
 - tapOn: Time. Not chosen
-- assertVisible: Time. 17:00
+- assertVisible: (?i)Time\. (17:00|5:00.*pm)
 - tapOn: Continue
-- assertVisible: How often are your sessions usually?
+- assertVisible: How often are your sessions\?
 - tapOn: Every week
 - tapOn: Choose reminder times
 - assertVisible: Choose times that fit your routine
@@ -46,20 +46,25 @@ name: Onboarding navigation and reminder separation
 - assertVisible: Evening reviews
 - assertVisible: For returning to it later in the week
 - tapOn: See my plan
-- assertVisible: Your plan starts after your .* session
+- assertVisible: Your custom plan
 # The session is 17:00 and lasts 50 minutes. The note prompt is ten minutes
-# after it ends (18:00), not at the separate 20:00 evening reflection time.
-- assertVisible: .*18:00.*
-- assertVisible: .*20:00.*
-- tapOn: See the five-minute note
-- assertVisible: Capture what mattered in five minutes
+# after it ends (18:00). The separate 20:00 evening review appears on the next
+# screen. Match either the device's 12-hour or 24-hour clock convention.
+- assertVisible: (?is).*After your session.*(18:00|6:00.*pm).*
+- tapOn: After your note
+- assertVisible: Why these times\?
+- assertVisible: (?is)Later that evening.*(20:00|8:00.*pm).*
+- tapOn: Your notes
+- assertVisible: Your notes
 - tapOn: See plans
 - extendedWaitUntil:
       visible: Annual.*
       timeout: 30000
-- assertVisible: Monthly.*
-- assertVisible: 2 weeks free
-- assertVisible: 1 week free
-- tapOn: Monthly
+- assertVisible: Annual\..*2 weeks free.*
+- scrollUntilVisible:
+      element: Monthly\..*1 week free.*
+      direction: DOWN
+      timeout: 10000
+- tapOn: Monthly\..*
 - assertVisible: Start your free trial
 - assertVisible: Restore purchases

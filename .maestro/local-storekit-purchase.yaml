@@ -20,15 +20,14 @@ name: Complete a local StoreKit onboarding purchase
       commands:
           - tapOn: Close
 - extendedWaitUntil:
-      visible: Keep therapy with you between sessions
+      visible: (Get more from your therapy sessions\.|What would help you get more from therapy\?)
       timeout: 30000
 - runFlow:
       when:
-      visible: What would help you get more from therapy\?
+          visible: What would help you get more from therapy\?
       commands:
-          - tapOn:
-                point: 8%, 8%
-- assertVisible: Keep therapy with you between sessions
+          - tapOn: Back
+- assertVisible: Get more from your therapy sessions\.
 - tapOn: Build my plan
 - tapOn: Put therapy insights into practice throughout the week
 - tapOn: Continue
@@ -46,7 +45,8 @@ name: Complete a local StoreKit onboarding purchase
 - tapOn: Every week
 - tapOn: Choose reminder times
 - tapOn: See my plan
-- tapOn: See the five-minute note
+- tapOn: After your note
+- tapOn: Your notes
 - tapOn: See plans
 - extendedWaitUntil:
       visible: Start your free trial

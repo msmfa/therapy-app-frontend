@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/react-native';
 import { BASE_URL } from '../constants/env';
 import { toError } from '../utils/errors';
+import { API_FAILURE_MESSAGE } from '../utils/telemetry';
 
 export type ApiErrorPayload = {
     message: string;
@@ -46,8 +47,17 @@ export const configureApiClient = (overrides: Partial<ApiClientConfig>) => {
 
 const captureApiException = (
     error: unknown,
-    metadata: { method: string; url: string; status?: number; payload?: ApiErrorPayload },
+    metadata: { method: string; url: string; status?: number },
 ): void => {
+    // Error messages can come directly from an HTTP body. Keep that error for
+    // the caller, but send only a generic diagnostic and its original frames.
+    const source = toError(error);
+    const diagnostic = new ApiError(metadata.status ?? 0, { message: API_FAILURE_MESSAGE });
+    if (source.stack) {
+        diagnostic.stack = source.message
+            ? source.stack.replace(source.message, API_FAILURE_MESSAGE)
+            : source.stack;
+    }
     Sentry.withScope((scope) => {
         scope.setTag('api.method', metadata.method);
         scope.setContext('api.request', {
@@ -68,7 +78,7 @@ const captureApiException = (
             metadata.url.split(/[?#]/, 1)[0],
         ];
         scope.setFingerprint(fingerprintParts);
-        Sentry.captureException(toError(error));
+        Sentry.captureException(diagnostic);
     });
 };
 
@@ -227,6 +237,7 @@ export async function apiRequest<T = unknown>(path: string, options: ApiRequestO
         });
     } catch (error) {
         clearTimeout(timeoutId);
+        assertCurrentSession();
 
         captureApiException(error, { url, method });
 
@@ -247,11 +258,13 @@ export async function apiRequest<T = unknown>(path: string, options: ApiRequestO
     }
 
     clearTimeout(timeoutId);
+    // Every response belongs to the session that sent it, including successful
+    // requests and writes with no body. Never deliver an old account's result.
+    assertCurrentSession();
 
     if (response.status === 401 && auth && retryOnAuthFailure) {
         // Never retry an old account's request with a new account's token, or
         // let an old refresh failure sign out the newly selected account.
-        assertCurrentSession();
         const refreshed = await ensureRefresh();
         assertCurrentSession();
         if (refreshed) {
@@ -264,6 +277,7 @@ export async function apiRequest<T = unknown>(path: string, options: ApiRequestO
 
     if (!response.ok) {
         const payload = await parseErrorPayload(response);
+        assertCurrentSession();
         const error = new ApiError(response.status, payload);
 
         if (response.status >= 500 || response.status === 429) {
@@ -271,7 +285,6 @@ export async function apiRequest<T = unknown>(path: string, options: ApiRequestO
                 url,
                 method,
                 status: response.status,
-                payload,
             });
         }
 
@@ -283,13 +296,16 @@ export async function apiRequest<T = unknown>(path: string, options: ApiRequestO
     }
 
     const contentType = response.headers.get('content-type') ?? '';
-    if (contentType.includes('application/json')) {
-        const payload: unknown = await response.json();
+    try {
+        const payload: unknown = contentType.includes('application/json')
+            ? await response.json()
+            : await response.text();
         return payload as T;
+    } finally {
+        // Reading a body can outlive fetch itself. Reject even if parsing
+        // fails after another account has replaced the request's owner.
+        assertCurrentSession();
     }
-
-    const text = await response.text();
-    return text as unknown as T;
 }
 
 export const apiGet = <T = unknown>(path: string, options?: Omit<ApiRequestOptions, 'method'>) =>

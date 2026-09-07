@@ -33,9 +33,9 @@ export type ReminderScheduleStatus = 'idle' | 'loading' | 'ready' | 'error';
  *
  * The schedule is computed once, by the same code that sends the pushes, so
  * the calendar can no longer disagree with the notifications the user gets.
- * That makes every read a network read, which is why it is cached: the answer
- * only changes when the user's sessions change, and a cold calendar should not
- * wait on a request to draw dots it already knows about.
+ * The cached answer gives a cold calendar an offline preview while the server
+ * confirms current preferences. Every mount/account fetches once; later reads
+ * can reuse a successfully persisted response while its inputs stay unchanged.
  *
  * The cache is revalidated when the sessions change, when the device zone
  * changes, on every return to the foreground, and at local midnight, since
@@ -62,10 +62,17 @@ export function useNeuroReminders(
     );
     // Guards against a slow response for a stale input overwriting a newer one.
     const requestIdRef = useRef(0);
+    // A disk cache cannot prove that a previous process persisted its clear.
+    // Always confirm it with the server once per mount/account; until then it
+    // is only a useful offline preview, and a failed fetch must remain retryable.
+    const validatedThisMountRef = useRef(false);
+    const hasFreshResponseRef = useRef(false);
     const ownerRef = useRef(accountKey);
     if (ownerRef.current !== accountKey) {
         ownerRef.current = accountKey;
         requestIdRef.current += 1;
+        validatedThisMountRef.current = false;
+        hasFreshResponseRef.current = false;
     }
     const setReminders = useCallback((update: SetStateAction<Reminder[]>) => {
         if (ownerRef.current !== accountKey) return;
@@ -95,7 +102,7 @@ export function useNeuroReminders(
 
         void (async () => {
             const cached = await readRemindersCache(accountKey);
-            if (cancelled || !cached || revision !== getRemindersCacheRevision(accountKey)) return;
+            if (cancelled || !cached || hasFreshResponseRef.current || revision !== getRemindersCacheRevision(accountKey)) return;
             // Never clobber a fresher answer that won the race.
             setReminders((current) => (current.length ? current : cached.reminders));
             onScheduleSettings?.({
@@ -103,7 +110,6 @@ export function useNeuroReminders(
                 morningReminderMinutes: cached.morningReminderMinutes,
                 eveningReminderMinutes: cached.eveningReminderMinutes,
             });
-            onScheduleStatus?.('ready');
         })();
 
         return () => {
@@ -121,7 +127,7 @@ export function useNeuroReminders(
         const cached = await readRemindersCache(accountKey);
         if (!isCurrent()) return;
 
-        if (isCacheUsable(cached, sessionsSignature, deviceTimeZone, getLocalDateKey())) {
+        if (validatedThisMountRef.current && isCacheUsable(cached, sessionsSignature, deviceTimeZone, getLocalDateKey())) {
             if (isCurrent()) {
                 setReminders(cached.reminders);
                 onScheduleSettings?.({
@@ -140,6 +146,7 @@ export function useNeuroReminders(
             const response = await getReminders();
             if (!isCurrent()) return;
 
+            hasFreshResponseRef.current = true;
             setReminders(response.reminders);
             onScheduleSettings?.({
                 timeZone: response.timeZone,
@@ -147,7 +154,7 @@ export function useNeuroReminders(
                 eveningReminderMinutes: response.eveningReminderMinutes,
             });
             onScheduleStatus?.('ready');
-            await writeRemindersCache({
+            const persisted = await writeRemindersCache({
                 reminders: response.reminders,
                 timeZone: response.timeZone,
                 morningReminderMinutes: response.morningReminderMinutes,
@@ -159,6 +166,9 @@ export function useNeuroReminders(
                 // revalidate immediately on the next render.
                 localDate: getLocalDateKey(),
             }, accountKey, revision);
+            // A successful fetch must not bless an older disk record if the
+            // fresh write failed. Keep fetching until storage catches up.
+            if (isCurrent()) validatedThisMountRef.current = persisted;
         } catch (err) {
             if (!isCurrent()) return;
             // Non-fatal. The calendar keeps whatever it last knew, and the next
@@ -175,6 +185,8 @@ export function useNeuroReminders(
     useEffect(() => {
         if (!isAuthenticated) {
             requestIdRef.current += 1;
+            validatedThisMountRef.current = false;
+            hasFreshResponseRef.current = false;
             setReminders([]);
             onScheduleSettings?.(null);
             onScheduleStatus?.('idle');

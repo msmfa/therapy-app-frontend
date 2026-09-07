@@ -104,12 +104,17 @@ export const writeRemindersCache = async (
     entry: CachedReminders,
     userId?: string,
     revision = getRemindersCacheRevision(userId),
-): Promise<void> => {
+): Promise<boolean> => {
+    let persisted = false;
     await enqueueWrite(cacheKeyFor(userId), async () => {
         if (revision !== getRemindersCacheRevision(userId)) return;
         await AsyncStorage.setItem(cacheKeyFor(userId), JSON.stringify(entry));
-        if (revision === getRemindersCacheRevision(userId)) invalidatedKeys.delete(cacheKeyFor(userId));
+        if (revision === getRemindersCacheRevision(userId)) {
+            invalidatedKeys.delete(cacheKeyFor(userId));
+            persisted = true;
+        }
     });
+    return persisted;
 };
 
 export const clearRemindersCache = async (userId?: string): Promise<void> => {
@@ -121,11 +126,11 @@ export const clearRemindersCache = async (userId?: string): Promise<void> => {
 };
 
 /**
- * Whether a cached schedule can still be shown without asking the server.
+ * Whether a previously validated cache entry still matches local inputs.
  *
- * Reminders only move when the sessions move, so the signature carries most of
- * the work. The day check is what stops a schedule going stale simply by
- * sitting still: reminders drop out of it as they pass.
+ * Preferences can change independently, so the hook also validates with the
+ * server on each cold mount and explicitly invalidates live settings edits.
+ * The day check expires reminders that have passed even when sessions stay put.
  */
 export const isCacheUsable = (
     cached: CachedReminders | null,

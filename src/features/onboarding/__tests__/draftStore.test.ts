@@ -127,6 +127,106 @@ describe('promoteAnonDraft', () => {
     it('returns null when there is nothing to carry over', async () => {
         await expect(promoteAnonDraft('user-a')).resolves.toBeNull();
     });
+
+    it('retains an owned recovery copy when the destination write fails, including after a restart', async () => {
+        const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+        const saved = draft({ goal: 'practise' });
+        await writeDraft(null, saved);
+        const nativeWrite = jest.mocked(SecureStore.setItemAsync).getMockImplementation()!;
+        jest.mocked(SecureStore.setItemAsync)
+            .mockImplementationOnce(nativeWrite) // Persist the source's owner.
+            .mockRejectedValueOnce(new Error('account write failed'));
+
+        await expect(promoteAnonDraft('user-a')).resolves.toEqual(saved);
+        expect(await readDraft('user-a')).toBeNull();
+        expect(await readDraft(null)).toBeNull();
+        expect(JSON.parse(store.get('onboarding.draft.v1.anon')!)).toMatchObject({
+            ...saved,
+            promotionUserId: 'user-a',
+        });
+
+        // Reload just the store code while keeping native keychain data.
+        let restarted!: typeof import('../draftStore');
+        jest.isolateModules(() => {
+            jest.doMock('expo-secure-store', () => SecureStore);
+            restarted = require('../draftStore');
+        });
+        await expect(restarted.promoteAnonDraft('user-b')).resolves.toBeNull();
+        expect(await restarted.readDraft('user-b')).toBeNull();
+        await expect(restarted.promoteAnonDraft('user-a')).resolves.toEqual(saved);
+        expect(await restarted.readDraft('user-a')).toEqual(saved);
+        expect(store.has('onboarding.draft.v1.anon')).toBe(false);
+        warn.mockRestore();
+    });
+
+    it('does not copy or delete the source when its ownership cannot be persisted', async () => {
+        await writeDraft(null, draft());
+        jest.mocked(SecureStore.setItemAsync).mockRejectedValueOnce(new Error('claim failed'));
+
+        await expect(promoteAnonDraft('user-a')).rejects.toThrow('claim failed');
+
+        expect(await readDraft(null)).toEqual(draft());
+        expect(await readDraft('user-a')).toBeNull();
+        expect(SecureStore.deleteItemAsync).not.toHaveBeenCalled();
+    });
+
+    it('serializes overlapping account promotions so only the first account claims the source', async () => {
+        await writeDraft(null, draft());
+        const nativeWrite = jest.mocked(SecureStore.setItemAsync).getMockImplementation()!;
+        let releaseClaim!: () => void;
+        const claimPending = new Promise<void>((resolve) => { releaseClaim = resolve; });
+        jest.mocked(SecureStore.setItemAsync).mockImplementationOnce(async (...args) => {
+            await claimPending;
+            await nativeWrite(...args);
+        });
+
+        const first = promoteAnonDraft('user-a');
+        const second = promoteAnonDraft('user-b');
+        releaseClaim();
+
+        await expect(first).resolves.toEqual(draft());
+        await expect(second).resolves.toBeNull();
+        expect(await readDraft('user-a')).toEqual(draft());
+        expect(await readDraft('user-b')).toBeNull();
+    });
+
+    it('does not overwrite an existing account draft when its keychain read fails', async () => {
+        await writeDraft('user-a', draft({ goal: 'prepare' }));
+        await writeDraft(null, draft({ goal: 'practise' }));
+        jest.mocked(SecureStore.getItemAsync).mockRejectedValueOnce(new Error('read failed'));
+
+        await expect(promoteAnonDraft('user-a')).rejects.toThrow('read failed');
+
+        expect((await readDraft('user-a'))?.goal).toBe('prepare');
+        expect((await readDraft(null))?.goal).toBe('practise');
+    });
+
+    it('keeps a failed anonymous deletion private when the account already has its own draft', async () => {
+        const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+        await writeDraft('user-a', draft({ goal: 'prepare' }));
+        await writeDraft(null, draft({ goal: 'practise' }));
+        jest.mocked(SecureStore.deleteItemAsync).mockRejectedValueOnce(new Error('delete failed'));
+
+        expect((await promoteAnonDraft('user-a'))?.goal).toBe('prepare');
+
+        expect(store.has('onboarding.draft.v1.anon')).toBe(true);
+        expect(await readDraft(null)).toBeNull();
+        expect(await promoteAnonDraft('user-b')).toBeNull();
+        expect(await readDraft('user-b')).toBeNull();
+        warn.mockRestore();
+    });
+
+    it('restores the account draft even when the anonymous key cannot be read', async () => {
+        await writeDraft('user-a', draft({ goal: 'prepare' }));
+        await writeDraft(null, draft({ goal: 'practise' }));
+        const nativeRead = jest.mocked(SecureStore.getItemAsync).getMockImplementation()!;
+        jest.mocked(SecureStore.getItemAsync)
+            .mockImplementationOnce(nativeRead)
+            .mockRejectedValueOnce(new Error('anonymous read failed'));
+
+        expect((await promoteAnonDraft('user-a'))?.goal).toBe('prepare');
+        expect(SecureStore.deleteItemAsync).not.toHaveBeenCalled();
+    });
 });
 
 describe('parseDraft', () => {

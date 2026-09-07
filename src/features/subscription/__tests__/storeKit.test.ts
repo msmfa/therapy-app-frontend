@@ -420,8 +420,32 @@ describe('real StoreKit bridge', () => {
         });
     });
 
-    it('keeps verified local access during a temporary server outage', async () => {
-        const { getEntitlement, PRODUCT_IDS } = loadStoreKit();
+    it.each([0, 408, 429, 503])(
+        'does not grant or restore an inactive account after verification fails with status %i',
+        async (status) => {
+            const { getEntitlement, restore, PRODUCT_IDS } = loadStoreKit();
+            mockGetActiveSubscriptions.mockResolvedValue([
+                {
+                    ...activeSubscription(PRODUCT_IDS.monthly),
+                    purchaseToken: 'other.account.receipt',
+                },
+            ]);
+            mockVerifySubscriptionTransaction.mockRejectedValue(
+                new ApiError(status, { message: 'Verification temporarily unavailable' }),
+            );
+            mockGetServerEntitlement.mockResolvedValue({ status: 'inactive' });
+
+            await expect(getEntitlement({ syncWithServer: true })).resolves.toEqual({
+                status: 'inactive',
+            });
+            await expect(restore({ syncWithServer: true })).resolves.toEqual({
+                status: 'no_entitlement',
+            });
+        },
+    );
+
+    it('keeps verified local access and restore during a temporary server outage', async () => {
+        const { getEntitlement, restore, PRODUCT_IDS } = loadStoreKit();
         mockGetActiveSubscriptions.mockResolvedValue([
             {
                 ...activeSubscription(PRODUCT_IDS.monthly),
@@ -438,6 +462,9 @@ describe('real StoreKit bridge', () => {
         await expect(getEntitlement({ syncWithServer: true })).resolves.toMatchObject({
             status: 'active',
             plan: 'monthly',
+        });
+        await expect(restore({ syncWithServer: true })).resolves.toEqual({
+            status: 'restored',
         });
     });
 

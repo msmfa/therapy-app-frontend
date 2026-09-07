@@ -106,6 +106,21 @@ describe('noteReviewProgress', () => {
         expect(result.completed).toBe(0);
     });
 
+    it('requires a matching gap for a legacy prompted review without an occurrence timestamp', () => {
+        const result = progress([review('2024-01-02', 1)], '2024-01-03T09:00:00.000Z');
+
+        expect(result.completed).toBe(0);
+    });
+
+    it('keeps timestamped reviews answered when a rolling session list changes their gap index', () => {
+        const result = progress([
+            { ...review('2024-01-02', 1), occurrenceAtUtc: '2024-01-02T07:00:00.000Z' },
+        ], '2024-01-03T09:00:00.000Z');
+
+        expect(result.gapIndex).toBe(0);
+        expect(result.segments[1].status).toBe('done');
+    });
+
     it('ignores reviews belonging to another note', () => {
         const other: NoteReview = { ...review('2024-01-01'), noteId: 'note-2' };
         const result = progress([other], '2024-01-02T08:00:00.000Z');
