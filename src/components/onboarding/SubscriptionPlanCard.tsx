@@ -2,12 +2,23 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import AppText from '../ui/AppText';
-import { ACTION_ORANGE, COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
+import {
+    ACCENT_INK_BRIGHT,
+    ACCENT_INK_BRIGHTEST,
+    ACCENT_MARK,
+    BRAND_ORANGE,
+    COLOR_VARIANTS,
+    GREEN_PANEL,
+    PALETTE,
+    TEXT_COLORS,
+} from 'designs/designs-colors';
 import { onboardingStyles } from './onboardingStyles';
+import { SUBSCRIPTION_COPY } from '../../features/onboarding/onboardingCopy';
 
 type Props = {
     title: string;
-    badge: string;
+    /** Omitted where a plan has nothing to claim over the other. */
+    badge?: string;
     /** One line under the title saying what the plan is. */
     description?: string;
     /** The trial's three moments, shown only on the featured, trial-bearing card. */
@@ -52,43 +63,54 @@ export function SubscriptionPlanCard({
             style={ [onboardingStyles.card, styles.card, selected && styles.cardSelected] }
         >
             <View style={ styles.headerRow }>
+                { /* The tick lives in the radio rather than off at the end of
+                     the row: one mark saying chosen, on the control that does
+                     the choosing. */ }
                 <View style={ [styles.radio, selected && styles.radioSelected] }>
-                    { selected && <View style={ styles.radioDot } /> }
+                    { selected && <Feather name="check" size={ 13 } color={ BRAND_ORANGE } /> }
                 </View>
 
-                <AppText variant="h2" style={ [onboardingStyles.title, styles.title] }>
+                <AppText
+                    variant="h2"
+                    style={ [onboardingStyles.title, styles.title, selected && styles.titleSelected] }
+                >
                     { title }
                 </AppText>
 
                 <View style={ styles.badges }>
                     { trialBadge !== undefined && (
-                        <View style={ [styles.badge, styles.trialBadge] }>
-                            <AppText variant="caption" style={ styles.trialBadgeText }>
+                        <View style={ [styles.badge, selected ? styles.trialBadgeSelected : styles.trialBadge] }>
+                            <AppText
+                                variant="caption"
+                                style={ selected ? styles.trialBadgeSelectedText : styles.trialBadgeText }
+                            >
                                 { trialBadge }
                             </AppText>
                         </View>
                     ) }
-                    <View style={ styles.badge }>
-                        <AppText variant="caption" style={ styles.badgeText }>
-                            { badge }
-                        </AppText>
-                    </View>
-                </View>
-
-                <View style={ styles.check }>
-                    { selected && (
-                        <Feather name="check" size={ 18 } color={ TEXT_COLORS.primary } />
+                    { badge !== undefined && (
+                        <View style={ [styles.badge, selected && styles.badgeSelected] }>
+                            <AppText variant="caption" style={ [styles.badgeText, selected && styles.onAccentSoftest] }>
+                                { badge }
+                            </AppText>
+                        </View>
                     ) }
                 </View>
+
+                { /* The slot stays, empty: the tick has moved into the radio.
+                     Its width comes off the header either way, so dropping it
+                     on the chosen card alone would set the two plans in
+                     different measures. */ }
+                <View style={ styles.check } />
             </View>
 
             { description !== undefined && (
-                <AppText variant="body" style={ styles.description }>
+                <AppText variant="body" style={ [styles.description, selected && styles.onAccent] }>
                     { description }
                 </AppText>
             ) }
 
-            <AppText variant="h3" style={ styles.price }>
+            <AppText variant="h3" style={ [styles.price, selected && styles.onAccent] }>
                 { priceLine }
             </AppText>
 
@@ -96,10 +118,14 @@ export function SubscriptionPlanCard({
                 <View style={ styles.timeline }>
                     { timeline.map((step) => (
                         <View key={ step.text } style={ styles.timelineRow }>
-                            <View style={ styles.timelineIcon }>
-                                <Feather name={ step.icon } size={ 14 } color={ TEXT_COLORS.primary } />
+                            <View style={ [styles.timelineIcon, selected && styles.timelineIconSelected] }>
+                                <Feather
+                                    name={ step.icon }
+                                    size={ 14 }
+                                    color={ selected ? ACCENT_INK_BRIGHTEST : TEXT_COLORS.primary }
+                                />
                             </View>
-                            <AppText variant="body" style={ styles.timelineText }>
+                            <AppText variant="body" style={ [styles.timelineText, selected && styles.onAccentSoftest] }>
                                 { step.text }
                             </AppText>
                         </View>
@@ -108,13 +134,16 @@ export function SubscriptionPlanCard({
             ) }
 
             { secondaryLine !== undefined && (
-                <AppText variant="caption" style={ styles.secondary }>
+                <AppText variant="caption" style={ [styles.secondary, selected && styles.onAccent] }>
                     { secondaryLine }
                 </AppText>
             ) }
 
-            <AppText variant="caption" style={ styles.renewal }>
-                { renewalLine }
+            { /* The renewal terms and the way out of them, together. Adrift
+                 under the button, "Cancel anytime" was a reassurance about a
+                 sentence the reader had already passed. */ }
+            <AppText variant="caption" style={ [styles.renewal, selected && styles.onAccentSoftest] }>
+                { `${renewalLine} ${SUBSCRIPTION_COPY.cancelAnytime}.` }
             </AppText>
         </TouchableOpacity>
     );
@@ -140,7 +169,11 @@ const styles = StyleSheet.create({
         borderRadius: 13,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'hsla(21, 75%, 54%, 0.12)',
+    },
+    // The disc only earns its place on the orange, where it separates the icon
+    // from the fill. On the white card it was a tint round three small marks.
+    timelineIconSelected: {
+        backgroundColor: 'hsla(21, 75%, 54%, 0.20)',
     },
     timelineText: {
         flex: 1,
@@ -152,9 +185,13 @@ const styles = StyleSheet.create({
         paddingVertical: 20,
         minHeight: 44,
     },
+    // The same chosen state as the questions' own options: one way of showing a
+    // selection across the flow, whether the choice is a goal or a plan.
     cardSelected: {
-        backgroundColor: COLOR_VARIANTS.white.primary,
-        borderColor: ACTION_ORANGE,
+        backgroundColor: BRAND_ORANGE,
+        // A light edge, not a dark one: a deeper orange round a chosen card
+        // read as a shadow rather than as the card's own outline.
+        borderColor: ACCENT_MARK,
     },
     headerRow: {
         flexDirection: 'row',
@@ -172,14 +209,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    // The questions' own radio, filled rather than ringed.
     radioSelected: {
-        borderColor: ACTION_ORANGE,
-    },
-    radioDot: {
-        width: 12,
-        height: 12,
-        borderRadius: 6,
-        backgroundColor: ACTION_ORANGE,
+        borderColor: 'transparent',
+        backgroundColor: ACCENT_MARK,
     },
     // Keep this space when unselected so choosing a plan cannot wrap the
     // header onto another line and change the card's height.
@@ -192,6 +225,26 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 18,
+    },
+    titleSelected: {
+        color: ACCENT_INK_BRIGHT,
+    },
+    /**
+     * Every line inside a chosen card, which is a solid orange section: the
+     * greys the card uses on white are close to unreadable on it, and the
+     * hierarchy between them was never carrying much anyway.
+     */
+    onAccent: {
+        color: ACCENT_INK_BRIGHT,
+    },
+    onAccentSoftest: {
+        color: ACCENT_INK_BRIGHTEST,
+    },
+    /** The plain badge, as an outline rather than a grey pill on the orange. */
+    badgeSelected: {
+        backgroundColor: 'transparent',
+        borderWidth: 1,
+        borderColor: ACCENT_INK_BRIGHTEST,
     },
     badges: {
         flexDirection: 'row',
@@ -209,12 +262,30 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: TEXT_COLORS.secondary,
     },
+    // Free time is the good news on the card, so it is the app's green rather
+    // than another grey pill: a pale fill inside a border, with an ink darker
+    // than both so it reads at 14pt.
     trialBadge: {
-        backgroundColor: 'hsla(21, 75%, 54%, 0.12)',
+        backgroundColor: GREEN_PANEL.background,
+        borderWidth: 1,
+        borderColor: GREEN_PANEL.border,
     },
     trialBadgeText: {
         fontSize: 14,
-        color: TEXT_COLORS.primary,
+        color: GREEN_PANEL.text,
+    },
+    // On a chosen card the green pill sat on orange and turned muddy. Black
+    // holds against the fill, and the type inside it steps down to grey.
+    trialBadgeSelected: {
+        backgroundColor: PALETTE.neutral.black,
+        borderWidth: 0,
+        // Roomier than the plain badges beside it: the trial is the one thing
+        // on the card worth stopping on.
+        paddingHorizontal: 16,
+    },
+    trialBadgeSelectedText: {
+        fontSize: 14,
+        color: COLOR_VARIANTS.white.secondary,
     },
     price: {
         marginTop: 12,

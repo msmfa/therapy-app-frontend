@@ -22,6 +22,7 @@ import { readNotificationPermission, requestNotificationPermission } from '../sr
 import { ensurePushRegistration } from '../src/services/notifications/pushRegistration';
 import { dateToMinutes, minutesToDate, timeLabel } from '../src/features/onboarding/formatting';
 import { COLOR_VARIANTS, PALETTE, TEXT_COLORS } from '../designs/designs-colors';
+import { GlassPickerPanel } from '../src/components/ui/GlassPickerPanel';
 
 type Slot = 'morning' | 'evening';
 type NotificationStatus = 'checking' | 'on' | 'off';
@@ -177,6 +178,8 @@ export default function ReminderSettingsScreen() {
                                             { row.hint }
                                         </AppText>
                                     </View>
+                                    { /* Apple's compact control, left as it
+                                         comes: see reminder-times. */ }
                                     { Platform.OS === 'ios' ? (
                                         <DateTimePicker
                                             value={ value }
@@ -210,20 +213,25 @@ export default function ReminderSettingsScreen() {
             </FrostedCard>
 
             { androidSlot !== null && (
-                <DateTimePicker
-                    value={ minutesToDate(
-                        androidSlot === 'morning' ? morningMinutes : eveningMinutes,
-                    ) }
-                    mode="time"
-                    display="default"
-                    onChange={ change(androidSlot) }
-                />
+                <GlassPickerPanel style={ styles.androidPicker }>
+                    <DateTimePicker
+                        value={ minutesToDate(
+                            androidSlot === 'morning' ? morningMinutes : eveningMinutes,
+                        ) }
+                        mode="time"
+                        display="default"
+                        onChange={ change(androidSlot) }
+                    />
+                </GlassPickerPanel>
             ) }
         </SettingsPageShell>
     );
 }
 
 const styles = StyleSheet.create({
+    androidPicker: {
+        marginTop: 16,
+    },
     card: {
         paddingHorizontal: 16,
         paddingVertical: 20,

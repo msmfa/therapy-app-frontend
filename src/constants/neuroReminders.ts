@@ -14,6 +14,15 @@ interface ReminderScienceSource {
 
 interface ReminderScienceCopy {
     title: string;
+    /**
+     * The whole write-up in plain language, for a reader who opened this to
+     * find out whether the reminder is worth having rather than to read the
+     * literature. Shown above the body; no citations, no terms of art.
+     *
+     * Taken from plastic-brains.com/research-based-intervals, so the app and
+     * the website explain the schedule in the same words.
+     */
+    tldr: string;
     body: string[];
     sources: ReminderScienceSource[];
 }
@@ -50,6 +59,7 @@ export const NEURO_REMINDER_COPY: Record<Reason, NeuroReminderCopy> = {
 export const REMINDER_SCIENCE_COPY: Record<ReminderType, ReminderScienceCopy> = {
     [ReminderType.EarlyConsolidation]: {
         title: 'Early Consolidation',
+        tldr: 'A memory is not stored all at once: your brain carries on stabilising it after the session has ended. So the first reminder comes the evening of your session, while the notes you took that day are still fresh in your mind.',
         body: [
             'In the first few hours after learning something new, your brain enters the early phase of memory formation, where proteins activate and synaptic connections begin to strengthen.[1] This is a critical window.',
             "That strengthening does not arrive all at once. Tracking it directly, researchers found it comes in waves: one in the hippocampus straight after learning, a second during that night's sleep, and a third the following night in the cortex, each doing a different job.[1] Reviewing your notes the same evening falls between the first wave and the second.",
@@ -73,6 +83,7 @@ export const REMINDER_SCIENCE_COPY: Record<ReminderType, ReminderScienceCopy> = 
     },
     [ReminderType.SleepDependentConsolidation]: {
         title: 'Sleep-Dependent Consolidation',
+        tldr: 'Sleep actively supports the way new memories are processed and organised, and sleep after learning is linked with stronger storage of what was learned. That is why the next reminder arrives the following morning.',
         body: [
             'Sleep is when your brain does heavy memory work. During slow wave sleep it replays the neural patterns from your daily activities (which in our case includes a therapy session) and shifts them from temporary storage in the hippocampus toward longer term cortical networks.[1, 6]',
             'You can picture it as your brain organizing files overnight. The hippocampus reactivates memories alongside sharp wave ripples and sleep spindles that help move information into long term storage.[2]',
@@ -108,6 +119,7 @@ export const REMINDER_SCIENCE_COPY: Record<ReminderType, ReminderScienceCopy> = 
     },
     [ReminderType.SpacedReactivation]: {
         title: 'Spaced Reactivation',
+        tldr: 'Reviews are more useful when they are separated by time instead of grouped together: people remember more after spaced repetitions than after immediate ones. So reminders are spread across the gap between your sessions.',
         body: [
             'When you reactivate a memory after a delay it briefly opens up for modification before it settles again.[2] That reconsolidation window is why spaced follow ups are more potent than cramming everything at once.[1]',
             'Decades of research on the spacing effect show that repetitions spread over time build much stronger memories than massed practice.[1, 2, 3] Strategic reactivation engages different mechanisms than immediate repetition and triggers reconsolidation that strengthens the trace.[2]',
@@ -140,6 +152,7 @@ export const REMINDER_SCIENCE_COPY: Record<ReminderType, ReminderScienceCopy> = 
     },
     [ReminderType.StateReinstatement]: {
         title: 'State Reinstatement',
+        tldr: 'The cues around a memory affect how easily it comes back, and returning to part of the original context supports recall. Reviewing your note before therapy acts as a cue for the previous conversation, helping you arrive ready to continue it.',
         body: [
             'Memory is easier to reach when the state you are in matches the state you were in when you formed it. A meta-analysis of the environmental version of this found the effect reliable across studies,[1] and work on internal brain state shows the same pattern: retrieval succeeds best when the state at recall matches the state at encoding.[3]',
             "You cannot go back and sit in last week's session, but you do not have to. In that same meta-analysis, mentally reinstating the context at the point of recall reduced the penalty for being somewhere different.[1] Reading your notes the night before does that job: it puts you back in the session without the room.",

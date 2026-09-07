@@ -15,8 +15,9 @@ import type {
 export const ONBOARDING_QUESTION_COUNT = 4;
 
 export const WELCOME_COPY = {
-    headline: 'Get more from your therapy sessions.',
-    body: 'A therapy journal that helps you remember what came up and prepare for your next session.',
+    // The screen's whole text. One display line rather than a heading over a
+    // sentence: what the app is, said once, with nothing to read past it.
+    headline: 'A therapy journal that reminds you to review your therapy notes',
     primaryCta: 'Build my plan',
     secondaryCta: 'I already have an account',
 } as const;
@@ -28,23 +29,50 @@ export type GoalOption = {
     label: string;
     /** The Subscription headline this goal leads to. */
     subscriptionHeadline: string;
+    /**
+     * The same goal in the second person, for screens that say it back.
+     *
+     * The option itself is worded as the user choosing it - "my next session" -
+     * which is right on the question and wrong everywhere the app repeats the
+     * answer to them.
+     */
+    restated: string;
+    /**
+     * Two lines on the notes screen saying what the notes do for this goal.
+     * Two, not more: the card sits above the artwork it is describing, and
+     * every extra line pushes that artwork off the screen.
+     *
+     * The screen shows the goal back as a heading, so this is the part that
+     * has to earn it: what the notes and their reviews actually do for the
+     * thing the user said they wanted.
+     */
+    noteSupport: string;
 };
 
 export const GOAL_OPTIONS: GoalOption[] = [
     {
         id: 'practise',
-        label: 'Put therapy insights into practice throughout the week',
+        label: 'Put therapy insights into practice',
         subscriptionHeadline: 'Put therapy insights into practice',
+        restated: 'Put therapy insights into practice',
+        noteSupport:
+            'Notifications between sessions help you put into practice what you discussed in your last session.',
     },
     {
         id: 'prepare',
         label: 'Be better prepared for my next session',
         subscriptionHeadline: 'Feel prepared for your next session',
+        restated: 'Be better prepared for your next session',
+        noteSupport:
+            "The evening before your next session you'll be notified to review your last note.",
     },
     {
         id: 'habit',
         label: 'Track my progress over time',
         subscriptionHeadline: 'Track your progress over time',
+        restated: 'Track your progress over time',
+        noteSupport:
+            "Reflect on your logged notes from weeks and months ago to see which areas you're improving in.",
     },
 ];
 
@@ -86,22 +114,22 @@ export const CADENCE_OPTIONS: CadenceOption[] = [
 
 export const CADENCE_COPY = {
     headline: 'How often are your sessions?',
-    supporting: 'This helps us space reviews across the real gap between sessions.',
+    supporting: 'This allows us to tell the best times to send you your reminders.',
     primaryCta: 'Choose reminder times',
 } as const;
 
 export const REMINDER_TIMES_COPY = {
     headline: 'Choose times that fit your routine',
     supporting:
-		"We'll choose the useful days between sessions. You choose when morning and evening reviews feel manageable. You can update these in Settings at any time.",
+		"Pick a time in the morning and evening that suits your schedule. You'll only receive one morning reminder a week, after your session.",
     morningLabel: 'Morning reviews',
     morningHint: 'For revisiting a note after sleep',
     eveningLabel: 'Evening reviews',
     eveningHint: 'For returning to it later in the week',
     testimonial: {
-        quote: "I like that the app keeps me accountable for reviewing my notes weekly. Makes me feel like I'm actually doing the work when I look back and see my week full of green bars.",
-        name: 'Mark',
-        role: 'Plastic Brains user',
+        quote: 'I like the reminder before my next session. I used to find it hard to think about what to talk about then I’d leave the session and finally remember things I wanted to bring up. With the pre-session reminder I just pick up from where I left off the week before.',
+        name: 'Sarah',
+        role: 'Plastic Brains User',
     },
     primaryCta: 'See my plan',
 } as const;
@@ -113,19 +141,65 @@ export const PLAN_COPY = {
     sampleVariableBody:
         "This example uses a one-week gap to show how reminders work. Add your booked sessions later and we'll use the real gap between them.",
     evidenceStatement:
-        'The timing draws on research into memory consolidation, sleep, spaced retrieval and context reinstatement.',
+        'These times come from research into memory consolidation, sleep, spaced retrieval and context reinstatement.',
     primaryCta: 'After your note',
 } as const;
 
 export const REVIEWS_PREVIEW_COPY = {
-    headline: 'Why these times?',
+    headline: 'Your Custom Reminders',
+    /**
+     * Reviews live inside the gap between two sessions, so a schedule that
+     * varies, or one we have not been told about yet, produces no dated reviews
+     * at all. The screen shows a one-week example rather than nothing, and says
+     * plainly that the dates are not yet the user's own.
+     */
+    exampleGapNote:
+        "These dates use a one-week gap as an example. Once we know when your following session is, your reviews will move to the real gap between them.",
+    sampleNote:
+        "These dates come from the example session in your sample plan. Add your next session later and we'll replace them with your real schedule.",
     primaryCta: 'Your notes',
 } as const;
 
 export const planHeadline = (): string => 'Your custom plan';
 
+/**
+ * Each goal as the end of the sentence "what you told us matters most: ...".
+ *
+ * `remember` is not one of the three options offered any more, but a draft
+ * saved before it was dropped still carries it, so it keeps its line.
+ */
+const GOAL_PRIORITY: Record<GoalId, string> = {
+    remember: 'remembering what came up in your sessions',
+    practise: 'putting what comes up in therapy into practice through the week',
+    prepare: 'walking into your next session feeling prepared',
+    habit: 'seeing your progress build up over time',
+};
+
+/**
+ * Why the reviews land where they do.
+ *
+ * Two reasons, and the screen owes the user both: the research the schedule is
+ * built on, and the answer they gave about what they wanted out of it. Without
+ * the second the times read as the same plan everybody gets. The goal is the
+ * one answer that shifts what the reviews are for, so it is the one named.
+ */
+export const evidenceStatement = (goal: GoalId | null): string =>
+    goal === null
+        ? PLAN_COPY.evidenceStatement
+        : `${PLAN_COPY.evidenceStatement} They are also shaped by what you told us matters most: ${GOAL_PRIORITY[goal]}.`;
+
 export const samplePlanBody = (cadence: CadenceId | null): string =>
     cadence === 'varies' ? PLAN_COPY.sampleVariableBody : PLAN_COPY.sampleBody;
+
+/**
+ * The goal the user chose, said back to them with what the notes do for it.
+ *
+ * The notes screen shows this rather than a list of every answer: the goal is
+ * the one answer that says why they are here, and reading three of their own
+ * answers back was a receipt rather than a reason.
+ */
+export const goalSupport = (goal: GoalId | null): GoalOption | null =>
+    GOAL_OPTIONS.find((option) => option.id === goal) ?? null;
 
 export const NOTE_PREVIEW_COPY = {
     headline: 'Your notes',
@@ -244,14 +318,14 @@ export const trialEndLine = (plan: PlanId, price: string): string =>
     `Your ${plan} subscription begins at ${price} per ${planBillingPeriod(plan)} unless cancelled.`;
 
 export const ACCOUNT_COPY = {
-    headline: 'Save your between-session plan',
+    // The screen's name, shown beside the back arrow. What the step is for is
+    // said in the body underneath, which is where a sentence belongs.
+    headline: 'Account',
     body: 'Create an account to connect your schedule, reminder times and subscription. Your note contents still stay only on this iPhone.',
-    authenticatedHeadline: 'Continue with your account',
     authenticatedBody: 'Your schedule, reminder times and subscription will be connected to your account. Your note contents still stay only on this iPhone.',
     continue: 'Continue',
     apple: 'Continue with Apple',
     email: 'Continue with email',
-    existing: 'Already have an account? Sign in',
     legalPrefix: 'By continuing, you agree to the ',
     legalTerms: 'Terms of Service',
     legalMiddle: ' and acknowledge the ',

@@ -12,6 +12,13 @@ export type PlanTimelineEntry = {
     id: 'log_note' | 'post_session' | 'post_sleep' | 'mid_session' | 'pre_session';
     label: string;
     body: string;
+    /**
+     * A phrase inside `body` to set in italics, verbatim. The name of the note
+     * template is the one thing in these paragraphs that is a thing rather than
+     * a description of one, and italics is how the flow marks that without
+     * turning it into a link.
+     */
+    bodyEmphasis?: string;
     /** Opens the evidence specific to this reminder rather than a generic page. */
     researchTarget: ReminderType | null;
     /** The first occurrence. What callers needing a single instant should read. */
@@ -25,6 +32,9 @@ export type PlanTimelineEntry = {
 	 */
     occurrences: Date[];
 };
+
+/** The note template, as it is named to the user. Set in italics wherever it appears. */
+const NOTE_TEMPLATE_NAME = '5 minute, 5 questions template';
 
 const atMinutes = (day: dayjs.Dayjs, minutes: number): dayjs.Dayjs =>
     day.startOf('day').add(minutes, 'minute');
@@ -116,8 +126,12 @@ export function planTimeline({
     const entries: PlanTimelineEntry[] = [
         {
             id: 'log_note',
-            label: 'After your session',
-            body: `We will send you a notification just after your session on ${session.format('dddd')} to remind you to take a note on what you discussed during your session. If you're not sure where to start we have a 5 minute, 5 questions template that makes it easy.`,
+            // Named by the day it falls on, like every other row: "after your
+            // session" is what the whole screen is about, so on its own it said
+            // nothing the heading had not already said.
+            label: `After your ${session.format('dddd')} session`,
+            body: `We will send you a notification just after your session on ${session.format('dddd')} to remind you to take a note on what you discussed. If you're not sure where to start we have a ${NOTE_TEMPLATE_NAME} that makes it easy.`,
+            bodyEmphasis: NOTE_TEMPLATE_NAME,
             researchTarget: null,
             at: logNoteAt.toDate(),
             occurrences: [logNoteAt.toDate()],
@@ -127,7 +141,9 @@ export function planTimeline({
     if (postSession !== null && nextSession !== null) {
         entries.push({
             id: 'post_session',
-            label: 'Later that evening',
+            // Named by its day, like the row above it: "later that evening"
+            // relied on the reader still holding the session's day in mind.
+            label: `Later that ${session.format('dddd')} evening`,
             body: 'Return to your note while the session is still fresh.',
             researchTarget: ReminderType.EarlyConsolidation,
             at: postSession.toDate(),
@@ -138,8 +154,8 @@ export function planTimeline({
     if (postSleep !== null && nextSession !== null && postSleep.isBefore(nextSession)) {
         entries.push({
             id: 'post_sleep',
-            label: 'The next morning',
-            body: "Revisit it after a night's sleep.",
+            label: `${postSleep.format('dddd')} morning`,
+            body: 'Revisit what you discussed in your session the day before.',
             researchTarget: ReminderType.SleepDependentConsolidation,
             at: postSleep.toDate(),
             occurrences: [postSleep.toDate()],
@@ -155,7 +171,7 @@ export function planTimeline({
         entries.push({
             id: 'mid_session',
             label: 'Between sessions',
-            body: 'Keep important ideas within reach with spaced reviews.',
+            body: 'A short reminder to read your note again during the week, so what you talked about does not fade before your next session.',
             researchTarget: ReminderType.SpacedReactivation,
             at: dates[0],
             occurrences: dates,
@@ -166,15 +182,17 @@ export function planTimeline({
     // schedule that varies there is no known appointment to prepare for, and
     // showing one would claim a booking the user never made.
     if (nextSession !== null) {
-        const preSessionAt = atMinutes(
+        const preSessionDate = atMinutes(
             dayjs(nextSession).subtract(1, 'day'),
             eveningMinutes,
-        ).toDate();
+        );
+        const preSessionAt = preSessionDate.toDate();
 
         entries.push({
             id: 'pre_session',
-            label: 'Before your next session',
-            body: 'Choose the thread you want to bring back.',
+            // Named by its day, like every other row on the screen.
+            label: `${preSessionDate.format('dddd')} evening`,
+            body: 'One last look at your note the evening before, so you arrive knowing what you want to continue from your last session.',
             researchTarget: ReminderType.StateReinstatement,
             at: preSessionAt,
             occurrences: [preSessionAt],

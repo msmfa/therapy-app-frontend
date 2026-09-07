@@ -18,7 +18,7 @@ describe('goal copy', () => {
 	it('asks one clear outcome question and offers the three intended choices', () => {
 		expect(GOAL_COPY.headline).toBe('What would help you get more from therapy?');
 		expect(GOAL_OPTIONS.map(({ label }) => label)).toEqual([
-			'Put therapy insights into practice throughout the week',
+			'Put therapy insights into practice',
 			'Be better prepared for my next session',
 			'Track my progress over time',
 		]);

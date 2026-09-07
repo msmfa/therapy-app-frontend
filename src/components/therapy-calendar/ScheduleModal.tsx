@@ -11,6 +11,7 @@ dayjs.extend(advancedFormat);
 
 import RadioButton from '../ui/RadioButton';
 import { GlassPillButton } from '../ui/GlassPillButton';
+import { GlassPickerPanel } from '../ui/GlassPickerPanel';
 import AppText from '../ui/AppText';
 import { ACTION_ORANGE, CALENDAR_COLORS, COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
 
@@ -121,7 +122,7 @@ export default function ScheduleModal({
                         ) }
                         <View style={ styles.datePicker }>
                             { Platform.OS === 'ios' ? (
-                                <View style={ styles.iosPickerWrapper }>
+                                <GlassPickerPanel style={ styles.iosPickerWrapper }>
                                     <DateTimePicker
                                         value={ time }
                                         mode="time"
@@ -131,7 +132,7 @@ export default function ScheduleModal({
                                         themeVariant="light"
                                         style={ styles.iosPicker }
                                     />
-                                </View>
+                                </GlassPickerPanel>
                             ) : (
                                 <>
                                     <TouchableOpacity style={ styles.timeButton } onPress={ () => setShowPicker(true) }>
@@ -141,13 +142,15 @@ export default function ScheduleModal({
                                         </AppText>
                                     </TouchableOpacity>
                                     { showPicker && (
-                                        <DateTimePicker
-                                            value={ time }
-                                            mode="time"
-                                            display="default"
-                                            onChange={ handleTimeChange }
-                                            themeVariant="light"
-                                        />
+                                        <GlassPickerPanel style={ styles.androidPicker }>
+                                            <DateTimePicker
+                                                value={ time }
+                                                mode="time"
+                                                display="default"
+                                                onChange={ handleTimeChange }
+                                                themeVariant="light"
+                                            />
+                                        </GlassPickerPanel>
                                     ) }
                                 </>
                             ) }
@@ -229,6 +232,9 @@ export default function ScheduleModal({
 }
 
 const styles = StyleSheet.create({
+    androidPicker: {
+        marginTop: 12,
+    },
     // Shrinks to the date's width so the rule under it matches the text.
     selectedDayBlock: {
         left: 20,
@@ -331,10 +337,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
 
     },
+    // The panel supplies the blur, the border and the rounding; this is the
+    // room the wheel needs inside it.
     iosPickerWrapper: {
-        // backgroundColor: 'hsl(220, 40%, 97%)',
-        borderRadius: 18,
-        overflow: 'hidden',
         paddingVertical: 12,
         paddingHorizontal: 10,
     },

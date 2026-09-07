@@ -1,32 +1,27 @@
 import { useMemo } from 'react';
-import { Image, StyleSheet, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import { Image, StyleSheet, View, useWindowDimensions } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Feather } from '@expo/vector-icons';
 import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
-import AppText from '../../src/components/ui/AppText';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import { PlanTimeline } from '../../src/components/onboarding/PlanTimeline';
 import {
-    NOTE_PREVIEW_COPY,
     PLAN_COPY,
     planHeadline,
     samplePlanBody,
 } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { planTimeline } from '../../src/features/onboarding/planTimeline';
-import { TEXT_COLORS } from 'designs/designs-colors';
 import { sampleSessionAt } from '../../src/features/onboarding/samplePlan';
 
 export default function PlanPreviewScreen() {
     const router = useRouter();
     const { answers } = useOnboardingAnswers();
-    const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+    const { width: screenWidth } = useWindowDimensions();
 
     // Plain numbers: a percentage width plus an aspect ratio leaves an Image
     // unconstrained on the new architecture and it renders at intrinsic size.
     const imageWidth = screenWidth;
-    const imageTop = Math.round(screenHeight * IMAGE_TOP_FRACTION);
     const imageHeight = Math.round(imageWidth / IMAGE_ASPECT);
 
     const isSamplePlan = answers.sessionAt === null && answers.sessionDateSkipped;
@@ -62,50 +57,53 @@ export default function PlanPreviewScreen() {
             supporting={ isSamplePlan ? samplePlanBody(answers.cadence) : undefined }
             // The note itself, as a background image behind the content,
             // tilted a little so it reads as a sheet lying on the surface.
-            bottomBackdrop={
+            bottomBackdrop={ (contentBottom) => (
                 <Image
                     source={ require('../../assets/illustrations/note-cheatsheet-preview.png') as ImageSourcePropType }
-                    style={ [styles.sheetImage, { width: imageWidth, height: imageHeight, marginTop: imageTop }] }
+                    style={ [
+                        styles.sheetImage,
+                        {
+                            width: imageWidth,
+                            height: imageHeight,
+                            marginTop: contentBottom > 0 ? contentBottom + IMAGE_GAP : 0,
+                        },
+                    ] }
                     resizeMode="contain"
                     accessible
                     accessibilityLabel="The five-question note sheet"
                 />
-            }
+            ) }
             footer={
                 <OnboardingButton
+                    appearance="solid"
                     label={ PLAN_COPY.primaryCta }
                     onPress={ () => router.push('/(onboarding)/reviews-preview') }
                 />
             }
         >
             <View style={ styles.timeline }>
-                <PlanTimeline entries={ noteEntry } />
+                <PlanTimeline
+                    entries={ noteEntry }
+                    onOpenTemplate={ () => router.push('/why-five-questions') }
+                />
             </View>
-
-            <TouchableOpacity
-                onPress={ () => router.push('/why-five-questions') }
-                accessibilityRole="link"
-                accessibilityLabel={ NOTE_PREVIEW_COPY.researchLink }
-                style={ styles.researchLink }
-            >
-                <AppText variant="body" style={ styles.researchLinkLabel }>
-                    { NOTE_PREVIEW_COPY.researchLink }
-                </AppText>
-                <Feather name="arrow-right" size={ 18 } color={ TEXT_COLORS.primary } />
-            </TouchableOpacity>
         </OnboardingScreen>
     );
 }
 
-/** Matches the notes screen, so the two artworks sit identically. */
-const IMAGE_ASPECT = 1290 / 2796;
+/** The cheat sheet's own proportions, so nothing is stretched. */
+const IMAGE_ASPECT = 1290 / 2661;
 
 /**
- * Where the artwork's rounded top edge sits, as a fraction of screen height.
- * The image is full width and taller than the space below this line, so the
- * screen's bottom edge cuts it, never its own frame.
+ * The space between the band above and the sheet's rounded top edge.
+ *
+ * Measured from where the content actually ends rather than set as a fraction
+ * of the screen: the band is sized by its paragraph, so on a taller display it
+ * finishes in the same place and a percentage left the sheet stranded below it.
+ * The artwork carries only a hair of blank paper above its title, so this edge
+ * is very nearly where the sheet's first words fall.
  */
-const IMAGE_TOP_FRACTION = 0.46;
+const IMAGE_GAP = 16;
 
 const styles = StyleSheet.create({
     timeline: {
@@ -114,16 +112,5 @@ const styles = StyleSheet.create({
     sheetImage: {
         transform: [{ rotate: '2.5deg' }],
         borderRadius: 28,
-    },
-    researchLink: {
-        minHeight: 44,
-        marginTop: 10,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    researchLinkLabel: {
-        color: TEXT_COLORS.primary,
-        textDecorationLine: 'underline',
     },
 });

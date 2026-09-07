@@ -4,13 +4,19 @@ import type { Href } from 'expo-router';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
-import { COLOR_VARIANTS } from 'designs/designs-colors';
+import {
+    ACCENT_SURFACE,
+    BRAND_ORANGE,
+    COLOR_VARIANTS,
+    SURFACE_ACCENT,
+    SURFACE_BLUE,
+} from 'designs/designs-colors';
 import AppText from '../ui/AppText';
 import { OnboardingProgress } from './OnboardingProgress';
 import { BackButton } from '../ui/BackButton';
 import { GlassMorphismWithCircle } from '../ui/GlassMorphismWithCircle';
-import { CirclePosition } from '../ui/LinearGradientCircle';
-import { onboardingStyles } from './onboardingStyles';
+import { PaperGrain } from './PaperGrain';
+import { onboardingAccentStyles, onboardingStyles } from './onboardingStyles';
 
 type BaseProps = {
     /** 1-4 for the personalisation questions; omitted elsewhere. */
@@ -26,9 +32,40 @@ type BaseProps = {
      * the footer, which sit exactly where they would without it. At
      * accessibility text sizes it moves into the flow at the end of the
      * combined scroll so it can never sit behind the actions.
+     *
+     * Given as a function, it is handed the screen coordinate where the body
+     * content ends, so the artwork can sit directly under the last card
+     * whatever its height. Set as a fraction of the screen instead, it lined up
+     * only on the display it was tuned on: the cards are sized by their text,
+     * so on a taller phone they finish in the same place while a percentage
+     * puts the artwork much further down. In the combined scroll the backdrop
+     * is in the flow and the value is 0.
      */
-    bottomBackdrop?: React.ReactNode;
+    bottomBackdrop?: React.ReactNode | ((contentBottom: number) => React.ReactNode);
+    /**
+     * The ground the screen sits on.
+     *
+     * `light` is the app's pale blue with its sheet of glass over it, and is
+     * what every question and review screen uses. `accent` swaps in the brand
+     * orange and the white ink that goes with it, for a screen whose subject is
+     * an image of the app rather than the page's own content: on the pale
+     * ground a screenshot of a pale app reads as a second page, and on the
+     * accent it reads as a screen. The glass is dropped there, having nothing
+     * behind it left to blur.
+     */
+    surface?: OnboardingSurface;
+    /**
+     * How the supporting line is set.
+     *
+     * `plain` is a paragraph under the headline. `banner` puts it in a band of
+     * the brand orange running the full width of the display, edge to edge and
+     * unrounded, for a line that is the answer the screen exists to give rather
+     * than a note about the content below it.
+     */
+    supportingAppearance?: 'plain' | 'banner';
 };
+
+export type OnboardingSurface = 'light' | 'accent';
 
 /**
  * Back navigation is an explicit screen contract.
@@ -54,6 +91,9 @@ type Props = BaseProps & NavigationProps;
 /** The first iOS accessibility text category starts above the standard 1.35 scale. */
 export const shouldUseCombinedOnboardingScroll = (fontScale: number): boolean => fontScale >= 1.5;
 
+/** The gutter the scroll and the footer are set in. */
+const SCREEN_PADDING = 24;
+
 const BODY_BOTTOM_FADE = 48;
 const BUTTON_SHADOW_SPACE = 48;
 
@@ -69,12 +109,28 @@ export function OnboardingScreen({
     step,
     headline,
     supporting,
+    supportingAppearance = 'plain',
     children,
     footer,
     bottomBackdrop,
+    surface = 'light',
     showBack = true,
     backHref,
 }: Props) {
+    const isAccent = surface === 'accent';
+    // Where the body's last card ends, in the backdrop's own coordinates.
+    //
+    // Composed from two layout events rather than read with measureInWindow.
+    // Both are synchronous and in one chain: the scroll's y is relative to the
+    // screen, and the content's y is relative to the scroll's content. The
+    // asynchronous measure raced the layout it was measuring, so changing an
+    // answer left the artwork placed against the previous card's height and
+    // overlapping the new one.
+    const [scrollTop, setScrollTop] = useState(0);
+    const [contentBox, setContentBox] = useState({ y: 0, height: 0 });
+    const contentBottom = contentBox.height === 0
+        ? 0
+        : scrollTop + contentBox.y + contentBox.height;
     const insets = useSafeAreaInsets();
     const { fontScale } = useWindowDimensions();
     const useCombinedScroll = shouldUseCombinedOnboardingScroll(fontScale);
@@ -97,43 +153,93 @@ export function OnboardingScreen({
             { !titleBesideBack && (
                 <AppText
                     variant="h1"
-                    style={ onboardingStyles.headline }
+                    style={ [onboardingStyles.headline, isAccent && onboardingAccentStyles.headline] }
                     accessibilityRole="header"
                 >
                     { headline }
                 </AppText>
             ) }
 
-            { supporting !== undefined && (
-                <AppText variant="body" style={ [onboardingStyles.body, styles.supporting] }>
+            { supporting !== undefined && supportingAppearance === 'plain' && (
+                <AppText variant="body" style={ [onboardingStyles.body, styles.supporting, isAccent && onboardingAccentStyles.body] }>
                     { supporting }
                 </AppText>
             ) }
 
-            { children }
+            { /* Out through the scroll's own gutter so the band reaches both
+                 edges of the display. */ }
+            { supporting !== undefined && supportingAppearance === 'banner' && (
+                <View style={ styles.supportingBanner }>
+                    <AppText variant="body" style={ [onboardingStyles.body, styles.supportingBannerText] }>
+                        { supporting }
+                    </AppText>
+                </View>
+            ) }
+
+            { /* collapsable={false} keeps the view in the native tree on
+                 Android, where a plain wrapper with no style of its own is
+                 flattened away and reports no layout. */ }
+            <View
+                collapsable={ false }
+                onLayout={ (event) => setContentBox({
+                    y: event.nativeEvent.layout.y,
+                    height: event.nativeEvent.layout.height,
+                }) }
+            >
+                { children }
+            </View>
         </>
     );
 
+    const backdrop = (atFlow: boolean): React.ReactNode =>
+        typeof bottomBackdrop === 'function'
+            ? bottomBackdrop(atFlow ? 0 : contentBottom)
+            : bottomBackdrop;
+
     return (
-        <View style={ styles.safeArea }>
-            <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_LEFT } />
+        <View style={ [styles.safeArea, isAccent && styles.accentSurface] }>
+            { /* Glass only. The gradient circle is Welcome's alone: repeating it
+                 behind every step made the artwork read as chrome rather than
+                 as the opening image. */ }
+            { !isAccent && <GlassMorphismWithCircle /> }
+
+            { /* The pale screens are printed on grain; the accent one is a
+                 flat block of colour and stays flat. Over the glass, not under
+                 it: the glass blurs whatever is behind it, and a blur is
+                 exactly what removes a texture this fine. */ }
+            { !isAccent && <PaperGrain /> }
+
             <SafeAreaView style={ styles.safeArea } edges={ ['top', 'left', 'right', 'bottom'] }>
                 <View style={ styles.header }>
-                    { showBack && <BackButton fallbackHref={ backHref } appearance="glass" /> }
+                    { /* The same glass and the same ink on every screen, the
+                         accent ground included: the control the whole flow is
+                         navigated by should not change appearance partway
+                         through it. The glass is near-clear and takes the
+                         colour of whatever is behind it, so on the accent it
+                         needs the app's pale surface put back behind it. */ }
+                    { showBack && (
+                        <View style={ isAccent ? styles.backOnAccent : undefined }>
+                            <BackButton fallbackHref={ backHref } appearance="glass" />
+                        </View>
+                    ) }
 
                     { titleBesideBack && (
                         <AppText
                             testID="onboarding-header-title"
                             variant="h3"
-                            style={ styles.headerTitle }
+                            style={ [styles.headerTitle, isAccent && onboardingAccentStyles.headline] }
                             accessibilityRole="header"
                         >
                             { headline }
                         </AppText>
                     ) }
-                </View>
 
-                { step !== undefined && <OnboardingProgress step={ step } /> }
+                    { /* Beside the arrow, not under it. The questions have no
+                         title in this row, so the bar has the width, and the
+                         two controls that say where you are in the flow sit on
+                         one line instead of two. */ }
+                    { step !== undefined && <OnboardingProgress step={ step } inline /> }
+                </View>
 
                 { useCombinedScroll ? (
                     <ScrollView
@@ -151,7 +257,7 @@ export function OnboardingScreen({
 
                         { bottomBackdrop !== undefined && (
                             <View testID="onboarding-backdrop" style={ styles.combinedBackdrop }>
-                                { bottomBackdrop }
+                                { backdrop(true) }
                             </View>
                         ) }
                     </ScrollView>
@@ -166,12 +272,13 @@ export function OnboardingScreen({
                                 pointerEvents="none"
                                 style={ [styles.backdrop, { bottom: -insets.bottom }] }
                             >
-                                { bottomBackdrop }
+                                { backdrop(false) }
                             </View>
                         ) }
 
                         <MaskedView
                             style={ styles.scroll }
+                            onLayout={ (event) => setScrollTop(event.nativeEvent.layout.y) }
                             maskElement={
                                 <View style={ styles.scroll } pointerEvents="none">
                                     <View style={ styles.solidMask } />
@@ -216,11 +323,19 @@ const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
     },
+    accentSurface: {
+        backgroundColor: SURFACE_ACCENT,
+    },
+    // Sized by the button it holds, so the disc cannot drift from the glass.
+    backOnAccent: {
+        borderRadius: 24,
+        backgroundColor: SURFACE_BLUE,
+    },
     header: {
         paddingHorizontal: 24,
         paddingTop: 4,
-        paddingBottom: 12,
-        minHeight: 60,
+        paddingBottom: 4,
+        minHeight: 48,
         flexDirection: 'row',
         alignItems: 'center',
         gap: 14,
@@ -242,21 +357,33 @@ const styles = StyleSheet.create({
     bottomFade: {
         height: BODY_BOTTOM_FADE,
     },
+    // The header row already carries its own padding, so the body starts
+    // just under it. Anything more read as the screen having lost its title.
     scrollContent: {
         paddingHorizontal: 24,
-        paddingTop: 24,
+        paddingTop: 8,
         // At the end of the list the last card must clear the fade completely.
         paddingBottom: BODY_BOTTOM_FADE + 24,
     },
     combinedScrollContent: {
         paddingHorizontal: 24,
-        paddingTop: 24,
+        paddingTop: 8,
         // This footer is inside a clipping scroll view, so reserve the shadow's
         // space in its content instead of letting it end at the button's edge.
         paddingBottom: BUTTON_SHADOW_SPACE,
     },
     supporting: {
         marginTop: 14,
+    },
+    supportingBanner: {
+        marginTop: 14,
+        marginHorizontal: -SCREEN_PADDING,
+        paddingHorizontal: SCREEN_PADDING,
+        paddingVertical: 18,
+        backgroundColor: BRAND_ORANGE,
+    },
+    supportingBannerText: {
+        color: ACCENT_SURFACE.textPrimary,
     },
     footer: {
         flexGrow: 0,

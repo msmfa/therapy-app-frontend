@@ -387,7 +387,10 @@ describe('restored-subscription onboarding routing', () => {
         };
 
         const { getByText, queryByText } = render(<AccountPreviewScreen />);
-        expect(getByText('Continue with your account')).toBeTruthy();
+        // The step is named Account whoever is looking at it; the body is what
+        // tells a signed-in user there is nothing left to create.
+        expect(getByText('Account')).toBeTruthy();
+        expect(getByText('Your schedule, reminder times and subscription will be connected to your account. Your note contents still stay only on this iPhone.')).toBeTruthy();
         expect(queryByText('Create an account to connect your schedule, reminder times and subscription. Your note contents still stay only on this iPhone.')).toBeNull();
         fireEvent.press(getByText('Continue'));
 

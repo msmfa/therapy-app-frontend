@@ -60,6 +60,7 @@ jest.mock('../../src/components/onboarding/OnboardingScreen', () => {
 
 import { OnboardingAnswersProvider } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { timeLabel } from '../../src/features/onboarding/formatting';
+import { REMINDER_TIMES_COPY } from '../../src/features/onboarding/onboardingCopy';
 import ReminderTimesScreen from '../(onboarding)/reminder-times';
 
 const at = (h: number, m: number) => {
@@ -88,20 +89,24 @@ describe('reminder times: what surrounds the pickers', () => {
         mockPickers.length = 0;
     });
 
-    it("shows Mark's words beneath the time rows", async () => {
+    it("shows the tester's words beneath the time rows", async () => {
         const view = renderScreen();
         await waitFor(() => expect(morningPicker()).toBeDefined());
 
-        expect(view.getByText(/keeps me accountable/)).toBeTruthy();
-        expect(view.getByText('Mark')).toBeTruthy();
+        // The quotation and who said it, whatever the testimonial is set to.
+        expect(view.getByText(new RegExp(REMINDER_TIMES_COPY.testimonial.quote.slice(0, 40)))).toBeTruthy();
+        expect(view.getByText(REMINDER_TIMES_COPY.testimonial.name)).toBeTruthy();
         view.unmount();
     });
 
-    it('tells people in the opening text that the times can be changed later', async () => {
+    it('says what the two times are for', async () => {
         const view = renderScreen();
         await waitFor(() => expect(morningPicker()).toBeDefined());
 
-        expect(view.getByText(/You can update these in Settings at any time/)).toBeTruthy();
+        // The screen used to promise here that the times could be changed in
+        // Settings later. The copy no longer says so anywhere on this screen,
+        // so this asserts what it does say instead.
+        expect(view.getByText(REMINDER_TIMES_COPY.supporting)).toBeTruthy();
         view.unmount();
     });
 });

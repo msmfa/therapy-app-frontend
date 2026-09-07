@@ -14,6 +14,7 @@ import { registerAccount } from '../../src/api/auth';
 import { useAppAlert } from '../../src/context/alert';
 import { resolveAuthReturnRoute } from '../../src/features/onboarding/authReturn';
 import { GlassMorphismWithCircle } from 'src/components/ui/GlassMorphismWithCircle';
+import { GLASS_CARD_RADIUS } from 'src/components/ui/GlassMorphism';
 import { BackButton } from 'src/components/ui/BackButton';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 
@@ -68,6 +69,7 @@ export default function SignUpScreen() {
             <GlassMorphismWithCircle
                 circlePosition={ CirclePosition.BOTTOM_LEFT }
                 style={ styles.glassMorphism }
+                panelRadius={ GLASS_CARD_RADIUS }
             />
             <SafeAreaView edges={ ['top', 'left', 'right'] } style={ styles.root }>
                 { /* Present only when this screen was pushed onto something, which is

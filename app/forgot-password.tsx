@@ -16,6 +16,7 @@ import { Button } from 'src/components/ui/Button';
 import AppText from '../src/components/ui/AppText';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { GlassMorphismWithCircle } from 'src/components/ui/GlassMorphismWithCircle';
+import { GLASS_CARD_RADIUS } from 'src/components/ui/GlassMorphism';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 import { useAppAlert } from 'src/context/alert';
 import { PASSWORD_RESET_AUTH_SOURCE } from '../src/features/onboarding/authReturn';
@@ -107,7 +108,11 @@ export default function ForgotPasswordScreen() {
     return (
         <TouchableWithoutFeedback onPress={ Keyboard.dismiss } accessible={ false }>
             <View style={ { flex: 1 } }>
-                <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_LEFT } style={ styles.glassMorphism } />
+                <GlassMorphismWithCircle
+                    circlePosition={ CirclePosition.BOTTOM_LEFT }
+                    style={ styles.glassMorphism }
+                    panelRadius={ GLASS_CARD_RADIUS }
+                />
                 <SafeAreaView style={ styles.root }>
                     <KeyboardAvoidingView behavior={ Platform.OS === 'ios' ? 'padding' : undefined } style={ styles.kav }>
                         <View style={ styles.card }>

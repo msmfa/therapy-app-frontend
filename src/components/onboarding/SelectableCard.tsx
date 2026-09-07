@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { LayoutChangeEvent, PixelRatio, StyleSheet, TouchableOpacity, useWindowDimensions, View } from 'react-native';
-import { Feather } from '@expo/vector-icons';
 import AppText from '../ui/AppText';
-import { ACTION_ORANGE, COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
+import { ACCENT_MARK, BRAND_ORANGE, BRAND_ORANGE_INK } from 'designs/designs-colors';
+import { BRAND_FONTS } from 'designs/designs-typography';
 import { onboardingStyles } from './onboardingStyles';
 
 type Props = {
@@ -76,22 +76,19 @@ export function SelectableCard({ label, selected, onPress, height, onLayout }: P
                 height !== undefined && { minHeight: height },
             ] }
         >
-            <View style={ [styles.radio, selected && styles.radioSelected] }>
-                { selected && <View style={ styles.radioDot } /> }
-            </View>
+            <View style={ [styles.radio, selected && styles.radioSelected] } />
 
-            <AppText variant="h3" style={ [onboardingStyles.title, styles.label] }>
+            <AppText
+                variant="h3"
+                style={ [onboardingStyles.title, styles.label, selected && styles.labelSelected] }
+            >
                 { label }
             </AppText>
 
-            { /* The slot is always there, whether or not it holds a check.
-                 Adding it on selection took its width off the label, which
-                 could rewrap and grow the card under the finger that chose it. */ }
-            <View testID="selectable-card-check" style={ styles.check }>
-                { selected && (
-                    <Feather name="check" size={ CHECK_SIZE } color={ TEXT_COLORS.primary } />
-                ) }
-            </View>
+            { /* Kept as an empty slot rather than deleted. Its width comes off
+                 the label either way, so removing it on one card and not the
+                 other would set the two options in different measures. */ }
+            <View testID="selectable-card-check" style={ styles.check } />
         </TouchableOpacity>
     );
 }
@@ -106,9 +103,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         borderWidth: 2,
     },
+    // A chosen option is an orange section: a flat block of the brand's own
+    // colour, with no outline drawn round it and nothing but the filled circle
+    // and the type on it.
     cardSelected: {
-        backgroundColor: COLOR_VARIANTS.white.primary,
-        borderColor: ACTION_ORANGE,
+        backgroundColor: BRAND_ORANGE,
+        borderColor: BRAND_ORANGE,
     },
     radio: {
         flexShrink: 0,
@@ -120,19 +120,31 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    // Filled, not ringed. A dot inside a ring of the same ink read as one blob
+    // at this size, and outlining the dot to separate them only made a target.
     radioSelected: {
-        borderColor: ACTION_ORANGE,
+        borderColor: 'transparent',
+        backgroundColor: ACCENT_MARK,
     },
-    radioDot: {
-        width: 12,
-        height: 12,
-        borderRadius: 6,
-        backgroundColor: ACTION_ORANGE,
-    },
+    // Sized against the ring's inner edge rather than its outer one: the ring
+    // keeps its 22pt, and the dot grows into it until only a hairline of the
+    // card shows between the two.
+
     label: {
         flex: 1,
         fontSize: 17,
         lineHeight: 24,
+    },
+    /**
+     * The circle's own colour, and lighter and looser than the flow's card
+     * titles: the brand's lettering on orange is a light weight, tracked out,
+     * in the warm ink rather than white.
+     */
+    labelSelected: {
+        color: BRAND_ORANGE_INK,
+        fontFamily: BRAND_FONTS.regular,
+        fontWeight: undefined,
+        letterSpacing: 0.3,
     },
     check: {
         width: CHECK_SIZE,

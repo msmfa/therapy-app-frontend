@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Redirect, useRouter } from 'expo-router';
 import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
+import { OnboardingLink } from '../../src/components/onboarding/OnboardingLink';
 import AppText from '../../src/components/ui/AppText';
 import Loading from '../../src/components/ui/Loading';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
@@ -30,7 +31,6 @@ import {
     setPendingOnboardingStep,
     SUBSCRIPTION_STEP_RETURN,
 } from '../../src/features/onboarding/authReturn';
-import { TEXT_COLORS } from 'designs/designs-colors';
 import { firstIncompletePlanRoute } from '../../src/features/onboarding/flowGuard';
 
 export default function SubscriptionPreviewScreen() {
@@ -214,6 +214,35 @@ export default function SubscriptionPreviewScreen() {
             headline={ SUBSCRIPTION_COPY.planHeader }
             footer={
                 <>
+                    { /* The legal row sits above the action, not under it: it
+                         is what a reader checks before committing, and below
+                         the button it came after the decision it informs. */ }
+                    <View style={ styles.links }>
+                        <OnboardingLink
+                            label={ restoreInProgress
+                                ? SUBSCRIPTION_COPY.restoring
+                                : SUBSCRIPTION_COPY.restore }
+                            size="caption"
+                            disabled={ restoreInProgress }
+                            onPress={ handleRestore }
+                            style={ styles.link }
+                        />
+
+                        <OnboardingLink
+                            label={ SUBSCRIPTION_COPY.terms }
+                            size="caption"
+                            onPress={ () => router.push('/terms-of-service') }
+                            style={ styles.link }
+                        />
+
+                        <OnboardingLink
+                            label={ SUBSCRIPTION_COPY.privacy }
+                            size="caption"
+                            onPress={ () => router.push('/privacy-policy') }
+                            style={ styles.link }
+                        />
+                    </View>
+
                     <OnboardingButton
                         label={ showSelectedTrial
                             ? SUBSCRIPTION_COPY.trialCta
@@ -221,48 +250,6 @@ export default function SubscriptionPreviewScreen() {
                         onPress={ () => router.push('/(onboarding)/account-preview') }
                     />
 
-                    <AppText variant="caption" style={ styles.cancelAnytime }>
-                        { SUBSCRIPTION_COPY.cancelAnytime }
-                    </AppText>
-
-                    <View style={ styles.links }>
-                        <TouchableOpacity
-                            onPress={ handleRestore }
-                            disabled={ restoreInProgress }
-                            accessibilityRole="button"
-                            accessibilityState={ {
-                                disabled: restoreInProgress,
-                                busy: restoreInProgress,
-                            } }
-                            style={ styles.link }
-                        >
-                            <AppText variant="caption" style={ styles.linkLabel }>
-                                { restoreInProgress
-                                    ? SUBSCRIPTION_COPY.restoring
-                                    : SUBSCRIPTION_COPY.restore }
-                            </AppText>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            onPress={ () => router.push('/terms-of-service') }
-                            accessibilityRole="link"
-                            style={ styles.link }
-                        >
-                            <AppText variant="caption" style={ styles.linkLabel }>
-                                { SUBSCRIPTION_COPY.terms }
-                            </AppText>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            onPress={ () => router.push('/privacy-policy') }
-                            accessibilityRole="link"
-                            style={ styles.link }
-                        >
-                            <AppText variant="caption" style={ styles.linkLabel }>
-                                { SUBSCRIPTION_COPY.privacy }
-                            </AppText>
-                        </TouchableOpacity>
-                    </View>
                     { accountSettings }
                 </>
             }
@@ -301,7 +288,6 @@ export default function SubscriptionPreviewScreen() {
 
                 <SubscriptionPlanCard
                     title={ SUBSCRIPTION_COPY.monthlyTitle }
-                    badge={ SUBSCRIPTION_COPY.monthlyBadge }
                     trialBadge={
                         showMonthlyTrial && offer.monthly.trial !== null
                             ? trialBadgeLine(offer.monthly.trial)
@@ -334,25 +320,13 @@ const styles = StyleSheet.create({
         marginTop: 24,
         gap: 12,
     },
-    cancelAnytime: {
-        textAlign: 'center',
-        color: TEXT_COLORS.secondary,
-    },
     links: {
         flexDirection: 'row',
         justifyContent: 'center',
         flexWrap: 'wrap',
-        gap: 8,
+        columnGap: 20,
     },
     link: {
-        minHeight: 44,
         minWidth: 44,
-        paddingHorizontal: 10,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    linkLabel: {
-        color: TEXT_COLORS.secondary,
-        textDecorationLine: 'underline',
     },
 });

@@ -1,7 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
-import AppText from '../../src/components/ui/AppText';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import {
     SelectableCard,
@@ -12,7 +11,6 @@ import {
     CADENCE_OPTIONS,
 } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
-import { TEXT_COLORS } from 'designs/designs-colors';
 
 export default function SessionCadenceScreen() {
     const router = useRouter();
@@ -24,6 +22,7 @@ export default function SessionCadenceScreen() {
             step={ 3 }
             backHref="/(onboarding)/session-date"
             headline={ CADENCE_COPY.headline }
+            supporting={ CADENCE_COPY.supporting }
             footer={
                 <OnboardingButton
                     label={ CADENCE_COPY.primaryCta }
@@ -44,10 +43,6 @@ export default function SessionCadenceScreen() {
                     />
                 )) }
             </View>
-
-            <AppText variant="body" style={ styles.supporting }>
-                { CADENCE_COPY.supporting }
-            </AppText>
         </OnboardingScreen>
     );
 }
@@ -56,9 +51,5 @@ const styles = StyleSheet.create({
     options: {
         marginTop: 24,
         gap: 12,
-    },
-    supporting: {
-        marginTop: 20,
-        color: TEXT_COLORS.secondary,
     },
 });

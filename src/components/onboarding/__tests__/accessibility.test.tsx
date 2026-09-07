@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, useWindowDimensions } from 'react-native';
-import { fireEvent, render, within } from '@testing-library/react-native';
-import { SelectableCard } from '../SelectableCard';
+import { act, fireEvent, render, renderHook, within } from '@testing-library/react-native';
+import { SelectableCard, useEqualSelectableCardHeights } from '../SelectableCard';
 import { SubscriptionPlanCard } from '../SubscriptionPlanCard';
 import { OnboardingProgress } from '../OnboardingProgress';
 import {
@@ -62,6 +62,56 @@ describe('SelectableCard accessibility', () => {
 			minHeight?: number;
 		};
 		expect(flattened.minHeight).toBeGreaterThanOrEqual(44);
+	});
+
+	it('takes the height the group hands it', () => {
+		const { getByRole } = render(
+			<SelectableCard label="It varies" selected={false} height={108} onPress={() => {}} />,
+		);
+
+		const flattened = StyleSheet.flatten(getByRole('radio').props.style) as {
+			minHeight?: number;
+		};
+		// A floor, never a cap: a label that needs more room still gets it.
+		expect(flattened.minHeight).toBe(108);
+	});
+
+	it('gives every option in a group the tallest one\'s height', () => {
+		const { result } = renderHook(() => useEqualSelectableCardHeights());
+
+		expect(result.current.height).toBeUndefined();
+
+		act(() => {
+			result.current.onCardLayout({ nativeEvent: { layout: { height: 72 } } } as never);
+		});
+		expect(result.current.height).toBe(72);
+
+		// The three-line option arrives and lifts the whole group.
+		act(() => {
+			result.current.onCardLayout({ nativeEvent: { layout: { height: 108 } } } as never);
+		});
+		expect(result.current.height).toBe(108);
+
+		// A shorter card reported afterwards must not pull them back down.
+		act(() => {
+			result.current.onCardLayout({ nativeEvent: { layout: { height: 84 } } } as never);
+		});
+		expect(result.current.height).toBe(108);
+	});
+
+	it('keeps the checkmark\'s slot whether or not it is chosen', () => {
+		// Adding the slot on selection took 24pt off the label, which could
+		// rewrap it, so the card jumped under the finger that chose it.
+		const unselected = render(
+			<SelectableCard label="Track my progress over time" selected={false} onPress={() => {}} />,
+		);
+		expect(unselected.getByTestId('selectable-card-check')).toBeTruthy();
+		unselected.unmount();
+
+		const selected = render(
+			<SelectableCard label="Track my progress over time" selected onPress={() => {}} />,
+		);
+		expect(selected.getByTestId('selectable-card-check')).toBeTruthy();
 	});
 });
 

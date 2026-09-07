@@ -1,5 +1,6 @@
 import { Stack } from 'expo-router';
 import { useTheme } from '@react-navigation/native';
+import { SURFACE_ACCENT } from 'designs/designs-colors';
 import Loading from '../../src/components/ui/Loading';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 
@@ -34,7 +35,13 @@ export default function OnboardingLayout() {
             <Stack.Screen name="session-cadence" />
             <Stack.Screen name="reminder-times" />
             <Stack.Screen name="plan-preview" />
-            <Stack.Screen name="note-preview" />
+            { /* The one dark screen in the flow. Its ground has to be on the
+                 stack's own card too, or the push animation slides a pale
+                 rectangle in and the screen paints navy over it on arrival. */ }
+            <Stack.Screen
+                name="note-preview"
+                options={ { contentStyle: { backgroundColor: SURFACE_ACCENT } } }
+            />
             <Stack.Screen name="subscription-preview" />
             <Stack.Screen name="account-preview" />
             <Stack.Screen

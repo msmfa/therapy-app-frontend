@@ -3,6 +3,8 @@ import { render } from '@testing-library/react-native';
 
 const mockPush = jest.fn();
 let mockGoal: string | null = 'prepare';
+let mockSessionAt: Date | null = new Date(2026, 8, 14, 18, 0, 0, 0);
+let mockCadence: string | null = 'weekly';
 
 jest.mock('expo-router', () => ({
     useRouter: () => ({ push: mockPush }),
@@ -12,49 +14,73 @@ jest.mock('@expo/vector-icons', () => ({
     Feather: () => null,
 }));
 
+jest.mock('@react-navigation/native', () => ({
+    useIsFocused: () => true,
+}));
+
 jest.mock('../../src/features/onboarding/OnboardingAnswersContext', () => ({
     useOnboardingAnswers: () => ({
-        answers: { goal: mockGoal },
+        answers: {
+            goal: mockGoal,
+            sessionAt: mockSessionAt,
+            cadence: mockCadence,
+        },
         setAnswer: jest.fn(),
         hydrated: true,
     }),
 }));
 
+/** A stand-in for the measured bottom of the body content. */
+const MOCK_CONTENT_BOTTOM = 400;
+
 jest.mock('../../src/components/onboarding/OnboardingScreen', () => {
     const ReactForMock = require('react');
     const { Text: MockText, View: MockView } = require('react-native');
     return {
+        // The screen reads this to decide the footer's ink, so the mock has to
+        // carry it too.
+        shouldUseCombinedOnboardingScroll: (fontScale: number) => fontScale >= 1.5,
         OnboardingScreen: ({
             headline,
             supporting,
             children,
             footer,
             bottomBackdrop,
+            surface,
         }: {
             headline: string;
             supporting?: string;
             children?: React.ReactNode;
             footer?: React.ReactNode;
-            bottomBackdrop?: React.ReactNode;
+            // The backdrop is handed where the body content ends, so the
+            // artwork can sit under the last card whatever its height.
+            bottomBackdrop?: React.ReactNode | ((contentBottom: number) => React.ReactNode);
+            surface?: string;
         }) => ReactForMock.createElement(
             MockView,
-            null,
+            { testID: 'onboarding-screen', accessibilityHint: surface },
             ReactForMock.createElement(MockText, null, headline),
             supporting === undefined ? null : ReactForMock.createElement(MockText, null, supporting),
             children,
             footer,
-            bottomBackdrop,
+            ReactForMock.createElement(
+                MockView,
+                { testID: 'note-backdrop' },
+                typeof bottomBackdrop === 'function' ? bottomBackdrop(MOCK_CONTENT_BOTTOM) : bottomBackdrop,
+            ),
         ),
     };
 });
 
 import NotePreviewScreen from '../(onboarding)/note-preview';
-import { NOTE_PREVIEW_COPY } from '../../src/features/onboarding/onboardingCopy';
+import { GOAL_OPTIONS, NOTE_PREVIEW_COPY } from '../../src/features/onboarding/onboardingCopy';
 
 describe('onboarding note preview', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         mockGoal = 'prepare';
+        mockSessionAt = new Date(2026, 8, 14, 18, 0, 0, 0);
+        mockCadence = 'weekly';
     });
 
     it('is about the notes themselves', () => {
@@ -86,6 +112,12 @@ describe('onboarding note preview', () => {
         expect(queryByText(/Your notes hold what came up/)).toBeNull();
     });
 
+    it('sits on the accent surface, so the pale screenshot reads as a screen on it', () => {
+        const { getByTestId } = render(<NotePreviewScreen />);
+
+        expect(getByTestId('onboarding-screen').props.accessibilityHint).toBe('accent');
+    });
+
     it('renders the screenshot full width, undistorted, and in plain numbers', () => {
         const { Dimensions } = require('react-native');
         const { getByLabelText } = render(<NotePreviewScreen />);
@@ -100,11 +132,45 @@ describe('onboarding note preview', () => {
         expect(typeof flat.height).toBe('number');
         expect(flat.width).toBe(Dimensions.get('window').width);
         // Its own proportions, so nothing is stretched.
-        expect(flat.width / flat.height).toBeCloseTo(1290 / 2616, 2);
+        expect(flat.width / flat.height).toBeCloseTo(1290 / 2194, 2);
         // A rounded card whose top edge is shown in full; the screen's bottom
         // edge is what cuts it, never its own frame.
         expect(flat.borderRadius).toBe(28);
-        expect(flat.marginTop).toBeGreaterThan(0);
+        // Under the content, not at a fraction of the screen: the cards are
+        // sized by their text, so only their real bottom edge places this.
+        expect(flat.marginTop).toBeGreaterThan(MOCK_CONTENT_BOTTOM);
         expect(image.props.resizeMode).toBe('contain');
+    });
+
+    it('says the chosen goal back, with what the notes do for it', () => {
+        const { getByText } = render(<NotePreviewScreen />);
+
+        const goal = GOAL_OPTIONS.find((option) => option.id === 'prepare')!;
+        // Said back in the second person: the option is worded as the user
+        // choosing it, which is wrong once the app is repeating it to them.
+        expect(getByText(goal.restated)).toBeTruthy();
+        expect(goal.restated).toContain('your next session');
+        expect(getByText(goal.noteSupport)).toBeTruthy();
+    });
+
+    it('drops the card when no goal was chosen', () => {
+        mockGoal = null;
+
+        const { queryByText } = render(<NotePreviewScreen />);
+
+        const goal = GOAL_OPTIONS.find((option) => option.id === 'prepare')!;
+        expect(queryByText(goal.restated)).toBeNull();
+    });
+
+    it('fades the list out into its own pale ground, never into the navy page', () => {
+        const { getByTestId } = render(<NotePreviewScreen />);
+        const { LinearGradient } = require('expo-linear-gradient');
+        const { SURFACE_BLUE, SURFACE_BLUE_FADE } = require('designs/designs-colors');
+
+        const [fade] = getByTestId('note-backdrop').findAllByType(LinearGradient);
+
+        // The bottom of the screen belongs to the phone in the picture. Fading
+        // to the page's navy put a dark band over the last of the list.
+        expect(fade.props.colors).toEqual([SURFACE_BLUE_FADE, SURFACE_BLUE, SURFACE_BLUE]);
     });
 });

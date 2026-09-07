@@ -8,6 +8,7 @@ import AppText from '../../src/components/ui/AppText';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import { onboardingStyles } from '../../src/components/onboarding/onboardingStyles';
 import { QuoteCard } from '../../src/components/onboarding/QuoteCard';
+import { GlassPickerPanel } from '../../src/components/ui/GlassPickerPanel';
 import { REMINDER_TIMES_COPY } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { dateToMinutes, minutesToDate, timeLabel } from '../../src/features/onboarding/formatting';
@@ -110,6 +111,10 @@ export default function ReminderTimesScreen() {
                                     </AppText>
                                 </View>
 
+                                { /* The compact control draws its own grey pill
+                                     and gives no way to restyle it, so it is
+                                     left alone: framed in glass it read as two
+                                     stacked rounded shapes. */ }
                                 { Platform.OS === 'ios' ? (
                                     <DateTimePicker
                                         value={ value }
@@ -141,12 +146,14 @@ export default function ReminderTimesScreen() {
             </View>
 
             { androidSlot !== null && (
-                <DateTimePicker
-                    value={ androidSlot === 'morning' ? morningValue : eveningValue }
-                    mode="time"
-                    display="default"
-                    onChange={ androidSlot === 'morning' ? onMorningChange : onEveningChange }
-                />
+                <GlassPickerPanel style={ styles.androidPicker }>
+                    <DateTimePicker
+                        value={ androidSlot === 'morning' ? morningValue : eveningValue }
+                        mode="time"
+                        display="default"
+                        onChange={ androidSlot === 'morning' ? onMorningChange : onEveningChange }
+                    />
+                </GlassPickerPanel>
             ) }
         </OnboardingScreen>
     );
@@ -178,6 +185,9 @@ const styles = StyleSheet.create({
     rowHint: {
         marginTop: 2,
         color: TEXT_COLORS.tertiary,
+    },
+    androidPicker: {
+        marginTop: 16,
     },
     divider: {
         height: 1,

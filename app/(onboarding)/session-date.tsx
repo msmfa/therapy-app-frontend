@@ -6,6 +6,7 @@ import type { DateTimePickerEvent } from '@react-native-community/datetimepicker
 import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
 import AppText from '../../src/components/ui/AppText';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
+import { GlassPickerPanel } from '../../src/components/ui/GlassPickerPanel';
 import { onboardingStyles } from '../../src/components/onboarding/onboardingStyles';
 import { SESSION_DATE_COPY } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
@@ -140,15 +141,18 @@ export default function SessionDateScreen() {
             supporting={ SESSION_DATE_COPY.supporting }
             footer={
                 <>
-                    <OnboardingButton
-                        label={ SESSION_DATE_COPY.primaryCta }
-                        disabled={ !canContinue }
-                        onPress={ handleContinue }
-                    />
+                    { /* The way out, above the way on. Under the button it was
+                         the last thing read on a screen someone had already
+                         decided to leave. */ }
                     <OnboardingButton
                         label={ SESSION_DATE_COPY.sampleCta }
                         transparent
                         onPress={ handleSamplePlan }
+                    />
+                    <OnboardingButton
+                        label={ SESSION_DATE_COPY.primaryCta }
+                        disabled={ !canContinue }
+                        onPress={ handleContinue }
                     />
                 </>
             }
@@ -181,17 +185,23 @@ export default function SessionDateScreen() {
                                 </AppText>
                             </TouchableOpacity>
 
+                            { /* The picker drops into a pane of the app's own
+                                 glass rather than onto the card's flat
+                                 surface: it is a panel that appears over the
+                                 page, and the flow makes those out of glass. */ }
                             { isOpen && (
-                                <DateTimePicker
-                                    value={ draft }
-                                    mode={ row.field }
-                                    display={ Platform.OS === 'ios' ? 'spinner' : 'default' }
-                                    minimumDate={ row.field === 'date' ? new Date() : undefined }
-                                    maximumDate={ row.field === 'date' ? latestAllowed : undefined }
-                                    themeVariant="light"
-                                    textColor={ COLOR_VARIANTS.black.primary }
-                                    onChange={ row.field === 'date' ? applyDate : applyTime }
-                                />
+                                <GlassPickerPanel style={ styles.pickerPanel }>
+                                    <DateTimePicker
+                                        value={ draft }
+                                        mode={ row.field }
+                                        display={ Platform.OS === 'ios' ? 'spinner' : 'default' }
+                                        minimumDate={ row.field === 'date' ? new Date() : undefined }
+                                        maximumDate={ row.field === 'date' ? latestAllowed : undefined }
+                                        themeVariant="light"
+                                        textColor={ COLOR_VARIANTS.black.primary }
+                                        onChange={ row.field === 'date' ? applyDate : applyTime }
+                                    />
+                                </GlassPickerPanel>
                             ) }
                         </View>
                     );
@@ -216,10 +226,13 @@ export default function SessionDateScreen() {
     );
 }
 
+/** The fields card's own inset, which the picker panel reaches back through. */
+const FIELDS_PADDING = 20;
+
 const styles = StyleSheet.create({
     fields: {
         marginTop: 24,
-        paddingHorizontal: 20,
+        paddingHorizontal: FIELDS_PADDING,
     },
     row: {
         minHeight: 72,
@@ -245,6 +258,13 @@ const styles = StyleSheet.create({
     divider: {
         height: 1,
         backgroundColor: COLOR_VARIANTS.white.tertiary,
+    },
+    pickerPanel: {
+        marginBottom: 14,
+        // Out through the card's own inset. The wheel has three columns and
+        // needs every point of the card's width; inside the padding the year
+        // was cut off at the right-hand edge.
+        marginHorizontal: -FIELDS_PADDING,
     },
     validation: {
         marginTop: 12,

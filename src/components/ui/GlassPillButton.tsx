@@ -22,6 +22,14 @@ type Props = {
     loading?: boolean;
     /** Let longer labels and accessibility text grow beyond the minimum height. */
     contentSized?: boolean;
+    /**
+     * Paints the pill in one flat colour instead of glass.
+     *
+     * Same geometry, shadow and label handling; the blur, the specular edge and
+     * the rim shading are all dropped, since none of them describe anything on
+     * an opaque surface.
+     */
+    fillColor?: string;
     style?: StyleProp<ViewStyle>;
 };
 
@@ -40,9 +48,14 @@ export function GlassPillButton({
     disabled = false,
     loading = false,
     contentSized = false,
+    fillColor,
     style,
 }: Props) {
     const resolvedLabelColor = disabled && disabledLabelColor ? disabledLabelColor : labelColor;
+    const isSolid = fillColor !== undefined;
+    // A blurred view over an opaque fill is a blur of nothing, and on Android it
+    // is a real cost, so the solid form drops to a plain view.
+    const Body = isSolid ? View : BlurView;
     const [layout, setLayout] = React.useState({ width: 0, height });
     const { width } = layout;
     const renderedHeight = contentSized ? layout.height : height;
@@ -52,7 +65,10 @@ export function GlassPillButton({
         <TouchableOpacity
             onPress={ onPress }
             disabled={ disabled || loading }
-            activeOpacity={ 0.7 }
+            // The solid form dims further under the finger than the glass one:
+            // glass already shifts as the blur moves, and a flat black pill has
+            // nothing to show a press with except its own opacity.
+            activeOpacity={ isSolid ? 0.6 : 0.7 }
             accessibilityRole="button"
             accessibilityLabel={ accessibilityLabel ?? label }
             accessibilityState={ { disabled: disabled || loading, busy: loading } }
@@ -65,19 +81,22 @@ export function GlassPillButton({
                 style,
             ] }
         >
-            <BlurView
+            <Body
                 intensity={ 46 }
                 tint="light"
                 style={ [
                     styles.pill,
                     contentSized ? { minHeight: height, paddingVertical: 18 } : { height },
                     { borderRadius: radius },
+                    isSolid && { backgroundColor: fillColor },
                 ] }
             >
-                <LinearGradient
-                    colors={ ['hsla(0, 0%, 100%, 0.42)', 'hsla(0, 0%, 100%, 0.08)'] }
-                    style={ StyleSheet.absoluteFill }
-                />
+                { !isSolid && (
+                    <LinearGradient
+                        colors={ ['hsla(0, 0%, 100%, 0.42)', 'hsla(0, 0%, 100%, 0.08)'] }
+                        style={ StyleSheet.absoluteFill }
+                    />
+                ) }
                 <AppText
                     variant="body"
                     style={ [
@@ -91,8 +110,8 @@ export function GlassPillButton({
                     { label }
                 </AppText>
                 { loading && <ActivityIndicator color={ resolvedLabelColor } style={ StyleSheet.absoluteFill } /> }
-            </BlurView>
-            { width > 0 ? (
+            </Body>
+            { width > 0 && !isSolid ? (
                 <View pointerEvents="none" style={ StyleSheet.absoluteFill }>
                     <Svg width={ width } height={ renderedHeight }>
                         <Defs>

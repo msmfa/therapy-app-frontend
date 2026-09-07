@@ -11,7 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/auth/AuthContext';
 import SocialAuthButtons from '../../src/components/auth/SocialAuthButtons';
-import { Button } from 'src/components/ui/Button';
+import { OnboardingButton } from 'src/components/onboarding/OnboardingButton';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import TextField from 'src/components/ui/TextField';
 import PasswordField from 'src/components/ui/PasswordField';
@@ -20,6 +20,7 @@ import { loginWithPassword } from '../../src/api/auth';
 import { handleError } from 'src/utils';
 import { InternalLink } from 'src/components/ui/InternalLink';
 import { GlassMorphismWithCircle } from 'src/components/ui/GlassMorphismWithCircle';
+import { GLASS_CARD_RADIUS } from 'src/components/ui/GlassMorphism';
 import { BackButton } from 'src/components/ui/BackButton';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 import { useAppAlert } from '../../src/context/alert';
@@ -71,6 +72,7 @@ export default function LoginScreen() {
             <GlassMorphismWithCircle
                 circlePosition={ CirclePosition.BOTTOM_LEFT }
                 style={ styles.glassMorphism }
+                panelRadius={ GLASS_CARD_RADIUS }
             />
             <SafeAreaView edges={ ['top', 'left', 'right'] } style={ styles.root }>
                 { /* Present only when this screen was pushed onto something, which is
@@ -131,7 +133,11 @@ export default function LoginScreen() {
                                 >
                                     <AppText variant="caption">Forgot password?</AppText>
                                 </TouchableOpacity>
-                                <Button label="Sign in" onPress={ onSubmit } loading={ loading } />
+                                { /* The flow's own action, not this screen's:
+                                     sign-in sits one tap from Welcome, and the
+                                     two buttons were different sizes and
+                                     radii. */ }
+                                <OnboardingButton label="Sign in" onPress={ onSubmit } loading={ loading } />
                                 <Spacer variant={ SpacerVariant.large } />
                                 <AppText variant="caption" align="center">
                                     Or continue with

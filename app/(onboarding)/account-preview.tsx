@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Redirect, useRouter } from 'expo-router';
 import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
+import { OnboardingLink } from '../../src/components/onboarding/OnboardingLink';
 import AppText from '../../src/components/ui/AppText';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import { AppleSignInButton } from '../../src/components/onboarding/AppleSignInButton';
@@ -208,9 +209,7 @@ export default function AccountPreviewScreen() {
     return (
         <OnboardingScreen
             backHref="/(onboarding)/subscription-preview"
-            headline={ isAuthenticated
-                ? ACCOUNT_COPY.authenticatedHeadline
-                : ACCOUNT_COPY.headline }
+            headline={ ACCOUNT_COPY.headline }
             supporting={ isAuthenticated
                 ? ACCOUNT_COPY.authenticatedBody
                 : ACCOUNT_COPY.body }
@@ -240,18 +239,6 @@ export default function AccountPreviewScreen() {
                                 disabled={ busy }
                                 onPress={ () => openAuth('/(auth)/signup') }
                             />
-
-                            <TouchableOpacity
-                                onPress={ () => openAuth('/(auth)/login') }
-                                disabled={ busy }
-                                accessibilityRole="button"
-                                accessibilityLabel={ ACCOUNT_COPY.existing }
-                                style={ styles.existing }
-                            >
-                                <AppText variant="body" style={ styles.existingLabel }>
-                                    { ACCOUNT_COPY.existing }
-                                </AppText>
-                            </TouchableOpacity>
                         </>
                     ) }
                 </>
@@ -265,27 +252,19 @@ export default function AccountPreviewScreen() {
                 { /* The two documents as their own targets. Inline links inside the
                      sentence would be 14pt tall, well under the 44pt minimum. */ }
                 <View style={ styles.legalLinks }>
-                    <TouchableOpacity
+                    <OnboardingLink
+                        label={ ACCOUNT_COPY.legalTerms }
+                        size="caption"
                         onPress={ () => router.push('/terms-of-service') }
-                        accessibilityRole="link"
-                        accessibilityLabel={ ACCOUNT_COPY.legalTerms }
                         style={ styles.legalLink }
-                    >
-                        <AppText variant="caption" style={ styles.legalLinkLabel }>
-                            { ACCOUNT_COPY.legalTerms }
-                        </AppText>
-                    </TouchableOpacity>
+                    />
 
-                    <TouchableOpacity
+                    <OnboardingLink
+                        label={ ACCOUNT_COPY.legalPrivacy }
+                        size="caption"
                         onPress={ () => router.push('/privacy-policy') }
-                        accessibilityRole="link"
-                        accessibilityLabel={ ACCOUNT_COPY.legalPrivacy }
                         style={ styles.legalLink }
-                    >
-                        <AppText variant="caption" style={ styles.legalLinkLabel }>
-                            { ACCOUNT_COPY.legalPrivacy }
-                        </AppText>
-                    </TouchableOpacity>
+                    />
                 </View>
             </View>
         </OnboardingScreen>
@@ -305,28 +284,10 @@ const styles = StyleSheet.create({
     legalLinks: {
         flexDirection: 'row',
         flexWrap: 'wrap',
+        columnGap: 20,
         marginTop: 4,
-        marginLeft: -10,
     },
     legalLink: {
-        minHeight: 44,
         minWidth: 44,
-        paddingHorizontal: 10,
-        justifyContent: 'center',
-    },
-    legalLinkLabel: {
-        fontSize: 14,
-        lineHeight: 21,
-        color: TEXT_COLORS.primary,
-        textDecorationLine: 'underline',
-    },
-    existing: {
-        minHeight: 44,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    existingLabel: {
-        color: TEXT_COLORS.primary,
-        textDecorationLine: 'underline',
     },
 });
