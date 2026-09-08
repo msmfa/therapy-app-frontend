@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import Svg, { Line } from 'react-native-svg';
 import AppText from '../ui/AppText';
 import { ACTION_ORANGE, COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
 import type { PlanTimelineEntry } from '../../features/onboarding/planTimeline';
@@ -8,6 +7,7 @@ import { occurrencesLabel } from '../../features/onboarding/formatting';
 import { ReminderType } from '../../utils/types';
 import { REMINDER_SCIENCE_COPY } from '../../constants/neuroReminders';
 import { GlassCircleButton } from '../ui/GlassCircleButton';
+import { DottedDivider } from '../ui/DottedDivider';
 import { AppModal } from '../Modal';
 import { ScienceTextModal } from '../ScienceTextModal';
 import { onboardingStyles, ONBOARDING_LINK_COLOR } from './onboardingStyles';
@@ -72,10 +72,6 @@ function renderBody(entry: PlanTimelineEntry, onOpenTemplate?: () => void): Reac
 
 export function PlanTimeline({ entries, onOpenTemplate }: Props) {
     const [openResearch, setOpenResearch] = useState<ReminderType | null>(null);
-    // The rule is drawn, so it needs a number rather than a percentage: inside
-    // an SVG, "100%" has no viewport to resolve against and the line stopped
-    // short of the card's edge.
-    const [ruleWidth, setRuleWidth] = useState(0);
 
     return (
         <>
@@ -173,25 +169,7 @@ export function PlanTimeline({ entries, onOpenTemplate }: Props) {
                                      width rather than the paragraph's measure.
                                      The review cards are short enough that a
                                      rule only cut them in half. */ }
-                                { isSession && <View
-                                    style={ styles.bodyRule }
-                                    onLayout={ (event) => setRuleWidth(event.nativeEvent.layout.width) }
-                                >
-                                    { ruleWidth > 0 && (
-                                        <Svg width={ ruleWidth } height={ 1 }>
-                                            <Line
-                                                x1={ 0 }
-                                                y1={ 0.5 }
-                                                x2={ ruleWidth }
-                                                y2={ 0.5 }
-                                                stroke={ TEXT_COLORS.quaternary }
-                                                strokeWidth={ 1 }
-                                                strokeDasharray="2 4"
-                                                strokeLinecap="round"
-                                            />
-                                        </Svg>
-                                    ) }
-                                </View> }
+                                { isSession && <DottedDivider style={ styles.bodyRule } /> }
 
                                 <AppText variant="body" style={ [onboardingStyles.body, styles.bodyCopy, styles.body] }>
                                     { renderBody(entry, isSession ? onOpenTemplate : undefined) }

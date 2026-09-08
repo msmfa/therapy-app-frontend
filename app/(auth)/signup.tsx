@@ -7,7 +7,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import TextField from 'src/components/ui/TextField';
 import PasswordField from 'src/components/ui/PasswordField';
 import AppText from '../../src/components/ui/AppText';
-import SocialAuthButtons from '../../src/components/auth/SocialAuthButtons';
 import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
 import { registerAccount } from '../../src/api/auth';
 import { useAppAlert } from '../../src/context/alert';
@@ -143,12 +142,6 @@ export default function SignUpScreen() {
                         <View style={ styles.submit }>
                             <OnboardingButton label="Create account" appearance="solid" onPress={ onSubmit } loading={ loading } />
                         </View>
-                        <View style={ styles.oauthSection }>
-                            <SocialAuthButtons
-                                onSuccess={ () => router.replace(returnRoute ?? '/') }
-                                disabled={ loading }
-                            />
-                        </View>
                     </ScrollView>
                 </KeyboardAvoidingView>
             </SafeAreaView>
@@ -181,5 +174,4 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingTop: 32,
     },
-    oauthSection: { alignItems: 'center', marginBottom: 16 },
 });

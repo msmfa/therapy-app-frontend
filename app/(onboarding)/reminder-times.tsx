@@ -75,7 +75,6 @@ export default function ReminderTimesScreen() {
             step={ 4 }
             backHref="/(onboarding)/session-cadence"
             headline={ REMINDER_TIMES_COPY.headline }
-            supporting={ REMINDER_TIMES_COPY.supporting }
             footer={
                 <OnboardingButton
                     label={ REMINDER_TIMES_COPY.primaryCta }
@@ -89,7 +88,7 @@ export default function ReminderTimesScreen() {
 
                     return (
                         <View key={ row.slot }>
-                            { index > 0 && <DottedDivider /> }
+                            { index > 0 && <DottedDivider style={ styles.divider } /> }
 
                             <View style={ [styles.row, stackTimeFields && styles.stackedRow] }>
                                 <View style={ styles.rowText }>
@@ -150,10 +149,15 @@ export default function ReminderTimesScreen() {
     );
 }
 
+const ROWS_PADDING = 20;
+
 const styles = StyleSheet.create({
     rows: {
         marginTop: 24,
-        paddingHorizontal: 20,
+        paddingHorizontal: ROWS_PADDING,
+    },
+    divider: {
+        marginHorizontal: -ROWS_PADDING,
     },
     row: {
         minHeight: 70,

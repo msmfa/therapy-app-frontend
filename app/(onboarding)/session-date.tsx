@@ -167,7 +167,7 @@ export default function SessionDateScreen() {
 
                     return (
                         <View key={ row.field }>
-                            { index > 0 && <DottedDivider /> }
+                            { index > 0 && <DottedDivider style={ styles.divider } /> }
 
                             <TouchableOpacity
                                 onPress={ () => togglePicker(row.field) }
@@ -245,6 +245,9 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         gap: 12,
         paddingVertical: 12,
+    },
+    divider: {
+        marginHorizontal: -FIELDS_PADDING,
     },
     rowLabel: {
         fontSize: 17,

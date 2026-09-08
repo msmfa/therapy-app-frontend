@@ -99,14 +99,13 @@ describe('reminder times: what surrounds the pickers', () => {
         view.unmount();
     });
 
-    it('says what the two times are for', async () => {
+    it('labels the review times without the removed instruction paragraph', async () => {
         const view = renderScreen();
         await waitFor(() => expect(morningPicker()).toBeDefined());
 
-        // The screen used to promise here that the times could be changed in
-        // Settings later. The copy no longer says so anywhere on this screen,
-        // so this asserts what it does say instead.
-        expect(view.getByText(REMINDER_TIMES_COPY.supporting)).toBeTruthy();
+        expect(view.getByText(REMINDER_TIMES_COPY.morningLabel)).toBeTruthy();
+        expect(view.getByText(REMINDER_TIMES_COPY.eveningLabel)).toBeTruthy();
+        expect(view.queryByText(/Pick a time in the morning/)).toBeNull();
         view.unmount();
     });
 });

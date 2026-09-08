@@ -1,7 +1,6 @@
 import React from 'react';
 import { jest } from '@jest/globals';
-import { act, fireEvent, render } from '@testing-library/react-native';
-import * as AppleAuthentication from 'expo-apple-authentication';
+import { fireEvent, render } from '@testing-library/react-native';
 
 let mockParams: { returnTo?: string | string[] } = {};
 const mockReplace = jest.fn();
@@ -23,7 +22,7 @@ jest.mock('../../src/context/auth/AuthContext', () => ({
 	useAuth: () => ({ setAuth: jest.fn() }),
 }));
 
-jest.mock('../../src/api/auth', () => ({ loginWithPassword: jest.fn() }));
+jest.mock('../../src/api/auth', () => ({ loginWithPassword: jest.fn(), registerAccount: jest.fn() }));
 
 jest.mock('../../src/context/alert', () => ({ useAppAlert: () => ({ showAlert: jest.fn() }) }));
 
@@ -52,24 +51,13 @@ jest.mock('../../src/auth/useOAuthLogin', () => ({
 	}),
 }));
 
-jest.mock('expo-apple-authentication', () => {
-	const React = require('react');
-	const { TouchableOpacity } = require('react-native');
-	return {
-		AppleAuthenticationButton: ({ onPress }: { onPress: () => void }) => (
-			<TouchableOpacity accessibilityLabel="Continue with Apple" onPress={onPress} />
-		),
-		AppleAuthenticationButtonType: { CONTINUE: 2 },
-		AppleAuthenticationButtonStyle: { BLACK: 2 },
-	};
-});
-
 jest.mock('src/components/ui/BackButton', () => {
 	const { View } = require('react-native');
 	return { BackButton: View };
 });
 
 import LoginScreen from '../(auth)/login';
+import SignUpScreen from '../(auth)/signup';
 
 describe('Sign in account links and Apple restore handoff', () => {
 	afterEach(() => {
@@ -132,9 +120,8 @@ describe('Sign in account links and Apple restore handoff', () => {
 	it('keeps the Apple button visible but blocks repeat requests while sign-in is pending', () => {
 		mockAppleLoading = true;
 
-		const { getByLabelText, UNSAFE_getByType } = render(<LoginScreen />);
-		// The native button has no disabled prop; its wrapper must guard its callback.
-		act(() => UNSAFE_getByType(AppleAuthentication.AppleAuthenticationButton).props.onPress());
+		const { getByLabelText } = render(<LoginScreen />);
+		fireEvent.press(getByLabelText('Continue with Apple'));
 
 		expect(getByLabelText('Signing in with Apple')).toBeTruthy();
 		expect(mockAppleSignIn).not.toHaveBeenCalled();
@@ -145,6 +132,16 @@ describe('Sign in account links and Apple restore handoff', () => {
 
 		const { queryByLabelText, queryByText } = render(<LoginScreen />);
 
+		expect(queryByLabelText('Continue with Apple')).toBeNull();
+		expect(queryByText('Or continue with')).toBeNull();
+	});
+
+	it('keeps Create account focused on email registration even when Apple is available', () => {
+		mockParams = { returnTo: 'account-preview' };
+
+		const { getByRole, queryByLabelText, queryByText } = render(<SignUpScreen />);
+
+		expect(getByRole('button', { name: 'Create account' })).toBeTruthy();
 		expect(queryByLabelText('Continue with Apple')).toBeNull();
 		expect(queryByText('Or continue with')).toBeNull();
 	});

@@ -168,7 +168,7 @@ export default function ReminderSettingsScreen() {
                         const value = minutesToDate(row.minutes);
                         return (
                             <View key={ row.slot }>
-                                { index > 0 && <DottedDivider /> }
+                                { index > 0 && <DottedDivider style={ styles.divider } /> }
                                 <View style={ styles.timeRow }>
                                     <View style={ styles.timeCopy }>
                                         <AppText variant="h3" style={ styles.label }>
@@ -229,6 +229,8 @@ export default function ReminderSettingsScreen() {
     );
 }
 
+const TIME_ROWS_PADDING = 14;
+
 const styles = StyleSheet.create({
     androidPicker: {
         marginTop: 16,
@@ -243,11 +245,14 @@ const styles = StyleSheet.create({
     timeRows: {
         marginTop: 20,
         marginBottom: 20,
-        paddingHorizontal: 14,
+        paddingHorizontal: TIME_ROWS_PADDING,
         borderRadius: 16,
         borderWidth: 1,
         borderColor: PALETTE.overlay.whiteBorderTransparent,
         backgroundColor: COLOR_VARIANTS.white.secondary,
+    },
+    divider: {
+        marginHorizontal: -TIME_ROWS_PADDING,
     },
     timeRow: {
         minHeight: 70,
