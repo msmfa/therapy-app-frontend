@@ -2,12 +2,8 @@ import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
 const analyticsEnvironment = (): 'production' | 'qa' => process.env.EXPO_PUBLIC_ANALYTICS_ENVIRONMENT === 'qa' ? 'qa' : 'production';
-/** Only the dedicated, already-consented TestFlight cohort uses this policy. */
-export const isPreconsentedTestflight = () => analyticsEnvironment() === 'qa'
-    && process.env.EXPO_PUBLIC_ANALYTICS_TESTFLIGHT_PRECONSENT === '1';
-// Pre-consented beta preferences must not enter either production or the
-// opt-in QA profile, and neither build may relabel another build's SDK queue.
-export const ANALYTICS_STORAGE_SUFFIX = isPreconsentedTestflight() ? '.qa.testflight' : analyticsEnvironment() === 'qa' ? '.qa' : '';
+// QA and production builds must never relabel another build's SDK queue.
+export const ANALYTICS_STORAGE_SUFFIX = analyticsEnvironment() === 'qa' ? '.qa' : '';
 export const CONSENT_KEY = `plastic_brains.analytics_consent.v1${ANALYTICS_STORAGE_SUFFIX}`;
 export const SDK_STORAGE_KEY = `plastic_brains.analytics_sdk.v1${ANALYTICS_STORAGE_SUFFIX}`;
 export type AnalyticsConfig = {
@@ -17,7 +13,6 @@ export type AnalyticsConfig = {
     appVersion: string;
     platform: 'ios' | 'android' | 'web' | 'other';
     environment?: 'production' | 'qa';
-    preconsentedTestflight?: boolean;
 };
 
 export function analyticsConfig(): AnalyticsConfig {
@@ -30,7 +25,6 @@ export function analyticsConfig(): AnalyticsConfig {
         apiKey,
         host,
         environment: analyticsEnvironment(),
-        preconsentedTestflight: isPreconsentedTestflight(),
         allowed: Boolean(apiKey && allowedHost)
             && !__DEV__
             && process.env.EXPO_PUBLIC_ANALYTICS_INTERNAL_USER !== 'true'

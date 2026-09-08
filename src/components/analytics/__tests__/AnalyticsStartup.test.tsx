@@ -1,10 +1,10 @@
 import React from 'react';
 import { Text } from 'react-native';
-import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
+import { act, render, waitFor } from '@testing-library/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 
-// Keep the real singleton, auth identity, initializer, consent hook/sync and
+// Keep the real singleton, auth identity, initializer, account sync and
 // transport together. Only native storage, the SDK and the API are boundaries.
 jest.mock('expo-secure-store', () => ({
     getItemAsync: jest.fn(),
@@ -22,7 +22,7 @@ jest.mock('../../../features/analytics/config', () => {
         ...actual,
         analyticsConfig: () => ({
             apiKey: 'phc_test', host: 'https://eu.i.posthog.com', allowed: true,
-            appVersion: 'test', platform: 'ios', environment: 'qa',
+            appVersion: 'test', platform: 'ios', environment: 'production',
         }),
     };
 });
@@ -48,7 +48,6 @@ import { getCurrentUserSettings, updateCurrentUser } from '../../../api/users';
 import { AuthProvider, useAuth } from '../../../context/auth/AuthContext';
 import { analytics } from '../../../features/analytics/client';
 import { CONSENT_KEY } from '../../../features/analytics/config';
-import { AnalyticsConsentControl } from '../AnalyticsConsentControl';
 import { AnalyticsInitializer } from '../AnalyticsInitializer';
 
 const deferred = <T,>() => {
@@ -61,13 +60,10 @@ const deferred = <T,>() => {
 function HydratedWelcome() {
     const { hydrated, isAuthenticated } = useAuth();
     if (!hydrated) return <Text>Loading session</Text>;
-    return <>
-        <Text>{ isAuthenticated ? 'Authenticated' : 'Anonymous' }</Text>
-        <AnalyticsConsentControl />
-    </>;
+    return <Text>{ isAuthenticated ? 'Authenticated' : 'Anonymous' }</Text>;
 }
 
-test('cold keychain failure still hydrates anonymous consent and accepts an explicit opt-in', async () => {
+test('cold keychain failure still starts anonymous analytics automatically after auth hydration', async () => {
     const keychain = deferred<string | null>();
     const consentRead = deferred<string | null>();
     const consentKey = `${CONSENT_KEY}.anonymous`;
@@ -95,19 +91,14 @@ test('cold keychain failure still hydrates anonymous consent and accepts an expl
         await act(async () => { keychain.reject(keychainError); });
         await waitFor(() => expect(screen.getByText('Anonymous')).toBeTruthy());
         expect(analytics.getIdentity()).toBeNull();
-        expect(screen.getByLabelText('Share app usage').props.disabled).toBe(true);
+        expect(screen.queryByLabelText('Share app usage')).toBeNull();
+        expect(mockCreateSdk).not.toHaveBeenCalled();
         expect(SecureStore.deleteItemAsync).toHaveBeenCalledTimes(3);
         expect(errorLog).toHaveBeenCalledWith('[AuthProvider] hydration error:', keychainError);
 
-        await act(async () => { consentRead.resolve(null); });
-        await waitFor(() => expect(screen.getByLabelText('Share app usage').props.disabled).toBe(false));
-        expect(screen.getByLabelText('Share app usage').props.value).toBe(false);
-        expect(analytics.getSnapshot()).toMatchObject({ hydrated: true, consentKnown: false, enabled: false });
-        expect(mockCreateSdk).not.toHaveBeenCalled();
-
-        fireEvent(screen.getByLabelText('Share app usage'), 'valueChange', true);
+        await act(async () => { consentRead.resolve('false'); });
         await waitFor(() => expect(analytics.getSnapshot().enabled).toBe(true));
-        expect(screen.getByLabelText('Share app usage').props.value).toBe(true);
+        expect(analytics.getSnapshot()).toMatchObject({ hydrated: true, consentKnown: true, consent: true });
         expect(AsyncStorage.setItem).toHaveBeenCalledWith(consentKey, 'true');
         expect(mockCreateSdk).toHaveBeenCalledTimes(1);
         expect(mockSdk.ready).toHaveBeenCalledTimes(1);
@@ -115,7 +106,7 @@ test('cold keychain failure still hydrates anonymous consent and accepts an expl
         expect(mockSdk.identify).not.toHaveBeenCalled();
         expect(getCurrentUserSettings).not.toHaveBeenCalled();
         expect(updateCurrentUser).not.toHaveBeenCalled();
-        expect(screen.queryByText('Could not save this preference. Please try again.')).toBeNull();
+        expect(screen.queryByLabelText('Share app usage')).toBeNull();
     } finally {
         errorLog.mockRestore();
     }

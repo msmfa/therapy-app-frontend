@@ -20,7 +20,6 @@
       "env": {
         "EXPO_PUBLIC_API_URL": "https://www.plastic-brains.com",
         "EXPO_PUBLIC_ANALYTICS_ENVIRONMENT": "production",
-        "EXPO_PUBLIC_ANALYTICS_TESTFLIGHT_PRECONSENT": "0",
         "EXPO_PUBLIC_APPLE_REDIRECT_URI": "https://www.plastic-brains.com/api/auth/oauth/apple/callback",
         "EXPO_PUBLIC_SENTRY_DSN": "https://f53e4d04c73b930d40d89ec6463458ad@o4510144677806080.ingest.de.sentry.io/4510144681148496",
         "SENTRY_DSN": "https://f53e4d04c73b930d40d89ec6463458ad@o4510144677806080.ingest.de.sentry.io/4510144681148496",
@@ -39,7 +38,6 @@
       },
       "env": {
         "EXPO_PUBLIC_ANALYTICS_ENVIRONMENT": "qa",
-        "EXPO_PUBLIC_ANALYTICS_TESTFLIGHT_PRECONSENT": "1",
         "EXPO_PUBLIC_SEED_DEMO": "0",
         "EXPO_PUBLIC_DEV_SUBSCRIPTION_FIXTURE": "0",
         "EXPO_PUBLIC_DEMO_AUTOLOGIN": "0"

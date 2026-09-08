@@ -1,6 +1,6 @@
 import { analyticsConfig } from '../config';
 const originalDev = __DEV__;
-const keys = ['EXPO_PUBLIC_POSTHOG_HOST', 'EXPO_PUBLIC_POSTHOG_KEY', 'EXPO_PUBLIC_ANALYTICS_ENVIRONMENT', 'EXPO_PUBLIC_ANALYTICS_TESTFLIGHT_PRECONSENT', 'EXPO_PUBLIC_ANALYTICS_INTERNAL_USER', 'EXPO_PUBLIC_SEED_DEMO', 'EXPO_PUBLIC_DEV_SUBSCRIPTION_FIXTURE'] as const;
+const keys = ['EXPO_PUBLIC_POSTHOG_HOST', 'EXPO_PUBLIC_POSTHOG_KEY', 'EXPO_PUBLIC_ANALYTICS_ENVIRONMENT', 'EXPO_PUBLIC_ANALYTICS_INTERNAL_USER', 'EXPO_PUBLIC_SEED_DEMO', 'EXPO_PUBLIC_DEV_SUBSCRIPTION_FIXTURE'] as const;
 const originals = Object.fromEntries(keys.map((key) => [key, process.env[key]]));
 beforeEach(() => {
     Object.assign(global, { __DEV__: false });
@@ -48,21 +48,16 @@ test('explicit QA releases have separate storage and a non-production event labe
     expect(analyticsConfig().allowed).toBe(false);
 });
 
-test('pre-consent requires the dedicated beta flag AND the QA environment', () => {
-    expect(analyticsConfig().preconsentedTestflight).toBe(false);
-    process.env.EXPO_PUBLIC_ANALYTICS_TESTFLIGHT_PRECONSENT = '1';
-    expect(analyticsConfig().preconsentedTestflight).toBe(false);
+test('production storage remains separate from QA storage', () => {
     jest.isolateModules(() => {
         const production = require('../config');
         expect(production.CONSENT_KEY).toBe('plastic_brains.analytics_consent.v1');
+        expect(production.SDK_STORAGE_KEY).toBe('plastic_brains.analytics_sdk.v1');
     });
     process.env.EXPO_PUBLIC_ANALYTICS_ENVIRONMENT = 'qa';
-    expect(analyticsConfig()).toMatchObject({ environment: 'qa', preconsentedTestflight: true });
     jest.isolateModules(() => {
-        const beta = require('../config');
-        expect(beta.CONSENT_KEY).toBe('plastic_brains.analytics_consent.v1.qa.testflight');
-        expect(beta.SDK_STORAGE_KEY).toBe('plastic_brains.analytics_sdk.v1.qa.testflight');
+        const qa = require('../config');
+        expect(qa.CONSENT_KEY).toBe('plastic_brains.analytics_consent.v1.qa');
+        expect(qa.SDK_STORAGE_KEY).toBe('plastic_brains.analytics_sdk.v1.qa');
     });
-    process.env.EXPO_PUBLIC_ANALYTICS_TESTFLIGHT_PRECONSENT = '0';
-    expect(analyticsConfig().preconsentedTestflight).toBe(false);
 });

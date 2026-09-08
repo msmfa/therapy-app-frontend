@@ -9,8 +9,7 @@ jest.mock('../../../features/analytics/config', () => {
     Object.assign(global, { __DEV__: false });
     process.env.EXPO_PUBLIC_POSTHOG_KEY = 'phc_test';
     process.env.EXPO_PUBLIC_POSTHOG_HOST = 'https://eu.i.posthog.com';
-    process.env.EXPO_PUBLIC_ANALYTICS_ENVIRONMENT = 'qa';
-    process.env.EXPO_PUBLIC_ANALYTICS_TESTFLIGHT_PRECONSENT = '1';
+    process.env.EXPO_PUBLIC_ANALYTICS_ENVIRONMENT = 'production';
     process.env.EXPO_PUBLIC_SEED_DEMO = '0';
     process.env.EXPO_PUBLIC_DEV_SUBSCRIPTION_FIXTURE = '0';
     delete process.env.EXPO_PUBLIC_ANALYTICS_INTERNAL_USER;
@@ -48,19 +47,15 @@ import { AuthProvider, useAuth } from '../../../context/auth/AuthContext';
 import { analytics } from '../../../features/analytics/client';
 import { analyticsConsentSync } from '../../../features/analytics/consentSync';
 import { CONSENT_KEY } from '../../../features/analytics/config';
-import { AnalyticsConsentControl } from '../AnalyticsConsentControl';
 import { AnalyticsInitializer } from '../AnalyticsInitializer';
 
 let auth!: ReturnType<typeof useAuth>;
 function Welcome() {
     auth = useAuth();
-    return <>
-        <Text>{ auth.hydrated ? 'Welcome' : 'Loading' }</Text>
-        <AnalyticsConsentControl />
-    </>;
+    return <Text>{ auth.hydrated ? 'Welcome' : 'Loading' }</Text>;
 }
 
-test('TestFlight enables locally through real auth startup and never changes public consent', async () => {
+test('production automatically enables through real auth startup and marks the account consented', async () => {
     const productionPreference = 'plastic_brains.analytics_consent.v1.account.user-a';
     const qaPreference = 'plastic_brains.analytics_consent.v1.qa.account.user-a';
     await AsyncStorage.setItem(productionPreference, 'false');
@@ -70,7 +65,7 @@ test('TestFlight enables locally through real auth startup and never changes pub
     await waitFor(() => expect(analytics.getSnapshot().enabled).toBe(true));
     expect(analytics.getIdentity()).toBeNull();
     expect(analytics.capture('onboarding_step_viewed', { onboarding_step: 'welcome', flow_version: '1' })).toBe(true);
-    expect(CONSENT_KEY).toBe('plastic_brains.analytics_consent.v1.qa.testflight');
+    expect(CONSENT_KEY).toBe('plastic_brains.analytics_consent.v1');
     expect(await AsyncStorage.getItem(`${CONSENT_KEY}.anonymous`)).toBe('true');
 
     const user = { id: 'user-a', name: 'Test user', email: 'test@example.invalid' };
@@ -78,15 +73,16 @@ test('TestFlight enables locally through real auth startup and never changes pub
     await waitFor(() => expect(analytics.getSnapshot().enabled).toBe(true));
     expect(mockSdk.identify).toHaveBeenLastCalledWith(user.id);
     expect(await AsyncStorage.getItem(`${CONSENT_KEY}.account.user-a`)).toBe('true');
+    await waitFor(() => expect(updateCurrentUser).toHaveBeenCalledWith({ analyticsConsent: true }));
     const visit = analytics.getVisitId();
     await act(async () => { await auth.setAuth('refreshed-token', user); });
     expect(analytics.getVisitId()).toBe(visit);
     await analyticsConsentSync.sync();
 
-    expect(await AsyncStorage.getItem(productionPreference)).toBe('false');
+    expect(await AsyncStorage.getItem(productionPreference)).toBe('true');
     expect(await AsyncStorage.getItem(qaPreference)).toBe('false');
-    expect(getCurrentUserSettings).not.toHaveBeenCalled();
-    expect(updateCurrentUser).not.toHaveBeenCalled();
+    expect(getCurrentUserSettings).toHaveBeenCalled();
+    expect(updateCurrentUser).toHaveBeenCalledWith({ analyticsConsent: true });
     expect(screen.queryByLabelText('Share app usage')).toBeNull();
     expect(screen.queryByText(/Help improve Plastic Brains/)).toBeNull();
 });

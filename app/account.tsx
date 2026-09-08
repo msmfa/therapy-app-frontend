@@ -10,7 +10,6 @@ import Loading from '../src/components/ui/Loading';
 import { deleteCurrentUser } from '../src/api/users';
 import { clearNotesForUser } from '../src/features/notes/useNotes';
 import { useAppAlert } from '../src/context/alert';
-import { AnalyticsConsentControl } from '../src/components/analytics/AnalyticsConsentControl';
 import { analytics } from '../src/features/analytics/client';
 import { analyticsConsentSync } from '../src/features/analytics/consentSync';
 
@@ -138,7 +137,6 @@ export default function AccountSettingsScreen() {
                     />
                     <SettingsRow text="Contact us" onPress={ handleContactUs } />
                     <SettingsRow text="Privacy Policy" onPress={ handlePrivacyPolicy } />
-                    <AnalyticsConsentControl />
                     <SettingsRow text="Delete account" onPress={ onDeleteAccount } />
                     <SettingsRow text="Terms of Service" onPress={ handleTermsOfService } />
                     <SettingsRow
