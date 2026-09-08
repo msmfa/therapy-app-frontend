@@ -4,7 +4,7 @@ export type ReviewKind = 'post_session' | 'post_sleep' | 'mid_session' | 'pre_se
 export type AnalyticsErrorCode = 'network' | 'storage' | 'auth' | 'store' | 'unknown';
 type Checkout = { operation: 'purchase' | 'restore'; plan: 'monthly' | 'annual' | 'unknown'; entry_point: 'onboarding' | 'account' | 'settings' };
 export interface AnalyticsEvents {
-    onboarding_step_viewed: { step: OnboardingStep; flow_version: '1' };
+    onboarding_step_viewed: { onboarding_step: OnboardingStep; flow_version: '1' };
     onboarding_completed: { plan_mode: 'real' | 'sample' };
     checkout_started: Checkout;
     checkout_result: Checkout & { outcome: 'purchased' | 'cancelled' | 'pending' | 'failed' | 'restored' | 'unlinked' | 'no_entitlement' };
@@ -21,7 +21,7 @@ const choice = (...values: string[]): Rule => ({ values });
 const bool: Rule = { boolean: true };
 const checkout = { operation: choice('purchase', 'restore'), plan: choice('monthly', 'annual', 'unknown'), entry_point: choice('onboarding', 'account', 'settings') };
 const RULES: Record<AnalyticsEvent, Record<string, Rule>> = {
-    onboarding_step_viewed: { step: choice(...ONBOARDING_STEPS), flow_version: choice('1') },
+    onboarding_step_viewed: { onboarding_step: choice(...ONBOARDING_STEPS), flow_version: choice('1') },
     onboarding_completed: { plan_mode: choice('real', 'sample') },
     checkout_started: checkout,
     checkout_result: { ...checkout, outcome: choice('purchased', 'cancelled', 'pending', 'failed', 'restored', 'unlinked', 'no_entitlement') },

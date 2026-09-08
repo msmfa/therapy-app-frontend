@@ -45,8 +45,8 @@ export const manifest = {
             name: 'Onboarding completion',
             description: 'Unique people who viewed Welcome in the last 180 days → subscription preview → completed onboarding, ordered within 14 days. Denominator: observed Welcome viewers. Late opt-in omits earlier steps; recent entrants remain immature. Optional-path detail is outside this primary funnel.',
             query: funnel([
-                event('onboarding_step_viewed', property('step', 'welcome')),
-                event('onboarding_step_viewed', property('step', 'subscription_preview')),
+                event('onboarding_step_viewed', property('onboarding_step', 'welcome')),
+                event('onboarding_step_viewed', property('onboarding_step', 'subscription_preview')),
                 event('onboarding_completed'),
             ], 14, 'day'),
         },

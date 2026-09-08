@@ -20,7 +20,7 @@ function FocusedStepAnalytics({ step, snapshot }: {
         // Welcome. Give that redirect a chance to unmount before recording a
         // view; blur, account changes and consent changes cancel this capture.
         const timer = setTimeout(() => {
-            scope.capture('onboarding_step_viewed', { step, flow_version: '1' }, {
+            scope.capture('onboarding_step_viewed', { onboarding_step: step, flow_version: '1' }, {
                 dedupeKey: `onboarding-step:${visit}:1:${step}`,
             });
         }, 0);

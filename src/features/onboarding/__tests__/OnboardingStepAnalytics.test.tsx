@@ -51,7 +51,7 @@ describe('visible onboarding step analytics', () => {
         render(<OnboardingStepAnalytics step="goal" />);
         act(() => jest.runOnlyPendingTimers());
         expect(mockCapture.mock.calls).toEqual([0, 1].map(() => [
-            'onboarding_step_viewed', { step: 'goal', flow_version: '1' },
+            'onboarding_step_viewed', { onboarding_step: 'goal', flow_version: '1' },
             { dedupeKey: 'onboarding-step:visit:1:goal' },
         ]));
     });

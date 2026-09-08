@@ -31,7 +31,7 @@ All client events allow only the properties listed here, plus `app_version`, `pl
 
 | Event | When it is recorded | Properties |
 | --- | --- | --- |
-| `onboarding_step_viewed` | An actual focused onboarding screen is visible; once per step per local visit. Loading and redirect branches do not count. | `step`, `flow_version=1` |
+| `onboarding_step_viewed` | An actual focused onboarding screen is visible; once per step per local visit. Loading and redirect branches do not count. | `onboarding_step`, `flow_version=1` |
 | `onboarding_completed` | Onboarding persistence and completion succeed. | `plan_mode=real/sample` |
 | `checkout_started` | The canonical purchase/restore operation begins. | `operation=purchase/restore`, `plan=monthly/annual/unknown`, `entry_point` |
 | `checkout_result` | That operation resolves. A client outcome describes checkout UX, not a subscription lifecycle transition. | Above plus `outcome=purchased/cancelled/pending/failed/restored/unlinked/no_entitlement` |
@@ -52,7 +52,7 @@ Create a dashboard named **Plastic Brains — meaningful use**, use unique peopl
 
 | Insight | PostHog definition | Decision it supports |
 | --- | --- | --- |
-| Onboarding completion | Ordered funnel: `onboarding_step_viewed(step=welcome)` → `onboarding_step_viewed(step=subscription_preview)` → `onboarding_completed`; conversion window 14 days. Break down completion by `plan_mode`. Use separate step funnels for optional paths. | Where the onboarding journey loses people. Users opting in late will not have earlier steps backfilled. |
+| Onboarding completion | Ordered funnel: `onboarding_step_viewed(onboarding_step=welcome)` → `onboarding_step_viewed(onboarding_step=subscription_preview)` → `onboarding_completed`; conversion window 14 days. Inspect completion `plan_mode` separately to preserve the full funnel denominator. Use separate step funnels for optional paths. | Where the onboarding journey loses people. Users opting in late will not have earlier steps backfilled. |
 | Checkout reliability | `checkout_started(operation=purchase)` → `checkout_result(operation=purchase,outcome=purchased)` within 1 hour. Adjacent outcome trend with cancelled/pending/failed separated; separate restore funnel. | Friction in checkout, distinct from verified recurring revenue. |
 | First meaningful return | `note_saved(operation=new)` → `review_completed(is_first_review_for_note=true,note_saved_on_previous_visit=true)` within 60 days, unique people. | Whether users return to review a note they previously saved. The second event establishes its own note's provenance locally; the funnel cannot join a specific first-step note without exporting note IDs. |
 | Repeat meaningful use | Weekly unique people performing `note_saved(operation=new)` OR `review_completed`, plus a rolling 60-day trend. | How many opted-in people keep doing the core actions. Avoid treating app opens or edits as the primary value measure. |
