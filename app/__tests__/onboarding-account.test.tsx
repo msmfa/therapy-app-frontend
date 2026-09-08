@@ -197,12 +197,11 @@ describe('the account step', () => {
         expect(queryByText(/^Annual,/)).toBeNull();
     });
 
-    it('introduces the two legal documents once, as links, right above the buttons', () => {
+    it('introduces the two legal documents once, as links, in the action footer', () => {
         const { getByTestId, queryByText } = render(<AccountPreviewScreen />);
         const { within } = require('@testing-library/react-native');
 
-        // In the footer with the actions, not up in the content: a notice
-        // that governs a tap has to be beside the thing being tapped.
+        // Keep the notice and its document links together with the actions.
         const footer = within(getByTestId('footer'));
         expect(footer.getByText('By continuing, you agree to:')).toBeTruthy();
         expect(footer.getByText('Terms of Service')).toBeTruthy();
