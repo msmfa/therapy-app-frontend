@@ -17,6 +17,19 @@ const mockVerifyTransaction = jest.fn<Promise<boolean>, [string]>();
 const mockGetAppAccountToken = jest.fn<Promise<string>, []>();
 const mockVerifySubscriptionTransaction = jest.fn();
 const mockGetServerEntitlement = jest.fn();
+const mockCapture = jest.fn();
+let mockAnalyticsGeneration = 0;
+
+jest.mock('../../analytics/client', () => ({
+    analytics: {
+        beginOperation: () => {
+            const generation = mockAnalyticsGeneration;
+            return { capture: (...args: unknown[]) => {
+                if (generation === mockAnalyticsGeneration) mockCapture(...args);
+            } };
+        },
+    },
+}));
 
 jest.mock('../../../api/subscriptions', () => ({
     getAppAccountToken: mockGetAppAccountToken,
@@ -94,6 +107,7 @@ describe('real StoreKit bridge', () => {
     beforeEach(() => {
         jest.resetModules();
         jest.clearAllMocks();
+        mockAnalyticsGeneration = 0;
         delete process.env.EXPO_PUBLIC_DEV_SUBSCRIPTION_FIXTURE;
         mockPurchaseUpdatedHandler = null;
         mockPurchaseErrorHandler = null;
@@ -198,6 +212,32 @@ describe('real StoreKit bridge', () => {
         });
         expect(mockUpdatedRemove).not.toHaveBeenCalled();
         expect(mockErrorRemove).not.toHaveBeenCalled();
+        expect(mockCapture.mock.calls).toEqual([
+            ['checkout_started', { operation: 'purchase', plan: 'annual', entry_point: 'onboarding' }],
+            ['checkout_result', { operation: 'purchase', plan: 'annual', entry_point: 'onboarding', outcome: 'purchased' }],
+        ]);
+    });
+
+    it('captures one canonical checkout for concurrent callers and drops a late result after account change', async () => {
+        const { purchase } = loadStoreKit();
+        let rejectRequest!: (error: unknown) => void;
+        let requestStarted!: () => void;
+        const started = new Promise<void>((resolve) => { requestStarted = resolve; });
+        mockRequestPurchase.mockImplementation(() => new Promise((_, reject) => {
+            rejectRequest = reject;
+            requestStarted();
+        }));
+
+        const first = purchase('monthly', { entryPoint: 'account' });
+        const duplicate = purchase('monthly', { entryPoint: 'account' });
+        await started;
+        expect(mockCapture.mock.calls).toEqual([
+            ['checkout_started', { operation: 'purchase', plan: 'monthly', entry_point: 'account' }],
+        ]);
+        mockAnalyticsGeneration += 1;
+        rejectRequest({ code: 'network-error', message: 'private server payload' });
+        await expect(Promise.all([first, duplicate])).resolves.toEqual([{ status: 'failed' }, { status: 'failed' }]);
+        expect(mockCapture).toHaveBeenCalledTimes(1);
     });
 
     it('does not grant access when the server rejects the app-account link', async () => {
@@ -312,6 +352,10 @@ describe('real StoreKit bridge', () => {
         });
 
         await expect(purchase('monthly')).resolves.toEqual({ status: 'cancelled' });
+        expect(mockCapture).toHaveBeenLastCalledWith('checkout_result', {
+            operation: 'purchase', plan: 'monthly', entry_point: 'onboarding', outcome: 'cancelled',
+        });
+        expect(mockCapture.mock.calls.some(([event]) => event === 'critical_action_failed')).toBe(false);
     });
 
     it('finishes a purchase approved after the original request became pending', async () => {
@@ -336,6 +380,9 @@ describe('real StoreKit bridge', () => {
             purchase: approvedTransaction,
             isConsumable: false,
         });
+        expect(mockCapture.mock.calls.filter(([event]) => event === 'checkout_result')).toEqual([
+            ['checkout_result', { operation: 'purchase', plan: 'annual', entry_point: 'onboarding', outcome: 'pending' }],
+        ]);
     });
 
     it('restores only when Apple reports an active known product', async () => {
@@ -346,6 +393,9 @@ describe('real StoreKit bridge', () => {
 
         await expect(restore()).resolves.toEqual({ status: 'restored' });
         expect(mockRestorePurchases).toHaveBeenCalled();
+        expect(mockCapture).toHaveBeenLastCalledWith('checkout_result', {
+            operation: 'restore', plan: 'unknown', entry_point: 'onboarding', outcome: 'restored',
+        });
     });
 
     it('does not restore a receipt the server links to another app account', async () => {

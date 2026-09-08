@@ -63,6 +63,7 @@ export default function NotePreviewScreen() {
              invert with it, and change back the moment it is left. */ }
         { isFocused && <StatusBar style="light" /> }
         <OnboardingScreen
+            analyticsStep="note_preview"
             surface="accent"
             backHref="/(onboarding)/reviews-preview"
             headline={ NOTE_PREVIEW_COPY.headline }

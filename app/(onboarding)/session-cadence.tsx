@@ -19,6 +19,7 @@ export default function SessionCadenceScreen() {
 
     return (
         <OnboardingScreen
+            analyticsStep="session_cadence"
             step={ 3 }
             backHref="/(onboarding)/session-date"
             headline={ CADENCE_COPY.headline }

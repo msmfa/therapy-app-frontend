@@ -14,6 +14,7 @@ import { SampleNoteCard } from './SampleNoteCard';
 import { GradientCard } from '../ui/GradientCard';
 import AppText from '../ui/AppText';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
+import { captureNoteOpened } from '../../features/analytics/engagement';
 
 const BOTTOM_FADE = 96; // fade height at bottom (mask)
 const HEADER_GAP = 20; // gap between the pinned header and the first note
@@ -70,9 +71,20 @@ export default function NotesListScreen({
     const [listHeight, setListHeight] = React.useState(0);
     const [headerBlockHeight, setHeaderBlockHeight] = React.useState(0);
     const [previewNote, setPreviewNote] = React.useState<Note | null>(null);
+    const previewIdRef = React.useRef<string | null>(null);
     const [galleryExpanded, setGalleryExpanded] = React.useState(false);
 
     const toggleGallery = React.useCallback(() => setGalleryExpanded((open) => !open), []);
+    const openNote = React.useCallback((note: Note) => {
+        if (previewIdRef.current === note.id) return;
+        previewIdRef.current = note.id;
+        setPreviewNote(note);
+        captureNoteOpened(note.createdAt);
+    }, []);
+    const closeNote = React.useCallback(() => {
+        previewIdRef.current = null;
+        setPreviewNote(null);
+    }, []);
 
     const nominal = listHeight || 600;
     // Notes are masked out above the bottom of the pinned header, then fade in
@@ -149,7 +161,7 @@ export default function NotesListScreen({
                             <NoteCard
                                 item={ item }
                                 index={ index }
-                                onPress={ setPreviewNote }
+                                onPress={ openNote }
                                 progress={ progressFor?.(item) }
                             />
                         ) }
@@ -183,7 +195,7 @@ export default function NotesListScreen({
             <NotePreviewModal
                 visible={ isPreviewVisible }
                 note={ previewNote }
-                onClose={ () => setPreviewNote(null) }
+                onClose={ closeNote }
                 onUpdateNote={ onUpdateNote }
                 canReview={ previewNote ? (canReview?.(previewNote) ?? false) : false }
                 onReviewed={ onReviewed }

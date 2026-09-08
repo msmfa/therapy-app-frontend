@@ -61,6 +61,16 @@ afterEach(() => {
 });
 
 describe('NotePreviewModal editing layout', () => {
+    it('does not persist or report an edit when the text is unchanged', async () => {
+        const updateNote = jest.fn().mockResolvedValue(undefined);
+        renderModal(updateNote);
+        fireEvent.press(screen.getByLabelText('Edit note'));
+        fireEvent.changeText(screen.getByLabelText('Edit note'), `  ${note.text}  `);
+        await act(async () => { fireEvent.press(screen.getByLabelText('Save changes')); });
+        expect(updateNote).not.toHaveBeenCalled();
+        expect(screen.queryByLabelText('Save changes')).toBeNull();
+    });
+
     it('retains an edit after saving fails and allows retrying it', async () => {
         const updateNote = jest.fn()
             .mockRejectedValueOnce(new Error('Unable to update note right now.'))

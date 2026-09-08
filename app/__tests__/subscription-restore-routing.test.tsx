@@ -305,7 +305,7 @@ describe('restored-subscription onboarding routing', () => {
         fireEvent.press(getByText('Restore purchases'));
 
         await waitFor(() => {
-            expect(mockRestore).toHaveBeenCalledWith({ syncWithServer: true });
+            expect(mockRestore).toHaveBeenCalledWith({ syncWithServer: true, entryPoint: 'onboarding' });
             expect(mockSetAnswer).toHaveBeenCalledWith(
                 'entitlementConfirmedThisSession',
                 true,
@@ -330,7 +330,7 @@ describe('restored-subscription onboarding routing', () => {
 
         await waitFor(() => {
             expect(mockConsumePending).toHaveBeenCalledWith('subscription-preview');
-            expect(mockRestore).toHaveBeenCalledWith({ syncWithServer: true });
+            expect(mockRestore).toHaveBeenCalledWith({ syncWithServer: true, entryPoint: 'onboarding' });
             expect(mockSetAnswer).toHaveBeenCalledWith(
                 'entitlementConfirmedThisSession',
                 true,
@@ -439,7 +439,7 @@ describe('restored-subscription onboarding routing', () => {
 
         await waitFor(() => {
             expect(mockConsumePending).toHaveBeenCalledWith('account-preview');
-            expect(mockPurchase).toHaveBeenCalledWith('annual');
+            expect(mockPurchase).toHaveBeenCalledWith('annual', { entryPoint: 'onboarding' });
         });
     });
 
@@ -451,7 +451,7 @@ describe('restored-subscription onboarding routing', () => {
         fireEvent.press(getByText('Continue'));
 
         await waitFor(() => {
-            expect(mockPurchase).toHaveBeenCalledWith('annual');
+            expect(mockPurchase).toHaveBeenCalledWith('annual', { entryPoint: 'onboarding' });
             expect(mockRefreshEntitlement).toHaveBeenCalledTimes(1);
             expect(mockSetAnswer).toHaveBeenCalledWith(
                 'entitlementConfirmedThisSession',
@@ -486,7 +486,7 @@ describe('restored-subscription onboarding routing', () => {
         fireEvent.press(getByText('Continue'));
 
         await waitFor(() => {
-            expect(mockPurchase).toHaveBeenCalledWith('annual');
+            expect(mockPurchase).toHaveBeenCalledWith('annual', { entryPoint: 'account' });
             expect(mockRefreshEntitlement).toHaveBeenCalledTimes(1);
             expect(mockReplace).toHaveBeenCalledWith('/(tabs)');
         });

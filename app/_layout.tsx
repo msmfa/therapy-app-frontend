@@ -28,8 +28,11 @@ import { resolveNotificationRoute } from '../src/services/notifications/routing'
 import { AppAlertProvider } from '../src/context/alert';
 import { useFonts } from 'expo-font';
 import { initializeStoreKit } from '../src/features/subscription/storeKit';
+import { AnalyticsInitializer } from '../src/components/analytics/AnalyticsInitializer';
+import { captureNotificationOpened, rememberNotificationReceipt, type NotificationAnalyticsReceipt } from '../src/features/analytics/notificationAnalytics';
 
-const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN ?? process.env.SENTRY_DSN;
+const configuredSentryDsn: unknown = process.env.EXPO_PUBLIC_SENTRY_DSN ?? process.env.SENTRY_DSN;
+const SENTRY_DSN = typeof configuredSentryDsn === 'string' ? configuredSentryDsn : undefined;
 
 // This app handles special-category health data (GDPR Art. 9): therapy session
 // notes, appointment times, and the fact of being in therapy at all.
@@ -201,6 +204,7 @@ export default Sentry.wrap(function RootLayout() {
                             <OnboardingAnswersProvider>
                                 <EntitlementProvider>
                                     <SafeAreaProvider>
+                                        <AnalyticsInitializer />
                                         <Initializer />
                                         <Gate />
                                     </SafeAreaProvider>
@@ -267,13 +271,22 @@ interface NotificationNavigationHandlerProps {
  * outlives the remount, so a given notification is acted on exactly once.
  */
 const handledNotificationIds = new Set<string>();
+type PendingNotificationResponse = {
+    response: Notifications.NotificationResponse;
+    analyticsReceipt: NotificationAnalyticsReceipt;
+};
+const receivedNotification = (response: Notifications.NotificationResponse): PendingNotificationResponse => ({
+    response,
+    analyticsReceipt: rememberNotificationReceipt(response.notification.request.identifier),
+});
 
 function NotificationNavigationHandler({ isReady }: NotificationNavigationHandlerProps) {
     const router = useRouter();
-    const pendingResponseRef = useRef<Notifications.NotificationResponse | null>(null);
+    const pendingResponseRef = useRef<PendingNotificationResponse | null>(null);
 
-    const handleNotificationResponse = useCallback((response: Notifications.NotificationResponse | null) => {
-        if (!response) return;
+    const handleNotificationResponse = useCallback((pending: PendingNotificationResponse | null) => {
+        if (!pending) return;
+        const { response, analyticsReceipt } = pending;
 
         const notificationId = response.notification.request.identifier;
 
@@ -293,6 +306,7 @@ function NotificationNavigationHandler({ isReady }: NotificationNavigationHandle
         handledNotificationIds.add(notificationId);
 
         try {
+            captureNotificationOpened(notificationId, response.notification.request.content.data, analyticsReceipt);
             // The composer and the notes list are different destinations, and
             // only the push payload says which one this notification wants.
             router.replace(resolveNotificationRoute(response.notification.request.content.data));
@@ -322,11 +336,12 @@ function NotificationNavigationHandler({ isReady }: NotificationNavigationHandle
 
     useEffect(() => {
         const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+            const pending = receivedNotification(response);
             if (isReady) {
-                handleNotificationResponse(response);
+                handleNotificationResponse(pending);
                 return;
             }
-            pendingResponseRef.current = response;
+            pendingResponseRef.current = pending;
         });
 
         return () => subscription.remove();
@@ -339,10 +354,11 @@ function NotificationNavigationHandler({ isReady }: NotificationNavigationHandle
                 return;
             }
 
+            const pending = receivedNotification(response);
             if (isReady) {
-                handleNotificationResponse(response);
+                handleNotificationResponse(pending);
             } else {
-                pendingResponseRef.current = response;
+                pendingResponseRef.current = pending;
             }
         } catch (error) {
             Sentry.withScope((scope) => {

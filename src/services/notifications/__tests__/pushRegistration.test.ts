@@ -9,6 +9,20 @@ import {
 
 let mockTokenListener: ((token: { data: string }) => void) | null = null;
 const mockListenerRemove = jest.fn();
+const mockCapture = jest.fn();
+let mockAnalyticsGeneration = 0;
+
+jest.mock('../../../features/analytics/client', () => ({
+    analytics: {
+        getVisitId: () => 'test-visit',
+        beginOperation: () => {
+            const generation = mockAnalyticsGeneration;
+            return { capture: (...args: unknown[]) => {
+                if (generation === mockAnalyticsGeneration) mockCapture(...args);
+            } };
+        },
+    },
+}));
 
 jest.mock('expo-notifications', () => ({
     getPermissionsAsync: jest.fn(),
@@ -47,6 +61,7 @@ describe('shared push registration', () => {
     beforeEach(() => {
         resetPushRegistrationState();
         jest.clearAllMocks();
+        mockAnalyticsGeneration = 0;
         mockTokenListener = null;
         mockGetPermissions.mockResolvedValue({ status: 'granted' } as never);
         mockGetPushToken.mockResolvedValue({ data: 'ExponentPushToken[first]' } as never);
@@ -80,6 +95,37 @@ describe('shared push registration', () => {
         expect(mockGetPushToken).toHaveBeenCalledTimes(1);
         expect(mockRegister).toHaveBeenCalledTimes(1);
         expect(Notifications.addPushTokenListener).toHaveBeenCalledTimes(1);
+        expect(mockCapture.mock.calls).toEqual([
+            ['notification_setup_result', {
+                stage: 'registration', entry_point: 'app_start', outcome: 'registered',
+            }, undefined],
+        ]);
+    });
+
+    it('reports failed registration only after the backend rejects, without a token or payload', async () => {
+        mockRegister.mockRejectedValueOnce(new Error('private token and backend payload'));
+        await expect(ensurePushRegistration({ entryPoint: 'onboarding' })).resolves.toEqual({ status: 'failed' });
+        expect(mockCapture.mock.calls).toEqual([
+            ['notification_setup_result', { stage: 'registration', entry_point: 'onboarding', outcome: 'failed' }, undefined],
+            ['critical_action_failed', { operation: 'notification_registration', error_code: 'unknown' }],
+        ]);
+    });
+
+    it('drops a registration result if consent or analytics identity changed during the backend write', async () => {
+        let complete!: () => void;
+        let started!: () => void;
+        const writing = new Promise<void>((resolve) => { started = resolve; });
+        mockRegister.mockImplementationOnce(() => new Promise<void>((resolve) => {
+            complete = resolve;
+            started();
+        }));
+        const registration = ensurePushRegistration({ entryPoint: 'settings' });
+        await writing;
+        expect(mockCapture).not.toHaveBeenCalled();
+        mockAnalyticsGeneration += 1;
+        complete();
+        await registration;
+        expect(mockCapture).not.toHaveBeenCalled();
     });
 
     it('replaces a rotated token and removes the obsolete backend row', async () => {

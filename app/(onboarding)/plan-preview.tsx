@@ -53,6 +53,7 @@ export default function PlanPreviewScreen() {
 
     return (
         <OnboardingScreen
+            analyticsStep="plan_preview"
             backHref="/(onboarding)/reminder-times"
             headline={ isSamplePlan ? PLAN_COPY.sampleHeadline : planHeadline() }
             supporting={ isSamplePlan ? samplePlanBody(answers.cadence) : undefined }

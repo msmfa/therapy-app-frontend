@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import { analytics } from '../analytics/client';
 import {
     getAppAccountToken,
     getServerEntitlement,
@@ -459,13 +460,42 @@ const performPurchase = async (plan: PlanId): Promise<PurchaseResult> => {
     }
 };
 
-export async function purchase(plan: PlanId): Promise<PurchaseResult> {
-    if (devFixtureActive()) {
-        return DEV_FIXTURE_PURCHASE;
+type CheckoutEntryPoint = 'onboarding' | 'account' | 'settings';
+
+async function trackCheckout(
+    operation: 'purchase' | 'restore',
+    plan: PlanId | 'unknown',
+    entryPoint: CheckoutEntryPoint,
+    run: () => Promise<PurchaseResult>,
+): Promise<PurchaseResult> {
+    // Capture ownership before Apple's sheet or a server request can outlive
+    // the signed-in account or the user's analytics permission.
+    const scope = analytics.beginOperation();
+    const properties = { operation, plan, entry_point: entryPoint };
+    scope.capture('checkout_started', properties);
+    const result = await run();
+    scope.capture('checkout_result', { ...properties, outcome: result.status });
+    if (result.status === 'failed' || result.status === 'unlinked') {
+        scope.capture('critical_action_failed', {
+            operation: 'checkout',
+            error_code: result.status === 'unlinked' ? 'auth' : 'store',
+        });
     }
+    return result;
+}
+
+export async function purchase(
+    plan: PlanId,
+    options: { entryPoint?: CheckoutEntryPoint } = {},
+): Promise<PurchaseResult> {
 
     if (purchaseInFlight === null) {
-        purchaseInFlight = performPurchase(plan).finally(() => {
+        purchaseInFlight = trackCheckout(
+            'purchase',
+            plan,
+            options.entryPoint ?? 'onboarding',
+            () => devFixtureActive() ? Promise.resolve(DEV_FIXTURE_PURCHASE) : performPurchase(plan),
+        ).finally(() => {
             purchaseInFlight = null;
         });
     }
@@ -474,7 +504,18 @@ export async function purchase(plan: PlanId): Promise<PurchaseResult> {
 }
 
 export async function restore(
-    options: { syncWithServer?: boolean } = {},
+    options: { syncWithServer?: boolean; entryPoint?: CheckoutEntryPoint } = {},
+): Promise<PurchaseResult> {
+    return trackCheckout(
+        'restore',
+        'unknown',
+        options.entryPoint ?? 'onboarding',
+        () => performRestore(options),
+    );
+}
+
+async function performRestore(
+    options: { syncWithServer?: boolean },
 ): Promise<PurchaseResult> {
     if (devFixtureActive()) {
         return { status: 'restored' };

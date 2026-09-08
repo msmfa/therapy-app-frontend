@@ -10,6 +10,7 @@ import * as SecureStore from 'expo-secure-store';
 
 import { ApiError, configureApiClient } from '../../api/client';
 import { refreshAuthToken } from '../../api/auth';
+import { analytics } from '../../features/analytics/client';
 
 const normalizeToken = (value: string | null | undefined): string | null => {
     if (!value) {
@@ -146,6 +147,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 // no-op: the user is stuck with no path back to login. Discard
                 // it and start clean instead.
                 if (!normalized || !hydratedUser) {
+                    analytics.setIdentity(null);
                     if (storedToken || storedRefreshToken || storedUser) {
                         console.warn(
                             '[AuthProvider] Discarding incomplete persisted session',
@@ -175,6 +177,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
                 tokenRef.current = normalized;
                 userRef.current = hydratedUser;
+                analytics.setIdentity(hydratedUser.id);
                 setToken(normalized);
                 setUser(hydratedUser);
 
@@ -193,6 +196,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 tokenRef.current = null;
                 refreshTokenRef.current = null;
                 userRef.current = null;
+                analytics.setIdentity(null);
                 setToken(null);
                 setRefreshToken(null);
                 setUser(null);
@@ -213,6 +217,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (version !== sessionVersionRef.current) return;
         const normalizedToken = normalizeToken(t);
         const cleanedRefreshToken = refresh?.trim() || null;
+
+        // A changed server user is a real account transition. Ordinary token
+        // refresh keeps the same identity; sign-out cleanup cannot revive it.
+        if (!signingOutRef.current && userRef.current?.id !== u?.id) {
+            analytics.setIdentity(normalizedToken && u ? u.id : null);
+        }
 
         tokenRef.current = normalizedToken;
         refreshTokenRef.current = cleanedRefreshToken;
@@ -255,6 +265,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const version = ++sessionVersionRef.current;
         signingOutRef.current = false;
         refreshInFlight.current = null;
+        analytics.setIdentity(normalizeToken(t) && u ? u.id : null);
         await commitAuth(t, u, refresh, version);
     }, [commitAuth]);
 
@@ -310,6 +321,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // refresh can supply its successor. Completion invalidates late work.
         const version = sessionVersionRef.current;
         signingOutRef.current = true;
+        // Invalidate analytics callbacks immediately, before bounded auth
+        // cleanup runs. Historical events still belong to the canonical ID.
+        analytics.setIdentity(null);
         // Cleanup runs FIRST, while the token is still live. Clearing
         // credentials up front meant the push de-registration went out
         // unauthenticated, failed with a 401, and left the device row on the

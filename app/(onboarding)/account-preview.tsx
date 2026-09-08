@@ -82,7 +82,9 @@ export default function AccountPreviewScreen() {
 
         // Apple presents its own confirmation sheet here, with the localised
         // price and trial. Nothing about it is drawn by the app.
-        const result = await purchase(answers.plan);
+        const result = await purchase(answers.plan, {
+            entryPoint: hasOnboarded ? 'account' : 'onboarding',
+        });
         purchaseStartedRef.current = false;
 
         if (result.status === 'purchased' || result.status === 'restored') {
@@ -186,6 +188,7 @@ export default function AccountPreviewScreen() {
 
         return (
             <OnboardingScreen
+                analyticsStep="account_preview"
                 backHref="/(onboarding)/subscription-preview"
                 headline={ failedCopy.headline }
                 supporting={ failedCopy.body }
@@ -208,6 +211,7 @@ export default function AccountPreviewScreen() {
 
     return (
         <OnboardingScreen
+            analyticsStep="account_preview"
             backHref="/(onboarding)/subscription-preview"
             headline={ ACCOUNT_COPY.headline }
             supporting={ isAuthenticated

@@ -16,6 +16,7 @@ export default function GoalScreen() {
 
     return (
         <OnboardingScreen
+            analyticsStep="goal"
             step={ 1 }
             backHref="/(onboarding)"
             headline={ GOAL_COPY.headline }

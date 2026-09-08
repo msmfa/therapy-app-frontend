@@ -6,6 +6,7 @@ import * as React from 'react';
 import { useTherapySessions } from '../../context/therapy-sessions/TherapySessionsContext';
 import { useDeviceTimeZone } from '../../hooks/useDeviceTimeZone';
 import { sessionScheduleInputs } from '../reminders/reminderScheduleConfig';
+import { beginEngagement } from '../analytics/engagement';
 import { attributeReview, type ReviewAttribution } from './reviewAttribution';
 import {
     gapIndexForReview,
@@ -156,6 +157,7 @@ export function useNoteReviews(userId: string | undefined) {
             const attribution = attributionFor(note, at);
             if (!userId) return { recorded: false, attribution };
             if (hasAnswered(note.id, attribution)) return { recorded: false, attribution };
+            const engagement = beginEngagement(userId);
 
             try {
                 const recorded = await recordReview(
@@ -164,6 +166,13 @@ export function useNoteReviews(userId: string | undefined) {
                     attribution,
                     at.getTime(),
                 );
+
+                if (recorded) {
+                    engagement.reviewCompleted(note.id, at.getTime(), attribution.reason ?? 'unprompted', async () => {
+                        const stored = await listReviewsForUser(userId);
+                        return { overall: stored.length === 1, forNote: stored.filter((row) => row.noteId === note.id).length === 1 };
+                    });
+                }
 
                 if (recorded && ownerRef.current === userId) {
                     setReviews((prev) => [
@@ -188,6 +197,7 @@ export function useNoteReviews(userId: string | undefined) {
                 return { recorded, attribution };
             } catch (err) {
                 console.warn('useNoteReviews.markReviewed', err);
+                engagement.failed('review_save');
                 setError('Failed to save review');
                 throw new Error('Failed to save review. Please try again.');
             }

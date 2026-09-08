@@ -24,6 +24,8 @@ import { onboardingStyles } from '../../src/components/onboarding/onboardingStyl
 import { BRAND_FONTS } from 'designs/designs-typography';
 import { PaperGrain } from '../../src/components/onboarding/PaperGrain';
 import { shouldUseCombinedOnboardingScroll } from '../../src/components/onboarding/OnboardingScreen';
+import { OnboardingStepAnalytics } from '../../src/features/onboarding/OnboardingStepAnalytics';
+import { AnalyticsConsentControl } from '../../src/components/analytics/AnalyticsConsentControl';
 
 export default function WelcomeScreen() {
     const router = useRouter();
@@ -71,6 +73,7 @@ export default function WelcomeScreen() {
 
     const footer = (
         <View style={ styles.footer }>
+            <AnalyticsConsentControl />
             <OnboardingButton
                 appearance="solid"
                 label={ WELCOME_COPY.primaryCta }
@@ -135,6 +138,7 @@ export default function WelcomeScreen() {
 
     return (
         <View style={ styles.safeArea }>
+            <OnboardingStepAnalytics step="welcome" />
             <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_RIGHT } />
 
             { /* The same grain the rest of the flow is printed on, over the

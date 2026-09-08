@@ -91,7 +91,10 @@ export default function SubscriptionPreviewScreen() {
         setRestoreInProgress(true);
 
         try {
-            const result = await restore({ syncWithServer: true });
+            const result = await restore({
+                syncWithServer: true,
+                entryPoint: hasOnboarded ? 'account' : 'onboarding',
+            });
 
             if (result.status === 'restored') {
                 // A restored entitlement is as good as a fresh purchase: record it
@@ -191,6 +194,7 @@ export default function SubscriptionPreviewScreen() {
         return (
             <OnboardingScreen
                 { ...backNavigation }
+                analyticsStep="subscription_preview"
                 headline={ failure.headline }
                 supporting={ failure.body }
                 footer={ <>
@@ -211,6 +215,7 @@ export default function SubscriptionPreviewScreen() {
     return (
         <OnboardingScreen
             { ...backNavigation }
+            analyticsStep="subscription_preview"
             headline={ SUBSCRIPTION_COPY.planHeader }
             footer={
                 <>

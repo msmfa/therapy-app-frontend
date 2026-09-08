@@ -114,6 +114,11 @@ export function NotePreviewModal({
             setError('Notes cannot be empty.');
             return;
         }
+        if (value === note.text) {
+            setIsEditing(false);
+            setError(null);
+            return;
+        }
 
         saveInFlight.current = true;
         try {

@@ -135,6 +135,7 @@ export default function SessionDateScreen() {
 
     return (
         <OnboardingScreen
+            analyticsStep="session_date"
             step={ 2 }
             backHref="/(onboarding)/goal"
             headline={ SESSION_DATE_COPY.headline }

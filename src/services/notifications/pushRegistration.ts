@@ -6,6 +6,7 @@ import { Platform } from 'react-native';
 
 import { registerDeviceToken, unregisterDeviceToken } from '../../api/devices';
 import { toError } from '../../utils/errors';
+import { analytics } from '../../features/analytics/client';
 
 export type PushRegistrationResult =
   | { status: 'registered'; token: string }
@@ -103,16 +104,35 @@ function installTokenRefreshListener(): void {
  * function afterwards, and the shared in-flight promise ensures they cannot
  * create duplicate registration work.
  */
-export async function ensurePushRegistration(): Promise<PushRegistrationResult> {
-    if (!Device.isDevice) {
-        return { status: 'unsupported' };
-    }
-
+export async function ensurePushRegistration(
+    options: { entryPoint?: 'onboarding' | 'settings' | 'app_start' } = {},
+): Promise<PushRegistrationResult> {
     if (registrationInFlight !== null) {
         return registrationInFlight;
     }
 
+    const scope = analytics.beginOperation();
+    const entry_point = options.entryPoint ?? 'app_start';
     const generation = lifecycleGeneration;
+    const captureResult = (outcome: 'registered' | 'denied' | 'failed' | 'skipped'): void => {
+        if (generation !== lifecycleGeneration) return;
+        scope.capture('notification_setup_result', {
+            stage: 'registration', entry_point, outcome,
+        }, outcome === 'denied' || outcome === 'skipped'
+            ? { dedupeKey: `notification-registration:${analytics.getVisitId()}:${entry_point}:${outcome}` }
+            : undefined);
+        if (outcome === 'failed') {
+            scope.capture('critical_action_failed', {
+                operation: 'notification_registration', error_code: 'unknown',
+            });
+        }
+    };
+
+    if (!Device.isDevice) {
+        captureResult('skipped');
+        return { status: 'unsupported' };
+    }
+
     const request = (async () => {
         try {
             const permission = await Notifications.getPermissionsAsync();
@@ -127,6 +147,7 @@ export async function ensurePushRegistration(): Promise<PushRegistrationResult> 
                         console.warn('[PushNotifications] Failed to remove disabled token:', error);
                     });
                 }
+                captureResult('denied');
                 return { status: 'permission_denied' } as const;
             }
 
@@ -153,9 +174,11 @@ export async function ensurePushRegistration(): Promise<PushRegistrationResult> 
             currentPushToken = token;
             installTokenRefreshListener();
 
+            captureResult('registered');
             return { status: 'registered', token } as const;
         } catch (error) {
             reportRegistrationError(error);
+            captureResult('failed');
             return { status: 'failed' } as const;
         }
     })();

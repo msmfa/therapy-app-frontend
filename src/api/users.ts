@@ -18,6 +18,8 @@ export const deleteCurrentUser = async (): Promise<void> => {
 };
 
 export type UpdateCurrentUserInput = {
+    /** Optional, account-scoped product analytics consent. Omitted means unchanged. */
+    analyticsConsent?: boolean;
     /** IANA identifier, e.g. "Europe/London". */
     timeZone?: string;
     /**
@@ -34,6 +36,7 @@ export type UpdateCurrentUserInput = {
 };
 
 export type CurrentUserSettings = {
+    analyticsConsent?: boolean;
     morningReminderMinutes?: number;
     eveningReminderMinutes?: number;
     reflectionGoal?: GoalId;

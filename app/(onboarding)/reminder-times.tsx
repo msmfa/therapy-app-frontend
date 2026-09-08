@@ -82,6 +82,7 @@ export default function ReminderTimesScreen() {
 
     return (
         <OnboardingScreen
+            analyticsStep="reminder_times"
             step={ 4 }
             backHref="/(onboarding)/session-cadence"
             headline={ REMINDER_TIMES_COPY.headline }

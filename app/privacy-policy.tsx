@@ -9,7 +9,7 @@ import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { GlassCircleButton } from '../src/components/ui/GlassCircleButton';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 
-const EFFECTIVE_DATE = 'August 26, 2026';
+const EFFECTIVE_DATE = 'September 8, 2026';
 
 export default function PrivacyPolicyScreen() {
     const router = useRouter();
@@ -94,8 +94,8 @@ export default function PrivacyPolicyScreen() {
                         <AppText variant='body'>
                             This information is linked to your Plastic Brains account so the app can unlock the features you
                             have paid for on any device you sign in to, and so Restore Purchases works. It is not used for
-                            advertising or profiling, is never combined with the contents of your therapy notes, and is not
-                            sold or shared with third parties.
+                            advertising, is never combined with the contents of your therapy notes, and is not
+                            sold. If you opt into app analytics, limited subscription events may be shared with PostHog as described below. Payment credentials and Apple transaction identifiers are not included in those analytics.
                         </AppText>
                         <Spacer variant={ SpacerVariant.small } />
                         <AppText variant='body'>
@@ -105,6 +105,23 @@ export default function PrivacyPolicyScreen() {
                             delete them. Deleting your account removes them on the same terms described under Data retention &
                             deletion; it does not cancel an Apple subscription, which you cancel in your Apple ID subscription
                             settings.
+                        </AppText>
+                    </View>
+
+                    <Spacer variant={ SpacerVariant.large } />
+                    <View style={ styles.section }>
+                        <AppText variant='h2'>Optional app analytics</AppText>
+                        <Spacer variant={ SpacerVariant.small } />
+                        <AppText variant='body'>
+                            App analytics are off unless you choose to share app usage. You can make this choice on Welcome and change it in Settings. If enabled, PostHog receives a small set of events about onboarding, checkout, saving or opening notes, confirming reviews, notification setup and opens, and errors that prevent an action from completing. These events help us understand which features work and where people get stuck.
+                        </AppText>
+                        <Spacer variant={ SpacerVariant.small } />
+                        <AppText variant='body'>
+                            Events use an account identifier so we can understand repeat use across visits. We do not send your name, email address, note contents or titles, therapy goals, exact appointment dates, passwords, or notification contents to PostHog. We do not record your screen or automatically capture taps. An account identifier is pseudonymous, not anonymous.
+                        </AppText>
+                        <Spacer variant={ SpacerVariant.small } />
+                        <AppText variant='body'>
+                            Turning analytics off stops future app event collection. It does not itself delete events already received. You can request deletion of analytics history by contacting us, including when deleting your account. We do not use these events for advertising.
                         </AppText>
                     </View>
 
@@ -162,7 +179,7 @@ export default function PrivacyPolicyScreen() {
                         <Spacer variant={ SpacerVariant.small } />
                         <AppText variant='body'>
                             We do not sell your personal information. We only share data with:
-                            { '\n' }- Service providers that help us operate the app (hosting, authentication, notifications).
+                            { '\n' }- Service providers that help us operate the app (hosting, authentication, notifications), and PostHog when you choose optional app analytics.
                             { '\n' }- Authorities or advisors when required by law or to protect rights, safety, or property.
                         </AppText>
                     </View>

@@ -97,7 +97,7 @@ export default function NotificationsPreviewScreen() {
         // duplicate local copy of the first push; remove any one they left.
         await cancelOnboardingReminder().catch(() => undefined);
         const outcome = granted
-            ? await ensurePushRegistration()
+            ? await ensurePushRegistration({ entryPoint: 'onboarding' })
             : ({ status: 'permission_denied' } as const);
 
         if (!mountedRef.current) {
@@ -155,6 +155,7 @@ export default function NotificationsPreviewScreen() {
     if (stage === 'blocked') {
         return (
             <OnboardingScreen
+                analyticsStep="notifications_preview"
                 showBack={ false }
                 headline={ NOTIFICATIONS_COPY.deniedHeadline }
                 supporting={ NOTIFICATIONS_COPY.deniedBody }
@@ -179,6 +180,7 @@ export default function NotificationsPreviewScreen() {
 
     return (
         <OnboardingScreen
+            analyticsStep="notifications_preview"
             showBack={ false }
             headline={ notificationsHeadline(
                 weekdayName(firstReminderAt),

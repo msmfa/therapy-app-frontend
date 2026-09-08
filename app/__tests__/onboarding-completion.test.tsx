@@ -8,6 +8,19 @@ const mockDiscardDraft = jest.fn();
 const mockUpdateCurrentUser = jest.fn();
 const mockRefreshReminderSchedule = jest.fn();
 const mockShowAlert = jest.fn();
+const mockCapture = jest.fn();
+let mockAnalyticsGeneration = 0;
+
+jest.mock('../../src/features/analytics/client', () => ({
+	analytics: {
+		beginOperation: () => {
+			const generation = mockAnalyticsGeneration;
+			return { capture: (...args: unknown[]) => {
+				if (generation === mockAnalyticsGeneration) mockCapture(...args);
+			} };
+		},
+	},
+}));
 
 let mockSessionAt = new Date();
 let mockGoal: 'remember' | null = 'remember';
@@ -92,6 +105,7 @@ import SuccessScreen from '../(onboarding)/success';
 describe('onboarding completion', () => {
 	beforeEach(() => {
 		jest.clearAllMocks();
+		mockAnalyticsGeneration = 0;
 		mockGoal = 'remember';
 		mockCadence = 'weekly';
 		mockEntitlementConfirmed = true;
@@ -120,6 +134,22 @@ describe('onboarding completion', () => {
 			reflectionGoal: 'remember',
 		});
 		expect(mockFinishOnboarding).toHaveBeenCalledTimes(1);
+		expect(mockCapture).toHaveBeenCalledWith('onboarding_completed', { plan_mode: 'sample' }, {
+			dedupeKey: 'onboarding-completed',
+		});
+	});
+
+	it('captures completion only after persistence and never attributes an old account result to a new one', async () => {
+		let finish!: () => void;
+		mockFinishOnboarding.mockImplementationOnce(() => new Promise<void>((resolve) => { finish = resolve; }));
+		const { getByText } = render(<SuccessScreen />);
+		fireEvent.press(getByText('Save and see my plan'));
+		await waitFor(() => expect(mockFinishOnboarding).toHaveBeenCalledTimes(1));
+		expect(mockCapture).not.toHaveBeenCalled();
+		mockAnalyticsGeneration += 1;
+		finish();
+		await waitFor(() => expect(mockDiscardDraft).toHaveBeenCalledTimes(1));
+		expect(mockCapture).not.toHaveBeenCalled();
 	});
 
 	it('saves sessions and reminder choices before completing and clearing the draft', async () => {
@@ -174,6 +204,10 @@ describe('onboarding completion', () => {
 		expect(mockFinishOnboarding).not.toHaveBeenCalled();
 		expect(mockDiscardDraft).not.toHaveBeenCalled();
 		expect(mockReplace).not.toHaveBeenCalled();
+		expect(mockCapture.mock.calls.some(([event]) => event === 'onboarding_completed')).toBe(false);
+		expect(mockCapture).toHaveBeenCalledWith('critical_action_failed', {
+			operation: 'onboarding_save', error_code: 'unknown',
+		});
 	});
 
 	it('keeps onboarding resumable when reminder preferences cannot be saved', async () => {

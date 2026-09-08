@@ -17,8 +17,12 @@ import { BackButton } from '../ui/BackButton';
 import { GlassMorphismWithCircle } from '../ui/GlassMorphismWithCircle';
 import { PaperGrain } from './PaperGrain';
 import { onboardingAccentStyles, onboardingStyles } from './onboardingStyles';
+import { OnboardingStepAnalytics } from '../../features/onboarding/OnboardingStepAnalytics';
+import type { OnboardingStep } from '../../features/analytics/events';
 
 type BaseProps = {
+    /** Static analytics label, supplied only by a step's visible UI branch. */
+    analyticsStep?: OnboardingStep;
     /** 1-4 for the personalisation questions; omitted elsewhere. */
     step?: number;
     headline: string;
@@ -106,6 +110,7 @@ const BUTTON_SHADOW_SPACE = 48;
  * unreachable.
  */
 export function OnboardingScreen({
+    analyticsStep,
     step,
     headline,
     supporting,
@@ -198,6 +203,7 @@ export function OnboardingScreen({
 
     return (
         <View style={ [styles.safeArea, isAccent && styles.accentSurface] }>
+            { analyticsStep !== undefined && <OnboardingStepAnalytics step={ analyticsStep } /> }
             { /* Glass only. The gradient circle is Welcome's alone: repeating it
                  behind every step made the artwork read as chrome rather than
                  as the opening image. */ }

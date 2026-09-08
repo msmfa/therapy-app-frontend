@@ -83,14 +83,14 @@ export default function ReminderSettingsScreen() {
         try {
             let permission = await readNotificationPermission();
             if (!permission.granted && permission.canAskAgain) {
-                permission = await requestNotificationPermission();
+                permission = await requestNotificationPermission({ entryPoint: 'settings' });
             } else if (!permission.granted || notificationStatus === 'on') {
                 await Linking.openSettings();
                 return;
             }
             setNotificationStatus(permission.granted ? 'on' : 'off');
             if (permission.granted) {
-                const registration = await ensurePushRegistration();
+                const registration = await ensurePushRegistration({ entryPoint: 'settings' });
                 if (registration.status === 'failed') {
                     showAlert("We couldn't enable reminders", 'Please try again when you are online.');
                 }

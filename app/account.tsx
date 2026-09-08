@@ -10,6 +10,9 @@ import Loading from '../src/components/ui/Loading';
 import { deleteCurrentUser } from '../src/api/users';
 import { clearNotesForUser } from '../src/features/notes/useNotes';
 import { useAppAlert } from '../src/context/alert';
+import { AnalyticsConsentControl } from '../src/components/analytics/AnalyticsConsentControl';
+import { analytics } from '../src/features/analytics/client';
+import { analyticsConsentSync } from '../src/features/analytics/consentSync';
 
 /** Where support mail from the app goes. */
 const SUPPORT_EMAIL = 'michael@plastic-brains.com';
@@ -46,6 +49,12 @@ export default function AccountSettingsScreen() {
             // deletion has actually succeeded. If the request fails, the user
             // keeps both the account and the notes.
             await deleteCurrentUser();
+
+            // Local analytics cleanup follows the verified account deletion.
+            // A storage failure here must never prevent the remaining cleanup.
+            const pendingConsentCleanup = analyticsConsentSync.forgetAccount(user.id).catch(() => undefined);
+            await analytics.forgetAccount(user.id).catch(() => undefined);
+            await pendingConsentCleanup;
 
             try {
                 await clearNotesForUser(user.id);
@@ -129,6 +138,7 @@ export default function AccountSettingsScreen() {
                     />
                     <SettingsRow text="Contact us" onPress={ handleContactUs } />
                     <SettingsRow text="Privacy Policy" onPress={ handlePrivacyPolicy } />
+                    <AnalyticsConsentControl />
                     <SettingsRow text="Delete account" onPress={ onDeleteAccount } />
                     <SettingsRow text="Terms of Service" onPress={ handleTermsOfService } />
                     <SettingsRow

@@ -66,6 +66,7 @@ export default function ReviewsPreviewScreen() {
 
     return (
         <OnboardingScreen
+            analyticsStep="reviews_preview"
             backHref="/(onboarding)/plan-preview"
             headline={ REVIEWS_PREVIEW_COPY.headline }
             supporting={ evidenceStatement(answers.goal) }

@@ -21,6 +21,7 @@ import { updateCurrentUser } from '../../src/api/users';
 import { DEFAULT_SESSION_MINUTES } from '../../src/features/reminders/reminderScheduleConfig';
 import { timeLabel, weekdayName } from '../../src/features/onboarding/formatting';
 import { firstIncompletePlanRoute } from '../../src/features/onboarding/flowGuard';
+import { analytics } from '../../src/features/analytics/client';
 
 export default function SuccessScreen() {
     const router = useRouter();
@@ -48,6 +49,7 @@ export default function SuccessScreen() {
 
         completionTriggeredRef.current = true;
         setIsCompleting(true);
+        const analyticsScope = analytics.beginOperation();
 
         try {
             // Sessions first. Onboarding is not finished until the schedule the
@@ -77,12 +79,21 @@ export default function SuccessScreen() {
             await refreshReminderSchedule();
 
             await finishOnboarding();
+            analyticsScope.capture('onboarding_completed', {
+                plan_mode: answers.sessionAt === null ? 'sample' : 'real',
+            }, { dedupeKey: 'onboarding-completed' });
 
             // Only now: the flow is done, so the draft has nothing left to
             // resume and no reason to sit in the keychain.
             await discardDraft();
             router.replace('/(tabs)/calendar');
         } catch (error) {
+            analyticsScope.capture('critical_action_failed', {
+                operation: 'onboarding_save',
+                error_code: error instanceof OnboardingCompletionError && error.reason === 'no_user'
+                    ? 'auth'
+                    : 'unknown',
+            });
             // The draft is untouched, so the user resumes rather than starting
             // over. A missing account is its own problem and needs sign-in, not
             // a retry.
@@ -138,6 +149,7 @@ export default function SuccessScreen() {
 
     return (
         <OnboardingScreen
+            analyticsStep="success"
             showBack={ false }
             headline={ headline }
             supporting={ body }
