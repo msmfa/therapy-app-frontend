@@ -5,7 +5,7 @@ import { buildDefinitions, createApi, provision, readConfiguration } from './pro
 
 const copy = (value) => JSON.parse(JSON.stringify(value));
 function fixture() {
-    const rows = { dashboards: [], insights: [], cohorts: [] };
+    const rows = { dashboards: [], insights: [], cohorts: [{ id: 223892, name: 'Internal / Test users' }] };
     const calls = [];
     let id = 1;
     const api = {
@@ -45,7 +45,10 @@ test('creates exactly one dashboard, seven insights, two cohorts, then reruns wi
     assert.deepEqual(f.rows.insights.map((row) => row.dashboards), Array.from({ length: 7 }, () => [created.dashboardId]));
     // Defaults/derived fields added by the API do not cause endless updates.
     f.rows.insights[0].query.source.response = null;
-    f.rows.cohorts[0].filters.properties.values[0].bytecode = ['derived'];
+    f.rows.cohorts.find((row) => row.name === 'Power users — 60 days').filters.properties.values[0].bytecode = ['derived'];
+    for (const row of f.rows.cohorts.filter((cohort) => cohort.filters)) {
+        row.filters.properties = { type: 'OR', values: [row.filters.properties] };
+    }
     f.calls.length = 0;
     const second = await provision({ api: f.api, apply: true });
     assert.ok(second.objects.every((row) => row.action === 'unchanged'));
@@ -131,13 +134,28 @@ test('production, people aggregation, OR grouping, windows and cohort thresholds
     [['note_saved', 'gte', 2, 60], ['review_completed', 'gte', 4, 60]]);
     for (const cohort of definitions.cohorts) {
         assert.equal(cohort.is_static, false);
-        assert.equal(cohort.filters.filterTestAccounts, true);
+        assert.equal(cohort.filters.filterTestAccounts, false);
+        assert.ok(cohort.filters.properties.values.some((p) => p.type === 'cohort' && p.value === 223892 && p.negation));
         assert.ok(cohort.filters.properties.values.some((p) => p.type === 'cohort' && p.value === 77 && p.negation));
         for (const row of cohort.filters.properties.values.filter((p) => p.type === 'behavioral')) {
             assert.ok(row.event_filters.some((p) => p.key === 'environment' && p.value[0] === 'production'));
         }
     }
     assert.equal(manifest.insights[0].query.source.properties.length, 1, 'building overrides cannot mutate the source manifest');
+});
+
+test('required hosted internal cohort survives default and additive provisioning without duplicates', async () => {
+    const definitions = buildDefinitions([223892, 77, 223892, 77]);
+    for (const cohort of definitions.cohorts) {
+        assert.deepEqual(cohort.filters.properties.values.filter((p) => p.type === 'cohort').map((p) => p.value), [223892, 77]);
+    }
+    const f = fixture();
+    f.rows.cohorts = [];
+    await assert.rejects(provision({ api: f.api, apply: true }), /Excluded cohort 223892 was not found/);
+    assert.equal(f.writes().length, 0);
+    f.rows.cohorts.push({ id: 223892, name: 'Internal / Test users', deleted: true });
+    await assert.rejects(provision({ api: f.api, apply: true }), /Excluded cohort 223892 was not found/);
+    assert.equal(f.writes().length, 0);
 });
 
 const config = { apiKey: 'phx_test_private_secret', appHost: manifest.target.appHost, projectId: manifest.target.projectId };

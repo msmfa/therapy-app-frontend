@@ -2,6 +2,8 @@
 // PostHog/posthog frontend/src/queries/schema/schema-general.ts + posthog/api/cohort.py.
 const property = (key, ...value) => ({ key, type: 'event', operator: 'exact', value });
 const production = property('environment', 'production');
+// Existing project cohort, verified in the hosted UI during rollout.
+const internalTestCohortId = 223892;
 const event = (name, ...properties) => ({ kind: 'EventsNode', event: name, properties });
 const group = (name, nodes) => ({ kind: 'GroupNode', operator: 'OR', name, nodes });
 const base = (days) => ({
@@ -27,7 +29,11 @@ const behavior = (name, minimum, ...properties) => ({
 });
 const cohort = (name, description, values) => ({
     name, description, is_static: false,
-    filters: { filterTestAccounts: true, properties: { type: 'AND', values } },
+    // The UI disables the global filter for cohorts when that filter itself
+    // references a cohort. Preserve its intended exclusion explicitly instead.
+    filters: { filterTestAccounts: false, properties: { type: 'AND', values: [
+        ...values, { type: 'cohort', key: 'id', value: internalTestCohortId, negation: true },
+    ] } },
 });
 const newNote = () => event('note_saved', property('operation', 'new'));
 const returningReview = () => event('review_completed',
@@ -35,7 +41,7 @@ const returningReview = () => event('review_completed',
 
 export const manifest = {
     version: 1,
-    target: { appHost: 'https://eu.posthog.com', projectId: '260159', projectName: 'Plastic Brains' },
+    target: { appHost: 'https://eu.posthog.com', projectId: '260159', projectName: 'Plastic Brains', internalTestCohortId },
     dashboard: {
         name: 'Plastic Brains — meaningful use',
         description: 'Opted-in production users only. Project internal/test filters apply. These measures describe product use, not clinical outcomes or all customers. Windows differ by tile; recent funnel entrants and retention cohorts have incomplete follow-up. Billing records remain authoritative for subscriber totals.',

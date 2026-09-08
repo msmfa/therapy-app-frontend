@@ -84,16 +84,30 @@ function exactMatch(rows, name) {
     return matches[0] || null;
 }
 
+function withoutSingleGroupWrappers(group) {
+    if (!group || !['AND', 'OR'].includes(group.type) || !Array.isArray(group.values)) return group;
+    const values = group.values.map(withoutSingleGroupWrappers);
+    // The cohort UI wraps its one criteria group in another AND/OR group.
+    // A single nested group has identical logic and should not cause writes.
+    if (values.length === 1 && ['AND', 'OR'].includes(values[0]?.type) && Array.isArray(values[0]?.values)) return values[0];
+    return { ...group, values };
+}
+
 const normalized = (resource, object) => resource === 'insights'
-    ? { ...object, dashboards: [...(object.dashboards || [])].sort((a, b) => a - b) } : object;
+    ? { ...object, dashboards: [...(object.dashboards || [])].sort((a, b) => a - b) }
+    : resource === 'cohorts' && object.filters ? {
+        ...object, filters: { ...object.filters, properties: withoutSingleGroupWrappers(object.filters.properties) },
+    } : object;
 
 export function buildDefinitions(excludedCohortIds = []) {
     const definitions = clone(manifest);
+    const extraIds = [...new Set(excludedCohortIds)];
     for (const insight of definitions.insights) {
-        insight.query.source.properties.push(...excludedCohortIds.map((id) => ({ type: 'cohort', key: 'id', value: id, operator: 'not_in' })));
+        insight.query.source.properties.push(...extraIds.map((id) => ({ type: 'cohort', key: 'id', value: id, operator: 'not_in' })));
     }
     for (const cohort of definitions.cohorts) {
-        cohort.filters.properties.values.push(...excludedCohortIds.map((id) => ({ type: 'cohort', key: 'id', value: id, negation: true })));
+        cohort.filters.properties.values.push(...extraIds.filter((id) => id !== manifest.target.internalTestCohortId)
+            .map((id) => ({ type: 'cohort', key: 'id', value: id, negation: true })));
     }
     return definitions;
 }
@@ -108,7 +122,7 @@ export async function provision({ api, apply = false, excludedCohortIds = [], re
     const resources = ['dashboards', 'insights', 'cohorts'];
     const pages = await Promise.all(resources.map((resource) => api.list(resource)));
     const lists = Object.fromEntries(resources.map((resource, index) => [resource, pages[index]]));
-    for (const id of excludedCohortIds) {
+    for (const id of new Set([manifest.target.internalTestCohortId, ...excludedCohortIds])) {
         if (!lists.cohorts.some((cohort) => Number(cohort.id) === id && !cohort.deleted)) throw new Error(`Excluded cohort ${id} was not found.`);
         if (lists.cohorts.some((cohort) => Number(cohort.id) === id && definitions.cohorts.some((item) => item.name === cohort.name))) {
             throw new Error('A managed engagement cohort cannot be its own internal/test exclusion.');

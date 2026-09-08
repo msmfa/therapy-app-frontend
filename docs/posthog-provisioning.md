@@ -23,7 +23,9 @@ Optional environment variables:
 | `POSTHOG_PROJECT_ID` | Must match the manifest: `260159`. |
 | `POSTHOG_EXCLUDE_COHORT_IDS` | Comma-separated IDs of existing internal/test cohorts to exclude explicitly. IDs must exist and cannot refer to either managed engagement cohort. |
 
-Every insight includes `environment=production` and the project's internal/test filter. Each dynamic cohort applies the same production condition to its behavioral events and enables project internal/test filtering. Configure those project filters deliberately; enabling the filter switch does not invent an exclusion rule. The optional cohort list adds exclusions to every insight and both cohorts.
+Every insight includes `environment=production` and the project's internal/test filter. Each dynamic cohort applies the production condition to **each** behavioral event and explicitly excludes the existing **Internal / Test users** cohort **223892**. The hosted cohort editor disables its global filter switch because the project exclusion itself references that cohort, so the managed cohorts use `filterTestAccounts:false` plus the explicit exclusion. The required ID is in the reviewed manifest and is checked before any write; optional IDs add exclusions without removing or duplicating it. The seven insights keep `filterTestAccounts:true`. No project filter settings are changed by the script.
+
+The dashboard and seven insights were created through the hosted UI on 2026-09-08 at [Plastic Brains — meaningful use](https://eu.posthog.com/project/260159/dashboard/939805). Each exact query was inspected and ran without error; the app dataset was empty. The onboarding funnel uses `onboarding_step` because the shared website project already assigns numeric meaning to `step`. Empty results are expected before opted-in production usage; they are not evidence that ingestion has been verified.
 
 ## Review and apply
 
