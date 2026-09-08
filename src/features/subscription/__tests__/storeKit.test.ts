@@ -19,15 +19,13 @@ const mockVerifySubscriptionTransaction = jest.fn();
 const mockGetServerEntitlement = jest.fn();
 const mockCapture = jest.fn();
 let mockAnalyticsGeneration = 0;
+let mockAnalyticsOwner = 'A';
+const mockAnalyticsReady = jest.fn();
 
 jest.mock('../../analytics/client', () => ({
     analytics: {
-        beginOperation: () => {
-            const generation = mockAnalyticsGeneration;
-            return { capture: (...args: unknown[]) => {
-                if (generation === mockAnalyticsGeneration) mockCapture(...args);
-            } };
-        },
+        getIdentity: () => mockAnalyticsOwner,
+        beginOperationWhenReady: () => mockAnalyticsReady(),
     },
 }));
 
@@ -108,6 +106,17 @@ describe('real StoreKit bridge', () => {
         jest.resetModules();
         jest.clearAllMocks();
         mockAnalyticsGeneration = 0;
+        mockAnalyticsOwner = 'A';
+        mockAnalyticsReady.mockImplementation(async () => {
+            const generation = mockAnalyticsGeneration;
+            return {
+                enabled: true,
+                isCurrent: () => generation === mockAnalyticsGeneration,
+                capture: (...args: unknown[]) => {
+                    if (generation === mockAnalyticsGeneration) mockCapture(...args);
+                },
+            };
+        });
         delete process.env.EXPO_PUBLIC_DEV_SUBSCRIPTION_FIXTURE;
         mockPurchaseUpdatedHandler = null;
         mockPurchaseErrorHandler = null;
@@ -238,6 +247,60 @@ describe('real StoreKit bridge', () => {
         rejectRequest({ code: 'network-error', message: 'private server payload' });
         await expect(Promise.all([first, duplicate])).resolves.toEqual([{ status: 'failed' }, { status: 'failed' }]);
         expect(mockCapture).toHaveBeenCalledTimes(1);
+    });
+
+    it('waits for bounded analytics preparation before opening an immediate post-auth checkout', async () => {
+        let ready!: () => void;
+        const wait = new Promise<void>((resolve) => { ready = resolve; });
+        const prepare = mockAnalyticsReady.getMockImplementation()!;
+        mockAnalyticsReady.mockImplementation(async () => { await wait; return prepare(); });
+        const { purchase, PRODUCT_IDS } = loadStoreKit();
+        mockRequestPurchase.mockImplementation(async () => { mockPurchaseUpdatedHandler?.(transaction(PRODUCT_IDS.annual)); return null; });
+        const result = purchase('annual');
+        await Promise.resolve();
+        expect(mockRequestPurchase).not.toHaveBeenCalled();
+        expect(mockGetAppAccountToken).not.toHaveBeenCalled();
+        expect(mockCapture).not.toHaveBeenCalled();
+        ready();
+        await expect(result).resolves.toEqual({ status: 'purchased' });
+        expect(mockCapture.mock.calls.map(([event]) => event)).toEqual(['checkout_started', 'checkout_result']);
+    });
+
+    it('does not open A checkout for B when the account changes during analytics preparation', async () => {
+        let ready!: () => void;
+        const wait = new Promise<void>((resolve) => { ready = resolve; });
+        const prepare = mockAnalyticsReady.getMockImplementation()!;
+        mockAnalyticsReady.mockImplementation(async () => { await wait; return prepare(); });
+        const { purchase } = loadStoreKit();
+        const result = purchase('annual');
+        mockAnalyticsOwner = 'B';
+        mockAnalyticsGeneration += 1;
+        ready();
+        await expect(result).resolves.toEqual({ status: 'cancelled' });
+        expect(mockRequestPurchase).not.toHaveBeenCalled();
+        expect(mockGetAppAccountToken).not.toHaveBeenCalled();
+        expect(mockCapture).not.toHaveBeenCalled();
+    });
+
+    it('a rejected analytics initialization never prevents a verified purchase', async () => {
+        mockAnalyticsReady.mockRejectedValue(new Error('Analytics unavailable'));
+        const { purchase, PRODUCT_IDS } = loadStoreKit();
+        mockRequestPurchase.mockImplementation(async () => { mockPurchaseUpdatedHandler?.(transaction(PRODUCT_IDS.annual)); return null; });
+        await expect(purchase('annual')).resolves.toEqual({ status: 'purchased' });
+        expect(mockCapture).not.toHaveBeenCalled();
+    });
+
+    it.each(['purchased', 'cancelled', 'pending'] as const)('preserves %s after analytics times out or is disabled', async (status) => {
+        mockAnalyticsReady.mockResolvedValue({ enabled: false, isCurrent: () => false, capture: () => false });
+        const { purchase, PRODUCT_IDS } = loadStoreKit();
+        mockRequestPurchase.mockImplementation(async () => {
+            if (status === 'purchased') mockPurchaseUpdatedHandler?.(transaction(PRODUCT_IDS.annual));
+            else mockPurchaseErrorHandler?.({ code: status === 'cancelled' ? 'user-cancelled' : 'deferred-payment', productId: PRODUCT_IDS.annual } as PurchaseError);
+            return null;
+        });
+        await expect(purchase('annual')).resolves.toEqual({ status });
+        expect(mockRequestPurchase).toHaveBeenCalledTimes(1);
+        expect(mockCapture).not.toHaveBeenCalled();
     });
 
     it('does not grant access when the server rejects the app-account link', async () => {

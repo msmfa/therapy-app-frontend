@@ -1,8 +1,9 @@
 import * as SecureStore from 'expo-secure-store';
 import { analytics } from './client';
 import type { ReviewKind } from './events';
+import { ANALYTICS_STORAGE_SUFFIX } from './config';
 
-const STORAGE_KEY = 'analytics.engagement.v1';
+const STORAGE_KEY = `analytics.engagement.v1${ANALYTICS_STORAGE_SUFFIX}`;
 const MAX_NOTES = 32;
 const MAX_KEYS = 64;
 type LocalNote = { id: string; savedVisit?: string; reviewed: boolean };

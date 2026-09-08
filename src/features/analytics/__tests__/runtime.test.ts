@@ -52,6 +52,12 @@ test('identify retains only validated SDK identity linkage, never person fields'
     expect(sanitizeAnalyticsEvent(event('$identify', { $anon_distinct_id: 'private-email@example.com' }), config)?.properties).not.toHaveProperty('$anon_distinct_id');
 });
 
+test('QA labeling is owned by the build, never by a capture caller', () => {
+    const payload = event('note_saved', { operation: 'new', is_first_note: true, entry_point: 'notes', environment: 'production' });
+    expect(sanitizeAnalyticsEvent(payload, { ...config, environment: 'qa' })?.properties?.environment).toBe('qa');
+    expect(sanitizeAnalyticsEvent({ ...payload, properties: { ...payload.properties, environment: 'qa' } }, config)?.properties?.environment).toBe('production');
+});
+
 test('SDK config disables all automatic capture and before-send rejects once permission is revoked', () => {
     let maySend = true;
     createPostHogTransport(config, () => maySend, 'A', () => true);

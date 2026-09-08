@@ -1,8 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getCurrentUserSettings, updateCurrentUser } from '../../api/users';
 import { analytics } from './client';
+import { ANALYTICS_STORAGE_SUFFIX } from './config';
 
-const PREFIX = 'plastic_brains.analytics_pending_consent.v1.';
+const PREFIX = `plastic_brains.analytics_pending_consent.v1${ANALYTICS_STORAGE_SUFFIX}.`;
 type PendingChoice = { consent: boolean; revision: number };
 type ConsentRuntime = Pick<typeof analytics, 'getIdentity' | 'getSnapshot' | 'initialize' | 'setConsent'>;
 type Dependencies = {

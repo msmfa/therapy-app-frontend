@@ -1,4 +1,4 @@
-import { createAnalytics, type AnalyticsDependencies } from '../core';
+import { createAnalytics, ANALYTICS_READY_TIMEOUT_MS, type AnalyticsDependencies } from '../core';
 import { CONSENT_KEY } from '../config';
 
 const key = (owner: string | null) => `${CONSENT_KEY}.${owner === null ? 'anonymous' : `account.${owner}`}`;
@@ -192,4 +192,104 @@ test('capture timestamps reflect action time and visits rotate only after 30 min
     analytics.onAppStateChange('active');
     expect(analytics.getVisitId()).not.toBe(firstVisit);
     expect(events[0].timestamp.toISOString()).toBe(new Date(1000).toISOString());
+});
+
+
+test('immediate anonymous-to-account checkout waits for account consent and SDK readiness before starting', async () => {
+    const { analytics, dependencies, transport, events, advance } = setup({ [key('A')]: 'true' });
+    analytics.setIdentity(null);
+    await analytics.initialize();
+    await analytics.setConsent(true);
+    const consentRead = deferred();
+    const sdkReady = deferred();
+    const read = dependencies.storage.getItem;
+    dependencies.storage.getItem = jest.fn(async (name) => { if (name === key('A')) await consentRead.promise; return read(name); });
+    const activate = transport.activate.getMockImplementation()!;
+    transport.activate.mockImplementation(async (id, current) => { await sdkReady.promise; await activate(id, current); });
+    analytics.setIdentity('A');
+    const preparation = analytics.beginOperationWhenReady();
+    let resolved = false;
+    void preparation.then(() => { resolved = true; });
+    await settle();
+    expect(analytics.getSnapshot().consentKnown).toBe(false);
+    expect(resolved).toBe(false);
+    expect(events).toEqual([]);
+    consentRead.resolve();
+    await settle();
+    expect(analytics.getSnapshot()).toMatchObject({ consent: true, enabled: false });
+    expect(resolved).toBe(false);
+    sdkReady.resolve();
+    const scope = await preparation;
+    expect(scope.enabled).toBe(true);
+    advance(500);
+    scope.capture('checkout_started', { operation: 'purchase', plan: 'annual', entry_point: 'onboarding' });
+    advance(1000);
+    scope.capture('checkout_result', { operation: 'purchase', plan: 'annual', entry_point: 'onboarding', outcome: 'purchased' });
+    expect(events.map((event) => ({ owner: event.owner, at: event.timestamp.getTime() }))).toEqual([{ owner: 'A', at: 1500 }, { owner: 'A', at: 2500 }]);
+});
+
+test.each([null, 'false'])('does not prepare or buffer an account operation with consent %s', async (consent) => {
+    const { analytics, dependencies } = setup(consent === null ? {} : { [key('A')]: consent });
+    analytics.setIdentity('A');
+    const scope = await analytics.beginOperationWhenReady();
+    expect(scope.enabled).toBe(false);
+    expect(dependencies.createTransport).not.toHaveBeenCalled();
+    await analytics.setConsent(true);
+    expect(scope.capture('note_saved', note)).toBe(false);
+});
+
+test.each(['consent', 'sdk'])('times out stalled %s readiness without reviving that checkout later', async (stage) => {
+    jest.useFakeTimers();
+    try {
+        const { analytics, dependencies, transport, events } = setup({ [key('A')]: 'true' });
+        const gate = deferred();
+        if (stage === 'consent') {
+            const read = dependencies.storage.getItem;
+            dependencies.storage.getItem = async (name) => { await gate.promise; return read(name); };
+        } else {
+            const activate = transport.activate.getMockImplementation()!;
+            transport.activate.mockImplementation(async (id, current) => { await gate.promise; await activate(id, current); });
+        }
+        analytics.setIdentity('A');
+        const preparation = analytics.beginOperationWhenReady();
+        await settle();
+        jest.advanceTimersByTime(ANALYTICS_READY_TIMEOUT_MS);
+        const scope = await preparation;
+        expect(scope.enabled).toBe(false);
+        gate.resolve();
+        await settle();
+        expect(analytics.getSnapshot().enabled).toBe(true);
+        expect(scope.capture('note_saved', note)).toBe(false);
+        expect(events).toEqual([]);
+        expect(jest.getTimerCount()).toBe(0);
+    } finally { jest.useRealTimers(); }
+});
+
+test.each(['logout', 'switch', 'opt_out'])('%s cancels readiness before its deadline and never attributes the old action', async (action) => {
+    const { analytics, transport, events } = setup({ [key('A')]: 'true', [key('B')]: 'true' });
+    const gate = deferred();
+    const activate = transport.activate.getMockImplementation()!;
+    transport.activate.mockImplementation(async (id, current) => { await gate.promise; await activate(id, current); });
+    analytics.setIdentity('A');
+    const preparation = analytics.beginOperationWhenReady();
+    await settle();
+    if (action === 'opt_out') await analytics.setConsent(false);
+    else analytics.setIdentity(action === 'logout' ? null : 'B');
+    const scope = await preparation;
+    expect(scope.enabled).toBe(false);
+    gate.resolve();
+    await settle();
+    expect(scope.capture('note_saved', note)).toBe(false);
+    expect(events).toEqual([]);
+});
+
+test('SDK activation failure returns a disabled scope without waiting for the deadline', async () => {
+    jest.useFakeTimers();
+    try {
+        const { analytics, transport } = setup({ [key('A')]: 'true' });
+        transport.activate.mockRejectedValue(new Error('SDK storage failure'));
+        analytics.setIdentity('A');
+        expect((await analytics.beginOperationWhenReady()).enabled).toBe(false);
+        expect(jest.getTimerCount()).toBe(0);
+    } finally { jest.useRealTimers(); }
 });

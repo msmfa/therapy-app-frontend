@@ -1,6 +1,6 @@
 import { analyticsConfig } from '../config';
 const originalDev = __DEV__;
-const keys = ['EXPO_PUBLIC_POSTHOG_HOST', 'EXPO_PUBLIC_POSTHOG_KEY', 'EXPO_PUBLIC_ANALYTICS_INTERNAL_USER', 'EXPO_PUBLIC_SEED_DEMO', 'EXPO_PUBLIC_DEV_SUBSCRIPTION_FIXTURE'] as const;
+const keys = ['EXPO_PUBLIC_POSTHOG_HOST', 'EXPO_PUBLIC_POSTHOG_KEY', 'EXPO_PUBLIC_ANALYTICS_ENVIRONMENT', 'EXPO_PUBLIC_ANALYTICS_INTERNAL_USER', 'EXPO_PUBLIC_SEED_DEMO', 'EXPO_PUBLIC_DEV_SUBSCRIPTION_FIXTURE'] as const;
 const originals = Object.fromEntries(keys.map((key) => [key, process.env[key]]));
 beforeEach(() => {
     Object.assign(global, { __DEV__: false });
@@ -31,6 +31,19 @@ test.each([
     expect(analyticsConfig().allowed).toBe(false);
 });
 test('development never sends analytics', () => {
+    Object.assign(global, { __DEV__: true });
+    expect(analyticsConfig().allowed).toBe(false);
+});
+
+test('explicit QA releases have separate storage and a non-production event label', () => {
+    expect(analyticsConfig().environment).toBe('production');
+    process.env.EXPO_PUBLIC_ANALYTICS_ENVIRONMENT = 'qa';
+    expect(analyticsConfig()).toMatchObject({ environment: 'qa', allowed: true });
+    jest.isolateModules(() => {
+        const qa = require('../config');
+        expect(qa.CONSENT_KEY).toBe('plastic_brains.analytics_consent.v1.qa');
+        expect(qa.SDK_STORAGE_KEY).toBe('plastic_brains.analytics_sdk.v1.qa');
+    });
     Object.assign(global, { __DEV__: true });
     expect(analyticsConfig().allowed).toBe(false);
 });

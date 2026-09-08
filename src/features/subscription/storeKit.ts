@@ -1,5 +1,5 @@
 import { Platform } from 'react-native';
-import { analytics } from '../analytics/client';
+import { analytics, type AnalyticsOperation } from '../analytics/client';
 import {
     getAppAccountToken,
     getServerEntitlement,
@@ -468,19 +468,26 @@ async function trackCheckout(
     entryPoint: CheckoutEntryPoint,
     run: () => Promise<PurchaseResult>,
 ): Promise<PurchaseResult> {
-    // Capture ownership before Apple's sheet or a server request can outlive
-    // the signed-in account or the user's analytics permission.
-    const scope = analytics.beginOperation();
+    // Auth can trigger checkout before the account's analytics consent/SDK
+    // finishes loading. Wait at most one second before starting the action,
+    // without collecting pre-consent activity or letting analytics block billing.
+    const checkoutOwner = analytics.getIdentity();
+    let scope: AnalyticsOperation | undefined;
+    try { scope = await analytics.beginOperationWhenReady(); } catch { /* Billing still proceeds. */ }
+    // An old readiness continuation must not open A's purchase sheet for B.
+    if (checkoutOwner !== analytics.getIdentity()) return { status: 'cancelled' };
     const properties = { operation, plan, entry_point: entryPoint };
-    scope.capture('checkout_started', properties);
+    try { scope?.capture('checkout_started', properties); } catch { /* Analytics is best effort. */ }
     const result = await run();
-    scope.capture('checkout_result', { ...properties, outcome: result.status });
-    if (result.status === 'failed' || result.status === 'unlinked') {
-        scope.capture('critical_action_failed', {
-            operation: 'checkout',
-            error_code: result.status === 'unlinked' ? 'auth' : 'store',
-        });
-    }
+    try {
+        scope?.capture('checkout_result', { ...properties, outcome: result.status });
+        if (result.status === 'failed' || result.status === 'unlinked') {
+            scope?.capture('critical_action_failed', {
+                operation: 'checkout',
+                error_code: result.status === 'unlinked' ? 'auth' : 'store',
+            });
+        }
+    } catch { /* A tracking failure must not replace the StoreKit outcome. */ }
     return result;
 }
 

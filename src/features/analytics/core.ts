@@ -23,6 +23,8 @@ export type AnalyticsDependencies = {
 };
 const consentKey = (id: string | null) => `${CONSENT_KEY}.${id === null ? 'anonymous' : `account.${encodeURIComponent(id)}`}`;
 const MAX_DEDUPE_KEYS = 256;
+export const ANALYTICS_READY_TIMEOUT_MS = 1000;
+const disabledOperation = (): AnalyticsOperation => ({ enabled: false, isCurrent: () => false, capture: () => false });
 
 /** Testable lifecycle policy; network buffering and retry remain in PostHog. */
 export function createAnalytics(deps: AnalyticsDependencies) {
@@ -36,13 +38,18 @@ export function createAnalytics(deps: AnalyticsDependencies) {
     let visitId = deps.newId();
     let backgroundAt: number | null = null;
     const listeners = new Set<() => void>();
+    const readinessChecks = new Set<() => void>();
     const cleanups = new Set<(reason: CleanupReason, accountId: string | null) => void | Promise<void>>();
     const dedupe = new Set<string>();
     const publish = (patch: Partial<AnalyticsSnapshot>) => {
         const next = { ...snapshot, ...patch };
-        if ((Object.keys(next) as Array<keyof AnalyticsSnapshot>).every((key) => next[key] === snapshot[key])) return;
-        snapshot = next;
-        listeners.forEach((listener) => listener());
+        if (!(Object.keys(next) as Array<keyof AnalyticsSnapshot>).every((key) => next[key] === snapshot[key])) {
+            snapshot = next;
+            listeners.forEach((listener) => listener());
+        }
+        // Identity can change while every visible loading flag stays false.
+        // Pending operations still need to observe that generation change.
+        readinessChecks.forEach((check) => check());
     };
     const enqueueStorage = (operation: () => Promise<void>): Promise<void> => {
         const result = storageQueue.then(operation);
@@ -104,6 +111,59 @@ export function createAnalytics(deps: AnalyticsDependencies) {
         } catch { return false; }
     };
 
+    const initialize = (): Promise<void> => {
+        if (!initialized) {
+            initialized = true;
+            if (identity !== undefined) pending = loadConsent(identity, generation);
+        }
+        return pending;
+    };
+    const beginOperation = (): AnalyticsOperation => {
+        const version = generation;
+        const enabled = snapshot.enabled;
+        const isCurrent = () => enabled && version === generation && snapshot.enabled;
+        return { enabled, isCurrent, capture: (event, properties, options) => isCurrent() && capture(event, properties, options) };
+    };
+    /**
+     * Let an immediate auth-to-checkout handoff finish local consent/SDK startup.
+     * The caller starts its action only afterwards: no pre-consent event buffer.
+     * Timeout, cancellation and failure return a scope that can never revive.
+     */
+    const beginOperationWhenReady = (): Promise<AnalyticsOperation> => {
+        const version = generation;
+        const owner = identity;
+        if (!deps.config.allowed || owner === undefined) return Promise.resolve(disabledOperation());
+        if (snapshot.enabled) return Promise.resolve(beginOperation());
+        if (snapshot.hydrated && !snapshot.consent) return Promise.resolve(disabledOperation());
+        return new Promise((resolve) => {
+            let finished = false;
+            let timer: ReturnType<typeof setTimeout> | undefined;
+            const finish = (scope: AnalyticsOperation) => {
+                if (finished) return;
+                finished = true;
+                if (timer !== undefined) clearTimeout(timer);
+                readinessChecks.delete(check);
+                resolve(scope);
+            };
+            const check = () => {
+                if (version !== generation || owner !== identity) finish(disabledOperation());
+                else if (snapshot.enabled) finish(beginOperation());
+                else if (snapshot.hydrated && !snapshot.consent) finish(disabledOperation());
+            };
+            readinessChecks.add(check);
+            timer = setTimeout(() => finish(disabledOperation()), ANALYTICS_READY_TIMEOUT_MS);
+            try {
+                void initialize().then(() => {
+                    check();
+                    // Failed SDK startup is best effort; don't hold billing for
+                    // a timeout after initialization has already settled.
+                    finish(disabledOperation());
+                }, () => finish(disabledOperation()));
+            } catch { finish(disabledOperation()); }
+            check();
+        });
+    };
+
     return {
         capture,
         getSnapshot: () => snapshot,
@@ -117,13 +177,7 @@ export function createAnalytics(deps: AnalyticsDependencies) {
                 backgroundAt = null;
             }
         },
-        initialize: (): Promise<void> => {
-            if (!initialized) {
-                initialized = true;
-                if (identity !== undefined) pending = loadConsent(identity, generation);
-            }
-            return pending;
-        },
+        initialize,
         setIdentity: (nextIdentity: string | null) => {
             // Backend IDs are opaque identifiers, never emails or display names.
             const next = nextIdentity !== null && /^[A-Za-z0-9._:-]{1,128}$/.test(nextIdentity) ? nextIdentity : null;
@@ -141,12 +195,8 @@ export function createAnalytics(deps: AnalyticsDependencies) {
             }
             if (initialized) pending = loadConsent(next, version, inherited);
         },
-        beginOperation: (): AnalyticsOperation => {
-            const version = generation;
-            const enabled = snapshot.enabled;
-            const isCurrent = () => enabled && version === generation && snapshot.enabled;
-            return { enabled, isCurrent, capture: (event, properties, options) => isCurrent() && capture(event, properties, options) };
-        },
+        beginOperation,
+        beginOperationWhenReady,
         setConsent: async (consent: boolean): Promise<void> => {
             if (typeof consent !== 'boolean') throw new Error('Please choose whether to allow analytics.');
             const owner = identity;

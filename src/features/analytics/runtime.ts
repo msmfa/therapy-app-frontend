@@ -14,7 +14,7 @@ export function sanitizeAnalyticsEvent(event: CaptureEvent | null, config: Analy
         ...properties,
         app_version: config.appVersion,
         platform: config.platform,
-        environment: 'production',
+        environment: config.environment === 'qa' ? 'qa' : 'production',
         $geoip_disable: true,
     };
     // PostHog uses these fields to join only its own anonymous ID on identify.
