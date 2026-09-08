@@ -42,7 +42,7 @@ All client events allow only the properties listed here, plus `app_version`, `pl
 | `notification_opened` | A notification response can be handled after app readiness; deduplicated locally. | `reminder_kind=log_note/review_note/unknown`, `destination=notes/note_editor` |
 | `critical_action_failed` | A tracked important operation fails. | `operation=note_save/review_save/checkout/onboarding_save/notification_registration`, `error_code=network/storage/auth/store/unknown` |
 
-`step` is one of: `welcome`, `goal`, `session_date`, `session_cadence`, `reminder_times`, `plan_preview`, `reviews_preview`, `note_preview`, `subscription_preview`, `account_preview`, `notifications_preview`, `success`. It identifies the page, never the person's answer.
+`onboarding_step` is one of: `welcome`, `goal`, `session_date`, `session_cadence`, `reminder_times`, `plan_preview`, `reviews_preview`, `note_preview`, `subscription_preview`, `account_preview`, `notifications_preview`, `success`. It identifies the page, never the person's answer.
 
 Subscription starts, renewals, trial conversions, auto-renew changes, expiry and refunds come from verified backend billing transitions. Never infer these from paywall taps, a restored purchase, a frontend entitlement refresh or an unverified Apple payload. The backend guide defines its separate event properties and delivery guarantees.
 

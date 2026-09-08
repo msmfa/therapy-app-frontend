@@ -27,6 +27,8 @@ Every insight includes `environment=production` and the project's internal/test 
 
 The dashboard and seven insights were created through the hosted UI on 2026-09-08 at [Plastic Brains — meaningful use](https://eu.posthog.com/project/260159/dashboard/939805). Each exact query was inspected and ran without error; the app dataset was empty. The onboarding funnel uses `onboarding_step` because the shared website project already assigns numeric meaning to `step`. Empty results are expected before opted-in production usage; they are not evidence that ingestion has been verified.
 
+The approved project-scoped provisioning key was used on 2026-09-08 to create [Power users — 60 days](https://eu.posthog.com/project/260159/cohorts/234157) and [Activated — 60 days](https://eu.posthog.com/project/260159/cohorts/234158). The live apply preserved the existing dashboard and seven insights; a subsequent read-only plan reported all ten managed objects unchanged. Both cohort definitions were also checked in the hosted editor. QA events are excluded from these cohorts and production insights even when the same project receives simulator traffic.
+
 ## Review and apply
 
 Print the complete definitions locally, without credentials or network access:
