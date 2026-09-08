@@ -16,6 +16,8 @@ import AppText from './AppText';
 type TextFieldProps = TextInputProps & {
     label: string;
     error?: string;
+    /** Color of the validation message and invalid field border. */
+    errorColor?: TextStyle['color'];
     containerStyle?: StyleProp<ViewStyle>;
     labelStyle?: StyleProp<TextStyle>;
     inputWrapperStyle?: StyleProp<ViewStyle>;
@@ -27,6 +29,7 @@ const TextField = forwardRef<TextInput, TextFieldProps>(
         {
             label,
             error,
+            errorColor = THEME_COLORS.error,
             containerStyle,
             labelStyle,
             inputWrapperStyle,
@@ -62,7 +65,7 @@ const TextField = forwardRef<TextInput, TextFieldProps>(
                     style={ [
                         styles.inputWrapper,
                         focused && styles.inputWrapperFocused,
-                        error && styles.inputWrapperError,
+                        error && { borderColor: errorColor },
                         inputWrapperStyle,
                     ] }
                 >
@@ -79,7 +82,7 @@ const TextField = forwardRef<TextInput, TextFieldProps>(
                 </View>
 
                 { error ? (
-                    <AppText style={ styles.error } variant='caption'>
+                    <AppText style={ [styles.error, { color: errorColor }] } variant='caption'>
                         { error }
                     </AppText>
                 ) : null }
@@ -114,9 +117,6 @@ const styles = StyleSheet.create({
     inputWrapperFocused: {
         borderColor: COLOR_VARIANTS.black.primary,
     },
-    inputWrapperError: {
-        borderColor: THEME_COLORS.error,
-    },
     input: {
         flex: 1,
         fontSize: 16,
@@ -133,6 +133,5 @@ const styles = StyleSheet.create({
     error: {
         fontSize: 12,
         marginTop: 8,
-        color: THEME_COLORS.error,
     },
 });

@@ -25,6 +25,7 @@ import { BackButton } from 'src/components/ui/BackButton';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 import { useAppAlert } from '../../src/context/alert';
 import { ACCOUNT_STEP_RETURN, resolveAuthReturnRoute } from '../../src/features/onboarding/authReturn';
+import { COLOR_VARIANTS } from 'designs/designs-colors';
 
 export default function LoginScreen() {
     const router = useRouter();
@@ -83,7 +84,7 @@ export default function LoginScreen() {
                      how onboarding's account step reaches it. Nothing renders when
                      auth is the root, so the app entry point is unchanged. */ }
                 <View style={ styles.backRow }>
-                    <BackButton />
+                    <BackButton appearance="glass" />
                 </View>
 
                 <KeyboardAvoidingView
@@ -112,6 +113,7 @@ export default function LoginScreen() {
                                     placeholder="you@example.com"
                                     textContentType="username"
                                     returnKeyType="next"
+                                    errorColor={ COLOR_VARIANTS.black.primary }
                                     editable={ !loading }
                                 />
                                 <PasswordField
@@ -121,6 +123,7 @@ export default function LoginScreen() {
                                     placeholder="••••••••"
                                     textContentType="password"
                                     returnKeyType="done"
+                                    errorColor={ COLOR_VARIANTS.black.primary }
                                     onSubmitEditing={ onSubmit }
                                     editable={ !loading }
                                 />
@@ -181,7 +184,9 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
     backRow: {
-        paddingHorizontal: 20,
+        // The root contributes 20pt; this puts the arrow at the shared 24pt inset.
+        paddingHorizontal: 4,
+        paddingVertical: 8,
     },
     glassMorphism: {
         padding: 6,
