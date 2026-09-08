@@ -99,12 +99,13 @@ describe('reminder times: what surrounds the pickers', () => {
         view.unmount();
     });
 
-    it('labels the review times without the removed instruction paragraph', async () => {
+    it('keeps the reminder-frequency sentence without the opening instruction', async () => {
         const view = renderScreen();
         await waitFor(() => expect(morningPicker()).toBeDefined());
 
         expect(view.getByText(REMINDER_TIMES_COPY.morningLabel)).toBeTruthy();
         expect(view.getByText(REMINDER_TIMES_COPY.eveningLabel)).toBeTruthy();
+        expect(view.getByText("You'll only receive one morning reminder a week, after your session.")).toBeTruthy();
         expect(view.queryByText(/Pick a time in the morning/)).toBeNull();
         view.unmount();
     });

@@ -120,6 +120,7 @@ export const CADENCE_COPY = {
 
 export const REMINDER_TIMES_COPY = {
     headline: 'Choose times that fit your routine',
+    supporting: "You'll only receive one morning reminder a week, after your session.",
     morningLabel: 'Morning reviews',
     eveningLabel: 'Evening reviews',
     testimonial: {

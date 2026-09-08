@@ -75,6 +75,7 @@ export default function ReminderTimesScreen() {
             step={ 4 }
             backHref="/(onboarding)/session-cadence"
             headline={ REMINDER_TIMES_COPY.headline }
+            supporting={ REMINDER_TIMES_COPY.supporting }
             footer={
                 <OnboardingButton
                     label={ REMINDER_TIMES_COPY.primaryCta }
