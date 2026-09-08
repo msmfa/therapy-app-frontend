@@ -1,11 +1,11 @@
 import React from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import AppText from '../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { GlassCircleButton } from '../src/components/ui/GlassCircleButton';
-import { COLOR_VARIANTS } from 'designs/designs-colors';
+import { BRAND_ORANGE, COLOR_VARIANTS } from 'designs/designs-colors';
 import { ExternalLink } from 'src/components/ui/ExternalLink';
 
 type RationaleSection = {
@@ -91,10 +91,11 @@ const REFERENCES: Reference[] = [
 
 export default function WhyFiveQuestionsScreen() {
     const router = useRouter();
+    const insets = useSafeAreaInsets();
     const handleBack = () => router.back();
 
     return (
-        <SafeAreaView style={ styles.container }>
+        <SafeAreaView edges={ ['top', 'left', 'right'] } style={ styles.container }>
             <View style={ styles.pageHeader }>
                 <GlassCircleButton
                     accessibilityLabel="Back"
@@ -106,19 +107,23 @@ export default function WhyFiveQuestionsScreen() {
             </View>
             <ScrollView
                 style={ styles.scroll }
-                contentContainerStyle={ styles.scrollContent }
+                contentContainerStyle={ [styles.scrollContent, { paddingBottom: insets.bottom + 24 }] }
+                contentInsetAdjustmentBehavior="never"
                 showsVerticalScrollIndicator={ false }
             >
                 <AppText variant="h1">Why these five questions</AppText>
 
                 <Spacer variant={ SpacerVariant.large } />
-                <AppText variant="h2" accessibilityRole="header">TL;DR</AppText>
-                <Spacer variant={ SpacerVariant.small } />
-                <AppText variant="body">
-                    Five short prompts to remember what mattered, notice thoughts and feelings during the
-                    week, put insights into your own words, note anything you want to try, and decide what to
-                    revisit next session.
-                </AppText>
+                <View style={ styles.summaryBanner }>
+                    <AppText variant="h2" accessibilityRole="header" style={ styles.summaryText }>TL;DR</AppText>
+                    <Spacer variant={ SpacerVariant.small } />
+                    <AppText variant="body" style={ styles.summaryText }>
+                        These five questions are based on the research explained below. They help you
+                        remember what mattered, notice thoughts and feelings during the week, put insights
+                        into your own words, note anything you want to try, and decide what to revisit
+                        next session.
+                    </AppText>
+                </View>
 
                 <Spacer variant={ SpacerVariant.large } />
                 <AppText variant="body">
@@ -183,17 +188,28 @@ export default function WhyFiveQuestionsScreen() {
     );
 }
 
+const PAGE_PADDING = 24;
+
 const styles = StyleSheet.create({
     pageHeader: {
         alignItems: 'center',
         flexDirection: 'row',
         paddingBottom: 8,
-        paddingHorizontal: 24,
+        paddingHorizontal: PAGE_PADDING,
         paddingTop: 8,
     },
     container: { flex: 1 },
     scroll: { flex: 1 },
-    scrollContent: { paddingHorizontal: 24, paddingTop: 24, paddingBottom: 32 },
+    // Keep the home-indicator clearance inside the scrollable content so the
+    // viewport reaches the screen edge instead of leaving a fixed blank strip.
+    scrollContent: { paddingHorizontal: PAGE_PADDING, paddingTop: 24 },
+    summaryBanner: {
+        marginHorizontal: -PAGE_PADDING,
+        paddingHorizontal: PAGE_PADDING,
+        paddingVertical: 24,
+        backgroundColor: BRAND_ORANGE,
+    },
+    summaryText: { color: COLOR_VARIANTS.white.primary },
     sectionList: { gap: 24 },
     referenceList: { gap: 12 },
     reference: { flexDirection: 'row', gap: 8 },
