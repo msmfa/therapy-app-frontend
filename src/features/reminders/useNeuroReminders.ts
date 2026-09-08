@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type SetStateAction } from 'react';
 import { AppState } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 
@@ -8,6 +8,7 @@ import type { Reminder } from './types';
 import {
     clearRemindersCache,
     getLocalDateKey,
+    getRemindersCacheRevision,
     getSessionsSignature,
     isCacheUsable,
     readRemindersCache,
@@ -19,14 +20,22 @@ interface SessionLike {
     startsAtUtc?: string;
 }
 
+export interface ReminderScheduleSettings {
+    timeZone: string;
+    morningReminderMinutes: number;
+    eveningReminderMinutes: number;
+}
+
+export type ReminderScheduleStatus = 'idle' | 'loading' | 'ready' | 'error';
+
 /**
  * The reminder schedule, fetched from the server and cached on the device.
  *
  * The schedule is computed once, by the same code that sends the pushes, so
  * the calendar can no longer disagree with the notifications the user gets.
- * That makes every read a network read, which is why it is cached: the answer
- * only changes when the user's sessions change, and a cold calendar should not
- * wait on a request to draw dots it already knows about.
+ * The cached answer gives a cold calendar an offline preview while the server
+ * confirms current preferences. Every mount/account fetches once; later reads
+ * can reuse a successfully persisted response while its inputs stay unchanged.
  *
  * The cache is revalidated when the sessions change, when the device zone
  * changes, on every return to the foreground, and at local midnight, since
@@ -43,10 +52,37 @@ export function useNeuroReminders(
     deviceTimeZone: string,
     isAuthenticated: boolean,
     sessionsReady: boolean,
+    refreshSignal = 0,
+    onScheduleSettings?: (settings: ReminderScheduleSettings | null) => void,
+    onScheduleStatus?: (status: ReminderScheduleStatus) => void,
+    accountKey?: string,
 ): Reminder[] {
-    const [reminders, setReminders] = useState<Reminder[]>([]);
+    const [snapshot, setSnapshot] = useState<{ owner: string | undefined; reminders: Reminder[] }>(
+        () => ({ owner: accountKey, reminders: [] }),
+    );
     // Guards against a slow response for a stale input overwriting a newer one.
     const requestIdRef = useRef(0);
+    // A disk cache cannot prove that a previous process persisted its clear.
+    // Always confirm it with the server once per mount/account; until then it
+    // is only a useful offline preview, and a failed fetch must remain retryable.
+    const validatedThisMountRef = useRef(false);
+    const hasFreshResponseRef = useRef(false);
+    const ownerRef = useRef(accountKey);
+    if (ownerRef.current !== accountKey) {
+        ownerRef.current = accountKey;
+        requestIdRef.current += 1;
+        validatedThisMountRef.current = false;
+        hasFreshResponseRef.current = false;
+    }
+    const setReminders = useCallback((update: SetStateAction<Reminder[]>) => {
+        if (ownerRef.current !== accountKey) return;
+        setSnapshot((current) => ({
+            owner: accountKey,
+            reminders: typeof update === 'function'
+                ? update(current.owner === accountKey ? current.reminders : [])
+                : update,
+        }));
+    }, [accountKey]);
 
     const sessionsSignature = useMemo(
         () => getSessionsSignature(sessions),
@@ -59,49 +95,82 @@ export function useNeuroReminders(
     useEffect(() => {
         if (!isAuthenticated) return undefined;
 
+        onScheduleStatus?.('loading');
+
         let cancelled = false;
+        const revision = getRemindersCacheRevision(accountKey);
 
         void (async () => {
-            const cached = await readRemindersCache();
-            if (cancelled || !cached) return;
+            const cached = await readRemindersCache(accountKey);
+            if (cancelled || !cached || hasFreshResponseRef.current || revision !== getRemindersCacheRevision(accountKey)) return;
             // Never clobber a fresher answer that won the race.
             setReminders((current) => (current.length ? current : cached.reminders));
+            onScheduleSettings?.({
+                timeZone: cached.timeZone,
+                morningReminderMinutes: cached.morningReminderMinutes,
+                eveningReminderMinutes: cached.eveningReminderMinutes,
+            });
         })();
 
         return () => {
             cancelled = true;
         };
-    }, [isAuthenticated]);
+    }, [accountKey, isAuthenticated, onScheduleSettings, onScheduleStatus, setReminders]);
 
     const revalidate = useCallback(async () => {
         const requestId = requestIdRef.current + 1;
         requestIdRef.current = requestId;
+        const revision = getRemindersCacheRevision(accountKey);
+        const isCurrent = () => requestIdRef.current === requestId
+            && revision === getRemindersCacheRevision(accountKey);
 
-        const cached = await readRemindersCache();
+        const cached = await readRemindersCache(accountKey);
+        if (!isCurrent()) return;
 
-        if (isCacheUsable(cached, sessionsSignature, deviceTimeZone, getLocalDateKey())) {
-            if (requestIdRef.current === requestId) {
+        if (validatedThisMountRef.current && isCacheUsable(cached, sessionsSignature, deviceTimeZone, getLocalDateKey())) {
+            if (isCurrent()) {
                 setReminders(cached.reminders);
+                onScheduleSettings?.({
+                    timeZone: cached.timeZone,
+                    morningReminderMinutes: cached.morningReminderMinutes,
+                    eveningReminderMinutes: cached.eveningReminderMinutes,
+                });
+                onScheduleStatus?.('ready');
             }
             return;
         }
 
+        onScheduleStatus?.('loading');
+
         try {
             const response = await getReminders();
-            if (requestIdRef.current !== requestId) return;
+            if (!isCurrent()) return;
 
+            hasFreshResponseRef.current = true;
             setReminders(response.reminders);
-            await writeRemindersCache({
+            onScheduleSettings?.({
+                timeZone: response.timeZone,
+                morningReminderMinutes: response.morningReminderMinutes,
+                eveningReminderMinutes: response.eveningReminderMinutes,
+            });
+            onScheduleStatus?.('ready');
+            const persisted = await writeRemindersCache({
                 reminders: response.reminders,
                 timeZone: response.timeZone,
+                morningReminderMinutes: response.morningReminderMinutes,
+                eveningReminderMinutes: response.eveningReminderMinutes,
                 deviceTimeZone,
                 sessionsSignature,
                 // Read again rather than reusing an earlier value: the request
                 // may have spanned midnight, and stamping the older day would
                 // revalidate immediately on the next render.
                 localDate: getLocalDateKey(),
-            });
+            }, accountKey, revision);
+            // A successful fetch must not bless an older disk record if the
+            // fresh write failed. Keep fetching until storage catches up.
+            if (isCurrent()) validatedThisMountRef.current = persisted;
         } catch (err) {
+            if (!isCurrent()) return;
             // Non-fatal. The calendar keeps whatever it last knew, and the next
             // foreground or session change tries again.
             Sentry.withScope((scope) => {
@@ -109,21 +178,29 @@ export function useNeuroReminders(
                 Sentry.captureException(toError(err));
             });
             console.warn('[Reminders] Failed to load reminder schedule:', err);
+            onScheduleStatus?.('error');
         }
-    }, [sessionsSignature, deviceTimeZone]);
+    }, [accountKey, sessionsSignature, deviceTimeZone, onScheduleSettings, onScheduleStatus, setReminders]);
 
     useEffect(() => {
         if (!isAuthenticated) {
             requestIdRef.current += 1;
+            validatedThisMountRef.current = false;
+            hasFreshResponseRef.current = false;
             setReminders([]);
+            onScheduleSettings?.(null);
+            onScheduleStatus?.('idle');
             void clearRemindersCache();
             return;
         }
 
-        if (!sessionsReady) return;
+        if (!sessionsReady) {
+            onScheduleStatus?.('loading');
+            return;
+        }
 
         void revalidate();
-    }, [isAuthenticated, sessionsReady, revalidate]);
+    }, [isAuthenticated, sessionsReady, refreshSignal, revalidate, onScheduleStatus, onScheduleSettings, setReminders]);
 
     // The effect above only re-runs when its inputs change, and neither a
     // failed fetch nor the local day rolling over changes any of them. Two
@@ -159,5 +236,5 @@ export function useNeuroReminders(
         };
     }, [isAuthenticated, sessionsReady, revalidate]);
 
-    return reminders;
+    return isAuthenticated && snapshot.owner === accountKey ? snapshot.reminders : [];
 }

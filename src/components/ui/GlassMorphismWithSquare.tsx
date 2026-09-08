@@ -4,20 +4,22 @@ import LinearGradientSquare, { SquarePosition } from './LinearGradientSquare';
 import GlassMorphism from './GlassMorphism';
 
 type Props = {
-  children?: React.ReactNode;
-  style?: StyleProp<ViewStyle>;
-  squareStyle?: StyleProp<ViewStyle>;
-  squarePosition?: SquarePosition;
-  squareRotation?: string;
+    children?: React.ReactNode;
+    style?: StyleProp<ViewStyle>;
+    /** Corner radius for the blurred panel; see GlassMorphism. */
+    panelRadius?: number;
+    squareStyle?: StyleProp<ViewStyle>;
+    squarePosition?: SquarePosition;
+    squareRotation?: string;
 };
 
-export const GlassMorphismWithSquare = ({ children, style, squarePosition, squareStyle, squareRotation }: Props) => {
+export const GlassMorphismWithSquare = ({ children, style, squarePosition, squareStyle, squareRotation, panelRadius }: Props) => {
     return (
         <View style={ styles.container }>
             <View style={ styles.gradientSquareContainer }>
                 <LinearGradientSquare position={ squarePosition } style={ squareStyle } rotation={ squareRotation } />
             </View>
-            <GlassMorphism tint="light" style={ style }>
+            <GlassMorphism tint="light" style={ style } panelRadius={ panelRadius }>
                 { children }
             </GlassMorphism>
         </View>

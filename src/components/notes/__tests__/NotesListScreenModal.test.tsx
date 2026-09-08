@@ -41,14 +41,14 @@ function captureListeners() {
     return listeners;
 }
 
-function renderModal() {
+function renderModal(onUpdateNote = jest.fn().mockResolvedValue(undefined)) {
     return render(
         <SafeAreaProvider initialMetrics={ METRICS }>
             <NotePreviewModal
                 visible
                 note={ note }
                 onClose={ jest.fn() }
-                onUpdateNote={ jest.fn().mockResolvedValue(undefined) }
+                onUpdateNote={ onUpdateNote }
             />
         </SafeAreaProvider>,
     );
@@ -61,6 +61,51 @@ afterEach(() => {
 });
 
 describe('NotePreviewModal editing layout', () => {
+    it('does not persist or report an edit when the text is unchanged', async () => {
+        const updateNote = jest.fn().mockResolvedValue(undefined);
+        renderModal(updateNote);
+        fireEvent.press(screen.getByLabelText('Edit note'));
+        fireEvent.changeText(screen.getByLabelText('Edit note'), `  ${note.text}  `);
+        await act(async () => { fireEvent.press(screen.getByLabelText('Save changes')); });
+        expect(updateNote).not.toHaveBeenCalled();
+        expect(screen.queryByLabelText('Save changes')).toBeNull();
+    });
+
+    it('retains an edit after saving fails and allows retrying it', async () => {
+        const updateNote = jest.fn()
+            .mockRejectedValueOnce(new Error('Unable to update note right now.'))
+            .mockResolvedValueOnce(undefined);
+        renderModal(updateNote);
+        fireEvent.press(screen.getByLabelText('Edit note'));
+        fireEvent.changeText(screen.getByLabelText('Edit note'), 'Keep the revised reflection');
+
+        await act(async () => { fireEvent.press(screen.getByLabelText('Save changes')); });
+
+        expect(screen.getByLabelText('Edit note').props.value).toBe('Keep the revised reflection');
+        expect(screen.getByText('Unable to update note right now.')).toBeTruthy();
+
+        await act(async () => { fireEvent.press(screen.getByLabelText('Save changes')); });
+        expect(updateNote).toHaveBeenNthCalledWith(2, 'note-1', 'Keep the revised reflection');
+        expect(screen.queryByLabelText('Save changes')).toBeNull();
+    });
+
+    it('prevents duplicate saves and keeps the editor open while saving', async () => {
+        let finishSave!: () => void;
+        const updateNote = jest.fn(() => new Promise<void>(resolve => { finishSave = resolve; }));
+        renderModal(updateNote);
+        fireEvent.press(screen.getByLabelText('Edit note'));
+        fireEvent.changeText(screen.getByLabelText('Edit note'), 'Pending edit');
+        act(() => {
+            fireEvent.press(screen.getByLabelText('Save changes'));
+            fireEvent.press(screen.getByLabelText('Save changes'));
+            fireEvent.press(screen.getByLabelText('Back'));
+        });
+
+        expect(updateNote).toHaveBeenCalledTimes(1);
+        expect(screen.getByLabelText('Edit note').props.editable).toBe(false);
+        await act(async () => { finishSave(); });
+    });
+
     it('leaves the text input as the only scroller while editing', () => {
         captureListeners();
         renderModal();
@@ -133,4 +178,18 @@ describe('NotePreviewModal editing layout', () => {
         expect(screen.UNSAFE_queryAllByType(ScrollView)).toHaveLength(1);
         expect(screen.getByText('A short note.')).toBeTruthy();
     });
+});
+
+it('keeps a failed review open, shows the error, and allows a successful retry', async () => {
+    const close = jest.fn();
+    const reviewed = jest.fn().mockRejectedValueOnce(new Error('Failed to save review. Please try again.')).mockResolvedValueOnce(undefined);
+    render(<SafeAreaProvider initialMetrics={METRICS}>
+        <NotePreviewModal visible note={note} canReview onClose={close} onUpdateNote={jest.fn()} onReviewed={reviewed} />
+    </SafeAreaProvider>);
+    await act(async () => { fireEvent.press(screen.getByLabelText('Mark reviewed')); });
+    expect(close).not.toHaveBeenCalled();
+    expect(screen.getByText('Failed to save review. Please try again.')).toBeTruthy();
+    await act(async () => { fireEvent.press(screen.getByLabelText('Mark reviewed')); });
+    expect(reviewed).toHaveBeenCalledTimes(2);
+    expect(close).toHaveBeenCalledTimes(1);
 });

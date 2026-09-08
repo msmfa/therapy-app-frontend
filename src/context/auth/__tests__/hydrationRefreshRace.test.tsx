@@ -62,9 +62,12 @@ const response = (status: number, body: unknown) => ({
 });
 
 const originalFetch = global.fetch;
+let consoleError: jest.SpiedFunction<typeof console.error>;
 
 beforeEach(() => {
     requests.length = 0;
+    // The first protected request intentionally 401s in this regression test.
+    consoleError = jest.spyOn(console, 'error').mockImplementation(() => undefined);
     // @ts-expect-error minimal fetch double
     global.fetch = jest.fn(async (url: string, init: RequestInit) => {
         const path = String(url).split('?')[0].replace(/^https?:\/\/[^/]+/, '');
@@ -84,6 +87,7 @@ beforeEach(() => {
 
 afterEach(() => {
     global.fetch = originalFetch;
+    consoleError.mockRestore();
     jest.resetAllMocks();
 });
 
@@ -115,4 +119,8 @@ test('a 401 during hydration refreshes the session instead of signing the user o
 
     expect(requests.some((request) => request.includes('/auth/refresh'))).toBe(true);
     expect(finalIsAuthenticated).toBe(true);
+    expect(consoleError).toHaveBeenCalledWith(
+        'Error loading sessions:',
+        expect.objectContaining({ status: 401 }),
+    );
 });

@@ -5,10 +5,10 @@ import AppText from './AppText';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 
 type Props = {
-	message: string | null;
-	style?: ViewStyle;
-	testID?: string;
-	onDismiss?: () => void;
+    message: string | null;
+    style?: ViewStyle;
+    testID?: string;
+    onDismiss?: () => void;
 };
 
 export function ErrorMessage({ message, onDismiss, style, testID }: Props) {

@@ -11,6 +11,7 @@ export type AppAlertVariant = 'info' | 'success' | 'error';
 export type AppAlertOptions = {
     onClose?: () => void;
     primaryAction?: AppAlertAction;
+    secondaryAction?: AppAlertAction;
     variant?: AppAlertVariant;
 };
 

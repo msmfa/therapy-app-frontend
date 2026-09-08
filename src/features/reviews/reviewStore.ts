@@ -7,6 +7,7 @@
 import { getNotesDb } from '../notes/useNotes';
 import { Reason } from '../reminders/types';
 import type { ReviewAttribution } from './reviewAttribution';
+import type { ReviewOccurrence } from './reviewSchedule';
 
 export interface NoteReview {
     noteId: string;
@@ -17,6 +18,7 @@ export interface NoteReview {
     gapIndex: number | null;
     reason: Reason | null;
     occurrenceAtUtc: string | null;
+    occurrenceId?: string | null;
 }
 
 interface ReviewRow {
@@ -26,6 +28,7 @@ interface ReviewRow {
     gapIndex: number | null;
     reason: string | null;
     occurrenceAtUtc: string | null;
+    occurrenceId?: string | null;
 }
 
 const REASONS = new Set<string>(Object.values(Reason));
@@ -37,9 +40,49 @@ const toReview = (row: ReviewRow): NoteReview => ({
     gapIndex: row.gapIndex ?? null,
     reason: row.reason && REASONS.has(row.reason) ? (row.reason as Reason) : null,
     occurrenceAtUtc: row.occurrenceAtUtc ?? null,
+    occurrenceId: row.occurrenceId ?? null,
 });
 
-const SELECT_COLUMNS = `noteId, localDate, reviewedAt, gapIndex, reason, occurrenceAtUtc`;
+const SELECT_COLUMNS = `noteId, localDate, reviewedAt, gapIndex, reason, occurrenceAtUtc, occurrenceId`;
+
+/** Upgrade only legacy rows whose original instant and kind identify one slot. */
+export async function backfillReviewIdentities(
+    userId: string,
+    reviews: NoteReview[],
+    occurrences: ReviewOccurrence[],
+): Promise<NoteReview[]> {
+    if (!userId) return reviews;
+    const byInstantAndKind = new Map<string, ReviewOccurrence[]>();
+    for (const occurrence of occurrences) {
+        if (!occurrence.occurrenceId) continue;
+        const key = `${Date.parse(occurrence.atUtc)}:${occurrence.reason}`;
+        byInstantAndKind.set(key, [...(byInstantAndKind.get(key) ?? []), occurrence]);
+    }
+
+    const restored = [...reviews];
+    for (let index = 0; index < reviews.length; index += 1) {
+        const review = reviews[index];
+        if (review.occurrenceId || !review.occurrenceAtUtc || review.reason === null) continue;
+        const at = Date.parse(review.occurrenceAtUtc);
+        if (!Number.isFinite(at)) continue;
+        const matches = byInstantAndKind.get(`${at}:${review.reason}`);
+        if (matches?.length !== 1) continue;
+
+        const occurrenceId = matches[0].occurrenceId!;
+        const db = await getNotesDb();
+        // A concurrently inserted identified row may already occupy this slot.
+        // Ignore that conflict rather than deleting or merging either review.
+        const result = await db.runAsync(
+            `UPDATE OR IGNORE note_reviews SET occurrenceId = ?
+             WHERE userId = ? AND noteId = ? AND localDate = ? AND reviewedAt = ?
+               AND occurrenceAtUtc = ? AND reason = ? AND occurrenceId IS NULL`,
+            occurrenceId, userId, review.noteId, review.localDate, review.reviewedAt,
+            review.occurrenceAtUtc, review.reason,
+        );
+        if (result.changes > 0) restored[index] = { ...review, occurrenceId };
+    }
+    return restored;
+}
 
 /**
  * Records one review, returning false when the note was already reviewed for
@@ -59,8 +102,8 @@ export async function recordReview(
     const db = await getNotesDb();
     const result = await db.runAsync(
         `INSERT OR IGNORE INTO note_reviews
-            (noteId, userId, localDate, reviewedAt, gapIndex, reason, occurrenceAtUtc)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            (noteId, userId, localDate, reviewedAt, gapIndex, reason, occurrenceAtUtc, occurrenceId)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         noteId,
         userId,
         attribution.localDate,
@@ -68,6 +111,7 @@ export async function recordReview(
         attribution.gapIndex,
         attribution.reason,
         attribution.occurrenceAtUtc,
+        attribution.occurrenceId ?? null,
     );
 
     return result.changes > 0;

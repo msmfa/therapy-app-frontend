@@ -3,6 +3,7 @@ const expoPreset = require('jest-expo/jest-preset');
 module.exports = {
   ...expoPreset,
   moduleNameMapper: {
+    '^expo-apple-authentication$': require.resolve('expo-apple-authentication'),
     ...(expoPreset.moduleNameMapper ?? {}),
     '^designs/(.*)$': '<rootDir>/designs/$1',
     '^src/(.*)$': '<rootDir>/src/$1',

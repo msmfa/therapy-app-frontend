@@ -19,28 +19,28 @@ const readZone = (): string => getDeviceTimeZone() ?? UTC_ZONE;
  * to invalidate the sessions.
  */
 export function useDeviceTimeZone(): string {
-  const [zone, setZone] = useState<string>(readZone);
+    const [zone, setZone] = useState<string>(readZone);
 
-  useEffect(() => {
-    const sync = () => {
-      const next = readZone();
-      // Only update on a real change; a new string identity every foreground
-      // would retrigger every dependent effect.
-      setZone((current) => (current === next ? current : next));
-    };
+    useEffect(() => {
+        const sync = () => {
+            const next = readZone();
+            // Only update on a real change; a new string identity every foreground
+            // would retrigger every dependent effect.
+            setZone((current) => (current === next ? current : next));
+        };
 
-    sync();
-
-    const subscription = AppState.addEventListener('change', (state) => {
-      if (state === 'active') {
         sync();
-      }
-    });
 
-    return () => {
-      subscription.remove();
-    };
-  }, []);
+        const subscription = AppState.addEventListener('change', (state) => {
+            if (state === 'active') {
+                sync();
+            }
+        });
 
-  return zone;
+        return () => {
+            subscription.remove();
+        };
+    }, []);
+
+    return zone;
 }

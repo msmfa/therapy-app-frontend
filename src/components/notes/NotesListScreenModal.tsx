@@ -1,5 +1,6 @@
 import React from 'react';
-import { ImageBackground, ImageSourcePropType, Modal, ScrollView, TextInput, TouchableOpacity, View, StyleSheet } from "react-native";
+import { ImageSourcePropType, Modal, ScrollView, TextInput, TouchableOpacity, View, StyleSheet } from "react-native";
+import { ImageBackground } from 'expo-image';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -41,6 +42,7 @@ export function NotePreviewModal({
     const [isEditing, setIsEditing] = React.useState(false);
     const [draft, setDraft] = React.useState('');
     const [saving, setSaving] = React.useState(false);
+    const saveInFlight = React.useRef(false);
     const [error, setError] = React.useState<string | null>(null);
 
     const insets = useSafeAreaInsets();
@@ -61,6 +63,7 @@ export function NotePreviewModal({
     }, [visible, note, isEditing]);
 
     const handleClose = React.useCallback(() => {
+        if (saveInFlight.current) return;
         setIsEditing(false);
         setError(null);
         setSaving(false);
@@ -69,20 +72,32 @@ export function NotePreviewModal({
     }, [note, onClose]);
 
     const handleReviewed = React.useCallback(async () => {
-        if (note && onReviewed) {
+        if (saveInFlight.current) return;
+        if (!note || !onReviewed) return;
+        saveInFlight.current = true;
+        setSaving(true);
+        setError(null);
+        try {
             await onReviewed(note);
+            saveInFlight.current = false;
+            handleClose();
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to save review. Please try again.');
+        } finally {
+            saveInFlight.current = false;
+            setSaving(false);
         }
-        handleClose();
     }, [handleClose, note, onReviewed]);
 
     const handleStartEditing = React.useCallback(() => {
-        if (!note) return;
+        if (!note || saveInFlight.current) return;
         setDraft(note.text);
         setError(null);
         setIsEditing(true);
     }, [note]);
 
     const handleCancelEditing = React.useCallback(() => {
+        if (saveInFlight.current) return;
         setIsEditing(false);
         setError(null);
         if (note) {
@@ -93,13 +108,19 @@ export function NotePreviewModal({
     }, [note]);
 
     const handleSave = React.useCallback(async () => {
-        if (!note) return;
+        if (!note || saveInFlight.current) return;
         const value = draft.trim();
         if (!value) {
             setError('Notes cannot be empty.');
             return;
         }
+        if (value === note.text) {
+            setIsEditing(false);
+            setError(null);
+            return;
+        }
 
+        saveInFlight.current = true;
         try {
             setSaving(true);
             setDraft(value);
@@ -109,6 +130,7 @@ export function NotePreviewModal({
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to update note.');
         } finally {
+            saveInFlight.current = false;
             setSaving(false);
         }
     }, [draft, note, onUpdateNote]);
@@ -139,8 +161,8 @@ export function NotePreviewModal({
             { /* The keyboard already covers the home indicator, so the bottom
                  inset is the larger of the two rather than their sum. */ }
             <ImageBackground
-                source={ require('../../../assets/textures/paper-blue.png') as ImageSourcePropType }
-                resizeMode="cover"
+                source={ require('../../../assets/textures/paper-blue.webp') as ImageSourcePropType }
+                contentFit="cover"
                 style={ styles.modalRoot }
             >
                 { /* The padded box keeps its own testID: ImageBackground spreads
@@ -164,13 +186,14 @@ export function NotePreviewModal({
                             iconColor={ INK }
                             size={ HEADER_BUTTON }
                             onPress={ handleClose }
+                            disabled={ saving }
                         />
                         <GlassPillButton
                             label="REVIEWED"
                             labelColor={ INK }
                             labelSize={ 18 }
                             onPress={ () => { void handleReviewed(); } }
-                            disabled={ !canReview }
+                            disabled={ saving || !canReview }
                             accessibilityLabel="Mark reviewed"
                             height={ HEADER_BUTTON }
                         />
@@ -225,6 +248,7 @@ export function NotePreviewModal({
                         <View style={ styles.editor }>
                             <TextInput
                                 value={ draft }
+                                editable={ !saving }
                                 onChangeText={ setDraft }
                                 multiline
                                 autoFocus

@@ -73,19 +73,27 @@ export async function getTherapySessions(
 export async function syncTherapySessions(
     payload: TherapySessionSyncPayload[],
     window?: SessionsWindow,
+    baseSessions: TherapySession[] = [],
 ): Promise<TherapySessionSyncResult> {
     const body: {
         sessions: TherapySessionSyncPayload[];
+        baseSessions: TherapySessionSyncPayload[];
         from?: string;
         to?: string;
-    } = { sessions: payload };
+    } = {
+        sessions: payload,
+        baseSessions: baseSessions.map(session => ({ id: session._id, startsAtUtc: session.startsAtUtc, durationMin: session.durationMin })),
+    };
 
     if (window) {
-        // Send the widened instants the fetch actually queried with, so the
-        // backend's deletion scope matches what the user could see and edit.
-        const { fromUTC, toUTC } = toUtcDayRange(window.from, window.to);
-        body.from = fromUTC.toISOString();
-        body.to = toUTC.toISOString();
+        // These Dates are already the exact local-midnight boundaries of the
+        // editable calendar window. Converting their UTC date parts back to a
+        // UTC day widens the deletion range into the previous local day for
+        // every non-UTC user, where it can remove a session the UI never
+        // showed. Fetching may safely be wider; deletion must stay inside the
+        // exact window the user was allowed to edit.
+        body.from = window.from.toISOString();
+        body.to = window.to.toISOString();
     }
 
     return apiPost<TherapySessionSyncResult>(

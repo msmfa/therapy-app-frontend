@@ -6,7 +6,8 @@ node_modules
 android/
 ios/
 .env
-.env.production
+.env.*
+!.env.example
 dist/
 build/
 coverage/
@@ -29,5 +30,8 @@ package-lock.json
 # Local scratch/output, and Claude Code worktrees. These are untracked but
 # were not ignored, so EAS was uploading them into the build context.
 output/
+outputs/
 tmp/
+tmp_research/
+*-dev-qr.txt
 .claude/

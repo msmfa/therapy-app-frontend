@@ -22,8 +22,9 @@
 //
 // Anything outside both is still a real review, just an unprompted one: it is
 // recorded against its own day with no reason attached.
-import { Reason, type Reminder } from '../reminders/types';
+import { Reason } from '../reminders/types';
 import { localDateKeyInZone, resolveTimeZone } from '../../utils/timeZone';
+import type { ReviewOccurrence } from './reviewSchedule';
 
 /**
  * How long after firing an occurrence still accepts a tick, in hours.
@@ -48,8 +49,10 @@ export interface ReviewAttribution {
     localDate: string;
     /** Which reminder it answers, or null when the review was unprompted. */
     reason: Reason | null;
-    /** The occurrence's instant, kept so a rollup can match without re-deriving. */
+    /** Original firing instant, retained as evidence for legacy attribution. */
     occurrenceAtUtc: string | null;
+    /** Stable logical slot; absent on reviews recorded by older app versions. */
+    occurrenceId?: string | null;
     gapIndex: number | null;
 }
 
@@ -59,7 +62,7 @@ export interface AttributeReviewParams {
      * for the note's own gap; occurrences from other gaps are harmless but
      * pointless, since a later gap's reminders are all in the future.
      */
-    occurrences: Reminder[];
+    occurrences: ReviewOccurrence[];
     /** When the user actually ticked. */
     at: Date;
     timeZone?: string;
@@ -72,7 +75,7 @@ const graceMsFor = (
 ): number => (overrides?.[reason] ?? GRACE_HOURS[reason]) * HOUR_MS;
 
 export interface OccurrenceWindow {
-    occurrence: Reminder;
+    occurrence: ReviewOccurrence;
     /** When it fires. */
     atMs: number;
     /** When it stops accepting a tick: the next occurrence, or its own cap. */
@@ -87,7 +90,7 @@ export interface OccurrenceWindow {
  * be credited to it.
  */
 export function occurrenceWindows(
-    occurrences: Reminder[],
+    occurrences: ReviewOccurrence[],
     graceHours?: Partial<Record<Reason, number>>,
 ): OccurrenceWindow[] {
     const sorted = occurrences
@@ -138,5 +141,6 @@ export function attributeReview({
         reason: open.occurrence.reason,
         occurrenceAtUtc: open.occurrence.atUtc,
         gapIndex: open.occurrence.gapIndex,
+        ...(open.occurrence.occurrenceId ? { occurrenceId: open.occurrence.occurrenceId } : {}),
     };
 }

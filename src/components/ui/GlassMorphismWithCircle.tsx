@@ -4,19 +4,24 @@ import LinearGradientCircle, { CirclePosition } from './LinearGradientCircle';
 import GlassMorphism from './GlassMorphism';
 
 type Props = {
-  children?: React.ReactNode;
-  style?: StyleProp<ViewStyle>;
-  circleStyle?: StyleProp<ViewStyle>;
-  circlePosition?: CirclePosition;
+    children?: React.ReactNode;
+    style?: StyleProp<ViewStyle>;
+    /** Corner radius for the blurred panel; see GlassMorphism. */
+    panelRadius?: number;
+    circleStyle?: StyleProp<ViewStyle>;
+    /** Omit to get the glass on its own: the circle is not drawn at all. */
+    circlePosition?: CirclePosition;
 };
 
-export const GlassMorphismWithCircle = ({ children, style, circlePosition, circleStyle }: Props) => {
+export const GlassMorphismWithCircle = ({ children, style, circlePosition, circleStyle, panelRadius }: Props) => {
     return (
         <View pointerEvents="box-none" style={ styles.container }>
-            <View pointerEvents="none" style={ styles.colorfulCardsContainer }>
-                <LinearGradientCircle position={ circlePosition } style={ circleStyle } />
-            </View>
-            <GlassMorphism tint="light" style={ style }>
+            { circlePosition !== undefined && (
+                <View pointerEvents="none" style={ styles.colorfulCardsContainer }>
+                    <LinearGradientCircle position={ circlePosition } style={ circleStyle } />
+                </View>
+            ) }
+            <GlassMorphism tint="light" style={ style } panelRadius={ panelRadius }>
                 { children }
             </GlassMorphism>
         </View>

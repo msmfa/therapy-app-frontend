@@ -6,21 +6,24 @@ import * as React from 'react';
 import { useTherapySessions } from '../../context/therapy-sessions/TherapySessionsContext';
 import { useDeviceTimeZone } from '../../hooks/useDeviceTimeZone';
 import { sessionScheduleInputs } from '../reminders/reminderScheduleConfig';
-import { useScheduleTimeZone } from '../reminders/useScheduleTimeZone';
+import { beginEngagement } from '../analytics/engagement';
 import { attributeReview, type ReviewAttribution } from './reviewAttribution';
 import {
-    gapIndexForTimestamp,
+    gapIndexForReview,
     occurrencesForGap,
+    reviewGapBounds,
     type ReviewScheduleInput,
 } from './reviewSchedule';
 import {
     listReviewsForUser,
+    backfillReviewIdentities,
     recordReview,
     removeReview,
     type NoteReview,
 } from './reviewStore';
 import {
     noteReviewProgress,
+    isOccurrenceAnswered,
     summariseReviewsByNote,
     type NoteReviewProgress,
     type NoteReviewSummary,
@@ -45,38 +48,73 @@ export function useNoteReviews(userId: string | undefined) {
     // midnight today, so the session that opened a note's gap has usually
     // already fallen out of it by the time a reminder is answered, and the
     // note could no longer be attributed to any gap.
-    const { scheduleSessions } = useTherapySessions();
+    const { scheduleSessions, reminderScheduleSettings, reminderScheduleStatus } = useTherapySessions();
     const deviceTimeZone = useDeviceTimeZone();
-    const timeZone = useScheduleTimeZone(deviceTimeZone);
+    const timeZone = reminderScheduleSettings?.timeZone ?? deviceTimeZone;
 
     const [reviews, setReviews] = React.useState<NoteReview[]>([]);
     const [loading, setLoading] = React.useState<boolean>(true);
     const [error, setError] = React.useState<string | null>(null);
+    const refreshRequestRef = React.useRef(0);
+    const pendingRefreshRef = React.useRef(false);
+    const ownerRef = React.useRef(userId);
+    ownerRef.current = userId;
 
     const scheduleInput = React.useMemo<ReviewScheduleInput>(
-        () => ({ ...sessionScheduleInputs(scheduleSessions), timeZone }),
-        [scheduleSessions, timeZone],
+        () => ({
+            ...sessionScheduleInputs(scheduleSessions),
+            sessionIdsByStart: Object.fromEntries(scheduleSessions
+                .filter((session) => session._id && session.startsAtUtc)
+                .map((session) => [session.startsAtUtc, session._id])),
+            timeZone,
+            morningMinutes: reminderScheduleSettings?.morningReminderMinutes,
+            reflectionMinutes: reminderScheduleSettings?.eveningReminderMinutes,
+        }),
+        [scheduleSessions, timeZone, reminderScheduleSettings],
     );
 
     const refresh = React.useCallback(async (): Promise<void> => {
+        const request = ++refreshRequestRef.current;
+        pendingRefreshRef.current = true;
+        const isCurrent = () => request === refreshRequestRef.current && ownerRef.current === userId;
         if (!userId) {
             setReviews([]);
             setLoading(false);
             setError(null);
+            pendingRefreshRef.current = false;
             return;
         }
 
         try {
-            setReviews(await listReviewsForUser(userId));
+            let restored = await listReviewsForUser(userId);
+            if (!isCurrent()) return;
+            if (reminderScheduleStatus === 'ready' && reminderScheduleSettings !== null
+                && restored.some((review) => !review.occurrenceId && review.occurrenceAtUtc && review.reason)) {
+                const occurrences = Array.from({ length: Math.max(0, scheduleInput.sessionsUtc.length - 1) },
+                    (_, gapIndex) => occurrencesForGap(gapIndex, scheduleInput)).flat();
+                try {
+                    restored = await backfillReviewIdentities(userId, restored, occurrences);
+                } catch (err) {
+                    // Existing reviews remain readable if upgrading their
+                    // identity fails; a later hydration can retry safely.
+                    console.warn('useNoteReviews.backfill', err);
+                }
+            }
+            if (!isCurrent()) return;
+            setReviews(restored);
             setError(null);
         } catch (err) {
+            if (!isCurrent()) return;
             console.warn('useNoteReviews.refresh', err);
             setReviews([]);
             setError('Failed to load reviews');
         } finally {
-            setLoading(false);
+            if (isCurrent()) {
+                pendingRefreshRef.current = false;
+                setLoading(false);
+            }
         }
-    }, [userId]);
+    }, [userId, reminderScheduleStatus, reminderScheduleSettings, scheduleInput]);
 
     React.useEffect(() => {
         refresh().catch(() => {});
@@ -90,19 +128,36 @@ export function useNoteReviews(userId: string | undefined) {
      */
     const attributionFor = React.useCallback(
         (note: ReviewableNote, at: Date = new Date()): ReviewAttribution => {
-            const gapIndex = gapIndexForTimestamp(note.createdAt, scheduleInput.sessionsUtc);
+            const gapIndex = gapIndexForReview(note.createdAt, scheduleInput, reviews.filter((review) => review.noteId === note.id));
             const occurrences =
                 gapIndex === null ? [] : occurrencesForGap(gapIndex, scheduleInput);
 
             return attributeReview({ occurrences, at, timeZone });
         },
-        [scheduleInput, timeZone],
+        [reviews, scheduleInput, timeZone],
     );
+
+    const hasAnswered = React.useCallback((noteId: string, attribution: ReviewAttribution): boolean =>
+        reviews.some((review) => {
+            if (review.noteId !== noteId) return false;
+            // Keep the existing per-day limit as well as logical-slot identity.
+            if (review.localDate === attribution.localDate) return true;
+            if (attribution.reason === null || attribution.occurrenceAtUtc === null || attribution.gapIndex === null) return false;
+            return isOccurrenceAnswered({
+                reason: attribution.reason,
+                localDate: attribution.localDate,
+                atUtc: attribution.occurrenceAtUtc,
+                gapIndex: attribution.gapIndex,
+                occurrenceId: attribution.occurrenceId ?? undefined,
+            }, review, reviewGapBounds(attribution.gapIndex, scheduleInput));
+        }), [reviews, scheduleInput]);
 
     const markReviewed = React.useCallback(
         async (note: ReviewableNote, at: Date = new Date()): Promise<MarkReviewedResult> => {
             const attribution = attributionFor(note, at);
             if (!userId) return { recorded: false, attribution };
+            if (hasAnswered(note.id, attribution)) return { recorded: false, attribution };
+            const engagement = beginEngagement(userId);
 
             try {
                 const recorded = await recordReview(
@@ -113,6 +168,13 @@ export function useNoteReviews(userId: string | undefined) {
                 );
 
                 if (recorded) {
+                    engagement.reviewCompleted(note.id, at.getTime(), attribution.reason ?? 'unprompted', async () => {
+                        const stored = await listReviewsForUser(userId);
+                        return { overall: stored.length === 1, forNote: stored.filter((row) => row.noteId === note.id).length === 1 };
+                    });
+                }
+
+                if (recorded && ownerRef.current === userId) {
                     setReviews((prev) => [
                         {
                             noteId: note.id,
@@ -121,20 +183,26 @@ export function useNoteReviews(userId: string | undefined) {
                             gapIndex: attribution.gapIndex,
                             reason: attribution.reason,
                             occurrenceAtUtc: attribution.occurrenceAtUtc,
+                            occurrenceId: attribution.occurrenceId ?? null,
                         },
                         ...prev,
                     ]);
+                    // A slow legacy upgrade may have read before this tick
+                    // was saved. Replace that pending snapshot with a fresh
+                    // read containing the mutation, including on first load.
+                    if (pendingRefreshRef.current) void refresh();
                 }
 
                 setError(null);
                 return { recorded, attribution };
             } catch (err) {
                 console.warn('useNoteReviews.markReviewed', err);
+                engagement.failed('review_save');
                 setError('Failed to save review');
-                return { recorded: false, attribution };
+                throw new Error('Failed to save review. Please try again.');
             }
         },
-        [attributionFor, userId],
+        [attributionFor, hasAnswered, refresh, userId],
     );
 
     const undoReview = React.useCallback(
@@ -167,10 +235,9 @@ export function useNoteReviews(userId: string | undefined) {
     /** Whether a tick right now would be a no-op, for the button's state. */
     const isReviewed = React.useCallback(
         (note: ReviewableNote, at: Date = new Date()): boolean => {
-            const { localDate } = attributionFor(note, at);
-            return summaryFor(note.id).days.includes(localDate);
+            return hasAnswered(note.id, attributionFor(note, at));
         },
-        [attributionFor, summaryFor],
+        [attributionFor, hasAnswered],
     );
 
     /**
@@ -185,7 +252,7 @@ export function useNoteReviews(userId: string | undefined) {
     const reviewState = React.useCallback(
         (note: ReviewableNote, at: Date = new Date()) => {
             const attribution = attributionFor(note, at);
-            const alreadyReviewed = summaryFor(note.id).days.includes(attribution.localDate);
+            const alreadyReviewed = hasAnswered(note.id, attribution);
             const withinWindow = attribution.reason !== null;
 
             return {
@@ -195,7 +262,7 @@ export function useNoteReviews(userId: string | undefined) {
                 canReview: withinWindow && !alreadyReviewed,
             };
         },
-        [attributionFor, summaryFor],
+        [attributionFor, hasAnswered],
     );
 
     /** How far through its gap's reminders a note is, for the progress bar. */

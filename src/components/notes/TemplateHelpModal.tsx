@@ -1,5 +1,6 @@
 import React from 'react';
-import { ImageBackground, ImageSourcePropType, Modal, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ImageSourcePropType, Modal, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ImageBackground } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import AppText from '../ui/AppText';
@@ -37,8 +38,8 @@ export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) 
         >
             <ImageBackground
                 testID="template-help-modal-root"
-                source={ require('../../../assets/textures/paper-green.png') as ImageSourcePropType }
-                resizeMode="cover"
+                source={ require('../../../assets/textures/paper-green.webp') as ImageSourcePropType }
+                contentFit="cover"
                 style={ [
                     styles.modalRoot,
                     { paddingTop: insets.top, paddingBottom: insets.bottom },

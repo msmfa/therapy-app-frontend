@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleProp, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { ActivityIndicator, StyleProp, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Defs, Rect, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
@@ -19,6 +19,17 @@ type Props = {
     // default fade, so it can be dialled to a specific grey.
     disabledLabelColor?: string;
     disabled?: boolean;
+    loading?: boolean;
+    /** Let longer labels and accessibility text grow beyond the minimum height. */
+    contentSized?: boolean;
+    /**
+     * Paints the pill in one flat colour instead of glass.
+     *
+     * Same geometry, shadow and label handling; the blur, the specular edge and
+     * the rim shading are all dropped, since none of them describe anything on
+     * an opaque surface.
+     */
+    fillColor?: string;
     style?: StyleProp<ViewStyle>;
 };
 
@@ -35,51 +46,74 @@ export function GlassPillButton({
     labelColor = '#ffffff',
     disabledLabelColor,
     disabled = false,
+    loading = false,
+    contentSized = false,
+    fillColor,
     style,
 }: Props) {
     const resolvedLabelColor = disabled && disabledLabelColor ? disabledLabelColor : labelColor;
-    const [width, setWidth] = React.useState(0);
-    const radius = height / 2;
+    const isSolid = fillColor !== undefined;
+    // A blurred view over an opaque fill is a blur of nothing, and on Android it
+    // is a real cost, so the solid form drops to a plain view.
+    const Body = isSolid ? View : BlurView;
+    const [layout, setLayout] = React.useState({ width: 0, height });
+    const { width } = layout;
+    const renderedHeight = contentSized ? layout.height : height;
+    const radius = renderedHeight / 2;
 
     return (
         <TouchableOpacity
             onPress={ onPress }
-            disabled={ disabled }
-            activeOpacity={ 0.7 }
+            disabled={ disabled || loading }
+            // The solid form dims further under the finger than the glass one:
+            // glass already shifts as the blur moves, and a flat black pill has
+            // nothing to show a press with except its own opacity.
+            activeOpacity={ isSolid ? 0.6 : 0.7 }
             accessibilityRole="button"
             accessibilityLabel={ accessibilityLabel ?? label }
-            accessibilityState={ { disabled } }
-            onLayout={ (event) => setWidth(event.nativeEvent.layout.width) }
+            accessibilityState={ { disabled: disabled || loading, busy: loading } }
+            accessibilityValue={ loading ? { text: 'Loading' } : undefined }
+            onLayout={ (event) => setLayout(event.nativeEvent.layout) }
             style={ [
                 styles.shadowWrapper,
-                { height, borderRadius: radius },
+                { ...(contentSized ? { minHeight: height } : { height }), borderRadius: radius },
                 disabled && styles.disabled,
                 style,
             ] }
         >
-            <BlurView
+            <Body
                 intensity={ 46 }
                 tint="light"
-                style={ [styles.pill, { height, borderRadius: radius }] }
+                style={ [
+                    styles.pill,
+                    contentSized ? { minHeight: height, paddingVertical: 18 } : { height },
+                    { borderRadius: radius },
+                    isSolid && { backgroundColor: fillColor },
+                ] }
             >
-                <LinearGradient
-                    colors={ ['hsla(0, 0%, 100%, 0.42)', 'hsla(0, 0%, 100%, 0.08)'] }
-                    style={ StyleSheet.absoluteFill }
-                />
+                { !isSolid && (
+                    <LinearGradient
+                        colors={ ['hsla(0, 0%, 100%, 0.42)', 'hsla(0, 0%, 100%, 0.08)'] }
+                        style={ StyleSheet.absoluteFill }
+                    />
+                ) }
                 <AppText
                     variant="body"
                     style={ [
                         styles.label,
                         { color: resolvedLabelColor, fontSize: labelSize },
                         disabled && !disabledLabelColor && styles.disabledLabel,
+                        contentSized && styles.contentSizedLabel,
+                        loading && styles.hiddenLabel,
                     ] }
                 >
                     { label }
                 </AppText>
-            </BlurView>
-            { width > 0 ? (
+                { loading && <ActivityIndicator color={ resolvedLabelColor } style={ StyleSheet.absoluteFill } /> }
+            </Body>
+            { width > 0 && !isSolid ? (
                 <View pointerEvents="none" style={ StyleSheet.absoluteFill }>
-                    <Svg width={ width } height={ height }>
+                    <Svg width={ width } height={ renderedHeight }>
                         <Defs>
                             <SvgGradient id="pillRimShade" x1="0" y1="0" x2="1" y2="1">
                                 <Stop offset="0" stopColor="#1b2a44" stopOpacity="0" />
@@ -97,7 +131,7 @@ export function GlassPillButton({
                             x={ 0.8 }
                             y={ 0.8 }
                             width={ width - 1.6 }
-                            height={ height - 1.6 }
+                            height={ renderedHeight - 1.6 }
                             rx={ radius }
                             stroke="url(#pillRimShade)"
                             strokeWidth={ 1.6 }
@@ -107,7 +141,7 @@ export function GlassPillButton({
                             x={ 1.2 }
                             y={ 1.2 }
                             width={ width - 2.4 }
-                            height={ height - 2.4 }
+                            height={ renderedHeight - 2.4 }
                             rx={ radius }
                             stroke="url(#pillSpec)"
                             strokeWidth={ 1.6 }
@@ -137,6 +171,13 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 17,
         letterSpacing: 1.2,
+    },
+    contentSizedLabel: {
+        textAlign: 'center',
+        letterSpacing: 0.2,
+    },
+    hiddenLabel: {
+        opacity: 0,
     },
     disabled: {
         opacity: 0.6,

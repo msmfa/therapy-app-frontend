@@ -14,7 +14,12 @@ jest.mock('@react-native-async-storage/async-storage', () =>
 // with "Cannot log after tests are done" even though every test passed.
 // Suites that care about the schedule mock this module themselves.
 jest.mock('./src/api/reminders', () => ({
-  getReminders: jest.fn(async () => ({ timeZone: 'UTC', reminders: [] })),
+  getReminders: jest.fn(async () => ({
+    timeZone: 'UTC',
+    morningReminderMinutes: 420,
+    eveningReminderMinutes: 1200,
+    reminders: [],
+  })),
 }));
 
 process.env.EXPO_PUBLIC_API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://example.com/api';
@@ -94,3 +99,9 @@ jest.mock(
   },
   { virtual: true },
 );
+
+// OnboardingScreen reads the safe-area insets to pin artwork to the physical
+// bottom edge. The real hook throws without a provider, which no test should
+// have to arrange, so use the library's own mock (insets all zero).
+jest.mock('react-native-safe-area-context', () =>
+    require('react-native-safe-area-context/jest/mock').default);

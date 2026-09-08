@@ -2,6 +2,8 @@ import * as React from 'react';
 import { openDatabaseAsync, type SQLiteDatabase } from 'expo-sqlite';
 import { cancelNotificationById } from '../../services/notifications';
 import { encryptNoteText, decryptNoteText, isEncrypted } from './noteCrypto';
+import { migrateReviewIdentity } from '../reviews/reviewSchema';
+import { beginEngagement } from '../analytics/engagement';
 
 type SqlRow = {
     id: string;
@@ -62,7 +64,8 @@ const getDb = async (): Promise<SQLiteDatabase> => {
                     reviewedAt INTEGER NOT NULL,
                     gapIndex INTEGER,
                     reason TEXT,
-                    occurrenceAtUtc TEXT
+                    occurrenceAtUtc TEXT,
+                    occurrenceId TEXT
                 );`,
             );
             await db.execAsync(
@@ -73,7 +76,13 @@ const getDb = async (): Promise<SQLiteDatabase> => {
                 `CREATE INDEX IF NOT EXISTS idx_note_reviews_user_date
                  ON note_reviews (userId, localDate);`,
             );
-        })();
+            await migrateReviewIdentity(db);
+        })().catch((error) => {
+            // A failed migration or transient storage error must remain
+            // retryable. Concurrent callers still share this rejected run.
+            initPromise = null;
+            throw error;
+        });
     }
 
     await initPromise;
@@ -233,7 +242,9 @@ export function useNotes(userId: string | undefined) {
     const addNote = React.useCallback(
         async (text: string): Promise<void> => {
             const clean = text.trim();
-            if (!clean || !userId) return;
+            if (!userId) throw new Error('Sign in to save a note.');
+            if (!clean) throw new Error('Notes cannot be empty.');
+            const engagement = beginEngagement(userId);
 
             const now = Date.now();
             const note: Note = { id: createNoteId(now), text: clean, createdAt: now };
@@ -243,7 +254,7 @@ export function useNotes(userId: string | undefined) {
                 // `note` keeps the plaintext for in-memory state; only the
                 // encrypted form is ever written to disk.
                 const sealed = await encryptNoteText(note.text);
-                await db.runAsync(
+                const inserted = await db.runAsync(
                     `INSERT INTO notes (id, userId, text, createdAt)
                      VALUES (?, ?, ?, ?)`,
                     note.id,
@@ -251,11 +262,18 @@ export function useNotes(userId: string | undefined) {
                     sealed,
                     note.createdAt,
                 );
+                if (inserted.changes === 0) throw new Error('Note was not inserted');
                 setNotes((prev) => sortNotes([note, ...prev]));
                 setError(null);
+                engagement.noteSaved(note.id, 'new', async () => {
+                    const row = await db.getFirstAsync<{ count: number }>('SELECT COUNT(*) AS count FROM notes WHERE userId = ?', userId);
+                    return row?.count === 1;
+                });
             } catch (err) {
                 console.warn('useNotes.addNote', err);
+                engagement.failed('note_save');
                 setError('Failed to add note');
+                throw new Error('Unable to save note right now.');
             }
         },
         [userId],
@@ -263,7 +281,8 @@ export function useNotes(userId: string | undefined) {
 
     const updateNote = React.useCallback(
         async (id: string, patch: Partial<Pick<Note, 'text' | 'remindAt' | 'notifId'>>): Promise<void> => {
-            if (!userId) return;
+            if (!userId) throw new Error('Sign in to save a note.');
+            const engagement = beginEngagement(userId);
 
             const updates: string[] = [];
             const values: Array<string | number | null> = [];
@@ -294,19 +313,25 @@ export function useNotes(userId: string | undefined) {
                 }
 
                 const db = await getDb();
-                await db.runAsync(
+                const updated = await db.runAsync(
                     `UPDATE notes SET ${updates.join(', ')} WHERE id = ? AND userId = ?`,
                     ...values,
                     id,
                     userId,
                 );
+                if (updated.changes === 0) throw new Error('Note no longer exists');
                 setNotes((prev) =>
                     sortNotes(prev.map((n) => (n.id === id ? { ...n, ...patch } : n))),
                 );
                 setError(null);
+                if (Object.prototype.hasOwnProperty.call(patch, 'text')) {
+                    engagement.noteSaved(id, 'edit', async () => false);
+                }
             } catch (err) {
                 console.warn('useNotes.updateNote', err);
+                engagement.failed('note_save');
                 setError('Failed to update note');
+                throw new Error('Unable to update note right now.');
             }
         },
         [userId],

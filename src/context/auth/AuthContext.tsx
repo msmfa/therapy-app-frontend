@@ -8,8 +8,9 @@ import React, {
 } from 'react';
 import * as SecureStore from 'expo-secure-store';
 
-import { configureApiClient } from '../../api/client';
+import { ApiError, configureApiClient } from '../../api/client';
 import { refreshAuthToken } from '../../api/auth';
+import { analytics } from '../../features/analytics/client';
 
 const normalizeToken = (value: string | null | undefined): string | null => {
     if (!value) {
@@ -106,21 +107,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const refreshInFlight = useRef<Promise<boolean> | null>(null);
     const tokenRef = useRef<string | null>(null);
     const refreshTokenRef = useRef<string | null>(null);
+    const userRef = useRef<AuthUser>(null);
     const signOutTasksRef = useRef<Set<SignOutTask>>(new Set());
+    const sessionVersionRef = useRef(0);
+    const signingOutRef = useRef(false);
+    const storageQueueRef = useRef<Promise<void>>(Promise.resolve());
 
-    useEffect(() => {
-        tokenRef.current = token;
-    }, [token]);
-
-    useEffect(() => {
-        refreshTokenRef.current = refreshToken;
-    }, [refreshToken]);
+    // A late keychain write must never land after a newer login or logout.
+    const enqueueSessionWrite = useCallback((operation: () => Promise<void>) => {
+        const pending = storageQueueRef.current.then(operation);
+        storageQueueRef.current = pending.catch(() => undefined);
+        return pending;
+    }, []);
 
     useEffect(() => {
         if (isHydrating.current || hasHydrated.current) {
             return;
         }
         isHydrating.current = true;
+        const version = sessionVersionRef.current;
 
         (async () => {
             try {
@@ -129,6 +134,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     SecureStore.getItemAsync('refreshToken'),
                     SecureStore.getItemAsync('user'),
                 ]);
+                if (version !== sessionVersionRef.current) return;
 
                 const normalized = normalizeToken(storedToken);
                 const hydratedUser = parseStoredUser(storedUser);
@@ -141,11 +147,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 // no-op: the user is stuck with no path back to login. Discard
                 // it and start clean instead.
                 if (!normalized || !hydratedUser) {
+                    analytics.setIdentity(null);
                     if (storedToken || storedRefreshToken || storedUser) {
                         console.warn(
                             '[AuthProvider] Discarding incomplete persisted session',
                         );
-                        await clearPersistedSession();
+                        await enqueueSessionWrite(async () => {
+                            if (version === sessionVersionRef.current) await clearPersistedSession();
+                        });
                     }
                     return;
                 }
@@ -167,68 +176,101 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 }
 
                 tokenRef.current = normalized;
+                userRef.current = hydratedUser;
+                analytics.setIdentity(hydratedUser.id);
                 setToken(normalized);
                 setUser(hydratedUser);
 
                 // Housekeeping, so it happens once the session is coherent
                 // rather than in the middle of announcing it.
                 if (normalized !== storedToken) {
-                    await SecureStore.setItemAsync('token', normalized);
+                    await enqueueSessionWrite(async () => {
+                        if (version === sessionVersionRef.current && tokenRef.current === normalized) {
+                            await SecureStore.setItemAsync('token', normalized);
+                        }
+                    });
                 }
             } catch (error) {
+                if (version !== sessionVersionRef.current) return;
                 console.error('[AuthProvider] hydration error:', error);
                 tokenRef.current = null;
                 refreshTokenRef.current = null;
+                userRef.current = null;
+                analytics.setIdentity(null);
                 setToken(null);
                 setRefreshToken(null);
                 setUser(null);
-                await clearPersistedSession().catch(() => undefined);
+                await enqueueSessionWrite(async () => {
+                    if (version === sessionVersionRef.current) await clearPersistedSession();
+                }).catch(() => undefined);
             } finally {
                 hasHydrated.current = true;
                 isHydrating.current = false;
                 setHydrated(true);
             }
         })();
-    }, []);
+    }, [enqueueSessionWrite]);
 
-    const setAuth = useCallback(async (t: string, u: AuthUser, refresh?: string | null) => {
+    const commitAuth = useCallback(async (
+        t: string, u: AuthUser, refresh: string | null | undefined, version: number,
+    ) => {
+        if (version !== sessionVersionRef.current) return;
         const normalizedToken = normalizeToken(t);
         const cleanedRefreshToken = refresh?.trim() || null;
 
+        // A changed server user is a real account transition. Ordinary token
+        // refresh keeps the same identity; sign-out cleanup cannot revive it.
+        if (!signingOutRef.current && userRef.current?.id !== u?.id) {
+            analytics.setIdentity(normalizedToken && u ? u.id : null);
+        }
+
         tokenRef.current = normalizedToken;
         refreshTokenRef.current = cleanedRefreshToken;
+        userRef.current = u;
         setToken(normalizedToken);
         setRefreshToken(cleanedRefreshToken);
         setUser(u);
 
-        try {
-            if (normalizedToken) {
-                await SecureStore.setItemAsync('token', normalizedToken);
-            } else {
-                await SecureStore.deleteItemAsync('token');
-            }
+        await enqueueSessionWrite(async () => {
+            if (version !== sessionVersionRef.current) return;
+            try {
+                if (normalizedToken) {
+                    await SecureStore.setItemAsync('token', normalizedToken);
+                } else {
+                    await SecureStore.deleteItemAsync('token');
+                }
 
-            if (cleanedRefreshToken) {
-                await SecureStore.setItemAsync('refreshToken', cleanedRefreshToken);
-            } else {
-                await SecureStore.deleteItemAsync('refreshToken');
-            }
+                if (cleanedRefreshToken) {
+                    await SecureStore.setItemAsync('refreshToken', cleanedRefreshToken);
+                } else {
+                    await SecureStore.deleteItemAsync('refreshToken');
+                }
 
-            if (u) {
-                await SecureStore.setItemAsync('user', JSON.stringify(u));
-            } else {
-                await SecureStore.deleteItemAsync('user');
+                if (u) {
+                    await SecureStore.setItemAsync('user', JSON.stringify(u));
+                } else {
+                    await SecureStore.deleteItemAsync('user');
+                }
+            } catch (error) {
+                console.error('[AuthProvider] setAuth storage error:', error);
+                // The writes are not atomic, so a failure part-way through can
+                // leave a token on disk with no user. The next queued operation
+                // will persist a newer session if a login superseded this one.
+                await clearPersistedSession().catch(() => undefined);
             }
-        } catch (error) {
-            console.error('[AuthProvider] setAuth storage error:', error);
-            // The writes are not atomic, so a failure part-way through can
-            // leave a token on disk with no user. Clear the lot rather than
-            // let the next launch hydrate a session that cannot be used.
-            await clearPersistedSession().catch(() => undefined);
-        }
-    }, []);
+        });
+    }, [enqueueSessionWrite]);
 
-    const refreshSession = useCallback(async (): Promise<boolean> => {
+    const setAuth = useCallback(async (t: string, u: AuthUser, refresh?: string | null) => {
+        const version = ++sessionVersionRef.current;
+        signingOutRef.current = false;
+        refreshInFlight.current = null;
+        analytics.setIdentity(normalizeToken(t) && u ? u.id : null);
+        await commitAuth(t, u, refresh, version);
+    }, [commitAuth]);
+
+    const refreshSession = useCallback(async (forSignOut = false): Promise<boolean> => {
+        if (signingOutRef.current && !forSignOut) return false;
         if (refreshInFlight.current) {
             return refreshInFlight.current;
         }
@@ -238,29 +280,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             return false;
         }
 
-        refreshInFlight.current = (async () => {
+        const version = sessionVersionRef.current;
+        const currentUser = userRef.current;
+        const request = (async () => {
             try {
                 const result = await refreshAuthToken(currentRefreshToken);
+                if (version !== sessionVersionRef.current) return false;
                 const nextToken = normalizeToken(result.token);
                 if (!nextToken) {
                     return false;
                 }
 
                 const nextRefresh = result.refreshToken ?? currentRefreshToken;
-                const nextUser = result.user ?? user;
+                const nextUser = result.user ?? currentUser;
 
-                await setAuth(nextToken, nextUser, nextRefresh ?? null);
-                return true;
+                await commitAuth(nextToken, nextUser, nextRefresh ?? null, version);
+                return version === sessionVersionRef.current;
             } catch (error) {
                 console.warn('[AuthProvider] refreshSession failed:', error);
-                return false;
-            } finally {
-                refreshInFlight.current = null;
+                if (error instanceof ApiError && (error.status === 400 || error.status === 401 || error.status === 403)) return false;
+                throw error;
             }
-        })();
+        })().finally(() => {
+            if (refreshInFlight.current === request) refreshInFlight.current = null;
+        });
 
-        return refreshInFlight.current;
-    }, [setAuth, user]);
+        refreshInFlight.current = request;
+        return request;
+    }, [commitAuth]);
 
     const registerSignOutTask = useCallback((task: SignOutTask) => {
         signOutTasksRef.current.add(task);
@@ -270,6 +317,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     const signOut = useCallback(async (options?: SignOutOptions) => {
+        // Keep the generation while bounded cleanup runs so an already-started
+        // refresh can supply its successor. Completion invalidates late work.
+        const version = sessionVersionRef.current;
+        signingOutRef.current = true;
+        // Invalidate analytics callbacks immediately, before bounded auth
+        // cleanup runs. Historical events still belong to the canonical ID.
+        analytics.setIdentity(null);
         // Cleanup runs FIRST, while the token is still live. Clearing
         // credentials up front meant the push de-registration went out
         // unauthenticated, failed with a 401, and left the device row on the
@@ -277,38 +331,52 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // had logged out.
         if (!options?.skipCleanup && signOutTasksRef.current.size > 0) {
             const tasks = Array.from(signOutTasksRef.current);
+            let cancelCleanupTimeout: (() => void) | undefined;
             try {
                 await Promise.race([
-                    Promise.allSettled(tasks.map((task) => task())),
-                    new Promise((resolve) =>
-                        setTimeout(resolve, SIGN_OUT_CLEANUP_TIMEOUT_MS),
-                    ),
+                    (async () => {
+                        // Cleanup must work after the hour-long access token expires.
+                        // This refresh alone may run while normal refresh is disabled.
+                        await refreshSession(true).catch(() => undefined);
+                        if (version !== sessionVersionRef.current) return;
+                        await Promise.allSettled(tasks.map((task) => task()));
+                    })(),
+                    new Promise((resolve) => {
+                        const cleanupTimeout = setTimeout(resolve, SIGN_OUT_CLEANUP_TIMEOUT_MS);
+                        cancelCleanupTimeout = () => clearTimeout(cleanupTimeout);
+                    }),
                 ]);
             } catch (error) {
                 console.warn('[AuthProvider] signOut cleanup error:', error);
+            } finally {
+                cancelCleanupTimeout?.();
             }
         }
 
+        // Cleanup may finish after another account has signed in.
+        if (version !== sessionVersionRef.current) return;
+        // Invalidate a cleanup refresh that outlives the bounded wait.
+        const clearedVersion = ++sessionVersionRef.current;
         tokenRef.current = null;
         refreshTokenRef.current = null;
+        userRef.current = null;
         setToken(null);
         setRefreshToken(null);
         setUser(null);
 
         try {
-            await Promise.all([
-                SecureStore.deleteItemAsync('token'),
-                SecureStore.deleteItemAsync('refreshToken'),
-                SecureStore.deleteItemAsync('user'),
-            ]);
+            await enqueueSessionWrite(async () => {
+                if (clearedVersion === sessionVersionRef.current) await clearPersistedSession();
+            });
         } catch (error) {
             console.error('[AuthProvider] signOut storage error:', error);
         }
-    }, []);
+    }, [enqueueSessionWrite, refreshSession]);
 
     useEffect(() => {
         configureApiClient({
             getToken: () => tokenRef.current,
+            getSessionVersion: () => sessionVersionRef.current,
             refreshAuth: refreshSession,
             onAuthFailure: () => {
                 // The server has already rejected this session, so calling it

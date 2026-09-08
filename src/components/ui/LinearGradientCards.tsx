@@ -14,7 +14,7 @@ export default function LinearGradientCard({
     gradient = CARD_GRADIENTS[0],
     style,
 }: LinearGradientCardProps) {
-    return <LinearGradient colors={gradient} style={[styles.gradientCard, style]} />;
+    return <LinearGradient colors={ gradient } style={ [styles.gradientCard, style] } />;
 }
 
 const styles = StyleSheet.create({

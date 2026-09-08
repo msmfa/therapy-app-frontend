@@ -4,7 +4,6 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import AppText from '../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
-import { Button } from '../src/components/ui/Button';
 import { GlassCircleButton } from '../src/components/ui/GlassCircleButton';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { ExternalLink } from 'src/components/ui/ExternalLink';
@@ -93,7 +92,6 @@ const REFERENCES: Reference[] = [
 export default function WhyFiveQuestionsScreen() {
     const router = useRouter();
     const handleBack = () => router.back();
-    const handleOpenIntervalScience = () => router.push('/interval-science');
 
     return (
         <SafeAreaView style={ styles.container }>
@@ -147,16 +145,8 @@ export default function WhyFiveQuestionsScreen() {
                 <AppText variant="body">
                     These are findings about methods, not promises about your therapy. What they support is
                     the shape of the sheet: recall rather than transcribe, name one thing to watch, use your
-                    own words, pair a situation with a response, and come back to it. There is more on how
-                    therapy changes patterns in the brain, and on the intervals the app uses, on the science
-                    behind therapy and research-based intervals.
+                    own words, pair a situation with a response, and come back to it.
                 </AppText>
-                <Spacer variant={ SpacerVariant.medium } />
-                <Button
-                    label="The science behind our reminder intervals"
-                    transparent
-                    onPress={ handleOpenIntervalScience }
-                />
 
                 <Spacer variant={ SpacerVariant.large } />
                 <AppText variant="h2">References</AppText>

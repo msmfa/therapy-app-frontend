@@ -8,6 +8,7 @@ import { requestPasswordReset } from '../../src/api/auth';
 const mockShowAlert = jest.fn();
 jest.mock('expo-router', () => ({
     useRouter: () => ({ replace: jest.fn() }),
+    useLocalSearchParams: () => ({}),
 }));
 
 jest.mock('../../src/api/auth', () => ({

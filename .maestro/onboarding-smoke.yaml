@@ -1,0 +1,94 @@
+appId: com.plastic-brains.app
+name: Onboarding navigation, reminder separation, and the account step
+---
+- clearKeychain
+- launchApp:
+      clearState: true
+- runFlow:
+      when:
+          visible: Sign in to Apple.*Account
+      commands:
+          - tapOn: Cancel
+- runFlow:
+      when:
+          visible: http://localhost:8081
+      commands:
+          - tapOn: http://localhost:8081
+- runFlow:
+      when:
+          visible: This is the developer menu.*
+      commands:
+          - tapOn: Continue
+- runFlow:
+      when:
+          visible: Connected to:.*
+      commands:
+          - tapOn: Close
+- extendedWaitUntil:
+      visible: A therapy journal that reminds you to review your therapy notes
+      timeout: 30000
+- tapOn: Build my plan
+- assertVisible: What would help you get more from therapy\?
+- tapOn: Put therapy insights into practice
+- tapOn: Continue
+- assertVisible: When is your next session\?
+- tapOn: Date. Not chosen
+- assertVisible: Date. .*
+- tapOn: Time. Not chosen
+- assertVisible: (?i)Time\. (17:00|5:00.*pm)
+- tapOn: Continue
+- assertVisible: How often are your sessions\?
+- tapOn: Every week
+- tapOn: Choose reminder times
+- assertVisible: Choose times that fit your routine
+- assertVisible: Morning reviews
+- assertVisible: Evening reviews
+- assertVisible: Can be changed within settings
+- tapOn: See my plan
+- assertVisible: Your custom plan
+# The session is 17:00 and lasts 50 minutes. The note prompt is ten minutes
+# after it ends (18:00). The separate 20:00 evening review appears on the next
+# screen. Match either the device's 12-hour or 24-hour clock convention. The
+# label and its time are separate elements, so they are checked separately.
+- assertVisible: After your .* session
+- assertVisible: (?i).*(18:00|6:00.*pm).*
+- tapOn: After your note
+- assertVisible: Your Custom Reminders
+- assertVisible: (?is).*Later that .* evening.*
+- assertVisible: (?i).*(20:00|8:00.*pm).*
+- tapOn: Your notes
+- assertVisible: (?i)your notes
+- assertVisible: Your note stays yours
+- tapOn: See plans
+- extendedWaitUntil:
+      visible: Annual.*
+      timeout: 30000
+- assertVisible: Annual\..*2 weeks free.*
+- scrollUntilVisible:
+      element: Monthly\..*1 week free.*
+      direction: DOWN
+      timeout: 10000
+- tapOn: Monthly\..*
+- assertVisible: Start your free trial
+- assertVisible: Restore purchases
+# The account step says back what the account will hold, with the plan just
+# chosen and the store's own price, and warns that Apple's sheet comes next.
+- tapOn: Start your free trial
+- extendedWaitUntil:
+      visible: (?i)^account$
+      timeout: 30000
+- assertVisible: Next session
+- assertVisible: Reminder times
+- assertVisible: Subscription
+- assertVisible: Monthly, 1 week free then .*
+- assertVisible: (?s)After you sign in, Apple will ask you to confirm your free trial.*
+- assertVisible: "By continuing, you agree to:"
+- assertVisible: Terms of Service
+- assertVisible: Privacy Policy
+# Email leads to sign-up, whose action is the flow's own pill.
+- tapOn: Continue with email
+- extendedWaitUntil:
+      visible: Create account
+      timeout: 30000
+- assertVisible: Name
+- assertVisible: Confirm Password

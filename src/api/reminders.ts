@@ -9,6 +9,9 @@ export type RemindersResponse = {
      * had a chance to report the device's.
      */
     timeZone: string;
+    /** Resolved minute-level preferences used to build this exact schedule. */
+    morningReminderMinutes: number;
+    eveningReminderMinutes: number;
     reminders: Reminder[];
 };
 

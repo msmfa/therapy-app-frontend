@@ -15,6 +15,10 @@ module.exports = [
       '**/dist/**',
       '**/build/**',
       '**/.expo/**',
+      '**/output/**',
+      '**/outputs/**',
+      '**/tmp/**',
+      '**/tmp_research/**',
       '**/*.config.js',
       '**/__tests__/**',
       '**/*.test.*',
@@ -23,6 +27,14 @@ module.exports = [
 
   // Base JS recommended
   js.configs.recommended,
+
+  // Jest bootstrap files run in Node with Jest's globals injected.
+  {
+    files: ['jest.*.js'],
+    languageOptions: {
+      globals: { ...globals.node, ...globals.jest },
+    },
+  },
 
   // TS/TSX sources
   {
@@ -35,7 +47,10 @@ module.exports = [
         ecmaFeatures: { jsx: true },
         project: './tsconfig.json',
       },
-      globals: { ...globals.browser, ...globals.node },
+      // __DEV__ is a React Native global, injected by Metro. Without it here the
+      // release-build guard in features/subscription/storeKit.ts reads as an
+      // undefined variable.
+      globals: { ...globals.browser, ...globals.node, __DEV__: 'readonly' },
     },
     plugins: {
       '@typescript-eslint': tsPlugin,

@@ -9,7 +9,7 @@ import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { GlassCircleButton } from '../src/components/ui/GlassCircleButton';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 
-const EFFECTIVE_DATE = 'August 26, 2026';
+const EFFECTIVE_DATE = 'September 8, 2026';
 
 export default function PrivacyPolicyScreen() {
     const router = useRouter();
@@ -63,13 +63,65 @@ export default function PrivacyPolicyScreen() {
                         <Spacer variant={ SpacerVariant.small } />
                         <AppText variant='body'>
                             - Account details you provide, such as your name, email address, and authentication identifiers when you sign in with email or Apple.
-                            { '\n' }- Therapy session details you enter, including session dates and reminder preferences.
+                            { '\n' }- Therapy session details and preferences you enter, including session dates, reminder times, and the reflection goal you choose during onboarding.
                             { '\n' }- Device and usage information, such as app version, device type, crash logs, and basic interactions used to keep the service reliable.
                             { '\n' }- Information from authentication partners (Apple), limited to the identifiers, names, and email addresses you authorize them to share with us.
+                            { '\n' }- Subscription and entitlement information, described in the section below.
                         </AppText>
                         <Spacer variant={ SpacerVariant.small } />
                         <AppText variant='body'>
                             Therapy note contents are encrypted and stored locally on your iPhone. We do not collect, upload, or retain the contents of your therapy notes on our servers.
+                        </AppText>
+                    </View>
+
+                    <Spacer variant={ SpacerVariant.large } />
+                    <View style={ styles.section }>
+                        <AppText variant='h2'>Subscription and entitlement data</AppText>
+                        <Spacer variant={ SpacerVariant.small } />
+                        <AppText variant='body'>
+                            Subscriptions are bought through Apple. We never see or receive your card details, billing
+                            address, or full Apple ID: payment is handled entirely by Apple, and we are not a party to it.
+                        </AppText>
+                        <Spacer variant={ SpacerVariant.small } />
+                        <AppText variant='body'>
+                            To know whether your subscription is active, we process:
+                            { '\n' }- Which plan you chose (monthly or annual) and whether an introductory trial applied.
+                            { '\n' }- The product identifier and an Apple transaction identifier for the purchase.
+                            { '\n' }- The current status of the subscription, such as active, in trial, expired or cancelled, and the date the current period ends.
+                            { '\n' }- Whether your Apple ID was eligible for an introductory offer, as reported by Apple.
+                        </AppText>
+                        <Spacer variant={ SpacerVariant.small } />
+                        <AppText variant='body'>
+                            This information is linked to your Plastic Brains account so the app can unlock the features you
+                            have paid for on any device you sign in to, and so Restore Purchases works. It is not used for
+                            advertising, is never combined with the contents of your therapy notes, and is not
+                            sold. If you opt into app analytics, limited subscription events may be shared with PostHog as described below. Payment credentials and Apple transaction identifiers are not included in those analytics.
+                        </AppText>
+                        <Spacer variant={ SpacerVariant.small } />
+                        <AppText variant='body'>
+                            Apple may also send us server notifications about changes to your subscription, such as a renewal,
+                            a cancellation, or a refund Apple has granted, so that access stays accurate. We keep subscription
+                            records for as long as your account exists and for the period required for tax and accounting, then
+                            delete them. Deleting your account removes them on the same terms described under Data retention &
+                            deletion; it does not cancel an Apple subscription, which you cancel in your Apple ID subscription
+                            settings.
+                        </AppText>
+                    </View>
+
+                    <Spacer variant={ SpacerVariant.large } />
+                    <View style={ styles.section }>
+                        <AppText variant='h2'>Optional app analytics</AppText>
+                        <Spacer variant={ SpacerVariant.small } />
+                        <AppText variant='body'>
+                            App analytics are off unless you choose to share app usage. You can make this choice on Welcome and change it in Settings. If enabled, PostHog receives a small set of events about onboarding, checkout, saving or opening notes, confirming reviews, notification setup and opens, and errors that prevent an action from completing. These events help us understand which features work and where people get stuck.
+                        </AppText>
+                        <Spacer variant={ SpacerVariant.small } />
+                        <AppText variant='body'>
+                            Events use an account identifier so we can understand repeat use across visits. We do not send your name, email address, note contents or titles, therapy goals, exact appointment dates, passwords, or notification contents to PostHog. We do not record your screen or automatically capture taps. An account identifier is pseudonymous, not anonymous.
+                        </AppText>
+                        <Spacer variant={ SpacerVariant.small } />
+                        <AppText variant='body'>
+                            Turning analytics off stops future app event collection. It does not itself delete events already received. You can request deletion of analytics history by contacting us, including when deleting your account. We do not use these events for advertising.
                         </AppText>
                     </View>
 
@@ -99,7 +151,7 @@ export default function PrivacyPolicyScreen() {
                         <AppText variant='h2'>How we use information</AppText>
                         <Spacer variant={ SpacerVariant.small } />
                         <AppText variant='body'>
-                            - Deliver core features such as storing notes locally, saving the therapy session dates you enter, and scheduling reminders.
+                            - Deliver core features such as storing notes locally, saving the therapy session dates and reflection goal you enter, personalising note prompts, and scheduling reminders.
                             { '\n' }- Authenticate your account, prevent fraud, and keep the app secure.
                             { '\n' }- Send optional push notifications about upcoming sessions or follow-up reminders when you enable them.
                             { '\n' }- Improve performance, troubleshoot issues, and develop new features based on aggregate usage trends.
@@ -127,7 +179,7 @@ export default function PrivacyPolicyScreen() {
                         <Spacer variant={ SpacerVariant.small } />
                         <AppText variant='body'>
                             We do not sell your personal information. We only share data with:
-                            { '\n' }- Service providers that help us operate the app (hosting, authentication, notifications).
+                            { '\n' }- Service providers that help us operate the app (hosting, authentication, notifications), and PostHog when you choose optional app analytics.
                             { '\n' }- Authorities or advisors when required by law or to protect rights, safety, or property.
                         </AppText>
                     </View>
@@ -137,7 +189,7 @@ export default function PrivacyPolicyScreen() {
                         <AppText variant='h2'>Data retention & deletion</AppText>
                         <Spacer variant={ SpacerVariant.small } />
                         <AppText variant='body'>
-                            We keep your account information, therapy session dates, reminder settings, and registered device information for as long as you maintain an account. You can request deletion from the Settings screen or by contacting us. Once deleted, we remove personal data from active systems within 30 days unless we must retain it for legal obligations.
+                            We keep your account information, therapy session dates, reflection goal, reminder settings, and registered device information for as long as you maintain an account. You can request deletion from the Settings screen or by contacting us. Once deleted, we remove personal data from active systems within 30 days unless we must retain it for legal obligations.
                         </AppText>
                         <Spacer variant={ SpacerVariant.small } />
                         <AppText variant='body'>

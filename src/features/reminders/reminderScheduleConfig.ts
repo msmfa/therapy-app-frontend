@@ -21,6 +21,15 @@ export const REMINDER_SCHEDULE = {
 } as const;
 
 /**
+ * Delay between the end of therapy and the prompt to write the session note.
+ *
+ * This is a different notification from the evening `post_session` review.
+ * Mirrors LOG_NOTE_MINUTES_AFTER_SESSION in the backend's
+ * notificationCron.helpers.ts, which sends the actual push.
+ */
+export const LOG_NOTE_MINUTES_AFTER_SESSION = 10;
+
+/**
  * Assumed length of a session whose duration was never recorded.
  *
  * `durationMin` is optional on the API, so a session can arrive without one.

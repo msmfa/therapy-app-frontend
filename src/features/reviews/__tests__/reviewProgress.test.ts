@@ -100,10 +100,25 @@ describe('noteReviewProgress', () => {
         expect(result.segments[1].status).toBe('done');
     });
 
-    it('ignores a review recorded against another gap', () => {
+    it('ignores a review recorded against another occurrence', () => {
+        const result = progress([{ ...review('2024-01-02', 1), occurrenceAtUtc: '2024-01-09T07:00:00.000Z' }], '2024-01-03T09:00:00.000Z');
+
+        expect(result.completed).toBe(0);
+    });
+
+    it('requires a matching gap for a legacy prompted review without an occurrence timestamp', () => {
         const result = progress([review('2024-01-02', 1)], '2024-01-03T09:00:00.000Z');
 
         expect(result.completed).toBe(0);
+    });
+
+    it('keeps timestamped reviews answered when a rolling session list changes their gap index', () => {
+        const result = progress([
+            { ...review('2024-01-02', 1), reason: Reason.PostSleep, occurrenceAtUtc: '2024-01-02T07:00:00.000Z' },
+        ], '2024-01-03T09:00:00.000Z');
+
+        expect(result.gapIndex).toBe(0);
+        expect(result.segments[1].status).toBe('done');
     });
 
     it('ignores reviews belonging to another note', () => {
@@ -131,6 +146,22 @@ describe('noteReviewProgress', () => {
         expect(result.total).toBe(
             occurrencesForGap(0, { sessionsUtc: SESSIONS, timeZone: 'UTC' }).length,
         );
+    });
+
+    it('replays review windows at the saved minute-level times', () => {
+        const occurrences = occurrencesForGap(0, {
+            sessionsUtc: SESSIONS,
+            timeZone: 'UTC',
+            morningMinutes: 7 * 60 + 30,
+            reflectionMinutes: 20 * 60 + 15,
+        });
+
+        expect(occurrences.map((occurrence) => occurrence.atUtc)).toEqual([
+            '2024-01-01T20:15:00.000Z',
+            '2024-01-02T07:30:00.000Z',
+            '2024-01-04T20:15:00.000Z',
+            '2024-01-07T20:15:00.000Z',
+        ]);
     });
 });
 

@@ -7,6 +7,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import TherapyCalendar from '../../src/components/therapy-calendar/TherapyCalendar';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTherapySessions } from '../../src/context/therapy-sessions/TherapySessionsContext';
+import type { TherapySession } from '../../src/api/therapy';
+import { ApiError } from '../../src/api/client';
 import { convertSessionsToCalendarFormat } from '../../src/utils/calendar';
 import { useFocusEffect } from 'expo-router';
 import LoadingSuccess from 'src/components/ui/LoadingWithSuccess';
@@ -132,6 +134,7 @@ export default function CalendarScreen() {
     );
 
     const [selectedSessionsDraft, setSelectedSessionsDraft] = useState<SelectedSessions | null>(null);
+    const [draftBase, setDraftBase] = useState<TherapySession[] | null>(null);
     const selectedSessions = selectedSessionsDraft ?? initialSessions;
     const { showAlert } = useAppAlert();
     const normalizeReminderDates = useCallback((values: typeof neuroReminders) =>
@@ -179,6 +182,7 @@ export default function CalendarScreen() {
     useFocusEffect(
         useCallback(() => () => {
             setSelectedSessionsDraft(null);
+            setDraftBase(null);
             setReminderDatesDraft(null);
         }, []),
     );
@@ -197,7 +201,10 @@ export default function CalendarScreen() {
 
     const hasChanges = selectedSignature !== initialSignature;
 
-    const canSave = hasChanges && sessionCount !== 0;
+    // One-off and irregular therapy are valid onboarding choices, so the main
+    // calendar must be able to save one session too. An empty changed selection
+    // is also valid: it is how someone removes a schedule that no longer exists.
+    const canSave = hasChanges;
 
     const nextSessionDate = useMemo(() => {
         const now = Date.now();
@@ -219,43 +226,47 @@ export default function CalendarScreen() {
     }, [neuroReminders, reminderDatesDraft]);
 
     const handleSessionsChange = useCallback((next: SessionsMapInput) => {
+        setDraftBase(base => base ?? sessions.map(session => ({ ...session })));
         setSelectedSessionsDraft(cloneSessionsMap(next));
-    }, []);
+    }, [sessions]);
 
     const handleClearPress = useCallback(() => {
+        setDraftBase(base => base ?? sessions.map(session => ({ ...session })));
         setSelectedSessionsDraft({});
         setReminderDatesDraft([]);
-    }, []);
+    }, [sessions]);
 
     const handleSavePress = useCallback(async () => {
         setSaveStatus('loading');
         try {
-            if (sessionCount < 5) {
-                showAlert('Oops', 'Please select at least five therapy sessions to continue.');
-                setSaveStatus(null); // ← Reset here since we're returning early
-                return;
-            }
-            await syncSessions(selectedSessions, 50);
+            await syncSessions(selectedSessions, 50, draftBase ?? sessions);
             setSelectedSessionsDraft(null);
+            setDraftBase(null);
             setReminderDatesDraft(null);
             setSaveStatus('success');
-
-            // Auto-dismiss after showing success - no setTimeout here!
-
         } catch (error) {
             console.error('syncSessions failed', error);
-            showAlert('Error', 'Unable to save sessions right now.');
+            if (error instanceof ApiError && (error.status === 409 || error.status === 428)) {
+                showAlert('Calendar changed', error.message, { primaryAction: {
+                    label: 'Refresh calendar', onPress: async () => {
+                        await refreshSessions();
+                        setSelectedSessionsDraft(null);
+                        setDraftBase(null);
+                    },
+                } });
+            } else {
+                showAlert('Error', error instanceof Error ? error.message : 'Unable to save sessions right now.');
+            }
             setSaveStatus(null);
         }
-    // ← Remove the finally block that was setting loading to null
-    }, [selectedSessions, sessionCount, showAlert, syncSessions]);
+    }, [selectedSessions, showAlert, syncSessions, draftBase, sessions, refreshSessions]);
 
-    // Delay resetting loading state after success
+    // Leave the confirmation visible long enough to be noticed.
     useEffect(() => {
         if (saveStatus === 'success') {
             const timer = setTimeout(() => {
                 setSaveStatus(null);
-            }, 2500); // Show success for 2.5 seconds
+            }, 2500);
 
             return () => clearTimeout(timer);
         }
@@ -289,9 +300,20 @@ export default function CalendarScreen() {
         }
     }, [sessionsError, refreshSessions, handleErrorModalClose]);
 
-    // TODO: fix this tp still show tabs and be conststant with update loader
     if (sessionsLoading && !sessions.length) {
-        return <Loading transparent={ false } />;
+        // Keep this loader inside the tab screen. Loading's default Modal
+        // covers the navigator, including the tab bar, and made a normal data
+        // refresh look like the whole app had disappeared.
+        return (
+            <View style={ styles.container }>
+                <DarkBackdrop />
+                <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'top'] }>
+                    <View style={ styles.loadingBody }>
+                        <Loading fullScreen={ false } />
+                    </View>
+                </SafeAreaView>
+            </View>
+        );
     }
 
     return (
@@ -404,6 +426,10 @@ const styles = StyleSheet.create({
     },
     root: {
         flex: 1,
+    },
+    loadingBody: {
+        flex: 1,
+        justifyContent: 'center',
     },
     // Runs to the bottom of the screen and under the tab bar, so only the top
     // corners are rounded.

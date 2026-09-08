@@ -147,6 +147,19 @@ export const setHourInZone = (date: Date, hour: number, timeZone: string): Date 
     return zonedTimeToUtc(year, month, day, hour, 0, timeZone);
 };
 
+/** `minutes`: local time from midnight on the day of `date`, as a UTC instant. */
+export const setMinutesInZone = (date: Date, minutes: number, timeZone: string): Date => {
+    const { year, month, day } = getZonedParts(date, timeZone);
+    return zonedTimeToUtc(
+        year,
+        month,
+        day,
+        Math.floor(minutes / 60),
+        minutes % 60,
+        timeZone,
+    );
+};
+
 /** Adds whole local days, keeping the wall-clock time stable across DST. */
 export const addDaysInZone = (date: Date, days: number, timeZone: string): Date => {
     const parts = getZonedParts(date, timeZone);

@@ -56,14 +56,134 @@ export const SURFACE_BLUE_FADE = 'hsla(206.67, 17.65%, 90.00%, 0)';
 // session discs and the calendar's buttons.
 export const ACTION_ORANGE = '#E26D31';
 
+/**
+ * That orange's own hue, for the tinted surfaces in designs-gradients, which
+ * take a hue and build the background and border from it. Kept next to the
+ * colour it is read off so the two cannot drift.
+ */
+export const ACTION_ORANGE_HUE = 20;
+
+
+/**
+ * The same orange as a surface: pale and low in saturation, so a chosen option
+ * is tinted by the action colour rather than painted in it. Any stronger and
+ * the card competed with the ring, the tick and the border already carrying
+ * the selection.
+ */
+export const ACTION_ORANGE_SURFACE = `hsl(${ACTION_ORANGE_HUE}, 55%, 95%)`;
+
+/**
+ * The brand's orange at full strength, read off the site's artwork. Wherever a
+ * section is orange rather than merely marked in orange, this is the fill. Same
+ * hue as ACTION_ORANGE, which stays the colour of small marks on pale ground: a
+ * dot, a ring, a progress bar.
+ */
+export const BRAND_ORANGE = 'hsl(19, 97%, 55%)';
+
+/** The same orange a few steps down, for an edge on top of the fill. */
+export const BRAND_ORANGE_EDGE = 'hsl(19, 88%, 46%)';
+
+/**
+ * The type on that orange, and it is not white.
+ *
+ * Read off the same artwork: the lettering there is a warm pale peach that
+ * keeps the ground's own hue rather than a white laid over it, which is what
+ * stops the words looking stuck on. Reserved for the orange sections; a page of
+ * body copy needs more separation from its ground than this gives.
+ */
+export const BRAND_ORANGE_INK = 'hsl(28, 100%, 90%)';
+
+/**
+ * The same warm ink, taken up for reading rather than for a label.
+ *
+ * BRAND_ORANGE_INK is pitched at the brand's own display lettering, which is
+ * large and has nothing to compete with. A card of prices, dates and small
+ * print needs more separation from the orange under it than that gives.
+ */
+export const ACCENT_INK_BRIGHT = 'hsl(26, 100%, 90%)';
+
+/**
+ * A step brighter again, for the lines that sit lowest in a chosen card's
+ * hierarchy: the trial timeline, the renewal note, the plain badge. Small type
+ * loses more to the orange under it than a price or a heading does.
+ */
+export const ACCENT_INK_BRIGHTEST = 'hsl(30, 100%, 97%)';
+
+/**
+ * The filled circle on a chosen option. A light orange rather than the near
+ * white the reading inks are: it is a mark, not type, and white made it the
+ * loudest thing on the card.
+ */
+export const ACCENT_MARK = 'hsl(26, 100%, 78%)';
+
+/**
+ * The action orange as an ink. The fill colour is pitched to be seen as a
+ * shape and is too light to set a sentence in; this is the same orange taken
+ * down to where it holds against the pale surfaces it is read on.
+ */
+export const ACTION_ORANGE_INK = `hsl(${ACTION_ORANGE_HUE}, 82%, 29%)`;
+
 /** Deep blue for the radio's ring and dot. */
 export const ACTION_BLUE_DARK = 'hsl(222, 70%, 26%)';
+
+/**
+ * The hue the app's blues are built from, for the tinted surfaces in
+ * designs-gradients, which take a hue and derive a background and border.
+ */
+export const ACTION_BLUE_HUE = 220;
+
+/**
+ * A panel of the app's blue: a pale fill under a definite border, for the one
+ * block on a page that has to be seen before the page around it. Used by the
+ * testimonial card and by the summary above each research write-up.
+ *
+ * Cooler than ACTION_BLUE_HUE. The action blue is pitched for a small mark on
+ * a pale ground; spread across a whole panel the same hue carried a violet
+ * cast, so the panels sit a little further round towards cyan.
+ */
+/**
+ * The app's success green as a panel: a pale fill, a definite border, and an
+ * ink darker than both. Carries the free-trial badges, which are good news and
+ * should read as such without shouting over the price beside them.
+ */
+export const GREEN_PANEL = {
+  background: `hsl(${COLOR_HUES.success}, 60%, 93%)`,
+  border: `hsl(${COLOR_HUES.success}, 45%, 62%)`,
+  text: `hsl(${COLOR_HUES.success}, 80%, 22%)`,
+} as const;
+
+const PANEL_BLUE_HUE = 207;
+
+export const BLUE_PANEL = {
+  background: `hsl(${PANEL_BLUE_HUE}, 85%, 96%)`,
+  border: `hsl(${PANEL_BLUE_HUE}, 55%, 62%)`,
+} as const;
+
+// The one saturated surface in the app. The notes preview screen sits on it so
+// the screenshot of the notes list reads as a lit phone screen resting on the
+// page rather than as a second copy of the page itself. The brand orange, which
+// white type sits on cleanly.
+export const SURFACE_ACCENT = 'hsl(20, 99%, 55%)';
 
 export const TEXT_COLORS = {
   primary: COLOR_VARIANTS.black.primary,
   secondary: COLOR_VARIANTS.black.secondary,
   tertiary: COLOR_VARIANTS.black.tertiary,
   quaternary: COLOR_VARIANTS.black.quaternary,
+} as const;
+
+// The counterpart to TEXT_COLORS and the card surface for SURFACE_ACCENT. The
+// pale card used on the app's light ground stays opaque-white there; on the
+// accent it would read as a lamp, so that surface uses a lifted card of its own
+// colour with white type instead.
+export const ACCENT_SURFACE = {
+  textPrimary: COLOR_VARIANTS.white.primary,
+  // Nearly full white, not the 70% used as a secondary ink on dark grounds.
+  // The accent sits mid-way up the luminance range, so white is only a little
+  // brighter than the ground it is on and every step down costs legibility.
+  textSecondary: 'hsla(0, 0%, 100%, 0.92)',
+  cardBackground: 'hsla(0, 0%, 100%, 0.08)',
+  cardBorder: 'hsla(0, 0%, 100%, 0.16)',
 } as const;
 
 export const BUTTON_COLORS = {
@@ -74,6 +194,11 @@ export const BUTTON_COLORS = {
   disabledBackground: COLOR_VARIANTS.transparent,
   disabledLight: COLOR_VARIANTS.white.tertiary,
   disabledDark: 'hsla(0, 0%, 0%, 0.15)',
+  // A disabled primary sits on the pale app background, where a white-tinted
+  // outline disappears entirely. These two keep it visible while still reading
+  // as unavailable.
+  disabledSurface: 'hsla(0, 0%, 0%, 0.05)',
+  disabledText: COLOR_VARIANTS.black.quaternary,
 } as const;
 
 export const THEME_COLORS = {

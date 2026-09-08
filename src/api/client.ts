@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/react-native';
 import { BASE_URL } from '../constants/env';
 import { toError } from '../utils/errors';
+import { API_FAILURE_MESSAGE } from '../utils/telemetry';
 
 export type ApiErrorPayload = {
     message: string;
@@ -26,6 +27,8 @@ export type ApiClientConfig = {
     baseUrl: string;
     defaultTimeoutMs: number;
     getToken?: () => string | null | Promise<string | null>;
+    /** Changes on login/logout, but not on an access-token refresh. */
+    getSessionVersion?: () => number;
     refreshAuth?: () => Promise<boolean>;
     onAuthFailure?: () => Promise<void> | void;
 };
@@ -36,7 +39,7 @@ const DEFAULT_CONFIG: ApiClientConfig = {
 };
 
 let config: ApiClientConfig = { ...DEFAULT_CONFIG };
-let refreshInFlight: Promise<boolean> | null = null;
+let refreshInFlight: { version: number | undefined; promise: Promise<boolean> } | null = null;
 
 export const configureApiClient = (overrides: Partial<ApiClientConfig>) => {
     config = { ...config, ...overrides };
@@ -44,19 +47,27 @@ export const configureApiClient = (overrides: Partial<ApiClientConfig>) => {
 
 const captureApiException = (
     error: unknown,
-    metadata: { method: string; url: string; status?: number; payload?: ApiErrorPayload },
+    metadata: { method: string; url: string; status?: number },
 ): void => {
+    // Error messages can come directly from an HTTP body. Keep that error for
+    // the caller, but send only a generic diagnostic and its original frames.
+    const source = toError(error);
+    const diagnostic = new ApiError(metadata.status ?? 0, { message: API_FAILURE_MESSAGE });
+    if (source.stack) {
+        diagnostic.stack = source.message
+            ? source.stack.replace(source.message, API_FAILURE_MESSAGE)
+            : source.stack;
+    }
     Sentry.withScope((scope) => {
         scope.setTag('api.method', metadata.method);
         scope.setContext('api.request', {
-            url: metadata.url,
+            url: metadata.url.split(/[?#]/, 1)[0],
             method: metadata.method,
         });
 
         if (metadata.status !== undefined) {
             scope.setContext('api.response', {
                 status: metadata.status,
-                payload: metadata.payload,
             });
         }
 
@@ -64,10 +75,10 @@ const captureApiException = (
             'api',
             metadata.method,
             metadata.status !== undefined ? String(metadata.status) : 'network',
-            metadata.url,
+            metadata.url.split(/[?#]/, 1)[0],
         ];
         scope.setFingerprint(fingerprintParts);
-        Sentry.captureException(toError(error));
+        Sentry.captureException(diagnostic);
     });
 };
 
@@ -141,20 +152,22 @@ const ensureRefresh = async (): Promise<boolean> => {
         return false;
     }
 
-    if (!refreshInFlight) {
-        refreshInFlight = (async () => {
+    const version = config.getSessionVersion?.();
+    if (!refreshInFlight || refreshInFlight.version !== version) {
+        const promise = (async () => {
             try {
                 return await config.refreshAuth!();
             } catch (error) {
                 console.warn('[apiClient] refreshAuth failed', error);
-                return false;
-            } finally {
-                refreshInFlight = null;
+                throw error;
             }
-        })();
+        })().finally(() => {
+            if (refreshInFlight?.promise === promise) refreshInFlight = null;
+        });
+        refreshInFlight = { version, promise };
     }
 
-    return refreshInFlight;
+    return refreshInFlight.promise;
 };
 
 export type ApiRequestOptions = {
@@ -200,10 +213,17 @@ export async function apiRequest<T = unknown>(path: string, options: ApiRequestO
     } = options;
 
     const url = path.startsWith('http') ? path : `${config.baseUrl}${path}`;
+    const sessionVersion = config.getSessionVersion?.();
+    const assertCurrentSession = () => {
+        if (auth && sessionVersion !== config.getSessionVersion?.()) {
+            throw new ApiError(401, { message: 'Session changed', code: 'session_changed' });
+        }
+    };
     const initialHeaders = auth
         ? await withAuthHeader(headers)
         : new Headers(headers ?? {});
     const serializedBody = serializeBody(body, initialHeaders);
+    assertCurrentSession();
     const { controller, timeoutId } = createTimeoutController(timeoutMs);
 
     let response: Response;
@@ -217,6 +237,7 @@ export async function apiRequest<T = unknown>(path: string, options: ApiRequestO
         });
     } catch (error) {
         clearTimeout(timeoutId);
+        assertCurrentSession();
 
         captureApiException(error, { url, method });
 
@@ -237,9 +258,15 @@ export async function apiRequest<T = unknown>(path: string, options: ApiRequestO
     }
 
     clearTimeout(timeoutId);
+    // Every response belongs to the session that sent it, including successful
+    // requests and writes with no body. Never deliver an old account's result.
+    assertCurrentSession();
 
     if (response.status === 401 && auth && retryOnAuthFailure) {
+        // Never retry an old account's request with a new account's token, or
+        // let an old refresh failure sign out the newly selected account.
         const refreshed = await ensureRefresh();
+        assertCurrentSession();
         if (refreshed) {
             return apiRequest<T>(path, { ...options, retryOnAuthFailure: false });
         }
@@ -250,6 +277,7 @@ export async function apiRequest<T = unknown>(path: string, options: ApiRequestO
 
     if (!response.ok) {
         const payload = await parseErrorPayload(response);
+        assertCurrentSession();
         const error = new ApiError(response.status, payload);
 
         if (response.status >= 500 || response.status === 429) {
@@ -257,7 +285,6 @@ export async function apiRequest<T = unknown>(path: string, options: ApiRequestO
                 url,
                 method,
                 status: response.status,
-                payload,
             });
         }
 
@@ -269,13 +296,16 @@ export async function apiRequest<T = unknown>(path: string, options: ApiRequestO
     }
 
     const contentType = response.headers.get('content-type') ?? '';
-    if (contentType.includes('application/json')) {
-        const payload: unknown = await response.json();
+    try {
+        const payload: unknown = contentType.includes('application/json')
+            ? await response.json()
+            : await response.text();
         return payload as T;
+    } finally {
+        // Reading a body can outlive fetch itself. Reject even if parsing
+        // fails after another account has replaced the request's owner.
+        assertCurrentSession();
     }
-
-    const text = await response.text();
-    return text as unknown as T;
 }
 
 export const apiGet = <T = unknown>(path: string, options?: Omit<ApiRequestOptions, 'method'>) =>

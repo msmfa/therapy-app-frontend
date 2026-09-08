@@ -106,9 +106,6 @@ export function AuraPanel({ text, caption, coreColor, width, height, style }: Pr
         ? GLOW_STOPS.map((stop) => (stop.offset <= 0.25 ? { ...stop, color: coreColor } : stop))
         : GLOW_STOPS;
 
-    const pitch = width * PITCH_RATIO;
-    const radius = pitch * DOT_RADIUS_RATIO;
-
     const captionSize = width * CAPTION_SIZE_RATIO;
     const captionLines = caption
         ? wrapCaption(caption, Math.max(1, Math.floor(
@@ -119,6 +116,14 @@ export function AuraPanel({ text, caption, coreColor, width, height, style }: Pr
     const characters = text.split('');
     const gridWidth = characters.length * DOT_COLS
         + Math.max(0, characters.length - 1) * LETTER_GAP_COLS;
+    // Minute-level times can be wider than the original two-digit reference
+    // artwork (for example, "10:15 PM"). Keep every glyph inside the panel
+    // instead of clipping a real value at either edge.
+    const pitch = Math.min(
+        width * PITCH_RATIO,
+        (width * CAPTION_MAX_WIDTH) / Math.max(gridWidth - 1, 1),
+    );
+    const radius = pitch * DOT_RADIUS_RATIO;
 
     // Centre the block of dots, then walk the characters across it. The block
     // sits a little above the middle, where the design puts it.

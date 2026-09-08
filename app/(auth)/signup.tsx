@@ -1,24 +1,21 @@
 import React, { useCallback, useState } from 'react';
-import {
-    View,
-    StyleSheet,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-} from 'react-native';
-import { useRouter } from 'expo-router';
+import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/auth/AuthContext';
 import { handleError, validatePassword } from 'src/utils';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TextField from 'src/components/ui/TextField';
 import PasswordField from 'src/components/ui/PasswordField';
-import { Button } from 'src/components/ui/Button';
 import AppText from '../../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import SocialAuthButtons from '../../src/components/auth/SocialAuthButtons';
+import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
 import { registerAccount } from '../../src/api/auth';
 import { useAppAlert } from '../../src/context/alert';
+import { resolveAuthReturnRoute } from '../../src/features/onboarding/authReturn';
 import { GlassMorphismWithCircle } from 'src/components/ui/GlassMorphismWithCircle';
+import { GLASS_CARD_RADIUS } from 'src/components/ui/GlassMorphism';
+import { BackButton } from 'src/components/ui/BackButton';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -27,6 +24,10 @@ export default function SignUpScreen() {
     const router = useRouter();
     const { setAuth } = useAuth();
     const { showAlert } = useAppAlert();
+    const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
+
+    // See login.tsx: null means "fall back to '/' and re-run the normal routing".
+    const returnRoute = resolveAuthReturnRoute(returnTo);
 
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -55,32 +56,39 @@ export default function SignUpScreen() {
         try {
             const { token, user, refreshToken } = await registerAccount({ name, email, password });
             await setAuth(token, user, refreshToken ?? null);
-            router.replace('/');
+            router.replace(returnRoute ?? '/');
         } catch (err) {
-            showAlert('Signup failed', handleError(err));
+            showAlert("We couldn't create your account", handleError(err));
         } finally {
             setLoading(false);
         }
-    }, [email, name, password, router, setAuth, showAlert, validate]);
+    }, [email, name, password, returnRoute, router, setAuth, showAlert, validate]);
 
     return (
         <View style={ { flex: 1 } }>
-            <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_LEFT } style={ styles.glassMorphism } />
+            <GlassMorphismWithCircle
+                circlePosition={ CirclePosition.BOTTOM_LEFT }
+                style={ styles.glassMorphism }
+                panelRadius={ GLASS_CARD_RADIUS }
+            />
             <SafeAreaView edges={ ['top', 'left', 'right'] } style={ styles.root }>
-                <KeyboardAvoidingView
-                    behavior={ Platform.OS === 'ios' ? 'padding' : 'height' }
-                >
+                { /* Present only when this screen was pushed onto something, which is
+                     how onboarding's account step reaches it. Nothing renders when
+                     auth is the root, so the app entry point is unchanged. */ }
+                <View style={ styles.backRow }>
+                    <BackButton />
+                </View>
+
+                <KeyboardAvoidingView behavior={ Platform.OS === 'ios' ? 'padding' : 'height' }>
                     <ScrollView
                         contentContainerStyle={ styles.scrollContent }
-                        keyboardShouldPersistTaps='handled'
+                        keyboardShouldPersistTaps="handled"
                         showsVerticalScrollIndicator={ false }
                     >
                         <View style={ styles.header }>
-                            <AppText variant='h1'>
-                                Create Account
-                            </AppText>
-                            <AppText variant='bodySecondary'>
-                                Join to start your therapy journey
+                            <AppText variant="h1">Create your account</AppText>
+                            <AppText variant="bodySecondary">
+                                Save your between-session plan and keep your schedule connected.
                             </AppText>
                         </View>
                         <TextField
@@ -129,19 +137,23 @@ export default function SignUpScreen() {
                             error={ errors.confirmPassword }
                             editable={ !loading }
                         />
-                        <Button
-                            label="Create Account"
-                            onPress={ onSubmit }
-                            loading={ loading }
-                            addedStyles={ { marginTop: 8 } }
-                        />
+                        { /* The flow's own action, as on the sign-in screen:
+                             this is one tap from "Continue with email", and
+                             a smaller, squarer button read as a different
+                             app. */ }
+                        <View style={ styles.submit }>
+                            <OnboardingButton label="Create account" appearance="solid" onPress={ onSubmit } loading={ loading } />
+                        </View>
                         <Spacer variant={ SpacerVariant.large } />
                         <View style={ styles.oauthSection }>
-                            <AppText variant='caption' align='center'>
+                            <AppText variant="caption" align="center">
                                 Or continue with
                             </AppText>
                             <Spacer variant={ SpacerVariant.large } />
-                            <SocialAuthButtons onSuccess={ () => router.replace('/') } disabled={ loading } />
+                            <SocialAuthButtons
+                                onSuccess={ () => router.replace(returnRoute ?? '/') }
+                                disabled={ loading }
+                            />
                         </View>
                     </ScrollView>
                 </KeyboardAvoidingView>
@@ -151,6 +163,12 @@ export default function SignUpScreen() {
 }
 
 const styles = StyleSheet.create({
+    submit: {
+        marginTop: 8,
+    },
+    backRow: {
+        paddingHorizontal: 20,
+    },
     root: {
         flex: 1,
         justifyContent: 'center',
@@ -161,7 +179,7 @@ const styles = StyleSheet.create({
         zIndex: 0,
     },
     header: {
-        marginBottom: 24
+        marginBottom: 24,
     },
     scrollContent: {
         flexGrow: 1,

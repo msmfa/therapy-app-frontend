@@ -8,10 +8,16 @@ import {
     syncTherapySessions as syncTherapySessionsApi,
 } from '../../api/therapy';
 import type { Reminder } from '../../features/reminders/types';
-import { useNeuroReminders } from '../../features/reminders/useNeuroReminders';
+import {
+    useNeuroReminders,
+    type ReminderScheduleSettings,
+    type ReminderScheduleStatus,
+} from '../../features/reminders/useNeuroReminders';
+import { clearRemindersCache } from '../../features/reminders/remindersCache';
 import { useDeviceTimeZone } from '../../hooks/useDeviceTimeZone';
 import { mapSessionError, SessionErrorCopy } from '../../features/therapy-sessions/session-error-map';
 import { toError } from '../../utils/errors';
+import { getSessionsWindow as sharedSessionsWindow, isWithinSessionsWindow } from '../../utils/sessionWindow';
 
 interface TherapySessionsContextType {
     sessions: TherapySession[];
@@ -26,32 +32,25 @@ interface TherapySessionsContextType {
     error: SessionErrorCopy | null;
     nextSession: TherapySession | null;
     neuroReminders: Reminder[];
+    /** The exact zone and minute-level choices used for the fetched schedule. */
+    reminderScheduleSettings: ReminderScheduleSettings | null;
+    reminderScheduleStatus: ReminderScheduleStatus;
     refreshSessions: () => Promise<void>;
-    syncSessions: (selected: Record<string, Date>, duration: number) => Promise<void>;
+    syncSessions: (selected: Record<string, Date>, duration: number, baseSessions?: TherapySession[]) => Promise<void>;
+    /** Adds appointments without deleting sessions already on the calendar. */
+    addSessions: (dates: Date[], duration: number) => Promise<void>;
+    /** Invalidates cached times and fetches the schedule with new preferences. */
+    refreshReminderSchedule: () => Promise<void>;
 }
 
 const TherapySessionsContext = createContext<TherapySessionsContextType | undefined>(undefined);
 
 /**
- * The window of sessions the app fetches and edits: from the start of the
- * user's local day one year ahead. The floor is local midnight, not UTC
- * midnight: with a UTC floor, a session earlier today disappeared from the
- * calendar every evening for anyone west of UTC (and every morning east of
- * it), and anything that falls out of this window is also excluded from the
- * sync's deletion scope, so it silently became undeletable dead weight.
- * The same window is passed to syncSessions so the backend only deletes
- * within what the user could actually see.
+ * The window of sessions the app fetches and edits. Defined in the shared
+ * window module alongside the onboarding limit, so a first session the user is
+ * allowed to choose can never project a series this query would not return.
  */
-const getSessionsWindow = () => {
-    const from = new Date();
-    from.setHours(0, 0, 0, 0);
-
-    const to = new Date();
-    to.setFullYear(to.getFullYear() + 1);
-    to.setHours(23, 59, 59, 999);
-
-    return { from, to };
-};
+const getSessionsWindow = () => sharedSessionsWindow();
 
 /**
  * How far behind the editable window the fetch reaches, so the reviews
@@ -74,67 +73,118 @@ const getFetchWindow = () => {
     return { from: fetchFrom, to };
 };
 
+const editableSessionsFrom = (allSessions: TherapySession[]): TherapySession[] => {
+    const floor = new Date();
+    floor.setHours(0, 0, 0, 0);
+    const floorMs = floor.getTime();
+
+    return allSessions.filter(
+        (session) => new Date(session.startsAtUtc).getTime() >= floorMs,
+    );
+};
+
 interface TherapySessionsProviderProps {
     children: React.ReactNode;
 }
 
+type AccountSessions = {
+    userId: string | null;
+    sessions: TherapySession[];
+    ready: boolean;
+    inFlight: Promise<void> | null;
+};
+
+type SessionsSnapshot = {
+    owner: AccountSessions;
+    scheduleSessions: TherapySession[];
+    loading: boolean;
+    error: SessionErrorCopy | null;
+    sessionsReady: boolean;
+    reminderScheduleSettings: ReminderScheduleSettings | null;
+    reminderScheduleStatus: ReminderScheduleStatus;
+};
+
+const emptySnapshot = (owner: AccountSessions): SessionsSnapshot => ({
+    owner,
+    scheduleSessions: owner.sessions,
+    loading: false,
+    error: null,
+    sessionsReady: false,
+    reminderScheduleSettings: null,
+    reminderScheduleStatus: 'idle',
+});
+
 export function TherapySessionsProvider({ children }: TherapySessionsProviderProps) {
-    const { isAuthenticated } = useAuth();
-    const [scheduleSessions, setScheduleSessions] = useState<TherapySession[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<SessionErrorCopy | null>(null);
-    // Whether the sessions have been fetched at least once. The reminder
-    // cache is keyed on them, so revalidating before they land would miss on
-    // an empty signature and spend a request the next render invalidates.
-    const [sessionsReady, setSessionsReady] = useState(false);
+    const { isAuthenticated, user } = useAuth();
+    const userId = isAuthenticated ? user?.id ?? null : null;
+    const accountRef = useRef<AccountSessions>({ userId, sessions: [], ready: false, inFlight: null });
+    // Switch identity during render: an effect would allow one frame of the
+    // previous user's appointments and would reuse their pending GET.
+    if (accountRef.current.userId !== userId) {
+        accountRef.current = { userId, sessions: [], ready: false, inFlight: null };
+    }
+    const account = accountRef.current;
+    const [snapshot, setSnapshot] = useState(() => emptySnapshot(account));
+    const {
+        scheduleSessions, loading, error, sessionsReady,
+        reminderScheduleSettings, reminderScheduleStatus,
+    } = snapshot.owner === account ? snapshot : emptySnapshot(account);
+    const updateSnapshot = useCallback((patch: Partial<Omit<SessionsSnapshot, 'owner'>>) => {
+        if (accountRef.current !== account) return;
+        setSnapshot((current) => ({
+            ...(current.owner === account ? current : emptySnapshot(account)),
+            ...patch,
+        }));
+    }, [account]);
+    const assertCurrentAccount = useCallback(() => {
+        if (!account.userId || accountRef.current !== account) {
+            throw new Error('Session changed. Please try again.');
+        }
+    }, [account]);
+    const [reminderRefreshSignal, setReminderRefreshSignal] = useState(0);
     const deviceTimeZone = useDeviceTimeZone();
-    const refreshInFlightRef = useRef<Promise<void> | null>(null);
-    const sessionsCountRef = useRef(0);
 
     // What the narrow fetch used to return: local midnight today onward. Every
     // existing consumer (calendar, nextSession, sync payload, reminder cache
     // signature) keeps seeing exactly this; only the reviews feature reads the
     // wider scheduleSessions.
-    const sessions = useMemo(() => {
-        const floor = new Date();
-        floor.setHours(0, 0, 0, 0);
-        const floorMs = floor.getTime();
-
-        return scheduleSessions.filter(
-            (session) => new Date(session.startsAtUtc).getTime() >= floorMs,
-        );
-    }, [scheduleSessions]);
-
-    useEffect(() => {
-        sessionsCountRef.current = sessions.length;
-    }, [sessions.length]);
+    const sessions = useMemo(
+        () => editableSessionsFrom(scheduleSessions),
+        [scheduleSessions],
+    );
 
     const refreshSessions = useCallback(async () => {
-        if (!isAuthenticated) {
+        if (!account.userId || accountRef.current !== account) {
             return;
         }
 
-        if (refreshInFlightRef.current) {
-            return refreshInFlightRef.current;
+        if (account.inFlight) {
+            return account.inFlight;
         }
 
         const request = (async () => {
-            setLoading(true);
+            updateSnapshot({ loading: true, error: null });
             try {
-                setError(null);
                 const { from, to } = getFetchWindow();
 
                 const data = await getTherapySessions(from, to);
-                setScheduleSessions(data);
+                if (accountRef.current !== account) return;
+                // Keep an imperative copy too. A caller awaiting this request
+                // resumes before React has committed setState, and must still
+                // see the canonical sessions that just arrived.
+                account.sessions = data;
+                account.ready = true;
+                updateSnapshot({ scheduleSessions: data });
             } catch (err) {
+                if (accountRef.current !== account) return;
                 const mapped = mapSessionError(err);
-                setError({ ...mapped });
+                updateSnapshot({ error: { ...mapped } });
                 const shouldReport = !(err instanceof ApiError) || err.status >= 500;
                 if (shouldReport) {
                     Sentry.withScope((scope) => {
                         scope.setTag('feature', 'therapy-sessions.refreshSessions');
                         scope.setContext('request', {
-                            cachedSessions: sessionsCountRef.current,
+                            cachedSessions: account.sessions.length,
                         });
                         Sentry.captureException(toError(err));
                     });
@@ -142,26 +192,40 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
                 console.error('Error loading sessions:', err);
                 throw err;
             } finally {
-                refreshInFlightRef.current = null;
-                setLoading(false);
-                setSessionsReady(true);
+                account.inFlight = null;
+                updateSnapshot({ loading: false, sessionsReady: true });
             }
         })();
 
-        refreshInFlightRef.current = request;
+        account.inFlight = request;
         return request;
-    }, [isAuthenticated]);
+    }, [account, updateSnapshot]);
 
     const syncSessions = useCallback(
-        async (selected: Record<string, Date>, duration: number) => {
-            if (!isAuthenticated) {
-                throw new Error('Not authenticated');
+        async (selected: Record<string, Date>, duration: number, baseSessions?: TherapySession[]) => {
+            assertCurrentAccount();
+
+            // Do not build an all-or-nothing sync against the initial empty
+            // state while the first GET is still in flight. That race dropped
+            // every pre-existing appointment not present in `selected`.
+            const initialRefresh = account.inFlight;
+            if (initialRefresh) {
+                await initialRefresh;
+            } else if (!account.ready) {
+                await refreshSessions();
             }
 
-            const payload = Object.values(selected).map((date) => {
-                const existing = sessions.find(
-                    (session) => new Date(session.startsAtUtc).getTime() === date.getTime(),
-                );
+            assertCurrentAccount();
+            const currentSessions = baseSessions ?? editableSessionsFrom(account.sessions);
+            const window = getSessionsWindow();
+            if (Object.values(selected).some(date => !isWithinSessionsWindow(date, window))) {
+                throw new Error('Appointments must be between today and one year ahead. Please update your selection.');
+            }
+
+            const payload = Object.entries(selected).map(([key, date]) => {
+                const existing = currentSessions.find(session => session._id === key)
+                    ?? currentSessions.find(session => !(session._id in selected)
+                        && new Date(session.startsAtUtc).getTime() === date.getTime());
 
                 return {
                     id: existing?._id,
@@ -170,20 +234,55 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
                 };
             });
 
-            await syncTherapySessionsApi(payload, getSessionsWindow());
+            await syncTherapySessionsApi(payload, window, currentSessions);
+            assertCurrentAccount();
 
             // A refresh that began before the write can resolve afterward with
             // the old session list. Wait for it to finish, then start a fresh
             // post-write GET so reminders can only be derived from canonical
             // data that was fetched after the sync completed.
-            const staleRefresh = refreshInFlightRef.current;
+            const staleRefresh = account.inFlight;
             if (staleRefresh) {
                 await staleRefresh.catch(() => {});
             }
 
+            assertCurrentAccount();
             await refreshSessions();
         },
-        [isAuthenticated, sessions, refreshSessions],
+        [account, assertCurrentAccount, refreshSessions],
+    );
+
+    const addSessions = useCallback(
+        async (dates: Date[], duration: number) => {
+            assertCurrentAccount();
+
+            const initialRefresh = account.inFlight;
+            if (initialRefresh) {
+                await initialRefresh;
+            } else if (!account.ready) {
+                await refreshSessions();
+            }
+
+            assertCurrentAccount();
+            // Onboarding adds its projected schedule to an account. It must
+            // not behave like the calendar's replace operation and silently
+            // delete appointments a returning user already has.
+            const selected: Record<string, Date> = {};
+            const occupiedDays = new Set<string>();
+            for (const session of editableSessionsFrom(account.sessions)) {
+                const date = new Date(session.startsAtUtc);
+                selected[session._id] = date;
+                occupiedDays.add(date.toDateString());
+            }
+            for (const date of dates) {
+                if (occupiedDays.has(date.toDateString())) continue;
+                selected[date.toISOString()] = date;
+                occupiedDays.add(date.toDateString());
+            }
+
+            await syncSessions(selected, duration);
+        },
+        [account, assertCurrentAccount, refreshSessions, syncSessions],
     );
 
     const nextSession = useMemo(() => {
@@ -206,23 +305,36 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
     // the user is the plan the cron will send. deviceTimeZone is passed in
     // because travelling has to invalidate the cached schedule: the sessions
     // are unchanged, but the wall-clock times they resolve to are not.
+    const setReminderScheduleSettings = useCallback((settings: ReminderScheduleSettings | null) => {
+        updateSnapshot({ reminderScheduleSettings: settings });
+    }, [updateSnapshot]);
+    const setReminderScheduleStatus = useCallback((status: ReminderScheduleStatus) => {
+        updateSnapshot({ reminderScheduleStatus: status });
+    }, [updateSnapshot]);
     const neuroReminders = useNeuroReminders(
         sessions,
         deviceTimeZone,
-        isAuthenticated,
+        userId !== null,
         sessionsReady,
+        reminderRefreshSignal,
+        setReminderScheduleSettings,
+        setReminderScheduleStatus,
+        userId ?? 'signed-out',
     );
 
+    const refreshReminderSchedule = useCallback(async () => {
+        assertCurrentAccount();
+        await clearRemindersCache(account.userId!);
+        assertCurrentAccount();
+        updateSnapshot({ reminderScheduleSettings: null, reminderScheduleStatus: 'loading' });
+        setReminderRefreshSignal((current) => current + 1);
+    }, [account, assertCurrentAccount, updateSnapshot]);
+
     useEffect(() => {
-        if (isAuthenticated) {
+        if (userId !== null) {
             refreshSessions().catch(() => {});
-        } else {
-            setScheduleSessions([]);
-            setError(null);
-            setLoading(false);
-            setSessionsReady(false);
         }
-    }, [isAuthenticated, refreshSessions]);
+    }, [userId, refreshSessions]);
 
     const value: TherapySessionsContextType = {
         sessions,
@@ -231,8 +343,12 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
         error,
         nextSession,
         neuroReminders,
+        reminderScheduleSettings,
+        reminderScheduleStatus,
         refreshSessions,
         syncSessions,
+        addSessions,
+        refreshReminderSchedule,
     };
 
     return (

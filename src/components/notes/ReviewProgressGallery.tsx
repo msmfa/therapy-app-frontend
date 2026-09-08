@@ -2,7 +2,8 @@ import React from 'react';
 import { View, StyleSheet, Pressable, LayoutAnimation, Platform, UIManager } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AppText from '../ui/AppText';
-import { COMPLETE_RAMP, rampColor, ReviewProgressBar } from './ReviewProgressBar';
+import { ReviewProgressBar } from './ReviewProgressBar';
+import { COMPLETE_RAMP, rampColor } from '../ui/TickMeter';
 import { REVIEW_PROGRESS_PREVIEWS } from './reviewProgressPreview';
 import { COLOR_VARIANTS, PALETTE, TEXT_COLORS } from 'designs/designs-colors';
 

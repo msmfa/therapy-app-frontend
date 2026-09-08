@@ -12,6 +12,8 @@ const { readRemindersCache } = jest.mocked(cacheModule);
 const cacheEntry = (timeZone: string) => ({
     reminders: [],
     timeZone,
+    morningReminderMinutes: 450,
+    eveningReminderMinutes: 1215,
     deviceTimeZone: 'Europe/London',
     sessionsSignature: 'sig',
     localDate: '2026-09-01',

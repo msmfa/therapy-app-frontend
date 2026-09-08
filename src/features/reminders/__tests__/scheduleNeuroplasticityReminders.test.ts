@@ -70,6 +70,20 @@ describe('scheduleNeuroplasticityReminders', () => {
         ]);
     });
 
+    it('preserves minute-level reminder choices', () => {
+        const reminders = runSchedule({
+            reflectionMinutes: 20 * 60 + 15,
+            morningMinutes: 7 * 60 + 30,
+        });
+
+        expect(reminders.map((reminder) => reminder.atUtc)).toEqual([
+            '2024-01-01T20:15:00.000Z',
+            '2024-01-02T07:30:00.000Z',
+            '2024-01-04T20:15:00.000Z',
+            '2024-01-07T20:15:00.000Z',
+        ]);
+    });
+
     it('limits a 48-hour gap to the post- and pre-session reminders', () => {
         const reminders = runSchedule({
             sessionsUtc: [

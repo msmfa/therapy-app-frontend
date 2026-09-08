@@ -22,7 +22,24 @@
         "EXPO_PUBLIC_APPLE_REDIRECT_URI": "https://www.plastic-brains.com/api/auth/oauth/apple/callback",
         "EXPO_PUBLIC_SENTRY_DSN": "https://f53e4d04c73b930d40d89ec6463458ad@o4510144677806080.ingest.de.sentry.io/4510144681148496",
         "SENTRY_DSN": "https://f53e4d04c73b930d40d89ec6463458ad@o4510144677806080.ingest.de.sentry.io/4510144681148496",
-        "EXPO_PUBLIC_APP_STORE_URL": "itms-apps://itunes.apple.com/app/id6754110068?action=write-review"
+        "EXPO_PUBLIC_APP_STORE_URL": "itms-apps://itunes.apple.com/app/id6754110068?action=write-review",
+        "EXPO_PUBLIC_POSTHOG_KEY": "phc_zA974ixjWhcj5WxR2yHNct5NYnmVWtop4iSefdfsKydG",
+        "EXPO_PUBLIC_POSTHOG_HOST": "https://eu.i.posthog.com"
+      }
+    },
+    "testflight": {
+      "extends": "production",
+      "distribution": "store",
+      "environment": "production",
+      "ios": {
+        "simulator": false,
+        "buildConfiguration": "Release"
+      },
+      "env": {
+        "EXPO_PUBLIC_ANALYTICS_ENVIRONMENT": "qa",
+        "EXPO_PUBLIC_SEED_DEMO": "0",
+        "EXPO_PUBLIC_DEV_SUBSCRIPTION_FIXTURE": "0",
+        "EXPO_PUBLIC_DEMO_AUTOLOGIN": "0"
       }
     },
     "staging": {
@@ -32,6 +49,23 @@
         "EXPO_PUBLIC_APPLE_REDIRECT_URI": "https://staging.plastic-brains.com/api/auth/oauth/apple/callback",
         "EXPO_PUBLIC_SENTRY_DSN": "https://f53e4d04c73b930d40d89ec6463458ad@o4510144677806080.ingest.de.sentry.io/4510144681148496",
         "SENTRY_DSN": "https://f53e4d04c73b930d40d89ec6463458ad@o4510144677806080.ingest.de.sentry.io/4510144681148496"
+      }
+    },
+    "analytics-qa": {
+      "extends": "production",
+      "distribution": "internal",
+      "autoIncrement": false,
+      "environment": "preview",
+      "ios": {
+        "simulator": true,
+        "buildConfiguration": "Release"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://plastic-brains-staging.up.railway.app",
+        "EXPO_PUBLIC_ANALYTICS_ENVIRONMENT": "qa",
+        "EXPO_PUBLIC_SEED_DEMO": "0",
+        "EXPO_PUBLIC_DEV_SUBSCRIPTION_FIXTURE": "0",
+        "EXPO_PUBLIC_DEMO_AUTOLOGIN": "0"
       }
     }
   },

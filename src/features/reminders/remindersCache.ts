@@ -6,12 +6,37 @@ import type { Reminder } from './types';
  * Versioned so a change to the entry shape retires old entries rather than
  * being parsed into something half-valid.
  */
-const CACHE_KEY = 'neuroReminders:v1';
+const CACHE_KEY = 'neuroReminders:v2';
+const cacheKeyFor = (userId?: string) => userId === undefined
+    ? CACHE_KEY
+    : `neuroReminders:v3:${encodeURIComponent(userId)}`;
+
+const revisions = new Map<string, number>();
+const pendingWrites = new Map<string, Promise<void>>();
+const invalidatedKeys = new Set<string>();
+
+export const getRemindersCacheRevision = (userId?: string): number => revisions.get(cacheKeyFor(userId)) ?? 0;
+
+// A write already handed to native storage must finish before a later clear,
+// otherwise it could put the stale schedule back after invalidation.
+const enqueueWrite = (key: string, operation: () => Promise<void>): Promise<void> => {
+    const pending = (pendingWrites.get(key) ?? Promise.resolve())
+        .then(operation)
+        .catch(() => undefined)
+        .finally(() => {
+            if (pendingWrites.get(key) === pending) pendingWrites.delete(key);
+        });
+    pendingWrites.set(key, pending);
+    return pending;
+};
 
 export interface CachedReminders {
     reminders: Reminder[];
     /** The zone the server resolved the schedule in. */
     timeZone: string;
+    /** Resolved preferences the server used for this schedule. */
+    morningReminderMinutes: number;
+    eveningReminderMinutes: number;
     /**
      * The device zone when the entry was written, which is what travel
      * actually changes. Compared against the live device zone rather than
@@ -47,9 +72,11 @@ export const getLocalDateKey = (now: Date = new Date()): string => {
     return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 };
 
-export const readRemindersCache = async (): Promise<CachedReminders | null> => {
+export const readRemindersCache = async (userId?: string): Promise<CachedReminders | null> => {
     try {
-        const raw = await AsyncStorage.getItem(CACHE_KEY);
+        await pendingWrites.get(cacheKeyFor(userId));
+        if (invalidatedKeys.has(cacheKeyFor(userId))) return null;
+        const raw = await AsyncStorage.getItem(cacheKeyFor(userId));
         if (!raw) return null;
 
         const parsed = JSON.parse(raw) as Partial<CachedReminders>;
@@ -58,6 +85,8 @@ export const readRemindersCache = async (): Promise<CachedReminders | null> => {
         if (
             !Array.isArray(parsed.reminders)
             || typeof parsed.timeZone !== 'string'
+            || typeof parsed.morningReminderMinutes !== 'number'
+            || typeof parsed.eveningReminderMinutes !== 'number'
             || typeof parsed.deviceTimeZone !== 'string'
             || typeof parsed.sessionsSignature !== 'string'
             || typeof parsed.localDate !== 'string'
@@ -71,28 +100,37 @@ export const readRemindersCache = async (): Promise<CachedReminders | null> => {
     }
 };
 
-export const writeRemindersCache = async (entry: CachedReminders): Promise<void> => {
-    try {
-        await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(entry));
-    } catch {
-        // A cache that cannot be written is a slower app, not a broken one.
-    }
+export const writeRemindersCache = async (
+    entry: CachedReminders,
+    userId?: string,
+    revision = getRemindersCacheRevision(userId),
+): Promise<boolean> => {
+    let persisted = false;
+    await enqueueWrite(cacheKeyFor(userId), async () => {
+        if (revision !== getRemindersCacheRevision(userId)) return;
+        await AsyncStorage.setItem(cacheKeyFor(userId), JSON.stringify(entry));
+        if (revision === getRemindersCacheRevision(userId)) {
+            invalidatedKeys.delete(cacheKeyFor(userId));
+            persisted = true;
+        }
+    });
+    return persisted;
 };
 
-export const clearRemindersCache = async (): Promise<void> => {
-    try {
-        await AsyncStorage.removeItem(CACHE_KEY);
-    } catch {
-        // Nothing useful to do; the entry is invalidated by signature anyway.
-    }
+export const clearRemindersCache = async (userId?: string): Promise<void> => {
+    const key = cacheKeyFor(userId);
+    // Invalidate pending reads/requests synchronously, before clearing storage.
+    revisions.set(key, getRemindersCacheRevision(userId) + 1);
+    invalidatedKeys.add(key);
+    await enqueueWrite(key, () => AsyncStorage.removeItem(key));
 };
 
 /**
- * Whether a cached schedule can still be shown without asking the server.
+ * Whether a previously validated cache entry still matches local inputs.
  *
- * Reminders only move when the sessions move, so the signature carries most of
- * the work. The day check is what stops a schedule going stale simply by
- * sitting still: reminders drop out of it as they pass.
+ * Preferences can change independently, so the hook also validates with the
+ * server on each cold mount and explicitly invalidates live settings edits.
+ * The day check expires reminders that have passed even when sessions stay put.
  */
 export const isCacheUsable = (
     cached: CachedReminders | null,

@@ -2,6 +2,7 @@ import { renderHook, act } from '@testing-library/react-native';
 import * as Notifications from 'expo-notifications';
 import { usePushNotifications } from '../usePushNotifications';
 import { registerDeviceToken, unregisterDeviceToken } from 'src/api/devices';
+import { resetPushRegistrationState } from '../../services/notifications/pushRegistration';
 
 // ---------------------------------------------------------------------------
 // Auth context mock — isAuthenticated is read at call time so tests can flip it
@@ -95,6 +96,7 @@ const mockUnregister = jest.mocked(unregisterDeviceToken);
 
 describe('usePushNotifications', () => {
   beforeEach(() => {
+    resetPushRegistrationState();
     jest.clearAllMocks();
     signOutTasks.clear();
     mockIsAuthenticated = false;
@@ -104,10 +106,12 @@ describe('usePushNotifications', () => {
     mockUnregister.mockResolvedValue(undefined);
   });
 
-  it('requests notification permissions when user is authenticated', async () => {
+  it('never raises the system permission prompt from app startup', async () => {
+    // The prompt belongs to the onboarding notification step, where the user has
+    // been told what the reminders are and has asked for them. Raising it on
+    // launch spends the one refusal iOS lets you have.
     mockIsAuthenticated = true;
     mockGetPermissions.mockResolvedValue({ status: 'undetermined' } as any);
-    mockRequestPermissions.mockResolvedValue({ status: 'granted' } as any);
     mockGetPushToken.mockResolvedValue({ data: 'ExponentPushToken[perm-test]' } as any);
 
     renderHook(() => usePushNotifications());
@@ -116,7 +120,21 @@ describe('usePushNotifications', () => {
       await Promise.resolve();
     });
 
-    expect(mockRequestPermissions).toHaveBeenCalled();
+    expect(mockRequestPermissions).not.toHaveBeenCalled();
+  });
+
+  it('registers no token while permission is merely undetermined', async () => {
+    mockIsAuthenticated = true;
+    mockGetPermissions.mockResolvedValue({ status: 'undetermined' } as any);
+    mockGetPushToken.mockResolvedValue({ data: 'ExponentPushToken[perm-test]' } as any);
+
+    renderHook(() => usePushNotifications());
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(mockRegister).not.toHaveBeenCalled();
   });
 
   it('sends push token to the backend after permissions are granted', async () => {

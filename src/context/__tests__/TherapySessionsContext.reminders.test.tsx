@@ -44,7 +44,7 @@ jest.mock('../../hooks/useTimeZoneSync', () => ({
 }));
 
 jest.mock('../auth/AuthContext', () => ({
-  useAuth: () => ({ isAuthenticated: true }),
+  useAuth: () => ({ isAuthenticated: true, user: { id: 'user-1' } }),
 }));
 
 jest.mock('../../api/therapy', () => ({
@@ -56,6 +56,8 @@ jest.mock('../../api/therapy', () => ({
 jest.mock('../../api/reminders', () => ({
   getReminders: jest.fn(async () => ({
     timeZone: 'Europe/London',
+    morningReminderMinutes: 450,
+    eveningReminderMinutes: 1215,
     reminders: [SEP_1, SEP_2],
   })),
 }));
@@ -63,6 +65,7 @@ jest.mock('../../api/reminders', () => ({
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AppState } from 'react-native';
 import { getReminders } from '../../api/reminders';
+import { Reason } from '../../features/reminders/types';
 import { TherapySessionsProvider, useTherapySessions } from '../therapy-sessions/TherapySessionsContext';
 
 const mockGetReminders = getReminders as jest.MockedFunction<typeof getReminders>;
@@ -118,22 +121,32 @@ describe('reminder schedule comes from the server', () => {
       '2026-09-09T16:00:00.000Z',
     ]);
     expect(result.current.neuroReminders.map((r) => r.localDate)).toContain('2026-09-01');
+    expect(result.current.reminderScheduleSettings).toEqual({
+      timeZone: 'Europe/London',
+      morningReminderMinutes: 450,
+      eveningReminderMinutes: 1215,
+    });
   });
 
-  it('serves a second mount from the cache instead of refetching', async () => {
+  it('revalidates a second mount even when sessions, zone and day are unchanged', async () => {
     const first = renderHook(() => useTherapySessions(), { wrapper });
     await waitFor(() => expect(first.result.current.neuroReminders.length).toBeGreaterThan(0));
     expect(mockGetReminders).toHaveBeenCalledTimes(1);
 
     first.unmount();
+    mockGetReminders.mockResolvedValueOnce({
+      timeZone: 'Europe/London',
+      morningReminderMinutes: 480,
+      eveningReminderMinutes: 1200,
+      reminders: [{ ...SEP_1, atUtc: '2026-09-01T19:30:00.000Z', reason: Reason.PreSession }],
+    });
 
     const second = renderHook(() => useTherapySessions(), { wrapper });
-    await waitFor(() => expect(second.result.current.neuroReminders.length).toBeGreaterThan(0));
+    await waitFor(() => expect(second.result.current.reminderScheduleSettings?.morningReminderMinutes).toBe(480));
 
-    // Same sessions, same zone, same day: nothing the server could tell us has
-    // changed.
-    expect(mockGetReminders).toHaveBeenCalledTimes(1);
-    expect(second.result.current.neuroReminders.map((r) => r.localDate)).toContain('2026-09-01');
+    // Preferences can change while all the old cache inputs stay the same.
+    expect(mockGetReminders).toHaveBeenCalledTimes(2);
+    expect(second.result.current.neuroReminders[0].atUtc).toBe('2026-09-01T19:30:00.000Z');
   });
 
   it('refetches when the user changes a session', async () => {
@@ -173,6 +186,7 @@ describe('reminder schedule comes from the server', () => {
   });
 
   it('keeps the last known schedule when the refresh fails', async () => {
+    const warning = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
     const first = renderHook(() => useTherapySessions(), { wrapper });
     await waitFor(() => expect(first.result.current.neuroReminders.length).toBeGreaterThan(0));
     first.unmount();
@@ -189,6 +203,11 @@ describe('reminder schedule comes from the server', () => {
     // An empty calendar would be worse than a schedule that is a little stale.
     await waitFor(() => expect(second.result.current.neuroReminders.length).toBeGreaterThan(0));
     expect(second.result.current.neuroReminders.map((r) => r.localDate)).toContain('2026-09-01');
+    await waitFor(() => expect(warning).toHaveBeenCalledWith(
+      '[Reminders] Failed to load reminder schedule:',
+      expect.any(Error),
+    ));
+    warning.mockRestore();
   });
 
   it('refetches on a new day even when nothing else moved', async () => {

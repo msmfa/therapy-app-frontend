@@ -1,6 +1,8 @@
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Image, Linking, StyleSheet, View } from 'react-native';
+import { Linking, StyleSheet, View } from 'react-native';
+import { Image } from 'expo-image';
+import type { ImageSourcePropType } from 'react-native';
 import { useRouter } from 'expo-router';
 import AppText from '../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
@@ -10,7 +12,7 @@ import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { DottedGrid } from '../src/components/ui/DottedGrid';
 // Named @3x so React Native reads the 1290x2060 capture as 430x687 points
 // rather than treating device pixels as points and rendering it oversized.
-const CHEATSHEET = require('../assets/illustrations/cheatsheet-preview.png');
+const CHEATSHEET = require('../assets/illustrations/cheatsheet-preview.webp') as ImageSourcePropType;
 
 // The source capture, so the frame keeps the screen's proportions at any width.
 const CHEATSHEET_RATIO = 1290 / 2060;
@@ -87,7 +89,7 @@ export default function HowToTakeNotesScreen() {
                     <Image
                         source={ CHEATSHEET }
                         style={ styles.cheatsheet }
-                        resizeMode="contain"
+                        contentFit="contain"
                         accessible
                         accessibilityRole="image"
                         accessibilityLabel="The five questions, as they appear on the cheatsheet"

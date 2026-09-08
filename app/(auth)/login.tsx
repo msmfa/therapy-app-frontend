@@ -8,10 +8,10 @@ import {
     ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/auth/AuthContext';
 import SocialAuthButtons from '../../src/components/auth/SocialAuthButtons';
-import { Button } from 'src/components/ui/Button';
+import { OnboardingButton } from 'src/components/onboarding/OnboardingButton';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import TextField from 'src/components/ui/TextField';
 import PasswordField from 'src/components/ui/PasswordField';
@@ -20,13 +20,30 @@ import { loginWithPassword } from '../../src/api/auth';
 import { handleError } from 'src/utils';
 import { InternalLink } from 'src/components/ui/InternalLink';
 import { GlassMorphismWithCircle } from 'src/components/ui/GlassMorphismWithCircle';
+import { GLASS_CARD_RADIUS } from 'src/components/ui/GlassMorphism';
+import { BackButton } from 'src/components/ui/BackButton';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 import { useAppAlert } from '../../src/context/alert';
+import { ACCOUNT_STEP_RETURN, resolveAuthReturnRoute } from '../../src/features/onboarding/authReturn';
 
 export default function LoginScreen() {
     const router = useRouter();
     const { setAuth } = useAuth();
     const { showAlert } = useAppAlert();
+    const { returnTo, source } = useLocalSearchParams<{
+        returnTo?: string;
+        source?: string;
+    }>();
+
+    // Set when sign-in was opened from a specific step of onboarding. Without it
+    // we fall back to '/', which re-runs the normal routing decision: returning
+    // users who already finished onboarding land in the main app, and everyone
+    // else resumes onboarding.
+    const returnRoute = resolveAuthReturnRoute(returnTo);
+    // Signing up belongs to the account step alone. A sign-in opened to
+    // restore a purchase is for someone who has an account already: the
+    // subscription being restored was bought on it.
+    const offersSignup = returnRoute === resolveAuthReturnRoute(ACCOUNT_STEP_RETURN);
 
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
@@ -35,16 +52,20 @@ export default function LoginScreen() {
     const onSubmit = async () => {
         const trimmedEmail = email.trim();
         if (!trimmedEmail || !password) {
-            showAlert('Missing info', 'Please enter email and password.');
+            showAlert('Enter your details', 'Enter your email and password.');
             return;
         }
         setLoading(true);
         try {
-            const { token, user: nextUser, refreshToken } = await loginWithPassword(trimmedEmail, password);
+            const {
+                token,
+                user: nextUser,
+                refreshToken,
+            } = await loginWithPassword(trimmedEmail, password);
             await setAuth(token, nextUser, refreshToken ?? null);
-            router.replace('/');
+            router.replace(returnRoute ?? '/');
         } catch (error) {
-            showAlert('Error', handleError(error));
+            showAlert("We couldn't sign you in", handleError(error));
         } finally {
             setLoading(false);
         }
@@ -52,20 +73,31 @@ export default function LoginScreen() {
 
     return (
         <View style={ { flex: 1 } }>
-            <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_LEFT } style={ styles.glassMorphism } />
+            <GlassMorphismWithCircle
+                circlePosition={ CirclePosition.BOTTOM_LEFT }
+                style={ styles.glassMorphism }
+                panelRadius={ GLASS_CARD_RADIUS }
+            />
             <SafeAreaView edges={ ['top', 'left', 'right'] } style={ styles.root }>
+                { /* Present only when this screen was pushed onto something, which is
+                     how onboarding's account step reaches it. Nothing renders when
+                     auth is the root, so the app entry point is unchanged. */ }
+                <View style={ styles.backRow }>
+                    <BackButton />
+                </View>
+
                 <KeyboardAvoidingView
                     behavior={ Platform.OS === 'ios' ? 'padding' : 'height' }
                     style={ styles.kav }
                 >
                     <ScrollView
                         contentContainerStyle={ styles.scrollContent }
-                        keyboardShouldPersistTaps='handled'
+                        keyboardShouldPersistTaps="handled"
                         showsVerticalScrollIndicator={ false }
                     >
                         <View style={ styles.card }>
-                            <AppText variant='h1' align='center'>
-                                Sign In
+                            <AppText variant="h1" align="center">
+                                Sign in
                             </AppText>
                             <Spacer />
 
@@ -92,27 +124,57 @@ export default function LoginScreen() {
                                     onSubmitEditing={ onSubmit }
                                     editable={ !loading }
                                 />
-                                <TouchableOpacity onPress={ () => router.push('/forgot-password') } style={ styles.forgotPassword } disabled={ loading }>
-                                    <AppText variant='caption'>
-                                        Forgot password?
-                                    </AppText>
+                                <TouchableOpacity
+                                    onPress={ () => router.push({
+                                        pathname: '/forgot-password',
+                                        params: {
+                                            ...(returnTo === undefined ? {} : { returnTo }),
+                                            ...(source === undefined ? {} : { source }),
+                                        },
+                                    }) }
+                                    style={ styles.forgotPassword }
+                                    disabled={ loading }
+                                >
+                                    <AppText variant="caption">Forgot password?</AppText>
                                 </TouchableOpacity>
-                                <Button label='Sign in' onPress={ onSubmit } loading={ loading } />
+                                { /* The flow's own action, not this screen's:
+                                     sign-in sits one tap from Welcome, and the
+                                     two buttons were different sizes and
+                                     radii. */ }
+                                <OnboardingButton label="Sign in" onPress={ onSubmit } loading={ loading } />
                                 <Spacer variant={ SpacerVariant.large } />
-                                <AppText variant='caption' align='center'>
+                                <AppText variant="caption" align="center">
                                     Or continue with
                                 </AppText>
                                 <Spacer variant={ SpacerVariant.large } />
-                                <SocialAuthButtons onSuccess={ () => router.replace('/') } disabled={ loading } />
+                                <SocialAuthButtons
+                                    onSuccess={ () => router.replace(returnRoute ?? '/') }
+                                    disabled={ loading }
+                                />
                                 <Spacer />
-                                <View style={ styles.signupRow }>
-                                    <AppText variant='caption'>
-                                        Don't have an account?
-                                    </AppText>
-                                    <InternalLink href="/(auth)/signup">
-                                        { ' ' } Sign up here
-                                    </InternalLink>
-                                </View>
+                                { /* Only where signing up here keeps the flow's order.
+                                     Opened from onboarding's account step, a new account
+                                     is still created after the plan is chosen and comes
+                                     straight back to the purchase handoff. Opened from
+                                     Welcome, or as the app's entry point, there is no
+                                     return route: offering signup there would be a second
+                                     front door into the app that skips the plan, so the
+                                     way on is the back button. Opened for a restore, the
+                                     person has an account already. */ }
+                                { offersSignup && (
+                                    <View style={ styles.signupRow }>
+                                        <AppText variant="caption">Don't have an account?</AppText>
+                                        <InternalLink
+                                            href={ {
+                                                pathname: '/(auth)/signup',
+                                                params: { returnTo },
+                                            } }
+                                        >
+                                            { ' ' }
+                                            Sign up here
+                                        </InternalLink>
+                                    </View>
+                                ) }
                             </View>
                         </View>
                     </ScrollView>
@@ -123,6 +185,9 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
+    backRow: {
+        paddingHorizontal: 20,
+    },
     glassMorphism: {
         padding: 6,
     },

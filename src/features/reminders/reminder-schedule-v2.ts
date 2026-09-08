@@ -23,7 +23,7 @@
 // same reminders and have to agree.
 import {
     resolveTimeZone,
-    setHourInZone,
+    setMinutesInZone,
     startOfDayInZone,
     addDaysInZone,
     calendarDaysBetweenInZone,
@@ -42,28 +42,48 @@ import { Reason } from './types';
 import type { Reminder } from './types';
 
 export interface ScheduleParams {
-  nowUtc: string;
-  sessionsUtc: string[];
-  reflectionHour: number;
-  morningHour: number;
-  startAfterDays?: number;
-  cadenceDays?: number;
-  maxPerDay?: number;
-  /**
+    nowUtc: string;
+    sessionsUtc: string[];
+    reflectionMinutes?: number;
+    morningMinutes?: number;
+    /** @deprecated Use `reflectionMinutes`. */
+    reflectionHour?: number;
+    /** @deprecated Use `morningMinutes`. */
+    morningHour?: number;
+    startAfterDays?: number;
+    cadenceDays?: number;
+    maxPerDay?: number;
+    /**
    * IANA zone the reflection/morning hours are expressed in. Defaults to the
    * device zone, which is also what the app reports to the backend, so the
    * schedule shown here matches when the push actually arrives.
    */
-  timeZone?: string;
-  /**
+    timeZone?: string;
+    /**
    * Session length in minutes, keyed by the session's `startsAtUtc` string.
    *
    * Keyed rather than positional because the starts are sorted below, which
    * would break a parallel array. Missing entries mean "unknown", and a
    * reminder is then only held back until the session has started.
    */
-  sessionDurationsMin?: Record<string, number>;
+    sessionDurationsMin?: Record<string, number>;
 }
+
+const MINUTES_IN_DAY = 24 * 60;
+const DEFAULT_REFLECTION_MINUTES = 20 * 60;
+const DEFAULT_MORNING_MINUTES = 7 * 60;
+
+const resolveMinutesOfDay = (
+    minutes: number | undefined,
+    hour: number | undefined,
+    fallback: number,
+): number => {
+    if (Number.isInteger(minutes) && minutes! >= 0 && minutes! < MINUTES_IN_DAY) {
+        return minutes!;
+    }
+    if (Number.isInteger(hour) && hour! >= 0 && hour! < 24) return hour! * 60;
+    return fallback;
+};
 
 const REASON_PRIORITY: Record<Reason, number> = {
     [Reason.PreSession]: 0,
@@ -91,18 +111,18 @@ function parseUtcToMinute(iso: string): Date | null {
 /* ---------- Gap scheduling ---------- */
 
 interface ReminderDraft {
-  at: Date;
-  reason: Reason;
-  gapIndex: number;
+    at: Date;
+    reason: Reason;
+    gapIndex: number;
 }
 
 interface GapWindow {
-  index: number;
-  start: Date;
-  /** When the session at `start` finishes; the earliest a reminder may fire. */
-  sessionEnd: Date;
-  end: Date;
-  days: number;
+    index: number;
+    start: Date;
+    /** When the session at `start` finishes; the earliest a reminder may fire. */
+    sessionEnd: Date;
+    end: Date;
+    days: number;
 }
 
 function createGapWindow(
@@ -117,7 +137,7 @@ function createGapWindow(
     if (!start || !end || end.getTime() <= start.getTime()) return null;
 
     const duration =
-    Number.isFinite(startDurationMin) && startDurationMin > 0 ? startDurationMin : 0;
+        Number.isFinite(startDurationMin) && startDurationMin > 0 ? startDurationMin : 0;
 
     return {
         index,
@@ -167,8 +187,8 @@ function buildDraft(
 function scheduleForGap(
     gap: GapWindow,
     now: Date,
-    reflectionHour: number,
-    morningHour: number,
+    reflectionMinutes: number,
+    morningMinutes: number,
     startAfterDays: number,
     cadenceDays: number,
     timeZone: string,
@@ -178,7 +198,7 @@ function scheduleForGap(
     const drafts: ReminderDraft[] = [];
 
     const postSession = buildDraft(
-        setHourInZone(gap.start, reflectionHour, timeZone),
+        setMinutesInZone(gap.start, reflectionMinutes, timeZone),
         Reason.PostSession,
         gap,
         now,
@@ -186,7 +206,7 @@ function scheduleForGap(
     if (postSession) drafts.push(postSession);
 
     const postSleep = buildDraft(
-        setHourInZone(addDaysInZone(gap.start, 1, timeZone), morningHour, timeZone),
+        setMinutesInZone(addDaysInZone(gap.start, 1, timeZone), morningMinutes, timeZone),
         Reason.PostSleep,
         gap,
         now,
@@ -198,7 +218,7 @@ function scheduleForGap(
         for (let dayOffset = startAfterDays; dayOffset < gap.days; dayOffset += cadenceDays) {
             const anchor = addDaysInZone(anchorBase, dayOffset, timeZone);
             const mid = buildDraft(
-                setHourInZone(anchor, reflectionHour, timeZone),
+                setMinutesInZone(anchor, reflectionMinutes, timeZone),
                 Reason.MidSession,
                 gap,
                 now,
@@ -209,7 +229,7 @@ function scheduleForGap(
 
     if (gap.days >= 1) {
         const preSession = buildDraft(
-            setHourInZone(addDaysInZone(gap.end, -1, timeZone), reflectionHour, timeZone),
+            setMinutesInZone(addDaysInZone(gap.end, -1, timeZone), reflectionMinutes, timeZone),
             Reason.PreSession,
             gap,
             now,
@@ -226,6 +246,8 @@ export function scheduleNeuroplasticityReminders(params: ScheduleParams): Remind
     const {
         nowUtc,
         sessionsUtc,
+        reflectionMinutes,
+        morningMinutes,
         reflectionHour,
         morningHour,
         startAfterDays = 3,
@@ -234,6 +256,17 @@ export function scheduleNeuroplasticityReminders(params: ScheduleParams): Remind
         timeZone,
         sessionDurationsMin,
     } = params;
+
+    const reflectionAt = resolveMinutesOfDay(
+        reflectionMinutes,
+        reflectionHour,
+        DEFAULT_REFLECTION_MINUTES,
+    );
+    const morningAt = resolveMinutesOfDay(
+        morningMinutes,
+        morningHour,
+        DEFAULT_MORNING_MINUTES,
+    );
 
     if (!sessionsUtc || sessionsUtc.length < 2) return [];
 
@@ -258,7 +291,7 @@ export function scheduleNeuroplasticityReminders(params: ScheduleParams): Remind
     if (!gaps.length) return [];
 
     const drafts = gaps.flatMap((gap) =>
-        scheduleForGap(gap, now, reflectionHour, morningHour, startAfterDays, cadenceDays, zone),
+        scheduleForGap(gap, now, reflectionAt, morningAt, startAfterDays, cadenceDays, zone),
     );
 
     if (!drafts.length) return [];

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../auth/AuthContext';
+import { getCurrentUserSettings, updateCurrentUser } from '../../api/users';
 
 type OnboardingContextValue = {
     hydrated: boolean;
@@ -10,90 +11,148 @@ type OnboardingContextValue = {
 };
 
 const ONBOARDING_PREFIX = 'onboarding:v1:';
+
+/** Why onboarding could not be marked complete. */
+export type OnboardingCompletionFailure = 'no_user' | 'server';
+
+export class OnboardingCompletionError extends Error {
+    readonly reason: OnboardingCompletionFailure;
+
+    constructor(reason: OnboardingCompletionFailure, cause?: unknown) {
+        super(
+            reason === 'no_user'
+                ? 'Cannot finish onboarding without a signed-in user.'
+                : 'Could not save onboarding completion to the account.',
+        );
+        this.name = 'OnboardingCompletionError';
+        this.reason = reason;
+        if (cause !== undefined) this.cause = cause;
+    }
+}
 const OnboardingContext = createContext<OnboardingContextValue | undefined>(undefined);
 
 export function OnboardingProvider({ children }: { children: React.ReactNode }) {
-    const [hydrated, setHydrated] = useState(false);
+    // The account whose completion flag has actually been read. Keeping this
+    // identity, rather than only a boolean, makes an account switch become
+    // unhydrated in the very render where userId changes; effects run too late
+    // to prevent one frame of the previous account's state leaking through.
+    const [hydratedUserId, setHydratedUserId] = useState<string | null>();
     const [hasOnboarded, setHasOnboarded] = useState(false);
     const { user, hydrated: authHydrated } = useAuth();
 
-    // Track the last user we hydrated for to prevent duplicate hydrations
-    const lastHydratedUserId = useRef<string | null>(null);
-
-    // Prevent concurrent hydration attempts
-    const isHydrating = useRef(false);
-
     const userId = user?.id ?? null;
+    const hydrated = authHydrated && hydratedUserId === userId;
+    const currentUserIdRef = useRef(userId);
+    currentUserIdRef.current = userId;
 
     // Hydrate onboarding state when user changes
     useEffect(() => {
-        // CRITICAL: Only depend on userId, NOT on hydrated state
-        // This prevents infinite re-hydration loops
-
         // Wait for auth to finish hydrating before we start
         if (!authHydrated) {
             return;
         }
 
-        // Case 1: No user logged in
+        let cancelled = false;
+
+        // No user is always an incomplete, but fully-hydrated onboarding state.
         if (!userId) {
-            lastHydratedUserId.current = null;
             setHasOnboarded(false);
-            setHydrated(true);
+            setHydratedUserId(null);
             return;
         }
-
-        // Case 2: Same user, already hydrated - do nothing
-        if (lastHydratedUserId.current === userId) {
-            return;
-        }
-
-        // Case 3: New user (or first hydration) - hydrate from storage
-        // Guard: prevent concurrent hydrations
-        if (isHydrating.current) {
-            return;
-        }
-
-        isHydrating.current = true;
-        setHydrated(false);
 
         (async () => {
             try {
                 const key = `${ONBOARDING_PREFIX}${userId}`;
                 const value = await AsyncStorage.getItem(key);
+                if (cancelled) return;
 
-                // Update state
-                const onboardingComplete = value === '1';
-                setHasOnboarded(onboardingComplete);
+                if (value === '1') {
+                    // Existing installs used a device-only marker. Let them in
+                    // immediately, then backfill the account marker so a new
+                    // phone or reinstall will make the same decision.
+                    setHasOnboarded(true);
+                    setHydratedUserId(userId);
+                    void (async () => {
+                        try {
+                            const settings = await getCurrentUserSettings();
+                            // The request was authenticated as this account,
+                            // but a later PATCH would use whichever token is
+                            // current. Never let an old response complete a
+                            // newly selected account's onboarding.
+                            if (cancelled || currentUserIdRef.current !== userId) return;
+                            if (!settings.onboardingCompleted) {
+                                await updateCurrentUser({ onboardingCompleted: true });
+                            }
+                        } catch (error) {
+                            console.warn('[OnboardingProvider] server backfill failed:', error);
+                        }
+                    })();
+                    return;
+                }
 
-                // Mark this user as hydrated
-                lastHydratedUserId.current = userId;
+                // No local marker may mean a new device, not a new user. The
+                // account is authoritative so returning users do not repeat
+                // onboarding and append another session series.
+                let completedOnAccount = false;
+                try {
+                    const settings = await getCurrentUserSettings();
+                    completedOnAccount = settings.onboardingCompleted === true;
+                } catch (error) {
+                    console.warn('[OnboardingProvider] server hydration failed:', error);
+                }
+                if (cancelled) return;
 
+                setHasOnboarded(completedOnAccount);
+                if (completedOnAccount) {
+                    // Cache only. Failure cannot undo the server-owned result.
+                    await AsyncStorage.setItem(key, '1').catch((error) => {
+                        console.warn('[OnboardingProvider] local completion cache failed:', error);
+                    });
+                }
             } catch (error) {
+                if (cancelled) return;
                 console.error('[OnboardingProvider] hydration error:', error);
                 // On error, default to not onboarded
                 setHasOnboarded(false);
             } finally {
-                isHydrating.current = false;
-                setHydrated(true);
+                if (!cancelled) setHydratedUserId(userId);
             }
         })();
-    }, [userId, authHydrated]); // ONLY depend on userId and authHydrated, NOT on hydrated state!
+
+        // A sign-in, sign-out or account switch can happen before storage
+        // answers. The previous request must never overwrite the new user's
+        // onboarding state when it eventually resolves.
+        return () => {
+            cancelled = true;
+        };
+    }, [userId, authHydrated]);
 
     const finishOnboarding = async () => {
+        // Marking onboarding complete for "nobody" silently stranded the user:
+        // the flag was never written, hasOnboarded stayed false, and the app
+        // bounced them back to the start with no explanation. Callers need to
+        // know, so they can keep the draft and route to sign-in instead.
         if (!userId) {
-            return;
+            throw new OnboardingCompletionError('no_user');
         }
 
         const key = `${ONBOARDING_PREFIX}${userId}`;
 
         try {
-            await AsyncStorage.setItem(key, '1');
-            setHasOnboarded(true);
+            await updateCurrentUser({ onboardingCompleted: true });
         } catch (error) {
             console.error('[OnboardingProvider] finishOnboarding error:', error);
-            throw error;
+            throw new OnboardingCompletionError('server', error);
         }
+
+        // The account marker is authoritative. This local write only avoids a
+        // network wait on the next launch and must not turn a completed account
+        // back into an incomplete one if device storage is unavailable.
+        await AsyncStorage.setItem(key, '1').catch((error) => {
+            console.warn('[OnboardingProvider] local completion cache failed:', error);
+        });
+        if (currentUserIdRef.current === userId) setHasOnboarded(true);
     };
 
     const resetOnboarding = async () => {
@@ -105,8 +164,9 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
         const key = `${ONBOARDING_PREFIX}${userId}`;
 
         try {
+            await updateCurrentUser({ onboardingCompleted: false });
             await AsyncStorage.removeItem(key);
-            setHasOnboarded(false);
+            if (currentUserIdRef.current === userId) setHasOnboarded(false);
         } catch (error) {
             console.error('[OnboardingProvider] resetOnboarding error:', error);
             throw error;
