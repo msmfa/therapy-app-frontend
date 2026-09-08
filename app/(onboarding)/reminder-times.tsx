@@ -13,7 +13,7 @@ import { REMINDER_TIMES_COPY } from '../../src/features/onboarding/onboardingCop
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { dateToMinutes, minutesToDate, timeLabel } from '../../src/features/onboarding/formatting';
 import { TIME_PICKER_BOUNDS } from '../../src/utils/timePickerBounds';
-import { ACTION_ORANGE, COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
+import { ACTION_ORANGE, COLOR_VARIANTS } from 'designs/designs-colors';
 
 type Slot = 'morning' | 'evening';
 
@@ -51,21 +51,18 @@ export default function ReminderTimesScreen() {
     const rows: {
         slot: Slot;
         label: string;
-        hint: string;
         value: Date;
         onChange: (event: DateTimePickerEvent, picked?: Date) => void;
     }[] = [
         {
             slot: 'morning',
             label: REMINDER_TIMES_COPY.morningLabel,
-            hint: REMINDER_TIMES_COPY.timeHint,
             value: morningValue,
             onChange: onMorningChange,
         },
         {
             slot: 'evening',
             label: REMINDER_TIMES_COPY.eveningLabel,
-            hint: REMINDER_TIMES_COPY.timeHint,
             value: eveningValue,
             onChange: onEveningChange,
         },
@@ -97,9 +94,6 @@ export default function ReminderTimesScreen() {
                                 <View style={ styles.rowText }>
                                     <AppText variant="h3" style={ [onboardingStyles.title, styles.rowLabel] }>
                                         { row.label }
-                                    </AppText>
-                                    <AppText variant="caption" style={ styles.rowHint }>
-                                        { row.hint }
                                     </AppText>
                                 </View>
 
@@ -161,12 +155,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
     },
     row: {
-        minHeight: 88,
+        minHeight: 70,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: 12,
-        paddingVertical: 18,
+        paddingVertical: 12,
     },
     stackedRow: {
         flexDirection: 'column',
@@ -177,10 +171,6 @@ const styles = StyleSheet.create({
     },
     rowLabel: {
         fontSize: 17,
-    },
-    rowHint: {
-        marginTop: 2,
-        color: TEXT_COLORS.tertiary,
     },
     androidPicker: {
         marginTop: 16,

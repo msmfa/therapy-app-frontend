@@ -317,7 +317,7 @@ export default function SubscriptionPreviewScreen() {
 
 const styles = StyleSheet.create({
     planTitle: {
-        marginTop: 20,
+        marginTop: 8,
         fontSize: 22,
         lineHeight: 28,
     },

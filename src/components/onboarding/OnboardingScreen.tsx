@@ -181,7 +181,7 @@ export function OnboardingScreen({
             ) }
 
             { supporting !== undefined && supportingAppearance === 'plain' && (
-                <AppText variant="body" style={ [onboardingStyles.body, styles.supporting, isAccent && onboardingAccentStyles.body] }>
+                <AppText variant="body" style={ [onboardingStyles.body, !titleBesideBack && styles.supporting, isAccent && onboardingAccentStyles.body] }>
                     { supporting }
                 </AppText>
             ) }
@@ -189,7 +189,7 @@ export function OnboardingScreen({
             { /* Out through the scroll's own gutter so the band reaches both
                  edges of the display. */ }
             { supporting !== undefined && supportingAppearance === 'banner' && (
-                <View style={ styles.supportingBanner }>
+                <View style={ [styles.supportingBanner, !titleBesideBack && styles.supporting] }>
                     <AppText variant="body" style={ [onboardingStyles.body, styles.supportingBannerText] }>
                         { supporting }
                     </AppText>
@@ -220,7 +220,7 @@ export function OnboardingScreen({
         <View style={ styles.scroll } pointerEvents="none">
             <LinearGradient
                 colors={ [COLOR_VARIANTS.transparent, COLOR_VARIANTS.black.primary] }
-                style={ styles.topFade }
+                style={ [styles.topFade, titleBesideBack && styles.compactTopFade] }
             />
             <View style={ styles.solidMask } />
             <LinearGradient
@@ -322,7 +322,7 @@ export function OnboardingScreen({
                             <ScrollView
                                 testID="onboarding-body-scroll"
                                 style={ styles.scroll }
-                                contentContainerStyle={ [styles.scrollContent, centeredBody && styles.centeredScrollContent] }
+                                contentContainerStyle={ [styles.scrollContent, titleBesideBack && styles.compactScrollContent, centeredBody && styles.centeredScrollContent] }
                                 onContentSizeChange={ (_width, height) => setBodyContentHeight(height) }
                                 onLayout={ (event) => setBodyViewportHeight(event.nativeEvent.layout.height) }
                                 scrollEnabled={ bodyOverflows }
@@ -392,6 +392,9 @@ const styles = StyleSheet.create({
     topFade: {
         height: BODY_TOP_FADE,
     },
+    compactTopFade: {
+        height: 8,
+    },
     bottomFade: {
         height: BODY_BOTTOM_FADE,
     },
@@ -401,6 +404,11 @@ const styles = StyleSheet.create({
         paddingTop: 20,
         // At the end of the list the last card must clear the fade completely.
         paddingBottom: BODY_BOTTOM_FADE + 24,
+    },
+    // A title in the header needs one small gutter below it, without the
+    // additional space that separates a question headline from its body.
+    compactScrollContent: {
+        paddingTop: 12,
     },
     combinedScrollContent: {
         paddingHorizontal: 24,
@@ -419,7 +427,6 @@ const styles = StyleSheet.create({
         marginTop: 14,
     },
     supportingBanner: {
-        marginTop: 14,
         marginHorizontal: -SCREEN_PADDING,
         paddingHorizontal: SCREEN_PADDING,
         paddingVertical: 18,

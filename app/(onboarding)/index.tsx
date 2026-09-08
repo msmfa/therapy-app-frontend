@@ -139,10 +139,9 @@ export default function WelcomeScreen() {
             <OnboardingStepAnalytics step="welcome" />
             <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_RIGHT } />
 
-            { /* The same grain the rest of the flow is printed on, over the
-                 glass rather than under it: the blur is what removes a texture
-                 this fine. Everything else here stays as it was. */ }
-            <PaperGrain />
+            { /* Keep the grain above the glass so it stays sharp, with enough
+                 transparency for Welcome's red circle to remain visible. */ }
+            <PaperGrain opacity={ 0.45 } />
             <SafeAreaView style={ styles.safeArea } edges={ ['top', 'left', 'right', 'bottom'] }>
                 { /* Fixed, not scrolled. The screen is one image and two
                      sentences, sized to the display rather than allowed to run

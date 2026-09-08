@@ -124,10 +124,6 @@ export const REMINDER_TIMES_COPY = {
 		"Pick a time in the morning and evening that suits your schedule. You'll only receive one morning reminder a week, after your session.",
     morningLabel: 'Morning reviews',
     eveningLabel: 'Evening reviews',
-    // The same line under both rows. The screen's opening copy no longer says
-    // the times are changeable, and that promise belongs next to the control
-    // it is about rather than in a paragraph above it.
-    timeHint: 'Can be changed within settings',
     testimonial: {
         quote: 'I like the reminder before my next session. I used to find it hard to think about what to talk about then I’d leave the session and finally remember things I wanted to bring up. With the pre-session reminder I just pick up from where I left off the week before.',
         name: 'Sarah',

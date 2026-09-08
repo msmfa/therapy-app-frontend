@@ -141,17 +141,15 @@ export default function ReminderSettingsScreen() {
         return <Loading fullScreen />;
     }
 
-    const rows: { slot: Slot; label: string; hint: string; minutes: number }[] = [
+    const rows: { slot: Slot; label: string; minutes: number }[] = [
         {
             slot: 'morning',
             label: 'Morning reviews',
-            hint: "After a night's sleep",
             minutes: morningMinutes,
         },
         {
             slot: 'evening',
             label: 'Evening reviews',
-            hint: 'For returning to a note later in the week',
             minutes: eveningMinutes,
         },
     ];
@@ -174,9 +172,6 @@ export default function ReminderSettingsScreen() {
                                     <View style={ styles.timeCopy }>
                                         <AppText variant="h3" style={ styles.label }>
                                             { row.label }
-                                        </AppText>
-                                        <AppText variant="caption" style={ styles.hint }>
-                                            { row.hint }
                                         </AppText>
                                     </View>
                                     { /* Apple's compact control, left as it
@@ -266,10 +261,6 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: 17,
-    },
-    hint: {
-        marginTop: 2,
-        color: TEXT_COLORS.tertiary,
     },
     divider: {
         height: 1,

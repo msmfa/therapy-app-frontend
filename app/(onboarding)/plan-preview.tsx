@@ -109,7 +109,7 @@ const IMAGE_GAP = 16;
 
 const styles = StyleSheet.create({
     timeline: {
-        marginTop: 24,
+        marginTop: 8,
     },
     sheetImage: {
         transform: [{ rotate: '2.5deg' }],
