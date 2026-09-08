@@ -112,6 +112,15 @@ export default function WhyFiveQuestionsScreen() {
                 <AppText variant="h1">Why these five questions</AppText>
 
                 <Spacer variant={ SpacerVariant.large } />
+                <AppText variant="h2" accessibilityRole="header">TL;DR</AppText>
+                <Spacer variant={ SpacerVariant.small } />
+                <AppText variant="body">
+                    Five short prompts to remember what mattered, notice thoughts and feelings during the
+                    week, put insights into your own words, note anything you want to try, and decide what to
+                    revisit next session.
+                </AppText>
+
+                <Spacer variant={ SpacerVariant.large } />
                 <AppText variant="body">
                     Most of a session does not survive the week. In studies of medical consultations, 40 to
                     80 per cent of what a practitioner says is forgotten immediately, and almost half of what
@@ -128,9 +137,11 @@ export default function WhyFiveQuestionsScreen() {
 
                 <Spacer variant={ SpacerVariant.large } />
                 <View style={ styles.sectionList }>
-                    { SECTIONS.map((section) => (
+                    { SECTIONS.map((section, index) => (
                         <View key={ section.question }>
-                            <AppText variant="h2">{ section.question }</AppText>
+                            <AppText variant="h2" accessibilityRole="header">
+                                { `${index + 1}. ${section.question}` }
+                            </AppText>
                             { section.paragraphs.map((paragraph) => (
                                 <View key={ paragraph.slice(0, 40) }>
                                     <Spacer variant={ SpacerVariant.small } />
