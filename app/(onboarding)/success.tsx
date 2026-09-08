@@ -157,6 +157,7 @@ export default function SuccessScreen() {
         <OnboardingScreen
             analyticsStep="success"
             showBack={ false }
+            interactionDisabled={ isCompleting }
             headline={ headline }
             supporting={ body }
             footer={

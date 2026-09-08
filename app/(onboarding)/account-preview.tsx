@@ -218,6 +218,7 @@ export default function AccountPreviewScreen() {
         <OnboardingScreen
             analyticsStep="account_preview"
             backHref="/(onboarding)/subscription-preview"
+            interactionDisabled={ busy }
             headline={ ACCOUNT_COPY.headline }
             supporting={ isAuthenticated
                 ? ACCOUNT_COPY.authenticatedBody
@@ -268,6 +269,7 @@ export default function AccountPreviewScreen() {
                             <OnboardingLink
                                 label={ ACCOUNT_COPY.legalTerms }
                                 size="caption"
+                                disabled={ busy }
                                 onPress={ () => router.push('/terms-of-service') }
                                 style={ styles.legalLink }
                             />
@@ -275,6 +277,7 @@ export default function AccountPreviewScreen() {
                             <OnboardingLink
                                 label={ ACCOUNT_COPY.legalPrivacy }
                                 size="caption"
+                                disabled={ busy }
                                 onPress={ () => router.push('/privacy-policy') }
                                 style={ styles.legalLink }
                             />

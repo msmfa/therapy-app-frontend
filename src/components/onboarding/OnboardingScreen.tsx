@@ -30,6 +30,12 @@ type BaseProps = {
     children?: React.ReactNode;
     /** Centre a short loading state within the space above the actions. */
     centeredBody?: boolean;
+    /**
+     * Stop every control on the screen while a user-triggered operation is in
+     * flight. This includes the header Back control and links in the footer,
+     * which individual loading buttons cannot disable themselves.
+     */
+    interactionDisabled?: boolean;
     /** Buttons and links. Pinned normally, then placed in-flow at accessibility text sizes. */
     footer: React.ReactNode;
     /**
@@ -126,6 +132,7 @@ export function OnboardingScreen({
     supportingAppearance = 'plain',
     children,
     centeredBody = false,
+    interactionDisabled = false,
     footer,
     bottomBackdrop,
     surface = 'light',
@@ -244,7 +251,13 @@ export function OnboardingScreen({
                  exactly what removes a texture this fine. */ }
             { !isAccent && <PaperGrain /> }
 
-            <SafeAreaView style={ styles.safeArea } edges={ ['top', 'left', 'right', 'bottom'] }>
+            <SafeAreaView
+                testID="onboarding-interaction-layer"
+                style={ styles.safeArea }
+                edges={ ['top', 'left', 'right', 'bottom'] }
+                pointerEvents={ interactionDisabled ? 'none' : 'auto' }
+                accessibilityState={ { busy: interactionDisabled } }
+            >
                 <View style={ styles.header }>
                     { /* The same glass and the same ink on every screen, the
                          accent ground included: the control the whole flow is

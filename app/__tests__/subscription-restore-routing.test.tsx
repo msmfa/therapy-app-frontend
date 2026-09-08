@@ -123,14 +123,19 @@ jest.mock('../../src/components/onboarding/OnboardingScreen', () => ({
                 supporting,
                 children,
                 footer,
+                interactionDisabled,
             }: {
                 headline: string;
                 supporting?: string;
                 children?: React.ReactNode;
                 footer?: React.ReactNode;
+                interactionDisabled?: boolean;
             }) => ReactForMock.createElement(
                 MockView,
-                null,
+                {
+                    testID: 'onboarding-interaction-layer',
+                    pointerEvents: interactionDisabled ? 'none' : 'auto',
+                },
                 ReactForMock.createElement(MockText, null, headline),
                 ReactForMock.createElement(MockText, null, supporting),
                 children,
@@ -367,12 +372,18 @@ describe('restored-subscription onboarding routing', () => {
             finishRestore = resolve;
         }));
 
-        const { getByText } = render(<SubscriptionPreviewScreen />);
+        const { getByLabelText, getByTestId, getByText } = render(<SubscriptionPreviewScreen />);
         const restoreButton = getByText('Restore purchases');
         fireEvent.press(restoreButton);
         fireEvent.press(restoreButton);
 
         expect(mockRestore).toHaveBeenCalledTimes(1);
+        await waitFor(() => {
+            expect(getByTestId('onboarding-interaction-layer').props.pointerEvents).toBe('none');
+            expect(getByLabelText('Terms').props.accessibilityState.disabled).toBe(true);
+            expect(getByLabelText('Privacy').props.accessibilityState.disabled).toBe(true);
+            expect(getByLabelText('Account settings').props.accessibilityState.disabled).toBe(true);
+        });
 
         await act(async () => {
             finishRestore?.({ status: 'no_entitlement' });
