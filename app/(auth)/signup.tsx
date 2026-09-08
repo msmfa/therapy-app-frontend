@@ -70,20 +70,14 @@ export default function SignUpScreen() {
                 style={ styles.glassMorphism }
                 panelRadius={ GLASS_CARD_RADIUS }
             />
-            <SafeAreaView edges={ ['top', 'left', 'right'] } style={ styles.root }>
-                { /* Present only when this screen was pushed onto something, which is
-                     how onboarding's account step reaches it. Nothing renders when
-                     auth is the root, so the app entry point is unchanged. */ }
-                <View style={ styles.backRow }>
-                    <BackButton appearance="glass" />
-                </View>
-
+            <SafeAreaView edges={ ['top', 'bottom', 'left', 'right'] } style={ styles.root }>
                 <KeyboardAvoidingView
                     behavior={ Platform.OS === 'ios' ? 'padding' : 'height' }
                     style={ styles.kav }
                 >
                     <ScrollView
                         contentContainerStyle={ styles.scrollContent }
+                        contentInsetAdjustmentBehavior="never"
                         keyboardShouldPersistTaps="handled"
                         showsVerticalScrollIndicator={ false }
                     >
@@ -151,6 +145,11 @@ export default function SignUpScreen() {
                             <OnboardingButton label="Create account" appearance="solid" onPress={ onSubmit } loading={ loading } />
                         </View>
                     </ScrollView>
+                    { /* Overlay the back control so it does not shift the form's
+                         vertical center. Symmetric scroll padding leaves room for it. */ }
+                    <View style={ styles.backRow } pointerEvents="box-none">
+                        <BackButton appearance="glass" />
+                    </View>
                 </KeyboardAvoidingView>
             </SafeAreaView>
         </View>
@@ -162,6 +161,10 @@ const styles = StyleSheet.create({
         marginTop: 8,
     },
     backRow: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
         paddingHorizontal: 24,
         paddingVertical: 8,
     },
@@ -184,7 +187,6 @@ const styles = StyleSheet.create({
         flexGrow: 1,
         paddingHorizontal: 34,
         justifyContent: 'center',
-        paddingTop: 32,
-        paddingBottom: 32,
+        paddingVertical: 72,
     },
 });
