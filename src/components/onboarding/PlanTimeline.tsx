@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import Svg, { Line } from 'react-native-svg';
 import AppText from '../ui/AppText';
-import { ACTION_ORANGE, TEXT_COLORS } from 'designs/designs-colors';
+import { ACTION_ORANGE, COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
 import type { PlanTimelineEntry } from '../../features/onboarding/planTimeline';
 import { occurrencesLabel } from '../../features/onboarding/formatting';
 import { ReminderType } from '../../utils/types';
 import { REMINDER_SCIENCE_COPY } from '../../constants/neuroReminders';
 import { GlassCircleButton } from '../ui/GlassCircleButton';
+import { DottedDivider } from '../ui/DottedDivider';
 import { AppModal } from '../Modal';
 import { ScienceTextModal } from '../ScienceTextModal';
 import { onboardingStyles, ONBOARDING_LINK_COLOR } from './onboardingStyles';
@@ -58,7 +58,7 @@ function renderBody(entry: PlanTimelineEntry, onOpenTemplate?: () => void): Reac
             { entry.body.slice(0, at) }
             <AppText
                 variant="body"
-                style={ onOpenTemplate === undefined ? styles.emphasis : styles.bodyLink }
+                style={ [onboardingStyles.body, styles.bodyCopy, onOpenTemplate === undefined ? styles.emphasis : styles.bodyLink] }
                 onPress={ onOpenTemplate }
                 accessibilityRole={ onOpenTemplate === undefined ? undefined : 'link' }
                 accessibilityHint={ onOpenTemplate === undefined ? undefined : 'Opens why these five questions' }
@@ -72,10 +72,6 @@ function renderBody(entry: PlanTimelineEntry, onOpenTemplate?: () => void): Reac
 
 export function PlanTimeline({ entries, onOpenTemplate }: Props) {
     const [openResearch, setOpenResearch] = useState<ReminderType | null>(null);
-    // The rule is drawn, so it needs a number rather than a percentage: inside
-    // an SVG, "100%" has no viewport to resolve against and the line stopped
-    // short of the card's edge.
-    const [ruleWidth, setRuleWidth] = useState(0);
 
     return (
         <>
@@ -127,80 +123,57 @@ export function PlanTimeline({ entries, onOpenTemplate }: Props) {
                                     isSession && styles.contentFullBleed,
                                 ] }
                             >
-                                <View style={ styles.contentColumn }>
-                                    <View style={ styles.heading }>
-                                        { isSession && (
-                                            <View
-                                                style={ [styles.marker, { backgroundColor: ACTION_ORANGE }] }
-                                            />
-                                        ) }
-                                        <AppText
-                                            variant="h3"
-                                            style={ [
-                                                onboardingStyles.title,
-                                                styles.label,
-                                                isSession && styles.labelSession,
-                                            ] }
-                                        >
-                                            { entry.label }
-                                        </AppText>
-                                    </View>
-                                    <AppText variant="caption" style={ styles.when }>
-                                        { occurrencesLabel(entry.occurrences) }
+                                <View style={ styles.heading }>
+                                    { isSession && (
+                                        <View
+                                            style={ [styles.marker, { backgroundColor: ACTION_ORANGE }] }
+                                        />
+                                    ) }
+                                    <AppText
+                                        variant="h3"
+                                        style={ [
+                                            onboardingStyles.title,
+                                            styles.label,
+                                            isSession && styles.labelSession,
+                                        ] }
+                                    >
+                                        { entry.label }
                                     </AppText>
-                                    { /* The session's own card only. A rule between
+
+                                    { /* Only the heading shares width with
+                                         the arrow; the paragraph below
+                                         uses the whole card. */ }
+                                    { entry.researchTarget !== null && (
+                                        <View
+                                            style={ styles.researchArrow }
+                                            accessibilityElementsHidden
+                                            importantForAccessibility="no-hide-descendants"
+                                        >
+                                            <GlassCircleButton
+                                                accessibilityLabel={ researchLabel ?? 'Research' }
+                                                icon="forward"
+                                                iconColor={ ONBOARDING_LINK_COLOR }
+                                                size={ 40 }
+                                                onPress={ () => setOpenResearch(entry.researchTarget) }
+                                            />
+                                        </View>
+                                    ) }
+                                </View>
+                                <AppText variant="caption" style={ styles.when }>
+                                    { occurrencesLabel(entry.occurrences) }
+                                </AppText>
+                                { /* The session's own card only. A rule between
                                      the heading and the paragraph, dotted and
                                      drawn edge to edge: the padding is
                                      cancelled so the line runs the card's full
                                      width rather than the paragraph's measure.
                                      The review cards are short enough that a
                                      rule only cut them in half. */ }
-                                    { isSession && <View
-                                        style={ styles.bodyRule }
-                                        onLayout={ (event) => setRuleWidth(event.nativeEvent.layout.width) }
-                                    >
-                                        { ruleWidth > 0 && (
-                                            <Svg width={ ruleWidth } height={ 1 }>
-                                                <Line
-                                                    x1={ 0 }
-                                                    y1={ 0.5 }
-                                                    x2={ ruleWidth }
-                                                    y2={ 0.5 }
-                                                    stroke={ TEXT_COLORS.quaternary }
-                                                    strokeWidth={ 1 }
-                                                    strokeDasharray="2 4"
-                                                    strokeLinecap="round"
-                                                />
-                                            </Svg>
-                                        ) }
-                                    </View> }
+                                { isSession && <DottedDivider style={ styles.bodyRule } /> }
 
-                                    <AppText variant="body" style={ [onboardingStyles.body, styles.body] }>
-                                        { renderBody(entry, isSession ? onOpenTemplate : undefined) }
-                                    </AppText>
-                                </View>
-
-                                { /* The whole card is the control, so the arrow
-                                     is the card's own mark rather than a second
-                                     target inside it: the same glass circle the
-                                     flow is navigated by, turned to face
-                                     forwards. Hidden from VoiceOver, which
-                                     already reads the row as a link. */ }
-                                { entry.researchTarget !== null && (
-                                    <View
-                                        style={ styles.researchArrow }
-                                        accessibilityElementsHidden
-                                        importantForAccessibility="no-hide-descendants"
-                                    >
-                                        <GlassCircleButton
-                                            accessibilityLabel={ researchLabel ?? 'Research' }
-                                            icon="forward"
-                                            iconColor={ ONBOARDING_LINK_COLOR }
-                                            size={ 40 }
-                                            onPress={ () => setOpenResearch(entry.researchTarget) }
-                                        />
-                                    </View>
-                                ) }
+                                <AppText variant="body" style={ [onboardingStyles.body, styles.bodyCopy, styles.body] }>
+                                    { renderBody(entry, isSession ? onOpenTemplate : undefined) }
+                                </AppText>
                             </View>
                         </>
                     );
@@ -295,12 +268,6 @@ const styles = StyleSheet.create({
         // Brighter than the flow's shared card edge. These sit over artwork
         // and over the rail, and the highlight is what lifts them off both.
         borderColor: 'hsla(0, 0%, 100%, 0.85)',
-        flexDirection: 'row',
-        // Top right, level with the label: the arrow marks the card, and level
-        // with the middle of a paragraph it read as though it belonged to
-        // whichever line it happened to land beside.
-        alignItems: 'flex-start',
-        gap: 12,
     },
     /**
      * The session's card is a band, not a card: it runs edge to edge of the
@@ -314,9 +281,6 @@ const styles = StyleSheet.create({
         borderLeftWidth: 0,
         borderRightWidth: 0,
     },
-    contentColumn: {
-        flex: 1,
-    },
     // Pulled back into the card's corner: at the full inset the arrow sat a
     // long way in from two edges it is supposed to mark.
     researchArrow: {
@@ -325,14 +289,14 @@ const styles = StyleSheet.create({
         marginRight: -8,
     },
     label: {
-        flexShrink: 1,
+        flex: 1,
         fontSize: 17,
         lineHeight: 23,
     },
     /** The session's own row is the whole of its screen, so it leads louder. */
     labelSession: {
-        fontSize: 21,
-        lineHeight: 28,
+        fontSize: 19,
+        lineHeight: 26,
     },
     // The date sits under the label it belongs to and behind the paragraph in
     // importance, so it steps back a shade further than the flow's captions.
@@ -351,6 +315,8 @@ const styles = StyleSheet.create({
     },
     body: {
         marginTop: 12,
+    },
+    bodyCopy: {
         fontSize: 18,
         lineHeight: 27,
     },
@@ -362,13 +328,12 @@ const styles = StyleSheet.create({
         fontStyle: 'italic',
     },
     /**
-     * The sentence's own face and size, set bold and in the flow's link colour.
-     * No trailing arrow: mid-sentence an arrow reads as punctuation, so weight
-     * and colour carry it between them.
+     * The sentence's own metrics, with just a medium weight and black ink to
+     * distinguish the link without making it look like a different paragraph.
      */
     bodyLink: {
-        color: ONBOARDING_LINK_COLOR,
-        fontFamily: BRAND_FONTS.bold,
+        color: COLOR_VARIANTS.black.primary,
+        fontFamily: BRAND_FONTS.medium,
         fontWeight: undefined,
     },
 });

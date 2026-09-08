@@ -1,12 +1,17 @@
-import React from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { AccessibilityInfo, ScrollView, StyleSheet, View } from 'react-native';
+import MaskedView from '@react-native-masked-view/masked-view';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import AppText from '../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { GlassCircleButton } from '../src/components/ui/GlassCircleButton';
-import { COLOR_VARIANTS } from 'designs/designs-colors';
+import { ACTION_ORANGE_SURFACE, BRAND_ORANGE, COLOR_VARIANTS } from 'designs/designs-colors';
 import { ExternalLink } from 'src/components/ui/ExternalLink';
+import { CitedText } from 'src/components/ui/CitedText';
+
+const INTRODUCTION = 'Most of a session does not survive the week. In studies of medical consultations, 40 to 80 per cent of what a practitioner says is forgotten immediately, and almost half of what patients do remember, they remember wrongly.[1] This matters more in therapy than it sounds: in cognitive therapy for depression, how much of the actual treatment content a patient can recall predicts how closely they follow the work, whether they respond, and whether the depression comes back.[2]';
 
 type RationaleSection = {
     question: string;
@@ -91,10 +96,40 @@ const REFERENCES: Reference[] = [
 
 export default function WhyFiveQuestionsScreen() {
     const router = useRouter();
+    const insets = useSafeAreaInsets();
+    const scrollRef = useRef<ScrollView>(null);
+    const referencesTop = useRef<number | null>(null);
+    const referenceOffsets = useRef<Record<number, number>>({});
+    const pendingReference = useRef<number | null>(null);
+    const [selectedReference, setSelectedReference] = useState<number | null>(null);
     const handleBack = () => router.back();
 
+    const scrollToReference = (position: number) => {
+        const rowTop = referenceOffsets.current[position];
+
+        if (referencesTop.current === null || rowTop === undefined || scrollRef.current === null) {
+            pendingReference.current = position;
+            return;
+        }
+
+        pendingReference.current = null;
+        scrollRef.current.scrollTo({
+            y: Math.max(0, referencesTop.current + rowTop - TOP_FADE_HEIGHT - 8),
+            animated: true,
+        });
+    };
+
+    const handleCitationPress = (position: number) => {
+        const reference = REFERENCES[position - 1];
+        if (!reference) return;
+
+        setSelectedReference(position);
+        scrollToReference(position);
+        AccessibilityInfo.announceForAccessibility(`Source ${position}: ${reference.text}`);
+    };
+
     return (
-        <SafeAreaView style={ styles.container }>
+        <SafeAreaView edges={ ['top', 'left', 'right'] } style={ styles.container }>
             <View style={ styles.pageHeader }>
                 <GlassCircleButton
                     accessibilityLabel="Back"
@@ -103,89 +138,143 @@ export default function WhyFiveQuestionsScreen() {
                     size={ 48 }
                     onPress={ handleBack }
                 />
+                <AppText variant="h1" accessibilityRole="header" style={ styles.pageTitle }>
+                    Why these five questions
+                </AppText>
             </View>
-            <ScrollView
+            <MaskedView
                 style={ styles.scroll }
-                contentContainerStyle={ styles.scrollContent }
-                showsVerticalScrollIndicator={ false }
+                maskElement={
+                    <View style={ styles.scroll } pointerEvents="none">
+                        <LinearGradient
+                            colors={ [COLOR_VARIANTS.transparent, COLOR_VARIANTS.black.primary] }
+                            style={ styles.topFade }
+                        />
+                        <View style={ styles.solidMask } />
+                    </View>
+                }
             >
-                <AppText variant="h1">Why these five questions</AppText>
+                <ScrollView
+                    ref={ scrollRef }
+                    style={ styles.scroll }
+                    contentContainerStyle={ [styles.scrollContent, { paddingBottom: insets.bottom + 24 }] }
+                    contentInsetAdjustmentBehavior="never"
+                    showsVerticalScrollIndicator={ false }
+                >
+                    <View style={ styles.summaryBanner }>
+                        <AppText variant="h2" accessibilityRole="header" style={ styles.summaryText }>TL;DR</AppText>
+                        <Spacer variant={ SpacerVariant.small } />
+                        <AppText variant="body" style={ styles.summaryText }>
+                            These five questions are based on the research explained below. They help you
+                            remember what mattered, notice thoughts and feelings during the week, put insights
+                            into your own words, note anything you want to try, and decide what to revisit
+                            next session.
+                        </AppText>
+                    </View>
 
-                <Spacer variant={ SpacerVariant.large } />
-                <AppText variant="body">
-                    Most of a session does not survive the week. In studies of medical consultations, 40 to
-                    80 per cent of what a practitioner says is forgotten immediately, and almost half of what
-                    patients do remember, they remember wrongly.[1] This matters more in therapy than it
-                    sounds: in cognitive therapy for depression, how much of the actual treatment content a
-                    patient can recall predicts how closely they follow the work, whether they respond, and
-                    whether the depression comes back.[2]
-                </AppText>
-                <Spacer variant={ SpacerVariant.medium } />
-                <AppText variant="body">
-                    So an after-therapy note is not admin. Each of these five lines is doing a specific job,
-                    and each one is built on a method with a large evidence base behind it.
-                </AppText>
+                    <Spacer variant={ SpacerVariant.large } />
+                    <CitedText text={ INTRODUCTION } sources={ REFERENCES } onCitationPress={ handleCitationPress } />
+                    <Spacer variant={ SpacerVariant.medium } />
+                    <AppText variant="body">
+                        So an after-therapy note is not admin. Each of these five lines is doing a specific job,
+                        and each one is built on a method with a large evidence base behind it.
+                    </AppText>
 
-                <Spacer variant={ SpacerVariant.large } />
-                <View style={ styles.sectionList }>
-                    { SECTIONS.map((section) => (
-                        <View key={ section.question }>
-                            <AppText variant="h2">{ section.question }</AppText>
-                            { section.paragraphs.map((paragraph) => (
-                                <View key={ paragraph.slice(0, 40) }>
-                                    <Spacer variant={ SpacerVariant.small } />
-                                    <AppText variant="body">{ paragraph }</AppText>
-                                </View>
-                            )) }
-                        </View>
-                    )) }
-                </View>
+                    <Spacer variant={ SpacerVariant.large } />
+                    <View style={ styles.sectionList }>
+                        { SECTIONS.map((section, index) => (
+                            <View key={ section.question }>
+                                <AppText variant="h2" accessibilityRole="header">
+                                    { `${index + 1}. ${section.question}` }
+                                </AppText>
+                                { section.paragraphs.map((paragraph) => (
+                                    <View key={ paragraph.slice(0, 40) }>
+                                        <Spacer variant={ SpacerVariant.small } />
+                                        <CitedText text={ paragraph } sources={ REFERENCES } onCitationPress={ handleCitationPress } />
+                                    </View>
+                                )) }
+                            </View>
+                        )) }
+                    </View>
 
-                <Spacer variant={ SpacerVariant.large } />
-                <AppText variant="body">
-                    These are findings about methods, not promises about your therapy. What they support is
-                    the shape of the sheet: recall rather than transcribe, name one thing to watch, use your
-                    own words, pair a situation with a response, and come back to it.
-                </AppText>
+                    <Spacer variant={ SpacerVariant.large } />
+                    <AppText variant="body">
+                        These are findings about methods, not promises about your therapy. What they support is
+                        the shape of the sheet: recall rather than transcribe, name one thing to watch, use your
+                        own words, pair a situation with a response, and come back to it.
+                    </AppText>
 
-                <Spacer variant={ SpacerVariant.large } />
-                <AppText variant="h2">References</AppText>
-                <Spacer variant={ SpacerVariant.small } />
-                <View style={ styles.referenceList }>
-                    { REFERENCES.map((reference, index) => (
-                        <View key={ reference.url } style={ styles.reference }>
-                            <AppText variant="caption" style={ styles.referenceMarker }>
-                                { index + 1 }.
-                            </AppText>
-                            <ExternalLink
-                                variant="caption"
-                                text={ reference.text }
-                                url={ reference.url }
-                                containerStyle={ styles.referenceLink }
-                            />
-                        </View>
-                    )) }
-                </View>
-            </ScrollView>
+                    <Spacer variant={ SpacerVariant.large } />
+                    <AppText variant="h2">References</AppText>
+                    <Spacer variant={ SpacerVariant.small } />
+                    <View
+                        testID="rationale-references"
+                        style={ styles.referenceList }
+                        onLayout={ (event) => {
+                            referencesTop.current = event.nativeEvent.layout.y;
+                            if (pendingReference.current !== null) scrollToReference(pendingReference.current);
+                        } }
+                    >
+                        { REFERENCES.map((reference, index) => (
+                            <View
+                                key={ reference.url }
+                                testID={ `rationale-reference-${index + 1}` }
+                                style={ [styles.reference, selectedReference === index + 1 && styles.referenceSelected] }
+                                onLayout={ (event) => {
+                                    referenceOffsets.current[index + 1] = event.nativeEvent.layout.y;
+                                    if (pendingReference.current !== null) scrollToReference(pendingReference.current);
+                                } }
+                            >
+                                <AppText variant="caption" style={ styles.referenceMarker }>
+                                    { index + 1 }.
+                                </AppText>
+                                <ExternalLink
+                                    variant="caption"
+                                    text={ reference.text }
+                                    url={ reference.url }
+                                    containerStyle={ styles.referenceLink }
+                                />
+                            </View>
+                        )) }
+                    </View>
+                </ScrollView>
+            </MaskedView>
 
         </SafeAreaView>
     );
 }
 
+const PAGE_PADDING = 24;
+const TOP_FADE_HEIGHT = 16;
+
 const styles = StyleSheet.create({
     pageHeader: {
         alignItems: 'center',
         flexDirection: 'row',
+        gap: 16,
         paddingBottom: 8,
-        paddingHorizontal: 24,
+        paddingHorizontal: PAGE_PADDING,
         paddingTop: 8,
     },
+    pageTitle: { flex: 1 },
     container: { flex: 1 },
     scroll: { flex: 1 },
-    scrollContent: { paddingHorizontal: 24, paddingTop: 24, paddingBottom: 32 },
+    topFade: { height: TOP_FADE_HEIGHT },
+    solidMask: { flex: 1, backgroundColor: COLOR_VARIANTS.black.primary },
+    // Keep the home-indicator clearance inside the scrollable content so the
+    // viewport reaches the screen edge instead of leaving a fixed blank strip.
+    scrollContent: { paddingHorizontal: PAGE_PADDING, paddingTop: TOP_FADE_HEIGHT },
+    summaryBanner: {
+        marginHorizontal: -PAGE_PADDING,
+        paddingHorizontal: PAGE_PADDING,
+        paddingVertical: 24,
+        backgroundColor: BRAND_ORANGE,
+    },
+    summaryText: { color: COLOR_VARIANTS.white.primary },
     sectionList: { gap: 24 },
     referenceList: { gap: 12 },
-    reference: { flexDirection: 'row', gap: 8 },
+    reference: { flexDirection: 'row', gap: 8, marginHorizontal: -8, paddingHorizontal: 8, borderRadius: 8 },
+    referenceSelected: { backgroundColor: ACTION_ORANGE_SURFACE },
     referenceMarker: { width: 20, paddingTop: 6 },
     referenceLink: { flex: 1 },
 });

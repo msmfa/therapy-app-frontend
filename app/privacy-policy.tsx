@@ -95,7 +95,7 @@ export default function PrivacyPolicyScreen() {
                             This information is linked to your Plastic Brains account so the app can unlock the features you
                             have paid for on any device you sign in to, and so Restore Purchases works. It is not used for
                             advertising, is never combined with the contents of your therapy notes, and is not
-                            sold. If you opt into app analytics, limited subscription events may be shared with PostHog as described below. Payment credentials and Apple transaction identifiers are not included in those analytics.
+                            sold. Limited subscription events may be shared with PostHog as described below. Payment credentials and Apple transaction identifiers are not included in those analytics.
                         </AppText>
                         <Spacer variant={ SpacerVariant.small } />
                         <AppText variant='body'>
@@ -110,10 +110,10 @@ export default function PrivacyPolicyScreen() {
 
                     <Spacer variant={ SpacerVariant.large } />
                     <View style={ styles.section }>
-                        <AppText variant='h2'>Optional app analytics</AppText>
+                        <AppText variant='h2'>App analytics</AppText>
                         <Spacer variant={ SpacerVariant.small } />
                         <AppText variant='body'>
-                            App analytics are off unless you choose to share app usage. You can make this choice on Welcome and change it in Settings. If enabled, PostHog receives a small set of events about onboarding, checkout, saving or opening notes, confirming reviews, notification setup and opens, and errors that prevent an action from completing. These events help us understand which features work and where people get stuck.
+                            Plastic Brains uses PostHog for app analytics. PostHog receives a small set of events about onboarding, checkout, saving or opening notes, confirming reviews, notification setup and opens, and errors that prevent an action from completing. These events help us understand which features work and where people get stuck.
                         </AppText>
                         <Spacer variant={ SpacerVariant.small } />
                         <AppText variant='body'>
@@ -121,7 +121,7 @@ export default function PrivacyPolicyScreen() {
                         </AppText>
                         <Spacer variant={ SpacerVariant.small } />
                         <AppText variant='body'>
-                            Turning analytics off stops future app event collection. It does not itself delete events already received. You can request deletion of analytics history by contacting us, including when deleting your account. We do not use these events for advertising.
+                            You can request deletion of analytics history by contacting us, including when deleting your account. We do not use these events for advertising.
                         </AppText>
                     </View>
 

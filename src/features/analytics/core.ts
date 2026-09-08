@@ -72,22 +72,19 @@ export function createAnalytics(deps: AnalyticsDependencies) {
             if (version === generation) publish({ enabled: false });
         }
     };
-    const loadConsent = async (owner: string | null, version: number, inherited?: boolean) => {
+    const loadConsent = async (owner: string | null, version: number) => {
         await storageQueue;
-        let raw: string | null;
-        try { raw = await deps.storage.getItem(consentKey(owner)); } catch { raw = null; }
+        let consent = false;
+        try {
+            const raw = await deps.storage.getItem(consentKey(owner));
+            if (version !== generation || identity !== owner) return;
+            // The app's automatic consent policy replaces all legacy prompt
+            // choices. Persist it before allowing the SDK to send anything.
+            if (raw !== 'true') await enqueueStorage(() => deps.storage.setItem(consentKey(owner), 'true'));
+            consent = true;
+        } catch { /* Storage failures must not enable collection. */ }
         if (version !== generation || identity !== owner) return;
-        let consent = raw === 'true';
-        let known = raw === 'true' || raw === 'false';
-        if (!known && inherited !== undefined && owner !== null) {
-            try {
-                await enqueueStorage(() => deps.storage.setItem(consentKey(owner), String(inherited)));
-                consent = inherited;
-                known = true;
-            } catch { consent = false; }
-        }
-        if (version !== generation || identity !== owner) return;
-        publish({ hydrated: true, consentKnown: known, consent });
+        publish({ hydrated: true, consentKnown: consent, consent });
         if (consent) await activate(version);
         else {
             await stop(true);
@@ -125,8 +122,8 @@ export function createAnalytics(deps: AnalyticsDependencies) {
         return { enabled, isCurrent, capture: (event, properties, options) => isCurrent() && capture(event, properties, options) };
     };
     /**
-     * Let an immediate auth-to-checkout handoff finish local consent/SDK startup.
-     * The caller starts its action only afterwards: no pre-consent event buffer.
+     * Let an immediate auth-to-checkout handoff finish identity/SDK startup.
+     * The caller starts its action only afterwards: no startup event buffer.
      * Timeout, cancellation and failure return a scope that can never revive.
      */
     const beginOperationWhenReady = (): Promise<AnalyticsOperation> => {
@@ -183,7 +180,6 @@ export function createAnalytics(deps: AnalyticsDependencies) {
             const next = nextIdentity !== null && /^[A-Za-z0-9._:-]{1,128}$/.test(nextIdentity) ? nextIdentity : null;
             if (identity === next) return;
             const previous = identity;
-            const inherited = previous === null && snapshot.consentKnown ? snapshot.consent : undefined;
             identity = next;
             const version = ++generation;
             visitId = deps.newId();
@@ -193,14 +189,14 @@ export function createAnalytics(deps: AnalyticsDependencies) {
             if (previous !== undefined) {
                 void enqueueStorage(() => deps.storage.removeItem(consentKey(null))).catch(() => undefined);
             }
-            if (initialized) pending = loadConsent(next, version, inherited);
+            if (initialized) pending = loadConsent(next, version);
         },
         beginOperation,
         beginOperationWhenReady,
         setConsent: async (consent: boolean): Promise<void> => {
-            if (typeof consent !== 'boolean') throw new Error('Please choose whether to allow analytics.');
+            if (typeof consent !== 'boolean') throw new Error('Analytics consent must be a boolean.');
             const owner = identity;
-            if (owner === undefined) throw new Error('Analytics preferences are still loading.');
+            if (owner === undefined) throw new Error('Analytics identity is not initialized.');
             const version = ++generation;
             publish({ hydrated: true, consentKnown: true, consent: false, enabled: false });
             await stop(!consent);
@@ -209,7 +205,7 @@ export function createAnalytics(deps: AnalyticsDependencies) {
                 await Promise.allSettled([...cleanups].map((handler) => handler('opt_out', owner)));
                 if (version === generation) await deps.clearTransportStorage().catch(() => undefined);
             }
-            try { await persist; } catch { throw new Error('Your analytics preference could not be saved. Please try again.'); }
+            try { await persist; } catch { throw new Error('Analytics state could not be saved.'); }
             if (version !== generation || identity !== owner) return;
             publish({ consent });
             if (consent) await activate(version);

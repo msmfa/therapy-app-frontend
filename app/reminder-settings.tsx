@@ -21,8 +21,10 @@ import {
 import { readNotificationPermission, requestNotificationPermission } from '../src/features/onboarding/onboardingNotifications';
 import { ensurePushRegistration } from '../src/services/notifications/pushRegistration';
 import { dateToMinutes, minutesToDate, timeLabel } from '../src/features/onboarding/formatting';
+import { TIME_PICKER_BOUNDS } from '../src/utils/timePickerBounds';
 import { ACTION_ORANGE, COLOR_VARIANTS, PALETTE, TEXT_COLORS } from '../designs/designs-colors';
 import { GlassPickerPanel } from '../src/components/ui/GlassPickerPanel';
+import { DottedDivider } from '../src/components/ui/DottedDivider';
 
 type Slot = 'morning' | 'evening';
 type NotificationStatus = 'checking' | 'on' | 'off';
@@ -106,7 +108,7 @@ export default function ReminderSettingsScreen() {
             // A dismissed picker reports the value it was already showing, not
             // a choice; writing it back overwrites the pick just made.
             if (event.type === 'dismissed') return;
-            if (!picked) return;
+            if (!picked || !Number.isFinite(picked.getTime())) return;
 
             const value = dateToMinutes(picked);
             if (slot === 'morning') setMorningMinutes(value);
@@ -140,17 +142,15 @@ export default function ReminderSettingsScreen() {
         return <Loading fullScreen />;
     }
 
-    const rows: { slot: Slot; label: string; hint: string; minutes: number }[] = [
+    const rows: { slot: Slot; label: string; minutes: number }[] = [
         {
             slot: 'morning',
             label: 'Morning reviews',
-            hint: "After a night's sleep",
             minutes: morningMinutes,
         },
         {
             slot: 'evening',
             label: 'Evening reviews',
-            hint: 'For returning to a note later in the week',
             minutes: eveningMinutes,
         },
     ];
@@ -168,20 +168,18 @@ export default function ReminderSettingsScreen() {
                         const value = minutesToDate(row.minutes);
                         return (
                             <View key={ row.slot }>
-                                { index > 0 && <View style={ styles.divider } /> }
+                                { index > 0 && <DottedDivider style={ styles.divider } /> }
                                 <View style={ styles.timeRow }>
                                     <View style={ styles.timeCopy }>
                                         <AppText variant="h3" style={ styles.label }>
                                             { row.label }
-                                        </AppText>
-                                        <AppText variant="caption" style={ styles.hint }>
-                                            { row.hint }
                                         </AppText>
                                     </View>
                                     { /* Apple's compact control, left as it
                                          comes: see reminder-times. */ }
                                     { Platform.OS === 'ios' ? (
                                         <DateTimePicker
+                                            { ...TIME_PICKER_BOUNDS }
                                             accentColor={ ACTION_ORANGE }
                                             value={ value }
                                             mode="time"
@@ -216,6 +214,7 @@ export default function ReminderSettingsScreen() {
             { androidSlot !== null && (
                 <GlassPickerPanel style={ styles.androidPicker }>
                     <DateTimePicker
+                        { ...TIME_PICKER_BOUNDS }
                         accentColor={ ACTION_ORANGE }
                         value={ minutesToDate(
                             androidSlot === 'morning' ? morningMinutes : eveningMinutes,
@@ -229,6 +228,8 @@ export default function ReminderSettingsScreen() {
         </SettingsPageShell>
     );
 }
+
+const TIME_ROWS_PADDING = 14;
 
 const styles = StyleSheet.create({
     androidPicker: {
@@ -244,11 +245,14 @@ const styles = StyleSheet.create({
     timeRows: {
         marginTop: 20,
         marginBottom: 20,
-        paddingHorizontal: 14,
+        paddingHorizontal: TIME_ROWS_PADDING,
         borderRadius: 16,
         borderWidth: 1,
         borderColor: PALETTE.overlay.whiteBorderTransparent,
         backgroundColor: COLOR_VARIANTS.white.secondary,
+    },
+    divider: {
+        marginHorizontal: -TIME_ROWS_PADDING,
     },
     timeRow: {
         minHeight: 70,
@@ -263,14 +267,6 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: 17,
-    },
-    hint: {
-        marginTop: 2,
-        color: TEXT_COLORS.tertiary,
-    },
-    divider: {
-        height: 1,
-        backgroundColor: COLOR_VARIANTS.white.tertiary,
     },
     notificationSection: {
         marginBottom: 18,

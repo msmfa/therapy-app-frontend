@@ -227,35 +227,6 @@ export default function AccountPreviewScreen() {
             supportingAppearance="banner"
             footer={
                 <>
-                    { /* Directly above the action it governs, as on the plans
-                         screen: a notice that has to be read before the tap
-                         belongs next to the button, not up in the content
-                         with a screen's worth of space between the two. */ }
-                    <View style={ styles.legal }>
-                        <AppText variant="caption" style={ styles.legalText }>
-                            { ACCOUNT_COPY.legalIntro }
-                        </AppText>
-
-                        { /* The two documents as their own targets. Inline
-                             links inside the sentence would be 14pt tall,
-                             well under the 44pt minimum. */ }
-                        <View style={ styles.legalLinks }>
-                            <OnboardingLink
-                                label={ ACCOUNT_COPY.legalTerms }
-                                size="caption"
-                                onPress={ () => router.push('/terms-of-service') }
-                                style={ styles.legalLink }
-                            />
-
-                            <OnboardingLink
-                                label={ ACCOUNT_COPY.legalPrivacy }
-                                size="caption"
-                                onPress={ () => router.push('/privacy-policy') }
-                                style={ styles.legalLink }
-                            />
-                        </View>
-                    </View>
-
                     { isAuthenticated ? (
                         <OnboardingButton
                             label={ ACCOUNT_COPY.continue }
@@ -282,15 +253,33 @@ export default function AccountPreviewScreen() {
                                 disabled={ busy }
                                 onPress={ () => openAuth('/(auth)/signup') }
                             />
-
-                            <OnboardingButton
-                                label={ ACCOUNT_COPY.signIn }
-                                transparent
-                                disabled={ busy }
-                                onPress={ () => openAuth('/(auth)/login') }
-                            />
                         </>
                     ) }
+
+                    <View style={ styles.legal }>
+                        <AppText variant="caption" style={ styles.legalText }>
+                            { ACCOUNT_COPY.legalIntro }
+                        </AppText>
+
+                        { /* The two documents as their own targets. Inline
+                             links inside the sentence would be 14pt tall,
+                             well under the 44pt minimum. */ }
+                        <View style={ styles.legalLinks }>
+                            <OnboardingLink
+                                label={ ACCOUNT_COPY.legalTerms }
+                                size="caption"
+                                onPress={ () => router.push('/terms-of-service') }
+                                style={ styles.legalLink }
+                            />
+
+                            <OnboardingLink
+                                label={ ACCOUNT_COPY.legalPrivacy }
+                                size="caption"
+                                onPress={ () => router.push('/privacy-policy') }
+                                style={ styles.legalLink }
+                            />
+                        </View>
+                    </View>
                 </>
             }
         >
@@ -312,7 +301,7 @@ const styles = StyleSheet.create({
     legalText: {
         fontSize: 14,
         lineHeight: 21,
-        color: TEXT_COLORS.secondary,
+        color: TEXT_COLORS.tertiary,
         textAlign: 'center',
     },
     legalLinks: {

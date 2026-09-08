@@ -3,41 +3,25 @@ import { getCurrentUserSettings, updateCurrentUser } from '../../api/users';
 import { analytics } from './client';
 import { ANALYTICS_STORAGE_SUFFIX } from './config';
 
-const PREFIX = `plastic_brains.analytics_pending_consent.v1${ANALYTICS_STORAGE_SUFFIX}.`;
-type PendingChoice = { consent: boolean; revision: number };
-type ConsentRuntime = Pick<typeof analytics, 'getIdentity' | 'getSnapshot' | 'initialize' | 'setConsent'>;
+// Remove pending choices left by earlier versions; they must not be replayed.
+const LEGACY_PREFIX = `plastic_brains.analytics_pending_consent.v1${ANALYTICS_STORAGE_SUFFIX}.`;
 type Dependencies = {
-    runtime: ConsentRuntime;
-    storage: Pick<typeof AsyncStorage, 'getItem' | 'setItem' | 'removeItem'>;
+    runtime: Pick<typeof analytics, 'getIdentity' | 'getSnapshot' | 'initialize'>;
+    storage: Pick<typeof AsyncStorage, 'removeItem'>;
     read: () => Promise<{ analyticsConsent?: boolean }>;
-    write: (consent: boolean) => Promise<void>;
+    write: (consent: true) => Promise<void>;
 };
 
-/** A durable preference retry, not an event queue. No notes or activity live here. */
+/** Keep the account record aligned with the app's automatic analytics policy. */
 export function createConsentSync({ runtime, storage, read, write }: Dependencies) {
-    let revision = 0;
-    let storageQueue = Promise.resolve();
     const inFlight = new Map<string, Promise<boolean>>();
     const deletedOwners = new Set<string>();
-    const keyFor = (owner: string) => `${PREFIX}${encodeURIComponent(owner)}`;
+    const keyFor = (owner: string) => `${LEGACY_PREFIX}${encodeURIComponent(owner)}`;
     const isOwner = (owner: string) => runtime.getIdentity() === owner && !deletedOwners.has(owner);
-    const persist = (work: () => Promise<void>) => {
-        const next = storageQueue.then(work);
-        storageQueue = next.catch(() => undefined);
-        return next;
+    const maySync = (owner: string) => {
+        const snapshot = runtime.getSnapshot();
+        return isOwner(owner) && snapshot.available && snapshot.hydrated && snapshot.consent;
     };
-    const pendingChoice = async (owner: string): Promise<PendingChoice | null> => {
-        await storageQueue;
-        const raw = await storage.getItem(keyFor(owner));
-        if (!raw) return null;
-        const value: unknown = JSON.parse(raw);
-        if (!value || typeof value !== 'object') return null;
-        const candidate = value as Partial<PendingChoice>;
-        return typeof candidate.consent === 'boolean' && typeof candidate.revision === 'number'
-            ? candidate as PendingChoice : null;
-    };
-    const savePending = (owner: string, choice: PendingChoice) =>
-        persist(() => storage.setItem(keyFor(owner), JSON.stringify(choice)));
 
     const sync = (): Promise<boolean> => {
         const owner = runtime.getIdentity();
@@ -48,48 +32,16 @@ export function createConsentSync({ runtime, storage, read, write }: Dependencie
         const request = (async () => {
             try {
                 await runtime.initialize();
-                if (!isOwner(owner)) return false;
-                let choice = await pendingChoice(owner);
-                if (!isOwner(owner)) return false;
-                if (!choice) {
-                    const beforeRead = revision;
-                    const settings = await read();
-                    if (!isOwner(owner)) return false;
-                    choice = await pendingChoice(owner);
-                    if (!isOwner(owner)) return false;
-                    if (!choice && beforeRead === revision) {
-                        if (typeof settings.analyticsConsent === 'boolean') {
-                            const local = runtime.getSnapshot();
-                            if (!local.consentKnown || local.consent !== settings.analyticsConsent) {
-                                await runtime.setConsent(settings.analyticsConsent);
-                            }
-                            return true;
-                        }
-                        const local = runtime.getSnapshot();
-                        if (!local.consentKnown) return true;
-                        choice = { consent: local.consent, revision: ++revision };
-                        await savePending(owner, choice);
-                    }
-                }
-                // A toggle while a request is in flight supersedes it. Send
-                // choices serially so an old opt-in cannot win after opt-out.
-                while (choice && isOwner(owner)) {
-                    await write(choice.consent);
-                    if (!isOwner(owner)) return false;
-                    const next = await pendingChoice(owner);
-                    if (!isOwner(owner)) return false;
-                    if (next?.revision === choice.revision && next.consent === choice.consent) {
-                        await persist(async () => {
-                            const raw = await storage.getItem(keyFor(owner));
-                            if (raw === JSON.stringify(choice)) await storage.removeItem(keyFor(owner));
-                        });
-                    }
-                    choice = await pendingChoice(owner);
-                }
-                return isOwner(owner);
+                if (!maySync(owner)) return false;
+                await storage.removeItem(keyFor(owner));
+                if (!maySync(owner)) return false;
+                const settings = await read();
+                if (!maySync(owner)) return false;
+                if (settings.analyticsConsent !== true) await write(true);
+                return maySync(owner);
             } catch {
-                // Offline/old-backend errors leave the latest pending choice
-                // intact. Authentication, note saving and billing continue.
+                // Login/foreground will retry the same true value. Analytics
+                // synchronization never blocks authentication, notes or billing.
                 return false;
             }
         })();
@@ -100,24 +52,11 @@ export function createConsentSync({ runtime, storage, read, write }: Dependencie
 
     return {
         sync,
-        setConsent: async (value: boolean): Promise<{ synced: boolean }> => {
-            const owner = runtime.getIdentity();
-            if (owner && !isOwner(owner)) throw new Error('This account is no longer available.');
-            const currentRevision = ++revision;
-            // Revocation takes effect in memory before any storage/network await.
-            await Promise.all([
-                runtime.setConsent(value),
-                owner ? savePending(owner, { consent: value, revision: currentRevision }) : Promise.resolve(),
-            ]);
-            if (owner !== runtime.getIdentity()) return { synced: false };
-            return { synced: await sync() };
-        },
         forgetAccount: (owner: string) => {
-            // Invalidate a GET/PATCH continuation while auth cleanup still
-            // exposes this account. It must not reactivate erased consent.
+            // Invalidate an older response while auth cleanup still exposes
+            // the deleted account. It must not restart account synchronization.
             deletedOwners.add(owner);
-            revision += 1;
-            return persist(() => storage.removeItem(keyFor(owner)));
+            return storage.removeItem(keyFor(owner));
         },
     };
 }

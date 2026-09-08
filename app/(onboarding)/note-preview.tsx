@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
     // list that never gets seen.
     privacy: {
         padding: 18,
-        marginTop: 12,
+        marginTop: 8,
     },
     privacyHeading: {
         flexDirection: 'row',

@@ -25,7 +25,6 @@ import { BRAND_FONTS } from 'designs/designs-typography';
 import { PaperGrain } from '../../src/components/onboarding/PaperGrain';
 import { shouldUseCombinedOnboardingScroll } from '../../src/components/onboarding/OnboardingScreen';
 import { OnboardingStepAnalytics } from '../../src/features/onboarding/OnboardingStepAnalytics';
-import { AnalyticsConsentControl } from '../../src/components/analytics/AnalyticsConsentControl';
 
 export default function WelcomeScreen() {
     const router = useRouter();
@@ -73,7 +72,6 @@ export default function WelcomeScreen() {
 
     const footer = (
         <View style={ styles.footer }>
-            <AnalyticsConsentControl />
             <OnboardingButton
                 appearance="solid"
                 label={ WELCOME_COPY.primaryCta }
@@ -94,44 +92,44 @@ export default function WelcomeScreen() {
     const content = (
         <>
             <View style={ styles.heroLayer }>
-            <View style={ [onboardingStyles.card, styles.hero] }>
-                { /* Inside the glass, not above it. The mark belongs to the
-                     card the sentence is on, rather than floating over the
-                     page as a separate piece of furniture. */ }
-                <View style={ styles.wordmark } accessible accessibilityRole="header" accessibilityLabel="Plastic Brains">
-                    { /* A cut-out of the same mark, kept as a separate file on
-                         purpose. brain-logo.png is also the app icon, and iOS
-                         rejects an icon containing an alpha channel, so the
-                         two cannot be the same asset. */ }
-                    <Image
-                        source={ require('../../assets/brain-logo-transparent.webp') as ImageSourcePropType }
-                        style={ styles.wordmarkMark }
-                        contentFit="contain"
-                    />
-                    <AppText variant="h2" style={ styles.wordmarkSans }>
-                        Plastic
-                        <AppText variant="h2" style={ styles.wordmarkSerif }> Brains</AppText>
-                    </AppText>
-                </View>
+                <View style={ [onboardingStyles.card, styles.hero] }>
+                    { /* Inside the glass, not above it. The mark belongs to the
+                         card the sentence is on, rather than floating over the
+                         page as a separate piece of furniture. */ }
+                    <View style={ styles.wordmark } accessible accessibilityRole="header" accessibilityLabel="Plastic Brains">
+                        { /* A cut-out of the same mark, kept as a separate file on
+                             purpose. brain-logo.png is also the app icon, and iOS
+                             rejects an icon containing an alpha channel, so the
+                             two cannot be the same asset. */ }
+                        <Image
+                            source={ require('../../assets/brain-logo-transparent.webp') as ImageSourcePropType }
+                            style={ styles.wordmarkMark }
+                            contentFit="contain"
+                        />
+                        <AppText variant="h2" style={ styles.wordmarkSans }>
+                            Plastic
+                            <AppText variant="h2" style={ styles.wordmarkSerif }> Brains</AppText>
+                        </AppText>
+                    </View>
 
-                { /* The sentence takes the room the mark leaves, and is
-                     centred in it: the mark stays at the card's top corner
-                     rather than riding down with the copy. */ }
-                <View style={ styles.heroText }>
-                    <AppText
-                        variant="h1"
-                        style={ [
-                            onboardingStyles.headline,
-                            styles.headline,
-                            compact && styles.compactHeadline,
-                        ] }
-                        accessibilityRole="header"
-                    >
-                        { WELCOME_COPY.headline }
-                    </AppText>
-                </View>
+                    { /* The sentence takes the room the mark leaves, and is
+                         centred in it: the mark stays at the card's top corner
+                         rather than riding down with the copy. */ }
+                    <View style={ styles.heroText }>
+                        <AppText
+                            variant="h1"
+                            style={ [
+                                onboardingStyles.headline,
+                                styles.headline,
+                                compact && styles.compactHeadline,
+                            ] }
+                            accessibilityRole="header"
+                        >
+                            { WELCOME_COPY.headline }
+                        </AppText>
+                    </View>
 
-            </View>
+                </View>
             </View>
         </>
     );
@@ -141,10 +139,9 @@ export default function WelcomeScreen() {
             <OnboardingStepAnalytics step="welcome" />
             <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_RIGHT } />
 
-            { /* The same grain the rest of the flow is printed on, over the
-                 glass rather than under it: the blur is what removes a texture
-                 this fine. Everything else here stays as it was. */ }
-            <PaperGrain />
+            { /* Keep the grain above the glass so it stays sharp, with enough
+                 transparency for Welcome's red circle to remain visible. */ }
+            <PaperGrain opacity={ 0.45 } />
             <SafeAreaView style={ styles.safeArea } edges={ ['top', 'left', 'right', 'bottom'] }>
                 { /* Fixed, not scrolled. The screen is one image and two
                      sentences, sized to the display rather than allowed to run

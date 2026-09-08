@@ -7,10 +7,12 @@ import { OnboardingButton } from '../../src/components/onboarding/OnboardingButt
 import AppText from '../../src/components/ui/AppText';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import { GlassPickerPanel } from '../../src/components/ui/GlassPickerPanel';
+import { DottedDivider } from '../../src/components/ui/DottedDivider';
 import { onboardingStyles } from '../../src/components/onboarding/onboardingStyles';
 import { SESSION_DATE_COPY } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { longDateLabel, timeLabel } from '../../src/features/onboarding/formatting';
+import { TIME_PICKER_BOUNDS } from '../../src/utils/timePickerBounds';
 import {
     isWithinFirstSessionWindow,
     latestFirstSessionAt,
@@ -60,7 +62,7 @@ export default function SessionDateScreen() {
         if (Platform.OS !== 'ios') setOpen(null);
         // A dismissed picker echoes the value it was showing; it is not a pick.
         if (event.type === 'dismissed') return;
-        if (!picked) return;
+        if (!picked || !Number.isFinite(picked.getTime())) return;
         setDateChosen(true);
         setDraft((current) => {
             const next = new Date(current);
@@ -73,7 +75,7 @@ export default function SessionDateScreen() {
         if (Platform.OS !== 'ios') setOpen(null);
         // A dismissed picker echoes the value it was showing; it is not a pick.
         if (event.type === 'dismissed') return;
-        if (!picked) return;
+        if (!picked || !Number.isFinite(picked.getTime())) return;
         setTimeChosen(true);
         setDraft((current) => {
             const next = new Date(current);
@@ -165,7 +167,7 @@ export default function SessionDateScreen() {
 
                     return (
                         <View key={ row.field }>
-                            { index > 0 && <View style={ styles.divider } /> }
+                            { index > 0 && <DottedDivider style={ styles.divider } /> }
 
                             <TouchableOpacity
                                 onPress={ () => togglePicker(row.field) }
@@ -197,8 +199,8 @@ export default function SessionDateScreen() {
                                         value={ draft }
                                         mode={ row.field }
                                         display={ Platform.OS === 'ios' ? 'spinner' : 'default' }
-                                        minimumDate={ row.field === 'date' ? new Date() : undefined }
-                                        maximumDate={ row.field === 'date' ? latestAllowed : undefined }
+                                        minimumDate={ row.field === 'date' ? validationNow : TIME_PICKER_BOUNDS.minimumDate }
+                                        maximumDate={ row.field === 'date' ? latestAllowed : TIME_PICKER_BOUNDS.maximumDate }
                                         themeVariant="light"
                                         textColor={ COLOR_VARIANTS.black.primary }
                                         onChange={ row.field === 'date' ? applyDate : applyTime }
@@ -244,6 +246,9 @@ const styles = StyleSheet.create({
         gap: 12,
         paddingVertical: 12,
     },
+    divider: {
+        marginHorizontal: -FIELDS_PADDING,
+    },
     rowLabel: {
         fontSize: 17,
     },
@@ -256,10 +261,6 @@ const styles = StyleSheet.create({
         flexShrink: 1,
         textAlign: 'right',
         color: TEXT_COLORS.secondary,
-    },
-    divider: {
-        height: 1,
-        backgroundColor: COLOR_VARIANTS.white.tertiary,
     },
     pickerPanel: {
         marginBottom: 14,

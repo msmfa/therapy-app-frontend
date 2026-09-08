@@ -170,7 +170,7 @@ export default function SubscriptionPreviewScreen() {
         || state.status === 'loading'
     ) {
         return (
-            <OnboardingScreen { ...backNavigation } headline="Loading subscriptions" footer={ accountSettings }>
+            <OnboardingScreen { ...backNavigation } headline="Loading subscriptions" centeredBody footer={ accountSettings }>
                 <Loading fullScreen={ false } />
             </OnboardingScreen>
         );
@@ -268,7 +268,6 @@ export default function SubscriptionPreviewScreen() {
             <View style={ styles.plans } accessibilityRole="radiogroup">
                 <SubscriptionPlanCard
                     title={ SUBSCRIPTION_COPY.annualTitle }
-                    badge={ SUBSCRIPTION_COPY.annualBadge }
                     trialBadge={
                         showAnnualTrial && offer.annual.trial !== null
                             ? trialBadgeLine(offer.annual.trial)
@@ -317,7 +316,7 @@ export default function SubscriptionPreviewScreen() {
 
 const styles = StyleSheet.create({
     planTitle: {
-        marginTop: 20,
+        marginTop: 8,
         fontSize: 22,
         lineHeight: 28,
     },

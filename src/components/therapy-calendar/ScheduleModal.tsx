@@ -13,6 +13,7 @@ import RadioButton from '../ui/RadioButton';
 import { GlassPillButton } from '../ui/GlassPillButton';
 import { GlassPickerPanel } from '../ui/GlassPickerPanel';
 import AppText from '../ui/AppText';
+import { TIME_PICKER_BOUNDS } from '../../utils/timePickerBounds';
 import { ACTION_ORANGE, CALENDAR_COLORS, COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
 
 interface Session {
@@ -51,19 +52,25 @@ export default function ScheduleModal({
     const [time, setTime] = useState(defaultTime);
     const [scheduleMode, setScheduleMode] = useState<ScheduleMode>('weekly_pattern');
     const [showPicker, setShowPicker] = useState(false);
+    const existingSessionId = existingSession?.id;
+    const initialTimeMs = (existingSession?.time ?? defaultTime).getTime();
 
     useEffect(() => {
         if (visible) {
-            setTime(existingSession?.time || defaultTime);
-            setScheduleMode(existingSession ? 'single' : 'weekly_pattern');
+            setTime(new Date(initialTimeMs));
+            setScheduleMode(existingSessionId === undefined ? 'weekly_pattern' : 'single');
+            setShowPicker(false);
         }
-    }, [visible, existingSession, defaultTime]);
+        // Parent refreshes can recreate the same Date/session objects while
+        // this sheet is open. Reset only when the actual selected session or
+        // saved time changes, so a refresh cannot undo a wheel edit.
+    }, [visible, selectedDate, existingSessionId, initialTimeMs]);
 
     const handleTimeChange = (event: DateTimePickerEvent, selectedTime?: Date) => {
         if (Platform.OS === 'android') {
             setShowPicker(false);
-            if (event.type === 'dismissed') return;
         }
+        if (event.type === 'dismissed') return;
 
         if (selectedTime && !Number.isNaN(selectedTime.getTime())) {
             setTime(selectedTime);
@@ -124,6 +131,7 @@ export default function ScheduleModal({
                             { Platform.OS === 'ios' ? (
                                 <GlassPickerPanel style={ styles.iosPickerWrapper }>
                                     <DateTimePicker
+                                        { ...TIME_PICKER_BOUNDS }
                                         accentColor={ ACTION_ORANGE }
                                         value={ time }
                                         mode="time"
@@ -145,6 +153,7 @@ export default function ScheduleModal({
                                     { showPicker && (
                                         <GlassPickerPanel style={ styles.androidPicker }>
                                             <DateTimePicker
+                                                { ...TIME_PICKER_BOUNDS }
                                                 accentColor={ ACTION_ORANGE }
                                                 value={ time }
                                                 mode="time"

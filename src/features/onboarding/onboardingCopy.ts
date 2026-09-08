@@ -120,16 +120,11 @@ export const CADENCE_COPY = {
 
 export const REMINDER_TIMES_COPY = {
     headline: 'Choose times that fit your routine',
-    supporting:
-		"Pick a time in the morning and evening that suits your schedule. You'll only receive one morning reminder a week, after your session.",
+    supporting: "You'll only receive one morning reminder a week, after your session.",
     morningLabel: 'Morning reviews',
     eveningLabel: 'Evening reviews',
-    // The same line under both rows. The screen's opening copy no longer says
-    // the times are changeable, and that promise belongs next to the control
-    // it is about rather than in a paragraph above it.
-    timeHint: 'Can be changed within settings',
     testimonial: {
-        quote: 'I like the reminder before my next session. I used to find it hard to think about what to talk about then I’d leave the session and finally remember things I wanted to bring up. With the pre-session reminder I just pick up from where I left off the week before.',
+        quote: 'I like the reminder before my next session. I used to find it hard to think about what to talk about then I’d leave the session and finally remember things I wanted to bring up. With the pre-session reminder I just pick up from where I left off.',
         name: 'Sarah',
         role: 'Plastic Brains User',
     },
@@ -240,7 +235,6 @@ export const SUBSCRIPTION_COPY = {
     annualCta: 'Continue with annual',
     monthlyCta: 'Continue with monthly',
     annualTitle: 'Annual',
-    annualBadge: 'Best value',
     annualRenewal: 'Renews annually until cancelled.',
     // Shown instead when Apple reports the user cannot have the trial, so the
     // first charge is not left implied.
@@ -333,9 +327,6 @@ export const ACCOUNT_COPY = {
     continue: 'Continue',
     apple: 'Continue with Apple',
     email: 'Continue with email',
-    // For someone with an email account who arrives here signed out: the two
-    // buttons above make an account, and this is the way into an existing one.
-    signIn: 'Already have an account? Sign in',
     // The three things the body says the account connects, shown back as
     // they were answered, so the promise is concrete rather than a sentence.
     sessionLabel: 'Next session',

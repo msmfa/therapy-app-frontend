@@ -3,6 +3,7 @@ const expoPreset = require('jest-expo/jest-preset');
 module.exports = {
   ...expoPreset,
   moduleNameMapper: {
+    '\\.svg$': '<rootDir>/test-mocks/svg.js',
     '^expo-apple-authentication$': require.resolve('expo-apple-authentication'),
     ...(expoPreset.moduleNameMapper ?? {}),
     '^designs/(.*)$': '<rootDir>/designs/$1',

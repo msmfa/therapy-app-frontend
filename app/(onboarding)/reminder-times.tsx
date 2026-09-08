@@ -9,10 +9,12 @@ import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScre
 import { onboardingStyles } from '../../src/components/onboarding/onboardingStyles';
 import { QuoteCard } from '../../src/components/onboarding/QuoteCard';
 import { GlassPickerPanel } from '../../src/components/ui/GlassPickerPanel';
+import { DottedDivider } from '../../src/components/ui/DottedDivider';
 import { REMINDER_TIMES_COPY } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { dateToMinutes, minutesToDate, timeLabel } from '../../src/features/onboarding/formatting';
-import { ACTION_ORANGE, COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
+import { TIME_PICKER_BOUNDS } from '../../src/utils/timePickerBounds';
+import { ACTION_ORANGE } from 'designs/designs-colors';
 
 type Slot = 'morning' | 'evening';
 
@@ -26,26 +28,16 @@ export default function ReminderTimesScreen() {
     const change = useCallback(
         (slot: Slot) => (event: DateTimePickerEvent, picked?: Date) => {
             setAndroidSlot(null);
-            // Closing the picker reports a "dismissed" change carrying the value
-            // this render was already showing, not anything the user chose. The
-            // iOS compact popover fires it every time it closes (the library's
-            // own source marks the date it attaches as a TODO to remove), so
-            // treating it as a pick overwrote the real choice made a moment
-            // earlier and snapped the field back to what it showed before.
+            // The compact popover's dismiss event echoes its previous value;
+            // only a real selection may update the reminder time.
             if (event.type === 'dismissed') return;
-            if (!picked) return;
+            if (!picked || !Number.isFinite(picked.getTime())) return;
             setAnswer(slot === 'morning' ? 'morningMinutes' : 'eveningMinutes', dateToMinutes(picked));
         },
         [setAnswer],
     );
 
-    /**
-     * Stable values and handlers, recomputed only when the answer changes.
-     *
-     * Note this is hygiene, not the snap-back fix: the picker wrapper converts
-     * `value` to milliseconds before it reaches native, so object identity
-     * never crossed the bridge. The snap-back was the "dismissed" event above.
-     */
+    // Keep each time's date anchor stable while the wheel is open.
     const morningValue = useMemo(
         () => minutesToDate(answers.morningMinutes),
         [answers.morningMinutes],
@@ -60,21 +52,18 @@ export default function ReminderTimesScreen() {
     const rows: {
         slot: Slot;
         label: string;
-        hint: string;
         value: Date;
         onChange: (event: DateTimePickerEvent, picked?: Date) => void;
     }[] = [
         {
             slot: 'morning',
             label: REMINDER_TIMES_COPY.morningLabel,
-            hint: REMINDER_TIMES_COPY.timeHint,
             value: morningValue,
             onChange: onMorningChange,
         },
         {
             slot: 'evening',
             label: REMINDER_TIMES_COPY.eveningLabel,
-            hint: REMINDER_TIMES_COPY.timeHint,
             value: eveningValue,
             onChange: onEveningChange,
         },
@@ -100,15 +89,12 @@ export default function ReminderTimesScreen() {
 
                     return (
                         <View key={ row.slot }>
-                            { index > 0 && <View style={ styles.divider } /> }
+                            { index > 0 && <DottedDivider style={ styles.divider } /> }
 
                             <View style={ [styles.row, stackTimeFields && styles.stackedRow] }>
                                 <View style={ styles.rowText }>
                                     <AppText variant="h3" style={ [onboardingStyles.title, styles.rowLabel] }>
                                         { row.label }
-                                    </AppText>
-                                    <AppText variant="caption" style={ styles.rowHint }>
-                                        { row.hint }
                                     </AppText>
                                 </View>
 
@@ -118,6 +104,7 @@ export default function ReminderTimesScreen() {
                                      stacked rounded shapes. */ }
                                 { Platform.OS === 'ios' ? (
                                     <DateTimePicker
+                                        { ...TIME_PICKER_BOUNDS }
                                         accentColor={ ACTION_ORANGE }
                                         value={ value }
                                         mode="time"
@@ -150,6 +137,7 @@ export default function ReminderTimesScreen() {
             { androidSlot !== null && (
                 <GlassPickerPanel style={ styles.androidPicker }>
                     <DateTimePicker
+                        { ...TIME_PICKER_BOUNDS }
                         accentColor={ ACTION_ORANGE }
                         value={ androidSlot === 'morning' ? morningValue : eveningValue }
                         mode="time"
@@ -162,18 +150,23 @@ export default function ReminderTimesScreen() {
     );
 }
 
+const ROWS_PADDING = 20;
+
 const styles = StyleSheet.create({
     rows: {
         marginTop: 24,
-        paddingHorizontal: 20,
+        paddingHorizontal: ROWS_PADDING,
+    },
+    divider: {
+        marginHorizontal: -ROWS_PADDING,
     },
     row: {
-        minHeight: 88,
+        minHeight: 70,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: 12,
-        paddingVertical: 18,
+        paddingVertical: 12,
     },
     stackedRow: {
         flexDirection: 'column',
@@ -185,16 +178,8 @@ const styles = StyleSheet.create({
     rowLabel: {
         fontSize: 17,
     },
-    rowHint: {
-        marginTop: 2,
-        color: TEXT_COLORS.tertiary,
-    },
     androidPicker: {
         marginTop: 16,
-    },
-    divider: {
-        height: 1,
-        backgroundColor: COLOR_VARIANTS.white.tertiary,
     },
     quote: {
         marginTop: 20,

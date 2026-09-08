@@ -47,3 +47,17 @@ test('explicit QA releases have separate storage and a non-production event labe
     Object.assign(global, { __DEV__: true });
     expect(analyticsConfig().allowed).toBe(false);
 });
+
+test('production storage remains separate from QA storage', () => {
+    jest.isolateModules(() => {
+        const production = require('../config');
+        expect(production.CONSENT_KEY).toBe('plastic_brains.analytics_consent.v1');
+        expect(production.SDK_STORAGE_KEY).toBe('plastic_brains.analytics_sdk.v1');
+    });
+    process.env.EXPO_PUBLIC_ANALYTICS_ENVIRONMENT = 'qa';
+    jest.isolateModules(() => {
+        const qa = require('../config');
+        expect(qa.CONSENT_KEY).toBe('plastic_brains.analytics_consent.v1.qa');
+        expect(qa.SDK_STORAGE_KEY).toBe('plastic_brains.analytics_sdk.v1.qa');
+    });
+});

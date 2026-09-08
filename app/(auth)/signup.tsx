@@ -7,8 +7,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import TextField from 'src/components/ui/TextField';
 import PasswordField from 'src/components/ui/PasswordField';
 import AppText from '../../src/components/ui/AppText';
-import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
-import SocialAuthButtons from '../../src/components/auth/SocialAuthButtons';
 import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
 import { registerAccount } from '../../src/api/auth';
 import { useAppAlert } from '../../src/context/alert';
@@ -17,6 +15,7 @@ import { GlassMorphismWithCircle } from 'src/components/ui/GlassMorphismWithCirc
 import { GLASS_CARD_RADIUS } from 'src/components/ui/GlassMorphism';
 import { BackButton } from 'src/components/ui/BackButton';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
+import { COLOR_VARIANTS } from 'designs/designs-colors';
 
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -71,23 +70,20 @@ export default function SignUpScreen() {
                 style={ styles.glassMorphism }
                 panelRadius={ GLASS_CARD_RADIUS }
             />
-            <SafeAreaView edges={ ['top', 'left', 'right'] } style={ styles.root }>
-                { /* Present only when this screen was pushed onto something, which is
-                     how onboarding's account step reaches it. Nothing renders when
-                     auth is the root, so the app entry point is unchanged. */ }
-                <View style={ styles.backRow }>
-                    <BackButton />
-                </View>
-
-                <KeyboardAvoidingView behavior={ Platform.OS === 'ios' ? 'padding' : 'height' }>
+            <SafeAreaView edges={ ['top', 'bottom', 'left', 'right'] } style={ styles.root }>
+                <KeyboardAvoidingView
+                    behavior={ Platform.OS === 'ios' ? 'padding' : 'height' }
+                    style={ styles.kav }
+                >
                     <ScrollView
                         contentContainerStyle={ styles.scrollContent }
+                        contentInsetAdjustmentBehavior="never"
                         keyboardShouldPersistTaps="handled"
                         showsVerticalScrollIndicator={ false }
                     >
                         <View style={ styles.header }>
-                            <AppText variant="h1">Create your account</AppText>
-                            <AppText variant="bodySecondary">
+                            <AppText variant="h1" align="center">Create your account</AppText>
+                            <AppText variant="bodySecondary" align="center">
                                 Save your between-session plan and keep your schedule connected.
                             </AppText>
                         </View>
@@ -101,6 +97,7 @@ export default function SignUpScreen() {
                             textContentType="name"
                             returnKeyType="next"
                             error={ errors.name }
+                            errorColor={ COLOR_VARIANTS.black.primary }
                             editable={ !loading }
                         />
                         <TextField
@@ -114,6 +111,7 @@ export default function SignUpScreen() {
                             textContentType="emailAddress"
                             returnKeyType="next"
                             error={ errors.email }
+                            errorColor={ COLOR_VARIANTS.black.primary }
                             editable={ !loading }
                         />
                         <PasswordField
@@ -124,6 +122,7 @@ export default function SignUpScreen() {
                             textContentType="newPassword"
                             returnKeyType="next"
                             error={ errors.password }
+                            errorColor={ COLOR_VARIANTS.black.primary }
                             editable={ !loading }
                         />
                         <PasswordField
@@ -135,6 +134,7 @@ export default function SignUpScreen() {
                             returnKeyType="done"
                             onSubmitEditing={ onSubmit }
                             error={ errors.confirmPassword }
+                            errorColor={ COLOR_VARIANTS.black.primary }
                             editable={ !loading }
                         />
                         { /* The flow's own action, as on the sign-in screen:
@@ -144,18 +144,12 @@ export default function SignUpScreen() {
                         <View style={ styles.submit }>
                             <OnboardingButton label="Create account" appearance="solid" onPress={ onSubmit } loading={ loading } />
                         </View>
-                        <Spacer variant={ SpacerVariant.large } />
-                        <View style={ styles.oauthSection }>
-                            <AppText variant="caption" align="center">
-                                Or continue with
-                            </AppText>
-                            <Spacer variant={ SpacerVariant.large } />
-                            <SocialAuthButtons
-                                onSuccess={ () => router.replace(returnRoute ?? '/') }
-                                disabled={ loading }
-                            />
-                        </View>
                     </ScrollView>
+                    { /* Overlay the back control so it does not shift the form's
+                         vertical center. Symmetric scroll padding leaves room for it. */ }
+                    <View style={ styles.backRow } pointerEvents="box-none">
+                        <BackButton appearance="glass" />
+                    </View>
                 </KeyboardAvoidingView>
             </SafeAreaView>
         </View>
@@ -167,11 +161,18 @@ const styles = StyleSheet.create({
         marginTop: 8,
     },
     backRow: {
-        paddingHorizontal: 20,
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        paddingHorizontal: 24,
+        paddingVertical: 8,
     },
     root: {
         flex: 1,
-        justifyContent: 'center',
+    },
+    kav: {
+        flex: 1,
     },
     glassMorphism: {
         flex: 1,
@@ -180,12 +181,12 @@ const styles = StyleSheet.create({
     },
     header: {
         marginBottom: 24,
+        gap: 8,
     },
     scrollContent: {
         flexGrow: 1,
         paddingHorizontal: 34,
         justifyContent: 'center',
-        paddingTop: 32,
+        paddingVertical: 72,
     },
-    oauthSection: { alignItems: 'center', marginBottom: 16 },
 });

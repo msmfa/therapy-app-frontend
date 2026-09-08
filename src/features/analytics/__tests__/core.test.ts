@@ -4,7 +4,7 @@ import { CONSENT_KEY } from '../config';
 const key = (owner: string | null) => `${CONSENT_KEY}.${owner === null ? 'anonymous' : `account.${owner}`}`;
 const settle = async () => { for (let i = 0; i < 30; i++) await Promise.resolve(); };
 const deferred = () => { let resolve!: () => void; const promise = new Promise<void>((r) => { resolve = r; }); return { promise, resolve }; };
-function setup(seed: Record<string, string> = {}, allowed = true) {
+function setup(seed: Record<string, string> = {}, allowed = true, config: Partial<AnalyticsDependencies['config']> = {}) {
     const values = new Map(Object.entries(seed));
     let clock = 1000;
     let sequence = 0;
@@ -16,7 +16,7 @@ function setup(seed: Record<string, string> = {}, allowed = true) {
         capture: jest.fn((event: string, properties: Record<string, string | boolean>, timestamp: Date) => { events.push({ event, properties, owner, timestamp }); }),
     };
     const dependencies: AnalyticsDependencies = {
-        config: { allowed, apiKey: 'phc_test', host: 'https://eu.i.posthog.com', appVersion: '1.0', platform: 'ios' },
+        config: { allowed, apiKey: 'phc_test', host: 'https://eu.i.posthog.com', appVersion: '1.0', platform: 'ios', ...config },
         storage: {
             getItem: jest.fn(async (name: string) => values.get(name) ?? null),
             setItem: jest.fn(async (name: string, value: string) => { values.set(name, value); }),
@@ -31,17 +31,102 @@ function setup(seed: Record<string, string> = {}, allowed = true) {
     return { analytics, dependencies, transport, values, events, advance: (by: number) => { clock += by; } };
 }
 const note = { operation: 'new', is_first_note: true, entry_point: 'notes' } as const;
+test.each(['production', 'qa'] as const)('%s enables anonymous onboarding only after auth hydration and persisted automatic consent', async (environment) => {
+    const { analytics, dependencies, values, events } = setup({}, true, { environment });
+    await analytics.initialize();
+    expect(analytics.getSnapshot().enabled).toBe(false);
+    expect(dependencies.createTransport).not.toHaveBeenCalled();
+    analytics.setIdentity(null);
+    await settle();
+    expect(analytics.getSnapshot()).toMatchObject({ hydrated: true, consentKnown: true, consent: true, enabled: true });
+    expect(values.get(key(null))).toBe('true');
+    expect(analytics.capture('onboarding_step_viewed', { onboarding_step: 'welcome', flow_version: '1' })).toBe(true);
+    expect(events).toHaveLength(1);
+    expect(events[0].owner).toBeNull();
+});
 
-test('does not construct the SDK or send before auth and explicit consent are known', async () => {
+test('automatic consent keeps canonical identities across visits and invalidates switched-account operations', async () => {
+    const { analytics, transport, events } = setup();
+    analytics.setIdentity('A');
+    await analytics.initialize();
+    analytics.capture('note_saved', note);
+    const visit = analytics.getVisitId();
+    analytics.setIdentity('A');
+    expect(analytics.getVisitId()).toBe(visit);
+    expect(transport.activate).toHaveBeenCalledTimes(1);
+    const oldA = analytics.beginOperation();
+    analytics.setIdentity('B');
+    expect(oldA.isCurrent()).toBe(false);
+    expect(transport.deactivate).toHaveBeenLastCalledWith(true);
+    await settle();
+    analytics.capture('note_saved', note);
+    analytics.setIdentity(null);
+    await settle();
+    analytics.setIdentity('A');
+    await settle();
+    analytics.capture('note_saved', note);
+    expect(events.map((event) => event.owner)).toEqual(['A', 'B', 'A']);
+    expect(analytics.getSnapshot().enabled).toBe(true);
+});
+
+test.each([null, 'false', 'invalid'])('migrates legacy consent %s to persisted true before SDK activation', async (previous) => {
+    const { analytics, dependencies, values, transport } = setup(previous === null ? {} : { [key('A')]: previous });
+    transport.activate.mockImplementation(async (owner) => {
+        expect(owner).toBe('A');
+        expect(values.get(key('A'))).toBe('true');
+    });
+    analytics.setIdentity('A');
+    await analytics.initialize();
+    expect(analytics.getSnapshot()).toMatchObject({ consentKnown: true, consent: true, enabled: true });
+    expect(dependencies.storage.setItem).toHaveBeenCalledWith(key('A'), 'true');
+    expect(dependencies.createTransport).toHaveBeenCalledTimes(1);
+});
+
+test('automatic consent never bypasses disabled collection and controlled suppression lasts until a new identity hydration', async () => {
+    const disabled = setup({}, false);
+    disabled.analytics.setIdentity('A');
+    await disabled.analytics.initialize();
+    expect(disabled.analytics.getSnapshot().enabled).toBe(false);
+    expect(disabled.dependencies.createTransport).not.toHaveBeenCalled();
+
+    const { analytics } = setup();
+    analytics.setIdentity('A');
+    await analytics.initialize();
+    await analytics.setConsent(false);
+    expect(analytics.getSnapshot()).toMatchObject({ consentKnown: true, consent: false, enabled: false });
+    analytics.setIdentity('A');
+    expect(analytics.getSnapshot().enabled).toBe(false);
+    analytics.setIdentity('B');
+    await settle();
+    analytics.setIdentity('A');
+    await settle();
+    expect(analytics.getSnapshot()).toMatchObject({ consentKnown: true, consent: true, enabled: true });
+});
+
+test.each(['getItem', 'setItem'] as const)('failed startup storage %s leaves onboarding analytics disabled and clears persisted SDK queues', async (operation) => {
     const { analytics, dependencies } = setup();
+    dependencies.storage[operation] = jest.fn(async () => { throw new Error('storage unavailable'); });
+    analytics.setIdentity(null);
+    await analytics.initialize();
+    expect(analytics.getSnapshot().enabled).toBe(false);
+    expect(dependencies.createTransport).not.toHaveBeenCalled();
+    expect(dependencies.clearTransportStorage).toHaveBeenCalledTimes(1);
+});
+
+test('does not construct the SDK or send before auth hydration and durable automatic consent', async () => {
+    const { analytics, dependencies } = setup();
+    const gate = deferred();
+    const save = dependencies.storage.setItem;
+    dependencies.storage.setItem = jest.fn(async (name, value) => { await gate.promise; await save(name, value); });
     await analytics.initialize();
     expect(analytics.getSnapshot().hydrated).toBe(false);
     expect(analytics.capture('note_saved', note)).toBe(false);
     analytics.setIdentity(null);
     await settle();
-    expect(analytics.getSnapshot()).toMatchObject({ hydrated: true, consentKnown: false, enabled: false });
+    expect(analytics.getSnapshot()).toMatchObject({ hydrated: false, consentKnown: false, enabled: false });
     expect(dependencies.createTransport).not.toHaveBeenCalled();
-    await analytics.setConsent(true);
+    gate.resolve();
+    await settle();
     expect(dependencies.createTransport).toHaveBeenCalledTimes(1);
     expect(analytics.capture('note_saved', note)).toBe(true);
 });
@@ -54,7 +139,7 @@ test('disabled build/config never constructs SDK even with a stored opt-in', asy
     expect(dependencies.createTransport).not.toHaveBeenCalled();
 });
 
-test('returning account keeps its identity on token refresh and later login without copying consent to B', async () => {
+test('returning account keeps its identity on token refresh and later login while B receives its own consent state', async () => {
     const { analytics, transport, events } = setup({ [key('A')]: 'true' });
     analytics.setIdentity('A');
     await analytics.initialize();
@@ -67,28 +152,28 @@ test('returning account keeps its identity on token refresh and later login with
     await settle();
     analytics.setIdentity('B');
     await settle();
-    expect(analytics.getSnapshot()).toMatchObject({ consentKnown: false, enabled: false });
+    expect(analytics.getSnapshot()).toMatchObject({ consentKnown: true, enabled: true });
     analytics.setIdentity('A');
     await settle();
     expect(analytics.capture('note_saved', note)).toBe(true);
     expect(events.map((event) => event.owner)).toEqual(['A', 'A']);
 });
 
-test('only a fresh anonymous explicit choice transfers to first account; existing refusal wins', async () => {
+test('anonymous, new-account and returning-account hydration all persist automatic consent', async () => {
     const { analytics, values } = setup({ [key('B')]: 'false' });
     analytics.setIdentity(null);
     await analytics.initialize();
-    await analytics.setConsent(true);
     analytics.setIdentity('A');
     await settle();
     expect(values.get(key('A'))).toBe('true');
     analytics.setIdentity(null);
     await settle();
-    expect(analytics.getSnapshot().consentKnown).toBe(false);
-    await analytics.setConsent(true);
+    expect(analytics.getSnapshot().consentKnown).toBe(true);
+    expect(values.get(key(null))).toBe('true');
     analytics.setIdentity('B');
     await settle();
-    expect(analytics.getSnapshot()).toMatchObject({ consentKnown: true, consent: false, enabled: false });
+    expect(analytics.getSnapshot()).toMatchObject({ consentKnown: true, consent: true, enabled: true });
+    expect(values.get(key('B'))).toBe('true');
 });
 
 test('account switch and opt-out synchronously invalidate late callbacks and clear the queue', async () => {
@@ -107,8 +192,8 @@ test('account switch and opt-out synchronously invalidate late callbacks and cle
     await revoke;
 });
 
-test('deferred old consent hydration cannot overwrite a new owner or instantiate SDK', async () => {
-    const { analytics, dependencies } = setup({ [key('A')]: 'true' });
+test('deferred old consent hydration cannot overwrite or activate a new owner', async () => {
+    const { analytics, dependencies, transport } = setup({ [key('A')]: 'true' });
     const gate = deferred();
     const originalRead = dependencies.storage.getItem;
     dependencies.storage.getItem = jest.fn(async (name) => { if (name === key('A')) await gate.promise; return originalRead(name); });
@@ -120,8 +205,9 @@ test('deferred old consent hydration cannot overwrite a new owner or instantiate
     gate.resolve();
     await settle();
     expect(analytics.getIdentity()).toBe('B');
-    expect(analytics.getSnapshot()).toMatchObject({ consent: false, enabled: false });
-    expect(dependencies.createTransport).not.toHaveBeenCalled();
+    expect(analytics.getSnapshot()).toMatchObject({ consent: true, enabled: true });
+    expect(transport.activate).toHaveBeenCalledTimes(1);
+    expect(transport.activate).toHaveBeenCalledWith('B', expect.any(Function));
 });
 
 test('rapid opt-out and opt-in persist in request order and cannot revive old operations', async () => {
@@ -137,11 +223,11 @@ test('rapid opt-out and opt-in persist in request order and cannot revive old op
     expect(stale.capture('note_saved', note)).toBe(false);
 });
 
-test('storage failure leaves capture disabled and reports a safe retryable error', async () => {
+test('storage failure leaves capture disabled and reports a safe internal error', async () => {
     const { analytics, dependencies } = setup();
+    dependencies.storage.setItem = jest.fn(async () => { throw new Error('sensitive storage response'); });
     analytics.setIdentity(null);
     await analytics.initialize();
-    dependencies.storage.setItem = jest.fn(async () => { throw new Error('sensitive storage response'); });
     await expect(analytics.setConsent(true)).rejects.toThrow('could not be saved');
     expect(analytics.getSnapshot().enabled).toBe(false);
     expect(dependencies.createTransport).not.toHaveBeenCalled();
@@ -160,6 +246,33 @@ test('opt-out cleans local linkage, and deleting stale A does not disable signed
     expect(cleanup).toHaveBeenCalledWith('account_deleted', 'A');
     await analytics.setConsent(false);
     expect(cleanup).toHaveBeenCalledWith('opt_out', 'B');
+});
+
+test.each(['read', 'write', 'sdk'])('account deletion invalidates automatic startup stalled in %s', async (stage) => {
+    const { analytics, dependencies, transport, values } = setup();
+    const gate = deferred();
+    if (stage === 'read') {
+        const read = dependencies.storage.getItem;
+        dependencies.storage.getItem = async (name) => { await gate.promise; return read(name); };
+    } else if (stage === 'write') {
+        const write = dependencies.storage.setItem;
+        dependencies.storage.setItem = async (name, value) => { await gate.promise; await write(name, value); };
+    } else {
+        const activate = transport.activate.getMockImplementation()!;
+        transport.activate.mockImplementation(async (id, current) => { await gate.promise; await activate(id, current); });
+    }
+    analytics.setIdentity('A');
+    const preparation = analytics.beginOperationWhenReady();
+    await settle();
+    const deletion = analytics.forgetAccount('A');
+    expect((await preparation).enabled).toBe(false);
+    gate.resolve();
+    await deletion;
+    await settle();
+    expect(analytics.getSnapshot()).toMatchObject({ consent: false, enabled: false });
+    expect(values.has(key('A'))).toBe(false);
+    expect(analytics.capture('note_saved', note)).toBe(false);
+    if (stage !== 'sdk') expect(dependencies.createTransport).not.toHaveBeenCalled();
 });
 
 test('runtime allowlist drops raw data and rejects unknown or malformed events; dedupe stays local and bounded', async () => {
@@ -228,12 +341,22 @@ test('immediate anonymous-to-account checkout waits for account consent and SDK 
     expect(events.map((event) => ({ owner: event.owner, at: event.timestamp.getTime() }))).toEqual([{ owner: 'A', at: 1500 }, { owner: 'A', at: 2500 }]);
 });
 
-test.each([null, 'false'])('does not prepare or buffer an account operation with consent %s', async (consent) => {
-    const { analytics, dependencies } = setup(consent === null ? {} : { [key('A')]: consent });
+test.each([null, 'false'])('prepares an account operation after automatically migrating consent %s', async (consent) => {
+    const { analytics, dependencies, values } = setup(consent === null ? {} : { [key('A')]: consent });
     analytics.setIdentity('A');
     const scope = await analytics.beginOperationWhenReady();
+    expect(scope.enabled).toBe(true);
+    expect(dependencies.createTransport).toHaveBeenCalledTimes(1);
+    expect(values.get(key('A'))).toBe('true');
+});
+
+test('controlled suppression prevents operation readiness and never revives its captured scope', async () => {
+    const { analytics } = setup();
+    analytics.setIdentity('A');
+    await analytics.initialize();
+    await analytics.setConsent(false);
+    const scope = await analytics.beginOperationWhenReady();
     expect(scope.enabled).toBe(false);
-    expect(dependencies.createTransport).not.toHaveBeenCalled();
     await analytics.setConsent(true);
     expect(scope.capture('note_saved', note)).toBe(false);
 });

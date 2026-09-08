@@ -2,7 +2,7 @@ import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
 const analyticsEnvironment = (): 'production' | 'qa' => process.env.EXPO_PUBLIC_ANALYTICS_ENVIRONMENT === 'qa' ? 'qa' : 'production';
-// A QA build must never reuse production consent or relabel its persisted queue.
+// QA and production builds must never relabel another build's SDK queue.
 export const ANALYTICS_STORAGE_SUFFIX = analyticsEnvironment() === 'qa' ? '.qa' : '';
 export const CONSENT_KEY = `plastic_brains.analytics_consent.v1${ANALYTICS_STORAGE_SUFFIX}`;
 export const SDK_STORAGE_KEY = `plastic_brains.analytics_sdk.v1${ANALYTICS_STORAGE_SUFFIX}`;
