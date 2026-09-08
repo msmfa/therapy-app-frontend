@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, Modal } from 'react-native';
-import { PALETTE } from 'designs/designs-colors';
+import { View, StyleSheet } from 'react-native';
+import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
 import DancingSquare from './PulsingSquare';
 
 type LoadingProps = {
@@ -12,24 +12,22 @@ export default function Loading({
     fullScreen = true,
     transparent = false,
 }: LoadingProps) {
-    if (fullScreen) {
-        return (
-            <Modal
-                transparent={ transparent }
-                visible={ true }
-                animationType="fade"
-                statusBarTranslucent
-            >
-                <View style={ styles.fullScreenContainer } pointerEvents="auto">
-                    <DancingSquare />
-                </View>
-            </Modal>
-        );
-    }
-
+    // These loaders belong to their screen. Presenting a native modal during
+    // auth/entitlement transitions can compete with iOS authentication sheets
+    // and can cover the current tab when an unfocused tab hydrates.
     return (
-        <View style={ styles.container }>
-            <View style={ styles.fullScreenContainer } pointerEvents="auto">
+        <View style={ [
+            fullScreen ? styles.screen : styles.container,
+            fullScreen && !transparent && styles.opaqueScreen,
+        ] }>
+            <View
+                style={ styles.fullScreenContainer }
+                pointerEvents="auto"
+                accessible
+                accessibilityRole="progressbar"
+                accessibilityLabel="Loading"
+                accessibilityState={ { busy: true } }
+            >
                 <DancingSquare />
             </View>
         </View>
@@ -37,6 +35,12 @@ export default function Loading({
 }
 
 const styles = StyleSheet.create({
+    screen: {
+        flex: 1,
+    },
+    opaqueScreen: {
+        backgroundColor: COLOR_VARIANTS.white.primary,
+    },
     container: {
         padding: 20,
         justifyContent: 'center',
