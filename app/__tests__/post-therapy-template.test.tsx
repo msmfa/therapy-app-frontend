@@ -1,7 +1,7 @@
 import React from 'react';
 import { jest } from '@jest/globals';
-import { Linking } from 'react-native';
-import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
+import { Linking, ScrollView } from 'react-native';
+import { act, fireEvent, render, waitFor, within } from '@testing-library/react-native';
 
 import HowToTakeNotesScreen from '../how-to-take-notes';
 import WhyFiveQuestionsScreen from '../why-five-questions';
@@ -152,8 +152,8 @@ describe('Why these five questions', () => {
 			.spyOn(Linking, 'openURL')
 			.mockImplementation(() => Promise.resolve(true));
 
-		const { getAllByRole } = render(<WhyFiveQuestionsScreen />);
-		const links = getAllByRole('link');
+		const { getByTestId } = render(<WhyFiveQuestionsScreen />);
+		const links = within(getByTestId('rationale-references')).getAllByRole('link');
 
 		expect(links).toHaveLength(8);
 
@@ -166,6 +166,43 @@ describe('Why these five questions', () => {
 		});
 
 		openURL.mockRestore();
+	});
+
+	it('jumps each citation to its matching source without opening the browser', () => {
+		const scrollTo = jest.spyOn(ScrollView.prototype, 'scrollTo').mockImplementation(() => {});
+		const openURL = jest.spyOn(Linking, 'openURL').mockResolvedValue(true);
+		const { getByLabelText, getByTestId } = render(<WhyFiveQuestionsScreen />);
+		const rowOffsets = [0, 104, 260, 440, 676, 780, 952, 1140];
+		fireEvent(getByTestId('rationale-references'), 'layout', { nativeEvent: { layout: { y: 3900 } } });
+
+		rowOffsets.forEach((offset, index) => {
+			const position = index + 1;
+			fireEvent(getByTestId(`rationale-reference-${position}`), 'layout', { nativeEvent: { layout: { y: offset } } });
+			fireEvent.press(getByLabelText(new RegExp(`^Source ${position}:`)));
+			expect(scrollTo).toHaveBeenLastCalledWith({ y: 3900 + offset - 8, animated: true });
+		});
+
+		expect(openURL).not.toHaveBeenCalled();
+		scrollTo.mockRestore();
+		openURL.mockRestore();
+	});
+
+	it('waits for source layout and uses fresh positions after text reflows', () => {
+		const scrollTo = jest.spyOn(ScrollView.prototype, 'scrollTo').mockImplementation(() => {});
+		const { getByLabelText, getByTestId } = render(<WhyFiveQuestionsScreen />);
+		fireEvent.press(getByLabelText(/^Source 8:/));
+		expect(scrollTo).not.toHaveBeenCalled();
+
+		fireEvent(getByTestId('rationale-reference-8'), 'layout', { nativeEvent: { layout: { y: 1200 } } });
+		expect(scrollTo).not.toHaveBeenCalled();
+		fireEvent(getByTestId('rationale-references'), 'layout', { nativeEvent: { layout: { y: 4000 } } });
+		expect(scrollTo).toHaveBeenLastCalledWith({ y: 5192, animated: true });
+
+		fireEvent(getByTestId('rationale-references'), 'layout', { nativeEvent: { layout: { y: 5200 } } });
+		fireEvent(getByTestId('rationale-reference-8'), 'layout', { nativeEvent: { layout: { y: 1600 } } });
+		fireEvent.press(getByLabelText(/^Source 8:/));
+		expect(scrollTo).toHaveBeenLastCalledWith({ y: 6792, animated: true });
+		scrollTo.mockRestore();
 	});
 
 	it('stays focused on the five questions without a generic interval link', () => {

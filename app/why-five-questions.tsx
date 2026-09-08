@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { AccessibilityInfo, ScrollView, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import AppText from '../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { GlassCircleButton } from '../src/components/ui/GlassCircleButton';
-import { BRAND_ORANGE, COLOR_VARIANTS } from 'designs/designs-colors';
+import { ACTION_ORANGE_SURFACE, BRAND_ORANGE, COLOR_VARIANTS } from 'designs/designs-colors';
 import { ExternalLink } from 'src/components/ui/ExternalLink';
+import { CitedText } from 'src/components/ui/CitedText';
+
+const INTRODUCTION = 'Most of a session does not survive the week. In studies of medical consultations, 40 to 80 per cent of what a practitioner says is forgotten immediately, and almost half of what patients do remember, they remember wrongly.[1] This matters more in therapy than it sounds: in cognitive therapy for depression, how much of the actual treatment content a patient can recall predicts how closely they follow the work, whether they respond, and whether the depression comes back.[2]';
 
 type RationaleSection = {
     question: string;
@@ -92,7 +95,36 @@ const REFERENCES: Reference[] = [
 export default function WhyFiveQuestionsScreen() {
     const router = useRouter();
     const insets = useSafeAreaInsets();
+    const scrollRef = useRef<ScrollView>(null);
+    const referencesTop = useRef<number | null>(null);
+    const referenceOffsets = useRef<Record<number, number>>({});
+    const pendingReference = useRef<number | null>(null);
+    const [selectedReference, setSelectedReference] = useState<number | null>(null);
     const handleBack = () => router.back();
+
+    const scrollToReference = (position: number) => {
+        const rowTop = referenceOffsets.current[position];
+
+        if (referencesTop.current === null || rowTop === undefined || scrollRef.current === null) {
+            pendingReference.current = position;
+            return;
+        }
+
+        pendingReference.current = null;
+        scrollRef.current.scrollTo({
+            y: Math.max(0, referencesTop.current + rowTop - 8),
+            animated: true,
+        });
+    };
+
+    const handleCitationPress = (position: number) => {
+        const reference = REFERENCES[position - 1];
+        if (!reference) return;
+
+        setSelectedReference(position);
+        scrollToReference(position);
+        AccessibilityInfo.announceForAccessibility(`Source ${position}: ${reference.text}`);
+    };
 
     return (
         <SafeAreaView edges={ ['top', 'left', 'right'] } style={ styles.container }>
@@ -106,6 +138,7 @@ export default function WhyFiveQuestionsScreen() {
                 />
             </View>
             <ScrollView
+                ref={ scrollRef }
                 style={ styles.scroll }
                 contentContainerStyle={ [styles.scrollContent, { paddingBottom: insets.bottom + 24 }] }
                 contentInsetAdjustmentBehavior="never"
@@ -126,14 +159,7 @@ export default function WhyFiveQuestionsScreen() {
                 </View>
 
                 <Spacer variant={ SpacerVariant.large } />
-                <AppText variant="body">
-                    Most of a session does not survive the week. In studies of medical consultations, 40 to
-                    80 per cent of what a practitioner says is forgotten immediately, and almost half of what
-                    patients do remember, they remember wrongly.[1] This matters more in therapy than it
-                    sounds: in cognitive therapy for depression, how much of the actual treatment content a
-                    patient can recall predicts how closely they follow the work, whether they respond, and
-                    whether the depression comes back.[2]
-                </AppText>
+                <CitedText text={ INTRODUCTION } sources={ REFERENCES } onCitationPress={ handleCitationPress } />
                 <Spacer variant={ SpacerVariant.medium } />
                 <AppText variant="body">
                     So an after-therapy note is not admin. Each of these five lines is doing a specific job,
@@ -150,7 +176,7 @@ export default function WhyFiveQuestionsScreen() {
                             { section.paragraphs.map((paragraph) => (
                                 <View key={ paragraph.slice(0, 40) }>
                                     <Spacer variant={ SpacerVariant.small } />
-                                    <AppText variant="body">{ paragraph }</AppText>
+                                    <CitedText text={ paragraph } sources={ REFERENCES } onCitationPress={ handleCitationPress } />
                                 </View>
                             )) }
                         </View>
@@ -167,9 +193,24 @@ export default function WhyFiveQuestionsScreen() {
                 <Spacer variant={ SpacerVariant.large } />
                 <AppText variant="h2">References</AppText>
                 <Spacer variant={ SpacerVariant.small } />
-                <View style={ styles.referenceList }>
+                <View
+                    testID="rationale-references"
+                    style={ styles.referenceList }
+                    onLayout={ (event) => {
+                        referencesTop.current = event.nativeEvent.layout.y;
+                        if (pendingReference.current !== null) scrollToReference(pendingReference.current);
+                    } }
+                >
                     { REFERENCES.map((reference, index) => (
-                        <View key={ reference.url } style={ styles.reference }>
+                        <View
+                            key={ reference.url }
+                            testID={ `rationale-reference-${index + 1}` }
+                            style={ [styles.reference, selectedReference === index + 1 && styles.referenceSelected] }
+                            onLayout={ (event) => {
+                                referenceOffsets.current[index + 1] = event.nativeEvent.layout.y;
+                                if (pendingReference.current !== null) scrollToReference(pendingReference.current);
+                            } }
+                        >
                             <AppText variant="caption" style={ styles.referenceMarker }>
                                 { index + 1 }.
                             </AppText>
@@ -212,7 +253,8 @@ const styles = StyleSheet.create({
     summaryText: { color: COLOR_VARIANTS.white.primary },
     sectionList: { gap: 24 },
     referenceList: { gap: 12 },
-    reference: { flexDirection: 'row', gap: 8 },
+    reference: { flexDirection: 'row', gap: 8, marginHorizontal: -8, paddingHorizontal: 8, borderRadius: 8 },
+    referenceSelected: { backgroundColor: ACTION_ORANGE_SURFACE },
     referenceMarker: { width: 20, paddingTop: 6 },
     referenceLink: { flex: 1 },
 });
