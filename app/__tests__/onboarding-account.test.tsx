@@ -210,9 +210,10 @@ describe('the account step', () => {
         expect(queryByText(/agree to the Terms/)).toBeNull();
     });
 
-    it('lets someone with an account already sign in, and drops that once they have', () => {
+    it('keeps the account step focused on creating or connecting an account', () => {
         const first = render(<AccountPreviewScreen />);
-        expect(first.getByText('Already have an account? Sign in')).toBeTruthy();
+        expect(first.getByText('Continue with email')).toBeTruthy();
+        expect(first.queryByText('Already have an account? Sign in')).toBeNull();
         first.unmount();
 
         mockIsAuthenticated = true;

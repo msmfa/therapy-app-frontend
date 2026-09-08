@@ -3,14 +3,17 @@ import { StyleSheet, Switch, View } from 'react-native';
 import AppText from '../ui/AppText';
 import { analyticsConsentSync } from '../../features/analytics/consentSync';
 import { useAnalyticsConsent } from '../../features/analytics/useAnalyticsConsent';
+import { isPreconsentedTestflight } from '../../features/analytics/config';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 
-/** Optional on Welcome, and always editable in account Settings. */
+/** Explicit opt-in for public releases; beta testers already consented. */
 export function AnalyticsConsentControl() {
     const { hydrated, consent } = useAnalyticsConsent();
     const request = useRef(0);
     const [failed, setFailed] = useState(false);
     const [pendingSync, setPendingSync] = useState(false);
+
+    if (isPreconsentedTestflight()) return null;
 
     const changeConsent = async (value: boolean) => {
         const current = ++request.current;

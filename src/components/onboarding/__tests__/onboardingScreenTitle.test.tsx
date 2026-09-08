@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text } from 'react-native';
-import { render } from '@testing-library/react-native';
+import { fireEvent, render } from '@testing-library/react-native';
 
 jest.mock('expo-router', () => ({
     useRouter: () => ({ canGoBack: () => true, back: jest.fn(), replace: jest.fn() }),
@@ -83,6 +83,26 @@ describe('the bottom backdrop', () => {
         const { queryByTestId } = renderScreen();
 
         expect(queryByTestId('onboarding-backdrop')).toBeNull();
+    });
+});
+
+describe('onboarding content scrolling', () => {
+    it('stays still when the content fits and scrolls only when more room is needed', () => {
+        const { getByTestId } = renderScreen();
+        const body = () => getByTestId('onboarding-body-scroll');
+        fireEvent(body(), 'layout', { nativeEvent: { layout: { height: 500 } } });
+        fireEvent(body(), 'contentSizeChange', 390, 320);
+
+        expect(body().props.scrollEnabled).toBe(false);
+        expect(body().props.alwaysBounceVertical).toBe(false);
+
+        // Shorter displays and longer copy must still leave all content reachable.
+        fireEvent(body(), 'layout', { nativeEvent: { layout: { height: 280 } } });
+        expect(body().props.scrollEnabled).toBe(true);
+
+        // Returning to a larger viewport should remove the unnecessary drag again.
+        fireEvent(body(), 'layout', { nativeEvent: { layout: { height: 500 } } });
+        expect(body().props.scrollEnabled).toBe(false);
     });
 });
 

@@ -28,6 +28,9 @@ const disabledOperation = (): AnalyticsOperation => ({ enabled: false, isCurrent
 
 /** Testable lifecycle policy; network buffering and retry remain in PostHog. */
 export function createAnalytics(deps: AnalyticsDependencies) {
+    // Defense in depth: this policy can never enable a production environment,
+    // even if a caller supplies an inconsistent configuration.
+    const preconsentedTestflight = deps.config.environment === 'qa' && deps.config.preconsentedTestflight === true;
     let identity: string | null | undefined;
     let generation = 0;
     let initialized = false;
@@ -79,10 +82,11 @@ export function createAnalytics(deps: AnalyticsDependencies) {
         if (version !== generation || identity !== owner) return;
         let consent = raw === 'true';
         let known = raw === 'true' || raw === 'false';
-        if (!known && inherited !== undefined && owner !== null) {
+        const initialChoice = inherited !== undefined && owner !== null ? inherited : preconsentedTestflight ? true : undefined;
+        if (!known && initialChoice !== undefined) {
             try {
-                await enqueueStorage(() => deps.storage.setItem(consentKey(owner), String(inherited)));
-                consent = inherited;
+                await enqueueStorage(() => deps.storage.setItem(consentKey(owner), String(initialChoice)));
+                consent = initialChoice;
                 known = true;
             } catch { consent = false; }
         }

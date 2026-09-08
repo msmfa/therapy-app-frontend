@@ -28,6 +28,8 @@ type BaseProps = {
     headline: string;
     supporting?: string;
     children?: React.ReactNode;
+    /** Centre a short loading state within the space above the actions. */
+    centeredBody?: boolean;
     /** Buttons and links. Pinned normally, then placed in-flow at accessibility text sizes. */
     footer: React.ReactNode;
     /**
@@ -104,6 +106,7 @@ export const shouldUseCombinedOnboardingScroll = (fontScale: number): boolean =>
 export const ONBOARDING_SCREEN_PADDING = 24;
 const SCREEN_PADDING = ONBOARDING_SCREEN_PADDING;
 
+const BODY_TOP_FADE = 16;
 const BODY_BOTTOM_FADE = 48;
 const BUTTON_SHADOW_SPACE = 48;
 
@@ -122,6 +125,7 @@ export function OnboardingScreen({
     supporting,
     supportingAppearance = 'plain',
     children,
+    centeredBody = false,
     footer,
     bottomBackdrop,
     surface = 'light',
@@ -147,6 +151,11 @@ export function OnboardingScreen({
     const useCombinedScroll = shouldUseCombinedOnboardingScroll(fontScale);
     const [footerContentHeight, setFooterContentHeight] = useState(0);
     const [footerViewportHeight, setFooterViewportHeight] = useState(0);
+    const [bodyContentHeight, setBodyContentHeight] = useState(0);
+    const [bodyViewportHeight, setBodyViewportHeight] = useState(0);
+    // A short preview stays still; smaller screens and larger text can still
+    // scroll once the actual content needs more room than its viewport.
+    const bodyOverflows = bodyContentHeight > bodyViewportHeight + 1;
     // A fitted footer needs no clipping: its glass-button shadow must be able
     // to fade into the bottom safe area. Keep clipping for an overflowing
     // footer so scrolling actions cannot paint over the body or home indicator.
@@ -207,6 +216,20 @@ export function OnboardingScreen({
             ? bottomBackdrop(atFlow ? 0 : contentBottom)
             : bottomBackdrop;
 
+    const bodyMask = (
+        <View style={ styles.scroll } pointerEvents="none">
+            <LinearGradient
+                colors={ [COLOR_VARIANTS.transparent, COLOR_VARIANTS.black.primary] }
+                style={ styles.topFade }
+            />
+            <View style={ styles.solidMask } />
+            <LinearGradient
+                colors={ [COLOR_VARIANTS.black.primary, COLOR_VARIANTS.transparent] }
+                style={ styles.bottomFade }
+            />
+        </View>
+    );
+
     return (
         <View style={ [styles.safeArea, isAccent && styles.accentSurface] }>
             { analyticsStep !== undefined && <OnboardingStepAnalytics step={ analyticsStep } /> }
@@ -254,25 +277,28 @@ export function OnboardingScreen({
                 </View>
 
                 { useCombinedScroll ? (
-                    <ScrollView
-                        testID="onboarding-combined-scroll"
-                        style={ styles.scroll }
-                        contentContainerStyle={ styles.combinedScrollContent }
-                        showsVerticalScrollIndicator={ false }
-                        keyboardShouldPersistTaps="handled"
-                    >
-                        { body }
+                    <MaskedView style={ styles.scroll } maskElement={ bodyMask }>
+                        <ScrollView
+                            testID="onboarding-combined-scroll"
+                            style={ styles.scroll }
+                            contentContainerStyle={ [centeredBody && styles.centeredScrollContent, styles.combinedScrollContent] }
+                            showsVerticalScrollIndicator={ false }
+                            alwaysBounceVertical={ false }
+                            keyboardShouldPersistTaps="handled"
+                        >
+                            { body }
 
-                        <View testID="onboarding-footer" style={ styles.combinedFooter }>
-                            { footer }
-                        </View>
-
-                        { bottomBackdrop !== undefined && (
-                            <View testID="onboarding-backdrop" style={ styles.combinedBackdrop }>
-                                { backdrop(true) }
+                            <View testID="onboarding-footer" style={ styles.combinedFooter }>
+                                { footer }
                             </View>
-                        ) }
-                    </ScrollView>
+
+                            { bottomBackdrop !== undefined && (
+                                <View testID="onboarding-backdrop" style={ styles.combinedBackdrop }>
+                                    { backdrop(true) }
+                                </View>
+                            ) }
+                        </ScrollView>
+                    </MaskedView>
                 ) : (
                     <>
                         { bottomBackdrop !== undefined && (
@@ -291,19 +317,16 @@ export function OnboardingScreen({
                         <MaskedView
                             style={ styles.scroll }
                             onLayout={ (event) => setScrollTop(event.nativeEvent.layout.y) }
-                            maskElement={
-                                <View style={ styles.scroll } pointerEvents="none">
-                                    <View style={ styles.solidMask } />
-                                    <LinearGradient
-                                        colors={ [COLOR_VARIANTS.black.primary, COLOR_VARIANTS.transparent] }
-                                        style={ styles.bottomFade }
-                                    />
-                                </View>
-                            }
+                            maskElement={ bodyMask }
                         >
                             <ScrollView
+                                testID="onboarding-body-scroll"
                                 style={ styles.scroll }
-                                contentContainerStyle={ styles.scrollContent }
+                                contentContainerStyle={ [styles.scrollContent, centeredBody && styles.centeredScrollContent] }
+                                onContentSizeChange={ (_width, height) => setBodyContentHeight(height) }
+                                onLayout={ (event) => setBodyViewportHeight(event.nativeEvent.layout.height) }
+                                scrollEnabled={ bodyOverflows }
+                                alwaysBounceVertical={ false }
                                 showsVerticalScrollIndicator={ false }
                                 keyboardShouldPersistTaps="handled"
                             >
@@ -366,23 +389,31 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: COLOR_VARIANTS.black.primary,
     },
+    topFade: {
+        height: BODY_TOP_FADE,
+    },
     bottomFade: {
         height: BODY_BOTTOM_FADE,
     },
-    // The header row already carries its own padding, so the body starts
-    // just under it. Anything more read as the screen having lost its title.
+    // Clear the back arrow and the top fade before the first line of content.
     scrollContent: {
         paddingHorizontal: 24,
-        paddingTop: 8,
+        paddingTop: 20,
         // At the end of the list the last card must clear the fade completely.
         paddingBottom: BODY_BOTTOM_FADE + 24,
     },
     combinedScrollContent: {
         paddingHorizontal: 24,
-        paddingTop: 8,
+        paddingTop: 20,
         // This footer is inside a clipping scroll view, so reserve the shadow's
         // space in its content instead of letting it end at the button's edge.
         paddingBottom: BUTTON_SHADOW_SPACE,
+    },
+    centeredScrollContent: {
+        flexGrow: 1,
+        justifyContent: 'center',
+        paddingTop: 20,
+        paddingBottom: 20,
     },
     supporting: {
         marginTop: 14,

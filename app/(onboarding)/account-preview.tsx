@@ -282,13 +282,6 @@ export default function AccountPreviewScreen() {
                                 disabled={ busy }
                                 onPress={ () => openAuth('/(auth)/signup') }
                             />
-
-                            <OnboardingButton
-                                label={ ACCOUNT_COPY.signIn }
-                                transparent
-                                disabled={ busy }
-                                onPress={ () => openAuth('/(auth)/login') }
-                            />
                         </>
                     ) }
                 </>

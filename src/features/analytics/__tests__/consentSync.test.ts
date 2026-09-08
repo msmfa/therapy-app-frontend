@@ -6,7 +6,7 @@ const deferred = <T,>() => {
     return { promise, resolve };
 };
 
-function setup() {
+function setup(syncWithAccount = true) {
     const state = { identity: 'user-a' as string | null, consent: false, consentKnown: true };
     const data = new Map<string, string>();
     const storage = {
@@ -23,8 +23,27 @@ function setup() {
     const read = jest.fn<Promise<{ analyticsConsent?: boolean }>, []>(async () => ({}));
     const write = jest.fn<Promise<void>, [boolean]>(async () => {});
     return { state, data, storage, runtime, read, write,
-        sync: createConsentSync({ runtime, storage, read, write }) };
+        sync: createConsentSync({ runtime, storage, read, write, syncWithAccount }) };
 }
+
+it('keeps pre-consented beta choices local across startup, foreground and account switches', async () => {
+    const f = setup(false);
+    f.state.consent = true;
+    f.read.mockResolvedValue({ analyticsConsent: false });
+    await expect(f.sync.sync()).resolves.toBe(true);
+    f.state.identity = 'user-b';
+    await expect(f.sync.sync()).resolves.toBe(true);
+    await expect(f.sync.setConsent(false)).resolves.toEqual({ synced: true });
+    await expect(f.sync.setConsent(true)).resolves.toEqual({ synced: true });
+    expect(f.read).not.toHaveBeenCalled();
+    expect(f.write).not.toHaveBeenCalled();
+    expect(f.storage.getItem).not.toHaveBeenCalled();
+    expect(f.storage.setItem).not.toHaveBeenCalled();
+    expect(f.data.size).toBe(0);
+    expect(f.runtime.setConsent.mock.calls).toEqual([[false], [true]]);
+    await f.sync.forgetAccount('user-b');
+    await expect(f.sync.setConsent(true)).rejects.toThrow('no longer available');
+});
 
 it('stops local capture immediately and retries the account opt-out after reconnecting', async () => {
     const f = setup();

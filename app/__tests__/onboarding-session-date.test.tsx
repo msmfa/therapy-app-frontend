@@ -1,9 +1,20 @@
 import React from 'react';
-import { fireEvent, render } from '@testing-library/react-native';
+import { act, fireEvent, render } from '@testing-library/react-native';
 
 const mockPush = jest.fn();
 const mockSetAnswer = jest.fn();
 let mockSessionAt: Date | null = null;
+type PickerProps = {
+    minimumDate?: Date;
+    maximumDate?: Date;
+    value: Date;
+    onChange: (event: { type: string }, selected: Date) => void;
+};
+let mockPicker: PickerProps;
+let mockNativeMinimum: number | undefined;
+let mockNativeMaximum: number | undefined;
+let mockPreviousMinimum = 0;
+let mockPreviousMaximum = 0;
 
 jest.mock('expo-router', () => ({
     useRouter: () => ({ push: mockPush }),
@@ -19,7 +30,17 @@ jest.mock('../../src/features/onboarding/OnboardingAnswersContext', () => ({
 jest.mock('@react-native-community/datetimepicker', () => {
     const ReactForMock = require('react');
     const { View: MockView } = require('react-native');
-    return function MockDateTimePicker() {
+    return function MockDateTimePicker(props: PickerProps) {
+        mockPicker = props;
+        // Match 8.4.4's Fabric updatePropsForPicker: a changed optional bound
+        // is converted to NSDate even when its new codegen value is zero.
+        // These values survive unmount to model a recycled native picker.
+        const minimum = props.minimumDate?.getTime() ?? 0;
+        const maximum = props.maximumDate?.getTime() ?? 0;
+        if (minimum !== mockPreviousMinimum) mockNativeMinimum = minimum;
+        if (maximum !== mockPreviousMaximum) mockNativeMaximum = maximum;
+        mockPreviousMinimum = minimum;
+        mockPreviousMaximum = maximum;
         return ReactForMock.createElement(MockView, { testID: 'date-time-picker' });
     };
 });
@@ -53,6 +74,10 @@ describe('onboarding session date', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         mockSessionAt = null;
+        mockNativeMinimum = undefined;
+        mockNativeMaximum = undefined;
+        mockPreviousMinimum = 0;
+        mockPreviousMaximum = 0;
     });
 
     afterEach(() => {
@@ -110,6 +135,39 @@ describe('onboarding session date', () => {
         expect(selected.getHours()).toBe(17);
         expect(selected.getMinutes()).toBe(0);
         expect(mockPush).toHaveBeenCalledWith('/(onboarding)/session-cadence');
+    });
+
+    it('keeps wheel choices after recycling the bounded date picker as a time picker', () => {
+        jest.useFakeTimers().setSystemTime(new Date(2026, 8, 8, 12));
+        const view = render(<SessionDateScreen />);
+        fireEvent.press(view.getByLabelText('Date. Not chosen'));
+        act(() => {
+            mockPicker.onChange({ type: 'set' }, new Date(2026, 8, 10, 17));
+        });
+        fireEvent.press(view.getByLabelText('Time. Not chosen'));
+
+        for (const [hour, minute] of [[8, 15], [19, 45], [23, 59], [6, 30]]) {
+            const requested = new Date(2026, 8, 10, hour, minute).getTime();
+            // A native UIDatePicker constrains the wheel to its active range.
+            // Clearing both date bounds used to pin this value to epoch zero.
+            const selected = new Date(Math.max(
+                mockNativeMinimum ?? -Infinity,
+                Math.min(mockNativeMaximum ?? Infinity, requested),
+            ));
+            act(() => { mockPicker.onChange({ type: 'set' }, selected); });
+            expect(mockPicker.value.getHours()).toBe(hour);
+            expect(mockPicker.value.getMinutes()).toBe(minute);
+        }
+
+        // A stale dismiss callback must not undo the last wheel selection.
+        act(() => {
+            mockPicker.onChange({ type: 'dismissed' }, new Date(2026, 8, 10, 1));
+        });
+        fireEvent.press(view.getByLabelText(/^Date\./));
+        fireEvent.press(view.getByLabelText(/^Time\./));
+        fireEvent.press(view.getByLabelText('Continue'));
+
+        expect(mockSetAnswer).toHaveBeenCalledWith('sessionAt', new Date(2026, 8, 10, 6, 30));
     });
 
     it('continues with an explicit sample plan without saving a fake appointment', () => {

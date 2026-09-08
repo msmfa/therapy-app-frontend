@@ -21,7 +21,7 @@ export default function Loading({
             fullScreen && !transparent && styles.opaqueScreen,
         ] }>
             <View
-                style={ styles.fullScreenContainer }
+                style={ [styles.spinnerContainer, fullScreen && styles.fullScreenContainer] }
                 pointerEvents="auto"
                 accessible
                 accessibilityRole="progressbar"
@@ -46,11 +46,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    fullScreenContainer: {
-        flex: 1,
+    spinnerContainer: {
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: PALETTE.overlay.taupeTransparent,
         paddingHorizontal: 24,
+    },
+    fullScreenContainer: {
+        flex: 1,
     },
 });

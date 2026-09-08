@@ -3,6 +3,7 @@ import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 import { AnalyticsConsentControl } from '../AnalyticsConsentControl';
 
 let mockHydrated = true;
+let mockPreconsentedTestflight = false;
 const mockSetConsent = jest.fn();
 jest.mock('../../../features/analytics/useAnalyticsConsent', () => ({
     useAnalyticsConsent: () => ({ hydrated: mockHydrated, consent: false }),
@@ -10,8 +11,18 @@ jest.mock('../../../features/analytics/useAnalyticsConsent', () => ({
 jest.mock('../../../features/analytics/consentSync', () => ({
     analyticsConsentSync: { setConsent: (value: boolean) => mockSetConsent(value) },
 }));
+jest.mock('../../../features/analytics/config', () => ({
+    isPreconsentedTestflight: () => mockPreconsentedTestflight,
+}));
 
-beforeEach(() => { mockHydrated = true; mockSetConsent.mockReset(); });
+beforeEach(() => { mockHydrated = true; mockPreconsentedTestflight = false; mockSetConsent.mockReset(); });
+
+it('hides the entire usage control and explanation in the pre-consented TestFlight build', () => {
+    mockPreconsentedTestflight = true;
+    const screen = render(<AnalyticsConsentControl />);
+    expect(screen.toJSON()).toBeNull();
+    expect(mockSetConsent).not.toHaveBeenCalled();
+});
 
 it('starts off and waits for the account preference to load', () => {
     mockHydrated = false;

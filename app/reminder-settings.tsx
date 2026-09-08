@@ -21,6 +21,7 @@ import {
 import { readNotificationPermission, requestNotificationPermission } from '../src/features/onboarding/onboardingNotifications';
 import { ensurePushRegistration } from '../src/services/notifications/pushRegistration';
 import { dateToMinutes, minutesToDate, timeLabel } from '../src/features/onboarding/formatting';
+import { TIME_PICKER_BOUNDS } from '../src/utils/timePickerBounds';
 import { ACTION_ORANGE, COLOR_VARIANTS, PALETTE, TEXT_COLORS } from '../designs/designs-colors';
 import { GlassPickerPanel } from '../src/components/ui/GlassPickerPanel';
 
@@ -106,7 +107,7 @@ export default function ReminderSettingsScreen() {
             // A dismissed picker reports the value it was already showing, not
             // a choice; writing it back overwrites the pick just made.
             if (event.type === 'dismissed') return;
-            if (!picked) return;
+            if (!picked || !Number.isFinite(picked.getTime())) return;
 
             const value = dateToMinutes(picked);
             if (slot === 'morning') setMorningMinutes(value);
@@ -182,6 +183,7 @@ export default function ReminderSettingsScreen() {
                                          comes: see reminder-times. */ }
                                     { Platform.OS === 'ios' ? (
                                         <DateTimePicker
+                                            { ...TIME_PICKER_BOUNDS }
                                             accentColor={ ACTION_ORANGE }
                                             value={ value }
                                             mode="time"
@@ -216,6 +218,7 @@ export default function ReminderSettingsScreen() {
             { androidSlot !== null && (
                 <GlassPickerPanel style={ styles.androidPicker }>
                     <DateTimePicker
+                        { ...TIME_PICKER_BOUNDS }
                         accentColor={ ACTION_ORANGE }
                         value={ minutesToDate(
                             androidSlot === 'morning' ? morningMinutes : eveningMinutes,

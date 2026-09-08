@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getCurrentUserSettings, updateCurrentUser } from '../../api/users';
 import { analytics } from './client';
-import { ANALYTICS_STORAGE_SUFFIX } from './config';
+import { ANALYTICS_STORAGE_SUFFIX, isPreconsentedTestflight } from './config';
 
 const PREFIX = `plastic_brains.analytics_pending_consent.v1${ANALYTICS_STORAGE_SUFFIX}.`;
 type PendingChoice = { consent: boolean; revision: number };
@@ -11,10 +11,11 @@ type Dependencies = {
     storage: Pick<typeof AsyncStorage, 'getItem' | 'setItem' | 'removeItem'>;
     read: () => Promise<{ analyticsConsent?: boolean }>;
     write: (consent: boolean) => Promise<void>;
+    syncWithAccount?: boolean;
 };
 
 /** A durable preference retry, not an event queue. No notes or activity live here. */
-export function createConsentSync({ runtime, storage, read, write }: Dependencies) {
+export function createConsentSync({ runtime, storage, read, write, syncWithAccount = true }: Dependencies) {
     let revision = 0;
     let storageQueue = Promise.resolve();
     const inFlight = new Map<string, Promise<boolean>>();
@@ -40,6 +41,9 @@ export function createConsentSync({ runtime, storage, read, write }: Dependencie
         persist(() => storage.setItem(keyFor(owner), JSON.stringify(choice)));
 
     const sync = (): Promise<boolean> => {
+        // Prior consent to this beta is local to this build. It must neither
+        // overwrite nor be overwritten by the public app's account preference.
+        if (!syncWithAccount) return Promise.resolve(true);
         const owner = runtime.getIdentity();
         if (!owner || !runtime.getSnapshot().available) return Promise.resolve(true);
         if (!isOwner(owner)) return Promise.resolve(false);
@@ -107,7 +111,7 @@ export function createConsentSync({ runtime, storage, read, write }: Dependencie
             // Revocation takes effect in memory before any storage/network await.
             await Promise.all([
                 runtime.setConsent(value),
-                owner ? savePending(owner, { consent: value, revision: currentRevision }) : Promise.resolve(),
+                owner && syncWithAccount ? savePending(owner, { consent: value, revision: currentRevision }) : Promise.resolve(),
             ]);
             if (owner !== runtime.getIdentity()) return { synced: false };
             return { synced: await sync() };
@@ -127,4 +131,5 @@ export const analyticsConsentSync = createConsentSync({
     storage: AsyncStorage,
     read: getCurrentUserSettings,
     write: (analyticsConsent) => updateCurrentUser({ analyticsConsent }),
+    syncWithAccount: !isPreconsentedTestflight(),
 });

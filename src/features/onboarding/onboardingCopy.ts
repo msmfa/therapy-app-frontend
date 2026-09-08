@@ -333,9 +333,6 @@ export const ACCOUNT_COPY = {
     continue: 'Continue',
     apple: 'Continue with Apple',
     email: 'Continue with email',
-    // For someone with an email account who arrives here signed out: the two
-    // buttons above make an account, and this is the way into an existing one.
-    signIn: 'Already have an account? Sign in',
     // The three things the body says the account connects, shown back as
     // they were answered, so the promise is concrete rather than a sentence.
     sessionLabel: 'Next session',

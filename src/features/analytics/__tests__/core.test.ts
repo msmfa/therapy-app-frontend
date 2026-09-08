@@ -4,7 +4,7 @@ import { CONSENT_KEY } from '../config';
 const key = (owner: string | null) => `${CONSENT_KEY}.${owner === null ? 'anonymous' : `account.${owner}`}`;
 const settle = async () => { for (let i = 0; i < 30; i++) await Promise.resolve(); };
 const deferred = () => { let resolve!: () => void; const promise = new Promise<void>((r) => { resolve = r; }); return { promise, resolve }; };
-function setup(seed: Record<string, string> = {}, allowed = true) {
+function setup(seed: Record<string, string> = {}, allowed = true, config: Partial<AnalyticsDependencies['config']> = {}) {
     const values = new Map(Object.entries(seed));
     let clock = 1000;
     let sequence = 0;
@@ -16,7 +16,7 @@ function setup(seed: Record<string, string> = {}, allowed = true) {
         capture: jest.fn((event: string, properties: Record<string, string | boolean>, timestamp: Date) => { events.push({ event, properties, owner, timestamp }); }),
     };
     const dependencies: AnalyticsDependencies = {
-        config: { allowed, apiKey: 'phc_test', host: 'https://eu.i.posthog.com', appVersion: '1.0', platform: 'ios' },
+        config: { allowed, apiKey: 'phc_test', host: 'https://eu.i.posthog.com', appVersion: '1.0', platform: 'ios', ...config },
         storage: {
             getItem: jest.fn(async (name: string) => values.get(name) ?? null),
             setItem: jest.fn(async (name: string, value: string) => { values.set(name, value); }),
@@ -31,6 +31,81 @@ function setup(seed: Record<string, string> = {}, allowed = true) {
     return { analytics, dependencies, transport, values, events, advance: (by: number) => { clock += by; } };
 }
 const note = { operation: 'new', is_first_note: true, entry_point: 'notes' } as const;
+const beta = { environment: 'qa', preconsentedTestflight: true } as const;
+
+test('pre-consented TestFlight enables anonymous onboarding after auth hydration without a toggle', async () => {
+    const { analytics, dependencies, values, events } = setup({}, true, beta);
+    await analytics.initialize();
+    expect(analytics.getSnapshot().enabled).toBe(false);
+    expect(dependencies.createTransport).not.toHaveBeenCalled();
+    analytics.setIdentity(null);
+    await settle();
+    expect(analytics.getSnapshot()).toMatchObject({ hydrated: true, consentKnown: true, consent: true, enabled: true });
+    expect(values.get(key(null))).toBe('true');
+    expect(analytics.capture('onboarding_step_viewed', { onboarding_step: 'welcome', flow_version: '1' })).toBe(true);
+    expect(events).toHaveLength(1);
+    expect(events[0].owner).toBeNull();
+});
+
+test('TestFlight keeps canonical identities across visits and invalidates switched-account operations', async () => {
+    const { analytics, transport, events } = setup({}, true, beta);
+    analytics.setIdentity('A');
+    await analytics.initialize();
+    analytics.capture('note_saved', note);
+    const visit = analytics.getVisitId();
+    analytics.setIdentity('A');
+    expect(analytics.getVisitId()).toBe(visit);
+    expect(transport.activate).toHaveBeenCalledTimes(1);
+    const oldA = analytics.beginOperation();
+    analytics.setIdentity('B');
+    expect(oldA.isCurrent()).toBe(false);
+    expect(transport.deactivate).toHaveBeenLastCalledWith(true);
+    await settle();
+    analytics.capture('note_saved', note);
+    analytics.setIdentity(null);
+    await settle();
+    analytics.setIdentity('A');
+    await settle();
+    analytics.capture('note_saved', note);
+    expect(events.map((event) => event.owner)).toEqual(['A', 'B', 'A']);
+    expect(analytics.getSnapshot().enabled).toBe(true);
+});
+
+test.each(['production', undefined] as const)('ignores beta pre-consent in %s environment', async (environment) => {
+    const { analytics, dependencies, values } = setup({}, true, { environment, preconsentedTestflight: true });
+    analytics.setIdentity(null);
+    await analytics.initialize();
+    expect(analytics.getSnapshot()).toMatchObject({ consentKnown: false, consent: false, enabled: false });
+    expect(values.size).toBe(0);
+    expect(dependencies.createTransport).not.toHaveBeenCalled();
+});
+
+test('a beta preference never bypasses disabled collection or a later local revocation', async () => {
+    const disabled = setup({}, false, beta);
+    disabled.analytics.setIdentity('A');
+    await disabled.analytics.initialize();
+    expect(disabled.analytics.getSnapshot().enabled).toBe(false);
+    expect(disabled.dependencies.createTransport).not.toHaveBeenCalled();
+
+    const { analytics } = setup({}, true, beta);
+    analytics.setIdentity('A');
+    await analytics.initialize();
+    await analytics.setConsent(false);
+    analytics.setIdentity('B');
+    await settle();
+    analytics.setIdentity('A');
+    await settle();
+    expect(analytics.getSnapshot()).toMatchObject({ consentKnown: true, consent: false, enabled: false });
+});
+
+test('failed beta consent persistence leaves onboarding analytics disabled', async () => {
+    const { analytics, dependencies } = setup({}, true, beta);
+    dependencies.storage.setItem = jest.fn(async () => { throw new Error('storage unavailable'); });
+    analytics.setIdentity(null);
+    await analytics.initialize();
+    expect(analytics.getSnapshot().enabled).toBe(false);
+    expect(dependencies.createTransport).not.toHaveBeenCalled();
+});
 
 test('does not construct the SDK or send before auth and explicit consent are known', async () => {
     const { analytics, dependencies } = setup();

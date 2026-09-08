@@ -2,6 +2,10 @@
 
 Use the `testflight` EAS profile for this beta: store distribution, physical-device iOS Release, production EAS environment/API, and demo seeding, subscription fixtures and demo autologin off. Client analytics carries `environment=qa`, keeping beta activity outside production dashboards and cohorts. The `analytics-qa` profile is a separate simulator/staging build and cannot be submitted to TestFlight.
 
+This cohort has already agreed to beta analytics. The `testflight` profile sets `EXPO_PUBLIC_ANALYTICS_TESTFLIGHT_PRECONSENT=1`, hides **Share app usage** and enables the isolated local beta preference after auth hydration. It never changes the production account's analytics consent. Distribute this build only to the pre-consented cohort; disable that flag for testers who need to choose in the app.
+
+Assign a pre-consented candidate only to verified, consented testers in an invite-only group. Before assigning it to the existing **Marketing** group, disable that group's public link and verify its members' consent. Otherwise leave Marketing on its earlier opt-in build and use a separate invite-only group for this candidate. A public TestFlight link must not admit new testers to a build that assumes prior consent.
+
 This is a release procedure, not confirmation that a build has been uploaded or approved.
 
 ## Build and upload
@@ -43,10 +47,10 @@ Use synthetic notes. This beta uses the production API, so its accounts and sche
 2. **Purchase/restore on an iPhone:** check Apple's offer, complete a Sandbox purchase, cancel an attempt, relaunch and restore under the correct app account. Check pending/failed states when available. Another app account must not inherit that purchase. Follow [Apple's TestFlight purchase guidance](https://developer.apple.com/help/app-store-connect/test-a-beta-version/testing-subscriptions-and-in-app-purchases-in-testflight/).
 3. **Notes/notifications:** save, edit and reopen a note; complete a due review once and check duplicate taps. Allow/deny notification permission, change reminder times, background the app and tap a real delivered reminder to check its destination.
 4. **Offline recovery:** disconnect the test device, save/reopen a note, then reconnect. Local work should remain usable and retries should recover. Same-account analytics retries preserve action times without duplicates; logout, account switch and opt-out deliberately discard unsent events.
-5. **Consent/deletion:** confirm an account with no prior choice starts off; opt in, act, opt out and act again. Inspect only `environment=qa` events for allowed properties and no post-opt-out events. Use a disposable account for deletion and distinguish local cleanup, server acceptance and completed remote erasure.
+5. **Consent/deletion:** on this pre-consented TestFlight build, confirm the usage control is absent, anonymous onboarding is collected as QA after auth hydration, account identities remain stable and the production account's analytics-consent preference is unchanged. Use the separate `analytics-qa` profile to verify default-off, explicit opt-in and opt-out behavior. Inspect only `environment=qa` events for allowed properties. Use a disposable account for deletion and distinguish local cleanup, server acceptance and completed remote erasure.
 
 Report build number, device/iOS version, steps, expected/actual result and approximate time. Remove personal information from screenshots. Record untested physical StoreKit, notification and offline scenarios explicitly; simulator mocks do not establish device success.
 
 ## Public release
 
-After beta approval, rebuild the reviewed SHA with `--profile production`, keep demo flags off and verify the resolved analytics environment is `production`. Check that exact binary, then submit its build ID using the same submission profile. **Do not promote this QA-tagged beta binary directly to the public App Store:** its bundled QA value would exclude customer activity from production metrics. Changing an EAS profile or submission destination does not rewrite an existing binary.
+After beta approval, rebuild the reviewed SHA with `--profile production`, keep demo flags off and verify the resolved analytics environment is `production` and `EXPO_PUBLIC_ANALYTICS_TESTFLIGHT_PRECONSENT=0`. Confirm an unconsented public account starts off and the usage control is visible. Check that exact binary, then submit its build ID using the same submission profile. **Do not promote this QA-tagged beta binary directly to the public App Store:** its bundled QA value would exclude customer activity from production metrics and its consent behavior is specific to this beta cohort. Changing an EAS profile or submission destination does not rewrite an existing binary.

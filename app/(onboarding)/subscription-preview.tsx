@@ -170,7 +170,7 @@ export default function SubscriptionPreviewScreen() {
         || state.status === 'loading'
     ) {
         return (
-            <OnboardingScreen { ...backNavigation } headline="Loading subscriptions" footer={ accountSettings }>
+            <OnboardingScreen { ...backNavigation } headline="Loading subscriptions" centeredBody footer={ accountSettings }>
                 <Loading fullScreen={ false } />
             </OnboardingScreen>
         );

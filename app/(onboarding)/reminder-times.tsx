@@ -12,6 +12,7 @@ import { GlassPickerPanel } from '../../src/components/ui/GlassPickerPanel';
 import { REMINDER_TIMES_COPY } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { dateToMinutes, minutesToDate, timeLabel } from '../../src/features/onboarding/formatting';
+import { TIME_PICKER_BOUNDS } from '../../src/utils/timePickerBounds';
 import { ACTION_ORANGE, COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
 
 type Slot = 'morning' | 'evening';
@@ -26,26 +27,16 @@ export default function ReminderTimesScreen() {
     const change = useCallback(
         (slot: Slot) => (event: DateTimePickerEvent, picked?: Date) => {
             setAndroidSlot(null);
-            // Closing the picker reports a "dismissed" change carrying the value
-            // this render was already showing, not anything the user chose. The
-            // iOS compact popover fires it every time it closes (the library's
-            // own source marks the date it attaches as a TODO to remove), so
-            // treating it as a pick overwrote the real choice made a moment
-            // earlier and snapped the field back to what it showed before.
+            // The compact popover's dismiss event echoes its previous value;
+            // only a real selection may update the reminder time.
             if (event.type === 'dismissed') return;
-            if (!picked) return;
+            if (!picked || !Number.isFinite(picked.getTime())) return;
             setAnswer(slot === 'morning' ? 'morningMinutes' : 'eveningMinutes', dateToMinutes(picked));
         },
         [setAnswer],
     );
 
-    /**
-     * Stable values and handlers, recomputed only when the answer changes.
-     *
-     * Note this is hygiene, not the snap-back fix: the picker wrapper converts
-     * `value` to milliseconds before it reaches native, so object identity
-     * never crossed the bridge. The snap-back was the "dismissed" event above.
-     */
+    // Keep each time's date anchor stable while the wheel is open.
     const morningValue = useMemo(
         () => minutesToDate(answers.morningMinutes),
         [answers.morningMinutes],
@@ -118,6 +109,7 @@ export default function ReminderTimesScreen() {
                                      stacked rounded shapes. */ }
                                 { Platform.OS === 'ios' ? (
                                     <DateTimePicker
+                                        { ...TIME_PICKER_BOUNDS }
                                         accentColor={ ACTION_ORANGE }
                                         value={ value }
                                         mode="time"
@@ -150,6 +142,7 @@ export default function ReminderTimesScreen() {
             { androidSlot !== null && (
                 <GlassPickerPanel style={ styles.androidPicker }>
                     <DateTimePicker
+                        { ...TIME_PICKER_BOUNDS }
                         accentColor={ ACTION_ORANGE }
                         value={ androidSlot === 'morning' ? morningValue : eveningValue }
                         mode="time"
