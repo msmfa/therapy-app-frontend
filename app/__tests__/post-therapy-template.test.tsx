@@ -179,7 +179,7 @@ describe('Why these five questions', () => {
 			const position = index + 1;
 			fireEvent(getByTestId(`rationale-reference-${position}`), 'layout', { nativeEvent: { layout: { y: offset } } });
 			fireEvent.press(getByLabelText(new RegExp(`^Source ${position}:`)));
-			expect(scrollTo).toHaveBeenLastCalledWith({ y: 3900 + offset - 8, animated: true });
+			expect(scrollTo).toHaveBeenLastCalledWith({ y: 3900 + offset - 24, animated: true });
 		});
 
 		expect(openURL).not.toHaveBeenCalled();
@@ -196,12 +196,12 @@ describe('Why these five questions', () => {
 		fireEvent(getByTestId('rationale-reference-8'), 'layout', { nativeEvent: { layout: { y: 1200 } } });
 		expect(scrollTo).not.toHaveBeenCalled();
 		fireEvent(getByTestId('rationale-references'), 'layout', { nativeEvent: { layout: { y: 4000 } } });
-		expect(scrollTo).toHaveBeenLastCalledWith({ y: 5192, animated: true });
+		expect(scrollTo).toHaveBeenLastCalledWith({ y: 5176, animated: true });
 
 		fireEvent(getByTestId('rationale-references'), 'layout', { nativeEvent: { layout: { y: 5200 } } });
 		fireEvent(getByTestId('rationale-reference-8'), 'layout', { nativeEvent: { layout: { y: 1600 } } });
 		fireEvent.press(getByLabelText(/^Source 8:/));
-		expect(scrollTo).toHaveBeenLastCalledWith({ y: 6792, animated: true });
+		expect(scrollTo).toHaveBeenLastCalledWith({ y: 6776, animated: true });
 		scrollTo.mockRestore();
 	});
 

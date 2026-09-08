@@ -295,8 +295,8 @@ const styles = StyleSheet.create({
     },
     /** The session's own row is the whole of its screen, so it leads louder. */
     labelSession: {
-        fontSize: 21,
-        lineHeight: 28,
+        fontSize: 19,
+        lineHeight: 26,
     },
     // The date sits under the label it belongs to and behind the paragraph in
     // importance, so it steps back a shade further than the flow's captions.

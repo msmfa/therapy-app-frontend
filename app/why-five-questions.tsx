@@ -1,6 +1,8 @@
 import React, { useRef, useState } from 'react';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AccessibilityInfo, ScrollView, StyleSheet, View } from 'react-native';
+import MaskedView from '@react-native-masked-view/masked-view';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import AppText from '../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
@@ -112,7 +114,7 @@ export default function WhyFiveQuestionsScreen() {
 
         pendingReference.current = null;
         scrollRef.current.scrollTo({
-            y: Math.max(0, referencesTop.current + rowTop - 8),
+            y: Math.max(0, referencesTop.current + rowTop - TOP_FADE_HEIGHT - 8),
             animated: true,
         });
     };
@@ -136,114 +138,132 @@ export default function WhyFiveQuestionsScreen() {
                     size={ 48 }
                     onPress={ handleBack }
                 />
+                <AppText variant="h1" accessibilityRole="header" style={ styles.pageTitle }>
+                    Why these five questions
+                </AppText>
             </View>
-            <ScrollView
-                ref={ scrollRef }
+            <MaskedView
                 style={ styles.scroll }
-                contentContainerStyle={ [styles.scrollContent, { paddingBottom: insets.bottom + 24 }] }
-                contentInsetAdjustmentBehavior="never"
-                showsVerticalScrollIndicator={ false }
+                maskElement={
+                    <View style={ styles.scroll } pointerEvents="none">
+                        <LinearGradient
+                            colors={ [COLOR_VARIANTS.transparent, COLOR_VARIANTS.black.primary] }
+                            style={ styles.topFade }
+                        />
+                        <View style={ styles.solidMask } />
+                    </View>
+                }
             >
-                <AppText variant="h1">Why these five questions</AppText>
-
-                <Spacer variant={ SpacerVariant.large } />
-                <View style={ styles.summaryBanner }>
-                    <AppText variant="h2" accessibilityRole="header" style={ styles.summaryText }>TL;DR</AppText>
-                    <Spacer variant={ SpacerVariant.small } />
-                    <AppText variant="body" style={ styles.summaryText }>
-                        These five questions are based on the research explained below. They help you
-                        remember what mattered, notice thoughts and feelings during the week, put insights
-                        into your own words, note anything you want to try, and decide what to revisit
-                        next session.
-                    </AppText>
-                </View>
-
-                <Spacer variant={ SpacerVariant.large } />
-                <CitedText text={ INTRODUCTION } sources={ REFERENCES } onCitationPress={ handleCitationPress } />
-                <Spacer variant={ SpacerVariant.medium } />
-                <AppText variant="body">
-                    So an after-therapy note is not admin. Each of these five lines is doing a specific job,
-                    and each one is built on a method with a large evidence base behind it.
-                </AppText>
-
-                <Spacer variant={ SpacerVariant.large } />
-                <View style={ styles.sectionList }>
-                    { SECTIONS.map((section, index) => (
-                        <View key={ section.question }>
-                            <AppText variant="h2" accessibilityRole="header">
-                                { `${index + 1}. ${section.question}` }
-                            </AppText>
-                            { section.paragraphs.map((paragraph) => (
-                                <View key={ paragraph.slice(0, 40) }>
-                                    <Spacer variant={ SpacerVariant.small } />
-                                    <CitedText text={ paragraph } sources={ REFERENCES } onCitationPress={ handleCitationPress } />
-                                </View>
-                            )) }
-                        </View>
-                    )) }
-                </View>
-
-                <Spacer variant={ SpacerVariant.large } />
-                <AppText variant="body">
-                    These are findings about methods, not promises about your therapy. What they support is
-                    the shape of the sheet: recall rather than transcribe, name one thing to watch, use your
-                    own words, pair a situation with a response, and come back to it.
-                </AppText>
-
-                <Spacer variant={ SpacerVariant.large } />
-                <AppText variant="h2">References</AppText>
-                <Spacer variant={ SpacerVariant.small } />
-                <View
-                    testID="rationale-references"
-                    style={ styles.referenceList }
-                    onLayout={ (event) => {
-                        referencesTop.current = event.nativeEvent.layout.y;
-                        if (pendingReference.current !== null) scrollToReference(pendingReference.current);
-                    } }
+                <ScrollView
+                    ref={ scrollRef }
+                    style={ styles.scroll }
+                    contentContainerStyle={ [styles.scrollContent, { paddingBottom: insets.bottom + 24 }] }
+                    contentInsetAdjustmentBehavior="never"
+                    showsVerticalScrollIndicator={ false }
                 >
-                    { REFERENCES.map((reference, index) => (
-                        <View
-                            key={ reference.url }
-                            testID={ `rationale-reference-${index + 1}` }
-                            style={ [styles.reference, selectedReference === index + 1 && styles.referenceSelected] }
-                            onLayout={ (event) => {
-                                referenceOffsets.current[index + 1] = event.nativeEvent.layout.y;
-                                if (pendingReference.current !== null) scrollToReference(pendingReference.current);
-                            } }
-                        >
-                            <AppText variant="caption" style={ styles.referenceMarker }>
-                                { index + 1 }.
-                            </AppText>
-                            <ExternalLink
-                                variant="caption"
-                                text={ reference.text }
-                                url={ reference.url }
-                                containerStyle={ styles.referenceLink }
-                            />
-                        </View>
-                    )) }
-                </View>
-            </ScrollView>
+                    <View style={ styles.summaryBanner }>
+                        <AppText variant="h2" accessibilityRole="header" style={ styles.summaryText }>TL;DR</AppText>
+                        <Spacer variant={ SpacerVariant.small } />
+                        <AppText variant="body" style={ styles.summaryText }>
+                            These five questions are based on the research explained below. They help you
+                            remember what mattered, notice thoughts and feelings during the week, put insights
+                            into your own words, note anything you want to try, and decide what to revisit
+                            next session.
+                        </AppText>
+                    </View>
+
+                    <Spacer variant={ SpacerVariant.large } />
+                    <CitedText text={ INTRODUCTION } sources={ REFERENCES } onCitationPress={ handleCitationPress } />
+                    <Spacer variant={ SpacerVariant.medium } />
+                    <AppText variant="body">
+                        So an after-therapy note is not admin. Each of these five lines is doing a specific job,
+                        and each one is built on a method with a large evidence base behind it.
+                    </AppText>
+
+                    <Spacer variant={ SpacerVariant.large } />
+                    <View style={ styles.sectionList }>
+                        { SECTIONS.map((section, index) => (
+                            <View key={ section.question }>
+                                <AppText variant="h2" accessibilityRole="header">
+                                    { `${index + 1}. ${section.question}` }
+                                </AppText>
+                                { section.paragraphs.map((paragraph) => (
+                                    <View key={ paragraph.slice(0, 40) }>
+                                        <Spacer variant={ SpacerVariant.small } />
+                                        <CitedText text={ paragraph } sources={ REFERENCES } onCitationPress={ handleCitationPress } />
+                                    </View>
+                                )) }
+                            </View>
+                        )) }
+                    </View>
+
+                    <Spacer variant={ SpacerVariant.large } />
+                    <AppText variant="body">
+                        These are findings about methods, not promises about your therapy. What they support is
+                        the shape of the sheet: recall rather than transcribe, name one thing to watch, use your
+                        own words, pair a situation with a response, and come back to it.
+                    </AppText>
+
+                    <Spacer variant={ SpacerVariant.large } />
+                    <AppText variant="h2">References</AppText>
+                    <Spacer variant={ SpacerVariant.small } />
+                    <View
+                        testID="rationale-references"
+                        style={ styles.referenceList }
+                        onLayout={ (event) => {
+                            referencesTop.current = event.nativeEvent.layout.y;
+                            if (pendingReference.current !== null) scrollToReference(pendingReference.current);
+                        } }
+                    >
+                        { REFERENCES.map((reference, index) => (
+                            <View
+                                key={ reference.url }
+                                testID={ `rationale-reference-${index + 1}` }
+                                style={ [styles.reference, selectedReference === index + 1 && styles.referenceSelected] }
+                                onLayout={ (event) => {
+                                    referenceOffsets.current[index + 1] = event.nativeEvent.layout.y;
+                                    if (pendingReference.current !== null) scrollToReference(pendingReference.current);
+                                } }
+                            >
+                                <AppText variant="caption" style={ styles.referenceMarker }>
+                                    { index + 1 }.
+                                </AppText>
+                                <ExternalLink
+                                    variant="caption"
+                                    text={ reference.text }
+                                    url={ reference.url }
+                                    containerStyle={ styles.referenceLink }
+                                />
+                            </View>
+                        )) }
+                    </View>
+                </ScrollView>
+            </MaskedView>
 
         </SafeAreaView>
     );
 }
 
 const PAGE_PADDING = 24;
+const TOP_FADE_HEIGHT = 16;
 
 const styles = StyleSheet.create({
     pageHeader: {
         alignItems: 'center',
         flexDirection: 'row',
+        gap: 16,
         paddingBottom: 8,
         paddingHorizontal: PAGE_PADDING,
         paddingTop: 8,
     },
+    pageTitle: { flex: 1 },
     container: { flex: 1 },
     scroll: { flex: 1 },
+    topFade: { height: TOP_FADE_HEIGHT },
+    solidMask: { flex: 1, backgroundColor: COLOR_VARIANTS.black.primary },
     // Keep the home-indicator clearance inside the scrollable content so the
     // viewport reaches the screen edge instead of leaving a fixed blank strip.
-    scrollContent: { paddingHorizontal: PAGE_PADDING, paddingTop: 24 },
+    scrollContent: { paddingHorizontal: PAGE_PADDING, paddingTop: TOP_FADE_HEIGHT },
     summaryBanner: {
         marginHorizontal: -PAGE_PADDING,
         paddingHorizontal: PAGE_PADDING,
