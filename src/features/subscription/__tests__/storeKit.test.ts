@@ -403,6 +403,41 @@ describe('real StoreKit bridge', () => {
         });
     });
 
+    it('reports a failed native purchase without capturing its raw error', async () => {
+        const Sentry = require('@sentry/react-native') as { captureException: jest.Mock };
+        Sentry.captureException.mockClear();
+        const { purchase, PRODUCT_IDS } = loadStoreKit();
+        mockRequestPurchase.mockImplementation(async () => {
+            mockPurchaseErrorHandler?.({
+                code: 'unknown' as PurchaseError['code'],
+                message: 'private-native-receipt',
+                productId: PRODUCT_IDS.monthly,
+            });
+            return null;
+        });
+
+        await expect(purchase('monthly')).resolves.toEqual({ status: 'failed' });
+        expect(Sentry.captureException).toHaveBeenCalledTimes(1);
+        expect(Sentry.captureException.mock.calls[0][0]).toMatchObject({ message: 'store purchase failed' });
+    });
+
+    it('settles a failed purchase even when diagnostic capture throws', async () => {
+        const Sentry = require('@sentry/react-native') as { captureException: jest.Mock };
+        Sentry.captureException.mockImplementationOnce(() => { throw new Error('SDK failure'); });
+        const { purchase, PRODUCT_IDS } = loadStoreKit();
+        mockRequestPurchase.mockImplementation(async () => {
+            mockPurchaseErrorHandler?.({
+                code: 'unknown' as PurchaseError['code'],
+                message: 'Native failure',
+                productId: PRODUCT_IDS.monthly,
+            });
+            return null;
+        });
+
+        await expect(purchase('monthly')).resolves.toEqual({ status: 'failed' });
+        expect(Sentry.captureException).toHaveBeenCalledTimes(1);
+    });
+
     it('reports an Apple cancellation without treating it as a failure', async () => {
         const { purchase, PRODUCT_IDS } = loadStoreKit();
         mockRequestPurchase.mockImplementation(async () => {
@@ -415,6 +450,9 @@ describe('real StoreKit bridge', () => {
         });
 
         await expect(purchase('monthly')).resolves.toEqual({ status: 'cancelled' });
+        // Backing out is the user's choice, not an incident.
+        const Sentry = require('@sentry/react-native') as { captureException: jest.Mock };
+        expect(Sentry.captureException).not.toHaveBeenCalled();
         expect(mockCapture).toHaveBeenLastCalledWith('checkout_result', {
             operation: 'purchase', plan: 'monthly', entry_point: 'onboarding', outcome: 'cancelled',
         });

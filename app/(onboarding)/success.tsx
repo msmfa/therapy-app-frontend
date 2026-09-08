@@ -21,6 +21,7 @@ import { updateCurrentUser } from '../../src/api/users';
 import { DEFAULT_SESSION_MINUTES } from '../../src/features/reminders/reminderScheduleConfig';
 import { timeLabel, weekdayName } from '../../src/features/onboarding/formatting';
 import { firstIncompletePlanRoute } from '../../src/features/onboarding/flowGuard';
+import { reportHandledFailure } from '../../src/utils/telemetry';
 import { analytics } from '../../src/features/analytics/client';
 
 export default function SuccessScreen() {
@@ -110,6 +111,11 @@ export default function SuccessScreen() {
                 return;
             }
 
+            // Server failures are already reported by the API client; this
+            // catches the rest, which otherwise ends as an alert and nothing.
+            if (!(error instanceof OnboardingCompletionError)) {
+                reportHandledFailure('onboarding', 'complete', error);
+            }
             showAlert(ERROR_COPY.saveTitle, ERROR_COPY.saveBody);
         }
     }, [

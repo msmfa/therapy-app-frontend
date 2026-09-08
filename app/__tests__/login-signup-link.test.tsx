@@ -2,7 +2,7 @@ import React from 'react';
 import { jest } from '@jest/globals';
 import { render } from '@testing-library/react-native';
 
-let mockParams: { returnTo?: string } = {};
+let mockParams: { returnTo?: string | string[] } = {};
 
 jest.mock('expo-router', () => {
 	const React = require('react');
@@ -55,6 +55,22 @@ describe('the signup link on Sign in', () => {
 
 	it("is offered when sign-in was opened from onboarding's account step", () => {
 		mockParams = { returnTo: 'account-preview' };
+
+		const { queryByText } = render(<LoginScreen />);
+
+		expect(queryByText("Don't have an account?")).not.toBeNull();
+	});
+
+	it('is withheld when sign-in was opened to restore a purchase, which needs an existing account', () => {
+		mockParams = { returnTo: 'subscription-preview' };
+
+		const { queryByText } = render(<LoginScreen />);
+
+		expect(queryByText("Don't have an account?")).toBeNull();
+	});
+
+	it('uses the normalized account return route when query parameters are arrays', () => {
+		mockParams = { returnTo: ['account-preview'] };
 
 		const { queryByText } = render(<LoginScreen />);
 

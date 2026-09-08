@@ -142,7 +142,14 @@ describe('OnboardingProgress accessibility', () => {
 		const { getByRole } = render(<OnboardingProgress step={3} />);
 
 		const bar = getByRole('progressbar', { name: 'Step 3 of 4' });
-		expect(bar.props.accessibilityValue).toEqual({ min: 1, max: 4, now: 3 });
+		expect(bar.props.accessibilityValue).toEqual({ min: 0, max: 4, now: 3 });
+	});
+
+	it('uses a zero baseline so iOS announces the final step as 100 percent', () => {
+		const { getByRole } = render(<OnboardingProgress step={4} />);
+
+		const value = getByRole('progressbar', { name: 'Step 4 of 4' }).props.accessibilityValue;
+		expect(value.now / (value.max - value.min)).toBe(1);
 	});
 
 	it('clamps a step outside the range', () => {

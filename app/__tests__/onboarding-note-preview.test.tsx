@@ -91,6 +91,7 @@ describe('onboarding note preview', () => {
     });
 
     it('keeps the encryption note above the notes image', () => {
+        mockGoal = 'practise';
         const { getByText, getByLabelText } = render(<NotePreviewScreen />);
 
         expect(getByText(NOTE_PREVIEW_COPY.privacyTitle)).toBeTruthy();
@@ -119,6 +120,7 @@ describe('onboarding note preview', () => {
     });
 
     it('renders the screenshot full width, undistorted, and in plain numbers', () => {
+        mockGoal = 'practise';
         const { Dimensions } = require('react-native');
         const { getByLabelText } = render(<NotePreviewScreen />);
 
@@ -155,6 +157,38 @@ describe('onboarding note preview', () => {
         expect(getByText(goal.noteSupport)).toBeTruthy();
     });
 
+    it('lands the reminder over the list when the goal is the next session', () => {
+        const { Dimensions } = require('react-native');
+        const { getByLabelText, getByText, getByTestId } = render(<NotePreviewScreen />);
+        const { LinearGradient } = require('expo-linear-gradient');
+
+        // The notification that starts it, and the list it arrives over.
+        const banner = getByLabelText(
+            "An iPhone notification from Plastic Brains: Review your notes before tomorrow's session",
+        );
+        expect(getByText("Review your notes before tomorrow's session")).toBeTruthy();
+        expect(getByLabelText('A list of past therapy notes, each with the date of its session')).toBeTruthy();
+        expect(getByTestId('note-backdrop').findAllByType(LinearGradient)).toHaveLength(1);
+
+        const style = Object.assign({}, ...[banner.props.style].flat(Infinity));
+        const width = Dimensions.get('window').width;
+        // Nearly the display's width, solid white, and set a little off level.
+        expect(style.width).toBe(width - 8);
+        expect(style.backgroundColor).toBe('hsl(0, 0%, 100%)');
+        expect(style.transform).toEqual([{ rotate: '-3deg' }]);
+    });
+
+    it('keeps the list for the goals that are about the notes adding up', () => {
+        for (const goal of ['practise', 'habit']) {
+            mockGoal = goal;
+            const { getByLabelText, queryByLabelText, unmount } = render(<NotePreviewScreen />);
+
+            expect(getByLabelText('A list of past therapy notes, each with the date of its session')).toBeTruthy();
+            expect(queryByLabelText(/notification from Plastic Brains/)).toBeNull();
+            unmount();
+        }
+    });
+
     it('drops the card when no goal was chosen', () => {
         mockGoal = null;
 
@@ -165,6 +199,7 @@ describe('onboarding note preview', () => {
     });
 
     it('fades the list out into its own pale ground, never into the navy page', () => {
+        mockGoal = 'practise';
         const { getByTestId } = render(<NotePreviewScreen />);
         const { LinearGradient } = require('expo-linear-gradient');
         const { SURFACE_BLUE, SURFACE_BLUE_FADE } = require('designs/designs-colors');

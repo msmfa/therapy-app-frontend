@@ -6,10 +6,10 @@ import { handleError, validatePassword } from 'src/utils';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TextField from 'src/components/ui/TextField';
 import PasswordField from 'src/components/ui/PasswordField';
-import { Button } from 'src/components/ui/Button';
 import AppText from '../../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import SocialAuthButtons from '../../src/components/auth/SocialAuthButtons';
+import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
 import { registerAccount } from '../../src/api/auth';
 import { useAppAlert } from '../../src/context/alert';
 import { resolveAuthReturnRoute } from '../../src/features/onboarding/authReturn';
@@ -137,12 +137,13 @@ export default function SignUpScreen() {
                             error={ errors.confirmPassword }
                             editable={ !loading }
                         />
-                        <Button
-                            label="Create account"
-                            onPress={ onSubmit }
-                            loading={ loading }
-                            addedStyles={ { marginTop: 8 } }
-                        />
+                        { /* The flow's own action, as on the sign-in screen:
+                             this is one tap from "Continue with email", and
+                             a smaller, squarer button read as a different
+                             app. */ }
+                        <View style={ styles.submit }>
+                            <OnboardingButton label="Create account" appearance="solid" onPress={ onSubmit } loading={ loading } />
+                        </View>
                         <Spacer variant={ SpacerVariant.large } />
                         <View style={ styles.oauthSection }>
                             <AppText variant="caption" align="center">
@@ -162,6 +163,9 @@ export default function SignUpScreen() {
 }
 
 const styles = StyleSheet.create({
+    submit: {
+        marginTop: 8,
+    },
     backRow: {
         paddingHorizontal: 20,
     },

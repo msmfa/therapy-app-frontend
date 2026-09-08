@@ -128,56 +128,56 @@ export function PlanTimeline({ entries, onOpenTemplate }: Props) {
                                 ] }
                             >
                                 <View style={ styles.contentColumn }>
-                                <View style={ styles.heading }>
-                                    { isSession && (
-                                        <View
-                                            style={ [styles.marker, { backgroundColor: ACTION_ORANGE }] }
-                                        />
-                                    ) }
-                                    <AppText
-                                        variant="h3"
-                                        style={ [
-                                            onboardingStyles.title,
-                                            styles.label,
-                                            isSession && styles.labelSession,
-                                        ] }
-                                    >
-                                        { entry.label }
+                                    <View style={ styles.heading }>
+                                        { isSession && (
+                                            <View
+                                                style={ [styles.marker, { backgroundColor: ACTION_ORANGE }] }
+                                            />
+                                        ) }
+                                        <AppText
+                                            variant="h3"
+                                            style={ [
+                                                onboardingStyles.title,
+                                                styles.label,
+                                                isSession && styles.labelSession,
+                                            ] }
+                                        >
+                                            { entry.label }
+                                        </AppText>
+                                    </View>
+                                    <AppText variant="caption" style={ styles.when }>
+                                        { occurrencesLabel(entry.occurrences) }
                                     </AppText>
-                                </View>
-                                <AppText variant="caption" style={ styles.when }>
-                                    { occurrencesLabel(entry.occurrences) }
-                                </AppText>
-                                { /* The session's own card only. A rule between
+                                    { /* The session's own card only. A rule between
                                      the heading and the paragraph, dotted and
                                      drawn edge to edge: the padding is
                                      cancelled so the line runs the card's full
                                      width rather than the paragraph's measure.
                                      The review cards are short enough that a
                                      rule only cut them in half. */ }
-                                { isSession && <View
-                                    style={ styles.bodyRule }
-                                    onLayout={ (event) => setRuleWidth(event.nativeEvent.layout.width) }
-                                >
-                                    { ruleWidth > 0 && (
-                                        <Svg width={ ruleWidth } height={ 1 }>
-                                            <Line
-                                                x1={ 0 }
-                                                y1={ 0.5 }
-                                                x2={ ruleWidth }
-                                                y2={ 0.5 }
-                                                stroke={ TEXT_COLORS.quaternary }
-                                                strokeWidth={ 1 }
-                                                strokeDasharray="2 4"
-                                                strokeLinecap="round"
-                                            />
-                                        </Svg>
-                                    ) }
-                                </View> }
+                                    { isSession && <View
+                                        style={ styles.bodyRule }
+                                        onLayout={ (event) => setRuleWidth(event.nativeEvent.layout.width) }
+                                    >
+                                        { ruleWidth > 0 && (
+                                            <Svg width={ ruleWidth } height={ 1 }>
+                                                <Line
+                                                    x1={ 0 }
+                                                    y1={ 0.5 }
+                                                    x2={ ruleWidth }
+                                                    y2={ 0.5 }
+                                                    stroke={ TEXT_COLORS.quaternary }
+                                                    strokeWidth={ 1 }
+                                                    strokeDasharray="2 4"
+                                                    strokeLinecap="round"
+                                                />
+                                            </Svg>
+                                        ) }
+                                    </View> }
 
-                                <AppText variant="body" style={ [onboardingStyles.body, styles.body] }>
-                                    { renderBody(entry, isSession ? onOpenTemplate : undefined) }
-                                </AppText>
+                                    <AppText variant="body" style={ [onboardingStyles.body, styles.body] }>
+                                        { renderBody(entry, isSession ? onOpenTemplate : undefined) }
+                                    </AppText>
                                 </View>
 
                                 { /* The whole card is the control, so the arrow
@@ -334,9 +334,11 @@ const styles = StyleSheet.create({
         fontSize: 21,
         lineHeight: 28,
     },
+    // The date sits under the label it belongs to and behind the paragraph in
+    // importance, so it steps back a shade further than the flow's captions.
     when: {
         marginTop: 2,
-        color: TEXT_COLORS.tertiary,
+        color: TEXT_COLORS.quaternary,
     },
     // Larger than the flow's body copy: this paragraph is the card, and at the
     // shared 16pt it read as a caption under the label rather than the thing
@@ -360,13 +362,13 @@ const styles = StyleSheet.create({
         fontStyle: 'italic',
     },
     /**
-     * The flow's link colour and weight, inside a sentence. No trailing arrow:
-     * an arrow mid-paragraph reads as punctuation, and the phrase is a proper
-     * noun, which is cue enough alongside the colour.
+     * The sentence's own face and size, set bold and in the flow's link colour.
+     * No trailing arrow: mid-sentence an arrow reads as punctuation, so weight
+     * and colour carry it between them.
      */
     bodyLink: {
         color: ONBOARDING_LINK_COLOR,
-        fontFamily: BRAND_FONTS.medium,
+        fontFamily: BRAND_FONTS.bold,
         fontWeight: undefined,
     },
 });

@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/react-native';
 import { apiRequest, configureApiClient } from '../../api/client';
-import { API_FAILURE_MESSAGE, sanitizeTelemetry } from '../telemetry';
+import { API_FAILURE_MESSAGE, reportHandledFailure, sanitizeTelemetry } from '../telemetry';
 
 const originalFetch = global.fetch;
 
@@ -70,4 +70,44 @@ it('redacts tagged transport errors and leaves unrelated exception diagnostics i
 
     const unrelated = sanitizeTelemetry({ type: undefined, exception: { values: [{ type: 'TypeError', value: 'Undefined is not a function' }] } });
     expect(unrelated.exception?.values?.[0].value).toBe('Undefined is not a function');
+});
+
+it('reports a handled call site without native error messages, causes, codes or context content', () => {
+    const failure = Object.assign(new Error('private-receipt\nprivate-note-content'), {
+        cause: new Error('private-account'), code: 'private-native-code',
+    });
+    reportHandledFailure('store', 'purchase', failure, { code: 'private-native-code', reason: 'network' });
+
+    const captured = jest.mocked(Sentry.captureException).mock.calls[0][0] as Error;
+    expect(captured).not.toBe(failure);
+    expect(captured.message).toBe('store purchase failed');
+    expect(captured.stack).toContain('src/utils/telemetry.ts');
+    expect(captured.stack).not.toContain('private');
+    expect(JSON.stringify(captured)).not.toContain('private');
+    expect(captured.cause).toBeUndefined();
+});
+
+it('does not turn arbitrary diagnostic names into outbound exception text', () => {
+    reportHandledFailure('private-account', 'private-note', { receipt: 'private-receipt' });
+    expect(jest.mocked(Sentry.captureException).mock.calls[0][0])
+        .toMatchObject({ message: 'handled unknown failed' });
+});
+
+it('allows only normalized failure reasons into diagnostic context', () => {
+    const scope = { setTag: jest.fn(), setContext: jest.fn(), setFingerprint: jest.fn() };
+    const withScope = jest.spyOn(Sentry, 'withScope').mockImplementation(
+        <T>(callback: (value: Sentry.Scope) => T) => callback(scope as unknown as Sentry.Scope),
+    );
+    try {
+        reportHandledFailure('store', 'purchase', null, { reason: 'network', code: 'private-receipt' });
+        reportHandledFailure('store', 'purchase', null, { reason: 'private-account', token: 'private-token' });
+        expect(scope.setContext.mock.calls).toEqual([['store', { reason: 'network' }]]);
+    } finally {
+        withScope.mockRestore();
+    }
+});
+
+it('keeps the handled action usable when Sentry throws', () => {
+    jest.mocked(Sentry.captureException).mockImplementationOnce(() => { throw new Error('SDK failure'); });
+    expect(() => reportHandledFailure('store', 'restore', new Error('native failure'))).not.toThrow();
 });

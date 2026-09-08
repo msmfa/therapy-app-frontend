@@ -25,10 +25,10 @@ name: Prepare a real sandbox subscription purchase
       commands:
           - tapOn: Close
 - extendedWaitUntil:
-      visible: Get more from your therapy sessions\.
+      visible: A therapy journal that reminds you to review your therapy notes
       timeout: 30000
 - tapOn: Build my plan
-- tapOn: Put therapy insights into practice throughout the week
+- tapOn: Put therapy insights into practice
 - tapOn: Continue
 - tapOn: Date. Not chosen
 - tapOn: Time. Not chosen
@@ -44,7 +44,7 @@ name: Prepare a real sandbox subscription purchase
       timeout: 30000
 - tapOn: (Start your free trial|Continue with annual)
 - extendedWaitUntil:
-      visible: Save your between-session plan
+      visible: (?i)^account$
       timeout: 30000
 - tapOn: Already have an account\? Sign in
 - extendedWaitUntil:
@@ -56,7 +56,8 @@ name: Prepare a real sandbox subscription purchase
 - inputText: ${APP_TEST_PASSWORD}
 - hideKeyboard
 - tapOn:
-      point: 50%, 63%
+      text: ^Sign in$
+      below: Password
 # The account return resumes the pending purchase and opens Apple's own
 # sandbox sheet. Authentication and confirmation are intentionally manual; no
 # sandbox password belongs in this repository or test logs.

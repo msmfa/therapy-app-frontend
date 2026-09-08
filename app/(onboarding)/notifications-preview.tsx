@@ -20,6 +20,7 @@ import {
 } from '../../src/features/onboarding/onboardingNotifications';
 import { ensurePushRegistration } from '../../src/services/notifications/pushRegistration';
 import { useAppAlert } from '../../src/context/alert';
+import { reportHandledFailure } from '../../src/utils/telemetry';
 import { TEXT_COLORS } from 'designs/designs-colors';
 import { onboardingStyles } from '../../src/components/onboarding/onboardingStyles';
 
@@ -58,7 +59,8 @@ export default function NotificationsPreviewScreen() {
             const { granted, canAskAgain } = await readNotificationPermission();
             if (!mountedRef.current) return;
             setStage(granted || canAskAgain ? 'askable' : 'blocked');
-        } catch {
+        } catch (error) {
+            reportHandledFailure('onboarding_notifications', 'read_permission', error);
             if (mountedRef.current) setStage('askable');
         }
     }, []);
@@ -86,10 +88,10 @@ export default function NotificationsPreviewScreen() {
         enableInFlightRef.current = true;
         setStage('requesting');
 
-        const { granted, canAskAgain } = await requestNotificationPermission().catch(() => ({
-            granted: false,
-            canAskAgain: false,
-        }));
+        const { granted, canAskAgain } = await requestNotificationPermission().catch((error: unknown) => {
+            reportHandledFailure('onboarding_notifications', 'request_permission', error);
+            return { granted: false, canAskAgain: false };
+        });
 
         // Permission by itself is not delivery. Register the Expo token with
         // the backend now, in the same action, so the reminder cron can reach

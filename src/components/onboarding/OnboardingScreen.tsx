@@ -95,8 +95,14 @@ type Props = BaseProps & NavigationProps;
 /** The first iOS accessibility text category starts above the standard 1.35 scale. */
 export const shouldUseCombinedOnboardingScroll = (fontScale: number): boolean => fontScale >= 1.5;
 
-/** The gutter the scroll and the footer are set in. */
-const SCREEN_PADDING = 24;
+/**
+ * The gutter the scroll and the footer are set in.
+ *
+ * Exported for content that runs out through the gutter to the display's
+ * edges, the way the supporting banner does, and has to know how far to go.
+ */
+export const ONBOARDING_SCREEN_PADDING = 24;
+const SCREEN_PADDING = ONBOARDING_SCREEN_PADDING;
 
 const BODY_BOTTOM_FADE = 48;
 const BUTTON_SHADOW_SPACE = 48;

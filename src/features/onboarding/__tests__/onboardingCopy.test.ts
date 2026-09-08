@@ -82,9 +82,10 @@ describe('purchase copy', () => {
 });
 
 describe('reminder-time copy', () => {
-	it('does not imply the evening preference controls the post-session note', () => {
-		expect(REMINDER_TIMES_COPY.eveningHint).not.toMatch(/after sessions?/i);
-		expect(REMINDER_TIMES_COPY.eveningHint).toMatch(/later in the week/i);
+	it('does not imply the time preferences control the post-session note', () => {
+		// The rows set when reviews arrive, never when the note itself is
+		// prompted for, and the line under them must not suggest otherwise.
+		expect(REMINDER_TIMES_COPY.timeHint).not.toMatch(/after sessions?/i);
 		expect(notificationsHeadline('Tuesday', '6:00 pm')).toBe(
 			'Get your first note reminder Tuesday at 6:00 pm',
 		);

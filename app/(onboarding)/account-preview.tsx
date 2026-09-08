@@ -6,6 +6,7 @@ import { OnboardingLink } from '../../src/components/onboarding/OnboardingLink';
 import AppText from '../../src/components/ui/AppText';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import { AppleSignInButton } from '../../src/components/onboarding/AppleSignInButton';
+import { AccountPlanSummary } from '../../src/components/onboarding/AccountPlanSummary';
 import { useAuth } from '../../src/context/auth/AuthContext';
 import { useOAuthLogin } from '../../src/auth/useOAuthLogin';
 import { useAppAlert } from '../../src/context/alert';
@@ -17,10 +18,11 @@ import {
 import { ACCOUNT_COPY, PURCHASE_COPY } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { purchase } from '../../src/features/subscription/storeKit';
+import { useSubscriptionOffer } from '../../src/features/subscription/useSubscriptionOffer';
+import { accountSummaryRows } from '../../src/features/onboarding/accountSummary';
 import { useEntitlementState } from '../../src/features/subscription/EntitlementContext';
 import { useOnboarding } from '../../src/context/onboarding/OnboardingContext';
 import { TEXT_COLORS } from 'designs/designs-colors';
-import { onboardingStyles } from '../../src/components/onboarding/onboardingStyles';
 import { firstIncompletePlanRoute } from '../../src/features/onboarding/flowGuard';
 
 type Stage = 'account' | 'purchasing' | 'purchase_failed' | 'purchase_unlinked';
@@ -41,6 +43,9 @@ export default function AccountPreviewScreen() {
     const { showAlert } = useAppAlert();
     const { state: entitlement, refresh: refreshEntitlement } = useEntitlementState();
     const { hasOnboarded, hydrated: onboardingHydrated } = useOnboarding();
+    // For the price on the summary: the same store read as the plans screen,
+    // so the figure here is the one they just chose.
+    const { state: offer } = useSubscriptionOffer();
 
     const [stage, setStage] = useState<Stage>('account');
     const purchaseStartedRef = useRef(false);
@@ -217,8 +222,40 @@ export default function AccountPreviewScreen() {
             supporting={ isAuthenticated
                 ? ACCOUNT_COPY.authenticatedBody
                 : ACCOUNT_COPY.body }
+            // The band the flow uses for the line a screen exists to say,
+            // rather than a paragraph about the content under it.
+            supportingAppearance="banner"
             footer={
                 <>
+                    { /* Directly above the action it governs, as on the plans
+                         screen: a notice that has to be read before the tap
+                         belongs next to the button, not up in the content
+                         with a screen's worth of space between the two. */ }
+                    <View style={ styles.legal }>
+                        <AppText variant="caption" style={ styles.legalText }>
+                            { ACCOUNT_COPY.legalIntro }
+                        </AppText>
+
+                        { /* The two documents as their own targets. Inline
+                             links inside the sentence would be 14pt tall,
+                             well under the 44pt minimum. */ }
+                        <View style={ styles.legalLinks }>
+                            <OnboardingLink
+                                label={ ACCOUNT_COPY.legalTerms }
+                                size="caption"
+                                onPress={ () => router.push('/terms-of-service') }
+                                style={ styles.legalLink }
+                            />
+
+                            <OnboardingLink
+                                label={ ACCOUNT_COPY.legalPrivacy }
+                                size="caption"
+                                onPress={ () => router.push('/privacy-policy') }
+                                style={ styles.legalLink }
+                            />
+                        </View>
+                    </View>
+
                     { isAuthenticated ? (
                         <OnboardingButton
                             label={ ACCOUNT_COPY.continue }
@@ -237,59 +274,52 @@ export default function AccountPreviewScreen() {
                                 />
                             ) }
 
+                            { /* A button like the rest of the flow's, not a
+                                 text link: it is the other way in, not a
+                                 footnote to Apple's. */ }
                             <OnboardingButton
                                 label={ ACCOUNT_COPY.email }
-                                transparent
                                 disabled={ busy }
                                 onPress={ () => openAuth('/(auth)/signup') }
+                            />
+
+                            <OnboardingButton
+                                label={ ACCOUNT_COPY.signIn }
+                                transparent
+                                disabled={ busy }
+                                onPress={ () => openAuth('/(auth)/login') }
                             />
                         </>
                     ) }
                 </>
             }
         >
-            <View style={ [onboardingStyles.card, styles.legal] }>
-                <AppText variant="caption" style={ styles.legalText }>
-                    { `${ACCOUNT_COPY.legalPrefix}${ACCOUNT_COPY.legalTerms}${ACCOUNT_COPY.legalMiddle}${ACCOUNT_COPY.legalPrivacy}${ACCOUNT_COPY.legalSuffix}` }
-                </AppText>
+            <AccountPlanSummary rows={ accountSummaryRows(
+                answers,
+                offer,
+                isAuthenticated,
+                answers.entitlementConfirmedThisSession || entitlement.status === 'active',
+            ) } />
 
-                { /* The two documents as their own targets. Inline links inside the
-                     sentence would be 14pt tall, well under the 44pt minimum. */ }
-                <View style={ styles.legalLinks }>
-                    <OnboardingLink
-                        label={ ACCOUNT_COPY.legalTerms }
-                        size="caption"
-                        onPress={ () => router.push('/terms-of-service') }
-                        style={ styles.legalLink }
-                    />
-
-                    <OnboardingLink
-                        label={ ACCOUNT_COPY.legalPrivacy }
-                        size="caption"
-                        onPress={ () => router.push('/privacy-policy') }
-                        style={ styles.legalLink }
-                    />
-                </View>
-            </View>
         </OnboardingScreen>
     );
 }
 
 const styles = StyleSheet.create({
     legal: {
-        padding: 20,
-        marginTop: 28,
+        alignItems: 'center',
     },
     legalText: {
         fontSize: 14,
         lineHeight: 21,
         color: TEXT_COLORS.secondary,
+        textAlign: 'center',
     },
     legalLinks: {
         flexDirection: 'row',
         flexWrap: 'wrap',
+        justifyContent: 'center',
         columnGap: 20,
-        marginTop: 4,
     },
     legalLink: {
         minWidth: 44,

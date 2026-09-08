@@ -15,7 +15,7 @@ import {
     isWithinFirstSessionWindow,
     latestFirstSessionAt,
 } from '../../src/utils/sessionWindow';
-import { COLOR_VARIANTS, TEXT_COLORS, THEME_COLORS } from 'designs/designs-colors';
+import { ACTION_ORANGE, COLOR_VARIANTS, TEXT_COLORS, THEME_COLORS } from 'designs/designs-colors';
 
 type Field = 'date' | 'time';
 
@@ -193,6 +193,7 @@ export default function SessionDateScreen() {
                             { isOpen && (
                                 <GlassPickerPanel style={ styles.pickerPanel }>
                                     <DateTimePicker
+                                        accentColor={ ACTION_ORANGE }
                                         value={ draft }
                                         mode={ row.field }
                                         display={ Platform.OS === 'ios' ? 'spinner' : 'default' }

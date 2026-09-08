@@ -124,6 +124,7 @@ export default function ScheduleModal({
                             { Platform.OS === 'ios' ? (
                                 <GlassPickerPanel style={ styles.iosPickerWrapper }>
                                     <DateTimePicker
+                                        accentColor={ ACTION_ORANGE }
                                         value={ time }
                                         mode="time"
                                         display="spinner"
@@ -144,6 +145,7 @@ export default function ScheduleModal({
                                     { showPicker && (
                                         <GlassPickerPanel style={ styles.androidPicker }>
                                             <DateTimePicker
+                                                accentColor={ ACTION_ORANGE }
                                                 value={ time }
                                                 mode="time"
                                                 display="default"

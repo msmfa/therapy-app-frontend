@@ -72,7 +72,7 @@ export const GOAL_OPTIONS: GoalOption[] = [
         subscriptionHeadline: 'Track your progress over time',
         restated: 'Track your progress over time',
         noteSupport:
-            "Reflect on your logged notes from weeks and months ago to see which areas you're improving in.",
+            "Reflect on your logged notes from weeks and months ago to see which areas you're improving in and which you want to work on.",
     },
 ];
 
@@ -123,9 +123,11 @@ export const REMINDER_TIMES_COPY = {
     supporting:
 		"Pick a time in the morning and evening that suits your schedule. You'll only receive one morning reminder a week, after your session.",
     morningLabel: 'Morning reviews',
-    morningHint: 'For revisiting a note after sleep',
     eveningLabel: 'Evening reviews',
-    eveningHint: 'For returning to it later in the week',
+    // The same line under both rows. The screen's opening copy no longer says
+    // the times are changeable, and that promise belongs next to the control
+    // it is about rather than in a paragraph above it.
+    timeHint: 'Can be changed within settings',
     testimonial: {
         quote: 'I like the reminder before my next session. I used to find it hard to think about what to talk about then I’d leave the session and finally remember things I wanted to bring up. With the pre-session reminder I just pick up from where I left off the week before.',
         name: 'Sarah',
@@ -207,6 +209,11 @@ export const NOTE_PREVIEW_COPY = {
     privacyTitle: 'Your note stays yours',
     privacyBody:
 		'The contents of your therapy notes are encrypted and stored only on this iPhone. They are never uploaded to our servers.',
+    // The notification shown landing over the notes when the goal is the
+    // next session: the reminder that arrives the evening before it.
+    reminderTitle: 'Plastic Brains',
+    reminderBody: "Review your notes before tomorrow's session",
+    reminderTime: 'now',
     primaryCta: 'See plans',
 } as const;
 
@@ -259,7 +266,7 @@ export const SUBSCRIPTION_COPY = {
     unavailableCta: 'Try again',
 } as const;
 
-const planBillingPeriod = (plan: PlanId): 'year' | 'month' =>
+export const planBillingPeriod = (plan: PlanId): 'year' | 'month' =>
     plan === 'annual' ? 'year' : 'month';
 
 const trialDurationLine = (trial: SubscriptionTrial): string =>
@@ -326,11 +333,23 @@ export const ACCOUNT_COPY = {
     continue: 'Continue',
     apple: 'Continue with Apple',
     email: 'Continue with email',
-    legalPrefix: 'By continuing, you agree to the ',
+    // For someone with an email account who arrives here signed out: the two
+    // buttons above make an account, and this is the way into an existing one.
+    signIn: 'Already have an account? Sign in',
+    // The three things the body says the account connects, shown back as
+    // they were answered, so the promise is concrete rather than a sentence.
+    sessionLabel: 'Next session',
+    noSession: 'Add your next session in Calendar',
+    remindersLabel: 'Reminder times',
+    subscriptionLabel: 'Subscription',
+    subscriptionActive: 'Already active',
+    cancelAnytime: 'You can cancel at any time through Apple subscriptions.',
+    // The sentence introduces the links and does not repeat their names: the
+    // two documents are their own targets underneath, and naming them twice
+    // read as a list of four.
+    legalIntro: 'By continuing, you agree to:',
     legalTerms: 'Terms of Service',
-    legalMiddle: ' and acknowledge the ',
     legalPrivacy: 'Privacy Policy',
-    legalSuffix: '.',
 } as const;
 
 export const PURCHASE_COPY = {

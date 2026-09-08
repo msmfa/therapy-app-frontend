@@ -1,4 +1,5 @@
 import * as SecureStore from 'expo-secure-store';
+import { reportHandledFailure } from '../../utils/telemetry';
 import { CADENCE_OPTIONS, GOAL_OPTIONS, type CadenceId, type GoalId } from './onboardingCopy';
 import type { PlanId } from '../subscription/types';
 import {
@@ -137,6 +138,7 @@ export async function writeDraft(userId: string | null, draft: OnboardingDraft):
         await SecureStore.setItemAsync(keyFor(userId), JSON.stringify(draft));
     } catch (error) {
         console.warn('[onboarding] could not save draft:', error);
+        reportHandledFailure('onboarding_draft', 'write', error);
     }
 }
 
@@ -145,6 +147,7 @@ export async function clearDraft(userId: string | null): Promise<void> {
         await SecureStore.deleteItemAsync(keyFor(userId));
     } catch (error) {
         console.warn('[onboarding] could not clear draft:', error);
+        reportHandledFailure('onboarding_draft', 'clear', error);
     }
 }
 
@@ -192,6 +195,7 @@ async function promoteDraft(userId: string): Promise<OnboardingDraft | null> {
             // not begin a transfer unless ownership itself is durable.
             if (existing === null) throw error;
             console.warn('[onboarding] could not claim anonymous draft:', error);
+            reportHandledFailure('onboarding_draft', 'claim', error);
             return existing;
         }
     }
@@ -209,6 +213,7 @@ async function promoteDraft(userId: string): Promise<OnboardingDraft | null> {
         await SecureStore.setItemAsync(userKey(userId), JSON.stringify(anonymous));
     } catch (error) {
         console.warn('[onboarding] could not promote draft:', error);
+        reportHandledFailure('onboarding_draft', 'promote', error);
         // Keep these answers in the current flow; hydration after a restart
         // retries the copy for this owner only.
         return anonymous;

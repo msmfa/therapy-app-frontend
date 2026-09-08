@@ -33,7 +33,7 @@ export function OnboardingProgress({ step, total = ONBOARDING_QUESTION_COUNT, in
             accessible
             accessibilityRole="progressbar"
             accessibilityLabel={ `Step ${clamped} of ${total}` }
-            accessibilityValue={ { min: 1, max: total, now: clamped } }
+            accessibilityValue={ { min: 0, max: total, now: clamped } }
         >
             <View style={ styles.meter }>
                 { /* The app's own progress bar, the one the notes list uses for

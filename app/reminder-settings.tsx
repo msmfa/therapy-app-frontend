@@ -21,7 +21,7 @@ import {
 import { readNotificationPermission, requestNotificationPermission } from '../src/features/onboarding/onboardingNotifications';
 import { ensurePushRegistration } from '../src/services/notifications/pushRegistration';
 import { dateToMinutes, minutesToDate, timeLabel } from '../src/features/onboarding/formatting';
-import { COLOR_VARIANTS, PALETTE, TEXT_COLORS } from '../designs/designs-colors';
+import { ACTION_ORANGE, COLOR_VARIANTS, PALETTE, TEXT_COLORS } from '../designs/designs-colors';
 import { GlassPickerPanel } from '../src/components/ui/GlassPickerPanel';
 
 type Slot = 'morning' | 'evening';
@@ -182,6 +182,7 @@ export default function ReminderSettingsScreen() {
                                          comes: see reminder-times. */ }
                                     { Platform.OS === 'ios' ? (
                                         <DateTimePicker
+                                            accentColor={ ACTION_ORANGE }
                                             value={ value }
                                             mode="time"
                                             display="compact"
@@ -215,6 +216,7 @@ export default function ReminderSettingsScreen() {
             { androidSlot !== null && (
                 <GlassPickerPanel style={ styles.androidPicker }>
                     <DateTimePicker
+                        accentColor={ ACTION_ORANGE }
                         value={ minutesToDate(
                             androidSlot === 'morning' ? morningMinutes : eveningMinutes,
                         ) }

@@ -138,6 +138,10 @@ describe('promoteAnonDraft', () => {
             .mockRejectedValueOnce(new Error('account write failed'));
 
         await expect(promoteAnonDraft('user-a')).resolves.toEqual(saved);
+        // Kept working for the user, and reported for us: a keychain that
+        // refuses writes is not something a console warning surfaces.
+        const Sentry = require('@sentry/react-native') as { captureException: jest.Mock };
+        expect(Sentry.captureException).toHaveBeenCalled();
         expect(await readDraft('user-a')).toBeNull();
         expect(await readDraft(null)).toBeNull();
         expect(JSON.parse(store.get('onboarding.draft.v1.anon')!)).toMatchObject({

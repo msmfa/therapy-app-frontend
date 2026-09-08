@@ -24,7 +24,7 @@ import { GLASS_CARD_RADIUS } from 'src/components/ui/GlassMorphism';
 import { BackButton } from 'src/components/ui/BackButton';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 import { useAppAlert } from '../../src/context/alert';
-import { resolveAuthReturnRoute } from '../../src/features/onboarding/authReturn';
+import { ACCOUNT_STEP_RETURN, resolveAuthReturnRoute } from '../../src/features/onboarding/authReturn';
 
 export default function LoginScreen() {
     const router = useRouter();
@@ -40,6 +40,10 @@ export default function LoginScreen() {
     // users who already finished onboarding land in the main app, and everyone
     // else resumes onboarding.
     const returnRoute = resolveAuthReturnRoute(returnTo);
+    // Signing up belongs to the account step alone. A sign-in opened to
+    // restore a purchase is for someone who has an account already: the
+    // subscription being restored was bought on it.
+    const offersSignup = returnRoute === resolveAuthReturnRoute(ACCOUNT_STEP_RETURN);
 
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
@@ -149,14 +153,15 @@ export default function LoginScreen() {
                                 />
                                 <Spacer />
                                 { /* Only where signing up here keeps the flow's order.
-                                     Opened from onboarding's account step there is a
-                                     return route, so a new account is still created
-                                     after the plan is chosen and comes straight back to
-                                     the purchase handoff. Opened from Welcome, or as the
-                                     app's entry point, there is none: offering signup
-                                     there would be a second front door into the app that
-                                     skips the plan, so the way on is the back button. */ }
-                                { returnRoute !== null && (
+                                     Opened from onboarding's account step, a new account
+                                     is still created after the plan is chosen and comes
+                                     straight back to the purchase handoff. Opened from
+                                     Welcome, or as the app's entry point, there is no
+                                     return route: offering signup there would be a second
+                                     front door into the app that skips the plan, so the
+                                     way on is the back button. Opened for a restore, the
+                                     person has an account already. */ }
+                                { offersSignup && (
                                     <View style={ styles.signupRow }>
                                         <AppText variant="caption">Don't have an account?</AppText>
                                         <InternalLink

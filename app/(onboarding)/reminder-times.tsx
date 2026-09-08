@@ -12,7 +12,7 @@ import { GlassPickerPanel } from '../../src/components/ui/GlassPickerPanel';
 import { REMINDER_TIMES_COPY } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { dateToMinutes, minutesToDate, timeLabel } from '../../src/features/onboarding/formatting';
-import { COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
+import { ACTION_ORANGE, COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
 
 type Slot = 'morning' | 'evening';
 
@@ -67,14 +67,14 @@ export default function ReminderTimesScreen() {
         {
             slot: 'morning',
             label: REMINDER_TIMES_COPY.morningLabel,
-            hint: REMINDER_TIMES_COPY.morningHint,
+            hint: REMINDER_TIMES_COPY.timeHint,
             value: morningValue,
             onChange: onMorningChange,
         },
         {
             slot: 'evening',
             label: REMINDER_TIMES_COPY.eveningLabel,
-            hint: REMINDER_TIMES_COPY.eveningHint,
+            hint: REMINDER_TIMES_COPY.timeHint,
             value: eveningValue,
             onChange: onEveningChange,
         },
@@ -118,6 +118,7 @@ export default function ReminderTimesScreen() {
                                      stacked rounded shapes. */ }
                                 { Platform.OS === 'ios' ? (
                                     <DateTimePicker
+                                        accentColor={ ACTION_ORANGE }
                                         value={ value }
                                         mode="time"
                                         display="compact"
@@ -149,6 +150,7 @@ export default function ReminderTimesScreen() {
             { androidSlot !== null && (
                 <GlassPickerPanel style={ styles.androidPicker }>
                     <DateTimePicker
+                        accentColor={ ACTION_ORANGE }
                         value={ androidSlot === 'morning' ? morningValue : eveningValue }
                         mode="time"
                         display="default"

@@ -6,6 +6,7 @@ import {
     verifySubscriptionTransaction,
 } from '../../api/subscriptions';
 import { BASE_URL, USE_DEV_SUBSCRIPTION_FIXTURE } from '../../constants/env';
+import { reportHandledFailure } from '../../utils/telemetry';
 import { DEV_FIXTURE_OFFER, DEV_FIXTURE_PURCHASE } from './devFixture';
 import {
     ENTITLEMENT_PRODUCT_IDS,
@@ -200,10 +201,13 @@ const availabilityReason = (
     return 'store_error';
 };
 
+// A failed purchase becomes "try again" for the user and nothing for us
+// unless it is reported here. Cancelling and deferring are not failures.
 const purchaseErrorResult = (error: unknown): PurchaseResult => {
     const code = errorCode(error);
     if (code === 'user-cancelled') return { status: 'cancelled' };
     if (code === 'deferred-payment' || code === 'pending') return { status: 'pending' };
+    reportHandledFailure('store', 'purchase', error, { reason: availabilityReason(error) });
     return { status: 'failed' };
 };
 
@@ -366,9 +370,10 @@ export async function loadOffer(): Promise<LoadOfferResult> {
                 trialEligible = await iap.isEligibleForIntroOfferIOS(
                     trialProduct.subscriptionGroupIdIOS,
                 );
-            } catch {
+            } catch (error) {
                 // Hiding an offer is safer than promising one when Apple cannot
                 // answer the eligibility query.
+                reportHandledFailure('store', 'trial_eligibility', error);
                 trialEligible = false;
             }
         }
@@ -382,7 +387,11 @@ export async function loadOffer(): Promise<LoadOfferResult> {
             },
         };
     } catch (error) {
-        return { status: 'unavailable', reason: availabilityReason(error) };
+        const reason = availabilityReason(error);
+        // A dropped connection is the user's to fix; the other two leave the
+        // paywall blank for everyone and are ours.
+        if (reason !== 'network') reportHandledFailure('store', 'load_offer', error, { reason });
+        return { status: 'unavailable', reason };
     }
 }
 
@@ -394,7 +403,10 @@ async function completePurchase(
     if (transaction.purchaseState !== 'purchased') return { status: 'failed' };
 
     const verified = await iap.isTransactionVerifiedIOS(transaction.productId);
-    if (!verified) return { status: 'failed' };
+    if (!verified) {
+        reportHandledFailure('store', 'verify_transaction', new Error('StoreKit could not verify the transaction'));
+        return { status: 'failed' };
+    }
 
     let serverRejected = !transaction.purchaseToken;
     if (transaction.purchaseToken) {
@@ -544,7 +556,8 @@ async function performRestore(
         return entitlement.status === 'active'
             ? { status: 'restored' }
             : { status: 'no_entitlement' };
-    } catch {
+    } catch (error) {
+        reportHandledFailure('store', 'restore', error);
         return { status: 'failed' };
     }
 }
