@@ -125,7 +125,7 @@ export const REMINDER_TIMES_COPY = {
     morningLabel: 'Morning reviews',
     eveningLabel: 'Evening reviews',
     testimonial: {
-        quote: 'I like the reminder before my next session. I used to find it hard to think about what to talk about then I’d leave the session and finally remember things I wanted to bring up. With the pre-session reminder I just pick up from where I left off the week before.',
+        quote: 'I like the reminder before my next session. I used to find it hard to think about what to talk about then I’d leave the session and finally remember things I wanted to bring up. With the pre-session reminder I just pick up from where I left off.',
         name: 'Sarah',
         role: 'Plastic Brains User',
     },
@@ -236,7 +236,6 @@ export const SUBSCRIPTION_COPY = {
     annualCta: 'Continue with annual',
     monthlyCta: 'Continue with monthly',
     annualTitle: 'Annual',
-    annualBadge: 'Best value',
     annualRenewal: 'Renews annually until cancelled.',
     // Shown instead when Apple reports the user cannot have the trial, so the
     // first charge is not left implied.

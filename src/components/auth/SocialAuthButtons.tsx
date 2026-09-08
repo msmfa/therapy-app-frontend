@@ -2,12 +2,13 @@ import React from 'react';
 import {
     ActivityIndicator,
     StyleSheet,
-    TouchableOpacity,
     View,
 } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons';
 import { useOAuthLogin } from '../../auth/useOAuthLogin';
-import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
+import { COLOR_VARIANTS } from 'designs/designs-colors';
+import { AppleSignInButton } from '../onboarding/AppleSignInButton';
+import AppText from '../ui/AppText';
+import Spacer, { SpacerVariant } from '../ui/Spacer';
 
 interface Props {
     onSuccess?: () => void;
@@ -21,49 +22,37 @@ export const SocialAuthButtons: React.FC<Props> = ({ onSuccess, disabled = false
     const appleLoading = loadingProvider === 'apple';
     const appleDisabled = appleLoading || disabled;
 
+    if (!appleAvailable) return null;
+
     return (
-        <View>
-            <View style={ styles.buttonRow }>
-                { appleAvailable && (
-                    <TouchableOpacity
-                        onPress={ signInWithApple }
-                        style={ [styles.button, appleDisabled && styles.disabledButton] }
-                        disabled={ appleDisabled }
-                        accessibilityLabel="Continue with Apple"
-                        accessibilityRole="button"
-                    >
-                        { appleLoading ? (
-                            <ActivityIndicator color={ COLOR_VARIANTS.black.primary } />
-                        ) : (
-                            <FontAwesome name='apple' size={ 26 } color={ COLOR_VARIANTS.black.primary } />
-                        ) }
-                    </TouchableOpacity>
-                ) }
-            </View>
+        <View style={ styles.section }>
+            <Spacer variant={ SpacerVariant.large } />
+            <AppText variant="caption" align="center">
+                Or continue with
+            </AppText>
+            <Spacer variant={ SpacerVariant.large } />
+            <AppleSignInButton
+                onPress={ signInWithApple }
+                disabled={ appleDisabled }
+            />
+            { appleLoading && (
+                <ActivityIndicator
+                    color={ COLOR_VARIANTS.black.primary }
+                    accessibilityLabel="Signing in with Apple"
+                    style={ styles.progress }
+                />
+            ) }
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    buttonRow: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
+    section: {
+        width: '100%',
         marginBottom: 16,
     },
-    button: {
-        width: 56,
-        height: 56,
-        borderRadius: 28,
-        borderWidth: 1,
-        borderColor: PALETTE.overlay.whiteSoftTransparent,
-        backgroundColor: PALETTE.overlay.whiteSoftTransparent,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginHorizontal: 8,
-    },
-    disabledButton: {
-        opacity: 0.6,
+    progress: {
+        marginTop: 12,
     },
 });
 

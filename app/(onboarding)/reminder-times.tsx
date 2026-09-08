@@ -9,11 +9,12 @@ import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScre
 import { onboardingStyles } from '../../src/components/onboarding/onboardingStyles';
 import { QuoteCard } from '../../src/components/onboarding/QuoteCard';
 import { GlassPickerPanel } from '../../src/components/ui/GlassPickerPanel';
+import { DottedDivider } from '../../src/components/ui/DottedDivider';
 import { REMINDER_TIMES_COPY } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { dateToMinutes, minutesToDate, timeLabel } from '../../src/features/onboarding/formatting';
 import { TIME_PICKER_BOUNDS } from '../../src/utils/timePickerBounds';
-import { ACTION_ORANGE, COLOR_VARIANTS } from 'designs/designs-colors';
+import { ACTION_ORANGE } from 'designs/designs-colors';
 
 type Slot = 'morning' | 'evening';
 
@@ -88,7 +89,7 @@ export default function ReminderTimesScreen() {
 
                     return (
                         <View key={ row.slot }>
-                            { index > 0 && <View style={ styles.divider } /> }
+                            { index > 0 && <DottedDivider /> }
 
                             <View style={ [styles.row, stackTimeFields && styles.stackedRow] }>
                                 <View style={ styles.rowText }>
@@ -174,10 +175,6 @@ const styles = StyleSheet.create({
     },
     androidPicker: {
         marginTop: 16,
-    },
-    divider: {
-        height: 1,
-        backgroundColor: COLOR_VARIANTS.white.tertiary,
     },
     quote: {
         marginTop: 20,

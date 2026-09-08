@@ -7,6 +7,7 @@ import { OnboardingButton } from '../../src/components/onboarding/OnboardingButt
 import AppText from '../../src/components/ui/AppText';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import { GlassPickerPanel } from '../../src/components/ui/GlassPickerPanel';
+import { DottedDivider } from '../../src/components/ui/DottedDivider';
 import { onboardingStyles } from '../../src/components/onboarding/onboardingStyles';
 import { SESSION_DATE_COPY } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
@@ -166,7 +167,7 @@ export default function SessionDateScreen() {
 
                     return (
                         <View key={ row.field }>
-                            { index > 0 && <View style={ styles.divider } /> }
+                            { index > 0 && <DottedDivider /> }
 
                             <TouchableOpacity
                                 onPress={ () => togglePicker(row.field) }
@@ -257,10 +258,6 @@ const styles = StyleSheet.create({
         flexShrink: 1,
         textAlign: 'right',
         color: TEXT_COLORS.secondary,
-    },
-    divider: {
-        height: 1,
-        backgroundColor: COLOR_VARIANTS.white.tertiary,
     },
     pickerPanel: {
         marginBottom: 14,

@@ -27,7 +27,7 @@ export function AppleSignInButton({ onPress, disabled = false }: Props) {
                 buttonStyle={ AppleAuthentication.AppleAuthenticationButtonStyle.BLACK }
                 cornerRadius={ 30 }
                 style={ styles.button }
-                onPress={ onPress }
+                onPress={ () => { if (!disabled) onPress(); } }
             />
         </View>
     );

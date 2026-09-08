@@ -24,6 +24,7 @@ import { dateToMinutes, minutesToDate, timeLabel } from '../src/features/onboard
 import { TIME_PICKER_BOUNDS } from '../src/utils/timePickerBounds';
 import { ACTION_ORANGE, COLOR_VARIANTS, PALETTE, TEXT_COLORS } from '../designs/designs-colors';
 import { GlassPickerPanel } from '../src/components/ui/GlassPickerPanel';
+import { DottedDivider } from '../src/components/ui/DottedDivider';
 
 type Slot = 'morning' | 'evening';
 type NotificationStatus = 'checking' | 'on' | 'off';
@@ -167,7 +168,7 @@ export default function ReminderSettingsScreen() {
                         const value = minutesToDate(row.minutes);
                         return (
                             <View key={ row.slot }>
-                                { index > 0 && <View style={ styles.divider } /> }
+                                { index > 0 && <DottedDivider /> }
                                 <View style={ styles.timeRow }>
                                     <View style={ styles.timeCopy }>
                                         <AppText variant="h3" style={ styles.label }>
@@ -261,10 +262,6 @@ const styles = StyleSheet.create({
     },
     label: {
         fontSize: 17,
-    },
-    divider: {
-        height: 1,
-        backgroundColor: COLOR_VARIANTS.white.tertiary,
     },
     notificationSection: {
         marginBottom: 18,

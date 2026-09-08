@@ -268,7 +268,6 @@ export default function SubscriptionPreviewScreen() {
             <View style={ styles.plans } accessibilityRole="radiogroup">
                 <SubscriptionPlanCard
                     title={ SUBSCRIPTION_COPY.annualTitle }
-                    badge={ SUBSCRIPTION_COPY.annualBadge }
                     trialBadge={
                         showAnnualTrial && offer.annual.trial !== null
                             ? trialBadgeLine(offer.annual.trial)

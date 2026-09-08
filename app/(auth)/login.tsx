@@ -12,7 +12,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/auth/AuthContext';
 import SocialAuthButtons from '../../src/components/auth/SocialAuthButtons';
 import { OnboardingButton } from 'src/components/onboarding/OnboardingButton';
-import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
+import Spacer from 'src/components/ui/Spacer';
 import TextField from 'src/components/ui/TextField';
 import PasswordField from 'src/components/ui/PasswordField';
 import AppText from '../../src/components/ui/AppText';
@@ -141,12 +141,7 @@ export default function LoginScreen() {
                                      sign-in sits one tap from Welcome, and the
                                      two buttons were different sizes and
                                      radii. */ }
-                                <OnboardingButton label="Sign in" onPress={ onSubmit } loading={ loading } />
-                                <Spacer variant={ SpacerVariant.large } />
-                                <AppText variant="caption" align="center">
-                                    Or continue with
-                                </AppText>
-                                <Spacer variant={ SpacerVariant.large } />
+                                <OnboardingButton label="Sign in" appearance="solid" onPress={ onSubmit } loading={ loading } />
                                 <SocialAuthButtons
                                     onSuccess={ () => router.replace(returnRoute ?? '/') }
                                     disabled={ loading }

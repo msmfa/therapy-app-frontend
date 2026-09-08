@@ -105,5 +105,6 @@ const styles = StyleSheet.create({
     },
     timeline: {
         marginTop: 24,
+        marginHorizontal: -8,
     },
 });

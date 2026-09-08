@@ -78,6 +78,9 @@ describe('the plan is split across two screens', () => {
         expect(link.props.accessibilityRole).toBe('link');
         expect(link.props.onPress).toBeDefined();
         expect(queryByText('Why these five questions?')).toBeNull();
+
+        fireEvent.press(link);
+        expect(mockPush).toHaveBeenCalledWith('/why-five-questions');
     });
 
     it('no longer carries a testimonial on the plan preview', () => {
