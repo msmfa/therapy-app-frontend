@@ -483,7 +483,7 @@ describe('restored-subscription onboarding routing', () => {
         const { getByText } = render(<AccountPreviewScreen />);
         fireEvent.press(getByText('Continue'));
 
-        await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/(tabs)'));
+        await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/(tabs)/notes'));
         expect(mockPurchase).not.toHaveBeenCalled();
         expect(mockReplace).not.toHaveBeenCalledWith('/(onboarding)/notifications-preview');
     });
@@ -499,7 +499,7 @@ describe('restored-subscription onboarding routing', () => {
         await waitFor(() => {
             expect(mockPurchase).toHaveBeenCalledWith('annual', { entryPoint: 'account' });
             expect(mockRefreshEntitlement).toHaveBeenCalledTimes(1);
-            expect(mockReplace).toHaveBeenCalledWith('/(tabs)');
+            expect(mockReplace).toHaveBeenCalledWith('/(tabs)/notes');
         });
         expect(mockReplace).not.toHaveBeenCalledWith('/(onboarding)/notifications-preview');
     });
@@ -520,6 +520,6 @@ describe('restored-subscription onboarding routing', () => {
             true,
         );
         expect(mockReplace).not.toHaveBeenCalledWith('/(onboarding)/notifications-preview');
-        expect(mockReplace).not.toHaveBeenCalledWith('/(tabs)');
+        expect(mockReplace).not.toHaveBeenCalledWith('/(tabs)/notes');
     });
 });

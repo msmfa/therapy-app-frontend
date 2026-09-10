@@ -124,9 +124,9 @@ describe('onboarding completion', () => {
 
 		const { getByText } = render(<SuccessScreen />);
 		expect(getByText('Your sample plan is ready')).toBeTruthy();
-		fireEvent.press(getByText('Save and add my session'));
+		fireEvent.press(getByText('Save and view my notes'));
 
-		await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/(tabs)/calendar'));
+		await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/(tabs)/notes'));
 		expect(mockAddSessions).not.toHaveBeenCalled();
 		expect(mockUpdateCurrentUser).toHaveBeenCalledWith({
 			morningReminderMinutes: 405,
@@ -143,7 +143,7 @@ describe('onboarding completion', () => {
 		let finish!: () => void;
 		mockFinishOnboarding.mockImplementationOnce(() => new Promise<void>((resolve) => { finish = resolve; }));
 		const { getByText } = render(<SuccessScreen />);
-		fireEvent.press(getByText('Save and see my plan'));
+		fireEvent.press(getByText('Save and view my notes'));
 		await waitFor(() => expect(mockFinishOnboarding).toHaveBeenCalledTimes(1));
 		expect(mockCapture).not.toHaveBeenCalled();
 		mockAnalyticsGeneration += 1;
@@ -154,9 +154,9 @@ describe('onboarding completion', () => {
 
 	it('saves sessions and reminder choices before completing and clearing the draft', async () => {
 		const { getByText } = render(<SuccessScreen />);
-		fireEvent.press(getByText('Save and see my plan'));
+		fireEvent.press(getByText('Save and view my notes'));
 
-		await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/(tabs)/calendar'));
+		await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/(tabs)/notes'));
 
 		const projected = mockAddSessions.mock.calls[0][0] as Date[];
 		expect(projected[0]).toEqual(mockSessionAt);
@@ -190,7 +190,7 @@ describe('onboarding completion', () => {
 		mockAddSessions.mockRejectedValue(new Error('offline'));
 
 		const { getByText } = render(<SuccessScreen />);
-		fireEvent.press(getByText('Save and see my plan'));
+		fireEvent.press(getByText('Save and view my notes'));
 
 		await waitFor(() =>
 			expect(mockShowAlert).toHaveBeenCalledWith(
@@ -214,7 +214,7 @@ describe('onboarding completion', () => {
 		mockUpdateCurrentUser.mockRejectedValueOnce(new Error('offline'));
 
 		const { getByText } = render(<SuccessScreen />);
-		fireEvent.press(getByText('Save and see my plan'));
+		fireEvent.press(getByText('Save and view my notes'));
 
 		await waitFor(() =>
 			expect(mockShowAlert).toHaveBeenCalledWith(
@@ -231,8 +231,8 @@ describe('onboarding completion', () => {
 
 		// A retry replays the idempotent session union and then finishes the
 		// remaining writes instead of leaving a half-onboarded account.
-		fireEvent.press(getByText('Save and see my plan'));
-		await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/(tabs)/calendar'));
+		fireEvent.press(getByText('Save and view my notes'));
+		await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/(tabs)/notes'));
 		expect(mockAddSessions).toHaveBeenCalledTimes(2);
 		expect(mockUpdateCurrentUser).toHaveBeenCalledTimes(2);
 		expect(mockFinishOnboarding).toHaveBeenCalledTimes(1);
@@ -243,7 +243,7 @@ describe('onboarding completion', () => {
 		mockFinishOnboarding.mockRejectedValueOnce(new Error('storage failed'));
 
 		const { getByText } = render(<SuccessScreen />);
-		fireEvent.press(getByText('Save and see my plan'));
+		fireEvent.press(getByText('Save and view my notes'));
 
 		await waitFor(() =>
 			expect(mockShowAlert).toHaveBeenCalledWith(
@@ -265,7 +265,7 @@ describe('onboarding completion', () => {
 		const { getByText, queryByText } = render(<SuccessScreen />);
 
 		expect(getByText('redirect:/(onboarding)/session-cadence')).toBeTruthy();
-		expect(queryByText('Save and see my plan')).toBeNull();
+		expect(queryByText('Save and view my notes')).toBeNull();
 		expect(mockFinishOnboarding).not.toHaveBeenCalled();
 	});
 
@@ -273,7 +273,7 @@ describe('onboarding completion', () => {
 		const { getByText } = render(<SuccessScreen />);
 		const clock = jest.spyOn(Date, 'now').mockReturnValue(mockSessionAt.getTime());
 		try {
-			fireEvent.press(getByText('Save and see my plan'));
+			fireEvent.press(getByText('Save and view my notes'));
 			expect(mockAddSessions).not.toHaveBeenCalled();
 			expect(mockUpdateCurrentUser).not.toHaveBeenCalled();
 			expect(mockFinishOnboarding).not.toHaveBeenCalled();
@@ -290,7 +290,7 @@ describe('onboarding completion', () => {
 		const { getByText, queryByText } = render(<SuccessScreen />);
 
 		expect(getByText('redirect:/(onboarding)/subscription-preview')).toBeTruthy();
-		expect(queryByText('Save and see my plan')).toBeNull();
+		expect(queryByText('Save and view my notes')).toBeNull();
 		expect(mockFinishOnboarding).not.toHaveBeenCalled();
 	});
 });

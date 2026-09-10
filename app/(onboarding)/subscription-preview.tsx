@@ -113,7 +113,7 @@ export default function SubscriptionPreviewScreen() {
                             router.replace(
                                 isAuthenticated
                                     ? hasOnboarded
-                                        ? '/(tabs)'
+                                        ? '/(tabs)/notes'
                                         : '/(onboarding)/notifications-preview'
                                     : '/(onboarding)/account-preview',
                             ),
@@ -163,7 +163,7 @@ export default function SubscriptionPreviewScreen() {
 
         activeEntitlementHandledRef.current = true;
         setAnswer('entitlementConfirmedThisSession', true);
-        router.replace(hasOnboarded ? '/(tabs)' : '/(onboarding)/notifications-preview');
+        router.replace(hasOnboarded ? '/(tabs)/notes' : '/(onboarding)/notifications-preview');
     }, [entitlement.status, hasOnboarded, incompletePlanRoute, isAuthenticated, router, setAnswer]);
 
     if (incompletePlanRoute !== null) {

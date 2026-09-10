@@ -131,7 +131,12 @@ export function Gate() {
     return (
         <View style={ styles.root }>
             <NotificationNavigationHandler isReady={ isMainAppReady } />
-            <Stack screenOptions={ { headerShown: false } }>
+            <Stack initialRouteName="index" screenOptions={ { headerShown: false } }>
+                { /* A guard can remove checkout before account hydration or
+                      entitlement refresh finishes. Always fall back through
+                      Index, which waits and chooses the correct destination,
+                      instead of landing on standalone account settings. */ }
+                <Stack.Screen name="index" />
                 { /* Route 1: Authentication screens - reachable whenever nobody is signed
                       in, so a logged-out visitor can deliberately choose sign-in or
                       signup from onboarding instead of being forced through it first. */ }
