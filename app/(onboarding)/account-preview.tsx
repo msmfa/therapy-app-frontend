@@ -67,7 +67,8 @@ export default function AccountPreviewScreen() {
         // the same subscription again.
         if (answers.entitlementConfirmedThisSession) {
             if (isAuthenticated) {
-                router.replace(hasOnboarded ? '/(tabs)/notes' : '/(onboarding)/notifications-preview');
+                if (hasOnboarded) refreshEntitlement();
+                if (!hasOnboarded) router.replace('/(onboarding)/notifications-preview');
             }
             return;
         }
@@ -78,7 +79,7 @@ export default function AccountPreviewScreen() {
         // we consider presenting Apple with another purchase request.
         if (entitlement.status === 'active') {
             setAnswer('entitlementConfirmedThisSession', true);
-            router.replace(hasOnboarded ? '/(tabs)/notes' : '/(onboarding)/notifications-preview');
+            if (!hasOnboarded) router.replace('/(onboarding)/notifications-preview');
             return;
         }
 
@@ -97,9 +98,12 @@ export default function AccountPreviewScreen() {
             // Apple opened the purchase sheet. Put it into loading immediately
             // and re-read StoreKit, otherwise finishing onboarding can enter the
             // paid tabs and be bounced straight back to this paywall.
+            // Returning subscribers leave through the root guard when this
+            // refresh settles. Do not also replace a route in the stack that
+            // the guard is removing. New users stay inside onboarding.
             refreshEntitlement();
             setAnswer('entitlementConfirmedThisSession', true);
-            router.replace(hasOnboarded ? '/(tabs)/notes' : '/(onboarding)/notifications-preview');
+            if (!hasOnboarded) router.replace('/(onboarding)/notifications-preview');
             return;
         }
 

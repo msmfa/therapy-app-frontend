@@ -87,7 +87,9 @@ export default function SuccessScreen() {
             // Only now: the flow is done, so the draft has nothing left to
             // resume and no reason to sit in the keychain.
             await discardDraft();
-            router.replace('/(tabs)/notes');
+            // finishOnboarding changes the root guard, which opens Notes.
+            // This screen may already be unmounted after clearing the draft;
+            // another replace here would race that native stack transition.
         } catch (error) {
             analyticsScope.capture('critical_action_failed', {
                 operation: 'onboarding_save',

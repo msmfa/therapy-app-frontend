@@ -32,6 +32,7 @@ jest.mock('../../src/features/subscription/EntitlementContext', () => ({ useEnti
 jest.mock('../../src/features/subscription/storeKit', () => ({ initializeStoreKit: jest.fn() }));
 jest.mock('../../src/hooks/usePushNotifications', () => ({ usePushNotifications: jest.fn() }));
 jest.mock('../../src/hooks/useTimeZoneSync', () => ({ useTimeZoneSync: jest.fn() }));
+jest.mock('../../src/features/dev/DemoSeedRunner', () => ({ DemoSeedRunner: () => null }));
 import { Gate } from '../_layout';
 const response = (id: string): NotificationResponse => ({ notification: { request: { identifier: id, content: { data: { kind: 'review_note', privateText: 'never export' } } } } }) as unknown as NotificationResponse;
 beforeEach(() => {

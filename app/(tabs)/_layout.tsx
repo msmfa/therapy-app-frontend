@@ -21,7 +21,7 @@ export default function TabsLayout() {
         <EntitlementGate>
             <View style={ styles.root }>
                 <Tabs
-                    initialRouteName="index"
+                    initialRouteName="notes"
                     screenOptions={ {
                         lazy: false,
                         headerShown: false,

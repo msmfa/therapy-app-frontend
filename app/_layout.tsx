@@ -29,6 +29,8 @@ import { AppAlertProvider } from '../src/context/alert';
 import { useFonts } from 'expo-font';
 import { initializeStoreKit } from '../src/features/subscription/storeKit';
 import { AnalyticsInitializer } from '../src/components/analytics/AnalyticsInitializer';
+import { DemoSeedRunner } from '../src/features/dev/DemoSeedRunner';
+
 import { captureNotificationOpened, rememberNotificationReceipt, type NotificationAnalyticsReceipt } from '../src/features/analytics/notificationAnalytics';
 
 const configuredSentryDsn: unknown = process.env.EXPO_PUBLIC_SENTRY_DSN ?? process.env.SENTRY_DSN;
@@ -91,7 +93,10 @@ export function Gate() {
     // A subscriber whose plan lapsed has finished onboarding but still needs the
     // paywall, so the group stays mounted for them. Without this the paid area's
     // guard would redirect to a route that is not registered.
-    const needsSubscriptionFlow = entitlement.status === 'inactive';
+    // Keep checkout mounted while its post-purchase refresh is pending. Removing
+    // its native stack while Apple's confirmation sheet dismisses can leave
+    // iOS showing an empty controller. Switch only after the check settles.
+    const needsSubscriptionFlow = entitlement.status === 'inactive' || entitlement.status === 'loading';
 
     // All persisted state must be hydrated before we can route.
     const isFullyHydrated = authHydrated && onboardingHydrated && answersHydrated;
@@ -131,11 +136,15 @@ export function Gate() {
     return (
         <View style={ styles.root }>
             <NotificationNavigationHandler isReady={ isMainAppReady } />
-            <Stack initialRouteName="index" screenOptions={ { headerShown: false } }>
-                { /* A guard can remove checkout before account hydration or
-                      entitlement refresh finishes. Always fall back through
-                      Index, which waits and chooses the correct destination,
-                      instead of landing on standalone account settings. */ }
+            <Stack screenOptions={ { headerShown: false } }>
+                { /* The root owns the checkout-to-app transition. Put the paid
+                      group first so a removed checkout falls directly into its
+                      Notes tab, without an intermediate blank Index redirect. */ }
+                <Stack.Protected guard={ isMainAppReady }>
+                    <Stack.Screen name="(tabs)" options={ { headerShown: false } } />
+                </Stack.Protected>
+                { /* While account hydration is incomplete, Index waits before
+                      choosing a destination. Keep it ahead of account settings. */ }
                 <Stack.Screen name="index" />
                 { /* Route 1: Authentication screens - reachable whenever nobody is signed
                       in, so a logged-out visitor can deliberately choose sign-in or
@@ -148,14 +157,6 @@ export function Gate() {
                       whether or not the visitor has an account yet. */ }
                 <Stack.Protected guard={ routingReady && (!hasOnboarded || needsSubscriptionFlow) }>
                     <Stack.Screen name="(onboarding)" />
-                </Stack.Protected>
-
-                { /* Route 3: Main app - show when authenticated and onboarded */ }
-                { /* Requiring the freshly hydrated account here prevents one
-                      render of the previous account's onboarding state from
-                      opening the paid app during an account switch. */ }
-                <Stack.Protected guard={ isMainAppReady }>
-                    <Stack.Screen name="(tabs)" options={ { headerShown: false } } />
                 </Stack.Protected>
 
                 { /* Account deletion and logout are available without payment
@@ -210,6 +211,10 @@ export default Sentry.wrap(function RootLayout() {
                                 <EntitlementProvider>
                                     <SafeAreaProvider>
                                         <AnalyticsInitializer />
+                                        { /* Inert unless EXPO_PUBLIC_SEED_DEMO=1 in a dev
+                                             bundle. Writes the demo account's notes and
+                                             review history for screenshots and recordings. */ }
+                                        <DemoSeedRunner />
                                         <Initializer />
                                         <Gate />
                                     </SafeAreaProvider>

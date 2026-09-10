@@ -126,7 +126,8 @@ describe('onboarding completion', () => {
 		expect(getByText('Your sample plan is ready')).toBeTruthy();
 		fireEvent.press(getByText('Save and view my notes'));
 
-		await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/(tabs)/notes'));
+		await waitFor(() => expect(mockDiscardDraft).toHaveBeenCalledTimes(1));
+		expect(mockReplace).not.toHaveBeenCalled();
 		expect(mockAddSessions).not.toHaveBeenCalled();
 		expect(mockUpdateCurrentUser).toHaveBeenCalledWith({
 			morningReminderMinutes: 405,
@@ -156,7 +157,8 @@ describe('onboarding completion', () => {
 		const { getByText } = render(<SuccessScreen />);
 		fireEvent.press(getByText('Save and view my notes'));
 
-		await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/(tabs)/notes'));
+		await waitFor(() => expect(mockDiscardDraft).toHaveBeenCalledTimes(1));
+		expect(mockReplace).not.toHaveBeenCalled();
 
 		const projected = mockAddSessions.mock.calls[0][0] as Date[];
 		expect(projected[0]).toEqual(mockSessionAt);
@@ -181,9 +183,8 @@ describe('onboarding completion', () => {
 		expect(mockFinishOnboarding.mock.invocationCallOrder[0]).toBeLessThan(
 			mockDiscardDraft.mock.invocationCallOrder[0],
 		);
-		expect(mockDiscardDraft.mock.invocationCallOrder[0]).toBeLessThan(
-			mockReplace.mock.invocationCallOrder[0],
-		);
+		// Navigation is the root guard's job once finishOnboarding lands; the
+		// screen no longer replaces its own route.
 	});
 
 	it('keeps the draft and onboarding state when the schedule cannot be saved', async () => {
@@ -232,7 +233,8 @@ describe('onboarding completion', () => {
 		// A retry replays the idempotent session union and then finishes the
 		// remaining writes instead of leaving a half-onboarded account.
 		fireEvent.press(getByText('Save and view my notes'));
-		await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/(tabs)/notes'));
+		await waitFor(() => expect(mockDiscardDraft).toHaveBeenCalledTimes(1));
+		expect(mockReplace).not.toHaveBeenCalled();
 		expect(mockAddSessions).toHaveBeenCalledTimes(2);
 		expect(mockUpdateCurrentUser).toHaveBeenCalledTimes(2);
 		expect(mockFinishOnboarding).toHaveBeenCalledTimes(1);

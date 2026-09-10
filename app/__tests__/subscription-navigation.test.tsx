@@ -10,6 +10,7 @@ let mockOnboardingHydrated = true;
 let mockEntitlement: EntitlementState = { status: 'inactive' };
 let redraw: () => void;
 const mockRenderContext = React.createContext(0);
+const mockIndexRendered = jest.fn();
 
 jest.mock('../../src/context/auth/AuthContext', () => ({
     useAuth: () => {
@@ -56,7 +57,7 @@ function Root() {
 function mount(initialUrl: string) {
     return renderRouter({
         _layout: Root,
-        index: Index,
+        index: () => { mockIndexRendered(); return <Index />; },
         '(auth)/_layout': () => <Stack />,
         '(auth)/login': () => <Text>Sign in</Text>,
         '(onboarding)/_layout': () => <Stack />,
@@ -74,11 +75,22 @@ function mount(initialUrl: string) {
     }, { initialUrl });
 }
 
+// The root guard drops a removed checkout or onboarding screen straight into
+// the (tabs) group and lets the tab navigator choose Notes, so the pathname
+// stays "/" until a tab is pressed. Assert the focused tab, not a URL the app
+// never navigated to.
+async function expectNotesTab(view: ReturnType<typeof mount>) {
+    await waitFor(() => expect(screen.getByText('Your notes')).toBeTruthy());
+    expect(view.getSegments()[0]).toBe('(tabs)');
+    expect(screen.getByLabelText('Notes, tab, 3 of 4').props.accessibilityState.selected).toBe(true);
+}
+
 beforeEach(() => {
     mockAuthenticated = true;
     mockOnboarded = false;
     mockOnboardingHydrated = true;
     mockEntitlement = { status: 'inactive' };
+    mockIndexRendered.mockClear();
 });
 
 it('opens Notes with the tab navigator when onboarding completes', async () => {
@@ -86,9 +98,10 @@ it('opens Notes with the tab navigator when onboarding completes', async () => {
     const view = mount('/success');
     expect(screen.getByText('Finish onboarding')).toBeTruthy();
     act(() => { mockOnboarded = true; redraw(); });
-    await waitFor(() => expect(view.getPathname()).toBe('/notes'));
+    await expectNotesTab(view);
     expect(screen.getByText('Your notes')).toBeTruthy();
     expect(screen.getByLabelText('Calendar, tab, 2 of 4')).toBeTruthy();
+    expect(mockIndexRendered).not.toHaveBeenCalled();
     expect(screen.queryByText('Standalone settings')).toBeNull();
 });
 
@@ -109,7 +122,7 @@ it('does not strand a returning subscriber in settings during sign-in hydration'
         mockEntitlement = { status: 'active', plan: 'annual', productId: 'annual', expiresAt: null };
         redraw();
     });
-    await waitFor(() => expect(view.getPathname()).toBe('/notes'));
+    await expectNotesTab(view);
     expect(screen.getByText('Your notes')).toBeTruthy();
 });
 
@@ -118,12 +131,17 @@ it('returns a renewed subscriber to Notes after entitlement refresh removes chec
     const view = mount('/account-preview');
     expect(screen.getByText('Checkout')).toBeTruthy();
     act(() => { mockEntitlement = { status: 'loading' }; redraw(); });
+    // The native purchase sheet is dismissing: keep its presenting screen
+    // mounted until the refreshed entitlement has actually answered.
+    expect(screen.getByText('Checkout')).toBeTruthy();
+    expect(view.getPathname()).toBe('/account-preview');
     act(() => {
         mockEntitlement = { status: 'active', plan: 'annual', productId: 'annual', expiresAt: null };
         redraw();
     });
-    await waitFor(() => expect(view.getPathname()).toBe('/notes'));
+    await expectNotesTab(view);
     expect(screen.getByLabelText('Calendar, tab, 2 of 4')).toBeTruthy();
+    expect(mockIndexRendered).not.toHaveBeenCalled();
 });
 
 it('keeps account settings available when deliberately opened without a subscription', () => {

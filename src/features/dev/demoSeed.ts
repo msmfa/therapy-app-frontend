@@ -24,7 +24,7 @@ import { recordReview } from '../reviews/reviewStore';
 import { planDemoSeed } from './demoSeedPlan';
 
 /** Bumped when the seeded content changes, so an existing install reseeds. */
-const SEED_VERSION = 'v1';
+const SEED_VERSION = 'v2';
 const SEED_MARKER_PREFIX = 'dev:demoSeed:';
 
 const markerKey = (userId: string) => `${SEED_MARKER_PREFIX}${SEED_VERSION}:${userId}`;
