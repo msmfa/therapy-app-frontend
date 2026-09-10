@@ -77,6 +77,9 @@ let purchaseAttemptCount = 0;
 // entitlement refresh can finish it immediately, without waiting for another
 // process launch to make Apple replay it again.
 const transactionsWaitingForAuth = new Map<string, Purchase>();
+// The listener and requestPurchase's resolved value can both carry the same
+// transaction. Complete each one once, however many paths deliver it.
+const completionsInFlight = new Set<string>();
 let purchaseWaiter: {
     productId: string;
     settle: (result: PurchaseResult) => void;
@@ -92,6 +95,29 @@ const settlePurchaseWaiter = (productId: string | null, result: PurchaseResult):
     settle(result);
 };
 
+const deliverPurchase = (iap: IapModule, transaction: Purchase): void => {
+    if (!ENTITLEMENT_PRODUCT_IDS.includes(transaction.productId)) return;
+    if (completionsInFlight.has(transaction.id)) return;
+    completionsInFlight.add(transaction.id);
+
+    void completePurchase(iap, transaction)
+        .then((result) => {
+            transactionsWaitingForAuth.delete(transaction.id);
+            settlePurchaseWaiter(transaction.productId, result);
+        })
+        .catch((error: unknown) => {
+            if (responseStatus(error) === 401) {
+                transactionsWaitingForAuth.set(transaction.id, transaction);
+                settlePurchaseWaiter(transaction.productId, { status: 'unlinked' });
+                return;
+            }
+            settlePurchaseWaiter(transaction.productId, { status: 'failed' });
+        })
+        .finally(() => {
+            completionsInFlight.delete(transaction.id);
+        });
+};
+
 const installStoreListeners = (iap: IapModule): void => {
     if (listenersInstalled) return;
 
@@ -99,21 +125,7 @@ const installStoreListeners = (iap: IapModule): void => {
     // pending purchase after its original screen has gone away; that later
     // transaction still has to be verified and finished.
     const updatedSubscription = iap.purchaseUpdatedListener((transaction) => {
-        if (!ENTITLEMENT_PRODUCT_IDS.includes(transaction.productId)) return;
-
-        void completePurchase(iap, transaction)
-            .then((result) => {
-                transactionsWaitingForAuth.delete(transaction.id);
-                settlePurchaseWaiter(transaction.productId, result);
-            })
-            .catch((error: unknown) => {
-                if (responseStatus(error) === 401) {
-                    transactionsWaitingForAuth.set(transaction.id, transaction);
-                    settlePurchaseWaiter(transaction.productId, { status: 'unlinked' });
-                    return;
-                }
-                settlePurchaseWaiter(transaction.productId, { status: 'failed' });
-            });
+        deliverPurchase(iap, transaction);
     });
 
     try {
@@ -478,7 +490,18 @@ const performPurchase = async (plan: PlanId): Promise<PurchaseResult> => {
                     },
                 },
                 type: 'subs',
-            }).catch((error: unknown) => {
+            }).then((returned) => {
+                // expo-iap delivers each transaction id to the listener once.
+                // When Apple answers a retry with a transaction the listener
+                // has already seen, such as the subscription this account
+                // already owns, only this resolved value carries it, and the
+                // attempt would otherwise never settle.
+                if (purchaseWaiter?.diagnostics !== diagnostics) return;
+                const purchases = Array.isArray(returned) ? returned : returned ? [returned] : [];
+                for (const delivered of purchases) {
+                    if (delivered.productId === productId) deliverPurchase(iap, delivered);
+                }
+            }, (error: unknown) => {
                 // A late rejection must not settle a subsequent retry.
                 if (purchaseWaiter?.diagnostics === diagnostics) {
                     handlePurchaseError(error, productId, 'request');
