@@ -227,6 +227,32 @@ describe('real StoreKit bridge', () => {
         ]);
     });
 
+    it('completes a transaction that only requestPurchase returns', async () => {
+        const { purchase, PRODUCT_IDS } = loadStoreKit();
+        const annualTransaction = transaction(PRODUCT_IDS.annual);
+        // expo-iap delivers each transaction id to the listener once. A retry
+        // that Apple answers with the subscription this account already owns
+        // arrives only as the resolved value, and used to hang the attempt.
+        mockRequestPurchase.mockResolvedValue(annualTransaction);
+
+        await expect(purchase('annual')).resolves.toEqual({ status: 'purchased' });
+        expect(mockVerifySubscriptionTransaction).toHaveBeenCalledTimes(1);
+        expect(mockFinishTransaction).toHaveBeenCalledTimes(1);
+    });
+
+    it('completes a transaction once when the listener and the request both deliver it', async () => {
+        const { purchase, PRODUCT_IDS } = loadStoreKit();
+        const annualTransaction = transaction(PRODUCT_IDS.annual);
+        mockRequestPurchase.mockImplementation(async () => {
+            mockPurchaseUpdatedHandler?.(annualTransaction);
+            return annualTransaction;
+        });
+
+        await expect(purchase('annual')).resolves.toEqual({ status: 'purchased' });
+        expect(mockVerifySubscriptionTransaction).toHaveBeenCalledTimes(1);
+        expect(mockFinishTransaction).toHaveBeenCalledTimes(1);
+    });
+
     it('captures one canonical checkout for concurrent callers and drops a late result after account change', async () => {
         const { purchase } = loadStoreKit();
         let rejectRequest!: (error: unknown) => void;
