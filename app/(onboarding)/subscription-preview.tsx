@@ -109,14 +109,10 @@ export default function SubscriptionPreviewScreen() {
                 showAlert(PURCHASE_COPY.restoredTitle, PURCHASE_COPY.restored, {
                     primaryAction: {
                         label: PURCHASE_COPY.continue,
-                        onPress: () =>
-                            router.replace(
-                                isAuthenticated
-                                    ? hasOnboarded
-                                        ? '/(tabs)/notes'
-                                        : '/(onboarding)/notifications-preview'
-                                    : '/(onboarding)/account-preview',
-                            ),
+                        onPress: () => {
+                            // The root guard already handles returning subscribers.
+                            if (!hasOnboarded) router.replace('/(onboarding)/notifications-preview');
+                        },
                     },
                 });
                 return;
@@ -163,7 +159,7 @@ export default function SubscriptionPreviewScreen() {
 
         activeEntitlementHandledRef.current = true;
         setAnswer('entitlementConfirmedThisSession', true);
-        router.replace(hasOnboarded ? '/(tabs)/notes' : '/(onboarding)/notifications-preview');
+        if (!hasOnboarded) router.replace('/(onboarding)/notifications-preview');
     }, [entitlement.status, hasOnboarded, incompletePlanRoute, isAuthenticated, router, setAnswer]);
 
     if (incompletePlanRoute !== null) {

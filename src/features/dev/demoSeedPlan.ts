@@ -16,25 +16,40 @@ import { occurrenceWindows } from '../reviews/reviewAttribution';
 import { occurrencesForGap } from '../reviews/reviewSchedule';
 
 /**
- * Sarah is in weekly therapy for anxiety, Mondays at 18:00. One note per
- * session she has already had, written the same evening.
+ * Sarah is in weekly analytic therapy, Mondays at 18:00. One note per session
+ * she has already had, written the same evening.
  *
- * One subject each, in the first person, the way the example note on the empty
- * state models it. Oldest first, so the list reads as a course of therapy
- * rather than a pile.
+ * Oldest first, so the list reads as a course of therapy rather than a pile.
+ * The dream in the house runs through the middle and comes back changed.
+ *
+ * Shaped like a real therapy journal rather than a caption. People write these
+ * on a phone an hour after a session, so they run long, break into paragraphs,
+ * quote the therapist, trail off, and carry the odd line of homework or a
+ * question to bring back next time. Several answer the app's own five
+ * questions without being asked to, which is what a note written against this
+ * template actually looks like once the template stops being needed.
+ *
+ * Length is deliberate. The card clamps at four lines and NotePreviewModal
+ * scrolls the rest, so a note that overflows its card is the normal case and
+ * is what makes opening one worth doing. First lines carry the list, so no two
+ * open the same way.
+ *
+ * Contractions throughout. The rest of the app's copy avoids them because the
+ * app is speaking; here Sarah is, and a note without them reads as written by
+ * a copywriter.
  */
 export const NOTES: readonly string[] = [
-    'Told her about the Sunday night thing, how I start rehearsing Monday before I have even had dinner. She asked what I think would happen if I did not rehearse, and I could not actually answer.',
-    'We stayed on the chest tightness for most of the hour. She kept asking where I notice it first, and it turns out my jaw goes before anything else does.',
-    'I said I was fine three times before I admitted I had not slept. She did not push, she just waited, and the waiting was harder than being asked.',
-    'She gave it a name, anticipatory anxiety, which I did not have a word for before. The fear of the meeting is doing more to me than any meeting actually has.',
-    'Talked about checking my email at 6am to find out whether anything bad happened overnight. She asked how often something bad actually had. Twice, in a year.',
-    'We rated the worry out of ten before and after I said it out loud. Eight down to four just from saying it, which I found annoying more than anything.',
-    'I admitted I cancel plans when the anxiety is bad and then feel worse for having cancelled. She called it a loop that pays you straight away and charges you later.',
-    'She asked what I would say to a friend who described my week back to me. I said I would tell them it sounds exhausting. I have never once said that to myself.',
-    'First time I have talked about the panic attack on the train without my voice going. She pointed it out at the end and I had not noticed it myself.',
-    'We went back to my mum asking whether I am eating properly. I got defensive in the room, and the defensiveness is probably the thing worth looking at.',
-    'I mentioned I have been sleeping better since I stopped checking the clock at night. She asked what else changed that week and I could not name a single thing.',
+    'First session where I actually said something. She asked who I am when nobody needs anything from me and I gave her my job title, and I heard myself do it.\nThen we just sat there for what felt like five minutes. I kept waiting for her to fill the gap and she didn’t.\nBring next time: why that was so hard.',
+    'Had the house dream again. Same one, I’m in the flat I grew up in and there’s a whole floor at the top I didn’t know was there.\nTold her about it and she wouldn’t say what it means. She just asked what I do in the dream when I find it.\nI shut the door. Every time, apparently. Didn’t notice that until I said it out loud.',
+    'Went on for ages about the bloke at work who talks over everyone in standup. She let me finish and then asked why I never do that.\nSaid it’s manners. She didn’t argue, she just left it sitting there, which was worse.\nTo try this week: notice when I’m about to say something and see what stops me.',
+    'Talked about home. Being the one who sorted things out, making sure Mum was alright, keeping everything level, from about ten onwards.\nShe asked who gave me that job and I said nobody did, and then heard it.\nI’ve always thought of it as just my personality. Being the reliable one. She said a role you get handed that early doesn’t feel like a role, it feels like you.\nNot sure what to do with that yet.',
+    'Short one, knackered.\nNoticed I tidy my week up before I tell her. Good bits in, boring and embarrassing bits left out. She caught it tonight and asked what I thought would happen if I brought the rest.\nI do this with everybody. She just gets an hour a week to spot it.',
+    'The voice in my head that has a go at me sounds like somebody specific. Same words, same little pause before the worst part of the sentence.\nSaid that out loud for the first time tonight and felt disloyal, which is probably the point.\nShe asked how old I was when I first heard it. I’ve been having an argument with someone who stopped saying it about twenty years ago.',
+    'Odd session. She asked me to talk to the man on the stairs from the dream. Not about him, to him, out loud, in the room.\nFelt completely daft for the first minute. Then it stopped being daft and I don’t really know how to write down what happened after that.\nAsked him what he wanted and the answer came straight back, that he’d been waiting. I wasn’t expecting an answer at all, never mind that fast.\nSat in the car for a bit before driving home.',
+    'What stayed with me: she didn’t say I’d been unlucky.\nThird thing I’ve ended in the week it started to actually matter. I laid it all out expecting some sympathy and she just asked what I get out of leaving first.\nStill haven’t got an answer. Bringing this one back next time.',
+    'Told her about the feeling I’ve had for years, that at some point somebody will turn up and take it all off my hands. Not rescue exactly. Just take over.\nShe asked how old that feeling is and I said about nine before I’d even thought about it.\nWorth writing down that I felt about nine while I was saying it.',
+    'Dream was different this time.\nThe door on the top floor was open and I went in. Just an ordinary room. Bare, bit dusty, one window painted shut.\nWoke up genuinely disappointed, like I’d been promised something. Told her that and she reckoned the disappointment was the interesting bit, not the room.',
+    'Late, writing this in bed.\nSaid I’m scared of turning into someone people wouldn’t recognise. She asked recognise you how, and who by. I couldn’t name anybody I still properly speak to.\nSat with that for the rest of the hour. Not sure it’s a bad thing yet.',
 ];
 
 /**

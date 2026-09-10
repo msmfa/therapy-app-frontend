@@ -483,9 +483,11 @@ describe('restored-subscription onboarding routing', () => {
         const { getByText } = render(<AccountPreviewScreen />);
         fireEvent.press(getByText('Continue'));
 
-        await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/(tabs)/notes'));
+        // The root guard opens Notes once the refreshed entitlement settles;
+        // replacing the route here would race the guard removing this stack.
+        await waitFor(() => expect(mockRefreshEntitlement).toHaveBeenCalledTimes(1));
         expect(mockPurchase).not.toHaveBeenCalled();
-        expect(mockReplace).not.toHaveBeenCalledWith('/(onboarding)/notifications-preview');
+        expect(mockReplace).not.toHaveBeenCalled();
     });
 
     it('returns an existing user to the app after renewing their subscription', async () => {
@@ -499,9 +501,10 @@ describe('restored-subscription onboarding routing', () => {
         await waitFor(() => {
             expect(mockPurchase).toHaveBeenCalledWith('annual', { entryPoint: 'account' });
             expect(mockRefreshEntitlement).toHaveBeenCalledTimes(1);
-            expect(mockReplace).toHaveBeenCalledWith('/(tabs)/notes');
+            expect(mockSetAnswer).toHaveBeenCalledWith('entitlementConfirmedThisSession', true);
         });
-        expect(mockReplace).not.toHaveBeenCalledWith('/(onboarding)/notifications-preview');
+        // A returning subscriber leaves through the root guard, not a replace.
+        expect(mockReplace).not.toHaveBeenCalled();
     });
 
     it('does not open the app when Apple receipt linking is rejected', async () => {
