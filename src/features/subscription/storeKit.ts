@@ -7,6 +7,7 @@ import {
 } from '../../api/subscriptions';
 import { BASE_URL, USE_DEV_SUBSCRIPTION_FIXTURE } from '../../constants/env';
 import { reportHandledFailure } from '../../utils/telemetry';
+import { reportPurchaseError, type PurchaseAttemptDiagnostics, type PurchaseErrorSource } from './purchaseDiagnostics';
 import { DEV_FIXTURE_OFFER, DEV_FIXTURE_PURCHASE } from './devFixture';
 import {
     ENTITLEMENT_PRODUCT_IDS,
@@ -70,6 +71,7 @@ let iapModulePromise: Promise<IapModule> | null = null;
 let connectionPromise: Promise<boolean> | null = null;
 let purchaseInFlight: Promise<PurchaseResult> | null = null;
 let listenersInstalled = false;
+let purchaseAttemptCount = 0;
 // StoreKit may replay an unfinished transaction before app authentication has
 // hydrated. Keep the in-memory transaction too so the auth-triggered
 // entitlement refresh can finish it immediately, without waiting for another
@@ -78,6 +80,7 @@ const transactionsWaitingForAuth = new Map<string, Purchase>();
 let purchaseWaiter: {
     productId: string;
     settle: (result: PurchaseResult) => void;
+    diagnostics: PurchaseAttemptDiagnostics;
 } | null = null;
 
 const settlePurchaseWaiter = (productId: string | null, result: PurchaseResult): void => {
@@ -115,7 +118,7 @@ const installStoreListeners = (iap: IapModule): void => {
 
     try {
         iap.purchaseErrorListener((error) => {
-            settlePurchaseWaiter(error.productId ?? null, purchaseErrorResult(error));
+            handlePurchaseError(error, error.productId ?? null, 'listener');
         });
         listenersInstalled = true;
     } catch (error) {
@@ -201,14 +204,25 @@ const availabilityReason = (
     return 'store_error';
 };
 
-// A failed purchase becomes "try again" for the user and nothing for us
-// unless it is reported here. Cancelling and deferring are not failures.
-const purchaseErrorResult = (error: unknown): PurchaseResult => {
+const purchaseErrorResult = (
+    error: unknown,
+    diagnostics: PurchaseAttemptDiagnostics,
+    source: PurchaseErrorSource,
+): PurchaseResult => {
     const code = errorCode(error);
-    if (code === 'user-cancelled') return { status: 'cancelled' };
-    if (code === 'deferred-payment' || code === 'pending') return { status: 'pending' };
-    reportHandledFailure('store', 'purchase', error, { reason: availabilityReason(error) });
-    return { status: 'failed' };
+    const status = code === 'user-cancelled' ? 'cancelled'
+        : code === 'deferred-payment' || code === 'pending' ? 'pending' : 'failed';
+    reportPurchaseError(error, diagnostics, source, status);
+    return { status };
+};
+
+const handlePurchaseError = (error: unknown, productId: string | null, source: PurchaseErrorSource): void => {
+    if (!purchaseWaiter || (productId !== null && purchaseWaiter.productId !== productId)) return;
+    // expo-iap may deliver the same error through its listener and promise.
+    // Settle/report only the first result for this attempt.
+    const waiter = purchaseWaiter;
+    purchaseWaiter = null;
+    waiter.settle(purchaseErrorResult(error, waiter.diagnostics, source));
 };
 
 const responseStatus = (error: unknown): number | undefined => {
@@ -437,6 +451,7 @@ async function completePurchase(
 
 const performPurchase = async (plan: PlanId): Promise<PurchaseResult> => {
     if (!isIosStoreAvailable()) return { status: 'failed' };
+    const diagnostics = { plan, attempt: ++purchaseAttemptCount, startedAt: Date.now() };
 
     try {
         const iap = await getIapModule();
@@ -453,7 +468,7 @@ const performPurchase = async (plan: PlanId): Promise<PurchaseResult> => {
         }
 
         return await new Promise<PurchaseResult>((resolve) => {
-            purchaseWaiter = { productId, settle: resolve };
+            purchaseWaiter = { productId, settle: resolve, diagnostics };
 
             void iap.requestPurchase({
                 request: {
@@ -464,11 +479,14 @@ const performPurchase = async (plan: PlanId): Promise<PurchaseResult> => {
                 },
                 type: 'subs',
             }).catch((error: unknown) => {
-                settlePurchaseWaiter(productId, purchaseErrorResult(error));
+                // A late rejection must not settle a subsequent retry.
+                if (purchaseWaiter?.diagnostics === diagnostics) {
+                    handlePurchaseError(error, productId, 'request');
+                }
             });
         });
     } catch (error) {
-        return purchaseErrorResult(error);
+        return purchaseErrorResult(error, diagnostics, 'prepare');
     }
 };
 

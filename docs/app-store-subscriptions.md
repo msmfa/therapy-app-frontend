@@ -106,3 +106,32 @@ maestro test \
 
 The flow stops at Apple's sign-in sheet. Enter the sandbox Apple Account there
 manually; never place its password in the repository or command history.
+
+## Remote purchase diagnostics in Sentry
+
+The app sends a `StoreKit purchase outcome` event when the purchase library
+reports an error, including cancellation or payment deferral. These use `info`
+severity; failed attempts use `error`. A cancellation result does not prove the
+tester intentionally cancelled. The native error listener and rejected purchase
+promise share a single report per attempt.
+
+After distributing a build containing this reporting, ask the tester to reproduce
+the issue and note the time and time zone, selected plan, iOS version and TestFlight
+build. In Sentry, search `store.stage:purchase store.outcome:cancelled`, select the
+matching event time/build/device, and inspect the `store` context:
+
+- `store.code` is the allow-listed purchase-library code.
+- `store.source` identifies preparation, the purchase request, or the native listener.
+- `plan`, `attempt` and `elapsed_ms` describe the attempt. The counter resets when
+  the app process restarts; it is not a lifetime count for an account.
+- `native_error_codes` contains recognized Apple error-domain/integer-code pairs
+  only when the bridge exposes them. `native_codes_available: false` means no
+  underlying codes were available, not that Apple reported no underlying problem.
+
+Sentry's native integration supplies device/OS and release/build context. No raw
+Apple error message, debug message, account identifier, signed receipt, or note
+content is included by this reporter. Sentry must be configured in the distributed
+build and the device must be able to deliver the event. These reports cannot
+recover errors from an older build or access Apple's system-wide device logs.
+If StoreKit exposes only `user-cancelled`, remote reporting alone may still be
+insufficient to establish the cause.
