@@ -35,6 +35,7 @@ jest.mock('../../src/features/subscription/EntitlementContext', () => ({
 jest.mock('../../src/features/subscription/storeKit', () => ({ initializeStoreKit: jest.fn() }));
 jest.mock('../../src/hooks/usePushNotifications', () => ({ usePushNotifications: jest.fn() }));
 jest.mock('../../src/hooks/useTimeZoneSync', () => ({ useTimeZoneSync: jest.fn() }));
+jest.mock('../../src/features/dev/DemoSeedRunner', () => ({ DemoSeedRunner: () => null }));
 
 import { Gate } from '../_layout';
 

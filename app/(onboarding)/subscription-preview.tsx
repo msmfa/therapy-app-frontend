@@ -58,7 +58,12 @@ export default function SubscriptionPreviewScreen() {
     // Account controls must remain available even when no products can load
     // or this account has no subscription.
     const accountSettings = isAuthenticated ? (
-        <OnboardingButton label="Account settings" transparent onPress={ () => router.push('/account') } />
+        <OnboardingButton
+            label="Account settings"
+            transparent
+            disabled={ restoreInProgress }
+            onPress={ () => router.push('/account') }
+        />
     ) : null;
 
     const goalHeadline = useMemo(() => {
@@ -108,7 +113,7 @@ export default function SubscriptionPreviewScreen() {
                             router.replace(
                                 isAuthenticated
                                     ? hasOnboarded
-                                        ? '/(tabs)'
+                                        ? '/(tabs)/notes'
                                         : '/(onboarding)/notifications-preview'
                                     : '/(onboarding)/account-preview',
                             ),
@@ -158,7 +163,7 @@ export default function SubscriptionPreviewScreen() {
 
         activeEntitlementHandledRef.current = true;
         setAnswer('entitlementConfirmedThisSession', true);
-        router.replace(hasOnboarded ? '/(tabs)' : '/(onboarding)/notifications-preview');
+        router.replace(hasOnboarded ? '/(tabs)/notes' : '/(onboarding)/notifications-preview');
     }, [entitlement.status, hasOnboarded, incompletePlanRoute, isAuthenticated, router, setAnswer]);
 
     if (incompletePlanRoute !== null) {
@@ -216,6 +221,7 @@ export default function SubscriptionPreviewScreen() {
         <OnboardingScreen
             { ...backNavigation }
             analyticsStep="subscription_preview"
+            interactionDisabled={ restoreInProgress }
             headline={ SUBSCRIPTION_COPY.planHeader }
             footer={
                 <>
@@ -236,6 +242,7 @@ export default function SubscriptionPreviewScreen() {
                         <OnboardingLink
                             label={ SUBSCRIPTION_COPY.terms }
                             size="caption"
+                            disabled={ restoreInProgress }
                             onPress={ () => router.push('/terms-of-service') }
                             style={ styles.link }
                         />
@@ -243,6 +250,7 @@ export default function SubscriptionPreviewScreen() {
                         <OnboardingLink
                             label={ SUBSCRIPTION_COPY.privacy }
                             size="caption"
+                            disabled={ restoreInProgress }
                             onPress={ () => router.push('/privacy-policy') }
                             style={ styles.link }
                         />
@@ -253,6 +261,7 @@ export default function SubscriptionPreviewScreen() {
                             ? SUBSCRIPTION_COPY.trialCta
                             : planCtaLabel(selected) }
                         onPress={ () => router.push('/(onboarding)/account-preview') }
+                        disabled={ restoreInProgress }
                     />
 
                     { accountSettings }
@@ -282,6 +291,7 @@ export default function SubscriptionPreviewScreen() {
                     }
                     renewalLine={ planRenewalLine('annual', showAnnualTrial) }
                     selected={ selected === 'annual' }
+                    disabled={ restoreInProgress }
                     onPress={ () => setAnswer('plan', 'annual') }
                     accessibilityLabel={ `${SUBSCRIPTION_COPY.annualTitle}. ${
                         showAnnualTrial && offer.annual.trial !== null
@@ -301,6 +311,7 @@ export default function SubscriptionPreviewScreen() {
                     priceLine={ cardPriceLine('monthly', offer.monthly.price, null) }
                     renewalLine={ planRenewalLine('monthly', showMonthlyTrial) }
                     selected={ selected === 'monthly' }
+                    disabled={ restoreInProgress }
                     onPress={ () => setAnswer('plan', 'monthly') }
                     accessibilityLabel={ `${SUBSCRIPTION_COPY.monthlyTitle}. ${
                         showMonthlyTrial && offer.monthly.trial !== null

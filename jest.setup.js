@@ -66,7 +66,7 @@ jest.mock(
       addBreadcrumb: noop,
       addIntegration: noop,
       captureException: noop,
-      captureEvent: noop,
+      captureEvent: jest.fn(),
       captureFeedback: noop,
       captureMessage: noop,
       setContext: noop,

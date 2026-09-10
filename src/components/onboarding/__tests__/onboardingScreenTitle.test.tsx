@@ -87,6 +87,24 @@ describe('the bottom backdrop', () => {
 });
 
 describe('onboarding content scrolling', () => {
+    it('blocks the whole screen while an action is loading', () => {
+        const { getByTestId, rerender } = renderScreen({ interactionDisabled: true });
+        const interactionLayer = () => getByTestId('onboarding-interaction-layer');
+
+        expect(interactionLayer().props.pointerEvents).toBe('none');
+        expect(interactionLayer().props.accessibilityState).toEqual({ busy: true });
+
+        rerender(
+            <OnboardingScreen
+                headline="Your plan is ready"
+                backHref={ '/(onboarding)/goal' as never }
+                footer={ <Text>Continue</Text> }
+            />,
+        );
+        expect(interactionLayer().props.pointerEvents).toBe('auto');
+        expect(interactionLayer().props.accessibilityState).toEqual({ busy: false });
+    });
+
     it('stays still when the content fits and scrolls only when more room is needed', () => {
         const { getByTestId } = renderScreen();
         const body = () => getByTestId('onboarding-body-scroll');

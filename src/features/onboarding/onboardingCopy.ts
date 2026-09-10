@@ -383,11 +383,11 @@ export const notificationsHeadline = (weekday: string, time: string): string =>
 export const SUCCESS_COPY = {
     headline: 'Your between-session plan is ready',
     withoutRemindersBody: 'Save it now. You can turn on notifications later in Settings.',
-    primaryCta: 'Save and see my plan',
+    primaryCta: 'Save and view my notes',
     sampleHeadline: 'Your sample plan is ready',
     sampleBody:
         "Save your preferences now. Add your next session in Calendar and we'll build the real plan around it.",
-    samplePrimaryCta: 'Save and add my session',
+    samplePrimaryCta: 'Save and view my notes',
 } as const;
 
 export const successBody = (weekday: string, time: string): string =>

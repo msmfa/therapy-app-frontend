@@ -29,6 +29,7 @@ type Props = {
     secondaryLine?: string;
     renewalLine: string;
     selected: boolean;
+    disabled?: boolean;
     onPress: () => void;
     accessibilityLabel: string;
 };
@@ -50,17 +51,19 @@ export function SubscriptionPlanCard({
     secondaryLine,
     renewalLine,
     selected,
+    disabled = false,
     onPress,
     accessibilityLabel,
 }: Props) {
     return (
         <TouchableOpacity
             onPress={ onPress }
+            disabled={ disabled }
             activeOpacity={ 0.85 }
             accessibilityRole="radio"
             accessibilityLabel={ accessibilityLabel }
-            accessibilityState={ { selected, checked: selected } }
-            style={ [onboardingStyles.card, styles.card, selected && styles.cardSelected] }
+            accessibilityState={ { selected, checked: selected, disabled } }
+            style={ [onboardingStyles.card, styles.card, selected && styles.cardSelected, disabled && styles.disabled] }
         >
             <View style={ styles.headerRow }>
                 { /* The tick lives in the radio rather than off at the end of
@@ -144,6 +147,9 @@ export function SubscriptionPlanCard({
 }
 
 const styles = StyleSheet.create({
+    disabled: {
+        opacity: 0.5,
+    },
     description: {
         marginTop: 8,
         color: TEXT_COLORS.secondary,

@@ -6,6 +6,7 @@ import { minutesToDate, timeLabel } from '../../src/features/onboarding/formatti
 
 let mockIsAuthenticated = false;
 let mockAppleAvailable = true;
+let mockLoadingProvider: 'apple' | null = null;
 let mockOffer: SubscriptionOfferState = { status: 'loading' };
 let mockEntitlement: EntitlementState = { status: 'inactive' };
 let mockAnswers: OnboardingAnswers;
@@ -68,7 +69,7 @@ jest.mock('../../src/features/onboarding/authReturn', () => ({
 jest.mock('../../src/auth/useOAuthLogin', () => ({
     useOAuthLogin: () => ({
         appleAvailable: mockAppleAvailable,
-        loadingProvider: null,
+        loadingProvider: mockLoadingProvider,
         signInWithApple: jest.fn(),
     }),
 }));
@@ -81,14 +82,19 @@ jest.mock('../../src/components/onboarding/OnboardingScreen', () => {
             supporting,
             children,
             footer,
+            interactionDisabled,
         }: {
             headline: string;
             supporting?: string;
             children?: React.ReactNode;
             footer?: React.ReactNode;
+            interactionDisabled?: boolean;
         }) => ReactForMock.createElement(
             MockView,
-            null,
+            {
+                testID: 'onboarding-interaction-layer',
+                pointerEvents: interactionDisabled ? 'none' : 'auto',
+            },
             ReactForMock.createElement(MockText, null, headline),
             ReactForMock.createElement(MockText, null, supporting),
             children,
@@ -116,6 +122,7 @@ describe('the account step', () => {
             new systemDateTimeFormat(locales ?? 'en-GB', options));
         mockIsAuthenticated = false;
         mockAppleAvailable = true;
+        mockLoadingProvider = null;
         mockOffer = readyOffer(true);
         mockEntitlement = { status: 'inactive' };
         mockAnswers = {
@@ -207,6 +214,15 @@ describe('the account step', () => {
         expect(footer.getByText('Terms of Service')).toBeTruthy();
         expect(footer.getByText('Privacy Policy')).toBeTruthy();
         expect(queryByText(/agree to the Terms/)).toBeNull();
+    });
+
+    it('blocks every account-screen action while Apple sign-in is opening', () => {
+        mockLoadingProvider = 'apple';
+        const { getByLabelText, getByTestId } = render(<AccountPreviewScreen />);
+
+        expect(getByTestId('onboarding-interaction-layer').props.pointerEvents).toBe('none');
+        expect(getByLabelText('Terms of Service').props.accessibilityState.disabled).toBe(true);
+        expect(getByLabelText('Privacy Policy').props.accessibilityState.disabled).toBe(true);
     });
 
     it('keeps the account step focused on creating or connecting an account', () => {

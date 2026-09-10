@@ -87,7 +87,7 @@ export default function SuccessScreen() {
             // Only now: the flow is done, so the draft has nothing left to
             // resume and no reason to sit in the keychain.
             await discardDraft();
-            router.replace('/(tabs)/calendar');
+            router.replace('/(tabs)/notes');
         } catch (error) {
             analyticsScope.capture('critical_action_failed', {
                 operation: 'onboarding_save',
@@ -157,6 +157,7 @@ export default function SuccessScreen() {
         <OnboardingScreen
             analyticsStep="success"
             showBack={ false }
+            interactionDisabled={ isCompleting }
             headline={ headline }
             supporting={ body }
             footer={

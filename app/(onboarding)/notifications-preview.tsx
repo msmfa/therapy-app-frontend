@@ -184,6 +184,7 @@ export default function NotificationsPreviewScreen() {
         <OnboardingScreen
             analyticsStep="notifications_preview"
             showBack={ false }
+            interactionDisabled={ stage === 'requesting' }
             headline={ notificationsHeadline(
                 weekdayName(firstReminderAt),
                 timeLabel(firstReminderAt),

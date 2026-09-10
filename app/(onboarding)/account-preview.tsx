@@ -67,7 +67,7 @@ export default function AccountPreviewScreen() {
         // the same subscription again.
         if (answers.entitlementConfirmedThisSession) {
             if (isAuthenticated) {
-                router.replace(hasOnboarded ? '/(tabs)' : '/(onboarding)/notifications-preview');
+                router.replace(hasOnboarded ? '/(tabs)/notes' : '/(onboarding)/notifications-preview');
             }
             return;
         }
@@ -78,7 +78,7 @@ export default function AccountPreviewScreen() {
         // we consider presenting Apple with another purchase request.
         if (entitlement.status === 'active') {
             setAnswer('entitlementConfirmedThisSession', true);
-            router.replace(hasOnboarded ? '/(tabs)' : '/(onboarding)/notifications-preview');
+            router.replace(hasOnboarded ? '/(tabs)/notes' : '/(onboarding)/notifications-preview');
             return;
         }
 
@@ -99,7 +99,7 @@ export default function AccountPreviewScreen() {
             // paid tabs and be bounced straight back to this paywall.
             refreshEntitlement();
             setAnswer('entitlementConfirmedThisSession', true);
-            router.replace(hasOnboarded ? '/(tabs)' : '/(onboarding)/notifications-preview');
+            router.replace(hasOnboarded ? '/(tabs)/notes' : '/(onboarding)/notifications-preview');
             return;
         }
 
@@ -218,6 +218,7 @@ export default function AccountPreviewScreen() {
         <OnboardingScreen
             analyticsStep="account_preview"
             backHref="/(onboarding)/subscription-preview"
+            interactionDisabled={ busy }
             headline={ ACCOUNT_COPY.headline }
             supporting={ isAuthenticated
                 ? ACCOUNT_COPY.authenticatedBody
@@ -268,6 +269,7 @@ export default function AccountPreviewScreen() {
                             <OnboardingLink
                                 label={ ACCOUNT_COPY.legalTerms }
                                 size="caption"
+                                disabled={ busy }
                                 onPress={ () => router.push('/terms-of-service') }
                                 style={ styles.legalLink }
                             />
@@ -275,6 +277,7 @@ export default function AccountPreviewScreen() {
                             <OnboardingLink
                                 label={ ACCOUNT_COPY.legalPrivacy }
                                 size="caption"
+                                disabled={ busy }
                                 onPress={ () => router.push('/privacy-policy') }
                                 style={ styles.legalLink }
                             />
