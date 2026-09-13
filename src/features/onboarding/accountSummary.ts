@@ -1,10 +1,10 @@
 import type { OnboardingAnswers } from './OnboardingAnswersContext';
 import type { PlanId, SubscriptionOfferState } from '../subscription/types';
 import {
-    ACCOUNT_COPY,
-    CADENCE_OPTIONS,
+    accountCopy,
+    cadenceOptions,
     planBillingPeriod,
-    SUBSCRIPTION_COPY,
+    subscriptionCopy,
     trialBadgeLine,
 } from './onboardingCopy';
 import { dateTimeLabel, minutesToDate, timeLabel } from './formatting';
@@ -21,9 +21,9 @@ type ReminderAnswers = Pick<OnboardingAnswers, 'morningMinutes' | 'eveningMinute
 
 /** "Every week, from Tue 14 Sep, 18:00", or just the date when the gap varies. */
 export const accountSessionLine = ({ sessionAt, cadence }: ScheduleAnswers): string => {
-    if (sessionAt === null) return ACCOUNT_COPY.noSession;
+    if (sessionAt === null) return accountCopy().noSession;
     const when = dateTimeLabel(sessionAt);
-    const option = CADENCE_OPTIONS.find((candidate) => candidate.id === cadence);
+    const option = cadenceOptions().find((candidate) => candidate.id === cadence);
     return option === undefined || option.id === 'varies' ? when : `${option.label}, from ${when}`;
 };
 
@@ -32,7 +32,7 @@ export const accountRemindersLine = ({ morningMinutes, eveningMinutes }: Reminde
     `${timeLabel(minutesToDate(morningMinutes))} and ${timeLabel(minutesToDate(eveningMinutes))}`;
 
 const planTitle = (plan: PlanId): string =>
-    plan === 'annual' ? SUBSCRIPTION_COPY.annualTitle : SUBSCRIPTION_COPY.monthlyTitle;
+    plan === 'annual' ? subscriptionCopy().annualTitle : subscriptionCopy().monthlyTitle;
 
 const trialFor = (plan: PlanId, offer: SubscriptionOfferState) =>
     offer.status === 'ready' && offer.offer.trialEligible ? offer.offer[plan].trial : null;
@@ -52,7 +52,7 @@ export const accountSubscriptionLine = (
     const title = planTitle(plan);
     // A restore may have activated a different plan from the last selection.
     // The selection alone cannot name an existing subscription.
-    if (alreadyActive) return ACCOUNT_COPY.subscriptionActive;
+    if (alreadyActive) return accountCopy().subscriptionActive;
     if (offer.status !== 'ready') return title;
 
     const price = `${offer.offer[plan].price}/${planBillingPeriod(plan)}`;
@@ -74,13 +74,13 @@ export const accountNextStep = (
     alreadyActive = answers.entitlementConfirmedThisSession,
 ): string => {
     if (alreadyActive) {
-        return `Your subscription is already active, so there is nothing to confirm. ${ACCOUNT_COPY.cancelAnytime}`;
+        return `Your subscription is already active, so there is nothing to confirm. ${accountCopy().cancelAnytime}`;
     }
     const trial = trialFor(answers.plan, offer) !== null;
     const lead = signedIn ? 'When you continue' : 'After you sign in';
     return trial
-        ? `${lead}, Apple will ask you to confirm your free trial. You won't be charged today. ${ACCOUNT_COPY.cancelAnytime}`
-        : `${lead}, Apple will ask you to confirm your subscription. ${ACCOUNT_COPY.cancelAnytime}`;
+        ? `${lead}, Apple will ask you to confirm your free trial. You won't be charged today. ${accountCopy().cancelAnytime}`
+        : `${lead}, Apple will ask you to confirm your subscription. ${accountCopy().cancelAnytime}`;
 };
 
 export const accountSummaryRows = (
@@ -89,10 +89,10 @@ export const accountSummaryRows = (
     signedIn: boolean,
     alreadyActive = answers.entitlementConfirmedThisSession,
 ): AccountSummaryRow[] => [
-    { label: ACCOUNT_COPY.sessionLabel, value: accountSessionLine(answers) },
-    { label: ACCOUNT_COPY.remindersLabel, value: accountRemindersLine(answers) },
+    { label: accountCopy().sessionLabel, value: accountSessionLine(answers) },
+    { label: accountCopy().remindersLabel, value: accountRemindersLine(answers) },
     {
-        label: ACCOUNT_COPY.subscriptionLabel,
+        label: accountCopy().subscriptionLabel,
         value: accountSubscriptionLine(answers.plan, offer, alreadyActive),
         // What Apple does next belongs to the subscription, not to the slip
         // as a whole.

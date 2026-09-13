@@ -2,25 +2,32 @@
  * Every user-facing string in the onboarding flow, in one place.
  *
  * Screens read from here rather than inlining copy, so wording can be reviewed
- * and localised without touching layout. British English, sentence case, no
- * exclamation marks. Anything with a date, time or price is a function of the
- * value rather than a fixed string.
+ * without touching layout. Anything with a date, time or price is a function of
+ * the value rather than a fixed string.
+ *
+ * The constants this module used to export became functions when the app gained
+ * a second language. An object literal here is evaluated at import time, which
+ * is before the stored language preference has been read, so every screen would
+ * have been fixed in the device's language for the life of the process and
+ * would not have followed a change of setting. Calling `t` per read costs
+ * nothing measurable and removes the ordering problem entirely.
  */
 
 import type {
     PlanId,
     SubscriptionTrial,
 } from '../subscription/types';
+import { t } from '../../i18n/translate';
 
 export const ONBOARDING_QUESTION_COUNT = 4;
 
-export const WELCOME_COPY = {
+export const welcomeCopy = () => ({
     // The screen's whole text. One display line rather than a heading over a
     // sentence: what the app is, said once, with nothing to read past it.
-    headline: 'A therapy journal that reminds you to review your therapy notes',
-    primaryCta: 'Build my plan',
-    secondaryCta: 'I already have an account',
-} as const;
+    headline: t('onboarding:welcome.headline'),
+    primaryCta: t('onboarding:welcome.primaryCta'),
+    secondaryCta: t('onboarding:welcome.secondaryCta'),
+});
 
 export type GoalId = 'remember' | 'practise' | 'prepare' | 'habit';
 
@@ -41,57 +48,38 @@ export type GoalOption = {
      * Two lines on the notes screen saying what the notes do for this goal.
      * Two, not more: the card sits above the artwork it is describing, and
      * every extra line pushes that artwork off the screen.
-     *
-     * The screen shows the goal back as a heading, so this is the part that
-     * has to earn it: what the notes and their reviews actually do for the
-     * thing the user said they wanted.
      */
     noteSupport: string;
 };
 
-export const GOAL_OPTIONS: GoalOption[] = [
-    {
-        id: 'practise',
-        label: 'Put therapy insights into practice',
-        subscriptionHeadline: 'Put therapy insights into practice',
-        restated: 'Put therapy insights into practice',
-        noteSupport:
-            'Notifications between sessions help you put into practice what you discussed in your last session.',
-    },
-    {
-        id: 'prepare',
-        label: 'Be better prepared for my next session',
-        subscriptionHeadline: 'Feel prepared for your next session',
-        restated: 'Be better prepared for your next session',
-        noteSupport:
-            "The evening before your next session you'll be notified to review your last note.",
-    },
-    {
-        id: 'habit',
-        label: 'Track my progress over time',
-        subscriptionHeadline: 'Track your progress over time',
-        restated: 'Track your progress over time',
-        noteSupport:
-            "Reflect on your logged notes from weeks and months ago to see which areas you're improving in and which you want to work on.",
-    },
-];
+/** The goals actually offered, in the order they are shown. */
+const OFFERED_GOALS = ['practise', 'prepare', 'habit'] as const;
 
-export const GOAL_COPY = {
-    headline: 'What would help you get more from therapy?',
-    supporting: 'Choose the outcome that matters most to you.',
-    primaryCta: 'Continue',
-} as const;
+export const goalOptions = (): GoalOption[] =>
+    OFFERED_GOALS.map((id) => ({
+        id,
+        label: t(`onboarding:goalOption.${id}.label`),
+        subscriptionHeadline: t(`onboarding:goalOption.${id}.subscriptionHeadline`),
+        restated: t(`onboarding:goalOption.${id}.restated`),
+        noteSupport: t(`onboarding:goalOption.${id}.noteSupport`),
+    }));
 
-export const SESSION_DATE_COPY = {
-    headline: 'When is your next session?',
-    supporting: "We'll use it to time your first note and shape the reviews that follow.",
-    dateLabel: 'Date',
-    timeLabel: 'Time',
-    validation: 'Choose a future therapy session.',
-    rangeValidation: 'Choose a session within the next six months.',
-    primaryCta: 'Continue',
-    sampleCta: "I haven't booked it yet",
-} as const;
+export const goalCopy = () => ({
+    headline: t('onboarding:goal.headline'),
+    supporting: t('onboarding:goal.supporting'),
+    primaryCta: t('onboarding:goal.primaryCta'),
+});
+
+export const sessionDateCopy = () => ({
+    headline: t('onboarding:sessionDate.headline'),
+    supporting: t('onboarding:sessionDate.supporting'),
+    dateLabel: t('onboarding:sessionDate.dateLabel'),
+    timeLabel: t('onboarding:sessionDate.timeLabel'),
+    validation: t('onboarding:sessionDate.validation'),
+    rangeValidation: t('onboarding:sessionDate.rangeValidation'),
+    primaryCta: t('onboarding:sessionDate.primaryCta'),
+    sampleCta: t('onboarding:sessionDate.sampleCta'),
+});
 
 export type CadenceId = 'weekly' | 'fortnightly' | 'monthly' | 'varies';
 
@@ -105,192 +93,198 @@ export type CadenceOption = {
  * between sessions" number was a second, worse source of truth: a month is not
  * 28 days, and the two answers drifted.
  */
-export const CADENCE_OPTIONS: CadenceOption[] = [
-    { id: 'weekly', label: 'Every week' },
-    { id: 'fortnightly', label: 'Every two weeks' },
-    { id: 'monthly', label: 'Once a month' },
-    { id: 'varies', label: 'It varies' },
-];
+const CADENCE_IDS = ['weekly', 'fortnightly', 'monthly', 'varies'] as const;
 
-export const CADENCE_COPY = {
-    headline: 'How often are your sessions?',
-    supporting: 'This allows us to tell the best times to send you your reminders.',
-    primaryCta: 'Choose reminder times',
-} as const;
+export const cadenceOptions = (): CadenceOption[] =>
+    CADENCE_IDS.map((id) => ({ id, label: t(`onboarding:cadenceOption.${id}`) }));
 
-export const REMINDER_TIMES_COPY = {
-    headline: 'Choose times that fit your routine',
-    supporting: "You'll only receive one morning reminder a week, after your session.",
-    morningLabel: 'Morning reviews',
-    eveningLabel: 'Evening reviews',
+export const cadenceCopy = () => ({
+    headline: t('onboarding:cadence.headline'),
+    supporting: t('onboarding:cadence.supporting'),
+    primaryCta: t('onboarding:cadence.primaryCta'),
+});
+
+export const reminderTimesCopy = () => ({
+    headline: t('onboarding:reminderTimes.headline'),
+    supporting: t('onboarding:reminderTimes.supporting'),
+    morningLabel: t('onboarding:reminderTimes.morningLabel'),
+    eveningLabel: t('onboarding:reminderTimes.eveningLabel'),
     testimonial: {
-        quote: 'I like the reminder before my next session. I used to find it hard to think about what to talk about then I’d leave the session and finally remember things I wanted to bring up. With the pre-session reminder I just pick up from where I left off.',
-        name: 'Sarah',
-        role: 'Plastic Brains User',
+        quote: t('onboarding:reminderTimes.quote'),
+        name: t('onboarding:reminderTimes.quoteName'),
+        role: t('onboarding:reminderTimes.quoteRole'),
     },
-    primaryCta: 'See my plan',
-} as const;
+    primaryCta: t('onboarding:reminderTimes.primaryCta'),
+});
 
-export const PLAN_COPY = {
-    sampleHeadline: 'See how your plan could work',
-    sampleBody:
-        "This example shows how reminders can fit between sessions. Add your booked session later and we'll replace these dates with your real plan.",
-    sampleVariableBody:
-        "This example uses a one-week gap to show how reminders work. Add your booked sessions later and we'll use the real gap between them.",
-    evidenceStatement:
-        'These times come from research into memory consolidation, sleep, spaced retrieval and context reinstatement.',
-    primaryCta: 'After your note',
-} as const;
+export const planCopy = () => ({
+    sampleHeadline: t('onboarding:plan.sampleHeadline'),
+    sampleBody: t('onboarding:plan.sampleBody'),
+    sampleVariableBody: t('onboarding:plan.sampleVariableBody'),
+    evidenceStatement: t('onboarding:plan.evidenceStatement'),
+    primaryCta: t('onboarding:plan.primaryCta'),
+});
 
-export const REVIEWS_PREVIEW_COPY = {
-    headline: 'Your Custom Reminders',
+export const reviewsPreviewCopy = () => ({
+    headline: t('onboarding:reviewsPreview.headline'),
     /**
      * Reviews live inside the gap between two sessions, so a schedule that
      * varies, or one we have not been told about yet, produces no dated reviews
-     * at all. The screen shows a one-week example rather than nothing, and says
-     * plainly that the dates are not yet the user's own.
+     * at all. The screen shows a one-week example rather than nothing.
      */
-    exampleGapNote:
-        "These dates use a one-week gap as an example. Once we know when your following session is, your reviews will move to the real gap between them.",
-    sampleNote:
-        "These dates come from the example session in your sample plan. Add your next session later and we'll replace them with your real schedule.",
-    primaryCta: 'Your notes',
-} as const;
+    exampleGapNote: t('onboarding:reviewsPreview.exampleGapNote'),
+    sampleNote: t('onboarding:reviewsPreview.sampleNote'),
+    primaryCta: t('onboarding:reviewsPreview.primaryCta'),
+});
 
-export const planHeadline = (): string => 'Your custom plan';
-
-/**
- * Each goal as the end of the sentence "what you told us matters most: ...".
- *
- * `remember` is not one of the three options offered any more, but a draft
- * saved before it was dropped still carries it, so it keeps its line.
- */
-const GOAL_PRIORITY: Record<GoalId, string> = {
-    remember: 'remembering what came up in your sessions',
-    practise: 'putting what comes up in therapy into practice through the week',
-    prepare: 'walking into your next session feeling prepared',
-    habit: 'seeing your progress build up over time',
-};
+export const planHeadline = (): string => t('onboarding:plan.headline');
 
 /**
  * Why the reviews land where they do.
  *
  * Two reasons, and the screen owes the user both: the research the schedule is
  * built on, and the answer they gave about what they wanted out of it. Without
- * the second the times read as the same plan everybody gets. The goal is the
- * one answer that shifts what the reviews are for, so it is the one named.
+ * the second the times read as the same plan everybody gets.
+ *
+ * One key per shape rather than two sentences glued together, so a translator
+ * can decide where the goal belongs in the sentence.
  */
 export const evidenceStatement = (goal: GoalId | null): string =>
     goal === null
-        ? PLAN_COPY.evidenceStatement
-        : `${PLAN_COPY.evidenceStatement} They are also shaped by what you told us matters most: ${GOAL_PRIORITY[goal]}.`;
+        ? t('onboarding:plan.evidenceStatement')
+        : t('onboarding:plan.evidenceStatementWithGoal', {
+            priority: t(`onboarding:goalPriority.${goal}`),
+        });
 
 export const samplePlanBody = (cadence: CadenceId | null): string =>
-    cadence === 'varies' ? PLAN_COPY.sampleVariableBody : PLAN_COPY.sampleBody;
+    cadence === 'varies'
+        ? t('onboarding:plan.sampleVariableBody')
+        : t('onboarding:plan.sampleBody');
 
 /**
  * The goal the user chose, said back to them with what the notes do for it.
  *
- * The notes screen shows this rather than a list of every answer: the goal is
- * the one answer that says why they are here, and reading three of their own
- * answers back was a receipt rather than a reason.
+ * `remember` is not one of the options offered any more, but a draft saved
+ * before it was dropped can still carry it, so an unknown goal yields null
+ * rather than throwing.
  */
 export const goalSupport = (goal: GoalId | null): GoalOption | null =>
-    GOAL_OPTIONS.find((option) => option.id === goal) ?? null;
+    goalOptions().find((option) => option.id === goal) ?? null;
 
-export const NOTE_PREVIEW_COPY = {
-    headline: 'Your notes',
-    researchLink: 'Why these five questions?',
-    privacyTitle: 'Your note stays yours',
-    privacyBody:
-		'The contents of your therapy notes are encrypted and stored only on this iPhone. They are never uploaded to our servers.',
+export const notePreviewCopy = () => ({
+    headline: t('onboarding:notePreview.headline'),
+    researchLink: t('onboarding:notePreview.researchLink'),
+    privacyTitle: t('onboarding:notePreview.privacyTitle'),
+    privacyBody: t('onboarding:notePreview.privacyBody'),
     // The notification shown landing over the notes when the goal is the
     // next session: the reminder that arrives the evening before it.
-    reminderTitle: 'Plastic Brains',
-    reminderBody: "Review your notes before tomorrow's session",
-    reminderTime: 'now',
-    primaryCta: 'See plans',
-} as const;
+    reminderTitle: t('onboarding:notePreview.reminderTitle'),
+    reminderBody: t('onboarding:notePreview.reminderBody'),
+    reminderTime: t('onboarding:notePreview.reminderTime'),
+    primaryCta: t('onboarding:notePreview.primaryCta'),
+});
 
-export const remainingQuestions = (shown: number, total: number): string => {
-    const remaining = total - shown;
-    return remaining === 1 ? '1 more question included' : `${remaining} more questions included`;
-};
+export const remainingQuestions = (shown: number, total: number): string =>
+    t('onboarding:remainingQuestions', { count: total - shown });
 
-export const SUBSCRIPTION_COPY = {
-    fallbackHeadline: 'Keep therapy with you between sessions',
-    body: 'Keep the plan you just built—capture, revisit and prepare—around every therapy session.',
-    planTitle: 'Your plan is ready',
-    samplePlanTitle: 'Your sample plan is ready',
-    samplePlanNote: 'Add your next session later and these example dates will be replaced with your real schedule.',
-    nextSessionLabel: 'Next session',
-    sampleSessionLabel: 'Example session',
-    firstNoteLabel: 'First note',
-    reviewTimesLabel: 'Review times',
+export const subscriptionCopy = () => ({
+    fallbackHeadline: t('onboarding:subscription.fallbackHeadline'),
+    body: t('onboarding:subscription.body'),
+    planTitle: t('onboarding:subscription.planTitle'),
+    samplePlanTitle: t('onboarding:subscription.samplePlanTitle'),
+    samplePlanNote: t('onboarding:subscription.samplePlanNote'),
+    nextSessionLabel: t('onboarding:subscription.nextSessionLabel'),
+    sampleSessionLabel: t('onboarding:subscription.sampleSessionLabel'),
+    firstNoteLabel: t('onboarding:subscription.firstNoteLabel'),
+    reviewTimesLabel: t('onboarding:subscription.reviewTimesLabel'),
     testimonial: {
-        quote: 'As a therapist who has my own therapist, I wouldn’t have thought I would benefit from something like this. But with such a high caseload, it really helps me feel ready for my own therapy sessions.',
-        name: 'Catherine',
-        role: 'CBT therapist',
+        quote: t('onboarding:subscription.quote'),
+        name: t('onboarding:subscription.quoteName'),
+        role: t('onboarding:subscription.quoteRole'),
     },
-    annualCta: 'Continue with annual',
-    monthlyCta: 'Continue with monthly',
-    annualTitle: 'Annual',
-    annualRenewal: 'Renews annually until cancelled.',
+    annualCta: t('onboarding:subscription.annualCta'),
+    monthlyCta: t('onboarding:subscription.monthlyCta'),
+    annualTitle: t('onboarding:subscription.annualTitle'),
+    annualRenewal: t('onboarding:subscription.annualRenewal'),
     // Shown instead when Apple reports the user cannot have the trial, so the
     // first charge is not left implied.
-    annualRenewalNoTrial: 'Billed today. Renews annually until cancelled.',
-    monthlyTitle: 'Monthly',
-    monthlyBadge: 'Flexible',
-    monthlyRenewal: 'Renews monthly until cancelled.',
-    monthlyRenewalNoTrial: 'Billed today. Renews monthly until cancelled.',
-    planHeader: 'Your plan',
-    annualDescription: 'Notes, reviews, reminders and more',
-    monthlyDescription: 'The same plan, month by month',
-    trialCta: 'Start your free trial',
-    cancelAnytime: 'Cancel anytime',
-    trialTodayLabel: 'Today',
-    trialTodayBody: 'Full access begins',
-    trialCancelNote: 'Cancel anytime in your Apple ID subscription settings.',
-    restore: 'Restore purchases',
-    restoring: 'Restoring…',
-    terms: 'Terms',
-    privacy: 'Privacy',
-    unavailableHeadline: "We can't load subscriptions right now",
-    unavailableBody: 'Check your connection and try again.',
-    unavailableCta: 'Try again',
-} as const;
+    annualRenewalNoTrial: t('onboarding:subscription.annualRenewalNoTrial'),
+    monthlyTitle: t('onboarding:subscription.monthlyTitle'),
+    monthlyBadge: t('onboarding:subscription.monthlyBadge'),
+    monthlyRenewal: t('onboarding:subscription.monthlyRenewal'),
+    monthlyRenewalNoTrial: t('onboarding:subscription.monthlyRenewalNoTrial'),
+    planHeader: t('onboarding:subscription.planHeader'),
+    annualDescription: t('onboarding:subscription.annualDescription'),
+    monthlyDescription: t('onboarding:subscription.monthlyDescription'),
+    trialCta: t('onboarding:subscription.trialCta'),
+    cancelAnytime: t('onboarding:subscription.cancelAnytime'),
+    trialTodayLabel: t('onboarding:subscription.trialTodayLabel'),
+    trialTodayBody: t('onboarding:subscription.trialTodayBody'),
+    trialCancelNote: t('onboarding:subscription.trialCancelNote'),
+    restore: t('onboarding:subscription.restore'),
+    restoring: t('onboarding:subscription.restoring'),
+    terms: t('onboarding:subscription.terms'),
+    privacy: t('onboarding:subscription.privacy'),
+    unavailableHeadline: t('onboarding:subscription.unavailableHeadline'),
+    unavailableBody: t('onboarding:subscription.unavailableBody'),
+    unavailableCta: t('onboarding:subscription.unavailableCta'),
+});
 
 export const planBillingPeriod = (plan: PlanId): 'year' | 'month' =>
     plan === 'annual' ? 'year' : 'month';
 
+/**
+ * "3 weeks", with the unit agreeing with the number.
+ *
+ * i18next context on the period plus a plural on the count, rather than
+ * appending an "s". The unit is a different word in each language and carries a
+ * gender in most of them, so one key per period is the only shape that lets a
+ * translator write the phrase rather than assemble it.
+ */
 const trialDurationLine = (trial: SubscriptionTrial): string =>
-    `${trial.periods} ${trial.period}${trial.periods === 1 ? '' : 's'}`;
+    t('onboarding:subscription.trialDuration', {
+        count: trial.periods,
+        context: trial.period,
+    });
 
 /** The purchase button when no trial is on offer; a trial uses `trialCta`. */
 export const planCtaLabel = (plan: PlanId): string =>
-    plan === 'annual' ? SUBSCRIPTION_COPY.annualCta : SUBSCRIPTION_COPY.monthlyCta;
+    plan === 'annual'
+        ? t('onboarding:subscription.annualCta')
+        : t('onboarding:subscription.monthlyCta');
 
 /** A plain-language headline for whichever trial the selected plan carries. */
 export const trialHeadline = (trial: SubscriptionTrial): string =>
-    trial.periods === 1
-        ? `Your first ${trial.period}'s on us`
-        : `Your first ${trial.periods} ${trial.period}s are on us`;
+    t('onboarding:subscription.trialHeadline', {
+        count: trial.periods,
+        context: trial.period,
+    });
 
 export const planPriceLine = (plan: PlanId, price: string, showTrial: boolean): string =>
-    `${showTrial ? 'Then ' : ''}${price} per ${planBillingPeriod(plan)}`;
+    showTrial
+        ? t('onboarding:subscription.priceLineThen', { price, context: planBillingPeriod(plan) })
+        : t('onboarding:subscription.priceLine', { price, context: planBillingPeriod(plan) });
+
 export const trialBadgeLine = (trial: SubscriptionTrial): string =>
-    `${trialDurationLine(trial)} free`;
-export const monthlyEquivalentLine = (price: string): string => `${price} per month`;
+    t('onboarding:subscription.trialBadge', { duration: trialDurationLine(trial) });
+
+export const monthlyEquivalentLine = (price: string): string =>
+    t('onboarding:subscription.priceLine', { price, context: 'month' });
+
 /** "£79.99/year (that's £6.67/month)" for the featured card. */
 export const cardPriceLine = (
     plan: PlanId,
     price: string,
     monthlyEquivalent: string | null,
 ): string => {
-    const per = `${price}/${planBillingPeriod(plan)}`;
+    const per = t('onboarding:subscription.cardPrice', {
+        price,
+        context: planBillingPeriod(plan),
+    });
+
     return monthlyEquivalent === null
         ? per
-        : `${per} (that's ${monthlyEquivalent}/month)`;
+        : t('onboarding:subscription.cardPriceWithMonthly', { per, monthly: monthlyEquivalent });
 };
 
 const trialLengthDays = (trial: SubscriptionTrial): number => {
@@ -307,91 +301,97 @@ export const trialTimeline = (
     plan: PlanId,
     price: string,
     trial: SubscriptionTrial,
-): { icon: 'unlock' | 'star'; text: string }[] => {
-    const days = trialLengthDays(trial);
-    return [
-        { icon: 'unlock', text: 'Today: Start your free trial' },
-        { icon: 'star', text: `Day ${days}: You'll be charged ${price}/${planBillingPeriod(plan)}` },
-    ];
-};
+): { icon: 'unlock' | 'star'; text: string }[] => [
+    { icon: 'unlock', text: t('onboarding:subscription.trialTimelineToday') },
+    {
+        icon: 'star',
+        text: t('onboarding:subscription.trialTimelineCharge', {
+            day: trialLengthDays(trial),
+            price: t('onboarding:subscription.cardPrice', {
+                price,
+                context: planBillingPeriod(plan),
+            }),
+        }),
+    },
+];
 
 export const trialEndLine = (plan: PlanId, price: string): string =>
-    `Your ${plan} subscription begins at ${price} per ${planBillingPeriod(plan)} unless cancelled.`;
+    t('onboarding:subscription.trialEndLine', {
+        context: plan,
+        price: t('onboarding:subscription.priceLine', {
+            price,
+            context: planBillingPeriod(plan),
+        }),
+    });
 
-export const ACCOUNT_COPY = {
+export const accountCopy = () => ({
     // The screen's name, shown beside the back arrow. What the step is for is
     // said in the body underneath, which is where a sentence belongs.
-    headline: 'Account',
-    body: 'Create an account to connect your schedule, reminder times and subscription. Your note contents still stay only on this iPhone.',
-    authenticatedBody: 'Your schedule, reminder times and subscription will be connected to your account. Your note contents still stay only on this iPhone.',
-    continue: 'Continue',
-    apple: 'Continue with Apple',
-    email: 'Continue with email',
+    headline: t('onboarding:account.headline'),
+    body: t('onboarding:account.body'),
+    authenticatedBody: t('onboarding:account.authenticatedBody'),
+    continue: t('onboarding:account.continue'),
+    apple: t('onboarding:account.apple'),
+    email: t('onboarding:account.email'),
     // The three things the body says the account connects, shown back as
     // they were answered, so the promise is concrete rather than a sentence.
-    sessionLabel: 'Next session',
-    noSession: 'Add your next session in Calendar',
-    remindersLabel: 'Reminder times',
-    subscriptionLabel: 'Subscription',
-    subscriptionActive: 'Already active',
-    cancelAnytime: 'You can cancel at any time through Apple subscriptions.',
-    // The sentence introduces the links and does not repeat their names: the
-    // two documents are their own targets underneath, and naming them twice
-    // read as a list of four.
-    legalIntro: 'By continuing, you agree to:',
-    legalTerms: 'Terms of Service',
-    legalPrivacy: 'Privacy Policy',
-} as const;
+    sessionLabel: t('onboarding:account.sessionLabel'),
+    noSession: t('onboarding:account.noSession'),
+    remindersLabel: t('onboarding:account.remindersLabel'),
+    subscriptionLabel: t('onboarding:account.subscriptionLabel'),
+    subscriptionActive: t('onboarding:account.subscriptionActive'),
+    cancelAnytime: t('onboarding:account.cancelAnytime'),
+    legalIntro: t('onboarding:account.legalIntro'),
+    legalTerms: t('onboarding:account.legalTerms'),
+    legalPrivacy: t('onboarding:account.legalPrivacy'),
+});
 
-export const PURCHASE_COPY = {
-    continue: 'Continue',
+export const purchaseCopy = () => ({
+    continue: t('onboarding:purchase.continue'),
     // Backing out is not a failure, so it does not borrow the error title.
-    cancelledTitle: 'No subscription started',
-    cancelled: "Your subscription wasn't started. Try again when you're ready.",
-    pendingTitle: 'Purchase pending',
-    pending: 'Apple is still processing this purchase. You can continue when it is approved.',
-    errorTitle: "We couldn't start your subscription",
-    errorBody: "You haven't been charged. Please try again.",
-    errorPrimary: 'Try again',
-    errorSecondary: 'Back to plans',
-    unlinkedTitle: "We couldn't connect this subscription",
-    unlinkedBody:
-		'Apple completed the transaction, but it is not linked to this Plastic Brains account. Try Restore purchases from the original account. You will not be charged again for the same active subscription.',
-    restoreEmpty: "We couldn't find an active subscription for this Apple ID.",
-    restoreErrorTitle: "We couldn't restore purchases",
-    restoreError: 'Check your connection and try again.',
-    restoredTitle: 'Subscription restored',
-    restored: 'Your subscription is active on this Apple ID.',
-} as const;
+    cancelledTitle: t('onboarding:purchase.cancelledTitle'),
+    cancelled: t('onboarding:purchase.cancelled'),
+    pendingTitle: t('onboarding:purchase.pendingTitle'),
+    pending: t('onboarding:purchase.pending'),
+    errorTitle: t('onboarding:purchase.errorTitle'),
+    errorBody: t('onboarding:purchase.errorBody'),
+    errorPrimary: t('onboarding:purchase.errorPrimary'),
+    errorSecondary: t('onboarding:purchase.errorSecondary'),
+    unlinkedTitle: t('onboarding:purchase.unlinkedTitle'),
+    unlinkedBody: t('onboarding:purchase.unlinkedBody'),
+    restoreEmpty: t('onboarding:purchase.restoreEmpty'),
+    restoreErrorTitle: t('onboarding:purchase.restoreErrorTitle'),
+    restoreError: t('onboarding:purchase.restoreError'),
+    restoredTitle: t('onboarding:purchase.restoredTitle'),
+    restored: t('onboarding:purchase.restored'),
+});
 
-export const NOTIFICATIONS_COPY = {
-    body: 'Turn on notifications so your plan can reach you at the times you chose.',
-    privacy: 'Notifications show the reminder, never anything you wrote.',
-    primaryCta: 'Turn on notifications',
-    secondaryCta: 'Not now',
-    deniedHeadline: 'Turn on notifications in Settings',
-    deniedBody:
-		"Notifications are currently off. You can enable them in iPhone Settings when you're ready.",
-    deniedPrimaryCta: 'Open Settings',
-    registrationErrorTitle: "We couldn't turn on notifications",
-    registrationErrorBody: 'Check your connection and try again, or choose Not now.',
-} as const;
+export const notificationsCopy = () => ({
+    body: t('onboarding:notifications.body'),
+    privacy: t('onboarding:notifications.privacy'),
+    primaryCta: t('onboarding:notifications.primaryCta'),
+    secondaryCta: t('onboarding:notifications.secondaryCta'),
+    deniedHeadline: t('onboarding:notifications.deniedHeadline'),
+    deniedBody: t('onboarding:notifications.deniedBody'),
+    deniedPrimaryCta: t('onboarding:notifications.deniedPrimaryCta'),
+    registrationErrorTitle: t('onboarding:notifications.registrationErrorTitle'),
+    registrationErrorBody: t('onboarding:notifications.registrationErrorBody'),
+});
 
 export const notificationsHeadline = (weekday: string, time: string): string =>
-    `Get your first note reminder ${weekday} at ${time}`;
+    t('onboarding:notifications.headline', { weekday, time });
 
-export const SUCCESS_COPY = {
-    headline: 'Your between-session plan is ready',
-    withoutRemindersBody: 'Save it now. You can turn on notifications later in Settings.',
-    primaryCta: 'Save and view my notes',
-    sampleHeadline: 'Your sample plan is ready',
-    sampleBody:
-        "Save your preferences now. Add your next session in Calendar and we'll build the real plan around it.",
-    samplePrimaryCta: 'Save and view my notes',
-} as const;
+export const successCopyStrings = () => ({
+    headline: t('onboarding:success.headline'),
+    withoutRemindersBody: t('onboarding:success.withoutRemindersBody'),
+    primaryCta: t('onboarding:success.primaryCta'),
+    sampleHeadline: t('onboarding:success.sampleHeadline'),
+    sampleBody: t('onboarding:success.sampleBody'),
+    samplePrimaryCta: t('onboarding:success.samplePrimaryCta'),
+});
 
 export const successBody = (weekday: string, time: string): string =>
-    `Save it now and your first note reminder will arrive ${weekday} at ${time}.`;
+    t('onboarding:success.body', { weekday, time });
 
 /**
  * Which Success wording is true.
@@ -405,36 +405,35 @@ export const successCopy = (
     reminderScheduled: boolean,
     weekday: string,
     time: string,
-): { headline: string; body: string } =>
-    reminderScheduled
-        ? { headline: SUCCESS_COPY.headline, body: successBody(weekday, time) }
-        : {
-            headline: SUCCESS_COPY.headline,
-            body: SUCCESS_COPY.withoutRemindersBody,
-        };
+): { headline: string; body: string } => ({
+    headline: t('onboarding:success.headline'),
+    body: reminderScheduled
+        ? successBody(weekday, time)
+        : t('onboarding:success.withoutRemindersBody'),
+});
 
 /** A plan's billing line, which must make an immediate first charge explicit. */
 export const planRenewalLine = (plan: PlanId, showTrial: boolean): string => {
     if (plan === 'annual') {
         return showTrial
-            ? SUBSCRIPTION_COPY.annualRenewal
-            : SUBSCRIPTION_COPY.annualRenewalNoTrial;
+            ? t('onboarding:subscription.annualRenewal')
+            : t('onboarding:subscription.annualRenewalNoTrial');
     }
 
     return showTrial
-        ? SUBSCRIPTION_COPY.monthlyRenewal
-        : SUBSCRIPTION_COPY.monthlyRenewalNoTrial;
+        ? t('onboarding:subscription.monthlyRenewal')
+        : t('onboarding:subscription.monthlyRenewalNoTrial');
 };
 
-export const ERROR_COPY = {
-    saveTitle: "We couldn't save your plan",
-    saveBody: 'Your answers are still here. Please try again.',
-    offlineTitle: "You're offline",
-    offlineBody: 'Reconnect to continue setting up your plan.',
-    signInTitle: 'Sign in to save your plan',
-    signInBody: 'Your answers are still here. Sign in to finish setting up.',
-    signInCta: 'Continue',
-    unexpectedTitle: 'Something went wrong',
-    unexpectedBody: 'Your answers are still here. Please try again.',
-    retryCta: 'Try again',
-} as const;
+export const errorCopy = () => ({
+    saveTitle: t('onboarding:error.saveTitle'),
+    saveBody: t('onboarding:error.saveBody'),
+    offlineTitle: t('onboarding:error.offlineTitle'),
+    offlineBody: t('onboarding:error.offlineBody'),
+    signInTitle: t('onboarding:error.signInTitle'),
+    signInBody: t('onboarding:error.signInBody'),
+    signInCta: t('onboarding:error.signInCta'),
+    unexpectedTitle: t('onboarding:error.unexpectedTitle'),
+    unexpectedBody: t('onboarding:error.unexpectedBody'),
+    retryCta: t('onboarding:error.retryCta'),
+});

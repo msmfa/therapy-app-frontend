@@ -58,14 +58,22 @@ describe('translation resources', () => {
         '%s does not leave the English string in place',
         (_tag, language) => {
             const sourceByKey = new Map(leafValues(source?.resources ?? {}));
-            // A handful of strings are legitimately identical across languages:
-            // proper nouns, and format strings that are only punctuation and
-            // placeholders. Everything else matching English is a placeholder
-            // nobody translated.
+            // A handful of strings are legitimately identical across
+            // languages. Everything else matching English is a line nobody
+            // translated, which is the thing this test exists to catch, so the
+            // exceptions are listed one by one rather than pattern-matched.
             const allowedIdentical = new Set([
+                // Only placeholders and punctuation.
                 'settings.hub.version',
                 'settings.language.a11yRow',
                 'reminderSettings.a11yTime',
+                // Proper nouns and the product's own name.
+                'onboarding.reminderTimes.quoteName',
+                'onboarding.subscription.quoteName',
+                'onboarding.notePreview.reminderTitle',
+                // Words French happens to spell the same way.
+                'onboarding.sessionDate.dateLabel',
+                'onboarding.subscription.monthlyBadge',
             ]);
 
             const untranslated = leafValues(language.resources)

@@ -251,5 +251,235 @@
         "message": "We couldn’t load your therapy sessions. Please try again later."
       }
     }
+  },
+  "onboarding": {
+    "welcome": {
+      "headline": "A therapy journal that reminds you to review your therapy notes",
+      "primaryCta": "Build my plan",
+      "secondaryCta": "I already have an account"
+    },
+    "goalOption": {
+      "practise": {
+        "label": "Put therapy insights into practice",
+        "subscriptionHeadline": "Put therapy insights into practice",
+        "restated": "Put therapy insights into practice",
+        "noteSupport": "Notifications between sessions help you put into practice what you discussed in your last session."
+      },
+      "prepare": {
+        "label": "Be better prepared for my next session",
+        "subscriptionHeadline": "Feel prepared for your next session",
+        "restated": "Be better prepared for your next session",
+        "noteSupport": "The evening before your next session you'll be notified to review your last note."
+      },
+      "habit": {
+        "label": "Track my progress over time",
+        "subscriptionHeadline": "Track your progress over time",
+        "restated": "Track your progress over time",
+        "noteSupport": "Reflect on your logged notes from weeks and months ago to see which areas you're improving in and which you want to work on."
+      }
+    },
+    "goalPriority": {
+      "remember": "remembering what came up in your sessions",
+      "practise": "putting what comes up in therapy into practice through the week",
+      "prepare": "walking into your next session feeling prepared",
+      "habit": "seeing your progress build up over time"
+    },
+    "goal": {
+      "headline": "What would help you get more from therapy?",
+      "supporting": "Choose the outcome that matters most to you.",
+      "primaryCta": "Continue"
+    },
+    "sessionDate": {
+      "headline": "When is your next session?",
+      "supporting": "We'll use it to time your first note and shape the reviews that follow.",
+      "dateLabel": "Date",
+      "timeLabel": "Time",
+      "validation": "Choose a future therapy session.",
+      "rangeValidation": "Choose a session within the next six months.",
+      "primaryCta": "Continue",
+      "sampleCta": "I haven't booked it yet"
+    },
+    "cadenceOption": {
+      "weekly": "Every week",
+      "fortnightly": "Every two weeks",
+      "monthly": "Once a month",
+      "varies": "It varies"
+    },
+    "cadence": {
+      "headline": "How often are your sessions?",
+      "supporting": "This allows us to tell the best times to send you your reminders.",
+      "primaryCta": "Choose reminder times"
+    },
+    "reminderTimes": {
+      "headline": "Choose times that fit your routine",
+      "supporting": "You'll only receive one morning reminder a week, after your session.",
+      "morningLabel": "Morning reviews",
+      "eveningLabel": "Evening reviews",
+      "quote": "I like the reminder before my next session. I used to find it hard to think about what to talk about then I’d leave the session and finally remember things I wanted to bring up. With the pre-session reminder I just pick up from where I left off.",
+      "quoteName": "Sarah",
+      "quoteRole": "Plastic Brains User",
+      "primaryCta": "See my plan"
+    },
+    "plan": {
+      "headline": "Your custom plan",
+      "sampleHeadline": "See how your plan could work",
+      "sampleBody": "This example shows how reminders can fit between sessions. Add your booked session later and we'll replace these dates with your real plan.",
+      "sampleVariableBody": "This example uses a one-week gap to show how reminders work. Add your booked sessions later and we'll use the real gap between them.",
+      "evidenceStatement": "These times come from research into memory consolidation, sleep, spaced retrieval and context reinstatement.",
+      "evidenceStatementWithGoal": "These times come from research into memory consolidation, sleep, spaced retrieval and context reinstatement. They are also shaped by what you told us matters most: {{priority}}.",
+      "primaryCta": "After your note"
+    },
+    "reviewsPreview": {
+      "headline": "Your Custom Reminders",
+      "exampleGapNote": "These dates use a one-week gap as an example. Once we know when your following session is, your reviews will move to the real gap between them.",
+      "sampleNote": "These dates come from the example session in your sample plan. Add your next session later and we'll replace them with your real schedule.",
+      "primaryCta": "Your notes"
+    },
+    "notePreview": {
+      "headline": "Your notes",
+      "researchLink": "Why these five questions?",
+      "privacyTitle": "Your note stays yours",
+      "privacyBody": "The contents of your therapy notes are encrypted and stored only on this iPhone. They are never uploaded to our servers.",
+      "reminderTitle": "Plastic Brains",
+      "reminderBody": "Review your notes before tomorrow's session",
+      "reminderTime": "now",
+      "primaryCta": "See plans"
+    },
+    "remainingQuestions_one": "{{count}} more question included",
+    "remainingQuestions_other": "{{count}} more questions included",
+    "subscription": {
+      "fallbackHeadline": "Keep therapy with you between sessions",
+      "body": "Keep the plan you just built—capture, revisit and prepare—around every therapy session.",
+      "planTitle": "Your plan is ready",
+      "samplePlanTitle": "Your sample plan is ready",
+      "samplePlanNote": "Add your next session later and these example dates will be replaced with your real schedule.",
+      "nextSessionLabel": "Next session",
+      "sampleSessionLabel": "Example session",
+      "firstNoteLabel": "First note",
+      "reviewTimesLabel": "Review times",
+      "quote": "As a therapist who has my own therapist, I wouldn’t have thought I would benefit from something like this. But with such a high caseload, it really helps me feel ready for my own therapy sessions.",
+      "quoteName": "Catherine",
+      "quoteRole": "CBT therapist",
+      "annualCta": "Continue with annual",
+      "monthlyCta": "Continue with monthly",
+      "annualTitle": "Annual",
+      "annualRenewal": "Renews annually until cancelled.",
+      "annualRenewalNoTrial": "Billed today. Renews annually until cancelled.",
+      "monthlyTitle": "Monthly",
+      "monthlyBadge": "Flexible",
+      "monthlyRenewal": "Renews monthly until cancelled.",
+      "monthlyRenewalNoTrial": "Billed today. Renews monthly until cancelled.",
+      "planHeader": "Your plan",
+      "annualDescription": "Notes, reviews, reminders and more",
+      "monthlyDescription": "The same plan, month by month",
+      "trialCta": "Start your free trial",
+      "cancelAnytime": "Cancel anytime",
+      "trialTodayLabel": "Today",
+      "trialTodayBody": "Full access begins",
+      "trialCancelNote": "Cancel anytime in your Apple ID subscription settings.",
+      "restore": "Restore purchases",
+      "restoring": "Restoring…",
+      "terms": "Terms",
+      "privacy": "Privacy",
+      "unavailableHeadline": "We can't load subscriptions right now",
+      "unavailableBody": "Check your connection and try again.",
+      "unavailableCta": "Try again",
+      "trialDuration_day_one": "{{count}} day",
+      "trialDuration_day_other": "{{count}} days",
+      "trialDuration_week_one": "{{count}} week",
+      "trialDuration_week_other": "{{count}} weeks",
+      "trialDuration_month_one": "{{count}} month",
+      "trialDuration_month_other": "{{count}} months",
+      "trialDuration_year_one": "{{count}} year",
+      "trialDuration_year_other": "{{count}} years",
+      "trialBadge": "{{duration}} free",
+      "trialHeadline_day_one": "Your first day's on us",
+      "trialHeadline_day_other": "Your first {{count}} days are on us",
+      "trialHeadline_week_one": "Your first week's on us",
+      "trialHeadline_week_other": "Your first {{count}} weeks are on us",
+      "trialHeadline_month_one": "Your first month's on us",
+      "trialHeadline_month_other": "Your first {{count}} months are on us",
+      "trialHeadline_year_one": "Your first year's on us",
+      "trialHeadline_year_other": "Your first {{count}} years are on us",
+      "priceLine_year": "{{price}} per year",
+      "priceLine_month": "{{price}} per month",
+      "priceLineThen_year": "Then {{price}} per year",
+      "priceLineThen_month": "Then {{price}} per month",
+      "cardPrice_year": "{{price}}/year",
+      "cardPrice_month": "{{price}}/month",
+      "cardPriceWithMonthly": "{{per}} (that's {{monthly}}/month)",
+      "trialTimelineToday": "Today: Start your free trial",
+      "trialTimelineCharge": "Day {{day}}: You'll be charged {{price}}",
+      "trialEndLine_annual": "Your annual subscription begins at {{price}} unless cancelled.",
+      "trialEndLine_monthly": "Your monthly subscription begins at {{price}} unless cancelled."
+    },
+    "account": {
+      "headline": "Account",
+      "body": "Create an account to connect your schedule, reminder times and subscription. Your note contents still stay only on this iPhone.",
+      "authenticatedBody": "Your schedule, reminder times and subscription will be connected to your account. Your note contents still stay only on this iPhone.",
+      "continue": "Continue",
+      "apple": "Continue with Apple",
+      "email": "Continue with email",
+      "sessionLabel": "Next session",
+      "noSession": "Add your next session in Calendar",
+      "remindersLabel": "Reminder times",
+      "subscriptionLabel": "Subscription",
+      "subscriptionActive": "Already active",
+      "cancelAnytime": "You can cancel at any time through Apple subscriptions.",
+      "legalIntro": "By continuing, you agree to:",
+      "legalTerms": "Terms of Service",
+      "legalPrivacy": "Privacy Policy"
+    },
+    "purchase": {
+      "continue": "Continue",
+      "cancelledTitle": "No subscription started",
+      "cancelled": "Your subscription wasn't started. Try again when you're ready.",
+      "pendingTitle": "Purchase pending",
+      "pending": "Apple is still processing this purchase. You can continue when it is approved.",
+      "errorTitle": "We couldn't start your subscription",
+      "errorBody": "You haven't been charged. Please try again.",
+      "errorPrimary": "Try again",
+      "errorSecondary": "Back to plans",
+      "unlinkedTitle": "We couldn't connect this subscription",
+      "unlinkedBody": "Apple completed the transaction, but it is not linked to this Plastic Brains account. Try Restore purchases from the original account. You will not be charged again for the same active subscription.",
+      "restoreEmpty": "We couldn't find an active subscription for this Apple ID.",
+      "restoreErrorTitle": "We couldn't restore purchases",
+      "restoreError": "Check your connection and try again.",
+      "restoredTitle": "Subscription restored",
+      "restored": "Your subscription is active on this Apple ID."
+    },
+    "notifications": {
+      "body": "Turn on notifications so your plan can reach you at the times you chose.",
+      "privacy": "Notifications show the reminder, never anything you wrote.",
+      "primaryCta": "Turn on notifications",
+      "secondaryCta": "Not now",
+      "deniedHeadline": "Turn on notifications in Settings",
+      "deniedBody": "Notifications are currently off. You can enable them in iPhone Settings when you're ready.",
+      "deniedPrimaryCta": "Open Settings",
+      "registrationErrorTitle": "We couldn't turn on notifications",
+      "registrationErrorBody": "Check your connection and try again, or choose Not now.",
+      "headline": "Get your first note reminder {{weekday}} at {{time}}"
+    },
+    "success": {
+      "headline": "Your between-session plan is ready",
+      "withoutRemindersBody": "Save it now. You can turn on notifications later in Settings.",
+      "primaryCta": "Save and view my notes",
+      "sampleHeadline": "Your sample plan is ready",
+      "sampleBody": "Save your preferences now. Add your next session in Calendar and we'll build the real plan around it.",
+      "samplePrimaryCta": "Save and view my notes",
+      "body": "Save it now and your first note reminder will arrive {{weekday}} at {{time}}."
+    },
+    "error": {
+      "saveTitle": "We couldn't save your plan",
+      "saveBody": "Your answers are still here. Please try again.",
+      "offlineTitle": "You're offline",
+      "offlineBody": "Reconnect to continue setting up your plan.",
+      "signInTitle": "Sign in to save your plan",
+      "signInBody": "Your answers are still here. Sign in to finish setting up.",
+      "signInCta": "Continue",
+      "unexpectedTitle": "Something went wrong",
+      "unexpectedBody": "Your answers are still here. Please try again.",
+      "retryCta": "Try again"
+    }
   }
 }

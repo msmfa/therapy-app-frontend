@@ -13,6 +13,26 @@
  */
 import { LocaleConfig } from 'react-native-calendars';
 
+/**
+ * The shape this module writes into.
+ *
+ * react-native-calendars ships no usable type for LocaleConfig, so without a
+ * local one every access here is an `any` the lint rules reject. Narrow rather
+ * than cast-to-any: the fields below are the whole contract, and naming them
+ * means a change in the library shows up as a type error instead of silently.
+ */
+type CalendarLocale = {
+    monthNames: string[];
+    monthNamesShort: string[];
+    dayNames: string[];
+    dayNamesShort: string[];
+};
+
+const config = LocaleConfig as unknown as {
+    locales: Record<string, CalendarLocale | undefined>;
+    defaultLocale: string;
+};
+
 // Any Monday. Only the weekday matters, and starting on a Monday means index 0
 // is Sunday after the rotation below, which is the order the library expects.
 const WEEK_START = Date.UTC(2024, 0, 7); // a Sunday
@@ -39,9 +59,9 @@ export const applyCalendarLocale = (locale: string | undefined): void => {
     // the app's formatting does. Intl resolves it; the library needs a key.
     const tag = locale ?? new Intl.DateTimeFormat().resolvedOptions().locale;
 
-    if (LocaleConfig.locales[tag] === undefined) {
+    if (config.locales[tag] === undefined) {
         try {
-            LocaleConfig.locales[tag] = {
+            config.locales[tag] = {
                 monthNames: monthNames(tag, 'long'),
                 monthNamesShort: monthNames(tag, 'short'),
                 dayNames: dayNames(tag, 'long'),
@@ -54,5 +74,5 @@ export const applyCalendarLocale = (locale: string | undefined): void => {
         }
     }
 
-    LocaleConfig.defaultLocale = tag;
+    config.defaultLocale = tag;
 };

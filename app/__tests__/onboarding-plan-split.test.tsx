@@ -31,8 +31,8 @@ import PlanPreviewScreen from '../(onboarding)/plan-preview';
 import ReviewsPreviewScreen from '../(onboarding)/reviews-preview';
 import {
     evidenceStatement,
-    PLAN_COPY,
-    REVIEWS_PREVIEW_COPY,
+    planCopy,
+    reviewsPreviewCopy,
 } from '../../src/features/onboarding/onboardingCopy';
 
 /** The rows' labels, built from the session date the fixtures use. */
@@ -62,10 +62,10 @@ describe('the plan is split across two screens', () => {
     it('leads the reviews screen with the evidence line', () => {
         const { getByText } = render(<ReviewsPreviewScreen />);
 
-        expect(getByText(REVIEWS_PREVIEW_COPY.headline)).toBeTruthy();
+        expect(getByText(reviewsPreviewCopy().headline)).toBeTruthy();
         // Both halves of the answer: the research, and the goal they chose.
         expect(getByText(evidenceStatement(baseAnswers.goal))).toBeTruthy();
-        expect(evidenceStatement(baseAnswers.goal)).toContain(PLAN_COPY.evidenceStatement);
+        expect(evidenceStatement(baseAnswers.goal)).toContain(planCopy().evidenceStatement);
         expect(evidenceStatement(baseAnswers.goal)).toContain('what you told us matters most');
     });
 
@@ -94,7 +94,7 @@ describe('the plan is split across two screens', () => {
     it('sends the plan preview on to the reviews screen', () => {
         const { getByLabelText } = render(<PlanPreviewScreen />);
 
-        fireEvent.press(getByLabelText(PLAN_COPY.primaryCta));
+        fireEvent.press(getByLabelText(planCopy().primaryCta));
 
         expect(mockPush).toHaveBeenCalledWith('/(onboarding)/reviews-preview');
     });
@@ -102,7 +102,7 @@ describe('the plan is split across two screens', () => {
     it('carries on to the note preview from the reviews screen', () => {
         const { getByLabelText } = render(<ReviewsPreviewScreen />);
 
-        fireEvent.press(getByLabelText(REVIEWS_PREVIEW_COPY.primaryCta));
+        fireEvent.press(getByLabelText(reviewsPreviewCopy().primaryCta));
 
         expect(mockPush).toHaveBeenCalledWith('/(onboarding)/note-preview');
     });
@@ -113,12 +113,12 @@ describe('the plan is split across two screens', () => {
         expect(getByText(POST_SESSION_LABEL)).toBeTruthy();
         // The note point stays behind on the previous screen.
         expect(queryByText(SESSION_ROW_LABEL)).toBeNull();
-        expect(getByLabelText(REVIEWS_PREVIEW_COPY.primaryCta)).toBeTruthy();
+        expect(getByLabelText(reviewsPreviewCopy().primaryCta)).toBeTruthy();
     });
 
     it('titles the reviews screen distinctly from its button', () => {
-        expect(REVIEWS_PREVIEW_COPY.headline).not.toBe(REVIEWS_PREVIEW_COPY.primaryCta);
-        expect(REVIEWS_PREVIEW_COPY.primaryCta).toBe('Your notes');
+        expect(reviewsPreviewCopy().headline).not.toBe(reviewsPreviewCopy().primaryCta);
+        expect(reviewsPreviewCopy().primaryCta).toBe('Your notes');
     });
 });
 
@@ -138,7 +138,7 @@ describe('the reviews screen when no gap can be worked out', () => {
 
         const { getByText } = render(<ReviewsPreviewScreen />);
 
-        expect(getByText(REVIEWS_PREVIEW_COPY.exampleGapNote)).toBeTruthy();
+        expect(getByText(reviewsPreviewCopy().exampleGapNote)).toBeTruthy();
         expect(getByText('Between sessions')).toBeTruthy();
         expect(getByText(PRE_SESSION_LABEL)).toBeTruthy();
     });
@@ -148,7 +148,7 @@ describe('the reviews screen when no gap can be worked out', () => {
 
         const { getByText } = render(<ReviewsPreviewScreen />);
 
-        expect(getByText(REVIEWS_PREVIEW_COPY.exampleGapNote)).toBeTruthy();
+        expect(getByText(reviewsPreviewCopy().exampleGapNote)).toBeTruthy();
         expect(getByText(PRE_SESSION_LABEL)).toBeTruthy();
     });
 
@@ -161,13 +161,13 @@ describe('the reviews screen when no gap can be worked out', () => {
 
         const { getByText } = render(<ReviewsPreviewScreen />);
 
-        expect(getByText(REVIEWS_PREVIEW_COPY.sampleNote)).toBeTruthy();
+        expect(getByText(reviewsPreviewCopy().sampleNote)).toBeTruthy();
     });
 
     it('claims nothing extra once a real gap is known', () => {
         const { queryByText } = render(<ReviewsPreviewScreen />);
 
-        expect(queryByText(REVIEWS_PREVIEW_COPY.exampleGapNote)).toBeNull();
-        expect(queryByText(REVIEWS_PREVIEW_COPY.sampleNote)).toBeNull();
+        expect(queryByText(reviewsPreviewCopy().exampleGapNote)).toBeNull();
+        expect(queryByText(reviewsPreviewCopy().sampleNote)).toBeNull();
     });
 });

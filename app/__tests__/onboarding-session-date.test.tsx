@@ -68,7 +68,7 @@ jest.mock('../../src/components/onboarding/OnboardingScreen', () => {
 });
 
 import SessionDateScreen from '../(onboarding)/session-date';
-import { SESSION_DATE_COPY } from '../../src/features/onboarding/onboardingCopy';
+import { sessionDateCopy } from '../../src/features/onboarding/onboardingCopy';
 
 describe('onboarding session date', () => {
     beforeEach(() => {
@@ -114,7 +114,7 @@ describe('onboarding session date', () => {
         expect(mockSetAnswer).not.toHaveBeenCalled();
         expect(mockPush).not.toHaveBeenCalled();
         expect(getByLabelText('Continue').props.accessibilityState.disabled).toBe(true);
-        expect(getByText(SESSION_DATE_COPY.validation)).toBeTruthy();
+        expect(getByText(sessionDateCopy().validation)).toBeTruthy();
     });
 
     it('accepts the visible defaults when each iOS spinner is opened', () => {

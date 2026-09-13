@@ -6,7 +6,7 @@ import { OnboardingButton } from '../../src/components/onboarding/OnboardingButt
 import AppText from '../../src/components/ui/AppText';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import {
-    NOTIFICATIONS_COPY,
+    notificationsCopy,
     notificationsHeadline,
 } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
@@ -125,8 +125,8 @@ export default function NotificationsPreviewScreen() {
             // a success screen that says reminders are off.
             setStage('askable');
             showAlert(
-                NOTIFICATIONS_COPY.registrationErrorTitle,
-                NOTIFICATIONS_COPY.registrationErrorBody,
+                notificationsCopy().registrationErrorTitle,
+                notificationsCopy().registrationErrorBody,
             );
             return;
         }
@@ -159,18 +159,18 @@ export default function NotificationsPreviewScreen() {
             <OnboardingScreen
                 analyticsStep="notifications_preview"
                 showBack={ false }
-                headline={ NOTIFICATIONS_COPY.deniedHeadline }
-                supporting={ NOTIFICATIONS_COPY.deniedBody }
+                headline={ notificationsCopy().deniedHeadline }
+                supporting={ notificationsCopy().deniedBody }
                 footer={
                     <>
                         <OnboardingButton
-                            label={ NOTIFICATIONS_COPY.deniedPrimaryCta }
+                            label={ notificationsCopy().deniedPrimaryCta }
                             onPress={ () => {
                                 void Linking.openSettings();
                             } }
                         />
                         <OnboardingButton
-                            label={ NOTIFICATIONS_COPY.secondaryCta }
+                            label={ notificationsCopy().secondaryCta }
                             transparent
                             onPress={ handleSkip }
                         />
@@ -189,16 +189,16 @@ export default function NotificationsPreviewScreen() {
                 weekdayName(firstReminderAt),
                 timeLabel(firstReminderAt),
             ) }
-            supporting={ NOTIFICATIONS_COPY.body }
+            supporting={ notificationsCopy().body }
             footer={
                 <>
                     <OnboardingButton
-                        label={ NOTIFICATIONS_COPY.primaryCta }
+                        label={ notificationsCopy().primaryCta }
                         loading={ stage === 'requesting' }
                         onPress={ () => void handleEnable() }
                     />
                     <OnboardingButton
-                        label={ NOTIFICATIONS_COPY.secondaryCta }
+                        label={ notificationsCopy().secondaryCta }
                         transparent
                         disabled={ stage === 'requesting' }
                         onPress={ handleSkip }
@@ -209,7 +209,7 @@ export default function NotificationsPreviewScreen() {
             <View style={ [onboardingStyles.card, styles.privacy] }>
                 <Feather name="lock" size={ 18 } color={ TEXT_COLORS.secondary } />
                 <AppText variant="body" style={ styles.privacyText }>
-                    { NOTIFICATIONS_COPY.privacy }
+                    { notificationsCopy().privacy }
                 </AppText>
             </View>
         </OnboardingScreen>

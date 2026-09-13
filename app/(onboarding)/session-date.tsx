@@ -9,7 +9,7 @@ import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScre
 import { GlassPickerPanel } from '../../src/components/ui/GlassPickerPanel';
 import { DottedDivider } from '../../src/components/ui/DottedDivider';
 import { onboardingStyles } from '../../src/components/onboarding/onboardingStyles';
-import { SESSION_DATE_COPY } from '../../src/features/onboarding/onboardingCopy';
+import { sessionDateCopy } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { longDateLabel, timeLabel } from '../../src/features/onboarding/formatting';
 import { TIME_PICKER_BOUNDS } from '../../src/utils/timePickerBounds';
@@ -125,12 +125,12 @@ export default function SessionDateScreen() {
     const rows: { field: Field; label: string; value: string | null }[] = [
         {
             field: 'date',
-            label: SESSION_DATE_COPY.dateLabel,
+            label: sessionDateCopy().dateLabel,
             value: dateChosen ? longDateLabel(draft) : null,
         },
         {
             field: 'time',
-            label: SESSION_DATE_COPY.timeLabel,
+            label: sessionDateCopy().timeLabel,
             value: timeChosen ? timeLabel(draft) : null,
         },
     ];
@@ -140,20 +140,20 @@ export default function SessionDateScreen() {
             analyticsStep="session_date"
             step={ 2 }
             backHref="/(onboarding)/goal"
-            headline={ SESSION_DATE_COPY.headline }
-            supporting={ SESSION_DATE_COPY.supporting }
+            headline={ sessionDateCopy().headline }
+            supporting={ sessionDateCopy().supporting }
             footer={
                 <>
                     { /* The way out, above the way on. Under the button it was
                          the last thing read on a screen someone had already
                          decided to leave. */ }
                     <OnboardingButton
-                        label={ SESSION_DATE_COPY.sampleCta }
+                        label={ sessionDateCopy().sampleCta }
                         transparent
                         onPress={ handleSamplePlan }
                     />
                     <OnboardingButton
-                        label={ SESSION_DATE_COPY.primaryCta }
+                        label={ sessionDateCopy().primaryCta }
                         disabled={ !canContinue }
                         onPress={ handleContinue }
                     />
@@ -214,7 +214,7 @@ export default function SessionDateScreen() {
 
             { complete && !isFuture && (
                 <AppText variant="body" style={ styles.validation } accessibilityLiveRegion="polite">
-                    { SESSION_DATE_COPY.validation }
+                    { sessionDateCopy().validation }
                 </AppText>
             ) }
 
@@ -223,7 +223,7 @@ export default function SessionDateScreen() {
                  quietly rewriting the date the user chose. */ }
             { complete && isFuture && !inRange && (
                 <AppText variant="body" style={ styles.validation } accessibilityLiveRegion="polite">
-                    { SESSION_DATE_COPY.rangeValidation }
+                    { sessionDateCopy().rangeValidation }
                 </AppText>
             ) }
         </OnboardingScreen>

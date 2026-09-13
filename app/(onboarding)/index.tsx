@@ -14,7 +14,7 @@ import {
     peekPendingOnboardingStep,
     WELCOME_AUTH_SOURCE,
 } from '../../src/features/onboarding/authReturn';
-import { WELCOME_COPY } from '../../src/features/onboarding/onboardingCopy';
+import { welcomeCopy } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { safeOnboardingResumeRoute } from '../../src/features/onboarding/onboardingResume';
 import Loading from '../../src/components/ui/Loading';
@@ -74,12 +74,12 @@ export default function WelcomeScreen() {
         <View style={ styles.footer }>
             <OnboardingButton
                 appearance="solid"
-                label={ WELCOME_COPY.primaryCta }
+                label={ welcomeCopy().primaryCta }
                 onPress={ () => router.push('/(onboarding)/goal') }
             />
 
             <OnboardingLink
-                label={ WELCOME_COPY.secondaryCta }
+                label={ welcomeCopy().secondaryCta }
                 onPress={ () => router.push({
                     pathname: '/(auth)/login',
                     params: { source: WELCOME_AUTH_SOURCE },
@@ -125,7 +125,7 @@ export default function WelcomeScreen() {
                             ] }
                             accessibilityRole="header"
                         >
-                            { WELCOME_COPY.headline }
+                            { welcomeCopy().headline }
                         </AppText>
                     </View>
 

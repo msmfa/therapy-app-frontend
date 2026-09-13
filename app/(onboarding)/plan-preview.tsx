@@ -7,7 +7,7 @@ import { OnboardingButton } from '../../src/components/onboarding/OnboardingButt
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import { PlanTimeline } from '../../src/components/onboarding/PlanTimeline';
 import {
-    PLAN_COPY,
+    planCopy,
     planHeadline,
     samplePlanBody,
 } from '../../src/features/onboarding/onboardingCopy';
@@ -55,7 +55,7 @@ export default function PlanPreviewScreen() {
         <OnboardingScreen
             analyticsStep="plan_preview"
             backHref="/(onboarding)/reminder-times"
-            headline={ isSamplePlan ? PLAN_COPY.sampleHeadline : planHeadline() }
+            headline={ isSamplePlan ? planCopy().sampleHeadline : planHeadline() }
             supporting={ isSamplePlan ? samplePlanBody(answers.cadence) : undefined }
             // The note itself, as a background image behind the content,
             // tilted a little so it reads as a sheet lying on the surface.
@@ -78,7 +78,7 @@ export default function PlanPreviewScreen() {
             footer={
                 <OnboardingButton
                     appearance="solid"
-                    label={ PLAN_COPY.primaryCta }
+                    label={ planCopy().primaryCta }
                     onPress={ () => router.push('/(onboarding)/reviews-preview') }
                 />
             }
