@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import AppText from '../ui/AppText';
 import { TEXT_COLORS } from 'designs/designs-colors';
 import { TickMeter } from '../ui/TickMeter';
@@ -14,11 +15,15 @@ type Props = {
 };
 
 export function ReviewProgressBar({ progress, label, showCaption = true }: Props) {
+    const { t } = useTranslation('notes');
     const { completed, total, hasSchedule, isComplete } = progress;
 
+    // `count` is the number completed, not the total, because that is the
+    // number the noun agrees with once this is translated: French reads
+    // "1 révision sur 4" but "2 révisions sur 4".
     const caption = hasSchedule
-        ? `${completed} of ${total} reviewed`
-        : 'No reviews scheduled yet';
+        ? t('reviewProgress', { count: completed, total })
+        : t('reviewProgressNone');
 
     return (
         <View style={ styles.root }>

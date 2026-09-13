@@ -33,6 +33,15 @@ export type UpdateCurrentUserInput = {
     reflectionGoal?: GoalId;
     /** Server marker used to restore completion on another device. */
     onboardingCompleted?: boolean;
+    /**
+     * The language the user explicitly chose, for push copy.
+     *
+     * `null` is meaningful and is not the same as omitting the field: it clears
+     * the stored choice, which is how "System" is expressed. The server then
+     * falls back to the device tag reported at registration. Omitting the field
+     * leaves whatever is stored untouched.
+     */
+    locale?: string | null;
 };
 
 export type CurrentUserSettings = {

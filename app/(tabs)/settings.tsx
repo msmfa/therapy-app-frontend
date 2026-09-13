@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { Linking, Platform, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 
 import { useAuth } from '../../src/context/auth/AuthContext';
 import { GradientCard } from '../../src/components/ui/GradientCard';
@@ -12,34 +13,45 @@ import FrostedCard from 'src/components/ui/FrostedCard';
 import Loading from 'src/components/ui/Loading';
 import { useAppAlert, type AppAlertContextValue } from '../../src/context/alert';
 import { STORE_URLS } from '../../src/constants/env';
+import type { TFunction } from 'i18next';
 
 // A row per section, each opening a page with that section's own rows, plus the
 // two actions common enough to be worth reaching without a second tap.
+//
+// The label is a translation key rather than a string: this is module-level, so
+// a resolved string here would be fixed at import time, before the stored
+// language preference has been applied, and would never change again.
 const CATEGORIES = [
-    { text: 'References', route: '/references' },
-    { text: 'Settings', route: '/account' },
+    { labelKey: 'hub.references', route: '/references' },
+    { labelKey: 'hub.settings', route: '/account' },
 ] as const;
+
+const APP_VERSION = '1.0.0';
 
 export default function SettingsScreen() {
     const { user, signOut } = useAuth();
     const router = useRouter();
     const { showAlert } = useAppAlert();
+    const { t } = useTranslation('settings');
+    const { t: tCommon } = useTranslation('common');
 
     const onLogout = useCallback(async () => {
         try {
             await signOut();
         } catch (_) {
-            showAlert('Error', 'Could not log out please try again');
+            showAlert(tCommon('error.title'), t('hub.logOutFailed'));
         }
-    }, [showAlert, signOut]);
+    }, [showAlert, signOut, t, tCommon]);
 
     const handleRateApp = useCallback(
         createHandleRateApp({
             select: Platform.select,
             openURL: Linking.openURL,
             alert: showAlert,
+            t,
+            tCommon,
         }),
-        [showAlert],
+        [showAlert, t, tCommon],
     );
 
     if (!user) {
@@ -70,16 +82,16 @@ export default function SettingsScreen() {
                     { CATEGORIES.map((category) => (
                         <SettingsRow
                             key={ category.route }
-                            text={ category.text }
+                            text={ t(category.labelKey) }
                             onPress={ () => router.push(category.route) }
                         />
                     )) }
-                    <SettingsRow text="Log out" onPress={ () => void onLogout() } />
-                    <SettingsRow text="Rate this App" onPress={ handleRateApp } />
+                    <SettingsRow text={ tCommon('action.logOut') } onPress={ () => void onLogout() } />
+                    <SettingsRow text={ t('hub.rateApp') } onPress={ handleRateApp } />
                 </View>
                 <Spacer />
                 <AppText variant="caption" align="center">
-                    v1.0.0
+                    { t('hub.version', { version: APP_VERSION }) }
                 </AppText>
             </FrostedCard>
         </SettingsPageShell>
@@ -108,9 +120,11 @@ type RateAppDeps = {
     select: typeof Platform.select;
     openURL: typeof Linking.openURL;
     alert: ShowAlert;
+    t: TFunction<'settings'>;
+    tCommon: TFunction<'common'>;
 };
 
-function createHandleRateApp({ select, openURL, alert }: RateAppDeps) {
+function createHandleRateApp({ select, openURL, alert, t, tCommon }: RateAppDeps) {
     return () => {
         const storeUrl = select({
             ios: STORE_URLS.ios,
@@ -119,12 +133,12 @@ function createHandleRateApp({ select, openURL, alert }: RateAppDeps) {
         });
 
         if (!storeUrl) {
-            alert('Unavailable', 'Rating is not supported on this platform yet.');
+            alert(t('hub.rateUnavailableTitle'), t('hub.rateUnavailableMessage'));
             return;
         }
 
         void openURL(storeUrl).catch(() => {
-            alert('Error', 'Unable to open the store right now.');
+            alert(tCommon('error.title'), t('hub.storeOpenFailed'));
         });
     };
 }

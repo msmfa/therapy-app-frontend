@@ -1,0 +1,76 @@
+{
+  "common": {
+    "action": {
+      "logOut": "Log out",
+      "loggingOut": "Logging out…",
+      "tryAgain": "Try again"
+    },
+    "error": {
+      "title": "Error",
+      "tryAgain": "Please try again."
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "hub": {
+      "references": "References",
+      "settings": "Settings",
+      "rateApp": "Rate this App",
+      "version": "v{{version}}",
+      "logOutFailed": "Could not log out please try again",
+      "rateUnavailableTitle": "Unavailable",
+      "rateUnavailableMessage": "Rating is not supported on this platform yet.",
+      "storeOpenFailed": "Unable to open the store right now."
+    },
+    "rows": {
+      "reminderSettings": "Reminder settings",
+      "contactUs": "Contact us",
+      "privacyPolicy": "Privacy Policy",
+      "deleteAccount": "Delete account",
+      "termsOfService": "Terms of Service"
+    },
+    "account": {
+      "logOutFailed": "Could not log out. Please try again.",
+      "mailOpenFailed": "Unable to open your mail app right now.",
+      "subscriptionsTitle": "Unable to open subscriptions",
+      "subscriptionsMessage": "Open Settings on your iPhone or iPad, tap your name, then Subscriptions to manage your App Store subscription.",
+      "deleteUnavailable": "Unable to delete account right now.",
+      "deleteFailed": "Failed to delete account",
+      "deleteConfirmTitle": "Delete account",
+      "deleteConfirmMessage": "This will permanently remove your account and all stored data. This action cannot be undone.\n\nDeleting your account does not cancel an App Store subscription or free trial. Apple billing will continue unless you cancel it in Subscriptions. Please cancel before deleting your account. You can still delete your account immediately.",
+      "manageSubscription": "Manage subscription"
+    },
+    "language": {
+      "title": "Language",
+      "system": "System",
+      "systemDetail": "Currently {{language}}",
+      "saveFailedTitle": "Language not saved",
+      "saveFailedMessage": "The app is now in {{language}}, but we could not remember that choice. Please try again.",
+      "a11yRow": "{{label}}, {{detail}}",
+      "a11yHint": "Changes the language of the app straight away"
+    }
+  },
+  "reminderSettings": {
+    "title": "Reminder settings",
+    "intro": "Choose when short reviews fit your routine. Your note prompt still arrives shortly after each therapy session.",
+    "morning": "Morning reviews",
+    "evening": "Evening reviews",
+    "save": "Save reminder times",
+    "permissions": "Notification permissions: {{state}}",
+    "permissionOn": "On",
+    "permissionOff": "Off",
+    "a11yTime": "{{label}}, {{time}}",
+    "loadFailed": "We couldn’t load reminder settings",
+    "enableFailed": "We couldn’t enable reminders",
+    "enableFailedMessage": "Please try again when you are online.",
+    "permissionFailed": "We couldn’t update notification access",
+    "saved": "Reminder times updated",
+    "savedMessage": "Your future reviews will use these times.",
+    "saveFailed": "We couldn’t update reminder times"
+  },
+  "notes": {
+    "reviewProgress_one": "{{count}} of {{total}} reviewed",
+    "reviewProgress_other": "{{count}} of {{total}} reviewed",
+    "reviewProgressNone": "No reviews scheduled yet"
+  }
+}

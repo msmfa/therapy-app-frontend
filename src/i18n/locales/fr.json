@@ -1,0 +1,76 @@
+{
+  "common": {
+    "action": {
+      "logOut": "Se déconnecter",
+      "loggingOut": "Déconnexion…",
+      "tryAgain": "Réessayer"
+    },
+    "error": {
+      "title": "Erreur",
+      "tryAgain": "Veuillez réessayer."
+    }
+  },
+  "settings": {
+    "title": "Réglages",
+    "hub": {
+      "references": "Références",
+      "settings": "Réglages",
+      "rateApp": "Noter cette application",
+      "version": "v{{version}}",
+      "logOutFailed": "Impossible de vous déconnecter, veuillez réessayer",
+      "rateUnavailableTitle": "Indisponible",
+      "rateUnavailableMessage": "La notation n’est pas encore prise en charge sur cette plateforme.",
+      "storeOpenFailed": "Impossible d’ouvrir la boutique pour le moment."
+    },
+    "rows": {
+      "reminderSettings": "Réglages des rappels",
+      "contactUs": "Nous contacter",
+      "privacyPolicy": "Politique de confidentialité",
+      "deleteAccount": "Supprimer le compte",
+      "termsOfService": "Conditions d’utilisation"
+    },
+    "account": {
+      "logOutFailed": "Impossible de vous déconnecter. Veuillez réessayer.",
+      "mailOpenFailed": "Impossible d’ouvrir votre application de messagerie pour le moment.",
+      "subscriptionsTitle": "Impossible d’ouvrir les abonnements",
+      "subscriptionsMessage": "Ouvrez Réglages sur votre iPhone ou iPad, touchez votre nom, puis Abonnements pour gérer votre abonnement App Store.",
+      "deleteUnavailable": "Impossible de supprimer le compte pour le moment.",
+      "deleteFailed": "Échec de la suppression du compte",
+      "deleteConfirmTitle": "Supprimer le compte",
+      "deleteConfirmMessage": "Cette action supprimera définitivement votre compte et toutes les données enregistrées. Elle est irréversible.\n\nLa suppression de votre compte n’annule pas un abonnement App Store ni une période d’essai gratuite. La facturation Apple se poursuivra tant que vous ne l’aurez pas annulée dans Abonnements. Veuillez l’annuler avant de supprimer votre compte. Vous pouvez malgré tout supprimer votre compte immédiatement.",
+      "manageSubscription": "Gérer l’abonnement"
+    },
+    "language": {
+      "title": "Langue",
+      "system": "Système",
+      "systemDetail": "Actuellement : {{language}}",
+      "saveFailedTitle": "Langue non enregistrée",
+      "saveFailedMessage": "L’application est maintenant en {{language}}, mais ce choix n’a pas pu être mémorisé. Veuillez réessayer.",
+      "a11yRow": "{{label}}, {{detail}}",
+      "a11yHint": "Change immédiatement la langue de l’application"
+    }
+  },
+  "reminderSettings": {
+    "title": "Réglages des rappels",
+    "intro": "Choisissez le moment où de courtes révisions s’intègrent le mieux à votre routine. Votre rappel de prise de notes arrive toujours peu après chaque séance.",
+    "morning": "Révisions du matin",
+    "evening": "Révisions du soir",
+    "save": "Enregistrer les horaires",
+    "permissions": "Autorisation de notifications : {{state}}",
+    "permissionOn": "Activée",
+    "permissionOff": "Désactivée",
+    "a11yTime": "{{label}}, {{time}}",
+    "loadFailed": "Impossible de charger les réglages des rappels",
+    "enableFailed": "Impossible d’activer les rappels",
+    "enableFailedMessage": "Veuillez réessayer une fois connecté à Internet.",
+    "permissionFailed": "Impossible de modifier l’accès aux notifications",
+    "saved": "Horaires des rappels mis à jour",
+    "savedMessage": "Vos prochaines révisions utiliseront ces horaires.",
+    "saveFailed": "Impossible de mettre à jour les horaires des rappels"
+  },
+  "notes": {
+    "reviewProgress_one": "{{count}} révision sur {{total}}",
+    "reviewProgress_other": "{{count}} révisions sur {{total}}",
+    "reviewProgressNone": "Aucune révision programmée pour l’instant"
+  }
+}
