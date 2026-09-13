@@ -9,6 +9,11 @@ jest.mock('react-native-calendars', () => ({
         const { View } = require('react-native');
         return <View {...props} />;
     },
+    // TherapyCalendar registers the app's language here so the month and
+    // weekday names follow it; the library ships English only. The real shape
+    // is a mutable object the library reads back, so the double has to be one
+    // too rather than a stub that swallows the write.
+    LocaleConfig: { locales: {}, defaultLocale: 'en' },
 }));
 
 beforeEach(() => {

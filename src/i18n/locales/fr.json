@@ -189,5 +189,67 @@
       "needsUppercase": "Le mot de passe doit contenir au moins une majuscule",
       "needsSymbol": "Le mot de passe doit contenir au moins un symbole"
     }
+  },
+  "calendar": {
+    "nextSession": "Prochaine séance",
+    "nextReminder": "Prochain rappel",
+    "clear": "Effacer",
+    "save": "Enregistrer",
+    "clearA11y": "Effacer les séances",
+    "saveA11y": "Enregistrer les séances",
+    "saved": "Vos séances ont été mises à jour",
+    "changedTitle": "Le calendrier a changé",
+    "refresh": "Actualiser le calendrier",
+    "saveFailed": "Impossible d’enregistrer les séances pour le moment.",
+    "outOfRange": "Les rendez-vous doivent se situer entre aujourd’hui et un an à l’avance. Veuillez modifier votre sélection.",
+    "sessionChanged": "La séance a été modifiée. Veuillez réessayer.",
+    "schedule": {
+      "thisDayOnly": "Ce jour uniquement",
+      "everyWeek": "Chaque semaine",
+      "nextTwoMonths": "Pour les deux prochains mois",
+      "repeatCount_one": "{{count}} séance",
+      "repeatCount_other": "{{count}} séances",
+      "delete": "Supprimer",
+      "update": "Mettre à jour",
+      "add": "Ajouter une séance"
+    },
+    "error": {
+      "timeout": {
+        "title": "Délai de connexion dépassé",
+        "message": "Votre planning n’a pas pu être chargé. Vérifiez votre connexion et réessayez."
+      },
+      "unauthorized": {
+        "title": "Connectez-vous pour continuer",
+        "message": "Votre session a expiré. Reconnectez-vous pour charger vos rappels."
+      },
+      "forbidden": {
+        "title": "Accès refusé",
+        "message": "Votre compte n’a plus accès à ces séances. Contactez le support si cela vous surprend."
+      },
+      "notFound": {
+        "title": "Aucune séance trouvée",
+        "message": "Aucune séance à venir n’a été trouvée. Ajoutez-en pour voir vos rappels ici."
+      },
+      "rateLimited": {
+        "title": "Patientez un instant",
+        "message": "Vos séances sont chargées trop rapidement en ce moment. Réessayez dans quelques secondes."
+      },
+      "server": {
+        "title": "Service indisponible",
+        "message": "Le chargement des séances rencontre un problème. Réessayez dans un instant."
+      },
+      "maintenance": {
+        "title": "Fonctionnalité temporairement hors ligne",
+        "message": "Les rappels sont en cours de mise à jour. Revenez d’ici peu."
+      },
+      "network": {
+        "title": "Aucune connexion Internet",
+        "message": "Vous semblez hors ligne. Reconnectez-vous à Internet et réessayez."
+      },
+      "unknown": {
+        "title": "Une erreur est survenue",
+        "message": "Vos séances n’ont pas pu être chargées. Veuillez réessayer plus tard."
+      }
+    }
   }
 }

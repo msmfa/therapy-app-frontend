@@ -1,4 +1,5 @@
 import { ApiError } from '../../api/client';
+import { t } from '../../i18n/translate';
 
 export type SessionErrorKey = 'timeout' | 'unauthorized' | 'forbidden' | 'notFound' | 'rateLimited' | 'server' | 'maintenance' | 'network' | 'unknown';
 
@@ -9,57 +10,20 @@ export interface SessionErrorCopy {
     retryable: boolean;
 }
 
-const SESSION_ERROR_COPY: Record<SessionErrorKey, SessionErrorCopy> = {
-    timeout: {
-        title: 'Connection timed out',
-        message: 'We could not reach your therapy schedule. Check your connection and try again.',
-        actionLabel: 'Try again',
-        retryable: true,
-    },
-    unauthorized: {
-        title: 'Sign in to continue',
-        message: 'Your session expired. Sign in again to load your therapy reminders.',
-        retryable: false,
-    },
-    forbidden: {
-        title: 'Access denied',
-        message: 'Your account no longer has access to these sessions. Contact support if this is unexpected.',
-        retryable: false,
-    },
-    notFound: {
-        title: 'No sessions found',
-        message: 'We couldn’t find upcoming therapy sessions. Add new sessions to see reminders here.',
-        retryable: false,
-    },
-    rateLimited: {
-        title: 'Please wait a moment',
-        message: 'We are loading your therapy sessions too quickly right now. Try again in a few seconds.',
-        actionLabel: 'Try again',
-        retryable: true,
-    },
-    server: {
-        title: 'Service unavailable',
-        message: 'We’re having trouble loading sessions right now. Try again in a moment.',
-        actionLabel: 'Try again',
-        retryable: true,
-    },
-    maintenance: {
-        title: 'Feature temporarily offline',
-        message: 'We’re updating the therapy reminders feature. Check back shortly.',
-        retryable: false,
-    },
-    network: {
-        title: 'No internet connection',
-        message: 'You appear to be offline. Reconnect to the internet and try again.',
-        actionLabel: 'Try again',
-        retryable: true,
-    },
-    unknown: {
-        title: 'Something went wrong',
-        message: 'We couldn’t load your therapy sessions. Please try again later.',
-        actionLabel: 'Try again',
-        retryable: true,
-    },
+/**
+ * Whether each failure is worth offering a retry for. Split from the words
+ * because it is a property of the error, not of the language.
+ */
+const RETRYABLE: Record<SessionErrorKey, boolean> = {
+    timeout: true,
+    unauthorized: false,
+    forbidden: false,
+    notFound: false,
+    rateLimited: true,
+    server: true,
+    maintenance: false,
+    network: true,
+    unknown: true,
 };
 
 function classifySessionError(error: unknown): SessionErrorKey {
@@ -96,7 +60,22 @@ function classifySessionError(error: unknown): SessionErrorKey {
     return 'unknown';
 }
 
+/**
+ * The words for a failure, resolved now.
+ *
+ * A function rather than the table of constants this used to be. The table was
+ * evaluated at import time, before the stored language preference had been
+ * read, so every message would have been fixed in the device's language for
+ * the life of the process and would not have followed a change of setting.
+ */
 export function mapSessionError(error: unknown): SessionErrorCopy {
     const key = classifySessionError(error);
-    return SESSION_ERROR_COPY[key];
+    const retryable = RETRYABLE[key];
+
+    return {
+        title: t(`calendar:error.${key}.title`),
+        message: t(`calendar:error.${key}.message`),
+        ...(retryable ? { actionLabel: t('common:action.tryAgain') } : {}),
+        retryable,
+    };
 }

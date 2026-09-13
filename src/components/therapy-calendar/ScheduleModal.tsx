@@ -15,6 +15,7 @@ import { GlassPickerPanel } from '../ui/GlassPickerPanel';
 import AppText from '../ui/AppText';
 import { TIME_PICKER_BOUNDS } from '../../utils/timePickerBounds';
 import { ACTION_ORANGE, CALENDAR_COLORS, COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
+import { useTranslation } from 'react-i18next';
 
 interface Session {
     id: string;
@@ -49,6 +50,7 @@ export default function ScheduleModal({
     sessionsOnDay = [],
     onSelectSession,
 }: ScheduleModalProps) {
+    const { t } = useTranslation('calendar');
     const [time, setTime] = useState(defaultTime);
     const [scheduleMode, setScheduleMode] = useState<ScheduleMode>('weekly_pattern');
     const [showPicker, setShowPicker] = useState(false);
@@ -86,12 +88,14 @@ export default function ScheduleModal({
     const selectedDay = selectedDate ? dayjs(selectedDate) : null;
     const scheduleModeOptions: ScheduleMode[] = ['weekly_pattern', 'single'];
     const scheduleModeDictionary: Record<string, { title: string; note?: string }> = {
-        single: { title: 'This day only' },
+        single: { title: t('schedule.thisDayOnly') },
         weekly_pattern: {
-            title: 'Every week',
+            title: t('schedule.everyWeek'),
+            // The count was pluralised by hand with a ternary, which only ever
+            // works for a language whose rule is "one, then add an s".
             note: weeklyRepeatCount === 8
-                ? 'For the next two months'
-                : `${weeklyRepeatCount} ${weeklyRepeatCount === 1 ? 'session' : 'sessions'}`,
+                ? t('schedule.nextTwoMonths')
+                : t('schedule.repeatCount', { count: weeklyRepeatCount }),
         },
     };
 
@@ -200,7 +204,7 @@ export default function ScheduleModal({
                             <View style={ styles.actionButtonsRow }>
                                 <View style={ styles.actionButtonWrapper }>
                                     <GlassPillButton
-                                        label="Delete"
+                                        label={ t('schedule.delete') }
                                         height={ 60 }
                                         labelSize={ 16 }
                                         labelColor={ ACTION_ORANGE }
@@ -210,7 +214,7 @@ export default function ScheduleModal({
                                 </View>
                                 <View style={ styles.actionButtonWrapper }>
                                     <GlassPillButton
-                                        label="Update"
+                                        label={ t('schedule.update') }
                                         height={ 60 }
                                         labelSize={ 16 }
                                         labelColor={ ACTION_ORANGE }
@@ -225,7 +229,7 @@ export default function ScheduleModal({
                             <View style={ styles.actionButtonsRow }>
                                 <View style={ styles.actionButtonWrapper }>
                                     <GlassPillButton
-                                        label="Add Session"
+                                        label={ t('schedule.add') }
                                         height={ 60 }
                                         labelSize={ 16 }
                                         labelColor={ ACTION_ORANGE }

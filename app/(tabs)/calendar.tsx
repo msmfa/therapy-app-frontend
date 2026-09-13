@@ -22,6 +22,7 @@ import AppText from 'src/components/ui/AppText';
 import { GradientCard } from '../../src/components/ui/GradientCard';
 import { ACTION_ORANGE, CALENDAR_DARK_COLORS, COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
 import { GRADIENTS, SURFACE_TINTS } from 'designs/designs-gradients';
+import { useTranslation } from 'react-i18next';
 
 type SelectedSessions = Record<string, Date>;
 type SessionsMapInput = Record<string, Date | undefined>;
@@ -116,6 +117,8 @@ const getSessionsSignature = (sessionsMap: SelectedSessions): string => (
 
 
 export default function CalendarScreen() {
+    const { t } = useTranslation('calendar');
+    const { t: tCommon } = useTranslation('common');
     const {
         sessions,
         syncSessions,
@@ -247,15 +250,15 @@ export default function CalendarScreen() {
         } catch (error) {
             console.error('syncSessions failed', error);
             if (error instanceof ApiError && (error.status === 409 || error.status === 428)) {
-                showAlert('Calendar changed', error.message, { primaryAction: {
-                    label: 'Refresh calendar', onPress: async () => {
+                showAlert(t('changedTitle'), error.message, { primaryAction: {
+                    label: t('refresh'), onPress: async () => {
                         await refreshSessions();
                         setSelectedSessionsDraft(null);
                         setDraftBase(null);
                     },
                 } });
             } else {
-                showAlert('Error', error instanceof Error ? error.message : 'Unable to save sessions right now.');
+                showAlert(tCommon('error.title'), error instanceof Error ? error.message : t('saveFailed'));
             }
             setSaveStatus(null);
         }
@@ -359,12 +362,12 @@ export default function CalendarScreen() {
                             style={ styles.eventScroll }
                         >
                             <NextEventCard
-                                label="Next session"
+                                label={ t('nextSession') }
                                 date={ nextSessionDate }
                                 accent={ CALENDAR_DARK_COLORS.sessionDot }
                             />
                             <NextEventCard
-                                label="Next reminder"
+                                label={ t('nextReminder') }
                                 date={ nextReminderDate }
                                 accent={ CALENDAR_DARK_COLORS.reminderDot }
                             />
@@ -375,20 +378,20 @@ export default function CalendarScreen() {
                         <View style={ styles.calendarFooter }>
                             <GlassButtonOutline buttonSize={ 72 } opacity={ 0.9 } />
                             <GlassPillButton
-                                accessibilityLabel="Clear therapy sessions"
+                                accessibilityLabel={ t('clearA11y') }
                                 disabled={ sessionCount === 0 }
                                 disabledLabelColor={ COLOR_VARIANTS.white.quaternary }
                                 height={ 72 }
-                                label="Clear"
+                                label={ t('clear') }
                                 labelColor={ ACTION_ORANGE }
                                 labelSize={ 16 }
                                 onPress={ handleClearPress }
                                 style={ styles.footerButton }
                             />
                             <GlassPillButton
-                                accessibilityLabel="Save therapy sessions"
+                                accessibilityLabel={ t('saveA11y') }
                                 height={ 72 }
-                                label="Save"
+                                label={ t('save') }
                                 labelColor={ ACTION_ORANGE }
                                 disabledLabelColor={ COLOR_VARIANTS.white.quaternary }
                                 labelSize={ 16 }
@@ -404,7 +407,7 @@ export default function CalendarScreen() {
             <LoadingSuccess
                 visible={ !!saveStatus }
                 status={ saveStatus }
-                successText="Updated your therapy sessions"
+                successText={ t('saved') }
             /> }
             { sessionsError && (
                 <ErrorModal
