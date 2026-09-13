@@ -233,20 +233,6 @@ export const subscriptionCopy = () => ({
 export const planBillingPeriod = (plan: PlanId): 'year' | 'month' =>
     plan === 'annual' ? 'year' : 'month';
 
-/**
- * "3 weeks", with the unit agreeing with the number.
- *
- * i18next context on the period plus a plural on the count, rather than
- * appending an "s". The unit is a different word in each language and carries a
- * gender in most of them, so one key per period is the only shape that lets a
- * translator write the phrase rather than assemble it.
- */
-const trialDurationLine = (trial: SubscriptionTrial): string =>
-    t('onboarding:subscription.trialDuration', {
-        count: trial.periods,
-        context: trial.period,
-    });
-
 /** The purchase button when no trial is on offer; a trial uses `trialCta`. */
 export const planCtaLabel = (plan: PlanId): string =>
     plan === 'annual'
@@ -265,8 +251,20 @@ export const planPriceLine = (plan: PlanId, price: string, showTrial: boolean): 
         ? t('onboarding:subscription.priceLineThen', { price, context: planBillingPeriod(plan) })
         : t('onboarding:subscription.priceLine', { price, context: planBillingPeriod(plan) });
 
+/**
+ * "3 weeks free", as one phrase rather than a duration dropped into a frame.
+ *
+ * Composing it from a "3 weeks" sub-string and a separate "{{duration}} free"
+ * wrapper is what an English speaker reaches for, and it produced "3 semaines
+ * offert" on device: the adjective has to agree with a noun that is inside the
+ * other half. Context on the period plus a plural on the count keeps the whole
+ * phrase in one key, where a translator can inflect all of it.
+ */
 export const trialBadgeLine = (trial: SubscriptionTrial): string =>
-    t('onboarding:subscription.trialBadge', { duration: trialDurationLine(trial) });
+    t('onboarding:subscription.trialBadge', {
+        count: trial.periods,
+        context: trial.period,
+    });
 
 export const monthlyEquivalentLine = (price: string): string =>
     t('onboarding:subscription.priceLine', { price, context: 'month' });
