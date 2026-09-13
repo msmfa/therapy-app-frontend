@@ -10,6 +10,7 @@ import { handleError } from '../utils';
 import { exchangeOAuthToken, OAuthPayloadMap, OAuthProvider } from '../api/auth';
 import { formatAppleFullName } from './appleFullName';
 import { useAppAlert } from '../context/alert';
+import { t } from '../i18n/translate';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -49,7 +50,7 @@ export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
                 await setAuth(data.token, data.user, data.refreshToken ?? null);
                 onSuccess?.();
             } catch (error) {
-                showAlert('Authentication failed!', handleError(error));
+                showAlert(t('auth:apple.authFailedTitle'), handleError(error));
             } finally {
                 setLoadingProvider(null);
             }
@@ -59,7 +60,7 @@ export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
 
     const signInWithApple = useCallback(async () => {
         if (!appleAvailable) {
-            showAlert('Apple sign-in unavailable', 'This device does not support Sign in with Apple.');
+            showAlert(t('auth:apple.unavailableTitle'), t('auth:apple.unavailableMessage'));
             return;
         }
 
@@ -111,7 +112,7 @@ export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
             }
 
             setLoadingProvider(null);
-            showAlert('Apple sign-in failed', handleError(error));
+            showAlert(t('auth:apple.failedTitle'), handleError(error));
         }
     }, [appleAvailable, exchangeToken, redirectUri, showAlert]);
 

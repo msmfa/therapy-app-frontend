@@ -3,11 +3,17 @@
     "action": {
       "logOut": "Log out",
       "loggingOut": "Logging out…",
-      "tryAgain": "Try again"
+      "tryAgain": "Try again",
+      "back": "Back"
     },
     "error": {
       "title": "Error",
       "tryAgain": "Please try again."
+    },
+    "screen": {
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "references": "References"
     }
   },
   "settings": {
@@ -72,5 +78,68 @@
     "reviewProgress_one": "{{count}} of {{total}} reviewed",
     "reviewProgress_other": "{{count}} of {{total}} reviewed",
     "reviewProgressNone": "No reviews scheduled yet"
+  },
+  "auth": {
+    "signIn": {
+      "title": "Sign in",
+      "submit": "Sign in",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account?",
+      "signUpHere": "Sign up here",
+      "missingDetailsTitle": "Enter your details",
+      "missingDetailsMessage": "Enter your email and password.",
+      "failedTitle": "We couldn’t sign you in"
+    },
+    "signUp": {
+      "title": "Create your account",
+      "submit": "Create account",
+      "failedTitle": "We couldn’t create your account",
+      "nameRequired": "Name is required",
+      "invalidEmail": "Enter a valid email",
+      "passwordsMustMatch": "Passwords must match"
+    },
+    "field": {
+      "name": "Name",
+      "namePlaceholder": "Jane Doe",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "newPassword": "New password",
+      "resetCode": "Reset code"
+    },
+    "forgot": {
+      "emailRequiredTitle": "Oops",
+      "emailRequiredMessage": "Enter the email you used for your account",
+      "checkEmailTitle": "Check your email",
+      "requestFailedTitle": "Request failed",
+      "requestFailedMessage": "We could not start the reset.",
+      "invalidCodeTitle": "Invalid code",
+      "invalidCodeMessage": "Enter the 6-digit reset code from your email.",
+      "weakPasswordTitle": "Weak password",
+      "weakPasswordMessage_one": "Use at least {{count}} character.",
+      "weakPasswordMessage_other": "Use at least {{count}} characters.",
+      "mismatchTitle": "Passwords do not match",
+      "mismatchMessage": "Make sure both password fields match.",
+      "resetFailedTitle": "Reset failed",
+      "resetFailedMessage": "We could not reset your password.",
+      "sendCode": "Send reset code",
+      "updatePassword": "Update password",
+      "backToSignIn": "Back to sign in"
+    },
+    "apple": {
+      "continueWith": "Continue with Apple",
+      "signingIn": "Signing in with Apple",
+      "unavailableTitle": "Apple sign-in unavailable",
+      "unavailableMessage": "This device does not support Sign in with Apple.",
+      "failedTitle": "Apple sign-in failed",
+      "authFailedTitle": "Authentication failed"
+    },
+    "password": {
+      "tooShort_one": "Password must be at least {{count}} character long",
+      "tooShort_other": "Password must be at least {{count}} characters long",
+      "needsUppercase": "Password must include at least one uppercase letter",
+      "needsSymbol": "Password must include at least one symbol"
+    }
   }
 }

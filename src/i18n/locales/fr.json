@@ -3,11 +3,17 @@
     "action": {
       "logOut": "Se déconnecter",
       "loggingOut": "Déconnexion…",
-      "tryAgain": "Réessayer"
+      "tryAgain": "Réessayer",
+      "back": "Retour"
     },
     "error": {
       "title": "Erreur",
       "tryAgain": "Veuillez réessayer."
+    },
+    "screen": {
+      "privacyPolicy": "Politique de confidentialité",
+      "termsOfService": "Conditions d’utilisation",
+      "references": "Références"
     }
   },
   "settings": {
@@ -72,5 +78,68 @@
     "reviewProgress_one": "{{count}} révision sur {{total}}",
     "reviewProgress_other": "{{count}} révisions sur {{total}}",
     "reviewProgressNone": "Aucune révision programmée pour l’instant"
+  },
+  "auth": {
+    "signIn": {
+      "title": "Connexion",
+      "submit": "Se connecter",
+      "forgotPassword": "Mot de passe oublié ?",
+      "noAccount": "Vous n’avez pas de compte ?",
+      "signUpHere": "Créez-en un ici",
+      "missingDetailsTitle": "Informations manquantes",
+      "missingDetailsMessage": "Saisissez votre adresse e-mail et votre mot de passe.",
+      "failedTitle": "Connexion impossible"
+    },
+    "signUp": {
+      "title": "Créer votre compte",
+      "submit": "Créer le compte",
+      "failedTitle": "Création du compte impossible",
+      "nameRequired": "Le nom est obligatoire",
+      "invalidEmail": "Saisissez une adresse e-mail valide",
+      "passwordsMustMatch": "Les mots de passe doivent être identiques"
+    },
+    "field": {
+      "name": "Nom",
+      "namePlaceholder": "Marie Dupont",
+      "email": "E-mail",
+      "emailPlaceholder": "vous@exemple.com",
+      "password": "Mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "newPassword": "Nouveau mot de passe",
+      "resetCode": "Code de réinitialisation"
+    },
+    "forgot": {
+      "emailRequiredTitle": "Adresse manquante",
+      "emailRequiredMessage": "Saisissez l’adresse e-mail associée à votre compte",
+      "checkEmailTitle": "Consultez votre boîte mail",
+      "requestFailedTitle": "Échec de la demande",
+      "requestFailedMessage": "La réinitialisation n’a pas pu être lancée.",
+      "invalidCodeTitle": "Code invalide",
+      "invalidCodeMessage": "Saisissez le code à 6 chiffres reçu par e-mail.",
+      "weakPasswordTitle": "Mot de passe trop faible",
+      "weakPasswordMessage_one": "Utilisez au moins {{count}} caractère.",
+      "weakPasswordMessage_other": "Utilisez au moins {{count}} caractères.",
+      "mismatchTitle": "Les mots de passe ne correspondent pas",
+      "mismatchMessage": "Vérifiez que les deux champs sont identiques.",
+      "resetFailedTitle": "Échec de la réinitialisation",
+      "resetFailedMessage": "Votre mot de passe n’a pas pu être réinitialisé.",
+      "sendCode": "Envoyer le code",
+      "updatePassword": "Mettre à jour le mot de passe",
+      "backToSignIn": "Retour à la connexion"
+    },
+    "apple": {
+      "continueWith": "Continuer avec Apple",
+      "signingIn": "Connexion avec Apple en cours",
+      "unavailableTitle": "Connexion Apple indisponible",
+      "unavailableMessage": "Cet appareil ne prend pas en charge « Se connecter avec Apple ».",
+      "failedTitle": "Échec de la connexion Apple",
+      "authFailedTitle": "Échec de l’authentification"
+    },
+    "password": {
+      "tooShort_one": "Le mot de passe doit contenir au moins {{count}} caractère",
+      "tooShort_other": "Le mot de passe doit contenir au moins {{count}} caractères",
+      "needsUppercase": "Le mot de passe doit contenir au moins une majuscule",
+      "needsSymbol": "Le mot de passe doit contenir au moins un symbole"
+    }
   }
 }

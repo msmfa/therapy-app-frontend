@@ -1,3 +1,8 @@
+/**
+ * The policy text below is deliberately English-only. See
+ * src/i18n/englishOnly.ts: a translated privacy notice for special category
+ * health data is a different legal document, not a convenience.
+ */
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView, StyleSheet, View } from 'react-native';
@@ -8,10 +13,12 @@ import AppText from '../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { GlassCircleButton } from '../src/components/ui/GlassCircleButton';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
+import { useTranslation } from 'react-i18next';
 
 const EFFECTIVE_DATE = 'September 8, 2026';
 
 export default function PrivacyPolicyScreen() {
+    const { t } = useTranslation('common');
     const router = useRouter();
 
     const handleBack = () => {
@@ -22,7 +29,7 @@ export default function PrivacyPolicyScreen() {
         <SafeAreaView style={ styles.container } edges={ ['top', 'left', 'right'] }>
             <View style={ styles.pageHeader }>
                 <GlassCircleButton
-                    accessibilityLabel="Back"
+                    accessibilityLabel={ t('action.back') }
                     icon="back"
                     iconColor={ COLOR_VARIANTS.black.primary }
                     size={ 48 }
@@ -44,7 +51,7 @@ export default function PrivacyPolicyScreen() {
                     contentContainerStyle={ styles.scrollContent }
                     showsVerticalScrollIndicator={ false }
                 >
-                    <AppText variant='h1'>Privacy Policy</AppText>
+                    <AppText variant='h1'>{ t('screen.privacyPolicy') }</AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     <AppText variant='body'>Effective date: { EFFECTIVE_DATE }</AppText>
 

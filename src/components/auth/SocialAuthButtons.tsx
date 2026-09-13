@@ -10,6 +10,7 @@ import { useOAuthLogin } from '../../auth/useOAuthLogin';
 import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
 import AppText from '../ui/AppText';
 import Spacer, { SpacerVariant } from '../ui/Spacer';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
     onSuccess?: () => void;
@@ -22,6 +23,7 @@ interface Props {
 const APPLE_MARK_PATH = 'M1393 321q-39 -125 -123 -250q-129 -196 -257 -196q-49 0 -140 32q-86 32 -151 32q-61 0 -142 -33q-81 -34 -132 -34q-152 0 -301 259q-147 261 -147 503q0 228 113 374q113 144 284 144q72 0 177 -30q104 -30 138 -30q45 0 143 34q102 34 173 34q119 0 213 -65q52 -36 104 -100q-79 -67 -114 -118q-65 -94 -65 -207q0 -124 69 -223t158 -126zM1017 1494q0 -61 -29 -136q-30 -75 -93 -138q-54 -54 -108 -72q-37 -11 -104 -17q3 149 78 257q74 107 250 148q1 -3 2.5 -11t2.5 -11q0 -4 0.5 -10t0.5 -10z';
 
 export const SocialAuthButtons: React.FC<Props> = ({ onSuccess, disabled = false }) => {
+    const { t } = useTranslation('auth');
     const { appleAvailable, loadingProvider, signInWithApple } =
         useOAuthLogin(onSuccess);
 
@@ -42,14 +44,14 @@ export const SocialAuthButtons: React.FC<Props> = ({ onSuccess, disabled = false
                     onPress={ signInWithApple }
                     style={ [styles.button, appleDisabled && styles.disabledButton] }
                     disabled={ appleDisabled }
-                    accessibilityLabel="Continue with Apple"
+                    accessibilityLabel={ t('apple.continueWith') }
                     accessibilityRole="button"
                     accessibilityState={ { disabled: appleDisabled, busy: appleLoading } }
                 >
                     { appleLoading ? (
                         <ActivityIndicator
                             color={ COLOR_VARIANTS.black.primary }
-                            accessibilityLabel="Signing in with Apple"
+                            accessibilityLabel={ t('apple.signingIn') }
                         />
                     ) : (
                         <Svg

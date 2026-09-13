@@ -7,6 +7,7 @@ import { GlassCircleButton } from '../ui/GlassCircleButton';
 import { GlassMorphismWithCircle } from '../ui/GlassMorphismWithCircle';
 import { CirclePosition } from '../ui/LinearGradientCircle';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
     children: React.ReactNode;
@@ -18,6 +19,7 @@ type Props = {
 // The frame every settings page shares, so a category page is visibly the same
 // surface as the one that opened it rather than a screen of its own.
 export function SettingsPageShell({ children, title, onBack }: Props) {
+    const { t } = useTranslation('common');
     return (
         <View style={ styles.container }>
             <View pointerEvents="none" style={ styles.background }>
@@ -27,7 +29,7 @@ export function SettingsPageShell({ children, title, onBack }: Props) {
                 { onBack ? (
                     <View style={ styles.header }>
                         <GlassCircleButton
-                            accessibilityLabel="Back"
+                            accessibilityLabel={ t('action.back') }
                             icon="back"
                             iconColor={ COLOR_VARIANTS.black.primary }
                             size={ 48 }

@@ -16,6 +16,7 @@ import { GLASS_CARD_RADIUS } from 'src/components/ui/GlassMorphism';
 import { BackButton } from 'src/components/ui/BackButton';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
+import { useTranslation } from 'react-i18next';
 
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -34,19 +35,20 @@ export default function SignUpScreen() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const { t } = useTranslation('auth');
 
     const validate = useCallback(() => {
         const nextErrors: Record<string, string> = {};
 
-        if (!name.trim()) nextErrors.name = 'Name is required';
-        if (!emailRegex.test(email.trim().toLowerCase())) nextErrors.email = 'Enter a valid email';
+        if (!name.trim()) nextErrors.name = t('signUp.nameRequired');
+        if (!emailRegex.test(email.trim().toLowerCase())) nextErrors.email = t('signUp.invalidEmail');
         const passwordError = validatePassword(password);
         if (passwordError) nextErrors.password = passwordError;
-        if (password !== confirmPassword) nextErrors.confirmPassword = 'Passwords must match';
+        if (password !== confirmPassword) nextErrors.confirmPassword = t('signUp.passwordsMustMatch');
 
         setErrors(nextErrors);
         return Object.keys(nextErrors).length === 0;
-    }, [name, email, password, confirmPassword]);
+    }, [name, email, password, confirmPassword, t]);
 
     const onSubmit = useCallback(async () => {
         if (!validate()) return;
@@ -57,7 +59,7 @@ export default function SignUpScreen() {
             await setAuth(token, user, refreshToken ?? null);
             router.replace(returnRoute ?? '/');
         } catch (err) {
-            showAlert("We couldn't create your account", handleError(err));
+            showAlert(t('signUp.failedTitle'), handleError(err));
         } finally {
             setLoading(false);
         }
@@ -82,18 +84,18 @@ export default function SignUpScreen() {
                         showsVerticalScrollIndicator={ false }
                     >
                         <View style={ styles.header }>
-                            <AppText variant="h1" align="center">Create your account</AppText>
+                            <AppText variant="h1" align="center">{ t('signUp.title') }</AppText>
                             <AppText variant="bodySecondary" align="center">
                                 Save your between-session plan and keep your schedule connected.
                             </AppText>
                         </View>
                         <TextField
-                            label="Name"
+                            label={ t('field.name') }
                             value={ name }
                             onChangeText={ setName }
                             autoCapitalize="words"
                             autoCorrect={ false }
-                            placeholder="Jane Doe"
+                            placeholder={ t('field.namePlaceholder') }
                             textContentType="name"
                             returnKeyType="next"
                             error={ errors.name }
@@ -101,13 +103,13 @@ export default function SignUpScreen() {
                             editable={ !loading }
                         />
                         <TextField
-                            label="Email"
+                            label={ t('field.email') }
                             value={ email }
                             onChangeText={ setEmail }
                             autoCapitalize="none"
                             autoCorrect={ false }
                             keyboardType="email-address"
-                            placeholder="you@example.com"
+                            placeholder={ t('field.emailPlaceholder') }
                             textContentType="emailAddress"
                             returnKeyType="next"
                             error={ errors.email }
@@ -115,7 +117,7 @@ export default function SignUpScreen() {
                             editable={ !loading }
                         />
                         <PasswordField
-                            label="Password"
+                            label={ t('field.password') }
                             value={ password }
                             onChangeText={ setPassword }
                             placeholder="••••••••"
@@ -126,7 +128,7 @@ export default function SignUpScreen() {
                             editable={ !loading }
                         />
                         <PasswordField
-                            label="Confirm Password"
+                            label={ t('field.confirmPassword') }
                             value={ confirmPassword }
                             onChangeText={ setConfirmPassword }
                             placeholder="••••••••"
@@ -142,7 +144,7 @@ export default function SignUpScreen() {
                              a smaller, squarer button read as a different
                              app. */ }
                         <View style={ styles.submit }>
-                            <OnboardingButton label="Create account" appearance="solid" onPress={ onSubmit } loading={ loading } />
+                            <OnboardingButton label={ t('signUp.submit') } appearance="solid" onPress={ onSubmit } loading={ loading } />
                         </View>
                     </ScrollView>
                     { /* Overlay the back control so it does not shift the form's

@@ -1,3 +1,8 @@
+/**
+ * The write-up below is deliberately English-only. See
+ * src/i18n/englishOnly.ts: it paraphrases specific findings and is kept in
+ * step with plastic-brains.com word for word.
+ */
 import React, { useRef, useState } from 'react';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AccessibilityInfo, ScrollView, StyleSheet, View } from 'react-native';
@@ -10,6 +15,7 @@ import { GlassCircleButton } from '../src/components/ui/GlassCircleButton';
 import { ACTION_ORANGE_SURFACE, BRAND_ORANGE, COLOR_VARIANTS } from 'designs/designs-colors';
 import { ExternalLink } from 'src/components/ui/ExternalLink';
 import { CitedText } from 'src/components/ui/CitedText';
+import { useTranslation } from 'react-i18next';
 
 const INTRODUCTION = 'Most of a session does not survive the week. In studies of medical consultations, 40 to 80 per cent of what a practitioner says is forgotten immediately, and almost half of what patients do remember, they remember wrongly.[1] This matters more in therapy than it sounds: in cognitive therapy for depression, how much of the actual treatment content a patient can recall predicts how closely they follow the work, whether they respond, and whether the depression comes back.[2]';
 
@@ -95,6 +101,7 @@ const REFERENCES: Reference[] = [
 ];
 
 export default function WhyFiveQuestionsScreen() {
+    const { t } = useTranslation('common');
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const scrollRef = useRef<ScrollView>(null);
@@ -132,7 +139,7 @@ export default function WhyFiveQuestionsScreen() {
         <SafeAreaView edges={ ['top', 'left', 'right'] } style={ styles.container }>
             <View style={ styles.pageHeader }>
                 <GlassCircleButton
-                    accessibilityLabel="Back"
+                    accessibilityLabel={ t('action.back') }
                     icon="back"
                     iconColor={ COLOR_VARIANTS.black.primary }
                     size={ 48 }

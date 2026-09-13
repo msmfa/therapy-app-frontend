@@ -5,6 +5,7 @@ import type { Href } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { TEXT_COLORS } from 'designs/designs-colors';
 import { GlassCircleButton } from './GlassCircleButton';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
     /** Logical previous screen to use when this route has no navigation history. */
@@ -22,6 +23,8 @@ type Props = {
  */
 export function BackButton({ fallbackHref, appearance = 'plain' }: Props) {
     const router = useRouter();
+    // Before the early return below: hooks cannot be called conditionally.
+    const { t } = useTranslation('common');
     const canGoBack = router.canGoBack();
 
     if (!canGoBack && fallbackHref === undefined) {
@@ -42,7 +45,7 @@ export function BackButton({ fallbackHref, appearance = 'plain' }: Props) {
     if (appearance === 'glass') {
         return (
             <GlassCircleButton
-                accessibilityLabel="Back"
+                accessibilityLabel={ t('action.back') }
                 icon="back"
                 iconColor={ TEXT_COLORS.primary }
                 size={ 48 }
@@ -55,7 +58,7 @@ export function BackButton({ fallbackHref, appearance = 'plain' }: Props) {
         <TouchableOpacity
             onPress={ handlePress }
             accessibilityRole="button"
-            accessibilityLabel="Back"
+            accessibilityLabel={ t('action.back') }
             style={ styles.button }
             activeOpacity={ 0.7 }
         >

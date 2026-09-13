@@ -1,3 +1,7 @@
+/**
+ * The citations below are deliberately English-only. See
+ * src/i18n/englishOnly.ts.
+ */
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -5,12 +9,14 @@ import { useRouter } from 'expo-router';
 import { SettingsRow } from '../src/components/SettingsRow';
 import { SettingsPageShell } from '../src/components/settings/SettingsPageShell';
 import FrostedCard from '../src/components/ui/FrostedCard';
+import { useTranslation } from 'react-i18next';
 
 export default function ReferencesScreen() {
+    const { t } = useTranslation('common');
     const router = useRouter();
 
     return (
-        <SettingsPageShell title="References" onBack={ () => router.back() }>
+        <SettingsPageShell title={ t('screen.references') } onBack={ () => router.back() }>
             <FrostedCard contentStyle={ styles.card }>
                 <View style={ styles.rows }>
                     <SettingsRow
