@@ -1,6 +1,6 @@
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 import { getCurrentUserSettings } from '../../../api/users';
-import { DEFAULT_NOTE_PROMPT } from '../reflectionGoalPrompt';
+import { defaultNotePrompt } from '../reflectionGoalPrompt';
 import { useNotePrompt } from '../useNotePrompt';
 
 jest.mock('../../../api/users', () => ({
@@ -29,7 +29,7 @@ describe('useNotePrompt', () => {
 		const { result } = renderHook(() => useNotePrompt('user-a'));
 
 		await waitFor(() => expect(mockGetCurrentUserSettings).toHaveBeenCalledTimes(1));
-		expect(result.current).toBe(DEFAULT_NOTE_PROMPT);
+		expect(result.current).toBe(defaultNotePrompt());
 		warning.mockRestore();
 	});
 
@@ -77,6 +77,6 @@ describe('useNotePrompt', () => {
 
 		const newAccountRenders = renders.filter((render) => render.userId === nextUserId);
 		expect(newAccountRenders.length).toBeGreaterThan(0);
-		expect(newAccountRenders.every((render) => render.prompt === DEFAULT_NOTE_PROMPT)).toBe(true);
+		expect(newAccountRenders.every((render) => render.prompt === defaultNotePrompt())).toBe(true);
 	});
 });

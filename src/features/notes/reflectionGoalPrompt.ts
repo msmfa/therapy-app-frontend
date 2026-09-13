@@ -1,20 +1,29 @@
 import type { GoalId } from '../onboarding/onboardingCopy';
+import { t } from '../../i18n/translate';
 
-export const DEFAULT_NOTE_PROMPT = 'What mattered in your therapy session?';
-
-const NOTE_PROMPTS: Record<GoalId, string> = {
-    remember: 'What do you want to remember from this session?',
-    practise: 'What insight do you want to try in daily life?',
-    prepare: 'What clear thread do you want to bring back next time?',
-    habit: 'What would you like to understand or improve over time?',
-};
+const GOAL_IDS: readonly GoalId[] = ['remember', 'practise', 'prepare', 'habit'];
 
 export const isGoalId = (value: unknown): value is GoalId =>
-    typeof value === 'string' && Object.prototype.hasOwnProperty.call(NOTE_PROMPTS, value);
+    typeof value === 'string' && (GOAL_IDS as readonly string[]).includes(value);
 
 /**
- * Turns the durable onboarding choice into the first prompt people see when
- * they write a note. Unknown and legacy values keep the existing generic copy.
+ * The prompt key for a durable onboarding choice. Unknown and legacy values
+ * keep the generic prompt.
+ *
+ * A key rather than a sentence, so a caller inside React can resolve it with
+ * its own `t` and re-render when the language changes. Holding the resolved
+ * string in component state instead would pin the prompt to the language the
+ * screen first mounted in.
  */
+export type NotePromptKey = `prompt.${GoalId}` | 'prompt.default';
+
+/** Unprefixed, so a caller with `useTranslation('notes')` can pass it straight in. */
+export const notePromptKeyForGoal = (goal: unknown): NotePromptKey =>
+    isGoalId(goal) ? `prompt.${goal}` : 'prompt.default';
+
+/** The same prompt, resolved now, for callers with no component around them. */
 export const notePromptForGoal = (goal: unknown): string =>
-    isGoalId(goal) ? NOTE_PROMPTS[goal] : DEFAULT_NOTE_PROMPT;
+    t(`notes:${notePromptKeyForGoal(goal)}`);
+
+/** The prompt shown before an account's goal is known. */
+export const defaultNotePrompt = (): string => t('notes:prompt.default');

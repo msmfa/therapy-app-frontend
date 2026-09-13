@@ -77,7 +77,55 @@
   "notes": {
     "reviewProgress_one": "{{count}} of {{total}} reviewed",
     "reviewProgress_other": "{{count}} of {{total}} reviewed",
-    "reviewProgressNone": "No reviews scheduled yet"
+    "reviewProgressNone": "No reviews scheduled yet",
+    "empty": {
+      "title": "Your first note",
+      "withSession": "We’ll send you a notification just after your next session on <date>{{date}}</date>, so you can take down your first note. You’ll then see it here.",
+      "noSession": "You have no sessions scheduled yet. Add one in the calendar and we’ll remind you just after it, so you can take down your first note.",
+      "getStarted": "If you want to get started now, tap the plus icon in the bottom left. It’s worth reading a little bit about <link>what kind of note taking works best for therapy</link> first.",
+      "example": "Example"
+    },
+    "list": {
+      "loadFailed": "Failed to load notes"
+    },
+    "editor": {
+      "empty": "Notes cannot be empty.",
+      "updateFailed": "Failed to update note.",
+      "addFailed": "Failed to add note",
+      "signInToSave": "Sign in to save a note.",
+      "cancel": "cancel",
+      "cancelEdit": "Cancel edit",
+      "saveUnavailable": "Unable to save note right now."
+    },
+    "review": {
+      "reviewed": "REVIEWED",
+      "markReviewed": "Mark reviewed",
+      "saveFailed": "Failed to save review. Please try again.",
+      "loadFailed": "Failed to load reviews",
+      "saveStateFailed": "Failed to save review",
+      "undoFailed": "Failed to undo review"
+    },
+    "prompt": {
+      "default": "What mattered in your therapy session?",
+      "remember": "What do you want to remember from this session?",
+      "practise": "What insight do you want to try in daily life?",
+      "prepare": "What clear thread do you want to bring back next time?",
+      "habit": "What would you like to understand or improve over time?"
+    },
+    "progressPreview": {
+      "none": "Not reviewed yet",
+      "once": "Reviewed once",
+      "halfway": "Halfway through",
+      "almost": "Almost there",
+      "done": "All done"
+    },
+    "sample": {
+      "text": "We spent most of the hour on how I brace for criticism before anything has actually happened. She pointed out that I do the same thing in meetings that I do with my brother, which I had never put together before."
+    },
+    "cheatsheet": {
+      "titleSans": "Cheat",
+      "titleSerif": "sheet"
+    }
   },
   "auth": {
     "signIn": {

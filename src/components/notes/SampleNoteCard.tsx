@@ -5,6 +5,7 @@ import { NoteCard } from './NoteCard';
 import { REVIEW_PROGRESS_PREVIEWS } from './reviewProgressPreview';
 import { TEXT_COLORS } from 'designs/designs-colors';
 import type { Note } from '../../features/notes/useNotes';
+import { useTranslation } from 'react-i18next';
 
 /**
  * A worked example of a note, shown above the empty state.
@@ -14,25 +15,28 @@ import type { Note } from '../../features/notes/useNotes';
  * a list of your own notes reads as one of yours - and in a therapy app that is
  * a confusing thing to get wrong.
  */
-const SAMPLE_NOTE: Note = {
-    id: 'sample-note',
-    text: 'We spent most of the hour on how I brace for criticism before anything has actually happened. She pointed out that I do the same thing in meetings that I do with my brother, which I had never put together before.',
-    // Fixed so the sample never reads as today's note.
-    createdAt: Date.UTC(2026, 7, 24, 19, 0),
-};
+// Fixed so the sample never reads as today's note.
+const SAMPLE_CREATED_AT = Date.UTC(2026, 7, 24, 19, 0);
 
 // Part way through, so the bar shows colour rather than an empty track.
 const SAMPLE_PROGRESS = REVIEW_PROGRESS_PREVIEWS[2].progress;
 
 export function SampleNoteCard() {
+    const { t } = useTranslation('notes');
+    const sampleNote: Note = {
+        id: 'sample-note',
+        text: t('sample.text'),
+        createdAt: SAMPLE_CREATED_AT,
+    };
+
     return (
         <View style={ styles.root }>
             <AppText variant='caption' style={ styles.label }>
-                Example
+                { t('empty.example') }
             </AppText>
             <View pointerEvents='none'>
                 <NoteCard
-                    item={ SAMPLE_NOTE }
+                    item={ sampleNote }
                     index={ 0 }
                     onPress={ () => {} }
                     progress={ SAMPLE_PROGRESS }

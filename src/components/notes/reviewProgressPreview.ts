@@ -54,16 +54,23 @@ const NO_SCHEDULE: NoteReviewProgress = {
 };
 
 export interface ReviewProgressPreview {
-    label: string;
+    /**
+     * A translation key rather than a sentence: this table is built at import
+     * time, so a resolved string here would be fixed in whatever language the
+     * app started in and would never follow a change of setting.
+     *
+     * Typed as the literal keys rather than `string` so `t()` still checks it.
+     */
+    labelKey: `progressPreview.${'none' | 'once' | 'halfway' | 'almost' | 'done'}`;
     progress: NoteReviewProgress;
 }
 
 export const REVIEW_PROGRESS_PREVIEWS: ReviewProgressPreview[] = [
-    { label: 'Not reviewed yet', progress: NO_SCHEDULE },
-    { label: 'Reviewed once', progress: makeProgress(1, 4) },
-    { label: 'Halfway through', progress: makeProgress(2, 4) },
-    { label: 'Almost there', progress: makeProgress(3, 4) },
-    { label: 'All done', progress: makeProgress(4, 4) },
+    { labelKey: 'progressPreview.none', progress: NO_SCHEDULE },
+    { labelKey: 'progressPreview.once', progress: makeProgress(1, 4) },
+    { labelKey: 'progressPreview.halfway', progress: makeProgress(2, 4) },
+    { labelKey: 'progressPreview.almost', progress: makeProgress(3, 4) },
+    { labelKey: 'progressPreview.done', progress: makeProgress(4, 4) },
 ];
 
 /**

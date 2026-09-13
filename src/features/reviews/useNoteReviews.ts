@@ -28,6 +28,7 @@ import {
     type NoteReviewProgress,
     type NoteReviewSummary,
 } from './reviewProgress';
+import { t } from '../../i18n/translate';
 
 /** The minimum a note needs to be placed against the schedule. */
 export interface ReviewableNote {
@@ -107,7 +108,7 @@ export function useNoteReviews(userId: string | undefined) {
             if (!isCurrent()) return;
             console.warn('useNoteReviews.refresh', err);
             setReviews([]);
-            setError('Failed to load reviews');
+            setError(t('notes:review.loadFailed'));
         } finally {
             if (isCurrent()) {
                 pendingRefreshRef.current = false;
@@ -198,8 +199,8 @@ export function useNoteReviews(userId: string | undefined) {
             } catch (err) {
                 console.warn('useNoteReviews.markReviewed', err);
                 engagement.failed('review_save');
-                setError('Failed to save review');
-                throw new Error('Failed to save review. Please try again.');
+                setError(t('notes:review.saveStateFailed'));
+                throw new Error(t('notes:review.saveFailed'));
             }
         },
         [attributionFor, hasAnswered, refresh, userId],
@@ -218,7 +219,7 @@ export function useNoteReviews(userId: string | undefined) {
                 return removed;
             } catch (err) {
                 console.warn('useNoteReviews.undoReview', err);
-                setError('Failed to undo review');
+                setError(t('notes:review.undoFailed'));
                 return false;
             }
         },

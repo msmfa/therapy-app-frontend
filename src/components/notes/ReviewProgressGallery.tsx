@@ -6,6 +6,7 @@ import { ReviewProgressBar } from './ReviewProgressBar';
 import { COMPLETE_RAMP, rampColor } from '../ui/TickMeter';
 import { REVIEW_PROGRESS_PREVIEWS } from './reviewProgressPreview';
 import { COLOR_VARIANTS, PALETTE, TEXT_COLORS } from 'designs/designs-colors';
+import { useTranslation } from 'react-i18next';
 
 // Android needs this switched on explicitly; on iOS it is already available.
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -60,6 +61,7 @@ function CollapsedTeaser() {
 }
 
 export function ReviewProgressGallery({ expanded: controlled, onToggle }: Props) {
+    const { t } = useTranslation('notes');
     const [ownExpanded, setOwnExpanded] = React.useState(false);
     const expanded = controlled ?? ownExpanded;
 
@@ -99,9 +101,9 @@ export function ReviewProgressGallery({ expanded: controlled, onToggle }: Props)
                     </AppText>
                     { REVIEW_PROGRESS_PREVIEWS.map((preview) => (
                         <ReviewProgressBar
-                            key={ preview.label }
+                            key={ preview.labelKey }
                             progress={ preview.progress }
-                            label={ preview.label }
+                            label={ t(preview.labelKey) }
                         />
                     )) }
                 </View>

@@ -4,6 +4,7 @@ import { cancelNotificationById } from '../../services/notifications';
 import { encryptNoteText, decryptNoteText, isEncrypted } from './noteCrypto';
 import { migrateReviewIdentity } from '../reviews/reviewSchema';
 import { beginEngagement } from '../analytics/engagement';
+import { t } from '../../i18n/translate';
 
 type SqlRow = {
     id: string;
@@ -179,6 +180,8 @@ export const clearNotesForUser = async (userId: string): Promise<void> => {
         await deleteNotesForUser(db, userId);
     } catch (error) {
         console.warn('clearNotesForUser', error);
+        // Developer-facing: the only caller logs this and carries on, so it is
+        // never rendered and deliberately not translated.
         throw new Error('Failed to clear local notes');
     }
 };
@@ -229,7 +232,7 @@ export function useNotes(userId: string | undefined) {
         } catch (err) {
             console.warn('useNotes.refresh', err);
             setNotes([]);
-            setError('Failed to load notes');
+            setError(t('notes:list.loadFailed'));
         } finally {
             setLoading(false);
         }
@@ -242,8 +245,8 @@ export function useNotes(userId: string | undefined) {
     const addNote = React.useCallback(
         async (text: string): Promise<void> => {
             const clean = text.trim();
-            if (!userId) throw new Error('Sign in to save a note.');
-            if (!clean) throw new Error('Notes cannot be empty.');
+            if (!userId) throw new Error(t('notes:editor.signInToSave'));
+            if (!clean) throw new Error(t('notes:editor.empty'));
             const engagement = beginEngagement(userId);
 
             const now = Date.now();
@@ -272,8 +275,8 @@ export function useNotes(userId: string | undefined) {
             } catch (err) {
                 console.warn('useNotes.addNote', err);
                 engagement.failed('note_save');
-                setError('Failed to add note');
-                throw new Error('Unable to save note right now.');
+                setError(t('notes:editor.addFailed'));
+                throw new Error(t('notes:editor.saveUnavailable'));
             }
         },
         [userId],
@@ -281,7 +284,7 @@ export function useNotes(userId: string | undefined) {
 
     const updateNote = React.useCallback(
         async (id: string, patch: Partial<Pick<Note, 'text' | 'remindAt' | 'notifId'>>): Promise<void> => {
-            if (!userId) throw new Error('Sign in to save a note.');
+            if (!userId) throw new Error(t('notes:editor.signInToSave'));
             const engagement = beginEngagement(userId);
 
             const updates: string[] = [];

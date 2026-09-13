@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import dayjs from 'dayjs';
+import { Trans, useTranslation } from 'react-i18next';
 import { useTherapySessions } from '../../context/therapy-sessions/TherapySessionsContext';
 import AppText from '../ui/AppText';
+import { formattingLocale } from '../../i18n';
 import { COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
 
 /**
@@ -23,17 +24,27 @@ type Props = {
 
 export function EmptyNoteCard({ children }: Props) {
     const router = useRouter();
+    const { t } = useTranslation('notes');
     const { nextSession } = useTherapySessions();
 
+    // Was a dayjs pattern with an English "[at]" baked into it, which stays
+    // English however the app is set. Intl produces the locale's own joining
+    // word and its own order of the parts.
     const nextSessionDate = nextSession
-        ? dayjs(nextSession.startsAtUtc).format('dddd, MMM D [at] h:mm A')
+        ? new Intl.DateTimeFormat(formattingLocale(), {
+            weekday: 'long',
+            month: 'short',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+        }).format(new Date(nextSession.startsAtUtc))
         : null;
 
     return (
         <View style={ styles.card }>
             <View style={ styles.header }>
                 <AppText variant='h3' style={ styles.title }>
-                    Your first note
+                    { t('empty.title') }
                 </AppText>
             </View>
 
@@ -42,38 +53,42 @@ export function EmptyNoteCard({ children }: Props) {
                  after, so it points at the calendar instead. */ }
             { nextSessionDate ? (
                 <AppText variant='bodySecondary' style={ styles.body }>
-                    We&apos;ll send you a notification just after your next session on
-                    { ' ' }
-                    { /* Darker than the sentence around it: the date is the part
-                         worth picking out at a glance. */ }
-                    <AppText variant='bodySecondary' style={ styles.sessionDate }>
-                        { nextSessionDate }
-                    </AppText>
-                    , so you can take down your first note. You&apos;ll then see it
-                    here.
+                    { /* Trans, not string concatenation: the date sits mid
+                         sentence and is styled darker than the words around it,
+                         and where in the sentence it falls is the translator's
+                         decision, not this component's. */ }
+                    <Trans
+                        t={ t }
+                        i18nKey='empty.withSession'
+                        values={ { date: nextSessionDate } }
+                        components={ {
+                            date: <AppText variant='bodySecondary' style={ styles.sessionDate } />,
+                        } }
+                    />
                 </AppText>
             ) : (
                 <AppText variant='bodySecondary' style={ styles.body }>
-                    You have no sessions scheduled yet. Add one in the calendar and
-                    we&apos;ll remind you just after it, so you can take down your
-                    first note.
+                    { t('empty.noSession') }
                 </AppText>
             ) }
 
             { children }
 
             <AppText variant='bodySecondary' style={ styles.body }>
-                If you want to get started now, tap the plus icon in the bottom left.
-                It&apos;s worth reading a little bit about{ ' ' }
-                <AppText
-                    variant='bodySecondary'
-                    onPress={ () => router.push('/how-to-take-notes') }
-                    accessibilityRole='link'
-                    style={ styles.link }
-                >
-                    what kind of note taking works best for therapy
-                </AppText>
-                { ' ' }first.
+                <Trans
+                    t={ t }
+                    i18nKey='empty.getStarted'
+                    components={ {
+                        link: (
+                            <AppText
+                                variant='bodySecondary'
+                                onPress={ () => router.push('/how-to-take-notes') }
+                                accessibilityRole='link'
+                                style={ styles.link }
+                            />
+                        ),
+                    } }
+                />
             </AppText>
         </View>
     );

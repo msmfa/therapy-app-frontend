@@ -11,6 +11,7 @@ import { GlassPillButton } from '../ui/GlassPillButton';
 import { GlassButtonOutline } from '../ui/GlassButtonOutline';
 import AppText from "../ui/AppText";
 import { COLOR_VARIANTS, THEME_COLORS } from 'designs/designs-colors';
+import { useTranslation } from 'react-i18next';
 
 // Matches the cheatsheet's ink so the two paper screens read as a pair.
 const INK = 'hsl(219, 52%, 14%)';
@@ -39,6 +40,8 @@ export function NotePreviewModal({
     canReview = false,
     onReviewed,
 }: NotePreviewModalProps) {
+    const { t } = useTranslation('notes');
+    const { t: tCommon } = useTranslation('common');
     const [isEditing, setIsEditing] = React.useState(false);
     const [draft, setDraft] = React.useState('');
     const [saving, setSaving] = React.useState(false);
@@ -82,7 +85,7 @@ export function NotePreviewModal({
             saveInFlight.current = false;
             handleClose();
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to save review. Please try again.');
+            setError(err instanceof Error ? err.message : t('review.saveFailed'));
         } finally {
             saveInFlight.current = false;
             setSaving(false);
@@ -111,7 +114,7 @@ export function NotePreviewModal({
         if (!note || saveInFlight.current) return;
         const value = draft.trim();
         if (!value) {
-            setError('Notes cannot be empty.');
+            setError(t('editor.empty'));
             return;
         }
         if (value === note.text) {
@@ -128,7 +131,7 @@ export function NotePreviewModal({
             setIsEditing(false);
             setError(null);
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to update note.');
+            setError(err instanceof Error ? err.message : t('editor.updateFailed'));
         } finally {
             saveInFlight.current = false;
             setSaving(false);
@@ -181,7 +184,7 @@ export function NotePreviewModal({
                         { /* Brighter than the home screen's: pale paper needs more white to read. */ }
                         <GlassButtonOutline buttonSize={ HEADER_BUTTON } opacity={ 0.9 } />
                         <GlassCircleButton
-                            accessibilityLabel="Back"
+                            accessibilityLabel={ tCommon('action.back') }
                             icon="back"
                             iconColor={ INK }
                             size={ HEADER_BUTTON }
@@ -189,12 +192,12 @@ export function NotePreviewModal({
                             disabled={ saving }
                         />
                         <GlassPillButton
-                            label="REVIEWED"
+                            label={ t('review.reviewed') }
                             labelColor={ INK }
                             labelSize={ 18 }
                             onPress={ () => { void handleReviewed(); } }
                             disabled={ saving || !canReview }
-                            accessibilityLabel="Mark reviewed"
+                            accessibilityLabel={ t('review.markReviewed') }
                             height={ HEADER_BUTTON }
                         />
                     </View>
@@ -207,11 +210,11 @@ export function NotePreviewModal({
                                 <TouchableOpacity
                                     onPress={ handleCancelEditing }
                                     accessibilityRole="button"
-                                    accessibilityLabel="Cancel edit"
+                                    accessibilityLabel={ t('editor.cancelEdit') }
                                     disabled={ saving }
                                     activeOpacity={ 0.7 }
                                 >
-                                    <AppText style={ styles.headerActionMuted } variant="body">cancel</AppText>
+                                    <AppText style={ styles.headerActionMuted } variant="body">{ t('editor.cancel') }</AppText>
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     onPress={ handleSave }

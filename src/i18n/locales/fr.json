@@ -77,7 +77,55 @@
   "notes": {
     "reviewProgress_one": "{{count}} révision sur {{total}}",
     "reviewProgress_other": "{{count}} révisions sur {{total}}",
-    "reviewProgressNone": "Aucune révision programmée pour l’instant"
+    "reviewProgressNone": "Aucune révision programmée pour l’instant",
+    "empty": {
+      "title": "Votre première note",
+      "withSession": "Nous vous enverrons une notification juste après votre prochaine séance, le <date>{{date}}</date>, pour que vous puissiez écrire votre première note. Elle apparaîtra ensuite ici.",
+      "noSession": "Vous n’avez encore aucune séance programmée. Ajoutez-en une dans le calendrier et nous vous le rappellerons juste après, pour que vous puissiez écrire votre première note.",
+      "getStarted": "Si vous voulez commencer dès maintenant, touchez l’icône plus en bas à gauche. Cela vaut la peine de lire un peu <link>quelle façon de prendre des notes fonctionne le mieux en thérapie</link> avant de vous lancer.",
+      "example": "Exemple"
+    },
+    "list": {
+      "loadFailed": "Échec du chargement des notes"
+    },
+    "editor": {
+      "empty": "Une note ne peut pas être vide.",
+      "updateFailed": "Échec de la mise à jour de la note.",
+      "addFailed": "Échec de l’ajout de la note",
+      "signInToSave": "Connectez-vous pour enregistrer une note.",
+      "cancel": "annuler",
+      "cancelEdit": "Annuler la modification",
+      "saveUnavailable": "Impossible d’enregistrer la note pour le moment."
+    },
+    "review": {
+      "reviewed": "REVU",
+      "markReviewed": "Marquer comme revu",
+      "saveFailed": "Échec de l’enregistrement de la révision. Veuillez réessayer.",
+      "loadFailed": "Échec du chargement des révisions",
+      "saveStateFailed": "Échec de l’enregistrement de la révision",
+      "undoFailed": "Échec de l’annulation de la révision"
+    },
+    "prompt": {
+      "default": "Qu’est-ce qui a compté dans votre séance ?",
+      "remember": "Que voulez-vous retenir de cette séance ?",
+      "practise": "Quelle idée voulez-vous mettre en pratique au quotidien ?",
+      "prepare": "Quel fil clair voulez-vous reprendre la prochaine fois ?",
+      "habit": "Que souhaitez-vous comprendre ou améliorer avec le temps ?"
+    },
+    "progressPreview": {
+      "none": "Pas encore revue",
+      "once": "Revue une fois",
+      "halfway": "À mi-parcours",
+      "almost": "Presque terminé",
+      "done": "Terminé"
+    },
+    "sample": {
+      "text": "Nous avons passé le plus clair de l’heure sur la façon dont je me prépare aux critiques avant même qu’il ne se soit rien passé. Elle a souligné que je fais la même chose en réunion qu’avec mon frère, ce que je n’avais jamais rapproché auparavant."
+    },
+    "cheatsheet": {
+      "titleSans": "Aide-",
+      "titleSerif": "mémoire"
+    }
   },
   "auth": {
     "signIn": {
