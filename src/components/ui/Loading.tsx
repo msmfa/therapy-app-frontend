@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
 import DancingSquare from './PulsingSquare';
+import { useTranslation } from 'react-i18next';
 
 type LoadingProps = {
     fullScreen?: boolean;
@@ -12,6 +13,7 @@ export default function Loading({
     fullScreen = true,
     transparent = false,
 }: LoadingProps) {
+    const { t } = useTranslation('common');
     // These loaders belong to their screen. Presenting a native modal during
     // auth/entitlement transitions can compete with iOS authentication sheets
     // and can cover the current tab when an unfocused tab hydrates.
@@ -25,7 +27,7 @@ export default function Loading({
                 pointerEvents="auto"
                 accessible
                 accessibilityRole="progressbar"
-                accessibilityLabel="Loading"
+                accessibilityLabel={ t('a11y.loading') }
                 accessibilityState={ { busy: true } }
             >
                 <DancingSquare />

@@ -14,6 +14,26 @@
       "privacyPolicy": "Politique de confidentialité",
       "termsOfService": "Conditions d’utilisation",
       "references": "Références"
+    },
+    "a11y": {
+      "close": "Fermer",
+      "dismissAlert": "Fermer l’alerte",
+      "dismissError": "Fermer l’erreur",
+      "hidePassword": "Masquer le mot de passe",
+      "loading": "Chargement",
+      "showPassword": "Afficher le mot de passe",
+      "tryAgainQuestion": "Réessayer ?"
+    },
+    "tab": {
+      "calendar": "Calendrier",
+      "newNote": "Nouvelle note",
+      "notes": "Notes",
+      "settings": "Réglages"
+    },
+    "notFound": {
+      "body": "Nous n’avons pas trouvé ce que vous cherchiez. Toutes nos excuses.",
+      "cta": "Retour à l’accueil",
+      "title": "Oups !"
     }
   },
   "settings": {
@@ -95,7 +115,9 @@
       "signInToSave": "Connectez-vous pour enregistrer une note.",
       "cancel": "annuler",
       "cancelEdit": "Annuler la modification",
-      "saveUnavailable": "Impossible d’enregistrer la note pour le moment."
+      "saveUnavailable": "Impossible d’enregistrer la note pour le moment.",
+      "howTo": "Comment prendre des notes",
+      "saveNote": "Enregistrer la note"
     },
     "review": {
       "reviewed": "REVU",
@@ -125,6 +147,21 @@
     "cheatsheet": {
       "titleSans": "Aide-",
       "titleSerif": "mémoire"
+    },
+    "template": {
+      "title": "Votre note de thérapie en cinq minutes",
+      "subtitle": "Cinq questions pour saisir ce qui a compté",
+      "intro": "Écrivez autant ou aussi peu que vous le souhaitez. C’est votre note privée, pas un compte rendu à rendre parfait.",
+      "q1": "Qu’est-ce qui vous est resté de la séance d’aujourd’hui ?",
+      "h1": "Une idée, une phrase, une prise de conscience ou un moment que vous ne voulez pas perdre.",
+      "q2": "Quelle situation, pensée ou émotion voulez-vous observer cette semaine ?",
+      "h2": "Quelque chose en lien avec ce que vous avez abordé, s’il y en a une.",
+      "q3": "Qu’avez-vous compris différemment ?",
+      "h3": "Dites-le avec vos propres mots.",
+      "q4": "Y a-t-il quelque chose que vous voulez essayer ou retenir ?",
+      "h4": "Laissez vide si rien n’a été convenu ni suggéré.",
+      "q5": "Sur quoi voulez-vous revenir lors de votre prochaine séance ?",
+      "h5": "Un seul sujet suffit."
     }
   },
   "auth": {

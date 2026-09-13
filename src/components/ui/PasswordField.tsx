@@ -3,6 +3,7 @@ import { StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 import TextField, { TextFieldProps } from './TextField';
+import { useTranslation } from 'react-i18next';
 
 export type PasswordFieldProps = Omit<TextFieldProps, 'secureTextEntry' | 'RightAccessory'> & {
     initiallyVisible?: boolean;
@@ -10,6 +11,7 @@ export type PasswordFieldProps = Omit<TextFieldProps, 'secureTextEntry' | 'Right
 
 const PasswordField = forwardRef<TextInput, PasswordFieldProps>(
     ({ initiallyVisible = false, textContentType, autoCapitalize, autoCorrect, ...props }, ref) => {
+        const { t } = useTranslation('common');
         const [visible, setVisible] = useState(initiallyVisible);
 
         const handleToggleVisibility = () => {
@@ -28,7 +30,7 @@ const PasswordField = forwardRef<TextInput, PasswordFieldProps>(
                         onPress={ handleToggleVisibility }
                         style={ styles.toggleButton }
                         accessibilityRole="button"
-                        accessibilityLabel={ visible ? 'Hide password' : 'Show password' }
+                        accessibilityLabel={ visible ? t('a11y.hidePassword') : t('a11y.showPassword') }
                         hitSlop={ styles.hitSlop }
                     >
                         <Feather name={ visible ? 'eye-off' : 'eye' } size={ 18 } color={ COLOR_VARIANTS.black.secondary } />

@@ -6,8 +6,10 @@ import { useAuth } from '../../src/context/auth/AuthContext';
 import { EntitlementGate } from '../../src/features/subscription/EntitlementGate';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { GRADIENTS } from 'designs/designs-gradients';
+import { useTranslation } from 'react-i18next';
 
 export default function TabsLayout() {
+    const { t } = useTranslation('common');
     const { isAuthenticated } = useAuth();
 
     if (!isAuthenticated) {
@@ -50,7 +52,7 @@ export default function TabsLayout() {
                         name="index"
                         options={ {
                             headerShown: false,
-                            title: 'New Note',
+                            title: t('tab.newNote'),
                             tabBarIcon: ({ color }) => (
                                 <Ionicons name="add" color={ color } size={ 24 } />
                             ),
@@ -60,7 +62,7 @@ export default function TabsLayout() {
                         name="calendar"
                         options={ {
                             headerShown: false,
-                            title: 'Calendar',
+                            title: t('tab.calendar'),
                             tabBarIcon: ({ color }) => (
                                 <Ionicons
                                     name={ 'calendar-clear-outline' }
@@ -74,7 +76,7 @@ export default function TabsLayout() {
                         name="notes"
                         options={ {
                             headerShown: false,
-                            title: 'Notes',
+                            title: t('tab.notes'),
                             tabBarIcon: ({ color }) => (
                                 <Ionicons name="book-outline" color={ color } size={ 24 } />
                             ),
@@ -84,7 +86,7 @@ export default function TabsLayout() {
                         name="settings"
                         options={ {
                             headerShown: false,
-                            title: 'Settings',
+                            title: t('tab.settings'),
                             tabBarIcon: ({ color }) => (
                                 <Ionicons name="person-outline" color={ color } size={ 24 } />
                             ),

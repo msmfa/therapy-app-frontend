@@ -73,6 +73,7 @@ describe('translation resources', () => {
                 'onboarding.notePreview.reminderTitle',
                 // Words French happens to spell the same way.
                 'onboarding.sessionDate.dateLabel',
+                'common.tab.notes',
                 'onboarding.subscription.monthlyBadge',
             ]);
 

@@ -7,8 +7,8 @@ import AppText from '../ui/AppText';
 import Spacer, { SpacerVariant } from '../ui/Spacer';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 import {
-    POST_THERAPY_QUESTIONS,
-    POST_THERAPY_TEMPLATE_INTRO,
+    postTherapyQuestions,
+    postTherapyTemplateIntro,
 } from '../../constants/postTherapyTemplate';
 import { useTranslation } from 'react-i18next';
 
@@ -69,12 +69,12 @@ export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) 
                     showsVerticalScrollIndicator={ false }
                 >
                     <AppText variant="body" style={ styles.intro }>
-                        { POST_THERAPY_TEMPLATE_INTRO }
+                        { postTherapyTemplateIntro() }
                     </AppText>
 
                     <Spacer variant={ SpacerVariant.large } />
                     <View style={ styles.questionList }>
-                        { POST_THERAPY_QUESTIONS.map((item) => (
+                        { postTherapyQuestions().map((item) => (
                             <View key={ item.question }>
                                 <AppText variant="h3" style={ styles.questionText }>
                                     { item.question }

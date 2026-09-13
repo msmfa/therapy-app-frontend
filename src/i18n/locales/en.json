@@ -14,6 +14,26 @@
       "privacyPolicy": "Privacy Policy",
       "termsOfService": "Terms of Service",
       "references": "References"
+    },
+    "a11y": {
+      "close": "Close",
+      "dismissAlert": "Dismiss alert",
+      "dismissError": "Dismiss error",
+      "hidePassword": "Hide password",
+      "loading": "Loading",
+      "showPassword": "Show password",
+      "tryAgainQuestion": "Try Again?"
+    },
+    "tab": {
+      "calendar": "Calendar",
+      "newNote": "New Note",
+      "notes": "Notes",
+      "settings": "Settings"
+    },
+    "notFound": {
+      "body": "We couldn't find what you were looking for! Apologies.",
+      "cta": "Go to Home",
+      "title": "Oops!"
     }
   },
   "settings": {
@@ -95,7 +115,9 @@
       "signInToSave": "Sign in to save a note.",
       "cancel": "cancel",
       "cancelEdit": "Cancel edit",
-      "saveUnavailable": "Unable to save note right now."
+      "saveUnavailable": "Unable to save note right now.",
+      "howTo": "How to take notes",
+      "saveNote": "Save note"
     },
     "review": {
       "reviewed": "REVIEWED",
@@ -125,6 +147,21 @@
     "cheatsheet": {
       "titleSans": "Cheat",
       "titleSerif": "sheet"
+    },
+    "template": {
+      "title": "Your five-minute therapy note",
+      "subtitle": "Five questions to capture what mattered",
+      "intro": "Write as much or as little as feels useful. This is your private note, not a record you need to make perfect.",
+      "q1": "What stayed with you from today’s session?",
+      "h1": "An idea, phrase, realisation or moment you do not want to lose.",
+      "q2": "What situation, thought or feeling do you want to notice this week?",
+      "h2": "Something connected to what you discussed, if there is one.",
+      "q3": "What did you understand differently?",
+      "h3": "Keep this in your own words.",
+      "q4": "Is there anything you want to try or remember?",
+      "h4": "Leave this blank if nothing was agreed or suggested.",
+      "q5": "What do you want to return to in your next session?",
+      "h5": "One subject is enough."
     }
   },
   "auth": {
