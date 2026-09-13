@@ -15,6 +15,7 @@ import {
 import { TherapySessionsProvider, useTherapySessions } from '../src/context/therapy-sessions/TherapySessionsContext';
 import { usePushNotifications } from '../src/hooks/usePushNotifications';
 import { useTimeZoneSync } from '../src/hooks/useTimeZoneSync';
+import { useLanguageSync } from '../src/i18n/useLanguageSync';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { GRADIENTS } from 'designs/designs-gradients';
 import { Platform, StatusBar, StyleSheet, View } from 'react-native';
@@ -248,6 +249,10 @@ function Initializer() {
     // Tell the backend which zone to place reminder wall-clock times in
     const { refreshReminderSchedule } = useTherapySessions();
     useTimeZoneSync(refreshReminderSchedule);
+
+    // Keep the account's language and this install's in step, so the interface
+    // and the push notifications are never in two different languages.
+    useLanguageSync();
 
     useEffect(() => {
         // Observe StoreKit for the whole app lifetime so an Ask to Buy or other

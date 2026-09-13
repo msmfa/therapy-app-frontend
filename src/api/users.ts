@@ -46,6 +46,14 @@ export type UpdateCurrentUserInput = {
 
 export type CurrentUserSettings = {
     analyticsConsent?: boolean;
+    /**
+     * The language the account has explicitly chosen, or absent for "follow
+     * the device". Returned alongside `deviceLocale` so a client can tell an
+     * explicit choice apart from the device default it would otherwise follow.
+     */
+    locale?: string;
+    /** The tag the account's devices last reported, used when `locale` is absent. */
+    deviceLocale?: string;
     morningReminderMinutes?: number;
     eveningReminderMinutes?: number;
     reflectionGoal?: GoalId;
