@@ -65,22 +65,26 @@ it('edits the session on an occupied day without offering another session', () =
     act(() => { view.UNSAFE_getByType(Calendar).props.onDayPress({ dateString: '2026-09-15' }); });
     expect(view.queryByText('Add another appointment')).toBeNull();
     expect(view.queryByText('Add Session')).toBeNull();
-    expect(view.queryByText('Appointment at 9:00 AM')).toBeNull();
+    expect(view.queryByText('Appointment at 09:00')).toBeNull();
     expect(view.getByText('Update')).toBeTruthy();
     act(() => { view.UNSAFE_getByType(ScheduleModal).props.onConfirm('single', new Date(2026, 8, 15, 10)); });
     expect(changed).toHaveBeenCalledWith({ existing: new Date(2026, 8, 15, 10) });
 });
 
 it('preserves legacy same-day appointments and deletes only the chosen appointment', () => {
+    // 09:00 and 16:00, not "9:00 AM" and "4:00 PM". The test device is en-GB
+    // (jest.setup.js), and dayjs now takes the region rather than the bare
+    // language, so `LT` is the UK's 24-hour clock. The old expectation was
+    // dayjs's built-in `en`, which is US English.
     const changed = jest.fn();
     const morning = new Date(2026, 8, 15, 9);
     const afternoon = new Date(2026, 8, 15, 16);
     const view = render(<TherapyCalendar selectedSessions={{ first: morning, second: afternoon }} onSelectedSessionsChange={changed} />);
     act(() => { view.UNSAFE_getByType(Calendar).props.onDayPress({ dateString: '2026-09-15' }); });
-    expect(view.getByText('Appointment at 9:00 AM')).toBeTruthy();
-    expect(view.getByText('Appointment at 4:00 PM')).toBeTruthy();
+    expect(view.getByText('Appointment at 09:00')).toBeTruthy();
+    expect(view.getByText('Appointment at 16:00')).toBeTruthy();
     expect(view.queryByText('Add another appointment')).toBeNull();
-    fireEvent.press(view.getByText('Appointment at 4:00 PM'));
+    fireEvent.press(view.getByText('Appointment at 16:00'));
     fireEvent.press(view.getByText('Delete'));
     expect(changed).toHaveBeenCalledWith({ first: morning });
 });

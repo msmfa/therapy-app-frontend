@@ -110,7 +110,11 @@ export const hydrateLanguage = async (): Promise<LanguagePreference> => {
 // dayjs keeps one global locale, so it has to be told whenever i18next moves.
 // Subscribing here rather than in a component means every consumer of dayjs is
 // covered, including the ones with no React around them.
-applyDayjsLocale(i18next.language);
-i18next.on('languageChanged', applyDayjsLocale);
+// The formatting locale, not the language: dayjs's built-in `en` is US
+// English, so a bare "en" puts every British user on a 12-hour clock.
+const syncDayjsLocale = (): void => applyDayjsLocale(formattingLocale());
+
+syncDayjsLocale();
+i18next.on('languageChanged', syncDayjsLocale);
 
 export { i18next };
