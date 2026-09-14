@@ -29,6 +29,7 @@ const HEADER_BUTTON_SIZE = 48;
 
 export default function IntervalScienceScreen() {
     const { t } = useTranslation('common');
+    const { t: tScience } = useTranslation('science');
     const router = useRouter();
     const { source } = useLocalSearchParams<{ source?: string | string[] }>();
     const showingOnboardingPlan = (Array.isArray(source) ? source[0] : source) === 'onboarding';
@@ -81,7 +82,7 @@ export default function IntervalScienceScreen() {
         ? 'Add your following session to place exact review times in the gap.'
         : sessions.length === 0
             ? 'Add your next therapy sessions in Calendar to build a review schedule.'
-            : 'There are no upcoming reviews in your current schedule.';
+            : tScience('intervals.emptyNoSessions');
 
     return (
         <SafeAreaView style={ styles.container } edges={ ['top', 'left', 'right'] }>
@@ -96,22 +97,18 @@ export default function IntervalScienceScreen() {
                     onPress={ () => router.back() }
                     style={ styles.back }
                 />
-                <AppText variant="h3" align="center" style={ styles.title }>
-                    Why these review moments
-                </AppText>
+                <AppText variant="h3" align="center" style={ styles.title }>{ tScience('intervals.title') }</AppText>
             </View>
 
             <View style={ styles.deck }>
                 { waiting ? (
                     <View style={ styles.state }>
-                        <AppText variant="h2" align="center">Loading your review times</AppText>
+                        <AppText variant="h2" align="center">{ tScience('intervals.loading') }</AppText>
                     </View>
                 ) : failed ? (
                     <View style={ styles.state }>
-                        <AppText variant="h2" align="center">We couldn't load your review times</AppText>
-                        <AppText variant="body" align="center" style={ styles.stateBody }>
-                            Check your connection and try again.
-                        </AppText>
+                        <AppText variant="h2" align="center">{ tScience('intervals.failedTitle') }</AppText>
+                        <AppText variant="body" align="center" style={ styles.stateBody }>{ tScience('intervals.failedBody') }</AppText>
                         <View style={ styles.retry }>
                             <Button
                                 label="Try again"
@@ -121,7 +118,7 @@ export default function IntervalScienceScreen() {
                     </View>
                 ) : cards.length === 0 ? (
                     <View style={ styles.state }>
-                        <AppText variant="h2" align="center">No review times yet</AppText>
+                        <AppText variant="h2" align="center">{ tScience('intervals.emptyTitle') }</AppText>
                         <AppText variant="body" align="center" style={ styles.stateBody }>
                             { emptyBody }
                         </AppText>

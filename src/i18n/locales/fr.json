@@ -623,6 +623,52 @@
           "Ce qui se passe dans votre cerveau : se souvenir d’un épisode réactive en partie les régions qui étaient actives lors de son encodage, et plus ce recouvrement est étroit, meilleure est la récupération.[2] Relire la veille au soir amorce cette réactivation tôt, tant qu’il reste du temps pour qu’elle serve."
         ]
       }
+    },
+    "fiveQuestions": {
+      "title": "Pourquoi ces cinq questions",
+      "intro": "Ces cinq questions s’appuient sur la recherche présentée ci-dessous. Elles vous aident à retenir ce qui a compté, à repérer pensées et émotions au fil de la semaine, à formuler vos prises de conscience avec vos propres mots, à noter ce que vous voulez essayer et à choisir ce que vous reprendrez à la prochaine séance.",
+      "opening": "L’essentiel d’une séance ne survit pas à la semaine. Dans les études sur les consultations médicales, 40 à 80 pour cent de ce que dit un praticien est oublié immédiatement, et près de la moitié de ce que les patients retiennent, ils le retiennent de travers.[1] Cela compte davantage en thérapie qu’il n’y paraît : en thérapie cognitive de la dépression, la part du contenu réel du traitement dont un patient se souvient prédit son assiduité au travail, sa réponse au traitement et le risque de rechute.[2]",
+      "lead": "Une note d’après-séance n’est donc pas de la paperasse. Chacune de ces cinq lignes remplit une fonction précise, et chacune repose sur une méthode étayée par un large corpus de preuves.",
+      "outro": "Ce sont des résultats portant sur des méthodes, non des promesses concernant votre thérapie. Ce qu’ils soutiennent, c’est la forme de la fiche : se remémorer plutôt que transcrire, nommer une chose à observer, employer ses propres mots, associer une situation à une réponse, et y revenir.",
+      "q1": {
+        "question": "Qu’est-ce qui vous est resté de la séance d’aujourd’hui ?",
+        "paragraphs": [
+          "Le moyen le mieux étayé de retenir quelque chose est de le ressortir de sa mémoire, pas de le relire. Une méta-analyse de 272 comparaisons issues de 188 expériences a montré que les personnes qui s’entraînaient à se remémorer un contenu en retenaient nettement plus que celles qui se contentaient de le réviser, et bien plus encore que celles qui ne faisaient rien de particulier.[3] Écrire cette ligne de mémoire, sur une page blanche, c’est précisément cet exercice. C’est pourquoi le modèle vous laisse une ligne vide au lieu d’un résumé à cocher."
+        ]
+      },
+      "q2": {
+        "question": "Quelle situation, pensée ou émotion voulez-vous observer cette semaine ?",
+        "paragraphs": [
+          "Ce que vous faites entre les séances n’est pas un complément à la thérapie, c’est une grande part de ce qui la fait fonctionner. Sur 23 études, la quantité de travail réellement accompli entre les séances prédisait l’issue du traitement, avec un effet fort en fin de thérapie (g = 0,79) sur plus de 1 500 personnes.[4] Nommer une chose précise à observer est la plus petite version de ce travail.",
+          "Nommer l’émotion mérite une place à part. Dans une expérience randomisée, des personnes ayant peur des araignées qui mettaient leur peur en mots pendant l’exposition présentaient une semaine plus tard une réaction physiologique de peur plus faible, face à une autre araignée dans une autre pièce, que celles qui recadraient leur peur, se distrayaient ou étaient simplement exposées.[5] Mettre la peur en mots a fait plus que tenter de la voir autrement."
+        ]
+      },
+      "q3": {
+        "question": "Qu’avez-vous compris différemment ?",
+        "paragraphs": [
+          "Cette ligne demande vos propres mots, à dessein. Une méta-analyse de 64 rapports de recherche a montré qu’inviter les gens à s’expliquer un contenu à eux-mêmes, plutôt qu’à le reformuler, améliorait sensiblement ce qu’ils en retenaient, et cela se vérifiait quels que soient la matière, l’âge et le type de tâche.[6] Une phrase que vous avez construite vous-même est aussi une meilleure accroche pour retrouver l’idée plus tard qu’une phrase recopiée."
+        ]
+      },
+      "q4": {
+        "question": "Y a-t-il quelque chose que vous voulez essayer ou retenir ?",
+        "paragraphs": [
+          "Nommer ensemble la situation et la réponse, sous la forme « si cela se produit, je ferai ceci », est l’un des résultats les plus solides de la psychologie du passage à l’acte. Une méta-analyse de 94 tests indépendants a trouvé un effet moyen à fort sur le fait que les gens accomplissent réellement ce qu’ils avaient prévu.[7] Une intention générale de mieux faire n’a pas cet effet. La ligne reste facultative : si rien n’a été convenu en séance, un plan inventé vaut moins qu’un blanc."
+        ]
+      },
+      "q5": {
+        "question": "Sur quoi voulez-vous revenir lors de votre prochaine séance ?",
+        "paragraphs": [
+          "Y revenir sur plusieurs jours vaut mieux que de s’y pencher une seule fois, aussi intensément que ce soit. Une synthèse de 839 comparaisons issues de 317 expériences a montré que la révision espacée surpassait systématiquement la révision massée, et que plus longtemps vous devez retenir quelque chose, plus les intervalles doivent être larges.[8] Choisir un sujet dès maintenant prépare ce retour, et fait que la prochaine séance s’ouvre sur quelque chose plutôt que sur une page blanche."
+        ]
+      }
+    },
+    "intervals": {
+      "title": "Pourquoi ces moments de révision",
+      "loading": "Chargement de vos horaires de révision",
+      "failedTitle": "Impossible de charger vos horaires de révision",
+      "failedBody": "Vérifiez votre connexion et réessayez.",
+      "emptyTitle": "Aucun horaire de révision pour l’instant",
+      "emptyNoSessions": "Aucune révision à venir dans votre calendrier actuel."
     }
   }
 }

@@ -16,47 +16,31 @@ import { ACTION_ORANGE_SURFACE, BRAND_ORANGE, COLOR_VARIANTS } from 'designs/des
 import { ExternalLink } from 'src/components/ui/ExternalLink';
 import { CitedText } from 'src/components/ui/CitedText';
 import { useTranslation } from 'react-i18next';
+import { t as translate } from '../src/i18n/translate';
 
-const INTRODUCTION = 'Most of a session does not survive the week. In studies of medical consultations, 40 to 80 per cent of what a practitioner says is forgotten immediately, and almost half of what patients do remember, they remember wrongly.[1] This matters more in therapy than it sounds: in cognitive therapy for depression, how much of the actual treatment content a patient can recall predicts how closely they follow the work, whether they respond, and whether the depression comes back.[2]';
+const INTRODUCTION = translate('science:fiveQuestions.opening');
 
 type RationaleSection = {
     question: string;
     paragraphs: string[];
 };
 
-const SECTIONS: RationaleSection[] = [
-    {
-        question: 'What stayed with you from today’s session?',
-        paragraphs: [
-            'The single best-evidenced way to keep something is to pull it back out of your head, not to read it again. A meta-analysis of 272 comparisons across 188 experiments found that people who practised recalling material later remembered substantially more than people who simply restudied it, and far more than people who did nothing extra.[3] Writing this line from memory, on a blank sheet, is that test. It is why the template gives you an empty line instead of a summary to tick.',
-        ],
-    },
-    {
-        question: 'What situation, thought or feeling do you want to notice this week?',
-        paragraphs: [
-            'What you do between sessions is not a supplement to therapy, it is a large part of what makes it work. Across 23 studies, how much between-session work people actually did predicted how well they came out of treatment, with a strong effect at the end of therapy (g = 0.79) across more than 1,500 people.[4] Naming one specific thing to watch for is the smallest version of that work.',
-            'Naming the feeling earns its place separately. In a randomised experiment, spider-fearful people who put their fear into words during exposure showed a weaker physiological fear response a week later, facing a different spider in a different room, than people who reframed the fear, distracted themselves, or were simply exposed.[5] Putting it in words did more than trying to think about it differently.',
-        ],
-    },
-    {
-        question: 'What did you understand differently?',
-        paragraphs: [
-            'This line asks for your own words on purpose. A meta-analysis of 64 research reports found that prompting people to explain material to themselves, rather than restate it, produced a substantial improvement in what they learned, and it held across subjects, ages and task types.[6] A sentence you built yourself is also a better hook to find the idea by later than one you copied down.',
-        ],
-    },
-    {
-        question: 'Is there anything you want to try or remember?',
-        paragraphs: [
-            'Naming the situation and the response together, in the form “if this happens, I will do that”, is one of the most reliable findings in the psychology of follow-through. A meta-analysis of 94 independent tests found a medium-to-large effect on whether people actually did the thing they intended.[7] A general intention to do better does not carry that effect. The line stays optional: if nothing was agreed in the session, an invented plan is worse than a blank.',
-        ],
-    },
-    {
-        question: 'What do you want to return to in your next session?',
-        paragraphs: [
-            'Coming back to something across days beats going over it once, however hard. A synthesis of 839 comparisons drawn from 317 experiments found spaced review consistently outperformed massed review, and that the longer you need to hold on to something, the wider the gaps should be.[8] Choosing one subject now sets up the return, and means the next session opens on something rather than on a blank.',
-        ],
-    },
-];
+const SECTION_KEYS = ['q1', 'q2', 'q3', 'q4', 'q5'] as const;
+
+/**
+ * Built per call rather than held as a constant, so the page follows a change
+ * of language. The bracketed markers index into REFERENCES below and are
+ * asserted to match the English in the resource-parity test: a marker dropped
+ * in translation would point at the wrong paper.
+ */
+const sections = (): RationaleSection[] =>
+    SECTION_KEYS.map((key) => ({
+        question: translate(`science:fiveQuestions.${key}.question`),
+        paragraphs: translate(`science:fiveQuestions.${key}.paragraphs`, {
+            returnObjects: true,
+        }) as string[],
+    }));
+
 
 type Reference = {
     text: string;
@@ -102,6 +86,7 @@ const REFERENCES: Reference[] = [
 
 export default function WhyFiveQuestionsScreen() {
     const { t } = useTranslation('common');
+    const { t: tScience } = useTranslation('science');
     const router = useRouter();
     const insets = useSafeAreaInsets();
     const scrollRef = useRef<ScrollView>(null);
@@ -145,9 +130,7 @@ export default function WhyFiveQuestionsScreen() {
                     size={ 48 }
                     onPress={ handleBack }
                 />
-                <AppText variant="h1" accessibilityRole="header" style={ styles.pageTitle }>
-                    Why these five questions
-                </AppText>
+                <AppText variant="h1" accessibilityRole="header" style={ styles.pageTitle }>{ tScience('fiveQuestions.title') }</AppText>
             </View>
             <MaskedView
                 style={ styles.scroll }
@@ -171,25 +154,17 @@ export default function WhyFiveQuestionsScreen() {
                     <View style={ styles.summaryBanner }>
                         <AppText variant="h2" accessibilityRole="header" style={ styles.summaryText }>TL;DR</AppText>
                         <Spacer variant={ SpacerVariant.small } />
-                        <AppText variant="body" style={ styles.summaryText }>
-                            These five questions are based on the research explained below. They help you
-                            remember what mattered, notice thoughts and feelings during the week, put insights
-                            into your own words, note anything you want to try, and decide what to revisit
-                            next session.
-                        </AppText>
+                        <AppText variant="body" style={ styles.summaryText }>{ tScience('fiveQuestions.intro') }</AppText>
                     </View>
 
                     <Spacer variant={ SpacerVariant.large } />
                     <CitedText text={ INTRODUCTION } sources={ REFERENCES } onCitationPress={ handleCitationPress } />
                     <Spacer variant={ SpacerVariant.medium } />
-                    <AppText variant="body">
-                        So an after-therapy note is not admin. Each of these five lines is doing a specific job,
-                        and each one is built on a method with a large evidence base behind it.
-                    </AppText>
+                    <AppText variant="body">{ tScience('fiveQuestions.lead') }</AppText>
 
                     <Spacer variant={ SpacerVariant.large } />
                     <View style={ styles.sectionList }>
-                        { SECTIONS.map((section, index) => (
+                        { sections().map((section, index) => (
                             <View key={ section.question }>
                                 <AppText variant="h2" accessibilityRole="header">
                                     { `${index + 1}. ${section.question}` }
@@ -205,11 +180,7 @@ export default function WhyFiveQuestionsScreen() {
                     </View>
 
                     <Spacer variant={ SpacerVariant.large } />
-                    <AppText variant="body">
-                        These are findings about methods, not promises about your therapy. What they support is
-                        the shape of the sheet: recall rather than transcribe, name one thing to watch, use your
-                        own words, pair a situation with a response, and come back to it.
-                    </AppText>
+                    <AppText variant="body">{ tScience('fiveQuestions.outro') }</AppText>
 
                     <Spacer variant={ SpacerVariant.large } />
                     <AppText variant="h2">References</AppText>
