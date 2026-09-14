@@ -4,7 +4,8 @@
       "logOut": "Log out",
       "loggingOut": "Logging out…",
       "tryAgain": "Try again",
-      "back": "Back"
+      "back": "Back",
+      "learnMore": "Learn more"
     },
     "error": {
       "title": "Error",
@@ -162,6 +163,11 @@
       "h4": "Leave this blank if nothing was agreed or suggested.",
       "q5": "What do you want to return to in your next session?",
       "h5": "One subject is enough."
+    },
+    "a11y": {
+      "openNote": "Open note",
+      "editNote": "Edit note",
+      "saveChanges": "Save changes"
     }
   },
   "auth": {
@@ -547,7 +553,10 @@
     "notChosen": "Not chosen",
     "chooseHint": "Choose your therapy session {{field}}",
     "accountSettings": "Account settings",
-    "loadingSubscriptions": "Loading subscriptions"
+    "loadingSubscriptions": "Loading subscriptions",
+    "planPreview": {
+      "sheetImage": "The five-question note sheet"
+    }
   },
   "science": {
     "sources": "Sources",
@@ -668,7 +677,192 @@
       "failedTitle": "We couldn’t load your review times",
       "failedBody": "Check your connection and try again.",
       "emptyTitle": "No review times yet",
-      "emptyNoSessions": "There are no upcoming reviews in your current schedule."
+      "emptyNoSessions": "There are no upcoming reviews in your current schedule.",
+      "emptyAddFollowing": "Add your following session to place exact review times in the gap.",
+      "emptyAddSessions": "Add your next therapy sessions in Calendar to build a review schedule."
+    },
+    "reminders": {
+      "learnMoreAbout": "Learn more about {{date}}",
+      "scienceBehind": "The science behind {{date}}"
+    }
+  },
+  "legal": {
+    "privacy": {
+      "effectiveDate": "Effective date: {{date}}",
+      "s1": {
+        "heading": "About this policy",
+        "bodies": [
+          "Plastic Brains (\"we\", \"us\", or \"our\") helps you prepare for, reflect on, and follow up on therapy sessions. This policy explains how we handle your information in line with App Store requirements. By using the app, you agree to the practices described here."
+        ]
+      },
+      "s2": {
+        "heading": "Information we collect",
+        "bodies": [
+          "- Account details you provide, such as your name, email address, and authentication identifiers when you sign in with email or Apple.\n- Therapy session details and preferences you enter, including session dates, reminder times, and the reflection goal you choose during onboarding.\n- Device and usage information, such as app version, device type, crash logs, and basic interactions used to keep the service reliable.\n- Information from authentication partners (Apple), limited to the identifiers, names, and email addresses you authorize them to share with us.\n- Subscription and entitlement information, described in the section below.",
+          "Therapy note contents are encrypted and stored locally on your iPhone. We do not collect, upload, or retain the contents of your therapy notes on our servers."
+        ]
+      },
+      "s3": {
+        "heading": "Subscription and entitlement data",
+        "bodies": [
+          "Subscriptions are bought through Apple. We never see or receive your card details, billing address, or full Apple ID: payment is handled entirely by Apple, and we are not a party to it.",
+          "To know whether your subscription is active, we process:\n- Which plan you chose (monthly or annual) and whether an introductory trial applied.\n- The product identifier and an Apple transaction identifier for the purchase.\n- The current status of the subscription, such as active, in trial, expired or cancelled, and the date the current period ends.\n- Whether your Apple ID was eligible for an introductory offer, as reported by Apple.",
+          "This information is linked to your Plastic Brains account so the app can unlock the features you have paid for on any device you sign in to, and so Restore Purchases works. It is not used for advertising, is never combined with the contents of your therapy notes, and is not sold. Limited subscription events may be shared with PostHog as described below. Payment credentials and Apple transaction identifiers are not included in those analytics.",
+          "Apple may also send us server notifications about changes to your subscription, such as a renewal, a cancellation, or a refund Apple has granted, so that access stays accurate. We keep subscription records for as long as your account exists and for the period required for tax and accounting, then delete them. Deleting your account removes them on the same terms described under Data retention & deletion; it does not cancel an Apple subscription, which you cancel in your Apple ID subscription settings."
+        ]
+      },
+      "s4": {
+        "heading": "App analytics",
+        "bodies": [
+          "Plastic Brains uses PostHog for app analytics. PostHog receives a small set of events about onboarding, checkout, saving or opening notes, confirming reviews, notification setup and opens, and errors that prevent an action from completing. These events help us understand which features work and where people get stuck.",
+          "Events use an account identifier so we can understand repeat use across visits. We do not send your name, email address, note contents or titles, therapy goals, exact appointment dates, passwords, or notification contents to PostHog. We do not record your screen or automatically capture taps. An account identifier is pseudonymous, not anonymous.",
+          "You can request deletion of analytics history by contacting us, including when deleting your account. We do not use these events for advertising."
+        ]
+      },
+      "s5": {
+        "heading": "Website analytics & iOS release signup",
+        "bodies": [
+          "On the Plastic Brains website, we use Google Analytics 4 to understand site visits, where visitors came from, general interactions such as scrolling and following links, and selected actions such as opening the release signup, completing or failing a signup, opening an FAQ answer, and following an evidence link.",
+          "Google Analytics does not set analytics cookies unless you choose “Allow analytics” on the website. Advertising storage, Google signals, and ad personalisation remain disabled. We do not send email addresses, therapy note contents, form text, or other health information to Google Analytics.",
+          "If you sign up for the iOS release notification, Loops receives your email address and adds it to the private Plastic Brains iOS release list. Loops will ask you to confirm your email address first. We use confirmed addresses only to send the App Store download link on release day, not for general marketing.",
+          "You can unsubscribe using the link in an email or by contacting us. We keep the signup record only while it is needed for the release notification. Loops may keep a suppression record after you unsubscribe so we can respect your choice and avoid emailing you again."
+        ]
+      },
+      "s6": {
+        "heading": "How we use information",
+        "bodies": [
+          "- Deliver core features such as storing notes locally, saving the therapy session dates and reflection goal you enter, personalising note prompts, and scheduling reminders.\n- Authenticate your account, prevent fraud, and keep the app secure.\n- Send optional push notifications about upcoming sessions or follow-up reminders when you enable them.\n- Improve performance, troubleshoot issues, and develop new features based on aggregate usage trends."
+        ]
+      },
+      "s7": {
+        "heading": "Device permissions & third parties",
+        "bodies": [
+          "- Notifications: We request permission to send push notifications so you can receive reminders. You can change this at any time in your device settings.\n- Secure storage: We use the device's secure storage APIs to keep authentication tokens protected locally.\n- Session data: The app stores the session times you enter and syncs those times with our backend so we can schedule reminders. It does not read or sync with your external calendar.",
+          "We rely on trusted service providers to operate the app, including authentication through Apple, cloud hosting, and push notification delivery via Expo services. These partners process your data only to provide the services we request and are bound by contractual safeguards."
+        ]
+      },
+      "s8": {
+        "heading": "How we share information",
+        "bodies": [
+          "We do not sell your personal information. We only share data with:\n- Service providers that help us operate the app (hosting, authentication, notifications), and PostHog when you choose optional app analytics.\n- Authorities or advisors when required by law or to protect rights, safety, or property."
+        ]
+      },
+      "s9": {
+        "heading": "Data retention & deletion",
+        "bodies": [
+          "We keep your account information, therapy session dates, reflection goal, reminder settings, and registered device information for as long as you maintain an account. You can request deletion from the Settings screen or by contacting us. Once deleted, we remove personal data from active systems within 30 days unless we must retain it for legal obligations.",
+          "Your therapy notes are not part of your server account or its retention period. They remain encrypted on your iPhone until you delete them or remove the app. We never retain server copies of your notes."
+        ]
+      },
+      "s10": {
+        "heading": "Security",
+        "bodies": [
+          "We implement administrative, technical, and physical safeguards to protect your information, including encrypted network connections, secure credential storage, and access controls. No method of transmission or storage is completely secure, so we encourage you to use unique passwords and keep your device protected."
+        ]
+      },
+      "s11": {
+        "heading": "International users",
+        "bodies": [
+          "Our servers are operated by third-party providers that may process data in the United States and other countries. By using the app, you understand your data may be transferred to and processed in jurisdictions that may have different data protection laws than your home country."
+        ]
+      },
+      "s12": {
+        "heading": "Children's privacy",
+        "bodies": [
+          "Plastic Brains is designed for adults aged 18 and over. We do not knowingly collect personal information from anyone under 18. If you believe someone under 18 has provided us with personal data, contact us so we can delete it."
+        ]
+      },
+      "s13": {
+        "heading": "Your rights & choices",
+        "bodies": [
+          "Depending on where you live, you may have rights to access, correct, export, or delete your data, and to object to or restrict certain processing. You can manage most settings directly in the app or by emailing us. We will respond within 30 days as required by the app stores and applicable law."
+        ]
+      },
+      "s14": {
+        "heading": "Changes to this policy",
+        "bodies": [
+          "We may update this policy to reflect new features or legal requirements. If we make material changes, we will notify you in the app or by email and update the effective date above. Continued use of the app after a change means you accept the revised policy."
+        ]
+      },
+      "s15": {
+        "heading": "Contact us",
+        "bodies": [
+          "For questions or to exercise your privacy rights, email us at michael@plastic-brains.com."
+        ]
+      }
+    },
+    "terms": {
+      "s1": {
+        "heading": "Acceptance of these terms",
+        "bodies": [
+          "Plastic Brains (\"we\", \"us\", or \"our\") provides tools to help you prepare for, reflect on, and follow up on therapy sessions. By creating an account or using the app, you agree to these Terms of Service and our Privacy Policy. If you do not agree, do not use the app."
+        ]
+      },
+      "s2": {
+        "heading": "Eligibility & accounts",
+        "bodies": [
+          "You must be at least 18 years old, or the age of majority in your jurisdiction, to use the app. You are responsible for the accuracy of the information you provide and for keeping your login credentials secure. If you believe your account has been compromised, contact us immediately so we can help secure it."
+        ]
+      },
+      "s3": {
+        "heading": "App usage",
+        "bodies": [
+          "The app is designed for personal, non-commercial use. You agree not to misuse the service, including by attempting to reverse engineer, disrupt, or interfere with our systems. You may not upload unlawful, infringing, or harmful content. We may suspend or terminate accounts that violate these terms."
+        ]
+      },
+      "s4": {
+        "heading": "Health & safety disclaimer",
+        "bodies": [
+          "Plastic Brains does not provide medical or mental health advice, diagnosis, or treatment. The information in the app is for reflection and organization only. Always seek the advice of a licensed professional with any questions about your mental health or medical condition. Call emergency services or a crisis hotline if you are in danger or experiencing a mental health emergency."
+        ]
+      },
+      "s5": {
+        "heading": "Subscriptions and billing",
+        "bodies": [
+          "Plastic Brains is free to download. Access to the note, review and preparation features requires a paid subscription, offered as an auto-renewing monthly plan or an auto-renewing annual plan. Prices are shown in the app in your local currency before you confirm, and are set by us through the App Store.",
+          "Eligible subscribers receive a two-week free trial with the annual plan or a one-week free trial with the monthly plan. Apple decides whether your Apple ID is eligible for an introductory offer. If you are not eligible, no trial is shown and billing begins immediately. Unless you cancel at least 24 hours before the trial ends, your selected subscription begins automatically at the price shown.",
+          "Payment is charged to your Apple ID account at confirmation of purchase. Subscriptions renew automatically unless auto-renew is turned off at least 24 hours before the end of the current period, and your account is charged for renewal within 24 hours of the end of that period.",
+          "You can manage or cancel a subscription, and turn off auto-renewal, in your Apple ID subscription settings on your device. Cancelling stops future renewals; access continues until the end of the period you have already paid for. We cannot cancel an Apple subscription on your behalf.",
+          "If you reinstall the app or use another device signed in to the same Apple ID, use Restore Purchases to reconnect an existing subscription. Restoring finds subscriptions bought with that Apple ID only.",
+          "Purchases are made through Apple, so refunds are handled by Apple under their terms. Requests are made through Apple Support, and we cannot grant or guarantee a refund. Your statutory rights, where they apply, are unaffected."
+        ]
+      },
+      "s6": {
+        "heading": "User content & data",
+        "bodies": [
+          "You retain ownership of the notes and information you store in the app. Therapy note contents are processed locally on your device and are not uploaded to us. We process your account and therapy session information only as needed to provide the features you request. Refer to the Privacy Policy for details on how we collect, use, and protect your data."
+        ]
+      },
+      "s7": {
+        "heading": "Service changes",
+        "bodies": [
+          "We may update, suspend, or discontinue features to comply with platform policies, enhance security, or improve the experience. We will provide notice of material changes within the app or by email when required. Continued use of the app after changes become effective signifies your acceptance of the updates."
+        ]
+      },
+      "s8": {
+        "heading": "Termination",
+        "bodies": [
+          "You may stop using the app at any time and can request deletion of your account from the Settings screen. We may terminate or suspend access if you violate these terms or if we discontinue the service. Upon termination, sections of these terms that by their nature should survive (such as ownership, disclaimers, and liability limitations) will continue to apply."
+        ]
+      },
+      "s9": {
+        "heading": "Limitation of liability",
+        "bodies": [
+          "Nothing in these terms excludes or limits liability where doing so would be unlawful, including liability for death or personal injury caused by negligence, fraud, or fraudulent misrepresentation. Subject to that, Plastic Brains is not responsible for losses that were not reasonably foreseeable or that result from circumstances beyond our reasonable control. Nothing in these terms affects your statutory consumer rights."
+        ]
+      },
+      "s10": {
+        "heading": "Governing law",
+        "bodies": [
+          "These terms are governed by the laws of England and Wales. If you live elsewhere, you keep any mandatory consumer protections provided by the laws of the country where you live. If any part of these terms is found unenforceable, the remaining provisions remain in effect."
+        ]
+      },
+      "s11": {
+        "heading": "Contact",
+        "bodies": [
+          "For questions about these terms, email us at michael@plastic-brains.com."
+        ]
+      }
     }
   }
 }

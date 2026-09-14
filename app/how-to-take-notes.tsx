@@ -1,7 +1,3 @@
-/**
- * The write-up below is deliberately English-only. See
- * src/i18n/englishOnly.ts.
- */
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Linking, StyleSheet, View } from 'react-native';

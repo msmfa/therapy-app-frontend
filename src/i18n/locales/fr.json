@@ -4,7 +4,8 @@
       "logOut": "Se déconnecter",
       "loggingOut": "Déconnexion…",
       "tryAgain": "Réessayer",
-      "back": "Retour"
+      "back": "Retour",
+      "learnMore": "En savoir plus"
     },
     "error": {
       "title": "Erreur",
@@ -162,6 +163,11 @@
       "h4": "Laissez vide si rien n’a été convenu ni suggéré.",
       "q5": "Sur quoi voulez-vous revenir lors de votre prochaine séance ?",
       "h5": "Un seul sujet suffit."
+    },
+    "a11y": {
+      "openNote": "Ouvrir la note",
+      "editNote": "Modifier la note",
+      "saveChanges": "Enregistrer les modifications"
     }
   },
   "auth": {
@@ -547,7 +553,10 @@
     "notChosen": "Non renseigné",
     "chooseHint": "Choisissez {{field}} de votre séance",
     "accountSettings": "Réglages du compte",
-    "loadingSubscriptions": "Chargement des abonnements"
+    "loadingSubscriptions": "Chargement des abonnements",
+    "planPreview": {
+      "sheetImage": "La fiche de notes à cinq questions"
+    }
   },
   "science": {
     "sources": "Sources",
@@ -668,7 +677,192 @@
       "failedTitle": "Impossible de charger vos horaires de révision",
       "failedBody": "Vérifiez votre connexion et réessayez.",
       "emptyTitle": "Aucun horaire de révision pour l’instant",
-      "emptyNoSessions": "Aucune révision à venir dans votre calendrier actuel."
+      "emptyNoSessions": "Aucune révision à venir dans votre calendrier actuel.",
+      "emptyAddFollowing": "Ajoutez votre séance suivante pour placer des moments de révision précis dans l’intervalle.",
+      "emptyAddSessions": "Ajoutez vos prochaines séances de thérapie dans le Calendrier pour établir un programme de révision."
+    },
+    "reminders": {
+      "learnMoreAbout": "En savoir plus sur le {{date}}",
+      "scienceBehind": "La science derrière le {{date}}"
+    }
+  },
+  "legal": {
+    "privacy": {
+      "effectiveDate": "Date d’entrée en vigueur : {{date}}",
+      "s1": {
+        "heading": "À propos de cette politique",
+        "bodies": [
+          "Plastic Brains (« nous ») vous aide à préparer vos séances de thérapie, à y réfléchir et à en assurer le suivi. Cette politique explique comment nous traitons vos informations, conformément aux exigences de l’App Store. En utilisant l’application, vous acceptez les pratiques décrites ici."
+        ]
+      },
+      "s2": {
+        "heading": "Informations que nous collectons",
+        "bodies": [
+          "- Les informations de compte que vous fournissez : nom, adresse e-mail et identifiants d’authentification lorsque vous vous connectez par e-mail ou avec Apple.\n- Les informations de séance et les préférences que vous saisissez : dates de séance, horaires de rappel et objectif de réflexion choisi lors de la configuration.\n- Des informations sur l’appareil et l’usage : version de l’application, type d’appareil, rapports d’incident et interactions de base servant à maintenir la fiabilité du service.\n- Des informations provenant de nos partenaires d’authentification (Apple), limitées aux identifiants, noms et adresses e-mail que vous les autorisez à partager avec nous.\n- Des informations d’abonnement et de droits d’accès, décrites dans la section ci-dessous.",
+          "Le contenu de vos notes de thérapie est chiffré et conservé localement sur votre iPhone. Nous ne collectons, ne transférons et ne conservons pas le contenu de vos notes sur nos serveurs."
+        ]
+      },
+      "s3": {
+        "heading": "Données d’abonnement et de droits d’accès",
+        "bodies": [
+          "Les abonnements sont achetés via Apple. Nous ne voyons ni ne recevons jamais vos coordonnées bancaires, votre adresse de facturation ou votre identifiant Apple complet : le paiement est entièrement géré par Apple et nous n’y sommes pas partie.",
+          "Pour savoir si votre abonnement est actif, nous traitons :\n- L’offre que vous avez choisie (mensuelle ou annuelle) et l’application éventuelle d’un essai de lancement.\n- L’identifiant du produit et un identifiant de transaction Apple pour l’achat.\n- L’état actuel de l’abonnement (actif, en période d’essai, expiré ou résilié) et la date de fin de la période en cours.\n- L’éligibilité de votre identifiant Apple à une offre de lancement, telle que communiquée par Apple.",
+          "Ces informations sont rattachées à votre compte Plastic Brains afin que l’application puisse débloquer les fonctionnalités que vous avez payées sur tout appareil où vous vous connectez, et pour que « Restaurer les achats » fonctionne. Elles ne servent pas à la publicité, ne sont jamais associées au contenu de vos notes et ne sont pas vendues. Certains événements d’abonnement limités peuvent être transmis à PostHog, comme décrit ci-dessous. Les données de paiement et les identifiants de transaction Apple ne figurent pas dans ces statistiques.",
+          "Apple peut également nous envoyer des notifications serveur concernant les changements de votre abonnement (renouvellement, résiliation ou remboursement accordé par Apple) afin que votre accès reste exact. Nous conservons les données d’abonnement tant que votre compte existe, puis pendant la durée requise en matière fiscale et comptable, avant de les supprimer. La suppression de votre compte les supprime selon les mêmes modalités que celles décrites à la section « Conservation et suppression des données » ; elle ne résilie pas un abonnement Apple, que vous résiliez dans les réglages d’abonnement de votre identifiant Apple."
+        ]
+      },
+      "s4": {
+        "heading": "Statistiques d’utilisation de l’application",
+        "bodies": [
+          "Plastic Brains utilise PostHog pour les statistiques d’utilisation. PostHog reçoit un petit ensemble d’événements concernant la configuration initiale, le paiement, l’enregistrement ou l’ouverture de notes, la confirmation des révisions, la configuration et l’ouverture des notifications, ainsi que les erreurs empêchant une action d’aboutir. Ces événements nous aident à comprendre quelles fonctionnalités fonctionnent et où les utilisateurs se bloquent.",
+          "Les événements utilisent un identifiant de compte afin que nous puissions comprendre les usages répétés d’une visite à l’autre. Nous n’envoyons pas à PostHog votre nom, votre adresse e-mail, le contenu ou les titres de vos notes, vos objectifs thérapeutiques, les dates exactes de vos rendez-vous, vos mots de passe ni le contenu des notifications. Nous n’enregistrons pas votre écran et ne capturons pas automatiquement vos interactions. Un identifiant de compte est pseudonyme, non anonyme.",
+          "Vous pouvez demander la suppression de votre historique de statistiques en nous contactant, y compris lors de la suppression de votre compte. Nous n’utilisons pas ces événements à des fins publicitaires."
+        ]
+      },
+      "s5": {
+        "heading": "Statistiques du site et inscription à la sortie iOS",
+        "bodies": [
+          "Sur le site Plastic Brains, nous utilisons Google Analytics 4 pour comprendre les visites, leur provenance, les interactions générales telles que le défilement et le suivi de liens, ainsi que certaines actions : ouverture du formulaire d’inscription à la sortie, inscription réussie ou échouée, ouverture d’une réponse de la FAQ et consultation d’un lien vers une étude.",
+          "Google Analytics ne dépose pas de cookies de mesure à moins que vous ne choisissiez « Autoriser les statistiques » sur le site. Le stockage publicitaire, les signaux Google et la personnalisation des annonces restent désactivés. Nous n’envoyons à Google Analytics ni adresse e-mail, ni contenu de note, ni texte de formulaire, ni aucune autre information de santé.",
+          "Si vous vous inscrivez pour être averti de la sortie sur iOS, Loops reçoit votre adresse e-mail et l’ajoute à la liste privée de lancement iOS de Plastic Brains. Loops vous demandera d’abord de confirmer votre adresse. Nous n’utilisons les adresses confirmées que pour envoyer le lien de téléchargement App Store le jour du lancement, et non pour de la prospection générale.",
+          "Vous pouvez vous désinscrire via le lien figurant dans un e-mail ou en nous contactant. Nous ne conservons l’inscription que le temps nécessaire à la notification de sortie. Loops peut conserver une trace de désinscription afin que nous respections votre choix et ne vous écrivions plus."
+        ]
+      },
+      "s6": {
+        "heading": "Comment nous utilisons les informations",
+        "bodies": [
+          "- Fournir les fonctionnalités essentielles : conservation locale des notes, enregistrement des dates de séance et de l’objectif de réflexion que vous saisissez, personnalisation des invitations à écrire et programmation des rappels.\n- Authentifier votre compte, prévenir la fraude et assurer la sécurité de l’application.\n- Envoyer des notifications facultatives concernant vos prochaines séances ou des rappels de suivi, lorsque vous les activez.\n- Améliorer les performances, résoudre les problèmes et développer de nouvelles fonctionnalités à partir de tendances d’usage agrégées."
+        ]
+      },
+      "s7": {
+        "heading": "Autorisations de l’appareil et tiers",
+        "bodies": [
+          "- Notifications : nous demandons l’autorisation d’envoyer des notifications afin que vous puissiez recevoir vos rappels. Vous pouvez modifier ce choix à tout moment dans les réglages de votre appareil.\n- Stockage sécurisé : nous utilisons les interfaces de stockage sécurisé de l’appareil pour protéger localement les jetons d’authentification.\n- Données de séance : l’application enregistre les horaires de séance que vous saisissez et les synchronise avec notre serveur afin de programmer les rappels. Elle ne lit pas votre calendrier externe et ne s’y synchronise pas.",
+          "Nous faisons appel à des prestataires de confiance pour faire fonctionner l’application : authentification via Apple, hébergement cloud et acheminement des notifications via les services Expo. Ces partenaires ne traitent vos données que pour fournir les services que nous leur demandons et sont tenus par des garanties contractuelles."
+        ]
+      },
+      "s8": {
+        "heading": "Comment nous partageons les informations",
+        "bodies": [
+          "Nous ne vendons pas vos données personnelles. Nous ne les partageons qu’avec :\n- Les prestataires qui nous aident à faire fonctionner l’application (hébergement, authentification, notifications), et PostHog lorsque vous acceptez les statistiques facultatives.\n- Les autorités ou conseils, lorsque la loi l’exige ou pour protéger des droits, la sécurité ou des biens."
+        ]
+      },
+      "s9": {
+        "heading": "Conservation et suppression des données",
+        "bodies": [
+          "Nous conservons les informations de votre compte, vos dates de séance, votre objectif de réflexion, vos paramètres de rappel et les informations relatives aux appareils enregistrés aussi longtemps que vous conservez un compte. Vous pouvez demander leur suppression depuis l’écran Réglages ou en nous contactant. Après suppression, nous retirons les données personnelles de nos systèmes actifs dans un délai de 30 jours, sauf obligation légale de conservation.",
+          "Vos notes de thérapie ne font pas partie de votre compte serveur ni de sa durée de conservation. Elles restent chiffrées sur votre iPhone jusqu’à ce que vous les supprimiez ou que vous retiriez l’application. Nous ne conservons jamais de copie de vos notes sur nos serveurs."
+        ]
+      },
+      "s10": {
+        "heading": "Sécurité",
+        "bodies": [
+          "Nous mettons en œuvre des mesures administratives, techniques et physiques pour protéger vos informations : connexions réseau chiffrées, stockage sécurisé des identifiants et contrôles d’accès. Aucun mode de transmission ou de stockage n’est parfaitement sûr, c’est pourquoi nous vous encourageons à utiliser des mots de passe uniques et à protéger votre appareil."
+        ]
+      },
+      "s11": {
+        "heading": "Utilisateurs internationaux",
+        "bodies": [
+          "Nos serveurs sont exploités par des prestataires tiers susceptibles de traiter des données aux États-Unis et dans d’autres pays. En utilisant l’application, vous comprenez que vos données peuvent être transférées et traitées dans des juridictions dont la législation sur la protection des données peut différer de celle de votre pays."
+        ]
+      },
+      "s12": {
+        "heading": "Protection des mineurs",
+        "bodies": [
+          "Plastic Brains est conçue pour des adultes de 18 ans et plus. Nous ne collectons pas sciemment de données personnelles concernant des personnes de moins de 18 ans. Si vous pensez qu’une personne de moins de 18 ans nous a communiqué des données personnelles, contactez-nous afin que nous puissions les supprimer."
+        ]
+      },
+      "s13": {
+        "heading": "Vos droits et vos choix",
+        "bodies": [
+          "Selon votre lieu de résidence, vous pouvez disposer de droits d’accès, de rectification, de portabilité ou d’effacement de vos données, ainsi que du droit de vous opposer à certains traitements ou de les limiter. Vous pouvez gérer la plupart des réglages directement dans l’application ou en nous écrivant. Nous répondrons dans un délai de 30 jours, conformément aux exigences des magasins d’applications et à la législation applicable."
+        ]
+      },
+      "s14": {
+        "heading": "Modifications de cette politique",
+        "bodies": [
+          "Nous pouvons mettre à jour cette politique pour tenir compte de nouvelles fonctionnalités ou d’obligations légales. En cas de modification substantielle, nous vous en informerons dans l’application ou par e-mail et mettrons à jour la date d’entrée en vigueur ci-dessus. Continuer à utiliser l’application après une modification vaut acceptation de la politique révisée."
+        ]
+      },
+      "s15": {
+        "heading": "Nous contacter",
+        "bodies": [
+          "Pour toute question ou pour exercer vos droits en matière de confidentialité, écrivez-nous à michael@plastic-brains.com."
+        ]
+      }
+    },
+    "terms": {
+      "s1": {
+        "heading": "Acceptation des présentes conditions",
+        "bodies": [
+          "Plastic Brains (« nous ») propose des outils destinés à vous aider à préparer vos séances de thérapie, à y réfléchir et à en assurer le suivi. En créant un compte ou en utilisant l’application, vous acceptez les présentes conditions d’utilisation ainsi que notre politique de confidentialité. Si vous ne les acceptez pas, n’utilisez pas l’application."
+        ]
+      },
+      "s2": {
+        "heading": "Conditions d’accès et comptes",
+        "bodies": [
+          "Vous devez avoir au moins 18 ans, ou l’âge de la majorité dans votre juridiction, pour utiliser l’application. Vous êtes responsable de l’exactitude des informations que vous fournissez et de la sécurité de vos identifiants de connexion. Si vous pensez que votre compte a été compromis, contactez-nous immédiatement afin que nous puissions vous aider à le sécuriser."
+        ]
+      },
+      "s3": {
+        "heading": "Utilisation de l’application",
+        "bodies": [
+          "L’application est destinée à un usage personnel et non commercial. Vous vous engagez à ne pas détourner le service, notamment en tentant d’en faire l’ingénierie inverse, de le perturber ou d’interférer avec nos systèmes. Vous ne pouvez pas téléverser de contenu illicite, contrefaisant ou préjudiciable. Nous pouvons suspendre ou résilier les comptes qui enfreignent les présentes conditions."
+        ]
+      },
+      "s4": {
+        "heading": "Avertissement relatif à la santé et à la sécurité",
+        "bodies": [
+          "Plastic Brains ne fournit ni conseil médical ou psychologique, ni diagnostic, ni traitement. Les informations présentes dans l’application servent uniquement à la réflexion et à l’organisation. Consultez toujours un professionnel agréé pour toute question relative à votre santé mentale ou à votre état de santé. Appelez les services d’urgence ou une ligne d’écoute en cas de danger ou d’urgence psychologique."
+        ]
+      },
+      "s5": {
+        "heading": "Abonnements et facturation",
+        "bodies": [
+          "Plastic Brains est gratuite à télécharger. L’accès aux fonctions de prise de notes, de révision et de préparation nécessite un abonnement payant, proposé sous forme de formule mensuelle ou annuelle à renouvellement automatique. Les prix sont indiqués dans l’application, dans votre devise locale, avant confirmation, et sont fixés par nous via l’App Store.",
+          "Les abonnés éligibles bénéficient de deux semaines d’essai gratuit avec la formule annuelle, ou d’une semaine d’essai gratuit avec la formule mensuelle. C’est Apple qui détermine si votre identifiant Apple est éligible à une offre de lancement. Si vous ne l’êtes pas, aucun essai n’est proposé et la facturation commence immédiatement. Sauf résiliation au moins 24 heures avant la fin de l’essai, l’abonnement que vous avez choisi commence automatiquement au prix affiché.",
+          "Le paiement est prélevé sur votre compte identifiant Apple à la confirmation de l’achat. Les abonnements se renouvellent automatiquement, sauf si le renouvellement automatique est désactivé au moins 24 heures avant la fin de la période en cours, et votre compte est débité du renouvellement dans les 24 heures précédant la fin de cette période.",
+          "Vous pouvez gérer ou résilier un abonnement, et désactiver le renouvellement automatique, dans les réglages d’abonnement de votre identifiant Apple sur votre appareil. La résiliation met fin aux renouvellements futurs ; l’accès se poursuit jusqu’à la fin de la période déjà payée. Nous ne pouvons pas résilier un abonnement Apple à votre place.",
+          "Si vous réinstallez l’application ou utilisez un autre appareil connecté au même identifiant Apple, utilisez « Restaurer les achats » pour retrouver un abonnement existant. La restauration ne retrouve que les abonnements achetés avec cet identifiant Apple.",
+          "Les achats sont effectués via Apple : les remboursements sont donc gérés par Apple, selon ses propres conditions. Les demandes se font auprès de l’assistance Apple, et nous ne pouvons ni accorder ni garantir un remboursement. Vos droits légaux, lorsqu’ils s’appliquent, ne sont pas affectés."
+        ]
+      },
+      "s6": {
+        "heading": "Vos contenus et vos données",
+        "bodies": [
+          "Vous restez propriétaire des notes et des informations que vous conservez dans l’application. Le contenu de vos notes de thérapie est traité localement sur votre appareil et ne nous est pas transmis. Nous ne traitons les informations de votre compte et de vos séances que dans la mesure nécessaire pour fournir les fonctionnalités que vous demandez. Consultez la politique de confidentialité pour savoir comment nous collectons, utilisons et protégeons vos données."
+        ]
+      },
+      "s7": {
+        "heading": "Évolutions du service",
+        "bodies": [
+          "Nous pouvons mettre à jour, suspendre ou interrompre des fonctionnalités pour respecter les règles des plateformes, renforcer la sécurité ou améliorer l’expérience. Nous vous informerons de toute modification substantielle dans l’application ou par e-mail lorsque cela est requis. Continuer à utiliser l’application après l’entrée en vigueur des modifications vaut acceptation de celles-ci."
+        ]
+      },
+      "s8": {
+        "heading": "Résiliation",
+        "bodies": [
+          "Vous pouvez cesser d’utiliser l’application à tout moment et demander la suppression de votre compte depuis l’écran Réglages. Nous pouvons résilier ou suspendre votre accès si vous enfreignez les présentes conditions ou si nous interrompons le service. À la résiliation, les clauses des présentes conditions qui, par leur nature, doivent survivre (notamment celles relatives à la propriété, aux avertissements et aux limitations de responsabilité) continuent de s’appliquer."
+        ]
+      },
+      "s9": {
+        "heading": "Limitation de responsabilité",
+        "bodies": [
+          "Rien dans les présentes conditions n’exclut ni ne limite notre responsabilité lorsque la loi l’interdit, y compris la responsabilité en cas de décès ou de dommage corporel causé par une négligence, une fraude ou une déclaration frauduleuse. Sous cette réserve, Plastic Brains n’est pas responsable des préjudices qui n’étaient pas raisonnablement prévisibles ou qui résultent de circonstances échappant à son contrôle raisonnable. Rien dans les présentes conditions n’affecte vos droits légaux de consommateur."
+        ]
+      },
+      "s10": {
+        "heading": "Droit applicable",
+        "bodies": [
+          "Les présentes conditions sont régies par le droit de l’Angleterre et du pays de Galles. Si vous résidez ailleurs, vous conservez le bénéfice des protections impératives des consommateurs prévues par le droit de votre pays de résidence. Si une partie des présentes conditions est jugée inapplicable, les autres dispositions demeurent en vigueur."
+        ]
+      },
+      "s11": {
+        "heading": "Nous contacter",
+        "bodies": [
+          "Pour toute question sur les présentes conditions, écrivez-nous à michael@plastic-brains.com."
+        ]
+      }
     }
   }
 }

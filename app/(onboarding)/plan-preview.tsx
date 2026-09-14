@@ -3,6 +3,7 @@ import { StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Image } from 'expo-image';
 import type { ImageSourcePropType } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import { PlanTimeline } from '../../src/components/onboarding/PlanTimeline';
@@ -16,6 +17,7 @@ import { planTimeline } from '../../src/features/onboarding/planTimeline';
 import { sampleSessionAt } from '../../src/features/onboarding/samplePlan';
 
 export default function PlanPreviewScreen() {
+    const { t } = useTranslation('onboarding');
     const router = useRouter();
     const { answers } = useOnboardingAnswers();
     const { width: screenWidth } = useWindowDimensions();
@@ -72,7 +74,7 @@ export default function PlanPreviewScreen() {
                     ] }
                     contentFit="contain"
                     accessible
-                    accessibilityLabel="The five-question note sheet"
+                    accessibilityLabel={ t('planPreview.sheetImage') }
                 />
             ) }
             footer={

@@ -219,7 +219,7 @@ export function NotePreviewModal({
                                 <TouchableOpacity
                                     onPress={ handleSave }
                                     accessibilityRole="button"
-                                    accessibilityLabel="Save changes"
+                                    accessibilityLabel={ t('a11y.saveChanges') }
                                     disabled={ saving }
                                     activeOpacity={ 0.7 }
                                 >
@@ -232,7 +232,7 @@ export function NotePreviewModal({
                             <TouchableOpacity
                                 onPress={ handleStartEditing }
                                 accessibilityRole="button"
-                                accessibilityLabel="Edit note"
+                                accessibilityLabel={ t('a11y.editNote') }
                                 disabled={ !note }
                                 activeOpacity={ 0.7 }
                             >
@@ -257,7 +257,7 @@ export function NotePreviewModal({
                                 autoFocus
                                 style={ styles.editableText }
                                 textAlignVertical="top"
-                                accessibilityLabel="Edit note"
+                                accessibilityLabel={ t('a11y.editNote') }
                             />
                             { errorMessage }
                         </View>

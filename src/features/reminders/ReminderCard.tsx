@@ -13,6 +13,7 @@ import { GlassPillButton } from 'src/components/ui/GlassPillButton';
 import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
 import { BRAND_FONTS } from 'designs/designs-typography';
 import { ReminderType } from '../../utils/types';
+import { useTranslation } from 'react-i18next';
 
 const CARD_RADIUS = 28;
 // The photo is inset from the card by a hair on three sides, and its corners
@@ -64,13 +65,9 @@ type Props = {
  * the home screen's glass buttons on the bottom row. The photo fades into the
  * card rather than ending on a hard edge.
  */
-/*
- * Rendered only by app/interval-science.tsx, which is one of the
- * English-only screens (see src/i18n/englishOnly.ts). Its labels are
- * chrome around English research copy, so they stay English with it
- * rather than leaving a French frame around an English article.
- */
 export function ReminderCard({ date, description, link, time, caption }: Props) {
+    const { t: tScience } = useTranslation('science');
+    const { t: tCommon } = useTranslation('common');
     const { height: screenHeight } = useWindowDimensions();
     const [isModalOpen, setModalOpen] = useState(false);
     // The aura panel is drawn at an explicit size, so the frame is measured
@@ -130,15 +127,15 @@ export function ReminderCard({ date, description, link, time, caption }: Props) 
                     <View style={ styles.actions }>
                         <GlassButtonOutline buttonSize={ actionSize } opacity={ 0.9 } />
                         <GlassPillButton
-                            accessibilityLabel={ `Learn more about ${date}` }
-                            label="Learn more"
+                            accessibilityLabel={ tScience('reminders.learnMoreAbout', { date }) }
+                            label={ tCommon('action.learnMore') }
                             height={ actionSize }
                             labelSize={ ACTION_LABEL_SIZE }
                             labelColor={ COLOR_VARIANTS.black.primary }
                             onPress={ openModal }
                         />
                         <GlassCircleButton
-                            accessibilityLabel={ `The science behind ${date}` }
+                            accessibilityLabel={ tScience('reminders.scienceBehind', { date }) }
                             icon="forward"
                             iconColor={ COLOR_VARIANTS.black.tertiary }
                             size={ actionSize }

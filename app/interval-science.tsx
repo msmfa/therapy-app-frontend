@@ -1,7 +1,3 @@
-/**
- * The write-up below is deliberately English-only. See
- * src/i18n/englishOnly.ts.
- */
 import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -79,9 +75,9 @@ export default function IntervalScienceScreen() {
         && cards.length === 0;
 
     const emptyBody = showingOnboardingPlan
-        ? 'Add your following session to place exact review times in the gap.'
+        ? tScience('intervals.emptyAddFollowing')
         : sessions.length === 0
-            ? 'Add your next therapy sessions in Calendar to build a review schedule.'
+            ? tScience('intervals.emptyAddSessions')
             : tScience('intervals.emptyNoSessions');
 
     return (
@@ -111,7 +107,7 @@ export default function IntervalScienceScreen() {
                         <AppText variant="body" align="center" style={ styles.stateBody }>{ tScience('intervals.failedBody') }</AppText>
                         <View style={ styles.retry }>
                             <Button
-                                label="Try again"
+                                label={ t('action.tryAgain') }
                                 onPress={ () => void refreshReminderSchedule() }
                             />
                         </View>

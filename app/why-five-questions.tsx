@@ -1,7 +1,6 @@
 /**
- * The write-up below is deliberately English-only. See
- * src/i18n/englishOnly.ts: it paraphrases specific findings and is kept in
- * step with plastic-brains.com word for word.
+ * The write-up is translated; the reference list below is not. See
+ * src/i18n/englishOnly.ts: a citation identifies a specific published paper.
  */
 import React, { useRef, useState } from 'react';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';

@@ -85,4 +85,53 @@ describe('translation resources', () => {
             expect(untranslated).toEqual([]);
         },
     );
+
+    it.each(
+        LANGUAGES.filter((language) => language.tag !== FALLBACK_LANGUAGE)
+            .map((language) => [language.tag, language] as const),
+    )(
+        '%s uses the same interpolation variables as the source language',
+        (_tag, language) => {
+            // The one gap in the typed keys. `t('a.b', { count })` is checked
+            // against the key, but not against the placeholders the string
+            // actually contains, because the JSON types widen every value to
+            // `string`. A French line that writes {{jour}} where English wrote
+            // {{day}} therefore typechecks and renders the placeholder text to
+            // the user.
+            const names = (value: unknown): string[] =>
+                typeof value === 'string'
+                    ? [...value.matchAll(/\{\{\s*([\w.]+)/g)].map((match) => match[1]).sort()
+                    : [];
+
+            const sourceByKey = new Map(leafValues(source?.resources ?? {}));
+            const mismatched = leafValues(language.resources)
+                .filter(([key, value]) =>
+                    names(value).join(',') !== names(sourceByKey.get(key)).join(','))
+                .map(([key]) => key);
+
+            expect(mismatched).toEqual([]);
+        },
+    );
+
+    it.each(
+        LANGUAGES.filter((language) => language.tag !== FALLBACK_LANGUAGE)
+            .map((language) => [language.tag, language] as const),
+    )(
+        '%s keeps the line breaks the source language has',
+        (_tag, language) => {
+            // Bulleted lists in the legal and onboarding copy are one string
+            // with embedded newlines, so a translation that runs the bullets
+            // together renders as a wall of text rather than a list. The count
+            // has to match, not merely be non-zero.
+            const breaks = (value: unknown): number =>
+                typeof value === 'string' ? value.split('\n').length - 1 : 0;
+
+            const sourceByKey = new Map(leafValues(source?.resources ?? {}));
+            const mismatched = leafValues(language.resources)
+                .filter(([key, value]) => breaks(value) !== breaks(sourceByKey.get(key)))
+                .map(([key]) => key);
+
+            expect(mismatched).toEqual([]);
+        },
+    );
 });

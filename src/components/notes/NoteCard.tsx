@@ -7,6 +7,7 @@ import { COLOR_VARIANTS, PALETTE, TEXT_COLORS } from 'designs/designs-colors';
 import { GlassCircleButton } from '../ui/GlassCircleButton';
 import type { NoteReviewProgress } from '../../features/reviews';
 import { ReviewProgressBar } from './ReviewProgressBar';
+import { useTranslation } from 'react-i18next';
 
 const PREVIEW_LINES = 4;
 const OPEN_BUTTON = 32;
@@ -21,6 +22,8 @@ type Props = {
 }
 
 export function NoteCard({ item, index, onPress, progress }: Props) {
+    const { t } = useTranslation('notes');
+
     return (
         <Pressable
             onPress={ () => onPress(item) }
@@ -35,7 +38,7 @@ export function NoteCard({ item, index, onPress, progress }: Props) {
                  glyph points up-left, mirrored here to point out of the card. */ }
             <View pointerEvents='none' style={ styles.openButton }>
                 <GlassCircleButton
-                    accessibilityLabel='Open note'
+                    accessibilityLabel={ t('a11y.openNote') }
                     icon='back'
                     iconColor={ COLOR_VARIANTS.red.primary }
                     size={ OPEN_BUTTON }
