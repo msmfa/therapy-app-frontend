@@ -45,10 +45,10 @@ export function NoteCard({ item, index, onPress, progress }: Props) {
             </View>
             <View style={ styles.noteHeader }>
                 <AppText variant='h3' numberOfLines={ 1 } style={ styles.date }>
-                    { dayjs(item.createdAt).format('dddd, MMM D') }
+                    { dayjs(item.createdAt).format('dddd, LL') }
                 </AppText>
                 <AppText variant='caption' style={ styles.time }>
-                    { dayjs(item.createdAt).format('h:mm A') }
+                    { dayjs(item.createdAt).format('LT') }
                 </AppText>
             </View>
             <AppText variant='bodySecondary' numberOfLines={ PREVIEW_LINES } style={ styles.preview }>

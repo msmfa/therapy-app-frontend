@@ -248,7 +248,8 @@
       "repeatCount_other": "{{count}} séances",
       "delete": "Supprimer",
       "update": "Mettre à jour",
-      "add": "Ajouter une séance"
+      "add": "Ajouter une séance",
+      "appointmentAt": "Rendez-vous à {{time}}"
     },
     "error": {
       "timeout": {
@@ -516,6 +517,36 @@
       "unexpectedTitle": "Une erreur est survenue",
       "unexpectedBody": "Vos réponses sont conservées. Veuillez réessayer.",
       "retryCta": "Réessayer"
-    }
+    },
+    "signUpSubtitle": "Enregistrez votre programme entre les séances et gardez votre calendrier rattaché.",
+    "timeline": {
+      "templateName": "modèle de 5 questions en 5 minutes",
+      "postSessionLabel": "Après votre séance du {{weekday}}",
+      "postSessionBody": "Nous vous enverrons une notification juste après votre séance du {{weekday}} pour vous rappeler de noter ce que vous avez abordé. Si vous ne savez pas par où commencer, nous avons un {{template}} qui facilite les choses.",
+      "postSleepLabel": "Plus tard ce {{weekday}} soir",
+      "postSleepBody": "Revenez à votre note tant que la séance est encore fraîche.",
+      "morningLabel": "{{weekday}} matin",
+      "morningBody": "Relisez ce que vous avez abordé lors de la séance de la veille.",
+      "midLabel": "Entre les séances",
+      "midBody": "Un court rappel pour relire votre note dans la semaine, afin que ce dont vous avez parlé ne s’estompe pas avant la prochaine séance.",
+      "preLabel": "{{weekday}} soir",
+      "preBody": "Un dernier coup d’œil à votre note la veille au soir, pour arriver en sachant ce que vous voulez reprendre de la dernière séance.",
+      "research": "Recherche",
+      "researchLabel": "Recherche :",
+      "opensResearch": "Ouvre la recherche sur ce rappel",
+      "opensFiveQuestions": "Ouvre « Pourquoi ces cinq questions ? »"
+    },
+    "summary": {
+      "alreadyActive": "Votre abonnement est déjà actif, il n’y a donc rien à confirmer. {{cancel}}",
+      "leadSignedIn": "Lorsque vous continuerez",
+      "leadSignedOut": "Après votre connexion",
+      "confirmTrial": "{{lead}}, Apple vous demandera de confirmer votre essai gratuit. Vous ne serez pas facturé aujourd’hui. {{cancel}}",
+      "confirmSubscription": "{{lead}}, Apple vous demandera de confirmer votre abonnement. {{cancel}}"
+    },
+    "chooseDate": "Choisir une date",
+    "notChosen": "Non renseigné",
+    "chooseHint": "Choisissez {{field}} de votre séance",
+    "accountSettings": "Réglages du compte",
+    "loadingSubscriptions": "Chargement des abonnements"
   }
 }

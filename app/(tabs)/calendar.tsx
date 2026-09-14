@@ -80,7 +80,7 @@ const NextEventCard = React.memo(function NextEventCard({ label, date, accent }:
                         </View>
                         { when ? (
                             <AppText variant="caption" style={ styles.eventMeta }>
-                                { when.format('ddd, h:mm A') }
+                                { when.format('ddd, LT') }
                             </AppText>
                         ) : null }
                     </View>

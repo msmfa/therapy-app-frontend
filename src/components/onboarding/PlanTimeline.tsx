@@ -12,6 +12,8 @@ import { AppModal } from '../Modal';
 import { ScienceTextModal } from '../ScienceTextModal';
 import { onboardingStyles, ONBOARDING_LINK_COLOR } from './onboardingStyles';
 import { BRAND_FONTS } from 'designs/designs-typography';
+import { useTranslation } from 'react-i18next';
+import { t as translate } from '../../i18n/translate';
 
 type Props = {
     entries: PlanTimelineEntry[];
@@ -61,7 +63,7 @@ function renderBody(entry: PlanTimelineEntry, onOpenTemplate?: () => void): Reac
                 style={ [onboardingStyles.body, styles.bodyCopy, onOpenTemplate === undefined ? styles.emphasis : styles.bodyLink] }
                 onPress={ onOpenTemplate }
                 accessibilityRole={ onOpenTemplate === undefined ? undefined : 'link' }
-                accessibilityHint={ onOpenTemplate === undefined ? undefined : 'Opens why these five questions' }
+                accessibilityHint={ onOpenTemplate === undefined ? undefined : translate('onboarding:timeline.opensFiveQuestions') }
             >
                 { phrase }
             </AppText>
@@ -71,6 +73,7 @@ function renderBody(entry: PlanTimelineEntry, onOpenTemplate?: () => void): Reac
 }
 
 export function PlanTimeline({ entries, onOpenTemplate }: Props) {
+    const { t } = useTranslation('onboarding');
     const [openResearch, setOpenResearch] = useState<ReminderType | null>(null);
 
     return (
@@ -82,7 +85,7 @@ export function PlanTimeline({ entries, onOpenTemplate }: Props) {
                     // The paragraph holds a link, which a collapsed accessible
                     // row would swallow.
                     const hasBodyLink = isSession && onOpenTemplate !== undefined;
-                    // The name of the research on its own. "Research:" in front
+                    // The name of the research on its own. { t('timeline.researchLabel') } in front
                     // of it labelled a link that already sits under a paragraph
                     // of research, and cost a third of the row's width.
                     const researchLabel = entry.researchTarget === null
@@ -150,7 +153,7 @@ export function PlanTimeline({ entries, onOpenTemplate }: Props) {
                                             importantForAccessibility="no-hide-descendants"
                                         >
                                             <GlassCircleButton
-                                                accessibilityLabel={ researchLabel ?? 'Research' }
+                                                accessibilityLabel={ researchLabel ?? t('timeline.research') }
                                                 icon="forward"
                                                 iconColor={ ONBOARDING_LINK_COLOR }
                                                 size={ 40 }
@@ -197,7 +200,7 @@ export function PlanTimeline({ entries, onOpenTemplate }: Props) {
                             activeOpacity={ 0.75 }
                             accessibilityRole="link"
                             accessibilityLabel={ `${entry.label}. ${occurrencesLabel(entry.occurrences)}. ${entry.body} ${researchLabel}` }
-                            accessibilityHint="Opens the research for this reminder"
+                            accessibilityHint={ t('timeline.opensResearch') }
                             onPress={ () => setOpenResearch(entry.researchTarget) }
                         >
                             { rowContent }

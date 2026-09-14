@@ -248,7 +248,8 @@
       "repeatCount_other": "{{count}} sessions",
       "delete": "Delete",
       "update": "Update",
-      "add": "Add Session"
+      "add": "Add Session",
+      "appointmentAt": "Appointment at {{time}}"
     },
     "error": {
       "timeout": {
@@ -516,6 +517,36 @@
       "unexpectedTitle": "Something went wrong",
       "unexpectedBody": "Your answers are still here. Please try again.",
       "retryCta": "Try again"
-    }
+    },
+    "signUpSubtitle": "Save your between-session plan and keep your schedule connected.",
+    "timeline": {
+      "templateName": "5 minute, 5 questions template",
+      "postSessionLabel": "After your {{weekday}} session",
+      "postSessionBody": "We will send you a notification just after your session on {{weekday}} to remind you to take a note on what you discussed. If you're not sure where to start we have a {{template}} that makes it easy.",
+      "postSleepLabel": "Later that {{weekday}} evening",
+      "postSleepBody": "Return to your note while the session is still fresh.",
+      "morningLabel": "{{weekday}} Morning",
+      "morningBody": "Revisit what you discussed in your session the day before.",
+      "midLabel": "Between sessions",
+      "midBody": "A short reminder to read your note again during the week, so what you talked about does not fade before your next session.",
+      "preLabel": "{{weekday}} evening",
+      "preBody": "One last look at your note the evening before, so you arrive knowing what you want to continue from your last session.",
+      "research": "Research",
+      "researchLabel": "Research:",
+      "opensResearch": "Opens the research for this reminder",
+      "opensFiveQuestions": "Opens why these five questions"
+    },
+    "summary": {
+      "alreadyActive": "Your subscription is already active, so there is nothing to confirm. {{cancel}}",
+      "leadSignedIn": "When you continue",
+      "leadSignedOut": "After you sign in",
+      "confirmTrial": "{{lead}}, Apple will ask you to confirm your free trial. You won't be charged today. {{cancel}}",
+      "confirmSubscription": "{{lead}}, Apple will ask you to confirm your subscription. {{cancel}}"
+    },
+    "chooseDate": "Choose a date",
+    "notChosen": "Not chosen",
+    "chooseHint": "Choose your therapy session {{field}}",
+    "accountSettings": "Account settings",
+    "loadingSubscriptions": "Loading subscriptions"
   }
 }

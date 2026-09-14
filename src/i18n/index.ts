@@ -33,6 +33,7 @@ import {
     SYSTEM_PREFERENCE,
     type LanguagePreference,
 } from './resolve';
+import { applyDayjsLocale } from './dayjsLocale';
 
 /** Kept in step with `CustomTypeOptions['defaultNS']` in i18next.d.ts. */
 const DEFAULT_NAMESPACE = 'common';
@@ -105,5 +106,11 @@ export const hydrateLanguage = async (): Promise<LanguagePreference> => {
     }
     return preference;
 };
+
+// dayjs keeps one global locale, so it has to be told whenever i18next moves.
+// Subscribing here rather than in a component means every consumer of dayjs is
+// covered, including the ones with no React around them.
+applyDayjsLocale(i18next.language);
+i18next.on('languageChanged', applyDayjsLocale);
 
 export { i18next };
