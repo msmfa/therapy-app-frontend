@@ -118,7 +118,8 @@
       "cancelEdit": "Cancel edit",
       "saveUnavailable": "Unable to save note right now.",
       "howTo": "How to take notes",
-      "saveNote": "Save note"
+      "saveNote": "Save note",
+      "edit": "edit"
     },
     "review": {
       "reviewed": "REVIEWED",
@@ -168,7 +169,13 @@
       "openNote": "Open note",
       "editNote": "Edit note",
       "saveChanges": "Save changes"
-    }
+    },
+    "whatWasSaid": "what was said",
+    "bars": {
+      "title": "The bars",
+      "intro": "After you've reviewed a note click review and these bars will update."
+    },
+    "dateHeading": "{{weekday}} at {{time}}"
   },
   "auth": {
     "signIn": {
@@ -216,7 +223,12 @@
       "resetFailedMessage": "We could not reset your password.",
       "sendCode": "Send reset code",
       "updatePassword": "Update password",
-      "backToSignIn": "Back to sign in"
+      "backToSignIn": "Back to sign in",
+      "requestTitle": "Forgot password",
+      "requestSubtitle": "Enter your account email. We will send you a reset code.",
+      "resetSubtitle": "Paste the reset code and choose a new password.",
+      "doneTitle": "Password updated",
+      "doneSubtitle": "Your password has been reset. Sign in with your new password to continue."
     },
     "apple": {
       "continueWith": "Continue with Apple",
@@ -231,7 +243,8 @@
       "tooShort_other": "Password must be at least {{count}} characters long",
       "needsUppercase": "Password must include at least one uppercase letter",
       "needsSymbol": "Password must include at least one symbol"
-    }
+    },
+    "orContinueWith": "Or continue with"
   },
   "calendar": {
     "nextSession": "Next session",
@@ -294,7 +307,8 @@
         "title": "Something went wrong",
         "message": "We couldn’t load your therapy sessions. Please try again later."
       }
-    }
+    },
+    "nothingScheduled": "Nothing scheduled"
   },
   "onboarding": {
     "welcome": {
@@ -679,12 +693,18 @@
       "emptyTitle": "No review times yet",
       "emptyNoSessions": "There are no upcoming reviews in your current schedule.",
       "emptyAddFollowing": "Add your following session to place exact review times in the gap.",
-      "emptyAddSessions": "Add your next therapy sessions in Calendar to build a review schedule."
+      "emptyAddSessions": "Add your next therapy sessions in Calendar to build a review schedule.",
+      "nextOf_one": "next of {{count}}",
+      "nextOf_other": "next of {{count}}"
     },
     "reminders": {
       "learnMoreAbout": "Learn more about {{date}}",
       "scienceBehind": "The science behind {{date}}"
-    }
+    },
+    "tldr": "TL;DR",
+    "tldrLabel": "TLDR: ",
+    "caveat": "This research explains the memory methods that inform the schedule.",
+    "references": "References"
   },
   "legal": {
     "privacy": {

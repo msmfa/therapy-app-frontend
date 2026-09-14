@@ -118,7 +118,8 @@
       "cancelEdit": "Annuler la modification",
       "saveUnavailable": "Impossible d’enregistrer la note pour le moment.",
       "howTo": "Comment prendre des notes",
-      "saveNote": "Enregistrer la note"
+      "saveNote": "Enregistrer la note",
+      "edit": "modifier"
     },
     "review": {
       "reviewed": "REVU",
@@ -168,7 +169,13 @@
       "openNote": "Ouvrir la note",
       "editNote": "Modifier la note",
       "saveChanges": "Enregistrer les modifications"
-    }
+    },
+    "whatWasSaid": "ce qui a été dit",
+    "bars": {
+      "title": "Les barres",
+      "intro": "Après avoir relu une note, appuyez sur « Marquer comme revu » et ces barres se mettront à jour."
+    },
+    "dateHeading": "{{weekday}} à {{time}}"
   },
   "auth": {
     "signIn": {
@@ -216,7 +223,12 @@
       "resetFailedMessage": "Votre mot de passe n’a pas pu être réinitialisé.",
       "sendCode": "Envoyer le code",
       "updatePassword": "Mettre à jour le mot de passe",
-      "backToSignIn": "Retour à la connexion"
+      "backToSignIn": "Retour à la connexion",
+      "requestTitle": "Mot de passe oublié",
+      "requestSubtitle": "Saisissez l’adresse e-mail de votre compte. Nous vous enverrons un code de réinitialisation.",
+      "resetSubtitle": "Collez le code de réinitialisation et choisissez un nouveau mot de passe.",
+      "doneTitle": "Mot de passe mis à jour",
+      "doneSubtitle": "Votre mot de passe a été réinitialisé. Connectez-vous avec votre nouveau mot de passe pour continuer."
     },
     "apple": {
       "continueWith": "Continuer avec Apple",
@@ -231,7 +243,8 @@
       "tooShort_other": "Le mot de passe doit contenir au moins {{count}} caractères",
       "needsUppercase": "Le mot de passe doit contenir au moins une majuscule",
       "needsSymbol": "Le mot de passe doit contenir au moins un symbole"
-    }
+    },
+    "orContinueWith": "Ou continuer avec"
   },
   "calendar": {
     "nextSession": "Prochaine séance",
@@ -294,7 +307,8 @@
         "title": "Une erreur est survenue",
         "message": "Vos séances n’ont pas pu être chargées. Veuillez réessayer plus tard."
       }
-    }
+    },
+    "nothingScheduled": "Rien de prévu"
   },
   "onboarding": {
     "welcome": {
@@ -679,12 +693,18 @@
       "emptyTitle": "Aucun horaire de révision pour l’instant",
       "emptyNoSessions": "Aucune révision à venir dans votre calendrier actuel.",
       "emptyAddFollowing": "Ajoutez votre séance suivante pour placer des moments de révision précis dans l’intervalle.",
-      "emptyAddSessions": "Ajoutez vos prochaines séances de thérapie dans le Calendrier pour établir un programme de révision."
+      "emptyAddSessions": "Ajoutez vos prochaines séances de thérapie dans le Calendrier pour établir un programme de révision.",
+      "nextOf_one": "prochain sur {{count}}",
+      "nextOf_other": "prochain sur {{count}}"
     },
     "reminders": {
       "learnMoreAbout": "En savoir plus sur le {{date}}",
       "scienceBehind": "La science derrière le {{date}}"
-    }
+    },
+    "tldr": "EN BREF",
+    "tldrLabel": "EN BREF : ",
+    "caveat": "Ces travaux expliquent les méthodes de mémorisation sur lesquelles repose le programme.",
+    "references": "Références"
   },
   "legal": {
     "privacy": {

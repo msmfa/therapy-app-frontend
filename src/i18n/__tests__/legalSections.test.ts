@@ -48,4 +48,14 @@ describe('legal screens', () => {
             }
         },
     );
+    it('formats the effective date rather than hardcoding the words for one', () => {
+        // It was the literal 'September 8, 2026', which sat in English inside
+        // an otherwise French sentence. An ISO date plus a localized dayjs
+        // token is the only version that follows the app's language.
+        const source = readFileSync(join(__dirname, '../../../app/privacy-policy.tsx'), 'utf8');
+        const constant = source.match(/const EFFECTIVE_DATE = '([^']+)'/);
+
+        expect(constant?.[1]).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+        expect(source).toContain("dayjs(EFFECTIVE_DATE).format('LL')");
+    });
 });

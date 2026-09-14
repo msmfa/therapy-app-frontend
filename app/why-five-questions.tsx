@@ -151,7 +151,7 @@ export default function WhyFiveQuestionsScreen() {
                     showsVerticalScrollIndicator={ false }
                 >
                     <View style={ styles.summaryBanner }>
-                        <AppText variant="h2" accessibilityRole="header" style={ styles.summaryText }>TL;DR</AppText>
+                        <AppText variant="h2" accessibilityRole="header" style={ styles.summaryText }>{ tScience('tldr') }</AppText>
                         <Spacer variant={ SpacerVariant.small } />
                         <AppText variant="body" style={ styles.summaryText }>{ tScience('fiveQuestions.intro') }</AppText>
                     </View>
@@ -182,7 +182,7 @@ export default function WhyFiveQuestionsScreen() {
                     <AppText variant="body">{ tScience('fiveQuestions.outro') }</AppText>
 
                     <Spacer variant={ SpacerVariant.large } />
-                    <AppText variant="h2">References</AppText>
+                    <AppText variant="h2">{ tScience('references') }</AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     <View
                         testID="rationale-references"

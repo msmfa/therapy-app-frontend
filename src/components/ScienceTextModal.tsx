@@ -31,13 +31,13 @@ export function ScienceTextModal({ type }: Props) {
                      should not have to get past a caveat to reach the answer. */ }
                 <View style={ styles.tldrPanel }>
                     <AppText variant="body" style={ styles.tldr }>
-                        <AppText variant="body" style={ styles.tldrLabel }>TLDR: </AppText>
+                        <AppText variant="body" style={ styles.tldrLabel }>{ t('tldrLabel') }</AppText>
                         { tldr }
                     </AppText>
                 </View>
 
                 <AppText variant="body" style={ styles.caveat }>
-                    This research explains the memory methods that inform the schedule.
+                    { t('caveat') }
                 </AppText>
                 <Spacer variant={ SpacerVariant.small } />
 

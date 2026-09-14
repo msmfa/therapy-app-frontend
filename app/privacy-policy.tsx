@@ -14,6 +14,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import dayjs from 'dayjs';
 import AppText from '../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { GlassCircleButton } from '../src/components/ui/GlassCircleButton';
@@ -21,7 +22,13 @@ import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 
-const EFFECTIVE_DATE = 'September 8, 2026';
+/**
+ * The date the policy took effect, as a date rather than as the words for one.
+ * It used to be the literal string 'September 8, 2026', which stayed English
+ * inside an otherwise French sentence. `LL` is dayjs's localized long date, so
+ * it follows the app's language with the rest of the dates.
+ */
+const EFFECTIVE_DATE = '2026-09-08';
 
 /**
  * The sections, in the order they are read. Numbered rather than named so a
@@ -80,7 +87,7 @@ export default function PrivacyPolicyScreen() {
                     <AppText variant='h1'>{ t('screen.privacyPolicy') }</AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     <AppText variant='body'>
-                        { tLegal('privacy.effectiveDate', { date: EFFECTIVE_DATE }) }
+                        { tLegal('privacy.effectiveDate', { date: dayjs(EFFECTIVE_DATE).format('LL') }) }
                     </AppText>
 
                     { SECTION_KEYS.map((key) => (

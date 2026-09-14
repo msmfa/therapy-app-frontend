@@ -12,6 +12,7 @@ import { GlassButtonOutline } from '../ui/GlassButtonOutline';
 import AppText from "../ui/AppText";
 import { COLOR_VARIANTS, THEME_COLORS } from 'designs/designs-colors';
 import { useTranslation } from 'react-i18next';
+import { formattingLocale } from '../../i18n';
 
 // Matches the cheatsheet's ink so the two paper screens read as a pair.
 const INK = 'hsl(219, 52%, 14%)';
@@ -140,12 +141,17 @@ export function NotePreviewModal({
 
     const noteDate = note ? (() => {
         const created = new Date(note.createdAt);
-        const weekday = created.toLocaleString('en-US', { weekday: 'long' }).toUpperCase();
+        // 'en-US' was hardcoded here, so a French note header read
+        // "THURSDAY at 7:15pm". The locale carries the 24-hour clock too, so
+        // the meridiem simply does not appear in French and the replace below
+        // finds nothing to do.
+        const locale = formattingLocale();
+        const weekday = created.toLocaleString(locale, { weekday: 'long' }).toUpperCase();
         const time = created
-            .toLocaleString('en-US', { hour: 'numeric', minute: '2-digit' })
+            .toLocaleString(locale, { hour: 'numeric', minute: '2-digit' })
             // The runtime puts a narrow no-break space before the meridiem.
             .replace(/\s*(AM|PM)$/i, (_match, meridiem: string) => meridiem.toLowerCase());
-        return `${weekday} at ${time}`;
+        return t('dateHeading', { weekday, time });
     })() : null;
 
     const errorMessage = error ? (
@@ -236,12 +242,12 @@ export function NotePreviewModal({
                                 disabled={ !note }
                                 activeOpacity={ 0.7 }
                             >
-                                <AppText style={ styles.headerAction } variant="body">edit</AppText>
+                                <AppText style={ styles.headerAction } variant="body">{ t('editor.edit') }</AppText>
                             </TouchableOpacity>
                         ) }
                     </View>
                     <AppText style={ styles.noteHeading } variant="h1">
-                        what was said
+                        { t('whatWasSaid') }
                     </AppText>
                     { isEditing ? (
                     /* No ScrollView here on purpose: a multiline TextInput is a

@@ -9,6 +9,7 @@ import AppText from 'src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
 import FrostedCard from "src/components/ui/FrostedCard";
+import { useTranslation } from 'react-i18next';
 
 type Props = {
     date: string;
@@ -17,6 +18,7 @@ type Props = {
 }
 
 export function ReminderRow ({ date, description, link }: Props) {
+    const { t: tCommon } = useTranslation('common');
     const [openModal, setOpenModal] = useState<ReminderType | null>(null);
 
     return (
@@ -41,7 +43,7 @@ export function ReminderRow ({ date, description, link }: Props) {
                     </View>
                     <View style={ styles.bottomContainer }>
                         <AppText variant="caption">
-                            Learn More
+                            { tCommon('action.learnMore') }
                         </AppText>
                         <Ionicons name={ 'arrow-forward-outline' } size={ 20 } color={ COLOR_VARIANTS.black.quaternary } />
                     </View>

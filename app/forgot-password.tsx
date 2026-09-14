@@ -121,10 +121,10 @@ export default function ForgotPasswordScreen() {
                             { step === 'request' && (
                                 <View style={ styles.content }>
                                     <AppText style={ styles.title } variant='h2'>
-                                        Forgot password
+                                        { t('forgot.requestTitle') }
                                     </AppText>
                                     <AppText style={ styles.subtitle } variant='body'>
-                                        Enter your account email. We will send you a reset code.
+                                        { t('forgot.requestSubtitle') }
                                     </AppText>
 
                                     <TextField
@@ -151,10 +151,10 @@ export default function ForgotPasswordScreen() {
                             { step === 'reset' && (
                                 <View style={ styles.content }>
                                     <AppText style={ styles.title } variant='body'>
-                                        Check your email
+                                        { t('forgot.checkEmailTitle') }
                                     </AppText>
                                     <AppText style={ styles.subtitle } variant='body'>
-                                        Paste the reset code and choose a new password.
+                                        { t('forgot.resetSubtitle') }
                                     </AppText>
                                     <TextField
                                         label={ t('field.resetCode') }
@@ -200,10 +200,10 @@ export default function ForgotPasswordScreen() {
                             { step === 'done' && (
                                 <View style={ styles.content }>
                                     <AppText style={ styles.title } variant='body'>
-                                        Password updated
+                                        { t('forgot.doneTitle') }
                                     </AppText>
                                     <AppText style={ styles.subtitle } variant='body'>
-                                        Your password has been reset. Sign in with your new password to continue.
+                                        { t('forgot.doneSubtitle') }
                                     </AppText>
 
                                     <Button label={ t('forgot.backToSignIn') } onPress={ handleReturnToLogin } />
