@@ -117,6 +117,14 @@ import AccountPreviewScreen from '../(onboarding)/account-preview';
 
 describe('the account step', () => {
     beforeEach(() => {
+        // A fixed clock, because the fixture below pins the session to a real
+        // calendar date and the screen redirects to the session-date step for
+        // anything not still ahead. Without this the suite passed until that
+        // moment arrived and then failed for everyone, which is exactly what
+        // happened: it went red on 14 September 2026 at 18:00 having been
+        // green all morning. The same date the calendar-window suite uses.
+        jest.useFakeTimers();
+        jest.setSystemTime(new Date(2026, 8, 5, 12));
         // This copy fixture uses UK date order; keep the test independent of the host locale.
         jest.spyOn(Intl, 'DateTimeFormat').mockImplementation((locales, options) =>
             new systemDateTimeFormat(locales ?? 'en-GB', options));
@@ -127,7 +135,7 @@ describe('the account step', () => {
         mockEntitlement = { status: 'inactive' };
         mockAnswers = {
             goal: 'prepare',
-            // A Monday.
+            // A Monday, and ahead of the fixed clock above.
             sessionAt: new Date(2026, 8, 14, 18, 0, 0, 0),
             sessionDateSkipped: false,
             cadence: 'weekly',
@@ -140,7 +148,10 @@ describe('the account step', () => {
         };
     });
 
-    afterEach(() => { jest.restoreAllMocks(); });
+    afterEach(() => {
+        jest.restoreAllMocks();
+        jest.useRealTimers();
+    });
 
     it('shows what the account will hold: the session, the times and the plan with its price', () => {
         const { getByText } = render(<AccountPreviewScreen />);
