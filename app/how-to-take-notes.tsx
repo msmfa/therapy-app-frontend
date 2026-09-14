@@ -1,3 +1,7 @@
+/**
+ * The write-up below is deliberately English-only. See
+ * src/i18n/englishOnly.ts.
+ */
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Linking, StyleSheet, View } from 'react-native';
@@ -10,6 +14,7 @@ import { GlassCircleButton } from '../src/components/ui/GlassCircleButton';
 import { TemplateHelpModal } from '../src/components/notes/TemplateHelpModal';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { DottedGrid } from '../src/components/ui/DottedGrid';
+import { useTranslation } from 'react-i18next';
 // Named @3x so React Native reads the 1290x2060 capture as 430x687 points
 // rather than treating device pixels as points and rendering it oversized.
 const CHEATSHEET = require('../assets/illustrations/cheatsheet-preview.webp') as ImageSourcePropType;
@@ -20,6 +25,7 @@ const CHEATSHEET_RATIO = 1290 / 2060;
 const RESEARCH_URL = 'https://www.plastic-brains.com/after-therapy-note-template/';
 
 export default function HowToTakeNotesScreen() {
+    const { t } = useTranslation('common');
     const router = useRouter();
     const [helpVisible, setHelpVisible] = React.useState(false);
 
@@ -40,7 +46,7 @@ export default function HowToTakeNotesScreen() {
 
             <View style={ styles.header }>
                 <GlassCircleButton
-                    accessibilityLabel="Back"
+                    accessibilityLabel={ t('action.back') }
                     icon="back"
                     iconColor={ COLOR_VARIANTS.black.primary }
                     size={ 48 }

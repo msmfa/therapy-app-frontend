@@ -73,7 +73,7 @@ jest.mock('../../src/components/onboarding/OnboardingScreen', () => {
 });
 
 import NotePreviewScreen from '../(onboarding)/note-preview';
-import { GOAL_OPTIONS, NOTE_PREVIEW_COPY } from '../../src/features/onboarding/onboardingCopy';
+import { goalOptions, notePreviewCopy } from '../../src/features/onboarding/onboardingCopy';
 
 describe('onboarding note preview', () => {
     beforeEach(() => {
@@ -87,15 +87,15 @@ describe('onboarding note preview', () => {
         const { getByText } = render(<NotePreviewScreen />);
 
         expect(getByText('Your notes')).toBeTruthy();
-        expect(NOTE_PREVIEW_COPY.headline).toBe('Your notes');
+        expect(notePreviewCopy().headline).toBe('Your notes');
     });
 
     it('keeps the encryption note above the notes image', () => {
         mockGoal = 'practise';
         const { getByText, getByLabelText } = render(<NotePreviewScreen />);
 
-        expect(getByText(NOTE_PREVIEW_COPY.privacyTitle)).toBeTruthy();
-        expect(getByText(NOTE_PREVIEW_COPY.privacyBody)).toBeTruthy();
+        expect(getByText(notePreviewCopy().privacyTitle)).toBeTruthy();
+        expect(getByText(notePreviewCopy().privacyBody)).toBeTruthy();
         expect(
             getByLabelText('A list of past therapy notes, each with the date of its session'),
         ).toBeTruthy();
@@ -149,7 +149,7 @@ describe('onboarding note preview', () => {
     it('says the chosen goal back, with what the notes do for it', () => {
         const { getByText } = render(<NotePreviewScreen />);
 
-        const goal = GOAL_OPTIONS.find((option) => option.id === 'prepare')!;
+        const goal = goalOptions().find((option) => option.id === 'prepare')!;
         // Said back in the second person: the option is worded as the user
         // choosing it, which is wrong once the app is repeating it to them.
         expect(getByText(goal.restated)).toBeTruthy();
@@ -194,7 +194,7 @@ describe('onboarding note preview', () => {
 
         const { queryByText } = render(<NotePreviewScreen />);
 
-        const goal = GOAL_OPTIONS.find((option) => option.id === 'prepare')!;
+        const goal = goalOptions().find((option) => option.id === 'prepare')!;
         expect(queryByText(goal.restated)).toBeNull();
     });
 

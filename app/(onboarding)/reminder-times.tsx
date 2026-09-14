@@ -10,7 +10,7 @@ import { onboardingStyles } from '../../src/components/onboarding/onboardingStyl
 import { QuoteCard } from '../../src/components/onboarding/QuoteCard';
 import { GlassPickerPanel } from '../../src/components/ui/GlassPickerPanel';
 import { DottedDivider } from '../../src/components/ui/DottedDivider';
-import { REMINDER_TIMES_COPY } from '../../src/features/onboarding/onboardingCopy';
+import { reminderTimesCopy } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { dateToMinutes, minutesToDate, timeLabel } from '../../src/features/onboarding/formatting';
 import { TIME_PICKER_BOUNDS } from '../../src/utils/timePickerBounds';
@@ -57,13 +57,13 @@ export default function ReminderTimesScreen() {
     }[] = [
         {
             slot: 'morning',
-            label: REMINDER_TIMES_COPY.morningLabel,
+            label: reminderTimesCopy().morningLabel,
             value: morningValue,
             onChange: onMorningChange,
         },
         {
             slot: 'evening',
-            label: REMINDER_TIMES_COPY.eveningLabel,
+            label: reminderTimesCopy().eveningLabel,
             value: eveningValue,
             onChange: onEveningChange,
         },
@@ -74,11 +74,11 @@ export default function ReminderTimesScreen() {
             analyticsStep="reminder_times"
             step={ 4 }
             backHref="/(onboarding)/session-cadence"
-            headline={ REMINDER_TIMES_COPY.headline }
-            supporting={ REMINDER_TIMES_COPY.supporting }
+            headline={ reminderTimesCopy().headline }
+            supporting={ reminderTimesCopy().supporting }
             footer={
                 <OnboardingButton
-                    label={ REMINDER_TIMES_COPY.primaryCta }
+                    label={ reminderTimesCopy().primaryCta }
                     onPress={ () => router.push('/(onboarding)/plan-preview') }
                 />
             }
@@ -128,9 +128,9 @@ export default function ReminderTimesScreen() {
 
             <View style={ styles.quote }>
                 <QuoteCard
-                    quote={ REMINDER_TIMES_COPY.testimonial.quote }
-                    name={ REMINDER_TIMES_COPY.testimonial.name }
-                    role={ REMINDER_TIMES_COPY.testimonial.role }
+                    quote={ reminderTimesCopy().testimonial.quote }
+                    name={ reminderTimesCopy().testimonial.name }
+                    role={ reminderTimesCopy().testimonial.role }
                 />
             </View>
 

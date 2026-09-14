@@ -4,6 +4,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import type { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { Linking } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 
 import { getCurrentUserSettings, updateCurrentUser } from '../src/api/users';
 import { SettingsRow } from '../src/components/SettingsRow';
@@ -25,6 +26,7 @@ import { TIME_PICKER_BOUNDS } from '../src/utils/timePickerBounds';
 import { ACTION_ORANGE, COLOR_VARIANTS, PALETTE, TEXT_COLORS } from '../designs/designs-colors';
 import { GlassPickerPanel } from '../src/components/ui/GlassPickerPanel';
 import { DottedDivider } from '../src/components/ui/DottedDivider';
+import { formattingLocale } from '../src/i18n';
 
 type Slot = 'morning' | 'evening';
 type NotificationStatus = 'checking' | 'on' | 'off';
@@ -32,6 +34,8 @@ type NotificationStatus = 'checking' | 'on' | 'off';
 export default function ReminderSettingsScreen() {
     const router = useRouter();
     const { showAlert } = useAppAlert();
+    const { t } = useTranslation('reminderSettings');
+    const { t: tCommon } = useTranslation('common');
     const { refreshReminderSchedule } = useTherapySessions();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -65,7 +69,7 @@ export default function ReminderSettingsScreen() {
             .catch(() => {
                 if (cancelled) return;
                 setNotificationStatus('off');
-                showAlert("We couldn't load reminder settings", 'Please try again.');
+                showAlert(t('loadFailed'), tCommon('error.tryAgain'));
             })
             .finally(() => {
                 if (!cancelled) setLoading(false);
@@ -79,7 +83,7 @@ export default function ReminderSettingsScreen() {
             cancelled = true;
             subscription.remove();
         };
-    }, [refreshPermission, showAlert]);
+    }, [refreshPermission, showAlert, t, tCommon]);
 
     const enableNotifications = useCallback(async () => {
         try {
@@ -94,13 +98,13 @@ export default function ReminderSettingsScreen() {
             if (permission.granted) {
                 const registration = await ensurePushRegistration({ entryPoint: 'settings' });
                 if (registration.status === 'failed') {
-                    showAlert("We couldn't enable reminders", 'Please try again when you are online.');
+                    showAlert(t('enableFailed'), t('enableFailedMessage'));
                 }
             }
         } catch {
-            showAlert("We couldn't update notification access", 'Please try again.');
+            showAlert(t('permissionFailed'), tCommon('error.tryAgain'));
         }
-    }, [notificationStatus, showAlert]);
+    }, [notificationStatus, showAlert, t, tCommon]);
 
     const change = useCallback(
         (slot: Slot) => (event: DateTimePickerEvent, picked?: Date) => {
@@ -130,13 +134,13 @@ export default function ReminderSettingsScreen() {
             // changed without sessions changing, so invalidate that cache
             // explicitly and let it fetch the updated schedule.
             await refreshReminderSchedule();
-            showAlert('Reminder times updated', 'Your future reviews will use these times.');
+            showAlert(t('saved'), t('savedMessage'));
         } catch {
-            showAlert("We couldn't update reminder times", 'Please try again.');
+            showAlert(t('saveFailed'), tCommon('error.tryAgain'));
         } finally {
             setSaving(false);
         }
-    }, [eveningMinutes, morningMinutes, refreshReminderSchedule, saving, showAlert]);
+    }, [eveningMinutes, morningMinutes, refreshReminderSchedule, saving, showAlert, t, tCommon]);
 
     if (loading) {
         return <Loading fullScreen />;
@@ -145,22 +149,21 @@ export default function ReminderSettingsScreen() {
     const rows: { slot: Slot; label: string; minutes: number }[] = [
         {
             slot: 'morning',
-            label: 'Morning reviews',
+            label: t('morning'),
             minutes: morningMinutes,
         },
         {
             slot: 'evening',
-            label: 'Evening reviews',
+            label: t('evening'),
             minutes: eveningMinutes,
         },
     ];
 
     return (
-        <SettingsPageShell title="Reminder settings" onBack={ () => router.back() }>
+        <SettingsPageShell title={ t('title') } onBack={ () => router.back() }>
             <FrostedCard contentStyle={ styles.card }>
                 <AppText variant="body" style={ styles.intro }>
-                    Choose when short reviews fit your routine. Your note prompt still arrives
-                    shortly after each therapy session.
+                    { t('intro') }
                 </AppText>
 
                 <View style={ styles.timeRows }>
@@ -185,7 +188,12 @@ export default function ReminderSettingsScreen() {
                                             mode="time"
                                             display="compact"
                                             themeVariant="light"
-                                            accessibilityLabel={ `${row.label}, ${timeLabel(value)}` }
+                                            // Apple's control reads the device
+                                            // locale by default, which would
+                                            // show an AM/PM dial next to French
+                                            // copy on an English phone.
+                                            locale={ formattingLocale() }
+                                            accessibilityLabel={ t('a11yTime', { label: row.label, time: timeLabel(value) }) }
                                             onChange={ change(row.slot) }
                                         />
                                     ) : (
@@ -203,12 +211,14 @@ export default function ReminderSettingsScreen() {
 
                 <View style={ styles.notificationSection }>
                     <SettingsRow
-                        text={ `Notification permissions: ${notificationStatus === 'on' ? 'On' : 'Off'}` }
+                        text={ t('permissions', {
+                            state: notificationStatus === 'on' ? t('permissionOn') : t('permissionOff'),
+                        }) }
                         onPress={ () => { void enableNotifications(); } }
                     />
                 </View>
 
-                <Button label="Save reminder times" loading={ saving } onPress={ () => void save() } />
+                <Button label={ t('save') } loading={ saving } onPress={ () => void save() } />
             </FrostedCard>
 
             { androidSlot !== null && (
@@ -216,6 +226,7 @@ export default function ReminderSettingsScreen() {
                     <DateTimePicker
                         { ...TIME_PICKER_BOUNDS }
                         accentColor={ ACTION_ORANGE }
+                        locale={ formattingLocale() }
                         value={ minutesToDate(
                             androidSlot === 'morning' ? morningMinutes : eveningMinutes,
                         ) }

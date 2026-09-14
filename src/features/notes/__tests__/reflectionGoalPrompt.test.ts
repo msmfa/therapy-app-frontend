@@ -1,4 +1,4 @@
-import { DEFAULT_NOTE_PROMPT, isGoalId, notePromptForGoal } from '../reflectionGoalPrompt';
+import { defaultNotePrompt, isGoalId, notePromptForGoal } from '../reflectionGoalPrompt';
 
 describe('reflectionGoalPrompt', () => {
 	it.each([
@@ -14,7 +14,7 @@ describe('reflectionGoalPrompt', () => {
 	it.each([undefined, null, '', 'unknown', 1])(
 		'keeps the generic prompt for an invalid legacy value (%p)',
 		(goal) => {
-			expect(notePromptForGoal(goal)).toBe(DEFAULT_NOTE_PROMPT);
+			expect(notePromptForGoal(goal)).toBe(defaultNotePrompt());
 			expect(isGoalId(goal)).toBe(false);
 		},
 	);

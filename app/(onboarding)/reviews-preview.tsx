@@ -9,7 +9,7 @@ import { onboardingStyles } from '../../src/components/onboarding/onboardingStyl
 import { PlanTimeline } from '../../src/components/onboarding/PlanTimeline';
 import {
     evidenceStatement,
-    REVIEWS_PREVIEW_COPY,
+    reviewsPreviewCopy,
 } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { planTimeline } from '../../src/features/onboarding/planTimeline';
@@ -47,9 +47,9 @@ export default function ReviewsPreviewScreen() {
     const previewCadence = hasKnownGap ? answers.cadence : 'weekly';
 
     const exampleNote = !hasKnownGap
-        ? REVIEWS_PREVIEW_COPY.exampleGapNote
+        ? reviewsPreviewCopy().exampleGapNote
         : isSamplePlan
-            ? REVIEWS_PREVIEW_COPY.sampleNote
+            ? reviewsPreviewCopy().sampleNote
             : null;
 
     // The first entry is the note itself and stays on the previous screen.
@@ -68,12 +68,12 @@ export default function ReviewsPreviewScreen() {
         <OnboardingScreen
             analyticsStep="reviews_preview"
             backHref="/(onboarding)/plan-preview"
-            headline={ REVIEWS_PREVIEW_COPY.headline }
+            headline={ reviewsPreviewCopy().headline }
             supporting={ evidenceStatement(answers.goal) }
             supportingAppearance="banner"
             footer={
                 <OnboardingButton
-                    label={ REVIEWS_PREVIEW_COPY.primaryCta }
+                    label={ reviewsPreviewCopy().primaryCta }
                     onPress={ () => router.push('/(onboarding)/note-preview') }
                 />
             }

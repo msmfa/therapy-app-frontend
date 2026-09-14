@@ -7,9 +7,10 @@ import AppText from '../ui/AppText';
 import Spacer, { SpacerVariant } from '../ui/Spacer';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 import {
-    POST_THERAPY_QUESTIONS,
-    POST_THERAPY_TEMPLATE_INTRO,
+    postTherapyQuestions,
+    postTherapyTemplateIntro,
 } from '../../constants/postTherapyTemplate';
+import { useTranslation } from 'react-i18next';
 
 type TemplateHelpModalProps = {
     visible: boolean;
@@ -28,6 +29,8 @@ const INK_SOFT = 'hsla(219, 52%, 14%, 0.68)';
 const H_PADDING = 30;
 
 export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) {
+    const { t } = useTranslation('notes');
+    const { t: tCommon } = useTranslation('common');
     const insets = useSafeAreaInsets();
 
     return (
@@ -49,15 +52,15 @@ export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) 
                     <TouchableOpacity
                         onPress={ onClose }
                         accessibilityRole="button"
-                        accessibilityLabel="Back"
+                        accessibilityLabel={ tCommon('action.back') }
                         style={ styles.backButton }
                         activeOpacity={ 0.7 }
                     >
                         <Feather name="arrow-left" size={ 22 } color={ INK } />
                     </TouchableOpacity>
                     <AppText variant="h1" style={ styles.headerWordSans }>
-                        Cheat
-                        <AppText variant="h1" style={ styles.headerWordSerif }>sheet</AppText>
+                        { t('cheatsheet.titleSans') }
+                        <AppText variant="h1" style={ styles.headerWordSerif }>{ t('cheatsheet.titleSerif') }</AppText>
                     </AppText>
                 </View>
                 <ScrollView
@@ -66,12 +69,12 @@ export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) 
                     showsVerticalScrollIndicator={ false }
                 >
                     <AppText variant="body" style={ styles.intro }>
-                        { POST_THERAPY_TEMPLATE_INTRO }
+                        { postTherapyTemplateIntro() }
                     </AppText>
 
                     <Spacer variant={ SpacerVariant.large } />
                     <View style={ styles.questionList }>
-                        { POST_THERAPY_QUESTIONS.map((item) => (
+                        { postTherapyQuestions().map((item) => (
                             <View key={ item.question }>
                                 <AppText variant="h3" style={ styles.questionText }>
                                     { item.question }

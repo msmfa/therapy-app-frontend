@@ -1,34 +1,28 @@
+import { t } from '../i18n/translate';
+
 export type TemplateQuestion = {
     question: string;
     hint: string;
 };
 
-export const POST_THERAPY_TEMPLATE_TITLE = 'Your five-minute therapy note';
+/**
+ * The cheatsheet's five questions.
+ *
+ * Functions rather than the constants they used to be. A module-level array
+ * would be built at import time, before the stored language preference has been
+ * read, so the template would have been fixed in the device's language for the
+ * life of the process.
+ */
+export const postTherapyTemplateTitle = (): string => t('notes:template.title');
 
-export const POST_THERAPY_TEMPLATE_SUBTITLE = 'Five questions to capture what mattered';
+export const postTherapyTemplateSubtitle = (): string => t('notes:template.subtitle');
 
-export const POST_THERAPY_TEMPLATE_INTRO =
-    'Write as much or as little as feels useful. This is your private note, not a record you need to make perfect.';
+export const postTherapyTemplateIntro = (): string => t('notes:template.intro');
 
-export const POST_THERAPY_QUESTIONS: TemplateQuestion[] = [
-    {
-        question: 'What stayed with you from today’s session?',
-        hint: 'An idea, phrase, realisation or moment you do not want to lose.',
-    },
-    {
-        question: 'What situation, thought or feeling do you want to notice this week?',
-        hint: 'Something connected to what you discussed, if there is one.',
-    },
-    {
-        question: 'What did you understand differently?',
-        hint: 'Keep this in your own words.',
-    },
-    {
-        question: 'Is there anything you want to try or remember?',
-        hint: 'Leave this blank if nothing was agreed or suggested.',
-    },
-    {
-        question: 'What do you want to return to in your next session?',
-        hint: 'One subject is enough.',
-    },
-];
+const QUESTION_INDEXES = [1, 2, 3, 4, 5] as const;
+
+export const postTherapyQuestions = (): TemplateQuestion[] =>
+    QUESTION_INDEXES.map((index) => ({
+        question: t(`notes:template.q${index}`),
+        hint: t(`notes:template.h${index}`),
+    }));

@@ -13,7 +13,7 @@ import {
     TEXT_COLORS,
 } from 'designs/designs-colors';
 import { onboardingStyles } from './onboardingStyles';
-import { SUBSCRIPTION_COPY } from '../../features/onboarding/onboardingCopy';
+import { subscriptionCopy } from '../../features/onboarding/onboardingCopy';
 
 type Props = {
     title: string;
@@ -140,7 +140,7 @@ export function SubscriptionPlanCard({
                  under the button, "Cancel anytime" was a reassurance about a
                  sentence the reader had already passed. */ }
             <AppText variant="caption" style={ [styles.renewal, selected && styles.onAccentSoftest] }>
-                { `${renewalLine} ${SUBSCRIPTION_COPY.cancelAnytime}.` }
+                { `${renewalLine} ${subscriptionCopy().cancelAnytime}.` }
             </AppText>
         </TouchableOpacity>
     );

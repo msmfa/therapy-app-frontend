@@ -10,7 +10,7 @@ import {
 } from '../OnboardingScreen';
 import { OnboardingButton as Button } from '../OnboardingButton';
 import { NoteTemplateSheet } from '../NoteTemplateSheet';
-import { POST_THERAPY_QUESTIONS } from '../../../constants/postTherapyTemplate';
+import { postTherapyQuestions } from '../../../constants/postTherapyTemplate';
 
 jest.mock('expo-router', () => ({
     useRouter: () => ({ canGoBack: () => true, back: jest.fn(), replace: jest.fn() }),
@@ -204,10 +204,10 @@ describe('Note preview questions', () => {
 		const { getByLabelText } = render(<NoteTemplateSheet />);
 
 		expect(
-			getByLabelText(`Question 1 of 5. ${POST_THERAPY_QUESTIONS[0].question}`),
+			getByLabelText(`Question 1 of 5. ${postTherapyQuestions()[0].question}`),
 		).toBeTruthy();
 		expect(
-			getByLabelText(`Question 2 of 5. ${POST_THERAPY_QUESTIONS[1].question}`),
+			getByLabelText(`Question 2 of 5. ${postTherapyQuestions()[1].question}`),
 		).toBeTruthy();
 	});
 });

@@ -105,3 +105,10 @@ jest.mock(
 // have to arrange, so use the library's own mock (insets all zero).
 jest.mock('react-native-safe-area-context', () =>
     require('react-native-safe-area-context/jest/mock').default);
+
+// i18next is initialised at import time, and in the app that happens through
+// app/_layout.tsx before any screen mounts. A component test renders a single
+// component with no root layout above it, so without this the instance never
+// exists and react-i18next's useTranslation returns the key itself: an
+// assertion on "Back" fails against the string "action.back".
+require('./src/i18n');

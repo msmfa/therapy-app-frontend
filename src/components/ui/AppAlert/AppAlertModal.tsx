@@ -6,6 +6,7 @@ import Spacer, { SpacerVariant } from '../Spacer';
 import ErrorGradients from '../ErrorGradients';
 import { Button } from '../Button';
 import { AppAlertOptions } from 'src/context/alert/types';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
     title: string;
@@ -15,6 +16,7 @@ type Props = {
 };
 
 export function AppAlertModal({ title, message, options, onRequestClose }: Props) {
+    const { t } = useTranslation('common');
     const primaryAction = options?.primaryAction;
     const secondaryAction = options?.secondaryAction;
 
@@ -48,7 +50,7 @@ export function AppAlertModal({ title, message, options, onRequestClose }: Props
                     activeOpacity={ 1 }
                     onPress={ onRequestClose }
                     accessibilityRole='button'
-                    accessibilityLabel='Dismiss alert'
+                    accessibilityLabel={ t('a11y.dismissAlert') }
                 />
 
                 <View
@@ -94,7 +96,7 @@ export function AppAlertModal({ title, message, options, onRequestClose }: Props
                             </>
                         ) : null }
                         <Button
-                            label='Close'
+                            label={ t('a11y.close') }
                             onPress={ onRequestClose }
                             transparent={ Boolean(primaryAction) }
                         />

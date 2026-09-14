@@ -5,10 +5,10 @@ import type { StyleProp, ViewStyle } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
 import AppText from '../ui/AppText';
 import {
-    POST_THERAPY_QUESTIONS,
-    POST_THERAPY_TEMPLATE_INTRO,
-    POST_THERAPY_TEMPLATE_SUBTITLE,
-    POST_THERAPY_TEMPLATE_TITLE,
+    postTherapyQuestions,
+    postTherapyTemplateIntro,
+    postTherapyTemplateSubtitle,
+    postTherapyTemplateTitle,
 } from '../../constants/postTherapyTemplate';
 import { remainingQuestions } from '../../features/onboarding/onboardingCopy';
 
@@ -27,7 +27,7 @@ const QUESTIONS_SHOWN = 2;
  * beneath them are hidden as decoration.
  */
 export function NoteTemplateSheet({ style }: { style?: StyleProp<ViewStyle> }) {
-    const shown = POST_THERAPY_QUESTIONS.slice(0, QUESTIONS_SHOWN);
+    const shown = postTherapyQuestions().slice(0, QUESTIONS_SHOWN);
 
     return (
         <ImageBackground
@@ -37,14 +37,14 @@ export function NoteTemplateSheet({ style }: { style?: StyleProp<ViewStyle> }) {
             style={ [styles.sheet, style] }
         >
             <AppText variant="h2" style={ styles.sheetTitle } accessibilityRole="header">
-                { POST_THERAPY_TEMPLATE_TITLE }
+                { postTherapyTemplateTitle() }
             </AppText>
             <AppText variant="caption" style={ styles.sheetSubtitle }>
-                { POST_THERAPY_TEMPLATE_SUBTITLE }
+                { postTherapyTemplateSubtitle() }
             </AppText>
 
             <AppText variant="body" style={ styles.sheetIntro }>
-                { POST_THERAPY_TEMPLATE_INTRO }
+                { postTherapyTemplateIntro() }
             </AppText>
 
             <View style={ styles.questions }>
@@ -53,7 +53,7 @@ export function NoteTemplateSheet({ style }: { style?: StyleProp<ViewStyle> }) {
                         key={ item.question }
                         style={ styles.question }
                         accessible
-                        accessibilityLabel={ `Question ${index + 1} of ${POST_THERAPY_QUESTIONS.length}. ${item.question}` }
+                        accessibilityLabel={ `Question ${index + 1} of ${postTherapyQuestions().length}. ${item.question}` }
                     >
                         <AppText
                             variant="caption"
@@ -75,7 +75,7 @@ export function NoteTemplateSheet({ style }: { style?: StyleProp<ViewStyle> }) {
             </View>
 
             <AppText variant="caption" style={ styles.more }>
-                { remainingQuestions(QUESTIONS_SHOWN, POST_THERAPY_QUESTIONS.length) }
+                { remainingQuestions(QUESTIONS_SHOWN, postTherapyQuestions().length) }
             </AppText>
         </ImageBackground>
     );

@@ -1,10 +1,10 @@
 import {
-	PURCHASE_COPY,
-	GOAL_COPY,
-	GOAL_OPTIONS,
-	REMINDER_TIMES_COPY,
-	SUBSCRIPTION_COPY,
-	SUCCESS_COPY,
+	purchaseCopy,
+	goalCopy,
+	goalOptions,
+	reminderTimesCopy,
+	subscriptionCopy,
+	successCopyStrings,
 	notificationsHeadline,
 	planCtaLabel,
 	planPriceLine,
@@ -16,8 +16,8 @@ import {
 
 describe('goal copy', () => {
 	it('asks one clear outcome question and offers the three intended choices', () => {
-		expect(GOAL_COPY.headline).toBe('What would help you get more from therapy?');
-		expect(GOAL_OPTIONS.map(({ label }) => label)).toEqual([
+		expect(goalCopy().headline).toBe('What would help you get more from therapy?');
+		expect(goalOptions().map(({ label }) => label)).toEqual([
 			'Put therapy insights into practice',
 			'Be better prepared for my next session',
 			'Track my progress over time',
@@ -39,8 +39,8 @@ describe('successCopy', () => {
 	it('never claims a reminder that was not scheduled', () => {
 		const { headline, body } = successCopy(false, 'Tuesday', '8:00 pm');
 
-		expect(headline).toBe(SUCCESS_COPY.headline);
-		expect(body).toBe(SUCCESS_COPY.withoutRemindersBody);
+		expect(headline).toBe(successCopyStrings().headline);
+		expect(body).toBe(successCopyStrings().withoutRemindersBody);
 		expect(body).not.toMatch(/reminder is set/);
 		expect(body).not.toMatch(/Tuesday/);
 	});
@@ -48,8 +48,8 @@ describe('successCopy', () => {
 
 describe('subscription offer copy', () => {
 	it('describes renewal only when a trial runs first', () => {
-		expect(planRenewalLine('annual', true)).toBe(SUBSCRIPTION_COPY.annualRenewal);
-		expect(planRenewalLine('monthly', true)).toBe(SUBSCRIPTION_COPY.monthlyRenewal);
+		expect(planRenewalLine('annual', true)).toBe(subscriptionCopy().annualRenewal);
+		expect(planRenewalLine('monthly', true)).toBe(subscriptionCopy().monthlyRenewal);
 		expect(planRenewalLine('annual', true)).not.toMatch(/today/i);
 		expect(planRenewalLine('monthly', true)).not.toMatch(/today/i);
 	});
@@ -76,8 +76,8 @@ describe('subscription offer copy', () => {
 
 describe('purchase copy', () => {
 	it('does not describe a cancellation as a failure', () => {
-		expect(PURCHASE_COPY.cancelledTitle).not.toMatch(/couldn't|error|failed/i);
-		expect(PURCHASE_COPY.errorTitle).toMatch(/couldn't/);
+		expect(purchaseCopy().cancelledTitle).not.toMatch(/couldn't|error|failed/i);
+		expect(purchaseCopy().errorTitle).toMatch(/couldn't/);
 	});
 });
 
@@ -85,8 +85,8 @@ describe('reminder-time copy', () => {
 	it('does not imply the time preferences control the post-session note', () => {
 		// The rows set when reviews arrive, never when the note itself is
 		// prompted for, and their labels keep that distinction explicit.
-		expect(REMINDER_TIMES_COPY.morningLabel).toBe('Morning reviews');
-		expect(REMINDER_TIMES_COPY.eveningLabel).toBe('Evening reviews');
+		expect(reminderTimesCopy().morningLabel).toBe('Morning reviews');
+		expect(reminderTimesCopy().eveningLabel).toBe('Evening reviews');
 		expect(notificationsHeadline('Tuesday', '6:00 pm')).toBe(
 			'Get your first note reminder Tuesday at 6:00 pm',
 		);

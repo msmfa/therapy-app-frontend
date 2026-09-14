@@ -7,6 +7,8 @@ import { CALENDAR_COLORS, CALENDAR_DARK_COLORS, COLOR_VARIANTS } from 'designs/d
 import { DarkCalendarDay, DarkDayKind } from './DarkCalendarDay';
 import { getSessionsWindow, isWithinSessionsWindow } from '../../utils/sessionWindow';
 import { calendarSessionDates, WEEKLY_REPEAT_COUNT } from '../../features/therapy-sessions/calendarSchedule';
+import { applyCalendarLocale } from './calendarLocale';
+import { formattingLocale } from '../../i18n';
 
 export const COLORS = {
     todayBackground: CALENDAR_COLORS.todayBackground,
@@ -140,6 +142,9 @@ export default function TherapyCalendar({
     hideExtraDays = true,
     variant = 'light',
 }: TherapyCalendarProps) {
+    // Before the calendar renders, so its header is in the app's language
+    // rather than the library's built-in English.
+    applyCalendarLocale(formattingLocale());
     const [activeDateKey, setActiveDateKey] = useState<string | null>(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [activeSessionKey, setActiveSessionKey] = useState<string | null>(null);

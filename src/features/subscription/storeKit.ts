@@ -26,6 +26,7 @@ import type {
     ProductSubscriptionIOS,
     Purchase,
 } from 'expo-iap';
+import { formattingLocale } from '../../i18n';
 
 export { PRODUCT_IDS };
 
@@ -267,7 +268,10 @@ const formatMonthlyEquivalent = (product: ProductSubscriptionIOS): string | null
     if (typeof product.price !== 'number' || !Number.isFinite(product.price)) return null;
 
     try {
-        return new Intl.NumberFormat(undefined, {
+        // The app's locale, not the device's: a user reading French copy
+        // should see "6,67 €" rather than "€6.67". The currency itself comes
+        // from StoreKit and is not ours to change.
+        return new Intl.NumberFormat(formattingLocale(), {
             style: 'currency',
             currency: product.currency,
         }).format(product.price / 12);

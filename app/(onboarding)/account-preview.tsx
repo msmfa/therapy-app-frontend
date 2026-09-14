@@ -15,7 +15,7 @@ import {
     consumePendingOnboardingStep,
     setPendingOnboardingStep,
 } from '../../src/features/onboarding/authReturn';
-import { ACCOUNT_COPY, PURCHASE_COPY } from '../../src/features/onboarding/onboardingCopy';
+import { accountCopy, purchaseCopy } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { purchase } from '../../src/features/subscription/storeKit';
 import { useSubscriptionOffer } from '../../src/features/subscription/useSubscriptionOffer';
@@ -110,14 +110,14 @@ export default function AccountPreviewScreen() {
         if (result.status === 'cancelled') {
             setStage('account');
             // Backing out is not an error, and says so.
-            showAlert(PURCHASE_COPY.cancelledTitle, PURCHASE_COPY.cancelled);
+            showAlert(purchaseCopy().cancelledTitle, purchaseCopy().cancelled);
             router.replace('/(onboarding)/subscription-preview');
             return;
         }
 
         if (result.status === 'pending') {
             setStage('account');
-            showAlert(PURCHASE_COPY.pendingTitle, PURCHASE_COPY.pending);
+            showAlert(purchaseCopy().pendingTitle, purchaseCopy().pending);
             return;
         }
 
@@ -187,12 +187,12 @@ export default function AccountPreviewScreen() {
         const failedCopy =
             stage === 'purchase_unlinked'
                 ? {
-                    headline: PURCHASE_COPY.unlinkedTitle,
-                    body: PURCHASE_COPY.unlinkedBody,
+                    headline: purchaseCopy().unlinkedTitle,
+                    body: purchaseCopy().unlinkedBody,
                 }
                 : {
-                    headline: PURCHASE_COPY.errorTitle,
-                    body: PURCHASE_COPY.errorBody,
+                    headline: purchaseCopy().errorTitle,
+                    body: purchaseCopy().errorBody,
                 };
 
         return (
@@ -204,11 +204,11 @@ export default function AccountPreviewScreen() {
                 footer={
                     <>
                         <OnboardingButton
-                            label={ PURCHASE_COPY.errorPrimary }
+                            label={ purchaseCopy().errorPrimary }
                             onPress={ () => void startPurchase() }
                         />
                         <OnboardingButton
-                            label={ PURCHASE_COPY.errorSecondary }
+                            label={ purchaseCopy().errorSecondary }
                             transparent
                             onPress={ () => router.replace('/(onboarding)/subscription-preview') }
                         />
@@ -223,10 +223,10 @@ export default function AccountPreviewScreen() {
             analyticsStep="account_preview"
             backHref="/(onboarding)/subscription-preview"
             interactionDisabled={ busy }
-            headline={ ACCOUNT_COPY.headline }
+            headline={ accountCopy().headline }
             supporting={ isAuthenticated
-                ? ACCOUNT_COPY.authenticatedBody
-                : ACCOUNT_COPY.body }
+                ? accountCopy().authenticatedBody
+                : accountCopy().body }
             // The band the flow uses for the line a screen exists to say,
             // rather than a paragraph about the content under it.
             supportingAppearance="banner"
@@ -234,7 +234,7 @@ export default function AccountPreviewScreen() {
                 <>
                     { isAuthenticated ? (
                         <OnboardingButton
-                            label={ ACCOUNT_COPY.continue }
+                            label={ accountCopy().continue }
                             loading={ busy }
                             onPress={ () => void startPurchase() }
                         />
@@ -254,7 +254,7 @@ export default function AccountPreviewScreen() {
                                  text link: it is the other way in, not a
                                  footnote to Apple's. */ }
                             <OnboardingButton
-                                label={ ACCOUNT_COPY.email }
+                                label={ accountCopy().email }
                                 disabled={ busy }
                                 onPress={ () => openAuth('/(auth)/signup') }
                             />
@@ -263,7 +263,7 @@ export default function AccountPreviewScreen() {
 
                     <View style={ styles.legal }>
                         <AppText variant="caption" style={ styles.legalText }>
-                            { ACCOUNT_COPY.legalIntro }
+                            { accountCopy().legalIntro }
                         </AppText>
 
                         { /* The two documents as their own targets. Inline
@@ -271,7 +271,7 @@ export default function AccountPreviewScreen() {
                              well under the 44pt minimum. */ }
                         <View style={ styles.legalLinks }>
                             <OnboardingLink
-                                label={ ACCOUNT_COPY.legalTerms }
+                                label={ accountCopy().legalTerms }
                                 size="caption"
                                 disabled={ busy }
                                 onPress={ () => router.push('/terms-of-service') }
@@ -279,7 +279,7 @@ export default function AccountPreviewScreen() {
                             />
 
                             <OnboardingLink
-                                label={ ACCOUNT_COPY.legalPrivacy }
+                                label={ accountCopy().legalPrivacy }
                                 size="caption"
                                 disabled={ busy }
                                 onPress={ () => router.push('/privacy-policy') }

@@ -33,10 +33,27 @@ export type UpdateCurrentUserInput = {
     reflectionGoal?: GoalId;
     /** Server marker used to restore completion on another device. */
     onboardingCompleted?: boolean;
+    /**
+     * The language the user explicitly chose, for push copy.
+     *
+     * `null` is meaningful and is not the same as omitting the field: it clears
+     * the stored choice, which is how "System" is expressed. The server then
+     * falls back to the device tag reported at registration. Omitting the field
+     * leaves whatever is stored untouched.
+     */
+    locale?: string | null;
 };
 
 export type CurrentUserSettings = {
     analyticsConsent?: boolean;
+    /**
+     * The language the account has explicitly chosen, or absent for "follow
+     * the device". Returned alongside `deviceLocale` so a client can tell an
+     * explicit choice apart from the device default it would otherwise follow.
+     */
+    locale?: string;
+    /** The tag the account's devices last reported, used when `locale` is absent. */
+    deviceLocale?: string;
     morningReminderMinutes?: number;
     eveningReminderMinutes?: number;
     reflectionGoal?: GoalId;

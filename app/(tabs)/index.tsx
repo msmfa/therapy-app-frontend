@@ -12,9 +12,11 @@ import { GlassButtonOutline } from '../../src/components/ui/GlassButtonOutline';
 import { TemplateHelpModal } from '../../src/components/notes/TemplateHelpModal';
 import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
+import { useTranslation } from 'react-i18next';
 
 
 export default function NewNoteScreen() {
+    const { t } = useTranslation('notes');
     const router = useRouter();
     const { user } = useAuth();
 
@@ -87,14 +89,14 @@ export default function NewNoteScreen() {
                         <View style={ styles.footer }>
                             <GlassButtonOutline buttonSize={ saveButtonSize } />
                             <GlassCircleButton
-                                accessibilityLabel="How to take notes"
+                                accessibilityLabel={ t('editor.howTo') }
                                 icon="question"
                                 iconColor={ COLOR_VARIANTS.black.tertiary }
                                 size={ saveButtonSize }
                                 onPress={ () => setHelpVisible(true) }
                             />
                             <GlassCircleButton
-                                accessibilityLabel="Save note"
+                                accessibilityLabel={ t('editor.saveNote') }
                                 size={ saveButtonSize }
                                 onPress={ handleNext }
                                 disabled={ isDisabled }

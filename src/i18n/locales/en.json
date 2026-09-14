@@ -1,0 +1,521 @@
+{
+  "common": {
+    "action": {
+      "logOut": "Log out",
+      "loggingOut": "Logging out…",
+      "tryAgain": "Try again",
+      "back": "Back"
+    },
+    "error": {
+      "title": "Error",
+      "tryAgain": "Please try again."
+    },
+    "screen": {
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "references": "References"
+    },
+    "a11y": {
+      "close": "Close",
+      "dismissAlert": "Dismiss alert",
+      "dismissError": "Dismiss error",
+      "hidePassword": "Hide password",
+      "loading": "Loading",
+      "showPassword": "Show password",
+      "tryAgainQuestion": "Try Again?"
+    },
+    "tab": {
+      "calendar": "Calendar",
+      "newNote": "New Note",
+      "notes": "Notes",
+      "settings": "Settings"
+    },
+    "notFound": {
+      "body": "We couldn't find what you were looking for! Apologies.",
+      "cta": "Go to Home",
+      "title": "Oops!"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "hub": {
+      "references": "References",
+      "settings": "Settings",
+      "rateApp": "Rate this App",
+      "version": "v{{version}}",
+      "logOutFailed": "Could not log out please try again",
+      "rateUnavailableTitle": "Unavailable",
+      "rateUnavailableMessage": "Rating is not supported on this platform yet.",
+      "storeOpenFailed": "Unable to open the store right now."
+    },
+    "rows": {
+      "reminderSettings": "Reminder settings",
+      "contactUs": "Contact us",
+      "privacyPolicy": "Privacy Policy",
+      "deleteAccount": "Delete account",
+      "termsOfService": "Terms of Service"
+    },
+    "account": {
+      "logOutFailed": "Could not log out. Please try again.",
+      "mailOpenFailed": "Unable to open your mail app right now.",
+      "subscriptionsTitle": "Unable to open subscriptions",
+      "subscriptionsMessage": "Open Settings on your iPhone or iPad, tap your name, then Subscriptions to manage your App Store subscription.",
+      "deleteUnavailable": "Unable to delete account right now.",
+      "deleteFailed": "Failed to delete account",
+      "deleteConfirmTitle": "Delete account",
+      "deleteConfirmMessage": "This will permanently remove your account and all stored data. This action cannot be undone.\n\nDeleting your account does not cancel an App Store subscription or free trial. Apple billing will continue unless you cancel it in Subscriptions. Please cancel before deleting your account. You can still delete your account immediately.",
+      "manageSubscription": "Manage subscription"
+    },
+    "language": {
+      "title": "Language",
+      "system": "System",
+      "systemDetail": "Currently {{language}}",
+      "saveFailedTitle": "Language not saved",
+      "saveFailedMessage": "The app is now in {{language}}, but we could not remember that choice. Please try again.",
+      "a11yRow": "{{label}}, {{detail}}",
+      "a11yHint": "Changes the language of the app straight away"
+    }
+  },
+  "reminderSettings": {
+    "title": "Reminder settings",
+    "intro": "Choose when short reviews fit your routine. Your note prompt still arrives shortly after each therapy session.",
+    "morning": "Morning reviews",
+    "evening": "Evening reviews",
+    "save": "Save reminder times",
+    "permissions": "Notification permissions: {{state}}",
+    "permissionOn": "On",
+    "permissionOff": "Off",
+    "a11yTime": "{{label}}, {{time}}",
+    "loadFailed": "We couldn’t load reminder settings",
+    "enableFailed": "We couldn’t enable reminders",
+    "enableFailedMessage": "Please try again when you are online.",
+    "permissionFailed": "We couldn’t update notification access",
+    "saved": "Reminder times updated",
+    "savedMessage": "Your future reviews will use these times.",
+    "saveFailed": "We couldn’t update reminder times"
+  },
+  "notes": {
+    "reviewProgress_one": "{{count}} of {{total}} reviewed",
+    "reviewProgress_other": "{{count}} of {{total}} reviewed",
+    "reviewProgressNone": "No reviews scheduled yet",
+    "empty": {
+      "title": "Your first note",
+      "withSession": "We’ll send you a notification just after your next session on <date>{{date}}</date>, so you can take down your first note. You’ll then see it here.",
+      "noSession": "You have no sessions scheduled yet. Add one in the calendar and we’ll remind you just after it, so you can take down your first note.",
+      "getStarted": "If you want to get started now, tap the plus icon in the bottom left. It’s worth reading a little bit about <link>what kind of note taking works best for therapy</link> first.",
+      "example": "Example"
+    },
+    "list": {
+      "loadFailed": "Failed to load notes"
+    },
+    "editor": {
+      "empty": "Notes cannot be empty.",
+      "updateFailed": "Failed to update note.",
+      "addFailed": "Failed to add note",
+      "signInToSave": "Sign in to save a note.",
+      "cancel": "cancel",
+      "cancelEdit": "Cancel edit",
+      "saveUnavailable": "Unable to save note right now.",
+      "howTo": "How to take notes",
+      "saveNote": "Save note"
+    },
+    "review": {
+      "reviewed": "REVIEWED",
+      "markReviewed": "Mark reviewed",
+      "saveFailed": "Failed to save review. Please try again.",
+      "loadFailed": "Failed to load reviews",
+      "saveStateFailed": "Failed to save review",
+      "undoFailed": "Failed to undo review"
+    },
+    "prompt": {
+      "default": "What mattered in your therapy session?",
+      "remember": "What do you want to remember from this session?",
+      "practise": "What insight do you want to try in daily life?",
+      "prepare": "What clear thread do you want to bring back next time?",
+      "habit": "What would you like to understand or improve over time?"
+    },
+    "progressPreview": {
+      "none": "Not reviewed yet",
+      "once": "Reviewed once",
+      "halfway": "Halfway through",
+      "almost": "Almost there",
+      "done": "All done"
+    },
+    "sample": {
+      "text": "We spent most of the hour on how I brace for criticism before anything has actually happened. She pointed out that I do the same thing in meetings that I do with my brother, which I had never put together before."
+    },
+    "cheatsheet": {
+      "titleSans": "Cheat",
+      "titleSerif": "sheet"
+    },
+    "template": {
+      "title": "Your five-minute therapy note",
+      "subtitle": "Five questions to capture what mattered",
+      "intro": "Write as much or as little as feels useful. This is your private note, not a record you need to make perfect.",
+      "q1": "What stayed with you from today’s session?",
+      "h1": "An idea, phrase, realisation or moment you do not want to lose.",
+      "q2": "What situation, thought or feeling do you want to notice this week?",
+      "h2": "Something connected to what you discussed, if there is one.",
+      "q3": "What did you understand differently?",
+      "h3": "Keep this in your own words.",
+      "q4": "Is there anything you want to try or remember?",
+      "h4": "Leave this blank if nothing was agreed or suggested.",
+      "q5": "What do you want to return to in your next session?",
+      "h5": "One subject is enough."
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "Sign in",
+      "submit": "Sign in",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account?",
+      "signUpHere": "Sign up here",
+      "missingDetailsTitle": "Enter your details",
+      "missingDetailsMessage": "Enter your email and password.",
+      "failedTitle": "We couldn’t sign you in"
+    },
+    "signUp": {
+      "title": "Create your account",
+      "submit": "Create account",
+      "failedTitle": "We couldn’t create your account",
+      "nameRequired": "Name is required",
+      "invalidEmail": "Enter a valid email",
+      "passwordsMustMatch": "Passwords must match"
+    },
+    "field": {
+      "name": "Name",
+      "namePlaceholder": "Jane Doe",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "newPassword": "New password",
+      "resetCode": "Reset code"
+    },
+    "forgot": {
+      "emailRequiredTitle": "Oops",
+      "emailRequiredMessage": "Enter the email you used for your account",
+      "checkEmailTitle": "Check your email",
+      "requestFailedTitle": "Request failed",
+      "requestFailedMessage": "We could not start the reset.",
+      "invalidCodeTitle": "Invalid code",
+      "invalidCodeMessage": "Enter the 6-digit reset code from your email.",
+      "weakPasswordTitle": "Weak password",
+      "weakPasswordMessage_one": "Use at least {{count}} character.",
+      "weakPasswordMessage_other": "Use at least {{count}} characters.",
+      "mismatchTitle": "Passwords do not match",
+      "mismatchMessage": "Make sure both password fields match.",
+      "resetFailedTitle": "Reset failed",
+      "resetFailedMessage": "We could not reset your password.",
+      "sendCode": "Send reset code",
+      "updatePassword": "Update password",
+      "backToSignIn": "Back to sign in"
+    },
+    "apple": {
+      "continueWith": "Continue with Apple",
+      "signingIn": "Signing in with Apple",
+      "unavailableTitle": "Apple sign-in unavailable",
+      "unavailableMessage": "This device does not support Sign in with Apple.",
+      "failedTitle": "Apple sign-in failed",
+      "authFailedTitle": "Authentication failed"
+    },
+    "password": {
+      "tooShort_one": "Password must be at least {{count}} character long",
+      "tooShort_other": "Password must be at least {{count}} characters long",
+      "needsUppercase": "Password must include at least one uppercase letter",
+      "needsSymbol": "Password must include at least one symbol"
+    }
+  },
+  "calendar": {
+    "nextSession": "Next session",
+    "nextReminder": "Next reminder",
+    "clear": "Clear",
+    "save": "Save",
+    "clearA11y": "Clear therapy sessions",
+    "saveA11y": "Save therapy sessions",
+    "saved": "Updated your therapy sessions",
+    "changedTitle": "Calendar changed",
+    "refresh": "Refresh calendar",
+    "saveFailed": "Unable to save sessions right now.",
+    "outOfRange": "Appointments must be between today and one year ahead. Please update your selection.",
+    "sessionChanged": "Session changed. Please try again.",
+    "schedule": {
+      "thisDayOnly": "This day only",
+      "everyWeek": "Every week",
+      "nextTwoMonths": "For the next two months",
+      "repeatCount_one": "{{count}} session",
+      "repeatCount_other": "{{count}} sessions",
+      "delete": "Delete",
+      "update": "Update",
+      "add": "Add Session"
+    },
+    "error": {
+      "timeout": {
+        "title": "Connection timed out",
+        "message": "We could not reach your therapy schedule. Check your connection and try again."
+      },
+      "unauthorized": {
+        "title": "Sign in to continue",
+        "message": "Your session expired. Sign in again to load your therapy reminders."
+      },
+      "forbidden": {
+        "title": "Access denied",
+        "message": "Your account no longer has access to these sessions. Contact support if this is unexpected."
+      },
+      "notFound": {
+        "title": "No sessions found",
+        "message": "We couldn’t find upcoming therapy sessions. Add new sessions to see reminders here."
+      },
+      "rateLimited": {
+        "title": "Please wait a moment",
+        "message": "We are loading your therapy sessions too quickly right now. Try again in a few seconds."
+      },
+      "server": {
+        "title": "Service unavailable",
+        "message": "We’re having trouble loading sessions right now. Try again in a moment."
+      },
+      "maintenance": {
+        "title": "Feature temporarily offline",
+        "message": "We’re updating the therapy reminders feature. Check back shortly."
+      },
+      "network": {
+        "title": "No internet connection",
+        "message": "You appear to be offline. Reconnect to the internet and try again."
+      },
+      "unknown": {
+        "title": "Something went wrong",
+        "message": "We couldn’t load your therapy sessions. Please try again later."
+      }
+    }
+  },
+  "onboarding": {
+    "welcome": {
+      "headline": "A therapy journal that reminds you to review your therapy notes",
+      "primaryCta": "Build my plan",
+      "secondaryCta": "I already have an account"
+    },
+    "goalOption": {
+      "practise": {
+        "label": "Put therapy insights into practice",
+        "subscriptionHeadline": "Put therapy insights into practice",
+        "restated": "Put therapy insights into practice",
+        "noteSupport": "Notifications between sessions help you put into practice what you discussed in your last session."
+      },
+      "prepare": {
+        "label": "Be better prepared for my next session",
+        "subscriptionHeadline": "Feel prepared for your next session",
+        "restated": "Be better prepared for your next session",
+        "noteSupport": "The evening before your next session you'll be notified to review your last note."
+      },
+      "habit": {
+        "label": "Track my progress over time",
+        "subscriptionHeadline": "Track your progress over time",
+        "restated": "Track your progress over time",
+        "noteSupport": "Reflect on your logged notes from weeks and months ago to see which areas you're improving in and which you want to work on."
+      }
+    },
+    "goalPriority": {
+      "remember": "remembering what came up in your sessions",
+      "practise": "putting what comes up in therapy into practice through the week",
+      "prepare": "walking into your next session feeling prepared",
+      "habit": "seeing your progress build up over time"
+    },
+    "goal": {
+      "headline": "What would help you get more from therapy?",
+      "supporting": "Choose the outcome that matters most to you.",
+      "primaryCta": "Continue"
+    },
+    "sessionDate": {
+      "headline": "When is your next session?",
+      "supporting": "We'll use it to time your first note and shape the reviews that follow.",
+      "dateLabel": "Date",
+      "timeLabel": "Time",
+      "validation": "Choose a future therapy session.",
+      "rangeValidation": "Choose a session within the next six months.",
+      "primaryCta": "Continue",
+      "sampleCta": "I haven't booked it yet"
+    },
+    "cadenceOption": {
+      "weekly": "Every week",
+      "fortnightly": "Every two weeks",
+      "monthly": "Once a month",
+      "varies": "It varies"
+    },
+    "cadence": {
+      "headline": "How often are your sessions?",
+      "supporting": "This allows us to tell the best times to send you your reminders.",
+      "primaryCta": "Choose reminder times"
+    },
+    "reminderTimes": {
+      "headline": "Choose times that fit your routine",
+      "supporting": "You'll only receive one morning reminder a week, after your session.",
+      "morningLabel": "Morning reviews",
+      "eveningLabel": "Evening reviews",
+      "quote": "I like the reminder before my next session. I used to find it hard to think about what to talk about then I’d leave the session and finally remember things I wanted to bring up. With the pre-session reminder I just pick up from where I left off.",
+      "quoteName": "Sarah",
+      "quoteRole": "Plastic Brains User",
+      "primaryCta": "See my plan"
+    },
+    "plan": {
+      "headline": "Your custom plan",
+      "sampleHeadline": "See how your plan could work",
+      "sampleBody": "This example shows how reminders can fit between sessions. Add your booked session later and we'll replace these dates with your real plan.",
+      "sampleVariableBody": "This example uses a one-week gap to show how reminders work. Add your booked sessions later and we'll use the real gap between them.",
+      "evidenceStatement": "These times come from research into memory consolidation, sleep, spaced retrieval and context reinstatement.",
+      "evidenceStatementWithGoal": "These times come from research into memory consolidation, sleep, spaced retrieval and context reinstatement. They are also shaped by what you told us matters most: {{priority}}.",
+      "primaryCta": "After your note"
+    },
+    "reviewsPreview": {
+      "headline": "Your Custom Reminders",
+      "exampleGapNote": "These dates use a one-week gap as an example. Once we know when your following session is, your reviews will move to the real gap between them.",
+      "sampleNote": "These dates come from the example session in your sample plan. Add your next session later and we'll replace them with your real schedule.",
+      "primaryCta": "Your notes"
+    },
+    "notePreview": {
+      "headline": "Your notes",
+      "researchLink": "Why these five questions?",
+      "privacyTitle": "Your note stays yours",
+      "privacyBody": "The contents of your therapy notes are encrypted and stored only on this iPhone. They are never uploaded to our servers.",
+      "reminderTitle": "Plastic Brains",
+      "reminderBody": "Review your notes before tomorrow's session",
+      "reminderTime": "now",
+      "primaryCta": "See plans"
+    },
+    "remainingQuestions_one": "{{count}} more question included",
+    "remainingQuestions_other": "{{count}} more questions included",
+    "subscription": {
+      "fallbackHeadline": "Keep therapy with you between sessions",
+      "body": "Keep the plan you just built—capture, revisit and prepare—around every therapy session.",
+      "planTitle": "Your plan is ready",
+      "samplePlanTitle": "Your sample plan is ready",
+      "samplePlanNote": "Add your next session later and these example dates will be replaced with your real schedule.",
+      "nextSessionLabel": "Next session",
+      "sampleSessionLabel": "Example session",
+      "firstNoteLabel": "First note",
+      "reviewTimesLabel": "Review times",
+      "quote": "As a therapist who has my own therapist, I wouldn’t have thought I would benefit from something like this. But with such a high caseload, it really helps me feel ready for my own therapy sessions.",
+      "quoteName": "Catherine",
+      "quoteRole": "CBT therapist",
+      "annualCta": "Continue with annual",
+      "monthlyCta": "Continue with monthly",
+      "annualTitle": "Annual",
+      "annualRenewal": "Renews annually until cancelled.",
+      "annualRenewalNoTrial": "Billed today. Renews annually until cancelled.",
+      "monthlyTitle": "Monthly",
+      "monthlyBadge": "Flexible",
+      "monthlyRenewal": "Renews monthly until cancelled.",
+      "monthlyRenewalNoTrial": "Billed today. Renews monthly until cancelled.",
+      "planHeader": "Your plan",
+      "annualDescription": "Notes, reviews, reminders and more",
+      "monthlyDescription": "The same plan, month by month",
+      "trialCta": "Start your free trial",
+      "cancelAnytime": "Cancel anytime",
+      "trialTodayLabel": "Today",
+      "trialTodayBody": "Full access begins",
+      "trialCancelNote": "Cancel anytime in your Apple ID subscription settings.",
+      "restore": "Restore purchases",
+      "restoring": "Restoring…",
+      "terms": "Terms",
+      "privacy": "Privacy",
+      "unavailableHeadline": "We can't load subscriptions right now",
+      "unavailableBody": "Check your connection and try again.",
+      "unavailableCta": "Try again",
+      "trialHeadline_day_one": "Your first day's on us",
+      "trialHeadline_day_other": "Your first {{count}} days are on us",
+      "trialHeadline_week_one": "Your first week's on us",
+      "trialHeadline_week_other": "Your first {{count}} weeks are on us",
+      "trialHeadline_month_one": "Your first month's on us",
+      "trialHeadline_month_other": "Your first {{count}} months are on us",
+      "trialHeadline_year_one": "Your first year's on us",
+      "trialHeadline_year_other": "Your first {{count}} years are on us",
+      "priceLine_year": "{{price}} per year",
+      "priceLine_month": "{{price}} per month",
+      "priceLineThen_year": "Then {{price}} per year",
+      "priceLineThen_month": "Then {{price}} per month",
+      "cardPrice_year": "{{price}}/year",
+      "cardPrice_month": "{{price}}/month",
+      "cardPriceWithMonthly": "{{per}} (that's {{monthly}}/month)",
+      "trialTimelineToday": "Today: Start your free trial",
+      "trialTimelineCharge": "Day {{day}}: You'll be charged {{price}}",
+      "trialEndLine_annual": "Your annual subscription begins at {{price}} unless cancelled.",
+      "trialEndLine_monthly": "Your monthly subscription begins at {{price}} unless cancelled.",
+      "trialBadge_day_one": "{{count}} day free",
+      "trialBadge_day_other": "{{count}} days free",
+      "trialBadge_week_one": "{{count}} week free",
+      "trialBadge_week_other": "{{count}} weeks free",
+      "trialBadge_month_one": "{{count}} month free",
+      "trialBadge_month_other": "{{count}} months free",
+      "trialBadge_year_one": "{{count}} year free",
+      "trialBadge_year_other": "{{count}} years free"
+    },
+    "account": {
+      "headline": "Account",
+      "body": "Create an account to connect your schedule, reminder times and subscription. Your note contents still stay only on this iPhone.",
+      "authenticatedBody": "Your schedule, reminder times and subscription will be connected to your account. Your note contents still stay only on this iPhone.",
+      "continue": "Continue",
+      "apple": "Continue with Apple",
+      "email": "Continue with email",
+      "sessionLabel": "Next session",
+      "noSession": "Add your next session in Calendar",
+      "remindersLabel": "Reminder times",
+      "subscriptionLabel": "Subscription",
+      "subscriptionActive": "Already active",
+      "cancelAnytime": "You can cancel at any time through Apple subscriptions.",
+      "legalIntro": "By continuing, you agree to:",
+      "legalTerms": "Terms of Service",
+      "legalPrivacy": "Privacy Policy"
+    },
+    "purchase": {
+      "continue": "Continue",
+      "cancelledTitle": "No subscription started",
+      "cancelled": "Your subscription wasn't started. Try again when you're ready.",
+      "pendingTitle": "Purchase pending",
+      "pending": "Apple is still processing this purchase. You can continue when it is approved.",
+      "errorTitle": "We couldn't start your subscription",
+      "errorBody": "You haven't been charged. Please try again.",
+      "errorPrimary": "Try again",
+      "errorSecondary": "Back to plans",
+      "unlinkedTitle": "We couldn't connect this subscription",
+      "unlinkedBody": "Apple completed the transaction, but it is not linked to this Plastic Brains account. Try Restore purchases from the original account. You will not be charged again for the same active subscription.",
+      "restoreEmpty": "We couldn't find an active subscription for this Apple ID.",
+      "restoreErrorTitle": "We couldn't restore purchases",
+      "restoreError": "Check your connection and try again.",
+      "restoredTitle": "Subscription restored",
+      "restored": "Your subscription is active on this Apple ID."
+    },
+    "notifications": {
+      "body": "Turn on notifications so your plan can reach you at the times you chose.",
+      "privacy": "Notifications show the reminder, never anything you wrote.",
+      "primaryCta": "Turn on notifications",
+      "secondaryCta": "Not now",
+      "deniedHeadline": "Turn on notifications in Settings",
+      "deniedBody": "Notifications are currently off. You can enable them in iPhone Settings when you're ready.",
+      "deniedPrimaryCta": "Open Settings",
+      "registrationErrorTitle": "We couldn't turn on notifications",
+      "registrationErrorBody": "Check your connection and try again, or choose Not now.",
+      "headline": "Get your first note reminder {{weekday}} at {{time}}"
+    },
+    "success": {
+      "headline": "Your between-session plan is ready",
+      "withoutRemindersBody": "Save it now. You can turn on notifications later in Settings.",
+      "primaryCta": "Save and view my notes",
+      "sampleHeadline": "Your sample plan is ready",
+      "sampleBody": "Save your preferences now. Add your next session in Calendar and we'll build the real plan around it.",
+      "samplePrimaryCta": "Save and view my notes",
+      "body": "Save it now and your first note reminder will arrive {{weekday}} at {{time}}."
+    },
+    "error": {
+      "saveTitle": "We couldn't save your plan",
+      "saveBody": "Your answers are still here. Please try again.",
+      "offlineTitle": "You're offline",
+      "offlineBody": "Reconnect to continue setting up your plan.",
+      "signInTitle": "Sign in to save your plan",
+      "signInBody": "Your answers are still here. Sign in to finish setting up.",
+      "signInCta": "Continue",
+      "unexpectedTitle": "Something went wrong",
+      "unexpectedBody": "Your answers are still here. Please try again.",
+      "retryCta": "Try again"
+    }
+  }
+}

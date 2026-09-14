@@ -8,9 +8,9 @@ import Loading from '../../src/components/ui/Loading';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import { SubscriptionPlanCard } from '../../src/components/onboarding/SubscriptionPlanCard';
 import {
-    ERROR_COPY,
-    GOAL_OPTIONS,
-    SUBSCRIPTION_COPY,
+    errorCopy,
+    goalOptions,
+    subscriptionCopy,
     planCtaLabel,
     planRenewalLine,
     trialBadgeLine,
@@ -21,7 +21,7 @@ import {
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { useSubscriptionOffer } from '../../src/features/subscription/useSubscriptionOffer';
 import { restore } from '../../src/features/subscription/storeKit';
-import { PURCHASE_COPY } from '../../src/features/onboarding/onboardingCopy';
+import { purchaseCopy } from '../../src/features/onboarding/onboardingCopy';
 import { useAppAlert } from '../../src/context/alert';
 import { useAuth } from '../../src/context/auth/AuthContext';
 import { useEntitlementState } from '../../src/features/subscription/EntitlementContext';
@@ -67,8 +67,8 @@ export default function SubscriptionPreviewScreen() {
     ) : null;
 
     const goalHeadline = useMemo(() => {
-        const goal = GOAL_OPTIONS.find((option) => option.id === answers.goal);
-        return goal?.subscriptionHeadline ?? SUBSCRIPTION_COPY.fallbackHeadline;
+        const goal = goalOptions().find((option) => option.id === answers.goal);
+        return goal?.subscriptionHeadline ?? subscriptionCopy().fallbackHeadline;
     }, [answers.goal]);
 
     const handleRestore = useCallback(async () => {
@@ -106,9 +106,9 @@ export default function SubscriptionPreviewScreen() {
                 // and carry on rather than leaving the user on the paywall.
                 refreshEntitlement();
                 setAnswer('entitlementConfirmedThisSession', true);
-                showAlert(PURCHASE_COPY.restoredTitle, PURCHASE_COPY.restored, {
+                showAlert(purchaseCopy().restoredTitle, purchaseCopy().restored, {
                     primaryAction: {
-                        label: PURCHASE_COPY.continue,
+                        label: purchaseCopy().continue,
                         onPress: () => {
                             // The root guard already handles returning subscribers.
                             if (!hasOnboarded) router.replace('/(onboarding)/notifications-preview');
@@ -119,11 +119,11 @@ export default function SubscriptionPreviewScreen() {
             }
 
             if (result.status === 'no_entitlement') {
-                showAlert(SUBSCRIPTION_COPY.restore, PURCHASE_COPY.restoreEmpty);
+                showAlert(subscriptionCopy().restore, purchaseCopy().restoreEmpty);
                 return;
             }
 
-            showAlert(PURCHASE_COPY.restoreErrorTitle, PURCHASE_COPY.restoreError);
+            showAlert(purchaseCopy().restoreErrorTitle, purchaseCopy().restoreError);
         } finally {
             restoreInFlightRef.current = false;
             setRestoreInProgress(false);
@@ -184,12 +184,12 @@ export default function SubscriptionPreviewScreen() {
     if (state.status === 'unavailable') {
         const failure =
             state.reason === 'network'
-                ? { headline: ERROR_COPY.offlineTitle, body: ERROR_COPY.offlineBody }
+                ? { headline: errorCopy().offlineTitle, body: errorCopy().offlineBody }
                 : state.reason === 'store_error'
-                    ? { headline: ERROR_COPY.unexpectedTitle, body: ERROR_COPY.unexpectedBody }
+                    ? { headline: errorCopy().unexpectedTitle, body: errorCopy().unexpectedBody }
                     : {
-                        headline: SUBSCRIPTION_COPY.unavailableHeadline,
-                        body: SUBSCRIPTION_COPY.unavailableBody,
+                        headline: subscriptionCopy().unavailableHeadline,
+                        body: subscriptionCopy().unavailableBody,
                     };
 
         return (
@@ -199,7 +199,7 @@ export default function SubscriptionPreviewScreen() {
                 headline={ failure.headline }
                 supporting={ failure.body }
                 footer={ <>
-                    <OnboardingButton label={ ERROR_COPY.retryCta } onPress={ reload } />
+                    <OnboardingButton label={ errorCopy().retryCta } onPress={ reload } />
                     { accountSettings }
                 </> }
             />
@@ -218,7 +218,7 @@ export default function SubscriptionPreviewScreen() {
             { ...backNavigation }
             analyticsStep="subscription_preview"
             interactionDisabled={ restoreInProgress }
-            headline={ SUBSCRIPTION_COPY.planHeader }
+            headline={ subscriptionCopy().planHeader }
             footer={
                 <>
                     { /* The legal row sits above the action, not under it: it
@@ -227,8 +227,8 @@ export default function SubscriptionPreviewScreen() {
                     <View style={ styles.links }>
                         <OnboardingLink
                             label={ restoreInProgress
-                                ? SUBSCRIPTION_COPY.restoring
-                                : SUBSCRIPTION_COPY.restore }
+                                ? subscriptionCopy().restoring
+                                : subscriptionCopy().restore }
                             size="caption"
                             disabled={ restoreInProgress }
                             onPress={ handleRestore }
@@ -236,7 +236,7 @@ export default function SubscriptionPreviewScreen() {
                         />
 
                         <OnboardingLink
-                            label={ SUBSCRIPTION_COPY.terms }
+                            label={ subscriptionCopy().terms }
                             size="caption"
                             disabled={ restoreInProgress }
                             onPress={ () => router.push('/terms-of-service') }
@@ -244,7 +244,7 @@ export default function SubscriptionPreviewScreen() {
                         />
 
                         <OnboardingLink
-                            label={ SUBSCRIPTION_COPY.privacy }
+                            label={ subscriptionCopy().privacy }
                             size="caption"
                             disabled={ restoreInProgress }
                             onPress={ () => router.push('/privacy-policy') }
@@ -254,7 +254,7 @@ export default function SubscriptionPreviewScreen() {
 
                     <OnboardingButton
                         label={ showSelectedTrial
-                            ? SUBSCRIPTION_COPY.trialCta
+                            ? subscriptionCopy().trialCta
                             : planCtaLabel(selected) }
                         onPress={ () => router.push('/(onboarding)/account-preview') }
                         disabled={ restoreInProgress }
@@ -272,13 +272,13 @@ export default function SubscriptionPreviewScreen() {
 
             <View style={ styles.plans } accessibilityRole="radiogroup">
                 <SubscriptionPlanCard
-                    title={ SUBSCRIPTION_COPY.annualTitle }
+                    title={ subscriptionCopy().annualTitle }
                     trialBadge={
                         showAnnualTrial && offer.annual.trial !== null
                             ? trialBadgeLine(offer.annual.trial)
                             : undefined
                     }
-                    description={ SUBSCRIPTION_COPY.annualDescription }
+                    description={ subscriptionCopy().annualDescription }
                     priceLine={ cardPriceLine('annual', offer.annual.price, offer.annual.monthlyEquivalent) }
                     timeline={
                         showAnnualTrial && offer.annual.trial !== null
@@ -289,7 +289,7 @@ export default function SubscriptionPreviewScreen() {
                     selected={ selected === 'annual' }
                     disabled={ restoreInProgress }
                     onPress={ () => setAnswer('plan', 'annual') }
-                    accessibilityLabel={ `${SUBSCRIPTION_COPY.annualTitle}. ${
+                    accessibilityLabel={ `${subscriptionCopy().annualTitle}. ${
                         showAnnualTrial && offer.annual.trial !== null
                             ? `${trialBadgeLine(offer.annual.trial)}. `
                             : ''
@@ -297,19 +297,19 @@ export default function SubscriptionPreviewScreen() {
                 />
 
                 <SubscriptionPlanCard
-                    title={ SUBSCRIPTION_COPY.monthlyTitle }
+                    title={ subscriptionCopy().monthlyTitle }
                     trialBadge={
                         showMonthlyTrial && offer.monthly.trial !== null
                             ? trialBadgeLine(offer.monthly.trial)
                             : undefined
                     }
-                    description={ SUBSCRIPTION_COPY.monthlyDescription }
+                    description={ subscriptionCopy().monthlyDescription }
                     priceLine={ cardPriceLine('monthly', offer.monthly.price, null) }
                     renewalLine={ planRenewalLine('monthly', showMonthlyTrial) }
                     selected={ selected === 'monthly' }
                     disabled={ restoreInProgress }
                     onPress={ () => setAnswer('plan', 'monthly') }
-                    accessibilityLabel={ `${SUBSCRIPTION_COPY.monthlyTitle}. ${
+                    accessibilityLabel={ `${subscriptionCopy().monthlyTitle}. ${
                         showMonthlyTrial && offer.monthly.trial !== null
                             ? `${trialBadgeLine(offer.monthly.trial)}. `
                             : ''

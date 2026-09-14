@@ -5,22 +5,30 @@
  * conventions decide the order of the parts and whether times read as 12 or 24
  * hour. `formatToParts` is already relied on elsewhere in the app (see
  * utils/timeZone.ts), so it is known to work on Hermes.
+ *
+ * The locale comes from `formattingLocale()` rather than being hardcoded to
+ * `undefined`. It still resolves to the platform's own locale, region included,
+ * for everyone following their device; it only forces a tag for a user who has
+ * overridden the app's language, who would otherwise read French copy above
+ * English dates.
  */
+
+import { formattingLocale } from '../../i18n';
 
 const safeFormat = (date: Date, options: Intl.DateTimeFormatOptions, fallback: string): string => {
     try {
-        return new Intl.DateTimeFormat(undefined, options).format(date);
+        return new Intl.DateTimeFormat(formattingLocale(), options).format(date);
     } catch {
         return fallback;
     }
 };
 
-/** "Tuesday" in the device locale. */
+/** "Tuesday" in the app's language. */
 export const weekdayName = (date: Date): string =>
     safeFormat(date, { weekday: 'long' }, date.toDateString());
 
 /**
- * "20:00" or "8:00 pm", following the device's clock convention.
+ * "20:00" or "8:00 pm", following the active locale's clock convention.
  *
  * The digits come from the Date, never from the formatter. Intl is used only
  * for the parts around them: the separator, the order, and whether there is a
@@ -39,7 +47,7 @@ export const timeLabel = (date: Date): string => {
     const minuteText = String(minutes).padStart(2, '0');
 
     try {
-        const parts = new Intl.DateTimeFormat(undefined, {
+        const parts = new Intl.DateTimeFormat(formattingLocale(), {
             hour: 'numeric',
             minute: '2-digit',
         }).formatToParts(date);

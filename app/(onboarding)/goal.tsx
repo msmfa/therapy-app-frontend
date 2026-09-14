@@ -6,7 +6,7 @@ import {
     SelectableCard,
     useEqualSelectableCardHeights,
 } from '../../src/components/onboarding/SelectableCard';
-import { GOAL_COPY, GOAL_OPTIONS } from '../../src/features/onboarding/onboardingCopy';
+import { goalCopy, goalOptions } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 
 export default function GoalScreen() {
@@ -19,18 +19,18 @@ export default function GoalScreen() {
             analyticsStep="goal"
             step={ 1 }
             backHref="/(onboarding)"
-            headline={ GOAL_COPY.headline }
-            supporting={ GOAL_COPY.supporting }
+            headline={ goalCopy().headline }
+            supporting={ goalCopy().supporting }
             footer={
                 <OnboardingButton
-                    label={ GOAL_COPY.primaryCta }
+                    label={ goalCopy().primaryCta }
                     disabled={ answers.goal === null }
                     onPress={ () => router.push('/(onboarding)/session-date') }
                 />
             }
         >
             <View style={ styles.options } accessibilityRole="radiogroup">
-                { GOAL_OPTIONS.map((option) => (
+                { goalOptions().map((option) => (
                     <SelectableCard
                         key={ option.id }
                         label={ option.label }

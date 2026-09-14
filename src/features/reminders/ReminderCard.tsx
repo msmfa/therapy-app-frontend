@@ -64,6 +64,12 @@ type Props = {
  * the home screen's glass buttons on the bottom row. The photo fades into the
  * card rather than ending on a hard edge.
  */
+/*
+ * Rendered only by app/interval-science.tsx, which is one of the
+ * English-only screens (see src/i18n/englishOnly.ts). Its labels are
+ * chrome around English research copy, so they stay English with it
+ * rather than leaving a French frame around an English article.
+ */
 export function ReminderCard({ date, description, link, time, caption }: Props) {
     const { height: screenHeight } = useWindowDimensions();
     const [isModalOpen, setModalOpen] = useState(false);

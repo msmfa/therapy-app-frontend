@@ -18,7 +18,7 @@ import {
 } from '../../src/components/onboarding/OnboardingScreen';
 import {
     goalSupport,
-    NOTE_PREVIEW_COPY,
+    notePreviewCopy,
 } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { onboardingAccentStyles, onboardingStyles } from '../../src/components/onboarding/onboardingStyles';
@@ -88,7 +88,7 @@ export default function NotePreviewScreen() {
                 analyticsStep="note_preview"
                 surface="accent"
                 backHref="/(onboarding)/reviews-preview"
-                headline={ NOTE_PREVIEW_COPY.headline }
+                headline={ notePreviewCopy().headline }
                 // Starts a margin below the content and runs to the bottom edge
                 // of the screen, cut off by it, so the list reads as continuing
                 // below the fold.
@@ -127,9 +127,9 @@ export default function NotePreviewScreen() {
                             />
                             { showsReminder && (
                                 <NotificationBanner
-                                    title={ NOTE_PREVIEW_COPY.reminderTitle }
-                                    body={ NOTE_PREVIEW_COPY.reminderBody }
-                                    time={ NOTE_PREVIEW_COPY.reminderTime }
+                                    title={ notePreviewCopy().reminderTitle }
+                                    body={ notePreviewCopy().reminderBody }
+                                    time={ notePreviewCopy().reminderTime }
                                     width={ notificationWidth }
                                     // Placed rather than stacked, and after the list in
                                     // source order, so it is drawn over the list's edge
@@ -158,7 +158,7 @@ export default function NotePreviewScreen() {
                 footer={
                     <OnboardingButton
                         surface={ footerSurface }
-                        label={ NOTE_PREVIEW_COPY.primaryCta }
+                        label={ notePreviewCopy().primaryCta }
                         onPress={ () => router.push('/(onboarding)/subscription-preview') }
                     />
                 }
@@ -180,12 +180,12 @@ export default function NotePreviewScreen() {
                             style={ [onboardingStyles.title, onboardingAccentStyles.title, styles.privacyTitle] }
                             accessibilityRole="header"
                         >
-                            { NOTE_PREVIEW_COPY.privacyTitle }
+                            { notePreviewCopy().privacyTitle }
                         </AppText>
                     </View>
 
                     <AppText variant="body" style={ [onboardingStyles.body, onboardingAccentStyles.body, styles.privacyBody] }>
-                        { NOTE_PREVIEW_COPY.privacyBody }
+                        { notePreviewCopy().privacyBody }
                     </AppText>
                 </View>
 

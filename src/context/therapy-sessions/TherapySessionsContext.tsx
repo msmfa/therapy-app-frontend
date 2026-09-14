@@ -18,6 +18,7 @@ import { useDeviceTimeZone } from '../../hooks/useDeviceTimeZone';
 import { mapSessionError, SessionErrorCopy } from '../../features/therapy-sessions/session-error-map';
 import { toError } from '../../utils/errors';
 import { getSessionsWindow as sharedSessionsWindow, isWithinSessionsWindow } from '../../utils/sessionWindow';
+import { t } from '../../i18n/translate';
 
 interface TherapySessionsContextType {
     sessions: TherapySession[];
@@ -138,7 +139,7 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
     }, [account]);
     const assertCurrentAccount = useCallback(() => {
         if (!account.userId || accountRef.current !== account) {
-            throw new Error('Session changed. Please try again.');
+            throw new Error(t('calendar:sessionChanged'));
         }
     }, [account]);
     const [reminderRefreshSignal, setReminderRefreshSignal] = useState(0);
@@ -219,7 +220,7 @@ export function TherapySessionsProvider({ children }: TherapySessionsProviderPro
             const currentSessions = baseSessions ?? editableSessionsFrom(account.sessions);
             const window = getSessionsWindow();
             if (Object.values(selected).some(date => !isWithinSessionsWindow(date, window))) {
-                throw new Error('Appointments must be between today and one year ahead. Please update your selection.');
+                throw new Error(t('calendar:outOfRange'));
             }
 
             const payload = Object.entries(selected).map(([key, date]) => {

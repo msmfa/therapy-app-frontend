@@ -8,8 +8,11 @@ import Loading from '../../src/components/ui/Loading';
 import { useAppAlert } from '../../src/context/alert';
 import { useNoteReviews } from '../../src/features/reviews';
 import { GRADIENTS } from 'designs/designs-gradients';
+import { useTranslation } from 'react-i18next';
 
 export default function NotesScreen() {
+    const { t } = useTranslation('notes');
+    const { t: tCommon } = useTranslation('common');
     const { user } = useAuth();
     const { notes, loading, error, refresh, updateNote } = useNotes(user?.id);
     const { progressFor, reviewState, markReviewed } = useNoteReviews(user?.id);
@@ -42,13 +45,13 @@ export default function NotesScreen() {
 
     React.useEffect(() => {
         if (!error) return;
-        showAlert('Failed to load notes', error, {
+        showAlert(t('list.loadFailed'), error, {
             primaryAction: {
-                label: 'Try again',
+                label: tCommon('action.tryAgain'),
                 onPress: () => { void refresh(); },
             },
         });
-    }, [error, showAlert, refresh]);
+    }, [error, showAlert, refresh, t, tCommon]);
 
     const isLoading = !user?.id || (loading && notes.length === 0);
 

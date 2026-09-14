@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../src/context/auth/AuthContext';
 import SocialAuthButtons from '../../src/components/auth/SocialAuthButtons';
 import { OnboardingButton } from 'src/components/onboarding/OnboardingButton';
@@ -31,6 +32,7 @@ export default function LoginScreen() {
     const router = useRouter();
     const { setAuth } = useAuth();
     const { showAlert } = useAppAlert();
+    const { t } = useTranslation('auth');
     const { returnTo, source } = useLocalSearchParams<{
         returnTo?: string;
         source?: string;
@@ -53,7 +55,7 @@ export default function LoginScreen() {
     const onSubmit = async () => {
         const trimmedEmail = email.trim();
         if (!trimmedEmail || !password) {
-            showAlert('Enter your details', 'Enter your email and password.');
+            showAlert(t('signIn.missingDetailsTitle'), t('signIn.missingDetailsMessage'));
             return;
         }
         setLoading(true);
@@ -66,7 +68,7 @@ export default function LoginScreen() {
             await setAuth(token, nextUser, refreshToken ?? null);
             router.replace(returnRoute ?? '/');
         } catch (error) {
-            showAlert("We couldn't sign you in", handleError(error));
+            showAlert(t('signIn.failedTitle'), handleError(error));
         } finally {
             setLoading(false);
         }
@@ -98,26 +100,26 @@ export default function LoginScreen() {
                     >
                         <View style={ styles.card }>
                             <AppText variant="h1" align="center">
-                                Sign in
+                                { t('signIn.title') }
                             </AppText>
                             <Spacer />
 
                             <View style={ styles.formContainer }>
                                 <TextField
-                                    label="Email"
+                                    label={ t('field.email') }
                                     value={ email }
                                     onChangeText={ setEmail }
                                     autoCapitalize="none"
                                     autoCorrect={ false }
                                     keyboardType="email-address"
-                                    placeholder="you@example.com"
+                                    placeholder={ t('field.emailPlaceholder') }
                                     textContentType="username"
                                     returnKeyType="next"
                                     errorColor={ COLOR_VARIANTS.black.primary }
                                     editable={ !loading }
                                 />
                                 <PasswordField
-                                    label="Password"
+                                    label={ t('field.password') }
                                     value={ password }
                                     onChangeText={ setPassword }
                                     placeholder="••••••••"
@@ -138,13 +140,13 @@ export default function LoginScreen() {
                                     style={ styles.forgotPassword }
                                     disabled={ loading }
                                 >
-                                    <AppText variant="caption">Forgot password?</AppText>
+                                    <AppText variant="caption">{ t('signIn.forgotPassword') }</AppText>
                                 </TouchableOpacity>
                                 { /* The flow's own action, not this screen's:
                                      sign-in sits one tap from Welcome, and the
                                      two buttons were different sizes and
                                      radii. */ }
-                                <OnboardingButton label="Sign in" appearance="solid" onPress={ onSubmit } loading={ loading } />
+                                <OnboardingButton label={ t('signIn.submit') } appearance="solid" onPress={ onSubmit } loading={ loading } />
                                 <SocialAuthButtons
                                     onSuccess={ () => router.replace(returnRoute ?? '/') }
                                     disabled={ loading }
@@ -161,7 +163,7 @@ export default function LoginScreen() {
                                      person has an account already. */ }
                                 { offersSignup && (
                                     <View style={ styles.signupRow }>
-                                        <AppText variant="caption">Don't have an account?</AppText>
+                                        <AppText variant="caption">{ t('signIn.noAccount') }</AppText>
                                         <InternalLink
                                             href={ {
                                                 pathname: '/(auth)/signup',
@@ -169,7 +171,7 @@ export default function LoginScreen() {
                                             } }
                                         >
                                             { ' ' }
-                                            Sign up here
+                                            { t('signIn.signUpHere') }
                                         </InternalLink>
                                     </View>
                                 ) }

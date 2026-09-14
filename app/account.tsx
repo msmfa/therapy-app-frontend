@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 
 import { useAuth } from '../src/context/auth/AuthContext';
 import { SettingsRow } from '../src/components/SettingsRow';
@@ -12,6 +13,8 @@ import { clearNotesForUser } from '../src/features/notes/useNotes';
 import { useAppAlert } from '../src/context/alert';
 import { analytics } from '../src/features/analytics/client';
 import { analyticsConsentSync } from '../src/features/analytics/consentSync';
+import { LanguagePicker } from '../src/components/settings/LanguagePicker';
+import Spacer from '../src/components/ui/Spacer';
 
 /** Where support mail from the app goes. */
 const SUPPORT_EMAIL = 'michael@plastic-brains.com';
@@ -23,6 +26,8 @@ export default function AccountSettingsScreen() {
     const [deleting, setDeleting] = useState(false);
     const [loggingOut, setLoggingOut] = useState(false);
     const { showAlert } = useAppAlert();
+    const { t } = useTranslation('settings');
+    const { t: tCommon } = useTranslation('common');
 
     const handleLogout = useCallback(async () => {
         if (loggingOut || deleting) return;
@@ -30,17 +35,17 @@ export default function AccountSettingsScreen() {
         try {
             await signOut();
         } catch {
-            showAlert('Error', 'Could not log out. Please try again.');
+            showAlert(tCommon('error.title'), t('account.logOutFailed'));
         } finally {
             setLoggingOut(false);
         }
-    }, [deleting, loggingOut, showAlert, signOut]);
+    }, [deleting, loggingOut, showAlert, signOut, t, tCommon]);
 
     const performDeleteAccount = useCallback(async () => {
         setDeleting(true);
         try {
             if (!user?.id) {
-                throw new Error('Unable to delete account right now.');
+                throw new Error(t('account.deleteUnavailable'));
             }
 
             // Server first: local notes are irrecoverable (device-only, no
@@ -67,24 +72,26 @@ export default function AccountSettingsScreen() {
         } catch (error) {
             setDeleting(false);
             if ((error as { code?: string })?.code === 'ERR_REQUEST_CANCELED') return;
-            const message = error instanceof Error ? error.message : 'Failed to delete account';
-            showAlert('Error', message);
+            // `error.message` can be a server string, which arrives in English
+            // whatever the app is set to. See the locale note in api/client.ts.
+            const message = error instanceof Error ? error.message : t('account.deleteFailed');
+            showAlert(tCommon('error.title'), message);
         }
-    }, [showAlert, signOut, user?.id]);
+    }, [showAlert, signOut, t, tCommon, user?.id]);
 
     const handleContactUs = useCallback(() => {
         Linking.openURL(`mailto:${SUPPORT_EMAIL}`).catch(() => {
-            showAlert('Error', 'Unable to open your mail app right now.');
+            showAlert(tCommon('error.title'), t('account.mailOpenFailed'));
         });
-    }, [showAlert]);
+    }, [showAlert, t, tCommon]);
 
     const handleManageSubscription = useCallback(async () => {
         try {
             await Linking.openURL(APPLE_SUBSCRIPTIONS_URL);
         } catch {
-            showAlert('Unable to open subscriptions', 'Open Settings on your iPhone or iPad, tap your name, then Subscriptions to manage your App Store subscription.');
+            showAlert(t('account.subscriptionsTitle'), t('account.subscriptionsMessage'));
         }
-    }, [showAlert]);
+    }, [showAlert, t]);
 
     const handlePrivacyPolicy = useCallback(
         createPrivacyPolicyHandler(router.push),
@@ -101,21 +108,21 @@ export default function AccountSettingsScreen() {
             return;
         }
         showAlert(
-            'Delete account',
-            'This will permanently remove your account and all stored data. This action cannot be undone.\n\nDeleting your account does not cancel an App Store subscription or free trial. Apple billing will continue unless you cancel it in Subscriptions. Please cancel before deleting your account. You can still delete your account immediately.',
+            t('account.deleteConfirmTitle'),
+            t('account.deleteConfirmMessage'),
             {
                 secondaryAction: {
-                    label: 'Manage subscription',
+                    label: t('account.manageSubscription'),
                     onPress: handleManageSubscription,
                 },
                 primaryAction: {
-                    label: 'Delete account',
+                    label: t('rows.deleteAccount'),
                     tone: 'danger',
                     onPress: performDeleteAccount,
                 },
             }
         );
-    }, [deleting, loggingOut, handleManageSubscription, performDeleteAccount, showAlert]);
+    }, [deleting, loggingOut, handleManageSubscription, performDeleteAccount, showAlert, t]);
 
     if (!user) {
         return (
@@ -128,22 +135,24 @@ export default function AccountSettingsScreen() {
     }
 
     return (
-        <SettingsPageShell title="Settings" onBack={ () => router.back() }>
+        <SettingsPageShell title={ t('title') } onBack={ () => router.back() }>
             <FrostedCard contentStyle={ styles.card }>
                 <View style={ styles.rows }>
                     <SettingsRow
-                        text="Reminder settings"
+                        text={ t('rows.reminderSettings') }
                         onPress={ () => router.push('/reminder-settings') }
                     />
-                    <SettingsRow text="Contact us" onPress={ handleContactUs } />
-                    <SettingsRow text="Privacy Policy" onPress={ handlePrivacyPolicy } />
-                    <SettingsRow text="Delete account" onPress={ onDeleteAccount } />
-                    <SettingsRow text="Terms of Service" onPress={ handleTermsOfService } />
+                    <SettingsRow text={ t('rows.contactUs') } onPress={ handleContactUs } />
+                    <SettingsRow text={ t('rows.privacyPolicy') } onPress={ handlePrivacyPolicy } />
+                    <SettingsRow text={ t('rows.deleteAccount') } onPress={ onDeleteAccount } />
+                    <SettingsRow text={ t('rows.termsOfService') } onPress={ handleTermsOfService } />
                     <SettingsRow
-                        text={ loggingOut ? 'Logging out…' : 'Log out' }
+                        text={ loggingOut ? tCommon('action.loggingOut') : tCommon('action.logOut') }
                         onPress={ () => void handleLogout() }
                     />
                 </View>
+                <Spacer />
+                <LanguagePicker />
             </FrostedCard>
         </SettingsPageShell>
     );

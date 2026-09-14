@@ -30,11 +30,12 @@ module.exports = {
     ...(expoPreset.modulePathIgnorePatterns ?? []),
     '<rootDir>/\\.claude/worktrees/',
   ],
-  // @noble/ciphers ships ES modules. Metro handles that natively, but Jest
-  // skips node_modules unless the package is added to the preset's allowlist.
+  // @noble/ciphers and @formatjs ship ES modules. Metro handles that natively,
+  // but Jest skips node_modules unless the package is added to the preset's
+  // allowlist.
   transformIgnorePatterns: (expoPreset.transformIgnorePatterns ?? []).map((pattern) =>
     pattern.startsWith('/node_modules/(?!(')
-      ? pattern.replace('/node_modules/(?!(', '/node_modules/(?!(@noble|')
+      ? pattern.replace('/node_modules/(?!(', '/node_modules/(?!(@noble|@formatjs|')
       : pattern,
   ),
 };

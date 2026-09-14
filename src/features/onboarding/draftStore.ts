@@ -1,6 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 import { reportHandledFailure } from '../../utils/telemetry';
-import { CADENCE_OPTIONS, GOAL_OPTIONS, type CadenceId, type GoalId } from './onboardingCopy';
+import { cadenceOptions, goalOptions, type CadenceId, type GoalId } from './onboardingCopy';
 import type { PlanId } from '../subscription/types';
 import {
     isOnboardingResumeRoute,
@@ -59,10 +59,10 @@ const isPlan = (value: unknown): value is PlanId => value === 'annual' || value 
  * with a cadence it could not step.
  */
 const isGoal = (value: unknown): value is GoalId =>
-    typeof value === 'string' && GOAL_OPTIONS.some((option) => option.id === value);
+    typeof value === 'string' && goalOptions().some((option) => option.id === value);
 
 const isCadence = (value: unknown): value is CadenceId =>
-    typeof value === 'string' && CADENCE_OPTIONS.some((option) => option.id === value);
+    typeof value === 'string' && cadenceOptions().some((option) => option.id === value);
 
 /** Minutes from local midnight. Anything outside a day is not a time of day. */
 const isMinutesOfDay = (value: unknown): value is number =>

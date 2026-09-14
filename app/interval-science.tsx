@@ -1,3 +1,7 @@
+/**
+ * The write-up below is deliberately English-only. See
+ * src/i18n/englishOnly.ts.
+ */
 import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -19,10 +23,12 @@ import {
     intervalCardsFromSchedule,
 } from 'src/features/reminders/intervalCards';
 import { useTherapySessions } from 'src/context/therapy-sessions/TherapySessionsContext';
+import { useTranslation } from 'react-i18next';
 
 const HEADER_BUTTON_SIZE = 48;
 
 export default function IntervalScienceScreen() {
+    const { t } = useTranslation('common');
     const router = useRouter();
     const { source } = useLocalSearchParams<{ source?: string | string[] }>();
     const showingOnboardingPlan = (Array.isArray(source) ? source[0] : source) === 'onboarding';
@@ -83,7 +89,7 @@ export default function IntervalScienceScreen() {
             <GlassMorphismWithSquare squarePosition={ SquarePosition.BOTTOM_LEFT } />
             <View style={ styles.pageHeader }>
                 <GlassCircleButton
-                    accessibilityLabel="Back"
+                    accessibilityLabel={ t('action.back') }
                     icon="back"
                     iconColor={ COLOR_VARIANTS.black.primary }
                     size={ HEADER_BUTTON_SIZE }

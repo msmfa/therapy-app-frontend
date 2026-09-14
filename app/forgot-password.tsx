@@ -20,10 +20,12 @@ import { GLASS_CARD_RADIUS } from 'src/components/ui/GlassMorphism';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 import { useAppAlert } from 'src/context/alert';
 import { PASSWORD_RESET_AUTH_SOURCE } from '../src/features/onboarding/authReturn';
+import { useTranslation } from 'react-i18next';
 
 const MIN_PASSWORD_LENGTH = 8;
 
 export default function ForgotPasswordScreen() {
+    const { t } = useTranslation('auth');
     const router = useRouter();
     const { returnTo, source } = useLocalSearchParams<{
         returnTo?: string;
@@ -47,7 +49,7 @@ export default function ForgotPasswordScreen() {
 
     const handleRequest = async () => {
         if (!trimmedEmail) {
-            showAlert('Oops', 'Enter the email you used for your account');
+            showAlert(t('forgot.emailRequiredTitle'), t('forgot.emailRequiredMessage'));
             return;
         }
 
@@ -56,12 +58,12 @@ export default function ForgotPasswordScreen() {
             const responseMessage = await requestPasswordReset(trimmedEmail);
             setStep('reset');
             showAlert(
-                'Check your email',
+                t('forgot.checkEmailTitle'),
                 responseMessage,
             );
         } catch (err) {
-            const message = err instanceof Error ? err.message : 'We could not start the reset.';
-            showAlert('Request failed', message);
+            const message = err instanceof Error ? err.message : t('forgot.requestFailedMessage');
+            showAlert(t('forgot.requestFailedTitle'), message);
         } finally {
             setLoading(false);
         }
@@ -69,17 +71,17 @@ export default function ForgotPasswordScreen() {
 
     const handleReset = async () => {
         if (!isTokenValid) {
-            showAlert('Invalid code', 'Enter the 6-digit reset code from your email.');
+            showAlert(t('forgot.invalidCodeTitle'), t('forgot.invalidCodeMessage'));
             return;
         }
 
         if (!password || password.length < MIN_PASSWORD_LENGTH) {
-            showAlert('Weak password', `Use at least ${MIN_PASSWORD_LENGTH} characters.`);
+            showAlert(t('forgot.weakPasswordTitle'), t('forgot.weakPasswordMessage', { count: MIN_PASSWORD_LENGTH }));
             return;
         }
 
         if (password !== confirm) {
-            showAlert('Passwords do not match', 'Make sure both password fields match.');
+            showAlert(t('forgot.mismatchTitle'), t('forgot.mismatchMessage'));
             return;
         }
 
@@ -88,8 +90,8 @@ export default function ForgotPasswordScreen() {
             await resetPassword(email, token, password);
             setStep('done');
         } catch (err) {
-            const message = err instanceof Error ? err.message : 'We could not reset your password.';
-            showAlert('Reset failed', message);
+            const message = err instanceof Error ? err.message : t('forgot.resetFailedMessage');
+            showAlert(t('forgot.resetFailedTitle'), message);
         } finally {
             setLoading(false);
         }
@@ -126,7 +128,7 @@ export default function ForgotPasswordScreen() {
                                     </AppText>
 
                                     <TextField
-                                        label="Email"
+                                        label={ t('field.email') }
                                         value={ email }
                                         onChangeText={ setEmail }
                                         placeholder="you@example.com"
@@ -138,7 +140,7 @@ export default function ForgotPasswordScreen() {
                                     />
 
                                     <Button
-                                        label="Send reset code"
+                                        label={ t('forgot.sendCode') }
                                         onPress={ handleRequest }
                                         loading={ loading }
                                         addedStyles={ { marginTop: 8 } }
@@ -155,7 +157,7 @@ export default function ForgotPasswordScreen() {
                                         Paste the reset code and choose a new password.
                                     </AppText>
                                     <TextField
-                                        label="Reset code"
+                                        label={ t('field.resetCode') }
                                         value={ token }
                                         onChangeText={ handleTokenChange }
                                         placeholder="6-digit code"
@@ -167,7 +169,7 @@ export default function ForgotPasswordScreen() {
                                         returnKeyType="next"
                                     />
                                     <PasswordField
-                                        label="New password"
+                                        label={ t('field.newPassword') }
                                         value={ password }
                                         onChangeText={ setPassword }
                                         placeholder="••••••••"
@@ -176,7 +178,7 @@ export default function ForgotPasswordScreen() {
                                     />
 
                                     <PasswordField
-                                        label="Confirm password"
+                                        label={ t('field.confirmPassword') }
                                         value={ confirm }
                                         onChangeText={ setConfirm }
                                         placeholder="••••••••"
@@ -186,7 +188,7 @@ export default function ForgotPasswordScreen() {
                                     />
 
                                     <Button
-                                        label="Update password"
+                                        label={ t('forgot.updatePassword') }
                                         onPress={ handleReset }
                                         disabled={ !isTokenValid }
                                         loading={ loading }
@@ -204,7 +206,7 @@ export default function ForgotPasswordScreen() {
                                         Your password has been reset. Sign in with your new password to continue.
                                     </AppText>
 
-                                    <Button label="Back to sign in" onPress={ handleReturnToLogin } />
+                                    <Button label={ t('forgot.backToSignIn') } onPress={ handleReturnToLogin } />
                                 </View>
                             ) }
                         </View>

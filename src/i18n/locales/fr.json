@@ -1,0 +1,521 @@
+{
+  "common": {
+    "action": {
+      "logOut": "Se déconnecter",
+      "loggingOut": "Déconnexion…",
+      "tryAgain": "Réessayer",
+      "back": "Retour"
+    },
+    "error": {
+      "title": "Erreur",
+      "tryAgain": "Veuillez réessayer."
+    },
+    "screen": {
+      "privacyPolicy": "Politique de confidentialité",
+      "termsOfService": "Conditions d’utilisation",
+      "references": "Références"
+    },
+    "a11y": {
+      "close": "Fermer",
+      "dismissAlert": "Fermer l’alerte",
+      "dismissError": "Fermer l’erreur",
+      "hidePassword": "Masquer le mot de passe",
+      "loading": "Chargement",
+      "showPassword": "Afficher le mot de passe",
+      "tryAgainQuestion": "Réessayer ?"
+    },
+    "tab": {
+      "calendar": "Calendrier",
+      "newNote": "Nouvelle note",
+      "notes": "Notes",
+      "settings": "Réglages"
+    },
+    "notFound": {
+      "body": "Nous n’avons pas trouvé ce que vous cherchiez. Toutes nos excuses.",
+      "cta": "Retour à l’accueil",
+      "title": "Oups !"
+    }
+  },
+  "settings": {
+    "title": "Réglages",
+    "hub": {
+      "references": "Références",
+      "settings": "Réglages",
+      "rateApp": "Noter cette application",
+      "version": "v{{version}}",
+      "logOutFailed": "Impossible de vous déconnecter, veuillez réessayer",
+      "rateUnavailableTitle": "Indisponible",
+      "rateUnavailableMessage": "La notation n’est pas encore prise en charge sur cette plateforme.",
+      "storeOpenFailed": "Impossible d’ouvrir la boutique pour le moment."
+    },
+    "rows": {
+      "reminderSettings": "Réglages des rappels",
+      "contactUs": "Nous contacter",
+      "privacyPolicy": "Politique de confidentialité",
+      "deleteAccount": "Supprimer le compte",
+      "termsOfService": "Conditions d’utilisation"
+    },
+    "account": {
+      "logOutFailed": "Impossible de vous déconnecter. Veuillez réessayer.",
+      "mailOpenFailed": "Impossible d’ouvrir votre application de messagerie pour le moment.",
+      "subscriptionsTitle": "Impossible d’ouvrir les abonnements",
+      "subscriptionsMessage": "Ouvrez Réglages sur votre iPhone ou iPad, touchez votre nom, puis Abonnements pour gérer votre abonnement App Store.",
+      "deleteUnavailable": "Impossible de supprimer le compte pour le moment.",
+      "deleteFailed": "Échec de la suppression du compte",
+      "deleteConfirmTitle": "Supprimer le compte",
+      "deleteConfirmMessage": "Cette action supprimera définitivement votre compte et toutes les données enregistrées. Elle est irréversible.\n\nLa suppression de votre compte n’annule pas un abonnement App Store ni une période d’essai gratuite. La facturation Apple se poursuivra tant que vous ne l’aurez pas annulée dans Abonnements. Veuillez l’annuler avant de supprimer votre compte. Vous pouvez malgré tout supprimer votre compte immédiatement.",
+      "manageSubscription": "Gérer l’abonnement"
+    },
+    "language": {
+      "title": "Langue",
+      "system": "Système",
+      "systemDetail": "Actuellement : {{language}}",
+      "saveFailedTitle": "Langue non enregistrée",
+      "saveFailedMessage": "L’application est maintenant en {{language}}, mais ce choix n’a pas pu être mémorisé. Veuillez réessayer.",
+      "a11yRow": "{{label}}, {{detail}}",
+      "a11yHint": "Change immédiatement la langue de l’application"
+    }
+  },
+  "reminderSettings": {
+    "title": "Réglages des rappels",
+    "intro": "Choisissez le moment où de courtes révisions s’intègrent le mieux à votre routine. Votre rappel de prise de notes arrive toujours peu après chaque séance.",
+    "morning": "Révisions du matin",
+    "evening": "Révisions du soir",
+    "save": "Enregistrer les horaires",
+    "permissions": "Autorisation de notifications : {{state}}",
+    "permissionOn": "Activée",
+    "permissionOff": "Désactivée",
+    "a11yTime": "{{label}}, {{time}}",
+    "loadFailed": "Impossible de charger les réglages des rappels",
+    "enableFailed": "Impossible d’activer les rappels",
+    "enableFailedMessage": "Veuillez réessayer une fois connecté à Internet.",
+    "permissionFailed": "Impossible de modifier l’accès aux notifications",
+    "saved": "Horaires des rappels mis à jour",
+    "savedMessage": "Vos prochaines révisions utiliseront ces horaires.",
+    "saveFailed": "Impossible de mettre à jour les horaires des rappels"
+  },
+  "notes": {
+    "reviewProgress_one": "{{count}} révision sur {{total}}",
+    "reviewProgress_other": "{{count}} révisions sur {{total}}",
+    "reviewProgressNone": "Aucune révision programmée pour l’instant",
+    "empty": {
+      "title": "Votre première note",
+      "withSession": "Nous vous enverrons une notification juste après votre prochaine séance, le <date>{{date}}</date>, pour que vous puissiez écrire votre première note. Elle apparaîtra ensuite ici.",
+      "noSession": "Vous n’avez encore aucune séance programmée. Ajoutez-en une dans le calendrier et nous vous le rappellerons juste après, pour que vous puissiez écrire votre première note.",
+      "getStarted": "Si vous voulez commencer dès maintenant, touchez l’icône plus en bas à gauche. Cela vaut la peine de lire un peu <link>quelle façon de prendre des notes fonctionne le mieux en thérapie</link> avant de vous lancer.",
+      "example": "Exemple"
+    },
+    "list": {
+      "loadFailed": "Échec du chargement des notes"
+    },
+    "editor": {
+      "empty": "Une note ne peut pas être vide.",
+      "updateFailed": "Échec de la mise à jour de la note.",
+      "addFailed": "Échec de l’ajout de la note",
+      "signInToSave": "Connectez-vous pour enregistrer une note.",
+      "cancel": "annuler",
+      "cancelEdit": "Annuler la modification",
+      "saveUnavailable": "Impossible d’enregistrer la note pour le moment.",
+      "howTo": "Comment prendre des notes",
+      "saveNote": "Enregistrer la note"
+    },
+    "review": {
+      "reviewed": "REVU",
+      "markReviewed": "Marquer comme revu",
+      "saveFailed": "Échec de l’enregistrement de la révision. Veuillez réessayer.",
+      "loadFailed": "Échec du chargement des révisions",
+      "saveStateFailed": "Échec de l’enregistrement de la révision",
+      "undoFailed": "Échec de l’annulation de la révision"
+    },
+    "prompt": {
+      "default": "Qu’est-ce qui a compté dans votre séance ?",
+      "remember": "Que voulez-vous retenir de cette séance ?",
+      "practise": "Quelle idée voulez-vous mettre en pratique au quotidien ?",
+      "prepare": "Quel fil clair voulez-vous reprendre la prochaine fois ?",
+      "habit": "Que souhaitez-vous comprendre ou améliorer avec le temps ?"
+    },
+    "progressPreview": {
+      "none": "Pas encore revue",
+      "once": "Revue une fois",
+      "halfway": "À mi-parcours",
+      "almost": "Presque terminé",
+      "done": "Terminé"
+    },
+    "sample": {
+      "text": "Nous avons passé le plus clair de l’heure sur la façon dont je me prépare aux critiques avant même qu’il ne se soit rien passé. Elle a souligné que je fais la même chose en réunion qu’avec mon frère, ce que je n’avais jamais rapproché auparavant."
+    },
+    "cheatsheet": {
+      "titleSans": "Aide-",
+      "titleSerif": "mémoire"
+    },
+    "template": {
+      "title": "Votre note de thérapie en cinq minutes",
+      "subtitle": "Cinq questions pour saisir ce qui a compté",
+      "intro": "Écrivez autant ou aussi peu que vous le souhaitez. C’est votre note privée, pas un compte rendu à rendre parfait.",
+      "q1": "Qu’est-ce qui vous est resté de la séance d’aujourd’hui ?",
+      "h1": "Une idée, une phrase, une prise de conscience ou un moment que vous ne voulez pas perdre.",
+      "q2": "Quelle situation, pensée ou émotion voulez-vous observer cette semaine ?",
+      "h2": "Quelque chose en lien avec ce que vous avez abordé, s’il y en a une.",
+      "q3": "Qu’avez-vous compris différemment ?",
+      "h3": "Dites-le avec vos propres mots.",
+      "q4": "Y a-t-il quelque chose que vous voulez essayer ou retenir ?",
+      "h4": "Laissez vide si rien n’a été convenu ni suggéré.",
+      "q5": "Sur quoi voulez-vous revenir lors de votre prochaine séance ?",
+      "h5": "Un seul sujet suffit."
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "Connexion",
+      "submit": "Se connecter",
+      "forgotPassword": "Mot de passe oublié ?",
+      "noAccount": "Vous n’avez pas de compte ?",
+      "signUpHere": "Créez-en un ici",
+      "missingDetailsTitle": "Informations manquantes",
+      "missingDetailsMessage": "Saisissez votre adresse e-mail et votre mot de passe.",
+      "failedTitle": "Connexion impossible"
+    },
+    "signUp": {
+      "title": "Créer votre compte",
+      "submit": "Créer le compte",
+      "failedTitle": "Création du compte impossible",
+      "nameRequired": "Le nom est obligatoire",
+      "invalidEmail": "Saisissez une adresse e-mail valide",
+      "passwordsMustMatch": "Les mots de passe doivent être identiques"
+    },
+    "field": {
+      "name": "Nom",
+      "namePlaceholder": "Marie Dupont",
+      "email": "E-mail",
+      "emailPlaceholder": "vous@exemple.com",
+      "password": "Mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "newPassword": "Nouveau mot de passe",
+      "resetCode": "Code de réinitialisation"
+    },
+    "forgot": {
+      "emailRequiredTitle": "Adresse manquante",
+      "emailRequiredMessage": "Saisissez l’adresse e-mail associée à votre compte",
+      "checkEmailTitle": "Consultez votre boîte mail",
+      "requestFailedTitle": "Échec de la demande",
+      "requestFailedMessage": "La réinitialisation n’a pas pu être lancée.",
+      "invalidCodeTitle": "Code invalide",
+      "invalidCodeMessage": "Saisissez le code à 6 chiffres reçu par e-mail.",
+      "weakPasswordTitle": "Mot de passe trop faible",
+      "weakPasswordMessage_one": "Utilisez au moins {{count}} caractère.",
+      "weakPasswordMessage_other": "Utilisez au moins {{count}} caractères.",
+      "mismatchTitle": "Les mots de passe ne correspondent pas",
+      "mismatchMessage": "Vérifiez que les deux champs sont identiques.",
+      "resetFailedTitle": "Échec de la réinitialisation",
+      "resetFailedMessage": "Votre mot de passe n’a pas pu être réinitialisé.",
+      "sendCode": "Envoyer le code",
+      "updatePassword": "Mettre à jour le mot de passe",
+      "backToSignIn": "Retour à la connexion"
+    },
+    "apple": {
+      "continueWith": "Continuer avec Apple",
+      "signingIn": "Connexion avec Apple en cours",
+      "unavailableTitle": "Connexion Apple indisponible",
+      "unavailableMessage": "Cet appareil ne prend pas en charge « Se connecter avec Apple ».",
+      "failedTitle": "Échec de la connexion Apple",
+      "authFailedTitle": "Échec de l’authentification"
+    },
+    "password": {
+      "tooShort_one": "Le mot de passe doit contenir au moins {{count}} caractère",
+      "tooShort_other": "Le mot de passe doit contenir au moins {{count}} caractères",
+      "needsUppercase": "Le mot de passe doit contenir au moins une majuscule",
+      "needsSymbol": "Le mot de passe doit contenir au moins un symbole"
+    }
+  },
+  "calendar": {
+    "nextSession": "Prochaine séance",
+    "nextReminder": "Prochain rappel",
+    "clear": "Effacer",
+    "save": "Enregistrer",
+    "clearA11y": "Effacer les séances",
+    "saveA11y": "Enregistrer les séances",
+    "saved": "Vos séances ont été mises à jour",
+    "changedTitle": "Le calendrier a changé",
+    "refresh": "Actualiser le calendrier",
+    "saveFailed": "Impossible d’enregistrer les séances pour le moment.",
+    "outOfRange": "Les rendez-vous doivent se situer entre aujourd’hui et un an à l’avance. Veuillez modifier votre sélection.",
+    "sessionChanged": "La séance a été modifiée. Veuillez réessayer.",
+    "schedule": {
+      "thisDayOnly": "Ce jour uniquement",
+      "everyWeek": "Chaque semaine",
+      "nextTwoMonths": "Pour les deux prochains mois",
+      "repeatCount_one": "{{count}} séance",
+      "repeatCount_other": "{{count}} séances",
+      "delete": "Supprimer",
+      "update": "Mettre à jour",
+      "add": "Ajouter une séance"
+    },
+    "error": {
+      "timeout": {
+        "title": "Délai de connexion dépassé",
+        "message": "Votre planning n’a pas pu être chargé. Vérifiez votre connexion et réessayez."
+      },
+      "unauthorized": {
+        "title": "Connectez-vous pour continuer",
+        "message": "Votre session a expiré. Reconnectez-vous pour charger vos rappels."
+      },
+      "forbidden": {
+        "title": "Accès refusé",
+        "message": "Votre compte n’a plus accès à ces séances. Contactez le support si cela vous surprend."
+      },
+      "notFound": {
+        "title": "Aucune séance trouvée",
+        "message": "Aucune séance à venir n’a été trouvée. Ajoutez-en pour voir vos rappels ici."
+      },
+      "rateLimited": {
+        "title": "Patientez un instant",
+        "message": "Vos séances sont chargées trop rapidement en ce moment. Réessayez dans quelques secondes."
+      },
+      "server": {
+        "title": "Service indisponible",
+        "message": "Le chargement des séances rencontre un problème. Réessayez dans un instant."
+      },
+      "maintenance": {
+        "title": "Fonctionnalité temporairement hors ligne",
+        "message": "Les rappels sont en cours de mise à jour. Revenez d’ici peu."
+      },
+      "network": {
+        "title": "Aucune connexion Internet",
+        "message": "Vous semblez hors ligne. Reconnectez-vous à Internet et réessayez."
+      },
+      "unknown": {
+        "title": "Une erreur est survenue",
+        "message": "Vos séances n’ont pas pu être chargées. Veuillez réessayer plus tard."
+      }
+    }
+  },
+  "onboarding": {
+    "welcome": {
+      "headline": "Un journal de thérapie qui vous rappelle de relire vos notes",
+      "primaryCta": "Créer mon programme",
+      "secondaryCta": "J’ai déjà un compte"
+    },
+    "goalOption": {
+      "practise": {
+        "label": "Mettre en pratique ce que m’apporte la thérapie",
+        "subscriptionHeadline": "Mettez en pratique ce que vous apporte la thérapie",
+        "restated": "Mettre en pratique ce que vous apporte la thérapie",
+        "noteSupport": "Les notifications entre les séances vous aident à mettre en pratique ce que vous avez abordé lors de la dernière."
+      },
+      "prepare": {
+        "label": "Être mieux préparé pour ma prochaine séance",
+        "subscriptionHeadline": "Arrivez préparé à votre prochaine séance",
+        "restated": "Être mieux préparé pour votre prochaine séance",
+        "noteSupport": "La veille au soir de votre prochaine séance, vous serez invité à relire votre dernière note."
+      },
+      "habit": {
+        "label": "Suivre mes progrès dans le temps",
+        "subscriptionHeadline": "Suivez vos progrès dans le temps",
+        "restated": "Suivre vos progrès dans le temps",
+        "noteSupport": "Relisez vos notes d’il y a plusieurs semaines ou plusieurs mois pour voir ce qui progresse et ce sur quoi vous voulez encore travailler."
+      }
+    },
+    "goalPriority": {
+      "remember": "vous souvenir de ce qui est ressorti de vos séances",
+      "practise": "mettre en pratique dans la semaine ce qui ressort en thérapie",
+      "prepare": "arriver préparé à votre prochaine séance",
+      "habit": "voir vos progrès s’accumuler avec le temps"
+    },
+    "goal": {
+      "headline": "Qu’est-ce qui vous aiderait à tirer davantage de la thérapie ?",
+      "supporting": "Choisissez ce qui compte le plus pour vous.",
+      "primaryCta": "Continuer"
+    },
+    "sessionDate": {
+      "headline": "Quand a lieu votre prochaine séance ?",
+      "supporting": "Nous nous en servirons pour placer votre première note et organiser les révisions qui suivent.",
+      "dateLabel": "Date",
+      "timeLabel": "Heure",
+      "validation": "Choisissez une séance à venir.",
+      "rangeValidation": "Choisissez une séance dans les six prochains mois.",
+      "primaryCta": "Continuer",
+      "sampleCta": "Je ne l’ai pas encore réservée"
+    },
+    "cadenceOption": {
+      "weekly": "Chaque semaine",
+      "fortnightly": "Toutes les deux semaines",
+      "monthly": "Une fois par mois",
+      "varies": "Cela varie"
+    },
+    "cadence": {
+      "headline": "À quelle fréquence ont lieu vos séances ?",
+      "supporting": "Cela nous permet de choisir les meilleurs moments pour vos rappels.",
+      "primaryCta": "Choisir les horaires"
+    },
+    "reminderTimes": {
+      "headline": "Choisissez des horaires adaptés à votre routine",
+      "supporting": "Vous ne recevrez qu’un seul rappel matinal par semaine, après votre séance.",
+      "morningLabel": "Révisions du matin",
+      "eveningLabel": "Révisions du soir",
+      "quote": "J’aime bien le rappel avant ma prochaine séance. Avant, j’avais du mal à savoir de quoi parler, puis je ressortais de la séance en me souvenant enfin de ce que je voulais aborder. Avec le rappel d’avant-séance, je reprends simplement là où je m’étais arrêtée.",
+      "quoteName": "Sarah",
+      "quoteRole": "Utilisatrice de Plastic Brains",
+      "primaryCta": "Voir mon programme"
+    },
+    "plan": {
+      "headline": "Votre programme sur mesure",
+      "sampleHeadline": "Découvrez comment votre programme pourrait fonctionner",
+      "sampleBody": "Cet exemple montre comment les rappels s’intercalent entre les séances. Ajoutez votre séance plus tard et nous remplacerons ces dates par votre programme réel.",
+      "sampleVariableBody": "Cet exemple utilise un intervalle d’une semaine pour montrer le fonctionnement des rappels. Ajoutez vos séances plus tard et nous utiliserons l’intervalle réel qui les sépare.",
+      "evidenceStatement": "Ces horaires s’appuient sur la recherche sur la consolidation mnésique, le sommeil, la récupération espacée et la remise en contexte.",
+      "evidenceStatementWithGoal": "Ces horaires s’appuient sur la recherche sur la consolidation mnésique, le sommeil, la récupération espacée et la remise en contexte. Ils tiennent aussi compte de ce qui compte le plus pour vous : {{priority}}.",
+      "primaryCta": "Après votre note"
+    },
+    "reviewsPreview": {
+      "headline": "Vos rappels personnalisés",
+      "exampleGapNote": "Ces dates utilisent un intervalle d’une semaine à titre d’exemple. Dès que nous connaîtrons la date de votre séance suivante, vos révisions se caleront sur l’intervalle réel.",
+      "sampleNote": "Ces dates proviennent de la séance d’exemple de votre programme type. Ajoutez votre prochaine séance plus tard et nous les remplacerons par votre véritable calendrier.",
+      "primaryCta": "Vos notes"
+    },
+    "notePreview": {
+      "headline": "Vos notes",
+      "researchLink": "Pourquoi ces cinq questions ?",
+      "privacyTitle": "Vos notes restent les vôtres",
+      "privacyBody": "Le contenu de vos notes est chiffré et conservé uniquement sur cet iPhone. Il n’est jamais transféré sur nos serveurs.",
+      "reminderTitle": "Plastic Brains",
+      "reminderBody": "Relisez vos notes avant la séance de demain",
+      "reminderTime": "maintenant",
+      "primaryCta": "Voir les offres"
+    },
+    "remainingQuestions_one": "{{count}} question supplémentaire incluse",
+    "remainingQuestions_other": "{{count}} questions supplémentaires incluses",
+    "subscription": {
+      "fallbackHeadline": "Gardez la thérapie avec vous entre les séances",
+      "body": "Gardez le programme que vous venez de créer — noter, relire, préparer — autour de chaque séance.",
+      "planTitle": "Votre programme est prêt",
+      "samplePlanTitle": "Votre programme type est prêt",
+      "samplePlanNote": "Ajoutez votre prochaine séance plus tard et ces dates d’exemple seront remplacées par votre véritable calendrier.",
+      "nextSessionLabel": "Prochaine séance",
+      "sampleSessionLabel": "Séance d’exemple",
+      "firstNoteLabel": "Première note",
+      "reviewTimesLabel": "Horaires des révisions",
+      "quote": "En tant que thérapeute qui a elle-même un thérapeute, je n’aurais pas pensé tirer profit d’un outil comme celui-ci. Mais avec une charge de travail aussi lourde, cela m’aide vraiment à me sentir prête pour mes propres séances.",
+      "quoteName": "Catherine",
+      "quoteRole": "Thérapeute TCC",
+      "annualCta": "Continuer avec l’abonnement annuel",
+      "monthlyCta": "Continuer avec l’abonnement mensuel",
+      "annualTitle": "Annuel",
+      "annualRenewal": "Renouvelé chaque année jusqu’à résiliation.",
+      "annualRenewalNoTrial": "Facturé aujourd’hui. Renouvelé chaque année jusqu’à résiliation.",
+      "monthlyTitle": "Mensuel",
+      "monthlyBadge": "Flexible",
+      "monthlyRenewal": "Renouvelé chaque mois jusqu’à résiliation.",
+      "monthlyRenewalNoTrial": "Facturé aujourd’hui. Renouvelé chaque mois jusqu’à résiliation.",
+      "planHeader": "Votre offre",
+      "annualDescription": "Notes, révisions, rappels et plus encore",
+      "monthlyDescription": "Le même programme, mois par mois",
+      "trialCta": "Commencer l’essai gratuit",
+      "cancelAnytime": "Résiliable à tout moment",
+      "trialTodayLabel": "Aujourd’hui",
+      "trialTodayBody": "L’accès complet commence",
+      "trialCancelNote": "Résiliable à tout moment dans les réglages d’abonnement de votre identifiant Apple.",
+      "restore": "Restaurer les achats",
+      "restoring": "Restauration…",
+      "terms": "Conditions",
+      "privacy": "Confidentialité",
+      "unavailableHeadline": "Impossible de charger les abonnements pour le moment",
+      "unavailableBody": "Vérifiez votre connexion et réessayez.",
+      "unavailableCta": "Réessayer",
+      "trialHeadline_day_one": "Votre premier jour est offert",
+      "trialHeadline_day_other": "Vos {{count}} premiers jours sont offerts",
+      "trialHeadline_week_one": "Votre première semaine est offerte",
+      "trialHeadline_week_other": "Vos {{count}} premières semaines sont offertes",
+      "trialHeadline_month_one": "Votre premier mois est offert",
+      "trialHeadline_month_other": "Vos {{count}} premiers mois sont offerts",
+      "trialHeadline_year_one": "Votre première année est offerte",
+      "trialHeadline_year_other": "Vos {{count}} premières années sont offertes",
+      "priceLine_year": "{{price}} par an",
+      "priceLine_month": "{{price}} par mois",
+      "priceLineThen_year": "Puis {{price}} par an",
+      "priceLineThen_month": "Puis {{price}} par mois",
+      "cardPrice_year": "{{price}}/an",
+      "cardPrice_month": "{{price}}/mois",
+      "cardPriceWithMonthly": "{{per}} (soit {{monthly}}/mois)",
+      "trialTimelineToday": "Aujourd’hui : début de votre essai gratuit",
+      "trialTimelineCharge": "Jour {{day}} : vous serez facturé {{price}}",
+      "trialEndLine_annual": "Votre abonnement annuel débutera à {{price}} sauf résiliation.",
+      "trialEndLine_monthly": "Votre abonnement mensuel débutera à {{price}} sauf résiliation.",
+      "trialBadge_day_one": "{{count}} jour offert",
+      "trialBadge_day_other": "{{count}} jours offerts",
+      "trialBadge_week_one": "{{count}} semaine offerte",
+      "trialBadge_week_other": "{{count}} semaines offertes",
+      "trialBadge_month_one": "{{count}} mois offert",
+      "trialBadge_month_other": "{{count}} mois offerts",
+      "trialBadge_year_one": "{{count}} an offert",
+      "trialBadge_year_other": "{{count}} ans offerts"
+    },
+    "account": {
+      "headline": "Compte",
+      "body": "Créez un compte pour y rattacher votre calendrier, vos horaires de rappel et votre abonnement. Le contenu de vos notes reste uniquement sur cet iPhone.",
+      "authenticatedBody": "Votre calendrier, vos horaires de rappel et votre abonnement seront rattachés à votre compte. Le contenu de vos notes reste uniquement sur cet iPhone.",
+      "continue": "Continuer",
+      "apple": "Continuer avec Apple",
+      "email": "Continuer avec un e-mail",
+      "sessionLabel": "Prochaine séance",
+      "noSession": "Ajoutez votre prochaine séance dans le calendrier",
+      "remindersLabel": "Horaires des rappels",
+      "subscriptionLabel": "Abonnement",
+      "subscriptionActive": "Déjà actif",
+      "cancelAnytime": "Vous pouvez résilier à tout moment via les abonnements Apple.",
+      "legalIntro": "En continuant, vous acceptez :",
+      "legalTerms": "Conditions d’utilisation",
+      "legalPrivacy": "Politique de confidentialité"
+    },
+    "purchase": {
+      "continue": "Continuer",
+      "cancelledTitle": "Aucun abonnement démarré",
+      "cancelled": "Votre abonnement n’a pas été démarré. Réessayez quand vous serez prêt.",
+      "pendingTitle": "Achat en attente",
+      "pending": "Apple traite encore cet achat. Vous pourrez continuer une fois qu’il sera validé.",
+      "errorTitle": "Impossible de démarrer votre abonnement",
+      "errorBody": "Vous n’avez pas été facturé. Veuillez réessayer.",
+      "errorPrimary": "Réessayer",
+      "errorSecondary": "Retour aux offres",
+      "unlinkedTitle": "Impossible de rattacher cet abonnement",
+      "unlinkedBody": "Apple a bien effectué la transaction, mais elle n’est pas rattachée à ce compte Plastic Brains. Essayez « Restaurer les achats » depuis le compte d’origine. Un même abonnement actif ne vous sera pas facturé deux fois.",
+      "restoreEmpty": "Aucun abonnement actif n’a été trouvé pour cet identifiant Apple.",
+      "restoreErrorTitle": "Impossible de restaurer les achats",
+      "restoreError": "Vérifiez votre connexion et réessayez.",
+      "restoredTitle": "Abonnement restauré",
+      "restored": "Votre abonnement est actif sur cet identifiant Apple."
+    },
+    "notifications": {
+      "body": "Activez les notifications pour que votre programme puisse vous joindre aux horaires que vous avez choisis.",
+      "privacy": "Les notifications affichent le rappel, jamais ce que vous avez écrit.",
+      "primaryCta": "Activer les notifications",
+      "secondaryCta": "Pas maintenant",
+      "deniedHeadline": "Activez les notifications dans les Réglages",
+      "deniedBody": "Les notifications sont désactivées. Vous pourrez les activer dans les Réglages de l’iPhone quand vous le souhaiterez.",
+      "deniedPrimaryCta": "Ouvrir les Réglages",
+      "registrationErrorTitle": "Impossible d’activer les notifications",
+      "registrationErrorBody": "Vérifiez votre connexion et réessayez, ou choisissez Pas maintenant.",
+      "headline": "Recevez votre premier rappel de note {{weekday}} à {{time}}"
+    },
+    "success": {
+      "headline": "Votre programme entre les séances est prêt",
+      "withoutRemindersBody": "Enregistrez-le maintenant. Vous pourrez activer les notifications plus tard dans les Réglages.",
+      "primaryCta": "Enregistrer et voir mes notes",
+      "sampleHeadline": "Votre programme type est prêt",
+      "sampleBody": "Enregistrez vos préférences maintenant. Ajoutez votre prochaine séance dans le calendrier et nous construirons le vrai programme autour d’elle.",
+      "samplePrimaryCta": "Enregistrer et voir mes notes",
+      "body": "Enregistrez-le maintenant et votre premier rappel de note arrivera {{weekday}} à {{time}}."
+    },
+    "error": {
+      "saveTitle": "Impossible d’enregistrer votre programme",
+      "saveBody": "Vos réponses sont conservées. Veuillez réessayer.",
+      "offlineTitle": "Vous êtes hors ligne",
+      "offlineBody": "Reconnectez-vous pour continuer la configuration de votre programme.",
+      "signInTitle": "Connectez-vous pour enregistrer votre programme",
+      "signInBody": "Vos réponses sont conservées. Connectez-vous pour terminer la configuration.",
+      "signInCta": "Continuer",
+      "unexpectedTitle": "Une erreur est survenue",
+      "unexpectedBody": "Vos réponses sont conservées. Veuillez réessayer.",
+      "retryCta": "Réessayer"
+    }
+  }
+}

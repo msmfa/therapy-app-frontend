@@ -15,6 +15,7 @@ import {
 import { TherapySessionsProvider, useTherapySessions } from '../src/context/therapy-sessions/TherapySessionsContext';
 import { usePushNotifications } from '../src/hooks/usePushNotifications';
 import { useTimeZoneSync } from '../src/hooks/useTimeZoneSync';
+import { useLanguageSync } from '../src/i18n/useLanguageSync';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { GRADIENTS } from 'designs/designs-gradients';
 import { Platform, StatusBar, StyleSheet, View } from 'react-native';
@@ -30,6 +31,7 @@ import { useFonts } from 'expo-font';
 import { initializeStoreKit } from '../src/features/subscription/storeKit';
 import { AnalyticsInitializer } from '../src/components/analytics/AnalyticsInitializer';
 import { DemoSeedRunner } from '../src/features/dev/DemoSeedRunner';
+import { LanguageGate } from '../src/i18n/LanguageGate';
 
 import { captureNotificationOpened, rememberNotificationReceipt, type NotificationAnalyticsReceipt } from '../src/features/analytics/notificationAnalytics';
 
@@ -200,30 +202,35 @@ export default Sentry.wrap(function RootLayout() {
 
     return (
         <ThemeProvider value={ theme }>
-            <AppAlertProvider>
-                <AuthProvider>
-                    <TherapySessionsProvider>
-                        <OnboardingProvider>
-                            { /* Above the Gate on purpose: the Gate unmounts the
-                                 navigator while onboarding state re-hydrates after
-                                 sign-in, and the answers have to outlive that. */ }
-                            <OnboardingAnswersProvider>
-                                <EntitlementProvider>
-                                    <SafeAreaProvider>
-                                        <AnalyticsInitializer />
-                                        { /* Inert unless EXPO_PUBLIC_SEED_DEMO=1 in a dev
-                                             bundle. Writes the demo account's notes and
-                                             review history for screenshots and recordings. */ }
-                                        <DemoSeedRunner />
-                                        <Initializer />
-                                        <Gate />
-                                    </SafeAreaProvider>
-                                </EntitlementProvider>
-                            </OnboardingAnswersProvider>
-                        </OnboardingProvider>
-                    </TherapySessionsProvider>
-                </AuthProvider>
-            </AppAlertProvider>
+            { /* Outermost provider that renders copy: everything below it,
+                 including the alert modal, mounts with the user's language
+                 already applied rather than the device's. */ }
+            <LanguageGate>
+                <AppAlertProvider>
+                    <AuthProvider>
+                        <TherapySessionsProvider>
+                            <OnboardingProvider>
+                                { /* Above the Gate on purpose: the Gate unmounts the
+                                     navigator while onboarding state re-hydrates after
+                                     sign-in, and the answers have to outlive that. */ }
+                                <OnboardingAnswersProvider>
+                                    <EntitlementProvider>
+                                        <SafeAreaProvider>
+                                            <AnalyticsInitializer />
+                                            { /* Inert unless EXPO_PUBLIC_SEED_DEMO=1 in a dev
+                                                 bundle. Writes the demo account's notes and
+                                                 review history for screenshots and recordings. */ }
+                                            <DemoSeedRunner />
+                                            <Initializer />
+                                            <Gate />
+                                        </SafeAreaProvider>
+                                    </EntitlementProvider>
+                                </OnboardingAnswersProvider>
+                            </OnboardingProvider>
+                        </TherapySessionsProvider>
+                    </AuthProvider>
+                </AppAlertProvider>
+            </LanguageGate>
             <StatusBar barStyle="dark-content" backgroundColor={ theme.colors.background } />
         </ThemeProvider>
     );
@@ -242,6 +249,10 @@ function Initializer() {
     // Tell the backend which zone to place reminder wall-clock times in
     const { refreshReminderSchedule } = useTherapySessions();
     useTimeZoneSync(refreshReminderSchedule);
+
+    // Keep the account's language and this install's in step, so the interface
+    // and the push notifications are never in two different languages.
+    useLanguageSync();
 
     useEffect(() => {
         // Observe StoreKit for the whole app lifetime so an Ask to Buy or other

@@ -10,8 +10,8 @@ import { OnboardingButton } from '../../src/components/onboarding/OnboardingButt
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import { useAppAlert } from '../../src/context/alert';
 import {
-    ERROR_COPY,
-    SUCCESS_COPY,
+    errorCopy,
+    successCopyStrings,
     successCopy,
 } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
@@ -104,9 +104,9 @@ export default function SuccessScreen() {
             setIsCompleting(false);
 
             if (error instanceof OnboardingCompletionError && error.reason === 'no_user') {
-                showAlert(ERROR_COPY.signInTitle, ERROR_COPY.signInBody, {
+                showAlert(errorCopy().signInTitle, errorCopy().signInBody, {
                     primaryAction: {
-                        label: ERROR_COPY.signInCta,
+                        label: errorCopy().signInCta,
                         onPress: () => router.replace('/(onboarding)/account-preview'),
                     },
                 });
@@ -118,7 +118,7 @@ export default function SuccessScreen() {
             if (!(error instanceof OnboardingCompletionError)) {
                 reportHandledFailure('onboarding', 'complete', error);
             }
-            showAlert(ERROR_COPY.saveTitle, ERROR_COPY.saveBody);
+            showAlert(errorCopy().saveTitle, errorCopy().saveBody);
         }
     }, [
         answers.cadence,
@@ -138,7 +138,7 @@ export default function SuccessScreen() {
     // Only show reminder copy when delivery is ready. The wording stays
     // prospective because this screen saves the actual session plan below.
     const { headline, body } = firstReminderAt === null
-        ? { headline: SUCCESS_COPY.sampleHeadline, body: SUCCESS_COPY.sampleBody }
+        ? { headline: successCopyStrings().sampleHeadline, body: successCopyStrings().sampleBody }
         : successCopy(
             answers.reminderScheduled,
             weekdayName(firstReminderAt),
@@ -165,8 +165,8 @@ export default function SuccessScreen() {
             footer={
                 <OnboardingButton
                     label={ firstReminderAt === null
-                        ? SUCCESS_COPY.samplePrimaryCta
-                        : SUCCESS_COPY.primaryCta }
+                        ? successCopyStrings().samplePrimaryCta
+                        : successCopyStrings().primaryCta }
                     onPress={ () => void handleComplete() }
                     loading={ isCompleting }
                 />

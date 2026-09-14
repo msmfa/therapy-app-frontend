@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react-native';
 
-import { SESSION_DATE_COPY } from '../../src/features/onboarding/onboardingCopy';
+import { sessionDateCopy } from '../../src/features/onboarding/onboardingCopy';
 import {
     isWithinFirstSessionWindow,
     latestFirstSessionAt,
@@ -86,7 +86,7 @@ describe('onboarding rejects a first session beyond the series horizon', () => {
     it('explains why, in a live region', () => {
         const { getByText } = render(<SessionDateScreen />);
 
-        const validation = getByText(SESSION_DATE_COPY.rangeValidation);
+        const validation = getByText(sessionDateCopy().rangeValidation);
         expect(validation).toBeTruthy();
         expect(validation.props.accessibilityLiveRegion).toBe('polite');
     });
@@ -127,7 +127,7 @@ describe('onboarding rejects a first session beyond the series horizon', () => {
     it('still offers the "not booked yet" path', () => {
         const { getByLabelText } = render(<SessionDateScreen />);
 
-        fireEvent.press(getByLabelText(SESSION_DATE_COPY.sampleCta));
+        fireEvent.press(getByLabelText(sessionDateCopy().sampleCta));
 
         expect(mockSetAnswer).toHaveBeenCalledWith('sessionAt', null);
         expect(mockSetAnswer).toHaveBeenCalledWith('sessionDateSkipped', true);

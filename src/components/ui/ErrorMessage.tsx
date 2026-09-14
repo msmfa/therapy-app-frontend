@@ -3,6 +3,7 @@ import { View, StyleSheet, Pressable, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AppText from './AppText';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
     message: string | null;
@@ -12,6 +13,7 @@ type Props = {
 };
 
 export function ErrorMessage({ message, onDismiss, style, testID }: Props) {
+    const { t } = useTranslation('common');
     return (
         <View style={ [styles.container, style] } testID={ testID }>
             <Ionicons name="alert-circle" size={ 18 } color={ COLOR_VARIANTS.red.mid } style={ styles.icon } />
@@ -22,7 +24,7 @@ export function ErrorMessage({ message, onDismiss, style, testID }: Props) {
             { onDismiss ? (
                 <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel="Dismiss error"
+                    accessibilityLabel={ t('a11y.dismissError') }
                     onPress={ onDismiss }
                     hitSlop={ 8 }
                     style={ styles.close }

@@ -60,7 +60,7 @@ jest.mock('../../src/components/onboarding/OnboardingScreen', () => {
 
 import { OnboardingAnswersProvider } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { timeLabel } from '../../src/features/onboarding/formatting';
-import { REMINDER_TIMES_COPY } from '../../src/features/onboarding/onboardingCopy';
+import { reminderTimesCopy } from '../../src/features/onboarding/onboardingCopy';
 import ReminderTimesScreen from '../(onboarding)/reminder-times';
 
 const at = (h: number, m: number) => {
@@ -94,8 +94,8 @@ describe('reminder times: what surrounds the pickers', () => {
         await waitFor(() => expect(morningPicker()).toBeDefined());
 
         // The quotation and who said it, whatever the testimonial is set to.
-        expect(view.getByText(new RegExp(REMINDER_TIMES_COPY.testimonial.quote.slice(0, 40)))).toBeTruthy();
-        expect(view.getByText(REMINDER_TIMES_COPY.testimonial.name)).toBeTruthy();
+        expect(view.getByText(new RegExp(reminderTimesCopy().testimonial.quote.slice(0, 40)))).toBeTruthy();
+        expect(view.getByText(reminderTimesCopy().testimonial.name)).toBeTruthy();
         view.unmount();
     });
 
@@ -103,8 +103,8 @@ describe('reminder times: what surrounds the pickers', () => {
         const view = renderScreen();
         await waitFor(() => expect(morningPicker()).toBeDefined());
 
-        expect(view.getByText(REMINDER_TIMES_COPY.morningLabel)).toBeTruthy();
-        expect(view.getByText(REMINDER_TIMES_COPY.eveningLabel)).toBeTruthy();
+        expect(view.getByText(reminderTimesCopy().morningLabel)).toBeTruthy();
+        expect(view.getByText(reminderTimesCopy().eveningLabel)).toBeTruthy();
         expect(view.getByText("You'll only receive one morning reminder a week, after your session.")).toBeTruthy();
         expect(view.queryByText(/Pick a time in the morning/)).toBeNull();
         view.unmount();
