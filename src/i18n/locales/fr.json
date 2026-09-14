@@ -548,5 +548,81 @@
     "chooseHint": "Choisissez {{field}} de votre séance",
     "accountSettings": "Réglages du compte",
     "loadingSubscriptions": "Chargement des abonnements"
+  },
+  "science": {
+    "sources": "Sources",
+    "jumpToSource": "Aller à cette source dans les références ci-dessous.",
+    "openSource": "Ouvrir cette source dans votre navigateur.",
+    "referencesIntervals": "La science derrière nos intervalles de rappel",
+    "referencesNote": "Votre note de thérapie en cinq minutes",
+    "template": {
+      "title": "Modèle",
+      "recommendBefore": "Nous vous recommandons d’utiliser notre",
+      "cheatsheetLink": "aide-mémoire",
+      "researchBefore": "Pour savoir pourquoi nous avons retenu ces 5 questions, et la recherche correspondante,",
+      "researchLink": "cliquez ici",
+      "cheatsheetImage": "Les cinq questions, telles qu’elles apparaissent sur l’aide-mémoire"
+    },
+    "reminder": {
+      "postSession": {
+        "time": "Le soir de votre séance",
+        "reason": "Y revenir le jour même vous donne une nouvelle occasion de vous rappeler ce qui vous a marqué, tant que la séance est récente."
+      },
+      "postSleep": {
+        "time": "Le matin après votre séance",
+        "reason": "Une courte révision le lendemain matin sépare votre deuxième lecture de la première, au lieu de tout répéter d’un coup."
+      },
+      "midSession": {
+        "time": "Entre vos séances",
+        "reason": "De brefs retours pendant l’intervalle relèvent de la récupération espacée : revenir au bout d’un délai plutôt que relire plusieurs fois d’affilée."
+      },
+      "preSession": {
+        "time": "La veille au soir de votre prochaine séance",
+        "reason": "Une dernière révision remet votre note sous vos yeux au moment où vous choisissez ce que vous voulez aborder à la prochaine séance."
+      }
+    },
+    "explainer": {
+      "earlyConsolidation": {
+        "title": "Consolidation précoce",
+        "tldr": "Un souvenir ne se fixe pas d’un seul coup : votre cerveau continue de le stabiliser après la fin de la séance. Le premier rappel arrive donc le soir de votre séance, alors que les notes prises dans la journée sont encore fraîches.",
+        "body": [
+          "Dans les premières heures qui suivent un apprentissage, votre cerveau entre dans la phase précoce de formation du souvenir : des protéines s’activent et les connexions synaptiques commencent à se renforcer.[1] C’est une fenêtre décisive.",
+          "Ce renforcement ne se produit pas d’un bloc. En le suivant directement, des chercheurs ont constaté qu’il arrive par vagues : une dans l’hippocampe juste après l’apprentissage, une deuxième pendant le sommeil de la nuit suivante, et une troisième la nuit d’après dans le cortex, chacune jouant un rôle différent.[1] Relire vos notes le soir même se situe entre la première vague et la deuxième.",
+          "Jusqu’à ce que ce travail soit terminé, le souvenir reste exposé aux perturbations. La synthèse protéique qui fixe une modification n’est achevée qu’un à deux jours après l’apprentissage,[3] et un souvenir récent reste vulnérable aux interférences tant qu’il n’est pas stabilisé.[2] Revenir à vos notes dans cette fenêtre évite qu’une prise de conscience fragile ne soit noyée par le reste de votre journée.",
+          "Ce qui se passe dans votre cerveau : les neurones augmentent la sensibilité de leurs récepteurs et activent la machinerie protéique qui remanie une connexion.[1, 2] Relire vos notes pendant que cela se produit approfondit l’empreinte de la séance et rend le changement plus durable."
+        ]
+      },
+      "sleepDependentConsolidation": {
+        "title": "Consolidation pendant le sommeil",
+        "tldr": "Le sommeil soutient activement la façon dont les souvenirs récents sont traités et organisés, et dormir après un apprentissage est associé à une meilleure conservation de ce qui a été appris. C’est pourquoi le rappel suivant arrive le lendemain matin.",
+        "body": [
+          "C’est pendant le sommeil que votre cerveau accomplit l’essentiel du travail de mémoire. Durant le sommeil lent, il rejoue les schémas neuronaux de vos activités de la journée (ce qui, dans notre cas, inclut une séance de thérapie) et les déplace d’un stockage temporaire dans l’hippocampe vers des réseaux corticaux plus durables.[1, 6]",
+          "On peut se le représenter comme un classement de dossiers pendant la nuit. L’hippocampe réactive les souvenirs en même temps que des ondulations à ondes aiguës et des fuseaux du sommeil, qui aident à faire passer l’information vers la mémoire à long terme.[2]",
+          "Le sommeil lent et le sommeil paradoxal contribuent tous deux à la consolidation des souvenirs émotionnels.[3, 5] Le sommeil lent assure le transfert et la restructuration, le sommeil paradoxal aide à stabiliser les prises de conscience ainsi transformées, ce qui compte particulièrement pour un contenu chargé émotionnellement.",
+          "Pourquoi réviser le matin : la consolidation liée au sommeil varie selon la quantité et la qualité du sommeil lent,[4] si bien que le matin après une séance est un moment idéal, quand le souvenir réorganisé reste facile d’accès. Une révision rapide capte ces changements et les renforce à nouveau avant qu’ils ne s’estompent."
+        ]
+      },
+      "spacedReactivation": {
+        "title": "Réactivation espacée",
+        "tldr": "Les révisions sont plus utiles lorsqu’elles sont séparées dans le temps plutôt que regroupées : on retient davantage après des répétitions espacées qu’après des répétitions immédiates. Les rappels sont donc répartis sur l’intervalle entre vos séances.",
+        "body": [
+          "Lorsque vous réactivez un souvenir après un délai, il s’ouvre brièvement à la modification avant de se fixer de nouveau.[2] C’est cette fenêtre de reconsolidation qui rend les retours espacés plus efficaces que tout réviser d’un coup.[1]",
+          "Des décennies de recherche sur l’effet d’espacement montrent que des répétitions réparties dans le temps construisent des souvenirs bien plus solides qu’une pratique massée.[1, 2, 3] Une réactivation stratégique mobilise d’autres mécanismes que la répétition immédiate et déclenche une reconsolidation qui renforce la trace.[2]",
+          "Imaginez le circuit neuronal comme un sentier qu’il faut emprunter. Chaque fois que vous relisez vos notes, vous sollicitez une bonne partie des neurones qui se sont activés en séance, et cette réactivation stabilise le sentier sous une forme plus résistante.[1]",
+          "L’intervalle entre les séances compte, parce qu’un souvenir a besoin de temps pour se consolider avant que la réactivation suivante puisse s’appuyer dessus.[2] Cela laisse une fenêtre de part et d’autre du bon moment. Trop tôt, le circuit ne s’est pas réinitialisé et un deuxième passage ajoute peu au premier. Trop tard, le souvenir s’est assez effacé pour que le rappeler soit un effort plutôt qu’un rafraîchissement.[4] L’emplacement de cette fenêtre dépend de la durée pendant laquelle vous devez retenir le contenu : pour quelque chose dont vous aurez besoin dans plusieurs semaines, le meilleur intervalle représente environ un cinquième de ce délai, et cette proportion diminue à mesure que le délai s’allonge.[5] Le calendrier proposé ici suit cette forme. Plutôt que d’espacer les rappels régulièrement, il élargit les intervalles à mesure que votre prochaine séance approche : le soir de votre séance, le lendemain matin, puis quelques jours plus tard, puis la veille de votre retour.",
+          "Ce qui se passe dans votre cerveau : rappeler un souvenir après un délai active des gènes dans les cellules qui le portent, et les protéines qu’elles produisent renforcent la connexion. C’est le délai qui déclenche cette reconstruction, et c’est pourquoi espacer les révisions fait plus que les répéter coup sur coup.[2]"
+        ]
+      },
+      "stateReinstatement": {
+        "title": "Rétablissement du contexte",
+        "tldr": "Les indices qui entourent un souvenir influencent la facilité avec laquelle il revient, et retrouver une partie du contexte d’origine favorise le rappel. Relire votre note avant la thérapie sert d’indice pour la conversation précédente et vous aide à arriver prêt à la poursuivre.",
+        "body": [
+          "Un souvenir est plus accessible quand l’état dans lequel vous vous trouvez correspond à celui où vous l’avez formé. Une méta-analyse portant sur la version environnementale de ce phénomène a trouvé l’effet fiable d’une étude à l’autre,[1] et les travaux sur l’état cérébral interne montrent le même schéma : la récupération réussit mieux quand l’état au rappel correspond à l’état à l’encodage.[3]",
+          "Vous ne pouvez pas retourner vous asseoir dans la séance de la semaine dernière, mais ce n’est pas nécessaire. Dans cette même méta-analyse, rétablir mentalement le contexte au moment du rappel réduisait la pénalité liée au fait de se trouver ailleurs.[1] Relire vos notes la veille au soir remplit ce rôle : cela vous replace dans la séance, sans la pièce.",
+          "L’effet concret porte sur la façon dont la séance suivante démarre. Arriver avec le contenu déjà en tête permet de consacrer le début de l’heure au travail lui-même plutôt qu’à reconstituer où vous en étiez.",
+          "Ce qui se passe dans votre cerveau : se souvenir d’un épisode réactive en partie les régions qui étaient actives lors de son encodage, et plus ce recouvrement est étroit, meilleure est la récupération.[2] Relire la veille au soir amorce cette réactivation tôt, tant qu’il reste du temps pour qu’elle serve."
+        ]
+      }
+    }
   }
 }

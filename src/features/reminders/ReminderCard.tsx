@@ -3,7 +3,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { LayoutChangeEvent, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { AppModal } from 'src/components/Modal';
 import { ScienceTextModal } from 'src/components/ScienceTextModal';
-import { REMINDER_SCIENCE_COPY } from 'src/constants/neuroReminders';
+import { reminderScienceCopy } from 'src/constants/neuroReminders';
 import AppText from 'src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { AuraPanel } from 'src/components/ui/AuraPanel';
@@ -150,7 +150,7 @@ export function ReminderCard({ date, description, link, time, caption }: Props) 
             { isModalOpen && (
                 <AppModal
                     isVisible={ true }
-                    title={ REMINDER_SCIENCE_COPY[link].title }
+                    title={ reminderScienceCopy()[link].title }
                     onClose={ () => setModalOpen(false) }
                 >
                     <ScienceTextModal type={ link } />

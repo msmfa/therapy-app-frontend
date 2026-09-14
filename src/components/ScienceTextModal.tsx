@@ -1,12 +1,13 @@
 import { StyleSheet, View } from 'react-native';
 import { ReminderType } from '../utils/types';
-import { REMINDER_SCIENCE_COPY } from '../constants/neuroReminders';
+import { reminderScienceCopy } from '../constants/neuroReminders';
 import AppText from './ui/AppText';
 import Spacer, { SpacerVariant } from './ui/Spacer';
 import { CitedText } from './ui/CitedText';
 import { ExternalLink } from './ui/ExternalLink';
 import { GradientCard } from './ui/GradientCard';
 import { ACCENT_SURFACE, BRAND_ORANGE, TEXT_COLORS } from 'designs/designs-colors';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
     type: ReminderType;
@@ -18,7 +19,8 @@ type Props = {
  * column rather than as a scroll view nested inside another.
  */
 export function ScienceTextModal({ type }: Props) {
-    const { body, sources, tldr } = REMINDER_SCIENCE_COPY[type];
+    const { t } = useTranslation('science');
+    const { body, sources, tldr } = reminderScienceCopy()[type];
 
     return (
         <>
@@ -51,7 +53,7 @@ export function ScienceTextModal({ type }: Props) {
             { sources.length > 0 && (
                 <View style={ styles.sourcesSection }>
                     <Spacer variant={ SpacerVariant.large } />
-                    <AppText variant="h3">Sources</AppText>
+                    <AppText variant="h3">{ t('sources') }</AppText>
                     <Spacer variant={ SpacerVariant.small } />
                     { sources.map((source, index) => (
                         <View key={ source.url } style={ styles.source }>

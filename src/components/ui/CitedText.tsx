@@ -2,6 +2,7 @@ import React from 'react';
 import { Linking, StyleSheet, Text } from 'react-native';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 import AppText, { AppTextProps } from './AppText';
+import { t as translate } from '../../i18n/translate';
 
 export type Citation = {
     text: string;
@@ -74,8 +75,8 @@ export function CitedText({ text, sources, onCitationPress, variant = 'body', ..
                                             accessibilityRole="link"
                                             accessibilityLabel={ `Source ${position}: ${source.text}` }
                                             accessibilityHint={ onCitationPress
-                                                ? 'Jump to this source in the references below.'
-                                                : 'Open this source in your browser.' }
+                                                ? translate('science:jumpToSource')
+                                                : translate('science:openSource') }
                                             onPress={ () => openSource(position) }
                                         >
                                             { position }

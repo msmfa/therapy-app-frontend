@@ -75,6 +75,7 @@ describe('translation resources', () => {
                 'onboarding.sessionDate.dateLabel',
                 'common.tab.notes',
                 'onboarding.subscription.monthlyBadge',
+                'science.sources',
             ]);
 
             const untranslated = leafValues(language.resources)

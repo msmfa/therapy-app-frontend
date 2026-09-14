@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { AppModal } from 'src/components/Modal';
 import { ReminderType } from "../../utils/types";
 import { ScienceTextModal } from 'src/components/ScienceTextModal';
-import { REMINDER_SCIENCE_COPY } from 'src/constants/neuroReminders';
+import { reminderScienceCopy } from 'src/constants/neuroReminders';
 import AppText from 'src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
@@ -51,7 +51,7 @@ export function ReminderRow ({ date, description, link }: Props) {
             { openModal && (
                 <AppModal
                     isVisible={ true }
-                    title={ REMINDER_SCIENCE_COPY[openModal].title }
+                    title={ reminderScienceCopy()[openModal].title }
                     onClose={ () => setOpenModal(null) }
                 >
                     <ScienceTextModal type={ openModal } />

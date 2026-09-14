@@ -11,7 +11,7 @@ import { Carousel } from 'src/components/ui/Carousel';
 import { GlassCircleButton } from 'src/components/ui/GlassCircleButton';
 import { Button } from 'src/components/ui/Button';
 import { ReminderCard } from 'src/features/reminders/ReminderCard';
-import { NEURO_REMINDER_COPY } from 'src/constants/neuroReminders';
+import { neuroReminderCopy } from 'src/constants/neuroReminders';
 import { ChartBackground } from 'src/components/ui/ChartBackground';
 import { GlassMorphismWithSquare } from 'src/components/ui/GlassMorphismWithSquare';
 import { SquarePosition } from 'src/components/ui/LinearGradientSquare';
@@ -132,9 +132,9 @@ export default function IntervalScienceScreen() {
                         keyExtractor={ (card) => card.reason }
                         renderItem={ (card) => (
                             <ReminderCard
-                                date={ NEURO_REMINDER_COPY[card.reason].time }
-                                description={ NEURO_REMINDER_COPY[card.reason].reason }
-                                link={ NEURO_REMINDER_COPY[card.reason].link }
+                                date={ neuroReminderCopy()[card.reason].time }
+                                description={ neuroReminderCopy()[card.reason].reason }
+                                link={ neuroReminderCopy()[card.reason].link }
                                 time={ card.time }
                                 caption={ card.caption }
                             />

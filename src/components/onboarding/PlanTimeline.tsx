@@ -5,7 +5,7 @@ import { ACTION_ORANGE, COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colo
 import type { PlanTimelineEntry } from '../../features/onboarding/planTimeline';
 import { occurrencesLabel } from '../../features/onboarding/formatting';
 import { ReminderType } from '../../utils/types';
-import { REMINDER_SCIENCE_COPY } from '../../constants/neuroReminders';
+import { reminderScienceCopy } from '../../constants/neuroReminders';
 import { GlassCircleButton } from '../ui/GlassCircleButton';
 import { DottedDivider } from '../ui/DottedDivider';
 import { AppModal } from '../Modal';
@@ -90,7 +90,7 @@ export function PlanTimeline({ entries, onOpenTemplate }: Props) {
                     // of research, and cost a third of the row's width.
                     const researchLabel = entry.researchTarget === null
                         ? null
-                        : REMINDER_SCIENCE_COPY[entry.researchTarget].title;
+                        : reminderScienceCopy()[entry.researchTarget].title;
 
                     const rowContent = (
                         <>
@@ -212,7 +212,7 @@ export function PlanTimeline({ entries, onOpenTemplate }: Props) {
             { openResearch !== null && (
                 <AppModal
                     isVisible
-                    title={ REMINDER_SCIENCE_COPY[openResearch].title }
+                    title={ reminderScienceCopy()[openResearch].title }
                     onClose={ () => setOpenResearch(null) }
                 >
                     <ScienceTextModal type={ openResearch } />
