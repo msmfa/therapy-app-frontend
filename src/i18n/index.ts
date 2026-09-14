@@ -65,30 +65,30 @@ void i18next.use(initReactI18next).init({
 /**
  * The locale to format dates, times, numbers and currency in.
  *
- * `undefined` on purpose whenever the app is showing the language the device
- * already asked for. `undefined` means "use the platform's own locale", which
- * carries the user's *region* as well as their language: a UK phone formats
- * dates as "Mon 14 Sep" and times as "20:00", and forcing a bare "en" would
- * quietly move every one of those users to "Mon, Sep 14" and "8:00 PM".
- * Region is not something this app asks about, so the platform is the only
- * place that knows it.
+ * Always an explicit tag: the app's language, plus the device's region where
+ * the device reports one. Region matters and the app never asks about it, so
+ * the device is the only place that knows it. A UK phone reads "Mon 14 Sep"
+ * and "20:00", and a bare "en" would quietly move every one of those users to
+ * "Mon, Sep 14" and "8:00 PM".
  *
- * An explicit tag is returned only when the user has overridden the language,
- * which is the one case where the platform's locale is the wrong answer. Even
- * then the device's region is kept where it is known, so someone reading
- * English in France still gets day-before-month dates.
+ * This used to return `undefined` when the app was already showing the
+ * device's language, on the reasoning that `undefined` means "the platform's
+ * own locale" and the platform must know best. That is wrong on Hermes. With
+ * the device set to French, `Intl.DateTimeFormat().resolvedOptions().locale`
+ * answers "en-GB": Hermes's default locale does not follow the language list
+ * at all. Everything built on the default was therefore in the wrong
+ * language while every explicitly tagged call was right, which is how the
+ * calendar header came to read "September 2026" inside a French app.
+ *
+ * Composing the tag gives the same answer the platform default gave whenever
+ * the default was correct (en + GB is "en-GB") and the right answer when it
+ * was not.
  */
-export const formattingLocale = (): string | undefined => {
+export const formattingLocale = (): string => {
     const [device] = getLocales();
-    const deviceLanguage = device?.languageCode ?? device?.languageTag;
-
     const language = languageSubtag(i18next.language);
-
-    if (deviceLanguage != null && languageSubtag(deviceLanguage) === language) {
-        return undefined;
-    }
-
     const region = device?.regionCode;
+
     return region == null ? language : `${language}-${region}`;
 };
 

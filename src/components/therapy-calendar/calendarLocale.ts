@@ -54,11 +54,12 @@ const dayNames = (locale: string, weekday: 'long' | 'short'): string[] =>
  * Point the calendar at a language, registering it the first time it is asked
  * for. Safe to call on every render and on every language change.
  */
-export const applyCalendarLocale = (locale: string | undefined): void => {
-    // `undefined` means "the platform's own locale", which is what the rest of
-    // the app's formatting does. Intl resolves it; the library needs a key.
-    const tag = locale ?? new Intl.DateTimeFormat().resolvedOptions().locale;
-
+export const applyCalendarLocale = (tag: string): void => {
+    // A required string, not an optional one. This used to fall back to
+    // `new Intl.DateTimeFormat().resolvedOptions().locale` when given
+    // `undefined`, on the reading that it meant "the platform's own locale".
+    // On Hermes that resolves to "en-GB" whatever the app language is, which
+    // is exactly how a French app came to have an English calendar header.
     if (config.locales[tag] === undefined) {
         try {
             config.locales[tag] = {
