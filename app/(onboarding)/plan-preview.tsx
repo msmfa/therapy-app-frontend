@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import { StyleSheet, View, useWindowDimensions } from 'react-native';
-import { Image } from 'expo-image';
 import type { ImageSourcePropType } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { NoteSheetBackdrop } from '../../src/components/notes/NoteSheetBackdrop';
 import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import { PlanTimeline } from '../../src/components/onboarding/PlanTimeline';
@@ -62,8 +62,8 @@ export default function PlanPreviewScreen() {
             // The note itself, as a background image behind the content,
             // tilted a little so it reads as a sheet lying on the surface.
             bottomBackdrop={ (contentBottom) => (
-                <Image
-                    source={ require('../../assets/illustrations/note-cheatsheet-preview.webp') as ImageSourcePropType }
+                <NoteSheetBackdrop
+                    capture={ SHEET_CAPTURE }
                     style={ [
                         styles.sheetImage,
                         {
@@ -72,8 +72,6 @@ export default function PlanPreviewScreen() {
                             marginTop: contentBottom > 0 ? contentBottom + IMAGE_GAP : 0,
                         },
                     ] }
-                    contentFit="contain"
-                    accessible
                     accessibilityLabel={ t('planPreview.sheetImage') }
                 />
             ) }
@@ -96,6 +94,10 @@ export default function PlanPreviewScreen() {
 }
 
 /** The cheat sheet's own proportions, so nothing is stretched. */
+// The capture's own proportions, so the sheet keeps the screen's shape at any
+// width. Also the box the drawn sheet fills for a language with no capture.
+const SHEET_CAPTURE = require('../../assets/illustrations/note-cheatsheet-preview.webp') as ImageSourcePropType;
+
 const IMAGE_ASPECT = 1290 / 2661;
 
 /**

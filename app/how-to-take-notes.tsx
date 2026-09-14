@@ -1,13 +1,13 @@
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Linking, StyleSheet, View } from 'react-native';
-import { Image } from 'expo-image';
 import type { ImageSourcePropType } from 'react-native';
 import { useRouter } from 'expo-router';
 import AppText from '../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { GlassCircleButton } from '../src/components/ui/GlassCircleButton';
 import { TemplateHelpModal } from '../src/components/notes/TemplateHelpModal';
+import { NoteSheetBackdrop } from '../src/components/notes/NoteSheetBackdrop';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { DottedGrid } from '../src/components/ui/DottedGrid';
 import { useTranslation } from 'react-i18next';
@@ -88,12 +88,9 @@ export default function HowToTakeNotesScreen() {
                  the questions read as a sheet tucked behind the page. */ }
             <View style={ styles.sheetArea }>
                 <View style={ styles.cheatsheetLayer } pointerEvents="none">
-                    <Image
-                        source={ CHEATSHEET }
+                    <NoteSheetBackdrop
+                        capture={ CHEATSHEET }
                         style={ styles.cheatsheet }
-                        contentFit="contain"
-                        accessible
-                        accessibilityRole="image"
                         accessibilityLabel={ tScience('template.cheatsheetImage') }
                     />
                 </View>
