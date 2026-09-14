@@ -131,7 +131,7 @@ export default function ForgotPasswordScreen() {
                                         label={ t('field.email') }
                                         value={ email }
                                         onChangeText={ setEmail }
-                                        placeholder="you@example.com"
+                                        placeholder={ t('field.emailPlaceholder') }
                                         keyboardType="email-address"
                                         autoCapitalize="none"
                                         autoCorrect={ false }
@@ -160,7 +160,7 @@ export default function ForgotPasswordScreen() {
                                         label={ t('field.resetCode') }
                                         value={ token }
                                         onChangeText={ handleTokenChange }
-                                        placeholder="6-digit code"
+                                        placeholder={ t('field.resetCodePlaceholder') }
                                         autoCapitalize="none"
                                         autoCorrect={ false }
                                         textContentType="oneTimeCode"

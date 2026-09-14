@@ -16,6 +16,13 @@
  * It parses rather than compiles: the alternative is rendering every screen,
  * which needs the whole Expo Router and native-module graph to learn which
  * strings are literals.
+ *
+ * The prop check below is the second half, added after the first half shipped
+ * and nine more strings turned up behind it. Text nodes are only one of the
+ * two places copy lives: `accessibilityLabel`, `placeholder`, `label` and
+ * `title` are all user-facing, and a screen-reader label is invisible to
+ * everyone reviewing the screen by looking at it. The onboarding progress bar
+ * was rendering a visible "1 of 5" through a prop.
  */
 
 import { readFileSync, readdirSync, statSync } from 'fs';
@@ -73,4 +80,55 @@ describe('screens render no literal text', () => {
             expect(offenders).toEqual([]);
         },
     );
+});
+/** Props whose value a user reads or hears. */
+const COPY_PROPS = [
+    'accessibilityLabel', 'accessibilityHint', 'label', 'title', 'placeholder',
+    'message', 'headline', 'supporting', 'subtitle', 'caption', 'description',
+    'successText', 'errorText', 'cta',
+] as const;
+
+const LITERAL_PROP = new RegExp(
+    String.raw`\b(${COPY_PROPS.join('|')})\s*=\s*(?:"([^"]*)"|'([^']*)'|\{\s*(?:'([^']*)'|"([^"]*)"|\`([^\`]*)\`)\s*\})`,
+    'g',
+);
+
+/** Values that are a name, not copy. */
+const ALLOWED_PROP_VALUES = new Set(['Plastic Brains']);
+
+export const literalPropValues = (source: string): string[] => {
+    const found: string[] = [];
+    for (const match of source.matchAll(LITERAL_PROP)) {
+        const value = match.slice(2).find((group) => group !== undefined);
+        if (value === undefined) continue;
+        // A template literal that interpolates is composing values that are
+        // themselves translated, which is the correct shape rather than a
+        // literal to catch.
+        if (value.includes('${')) continue;
+        if (!/[A-Za-z]{2,}/.test(value)) continue;
+        if (ALLOWED_PROP_VALUES.has(value)) continue;
+        found.push(`${match[1]}=${JSON.stringify(value)}`);
+    }
+    return found;
+};
+
+describe('screens pass no literal copy as props', () => {
+    const files = [...tsxFilesIn(join(ROOT, 'app')), ...tsxFilesIn(join(ROOT, 'src'))];
+
+    it.each(files.map((file) => [file.slice(ROOT.length + 1), file] as const))(
+        '%s',
+        (_name, file) => {
+            expect(literalPropValues(readFileSync(file, 'utf8'))).toEqual([]);
+        },
+    );
+
+    it('catches a literal and allows an interpolating one', () => {
+        expect(literalPropValues('<X accessibilityLabel="Close" />')).toEqual([
+            'accessibilityLabel="Close"',
+        ]);
+        expect(literalPropValues('<X label={ t(\'action.close\') } />')).toEqual([]);
+        expect(literalPropValues('<X accessibilityLabel={ `${name}, ${role}` } />')).toEqual([]);
+        // A role is not copy, so props outside the list are left alone.
+        expect(literalPropValues('<X accessibilityRole="button" />')).toEqual([]);
+    });
 });

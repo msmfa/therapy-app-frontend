@@ -5,7 +5,8 @@
       "loggingOut": "Déconnexion…",
       "tryAgain": "Réessayer",
       "back": "Retour",
-      "learnMore": "En savoir plus"
+      "learnMore": "En savoir plus",
+      "close": "Fermer"
     },
     "error": {
       "title": "Erreur",
@@ -23,7 +24,8 @@
       "hidePassword": "Masquer le mot de passe",
       "loading": "Chargement",
       "showPassword": "Afficher le mot de passe",
-      "tryAgainQuestion": "Réessayer ?"
+      "tryAgainQuestion": "Réessayer ?",
+      "source": "Source {{position}} : {{text}}"
     },
     "tab": {
       "calendar": "Calendrier",
@@ -168,7 +170,8 @@
     "a11y": {
       "openNote": "Ouvrir la note",
       "editNote": "Modifier la note",
-      "saveChanges": "Enregistrer les modifications"
+      "saveChanges": "Enregistrer les modifications",
+      "question": "Question {{position}} sur {{total}}. {{question}}"
     },
     "whatWasSaid": "ce qui a été dit",
     "bars": {
@@ -204,7 +207,8 @@
       "password": "Mot de passe",
       "confirmPassword": "Confirmer le mot de passe",
       "newPassword": "Nouveau mot de passe",
-      "resetCode": "Code de réinitialisation"
+      "resetCode": "Code de réinitialisation",
+      "resetCodePlaceholder": "code à 6 chiffres"
     },
     "forgot": {
       "emailRequiredTitle": "Adresse manquante",
@@ -570,6 +574,14 @@
     "loadingSubscriptions": "Chargement des abonnements",
     "planPreview": {
       "sheetImage": "La fiche de notes à cinq questions"
+    },
+    "progress": {
+      "label": "{{current}} sur {{total}}",
+      "a11y": "Étape {{current}} sur {{total}}"
+    },
+    "a11y": {
+      "notificationPreview": "Une notification iPhone de {{title}} : {{body}}",
+      "notesList": "Une liste de notes de thérapie passées, chacune avec la date de sa séance"
     }
   },
   "science": {

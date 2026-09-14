@@ -5,7 +5,8 @@
       "loggingOut": "Logging out…",
       "tryAgain": "Try again",
       "back": "Back",
-      "learnMore": "Learn more"
+      "learnMore": "Learn more",
+      "close": "Close"
     },
     "error": {
       "title": "Error",
@@ -23,7 +24,8 @@
       "hidePassword": "Hide password",
       "loading": "Loading",
       "showPassword": "Show password",
-      "tryAgainQuestion": "Try Again?"
+      "tryAgainQuestion": "Try Again?",
+      "source": "Source {{position}}: {{text}}"
     },
     "tab": {
       "calendar": "Calendar",
@@ -168,7 +170,8 @@
     "a11y": {
       "openNote": "Open note",
       "editNote": "Edit note",
-      "saveChanges": "Save changes"
+      "saveChanges": "Save changes",
+      "question": "Question {{position}} of {{total}}. {{question}}"
     },
     "whatWasSaid": "what was said",
     "bars": {
@@ -204,7 +207,8 @@
       "password": "Password",
       "confirmPassword": "Confirm password",
       "newPassword": "New password",
-      "resetCode": "Reset code"
+      "resetCode": "Reset code",
+      "resetCodePlaceholder": "6-digit code"
     },
     "forgot": {
       "emailRequiredTitle": "Oops",
@@ -570,6 +574,14 @@
     "loadingSubscriptions": "Loading subscriptions",
     "planPreview": {
       "sheetImage": "The five-question note sheet"
+    },
+    "progress": {
+      "label": "{{current}} of {{total}}",
+      "a11y": "Step {{current}} of {{total}}"
+    },
+    "a11y": {
+      "notificationPreview": "An iPhone notification from {{title}}: {{body}}",
+      "notesList": "A list of past therapy notes, each with the date of its session"
     }
   },
   "science": {

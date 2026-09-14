@@ -73,7 +73,7 @@ export function CitedText({ text, sources, onCitationPress, variant = 'body', ..
                                     { source ? (
                                         <Text
                                             accessibilityRole="link"
-                                            accessibilityLabel={ `Source ${position}: ${source.text}` }
+                                            accessibilityLabel={ translate('common:a11y.source', { position, text: source.text }) }
                                             accessibilityHint={ onCitationPress
                                                 ? translate('science:jumpToSource')
                                                 : translate('science:openSource') }

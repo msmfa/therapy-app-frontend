@@ -5,6 +5,7 @@ import { Button } from './Button';
 import Spacer, { SpacerVariant } from './Spacer';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
 interface ErrorModalProps {
     visible: boolean;
@@ -23,6 +24,7 @@ export default function ErrorModal({
     onPress,
     onClose,
 }: ErrorModalProps) {
+    const { t } = useTranslation('common');
 
     return (
         <Modal
@@ -49,7 +51,7 @@ export default function ErrorModal({
                         ) }
                         <Spacer variant={ SpacerVariant.small } />
                         <Button
-                            label='Close'
+                            label={ t('action.close') }
                             onPress={ onClose }
                             transparent
                         />
