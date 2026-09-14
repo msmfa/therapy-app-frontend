@@ -17,7 +17,6 @@ import { CitedText } from 'src/components/ui/CitedText';
 import { useTranslation } from 'react-i18next';
 import { t as translate } from '../src/i18n/translate';
 
-const INTRODUCTION = translate('science:fiveQuestions.opening');
 
 type RationaleSection = {
     question: string;
@@ -31,6 +30,12 @@ const SECTION_KEYS = ['q1', 'q2', 'q3', 'q4', 'q5'] as const;
  * of language. The bracketed markers index into REFERENCES below and are
  * asserted to match the English in the resource-parity test: a marker dropped
  * in translation would point at the wrong paper.
+ *
+ * The opening paragraph was a module-level `const` for exactly as long as it
+ * took someone to notice: it resolved once, at import, so the page's first
+ * paragraph stayed in whatever language was active then while everything
+ * below it followed the setting. It is read from `tScience` in the component
+ * now, like the rest.
  */
 const sections = (): RationaleSection[] =>
     SECTION_KEYS.map((key) => ({
@@ -157,7 +162,11 @@ export default function WhyFiveQuestionsScreen() {
                     </View>
 
                     <Spacer variant={ SpacerVariant.large } />
-                    <CitedText text={ INTRODUCTION } sources={ REFERENCES } onCitationPress={ handleCitationPress } />
+                    <CitedText
+                        text={ tScience('fiveQuestions.opening') }
+                        sources={ REFERENCES }
+                        onCitationPress={ handleCitationPress }
+                    />
                     <Spacer variant={ SpacerVariant.medium } />
                     <AppText variant="body">{ tScience('fiveQuestions.lead') }</AppText>
 
