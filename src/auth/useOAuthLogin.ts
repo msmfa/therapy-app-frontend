@@ -6,11 +6,11 @@ import * as AuthSession from 'expo-auth-session';
 
 import { useAuth } from '../context/auth/AuthContext';
 import { APPLE_REDIRECT_URI, APPLE_SERVICE_ID } from '../constants/env';
-import { handleError } from '../utils';
 import { exchangeOAuthToken, OAuthPayloadMap, OAuthProvider } from '../api/auth';
 import { formatAppleFullName } from './appleFullName';
 import { useAppAlert } from '../context/alert';
 import { t } from '../i18n/translate';
+import { serverErrorMessage } from '../features/errors/serverErrorMessage';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -50,7 +50,7 @@ export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
                 await setAuth(data.token, data.user, data.refreshToken ?? null);
                 onSuccess?.();
             } catch (error) {
-                showAlert(t('auth:apple.authFailedTitle'), handleError(error));
+                showAlert(t('auth:apple.authFailedTitle'), serverErrorMessage(error));
             } finally {
                 setLoadingProvider(null);
             }
@@ -112,7 +112,7 @@ export const useOAuthLogin = (onSuccess?: () => void): UseOAuthLoginResult => {
             }
 
             setLoadingProvider(null);
-            showAlert(t('auth:apple.failedTitle'), handleError(error));
+            showAlert(t('auth:apple.failedTitle'), serverErrorMessage(error));
         }
     }, [appleAvailable, exchangeToken, redirectUri, showAlert]);
 

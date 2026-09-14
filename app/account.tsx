@@ -15,6 +15,7 @@ import { analytics } from '../src/features/analytics/client';
 import { analyticsConsentSync } from '../src/features/analytics/consentSync';
 import { LanguagePicker } from '../src/components/settings/LanguagePicker';
 import Spacer from '../src/components/ui/Spacer';
+import { serverErrorMessage } from '../src/features/errors/serverErrorMessage';
 
 /** Where support mail from the app goes. */
 const SUPPORT_EMAIL = 'michael@plastic-brains.com';
@@ -72,10 +73,10 @@ export default function AccountSettingsScreen() {
         } catch (error) {
             setDeleting(false);
             if ((error as { code?: string })?.code === 'ERR_REQUEST_CANCELED') return;
-            // `error.message` can be a server string, which arrives in English
-            // whatever the app is set to. See the locale note in api/client.ts.
-            const message = error instanceof Error ? error.message : t('account.deleteFailed');
-            showAlert(tCommon('error.title'), message);
+            showAlert(
+                tCommon('error.title'),
+                serverErrorMessage(error, t('account.deleteFailed')),
+            );
         }
     }, [showAlert, signOut, t, tCommon, user?.id]);
 

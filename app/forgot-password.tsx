@@ -21,6 +21,7 @@ import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 import { useAppAlert } from 'src/context/alert';
 import { PASSWORD_RESET_AUTH_SOURCE } from '../src/features/onboarding/authReturn';
 import { useTranslation } from 'react-i18next';
+import { serverErrorMessage } from '../src/features/errors/serverErrorMessage';
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -62,8 +63,10 @@ export default function ForgotPasswordScreen() {
                 responseMessage,
             );
         } catch (err) {
-            const message = err instanceof Error ? err.message : t('forgot.requestFailedMessage');
-            showAlert(t('forgot.requestFailedTitle'), message);
+            showAlert(
+                t('forgot.requestFailedTitle'),
+                serverErrorMessage(err, t('forgot.requestFailedMessage')),
+            );
         } finally {
             setLoading(false);
         }
@@ -90,8 +93,10 @@ export default function ForgotPasswordScreen() {
             await resetPassword(email, token, password);
             setStep('done');
         } catch (err) {
-            const message = err instanceof Error ? err.message : t('forgot.resetFailedMessage');
-            showAlert(t('forgot.resetFailedTitle'), message);
+            showAlert(
+                t('forgot.resetFailedTitle'),
+                serverErrorMessage(err, t('forgot.resetFailedMessage')),
+            );
         } finally {
             setLoading(false);
         }

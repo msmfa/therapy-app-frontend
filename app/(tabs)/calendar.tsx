@@ -23,6 +23,7 @@ import { GradientCard } from '../../src/components/ui/GradientCard';
 import { ACTION_ORANGE, CALENDAR_DARK_COLORS, COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
 import { GRADIENTS, SURFACE_TINTS } from 'designs/designs-gradients';
 import { useTranslation } from 'react-i18next';
+import { serverErrorMessage } from '../../src/features/errors/serverErrorMessage';
 
 type SelectedSessions = Record<string, Date>;
 type SessionsMapInput = Record<string, Date | undefined>;
@@ -250,7 +251,7 @@ export default function CalendarScreen() {
         } catch (error) {
             console.error('syncSessions failed', error);
             if (error instanceof ApiError && (error.status === 409 || error.status === 428)) {
-                showAlert(t('changedTitle'), error.message, { primaryAction: {
+                showAlert(t('changedTitle'), serverErrorMessage(error), { primaryAction: {
                     label: t('refresh'), onPress: async () => {
                         await refreshSessions();
                         setSelectedSessionsDraft(null);
@@ -258,7 +259,7 @@ export default function CalendarScreen() {
                     },
                 } });
             } else {
-                showAlert(tCommon('error.title'), error instanceof Error ? error.message : t('saveFailed'));
+                showAlert(tCommon('error.title'), serverErrorMessage(error, t('saveFailed')));
             }
             setSaveStatus(null);
         }
