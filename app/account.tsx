@@ -13,8 +13,6 @@ import { clearNotesForUser } from '../src/features/notes/useNotes';
 import { useAppAlert } from '../src/context/alert';
 import { analytics } from '../src/features/analytics/client';
 import { analyticsConsentSync } from '../src/features/analytics/consentSync';
-import { LanguagePicker } from '../src/components/settings/LanguagePicker';
-import Spacer from '../src/components/ui/Spacer';
 
 /** Where support mail from the app goes. */
 const SUPPORT_EMAIL = 'michael@plastic-brains.com';
@@ -151,8 +149,6 @@ export default function AccountSettingsScreen() {
                         onPress={ () => void handleLogout() }
                     />
                 </View>
-                <Spacer />
-                <LanguagePicker />
             </FrostedCard>
         </SettingsPageShell>
     );

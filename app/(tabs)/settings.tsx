@@ -22,6 +22,7 @@ import type { TFunction } from 'i18next';
 // a resolved string here would be fixed at import time, before the stored
 // language preference has been applied, and would never change again.
 const CATEGORIES = [
+    { labelKey: 'hub.language', route: '/language' },
     { labelKey: 'hub.references', route: '/references' },
     { labelKey: 'hub.settings', route: '/account' },
 ] as const;
