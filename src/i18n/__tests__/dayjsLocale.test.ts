@@ -75,8 +75,21 @@ describe('dayjs follows the formatting locale', () => {
         });
 
         it('falls back to English for a language it has no data for', () => {
-            applyDayjsLocale('de-DE');
+            applyDayjsLocale('it-IT');
             expect(dayjs(EVENING).format('LL')).toBe('September 14, 2026');
+        });
+
+        it('gives German a 24-hour clock and a day-first date', () => {
+            applyDayjsLocale('de-DE');
+            expect(dayjs(EVENING).format('LT')).toBe('18:00');
+            expect(dayjs(EVENING).format('LL')).toBe('14. September 2026');
+        });
+
+        it('keeps the Austrian month name, which is why de-at is bundled', () => {
+            // de writes Januar, de-at writes Jänner. Falling back to the
+            // language here would show an Austrian a month name they do not use.
+            applyDayjsLocale('de-AT');
+            expect(dayjs('2026-01-14T18:00:00Z').format('LL')).toBe('14. Jänner 2026');
         });
 
         it('falls back to English for a bare language with no region', () => {

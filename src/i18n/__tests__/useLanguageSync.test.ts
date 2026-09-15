@@ -82,10 +82,10 @@ describe('useLanguageSync', () => {
     });
 
     it('ignores an account language this build cannot render', async () => {
-        // A tag from a release that shipped German would otherwise pin the
-        // interface to a language with no resource file.
+        // A tag from a release that shipped a language since dropped would
+        // otherwise pin the interface to one with no resource file.
         mockRead.mockResolvedValue('system');
-        mockGet.mockResolvedValue({ locale: 'de' });
+        mockGet.mockResolvedValue({ locale: 'it' });
 
         renderHook(() => useLanguageSync());
 

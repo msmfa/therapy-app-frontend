@@ -64,8 +64,13 @@ describe('language switching', () => {
         expect(t('settings:rows.contactUs')).toBe('Nous contacter');
     });
 
-    it('falls back to English for a language it does not ship', async () => {
+    it('reaches the German file once German is registered', async () => {
         await i18next.changeLanguage('de');
+        expect(t('settings:rows.contactUs')).toBe('Kontakt aufnehmen');
+    });
+
+    it('falls back to English for a language it does not ship', async () => {
+        await i18next.changeLanguage('it');
         expect(t('settings:rows.contactUs')).toBe('Contact us');
     });
 });

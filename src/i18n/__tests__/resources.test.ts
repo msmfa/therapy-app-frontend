@@ -1,11 +1,14 @@
 /**
- * The two resource files must stay the same shape.
+ * Every resource file must stay the same shape as English.
  *
  * English is the source language and the one the key types are generated from,
- * so a key that exists only in English is a French string that silently renders
- * in English, and a key that exists only in French is dead weight nothing can
- * reach. Neither fails a typecheck, and neither is visible in review once the
- * files are a few hundred lines long.
+ * so a key that exists only in English is a translated string that silently
+ * renders in English, and a key that exists only in a translation is dead
+ * weight nothing can reach. Neither fails a typecheck, and neither is visible
+ * in review once the files are a few hundred lines long.
+ *
+ * The cases are generated from LANGUAGES, so a fourth language is checked the
+ * moment it is registered, without touching this file.
  */
 
 import { LANGUAGES, FALLBACK_LANGUAGE } from '../languages';
@@ -62,7 +65,12 @@ describe('translation resources', () => {
             // languages. Everything else matching English is a line nobody
             // translated, which is the thing this test exists to catch, so the
             // exceptions are listed one by one rather than pattern-matched.
-            const allowedIdentical = new Set([
+            //
+            // Which words collide is a fact about the specific language, so the
+            // per-language lists are kept apart: 'Notes' is French spelling the
+            // word the same way, and waiving it for German too would hide a
+            // German line that nobody had touched.
+            const allowedEverywhere = [
                 // Only placeholders and punctuation.
                 'settings.hub.version',
                 'settings.language.a11yRow',
@@ -71,11 +79,24 @@ describe('translation resources', () => {
                 'onboarding.reminderTimes.quoteName',
                 'onboarding.subscription.quoteName',
                 'onboarding.notePreview.reminderTitle',
+            ];
+            const allowedByLanguage: Record<string, string[]> = {
                 // Words French happens to spell the same way.
-                'onboarding.sessionDate.dateLabel',
-                'common.tab.notes',
-                'onboarding.subscription.monthlyBadge',
-                'science.sources',
+                fr: [
+                    'onboarding.sessionDate.dateLabel',
+                    'common.tab.notes',
+                    'onboarding.subscription.monthlyBadge',
+                    'science.sources',
+                ],
+                // Words German happens to spell the same way.
+                de: [
+                    'settings.language.system',
+                    'auth.field.name',
+                ],
+            };
+            const allowedIdentical = new Set([
+                ...allowedEverywhere,
+                ...(allowedByLanguage[language.tag] ?? []),
             ]);
 
             const untranslated = leafValues(language.resources)

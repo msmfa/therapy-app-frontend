@@ -19,12 +19,15 @@
  * which a bare "en" throws away. The app knows the region -- `formattingLocale()`
  * composes it -- so the whole tag comes in here now.
  *
- * Region only matters for English among the languages the app ships: dayjs's
- * fr, fr-ca and fr-ch are identical in both tokens, while en, en-gb, en-au and
- * en-ca disagree about the clock, the date order, or both. The regional locales
- * are imported statically because Metro cannot resolve a computed require, so
- * the set below is the coverage, and a region outside it falls back to its
- * language. Adding one is an import and a line in BUNDLED.
+ * Region changes the format tokens only for English: en, en-gb, en-au and en-ca
+ * disagree about the clock, the date order, or both, while fr and de agree with
+ * their regions on both. German still earns its regions for a different reason:
+ * de-at writes January as "Jänner" where de writes "Januar", so an Austrian
+ * device would otherwise read a month name no Austrian uses. de-ch matches de
+ * and is carried only so the German set is not half-present. The regional
+ * locales are imported statically because Metro cannot resolve a computed
+ * require, so the set below is the coverage, and a region outside it falls back
+ * to its language. Adding one is an import and a line in BUNDLED.
  */
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
@@ -37,6 +40,9 @@ import 'dayjs/locale/en-in';
 import 'dayjs/locale/fr';
 import 'dayjs/locale/fr-ca';
 import 'dayjs/locale/fr-ch';
+import 'dayjs/locale/de';
+import 'dayjs/locale/de-at';
+import 'dayjs/locale/de-ch';
 
 import { languageSubtag } from './resolve';
 
@@ -51,6 +57,7 @@ dayjs.extend(localizedFormat);
 const BUNDLED = new Set([
     'en-gb', 'en-ie', 'en-au', 'en-nz', 'en-ca', 'en-in',
     'fr', 'fr-ca', 'fr-ch',
+    'de', 'de-at', 'de-ch',
 ]);
 
 /** dayjs's own built-in, and the last resort. */
