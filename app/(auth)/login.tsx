@@ -18,7 +18,6 @@ import TextField from 'src/components/ui/TextField';
 import PasswordField from 'src/components/ui/PasswordField';
 import AppText from '../../src/components/ui/AppText';
 import { loginWithPassword } from '../../src/api/auth';
-import { handleError } from 'src/utils';
 import { InternalLink } from 'src/components/ui/InternalLink';
 import { GlassMorphismWithCircle } from 'src/components/ui/GlassMorphismWithCircle';
 import { GLASS_CARD_RADIUS } from 'src/components/ui/GlassMorphism';
@@ -27,6 +26,7 @@ import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 import { useAppAlert } from '../../src/context/alert';
 import { ACCOUNT_STEP_RETURN, resolveAuthReturnRoute } from '../../src/features/onboarding/authReturn';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
+import { serverErrorMessage } from 'src/features/errors/serverErrorMessage';
 
 export default function LoginScreen() {
     const router = useRouter();
@@ -68,7 +68,7 @@ export default function LoginScreen() {
             await setAuth(token, nextUser, refreshToken ?? null);
             router.replace(returnRoute ?? '/');
         } catch (error) {
-            showAlert(t('signIn.failedTitle'), handleError(error));
+            showAlert(t('signIn.failedTitle'), serverErrorMessage(error));
         } finally {
             setLoading(false);
         }
