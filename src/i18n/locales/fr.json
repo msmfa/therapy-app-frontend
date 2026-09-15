@@ -42,6 +42,7 @@
   "settings": {
     "title": "Réglages",
     "hub": {
+      "language": "Langue",
       "references": "Références",
       "settings": "Réglages",
       "rateApp": "Noter cette application",
@@ -76,7 +77,9 @@
       "saveFailedTitle": "Langue non enregistrée",
       "saveFailedMessage": "L’application est maintenant en {{language}}, mais ce choix n’a pas pu être mémorisé. Veuillez réessayer.",
       "a11yRow": "{{label}}, {{detail}}",
-      "a11yHint": "Change immédiatement la langue de l’application"
+      "a11yHint": "Change immédiatement la langue de l’application",
+      "choose": "Choisir une langue",
+      "a11yDropdownHint": "Ouvre la liste des langues"
     }
   },
   "reminderSettings": {

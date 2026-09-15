@@ -42,6 +42,7 @@
   "settings": {
     "title": "Settings",
     "hub": {
+      "language": "Language",
       "references": "References",
       "settings": "Settings",
       "rateApp": "Rate this App",
@@ -76,7 +77,9 @@
       "saveFailedTitle": "Language not saved",
       "saveFailedMessage": "The app is now in {{language}}, but we could not remember that choice. Please try again.",
       "a11yRow": "{{label}}, {{detail}}",
-      "a11yHint": "Changes the language of the app straight away"
+      "a11yHint": "Changes the language of the app straight away",
+      "choose": "Choose a language",
+      "a11yDropdownHint": "Opens the list of languages"
     }
   },
   "reminderSettings": {
