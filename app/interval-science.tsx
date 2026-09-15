@@ -1,7 +1,3 @@
-/**
- * The write-up below is deliberately English-only. See
- * src/i18n/englishOnly.ts.
- */
 import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -11,7 +7,7 @@ import { Carousel } from 'src/components/ui/Carousel';
 import { GlassCircleButton } from 'src/components/ui/GlassCircleButton';
 import { Button } from 'src/components/ui/Button';
 import { ReminderCard } from 'src/features/reminders/ReminderCard';
-import { NEURO_REMINDER_COPY } from 'src/constants/neuroReminders';
+import { neuroReminderCopy } from 'src/constants/neuroReminders';
 import { ChartBackground } from 'src/components/ui/ChartBackground';
 import { GlassMorphismWithSquare } from 'src/components/ui/GlassMorphismWithSquare';
 import { SquarePosition } from 'src/components/ui/LinearGradientSquare';
@@ -29,6 +25,7 @@ const HEADER_BUTTON_SIZE = 48;
 
 export default function IntervalScienceScreen() {
     const { t } = useTranslation('common');
+    const { t: tScience } = useTranslation('science');
     const router = useRouter();
     const { source } = useLocalSearchParams<{ source?: string | string[] }>();
     const showingOnboardingPlan = (Array.isArray(source) ? source[0] : source) === 'onboarding';
@@ -78,10 +75,10 @@ export default function IntervalScienceScreen() {
         && cards.length === 0;
 
     const emptyBody = showingOnboardingPlan
-        ? 'Add your following session to place exact review times in the gap.'
+        ? tScience('intervals.emptyAddFollowing')
         : sessions.length === 0
-            ? 'Add your next therapy sessions in Calendar to build a review schedule.'
-            : 'There are no upcoming reviews in your current schedule.';
+            ? tScience('intervals.emptyAddSessions')
+            : tScience('intervals.emptyNoSessions');
 
     return (
         <SafeAreaView style={ styles.container } edges={ ['top', 'left', 'right'] }>
@@ -96,32 +93,28 @@ export default function IntervalScienceScreen() {
                     onPress={ () => router.back() }
                     style={ styles.back }
                 />
-                <AppText variant="h3" align="center" style={ styles.title }>
-                    Why these review moments
-                </AppText>
+                <AppText variant="h3" align="center" style={ styles.title }>{ tScience('intervals.title') }</AppText>
             </View>
 
             <View style={ styles.deck }>
                 { waiting ? (
                     <View style={ styles.state }>
-                        <AppText variant="h2" align="center">Loading your review times</AppText>
+                        <AppText variant="h2" align="center">{ tScience('intervals.loading') }</AppText>
                     </View>
                 ) : failed ? (
                     <View style={ styles.state }>
-                        <AppText variant="h2" align="center">We couldn't load your review times</AppText>
-                        <AppText variant="body" align="center" style={ styles.stateBody }>
-                            Check your connection and try again.
-                        </AppText>
+                        <AppText variant="h2" align="center">{ tScience('intervals.failedTitle') }</AppText>
+                        <AppText variant="body" align="center" style={ styles.stateBody }>{ tScience('intervals.failedBody') }</AppText>
                         <View style={ styles.retry }>
                             <Button
-                                label="Try again"
+                                label={ t('action.tryAgain') }
                                 onPress={ () => void refreshReminderSchedule() }
                             />
                         </View>
                     </View>
                 ) : cards.length === 0 ? (
                     <View style={ styles.state }>
-                        <AppText variant="h2" align="center">No review times yet</AppText>
+                        <AppText variant="h2" align="center">{ tScience('intervals.emptyTitle') }</AppText>
                         <AppText variant="body" align="center" style={ styles.stateBody }>
                             { emptyBody }
                         </AppText>
@@ -132,9 +125,9 @@ export default function IntervalScienceScreen() {
                         keyExtractor={ (card) => card.reason }
                         renderItem={ (card) => (
                             <ReminderCard
-                                date={ NEURO_REMINDER_COPY[card.reason].time }
-                                description={ NEURO_REMINDER_COPY[card.reason].reason }
-                                link={ NEURO_REMINDER_COPY[card.reason].link }
+                                date={ neuroReminderCopy()[card.reason].time }
+                                description={ neuroReminderCopy()[card.reason].reason }
+                                link={ neuroReminderCopy()[card.reason].link }
                                 time={ card.time }
                                 caption={ card.caption }
                             />

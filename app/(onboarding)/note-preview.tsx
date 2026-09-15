@@ -22,6 +22,7 @@ import {
 } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { onboardingAccentStyles, onboardingStyles } from '../../src/components/onboarding/onboardingStyles';
+import { useTranslation } from 'react-i18next';
 
 /** The screenshot's own proportions, so nothing is stretched. */
 const NOTES_LIST_ASPECT = 1290 / 2194;
@@ -42,6 +43,7 @@ const NOTIFICATION_HEIGHT_GUESS = 74;
  */
 
 export default function NotePreviewScreen() {
+    const { t } = useTranslation('onboarding');
     const router = useRouter();
     const { answers } = useOnboardingAnswers();
     const goal = goalSupport(answers.goal);
@@ -123,7 +125,7 @@ export default function NotePreviewScreen() {
                                 ] }
                                 contentFit="contain"
                                 accessible
-                                accessibilityLabel="A list of past therapy notes, each with the date of its session"
+                                accessibilityLabel={ t('a11y.notesList') }
                             />
                             { showsReminder && (
                                 <NotificationBanner

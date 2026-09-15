@@ -11,6 +11,7 @@ import {
     postTherapyTemplateTitle,
 } from '../../constants/postTherapyTemplate';
 import { remainingQuestions } from '../../features/onboarding/onboardingCopy';
+import { useTranslation } from 'react-i18next';
 
 // The cheatsheet's ink, so the preview sheet reads as the same paper the note
 // editor uses rather than a new surface invented for onboarding.
@@ -27,6 +28,7 @@ const QUESTIONS_SHOWN = 2;
  * beneath them are hidden as decoration.
  */
 export function NoteTemplateSheet({ style }: { style?: StyleProp<ViewStyle> }) {
+    const { t } = useTranslation('notes');
     const shown = postTherapyQuestions().slice(0, QUESTIONS_SHOWN);
 
     return (
@@ -53,7 +55,11 @@ export function NoteTemplateSheet({ style }: { style?: StyleProp<ViewStyle> }) {
                         key={ item.question }
                         style={ styles.question }
                         accessible
-                        accessibilityLabel={ `Question ${index + 1} of ${postTherapyQuestions().length}. ${item.question}` }
+                        accessibilityLabel={ t('a11y.question', {
+                            position: index + 1,
+                            total: postTherapyQuestions().length,
+                            question: item.question,
+                        }) }
                     >
                         <AppText
                             variant="caption"

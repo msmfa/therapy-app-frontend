@@ -2,6 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Modal, Button } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
+import { useTranslation } from 'react-i18next';
 
 type SuccessScreenProps = {
     isVisible: boolean;
@@ -11,6 +12,7 @@ type SuccessScreenProps = {
 };
 
 export default function SuccessScreen({ isVisible, onClose, iconSize = 96, iconColor = COLOR_VARIANTS.green.mid }: SuccessScreenProps) {
+    const { t } = useTranslation('common');
     return (
         <Modal
             visible={ isVisible }
@@ -21,7 +23,7 @@ export default function SuccessScreen({ isVisible, onClose, iconSize = 96, iconC
                 <Ionicons name="checkmark-circle" size={ iconSize } color={ iconColor } />
             </View>
             <View style={ styles.modalClose }>
-                <Button title="Close" onPress={ onClose } />
+                <Button title={ t('action.close') } onPress={ onClose } />
             </View>
         </Modal>
 

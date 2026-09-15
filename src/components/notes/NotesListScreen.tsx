@@ -15,6 +15,7 @@ import { GradientCard } from '../ui/GradientCard';
 import AppText from '../ui/AppText';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { captureNoteOpened } from '../../features/analytics/engagement';
+import { useTranslation } from 'react-i18next';
 
 const BOTTOM_FADE = 96; // fade height at bottom (mask)
 const HEADER_GAP = 20; // gap between the pinned header and the first note
@@ -46,10 +47,13 @@ type PinnedHeaderProps = {
  * block rather than only under the label.
  */
 function PinnedHeader({ expanded, onToggle }: PinnedHeaderProps) {
+    // French spells it the same way, but a literal here is still a string
+    // the next language would have to hunt for.
+    const { t } = useTranslation('common');
     return (
         <View style={ styles.header }>
             <AppText variant='h3' style={ styles.headerLabel }>
-                Notes
+                { t('tab.notes') }
             </AppText>
             <View style={ styles.gallery }>
                 <ReviewProgressGallery expanded={ expanded } onToggle={ onToggle } />

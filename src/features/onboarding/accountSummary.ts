@@ -8,6 +8,7 @@ import {
     trialBadgeLine,
 } from './onboardingCopy';
 import { dateTimeLabel, minutesToDate, timeLabel } from './formatting';
+import { t } from '../../i18n/translate';
 
 export type AccountSummaryRow = {
     label: string;
@@ -74,13 +75,17 @@ export const accountNextStep = (
     alreadyActive = answers.entitlementConfirmedThisSession,
 ): string => {
     if (alreadyActive) {
-        return `Your subscription is already active, so there is nothing to confirm. ${accountCopy().cancelAnytime}`;
+        return t('onboarding:summary.alreadyActive', { cancel: accountCopy().cancelAnytime });
     }
     const trial = trialFor(answers.plan, offer) !== null;
-    const lead = signedIn ? 'When you continue' : 'After you sign in';
+    const lead = signedIn
+        ? t('onboarding:summary.leadSignedIn')
+        : t('onboarding:summary.leadSignedOut');
+    const cancel = accountCopy().cancelAnytime;
+
     return trial
-        ? `${lead}, Apple will ask you to confirm your free trial. You won't be charged today. ${accountCopy().cancelAnytime}`
-        : `${lead}, Apple will ask you to confirm your subscription. ${accountCopy().cancelAnytime}`;
+        ? t('onboarding:summary.confirmTrial', { lead, cancel })
+        : t('onboarding:summary.confirmSubscription', { lead, cancel });
 };
 
 export const accountSummaryRows = (

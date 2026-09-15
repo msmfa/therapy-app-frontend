@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import { ScienceTextModal } from '../ScienceTextModal';
-import { REMINDER_SCIENCE_COPY } from '../../constants/neuroReminders';
+import { reminderScienceCopy } from '../../constants/neuroReminders';
 import { ReminderType } from '../../utils/types';
 
 jest.mock('@expo/vector-icons', () => ({
@@ -17,14 +17,14 @@ describe('ScienceTextModal', () => {
 
             // The label and the summary are one line, so they compose into
             // one string rather than matching separately.
-            expect(getByText(`TLDR: ${REMINDER_SCIENCE_COPY[type].tldr}`)).toBeTruthy();
+            expect(getByText(`TLDR: ${reminderScienceCopy()[type].tldr}`)).toBeTruthy();
             unmount();
         }
     });
 
     it('keeps the TLDRs in plain language, with no citation markers', () => {
         for (const type of TYPES) {
-            const { tldr } = REMINDER_SCIENCE_COPY[type];
+            const { tldr } = reminderScienceCopy()[type];
 
             // The body carries the citations; the summary is for a reader
             // deciding whether the reminder is worth having.

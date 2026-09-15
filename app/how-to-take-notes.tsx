@@ -1,17 +1,13 @@
-/**
- * The write-up below is deliberately English-only. See
- * src/i18n/englishOnly.ts.
- */
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Linking, StyleSheet, View } from 'react-native';
-import { Image } from 'expo-image';
 import type { ImageSourcePropType } from 'react-native';
 import { useRouter } from 'expo-router';
 import AppText from '../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { GlassCircleButton } from '../src/components/ui/GlassCircleButton';
 import { TemplateHelpModal } from '../src/components/notes/TemplateHelpModal';
+import { NoteSheetBackdrop } from '../src/components/notes/NoteSheetBackdrop';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { DottedGrid } from '../src/components/ui/DottedGrid';
 import { useTranslation } from 'react-i18next';
@@ -26,6 +22,7 @@ const RESEARCH_URL = 'https://www.plastic-brains.com/after-therapy-note-template
 
 export default function HowToTakeNotesScreen() {
     const { t } = useTranslation('common');
+    const { t: tScience } = useTranslation('science');
     const router = useRouter();
     const [helpVisible, setHelpVisible] = React.useState(false);
 
@@ -53,7 +50,7 @@ export default function HowToTakeNotesScreen() {
                     onPress={ handleBack }
                 />
                 <AppText variant="h3" style={ styles.headerTitle }>
-                    Template
+                    { tScience('template.title') }
                 </AppText>
             </View>
 
@@ -61,28 +58,27 @@ export default function HowToTakeNotesScreen() {
                  about how much to write, so this page does not repeat them. */ }
             <View style={ styles.intro }>
                 <AppText variant="body" style={ styles.introText }>
-                    We recommend you use our{ ' ' }
+                    { tScience('template.recommendBefore') }{ ' ' }
                     <AppText
                         variant="body"
                         onPress={ () => setHelpVisible(true) }
                         accessibilityRole="link"
                         style={ [styles.link, styles.introText] }
                     >
-                        cheatsheet
+                        { tScience('template.cheatsheetLink') }
                     </AppText>
                     .
                 </AppText>
                 <Spacer variant={ SpacerVariant.medium } />
                 <AppText variant="body" style={ styles.introText }>
-                    To find out why we&apos;ve picked these 5 questions and the
-                    research,{ ' ' }
+                    { tScience('template.researchBefore') }{ ' ' }
                     <AppText
                         variant="body"
                         onPress={ handleOpenResearch }
                         accessibilityRole="link"
                         style={ [styles.link, styles.introText] }
                     >
-                        click here
+                        { tScience('template.researchLink') }
                     </AppText>
                     .
                 </AppText>
@@ -92,13 +88,10 @@ export default function HowToTakeNotesScreen() {
                  the questions read as a sheet tucked behind the page. */ }
             <View style={ styles.sheetArea }>
                 <View style={ styles.cheatsheetLayer } pointerEvents="none">
-                    <Image
-                        source={ CHEATSHEET }
+                    <NoteSheetBackdrop
+                        capture={ CHEATSHEET }
                         style={ styles.cheatsheet }
-                        contentFit="contain"
-                        accessible
-                        accessibilityRole="image"
-                        accessibilityLabel="The five questions, as they appear on the cheatsheet"
+                        accessibilityLabel={ tScience('template.cheatsheetImage') }
                     />
                 </View>
             </View>

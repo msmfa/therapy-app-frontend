@@ -97,8 +97,24 @@ export function GlassPillButton({
                         style={ StyleSheet.absoluteFill }
                     />
                 ) }
+                { /* The 38pt shoulders used to be padding on the pill, which
+                     cannot give way. A caller that fixes the pill's width
+                     (the calendar footer pins it to 132) was therefore
+                     handing the label 56pt, which "Clear" fits and
+                     "Effacer" does not, so the label wrapped mid-word.
+                     As flexible spacers they hold the same 38pt wherever
+                     there is room, leaving the intrinsic width of every
+                     content-sized pill unchanged, and collapse when the
+                     label needs it. */ }
+                <View style={ styles.shoulder } />
                 <AppText
                     variant="body"
+                    numberOfLines={ 1 }
+                    // The last resort, for a label longer than any pill: a
+                    // pill is a single-line control, so shrinking the type
+                    // beats wrapping or truncating it.
+                    adjustsFontSizeToFit
+                    minimumFontScale={ 0.8 }
                     style={ [
                         styles.label,
                         { color: resolvedLabelColor, fontSize: labelSize },
@@ -109,6 +125,7 @@ export function GlassPillButton({
                 >
                     { label }
                 </AppText>
+                <View style={ styles.shoulder } />
                 { loading && <ActivityIndicator color={ resolvedLabelColor } style={ StyleSheet.absoluteFill } /> }
             </Body>
             { width > 0 && !isSolid ? (
@@ -164,13 +181,22 @@ const styles = StyleSheet.create({
     },
     pill: {
         overflow: 'hidden',
-        paddingHorizontal: 38,
+        flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    shoulder: {
+        width: 38,
+        flexShrink: 1,
     },
     label: {
         fontSize: 17,
         letterSpacing: 1.2,
+        flexShrink: 1,
+        // Without this a flex child will not shrink below its content width,
+        // which is the whole point of the shoulders giving way.
+        minWidth: 0,
+        textAlign: 'center',
     },
     contentSizedLabel: {
         textAlign: 'center',

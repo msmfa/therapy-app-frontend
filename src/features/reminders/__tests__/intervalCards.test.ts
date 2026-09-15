@@ -5,6 +5,7 @@ import {
 } from '../intervalCards';
 import { Reason } from '../types';
 import { ReminderType } from '../../../utils/types';
+import { i18next } from '../../../i18n';
 
 describe('interval science cards', () => {
     it('uses the exact times from the onboarding plan and omits the separate note prompt', () => {
@@ -96,5 +97,43 @@ describe('interval science cards', () => {
             Reason.PostSession,
             Reason.PostSleep,
         ]);
+    });
+    describe('caption language', () => {
+        // Every test above passes an explicit locale, which left the default
+        // untested. The default was `undefined`, both callers relied on it,
+        // and `undefined` means Hermes's own locale: "en-GB" whatever the app
+        // language is. A French user read "Wed, 16 Sep · next of 3".
+        const entries = (count: number): PlanTimelineEntry[] => [{
+            id: 'pre_session',
+            label: 'The night before',
+            body: 'One last look.',
+            researchTarget: ReminderType.EarlyConsolidation,
+            at: new Date('2026-09-16T19:00:00.000Z'),
+            occurrences: Array.from({ length: count }, () => new Date('2026-09-16T19:00:00.000Z')),
+        }];
+
+        afterEach(async () => {
+            await i18next.changeLanguage('en');
+        });
+
+        it('formats the date in the app language when no locale is given', async () => {
+            await i18next.changeLanguage('fr');
+            const [card] = intervalCardsFromPlan(entries(1));
+
+            expect(card.caption).toContain('sept');
+            expect(card.caption).not.toContain('Sep ');
+        });
+
+        it('translates the occurrence count', async () => {
+            await i18next.changeLanguage('fr');
+            expect(intervalCardsFromPlan(entries(3))[0].caption).toContain('prochain sur 3');
+
+            await i18next.changeLanguage('en');
+            expect(intervalCardsFromPlan(entries(3))[0].caption).toContain('next of 3');
+        });
+
+        it('omits the count when there is only one occurrence', () => {
+            expect(intervalCardsFromPlan(entries(1))[0].caption).not.toContain('next of');
+        });
     });
 });

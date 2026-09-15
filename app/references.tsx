@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 
 export default function ReferencesScreen() {
     const { t } = useTranslation('common');
+    const { t: tScience } = useTranslation('science');
     const router = useRouter();
 
     return (
@@ -20,14 +21,14 @@ export default function ReferencesScreen() {
             <FrostedCard contentStyle={ styles.card }>
                 <View style={ styles.rows }>
                     <SettingsRow
-                        text="The science behind our reminder intervals"
+                        text={ tScience('referencesIntervals') }
                         onPress={ () => router.push({
                             pathname: '/interval-science',
                             params: { source: 'saved' },
                         }) }
                     />
                     <SettingsRow
-                        text="Your five-minute therapy note"
+                        text={ tScience('referencesNote') }
                         onPress={ () => router.push('/how-to-take-notes') }
                     />
                 </View>
