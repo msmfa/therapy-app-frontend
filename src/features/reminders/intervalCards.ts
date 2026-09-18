@@ -1,6 +1,8 @@
 import type { PlanTimelineEntry } from '../onboarding/planTimeline';
 import type { Reminder } from './types';
 import { Reason } from './types';
+import { formattingLocale } from '../../i18n';
+import { t } from '../../i18n/translate';
 
 export type IntervalCard = {
     reason: Reason;
@@ -74,14 +76,23 @@ const captionAt = (
 ): string => {
     const parts = [dateAt(date, timeZone, locale)];
     if (timeZone !== undefined) parts.push(zoneAt(date, timeZone, locale));
-    if (count > 1) parts.push(`next of ${count}`);
+    if (count > 1) parts.push(t('science:intervals.nextOf', { count }));
     return parts.join(' · ');
 };
 
-/** Exact review moments from the unsaved plan currently being previewed. */
+/**
+ * Exact review moments from the unsaved plan currently being previewed.
+ *
+ * `locale` defaults to the app's rather than staying optional. It was
+ * optional, both callers omitted it, and `undefined` sends Intl to the
+ * platform's default locale, which on Hermes is "en-GB" whatever language the
+ * app is in. The captions therefore read "Wed, 16 Sep" inside a French card.
+ * Defaulting here rather than at the call sites means a new caller cannot
+ * reintroduce it.
+ */
 export const intervalCardsFromPlan = (
     entries: PlanTimelineEntry[],
-    locale?: string,
+    locale: string = formattingLocale(),
 ): IntervalCard[] =>
     entries.flatMap((entry) => {
         const reason = PLAN_REASON[entry.id];
@@ -104,7 +115,7 @@ export const intervalCardsFromPlan = (
 export const intervalCardsFromSchedule = (
     reminders: Reminder[],
     timeZone: string,
-    locale?: string,
+    locale: string = formattingLocale(),
 ): IntervalCard[] => {
     const grouped = new Map<Reason, Date[]>();
 

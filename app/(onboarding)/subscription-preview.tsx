@@ -32,8 +32,10 @@ import {
     SUBSCRIPTION_STEP_RETURN,
 } from '../../src/features/onboarding/authReturn';
 import { firstIncompletePlanRoute } from '../../src/features/onboarding/flowGuard';
+import { useTranslation } from 'react-i18next';
 
 export default function SubscriptionPreviewScreen() {
+    const { t: tOnboarding } = useTranslation('onboarding');
     const router = useRouter();
     const { answers, setAnswer } = useOnboardingAnswers();
     const { state, reload } = useSubscriptionOffer();
@@ -59,7 +61,7 @@ export default function SubscriptionPreviewScreen() {
     // or this account has no subscription.
     const accountSettings = isAuthenticated ? (
         <OnboardingButton
-            label="Account settings"
+            label={ tOnboarding('accountSettings') }
             transparent
             disabled={ restoreInProgress }
             onPress={ () => router.push('/account') }
@@ -171,7 +173,7 @@ export default function SubscriptionPreviewScreen() {
         || state.status === 'loading'
     ) {
         return (
-            <OnboardingScreen { ...backNavigation } headline="Loading subscriptions" centeredBody footer={ accountSettings }>
+            <OnboardingScreen { ...backNavigation } headline={ tOnboarding('loadingSubscriptions') } centeredBody footer={ accountSettings }>
                 <Loading fullScreen={ false } />
             </OnboardingScreen>
         );

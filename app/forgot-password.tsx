@@ -21,7 +21,7 @@ import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 import { useAppAlert } from 'src/context/alert';
 import { PASSWORD_RESET_AUTH_SOURCE } from '../src/features/onboarding/authReturn';
 import { useTranslation } from 'react-i18next';
-import { serverErrorMessage } from '../src/features/errors/serverErrorMessage';
+import { serverErrorMessage, serverMessageForCode } from '../src/features/errors/serverErrorMessage';
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -56,11 +56,11 @@ export default function ForgotPasswordScreen() {
 
         setLoading(true);
         try {
-            const responseMessage = await requestPasswordReset(trimmedEmail);
+            const response = await requestPasswordReset(trimmedEmail);
             setStep('reset');
             showAlert(
                 t('forgot.checkEmailTitle'),
-                responseMessage,
+                serverMessageForCode(response.code, response.message),
             );
         } catch (err) {
             showAlert(
@@ -126,17 +126,17 @@ export default function ForgotPasswordScreen() {
                             { step === 'request' && (
                                 <View style={ styles.content }>
                                     <AppText style={ styles.title } variant='h2'>
-                                        Forgot password
+                                        { t('forgot.requestTitle') }
                                     </AppText>
                                     <AppText style={ styles.subtitle } variant='body'>
-                                        Enter your account email. We will send you a reset code.
+                                        { t('forgot.requestSubtitle') }
                                     </AppText>
 
                                     <TextField
                                         label={ t('field.email') }
                                         value={ email }
                                         onChangeText={ setEmail }
-                                        placeholder="you@example.com"
+                                        placeholder={ t('field.emailPlaceholder') }
                                         keyboardType="email-address"
                                         autoCapitalize="none"
                                         autoCorrect={ false }
@@ -156,16 +156,16 @@ export default function ForgotPasswordScreen() {
                             { step === 'reset' && (
                                 <View style={ styles.content }>
                                     <AppText style={ styles.title } variant='body'>
-                                        Check your email
+                                        { t('forgot.checkEmailTitle') }
                                     </AppText>
                                     <AppText style={ styles.subtitle } variant='body'>
-                                        Paste the reset code and choose a new password.
+                                        { t('forgot.resetSubtitle') }
                                     </AppText>
                                     <TextField
                                         label={ t('field.resetCode') }
                                         value={ token }
                                         onChangeText={ handleTokenChange }
-                                        placeholder="6-digit code"
+                                        placeholder={ t('field.resetCodePlaceholder') }
                                         autoCapitalize="none"
                                         autoCorrect={ false }
                                         textContentType="oneTimeCode"
@@ -205,10 +205,10 @@ export default function ForgotPasswordScreen() {
                             { step === 'done' && (
                                 <View style={ styles.content }>
                                     <AppText style={ styles.title } variant='body'>
-                                        Password updated
+                                        { t('forgot.doneTitle') }
                                     </AppText>
                                     <AppText style={ styles.subtitle } variant='body'>
-                                        Your password has been reset. Sign in with your new password to continue.
+                                        { t('forgot.doneSubtitle') }
                                     </AppText>
 
                                     <Button label={ t('forgot.backToSignIn') } onPress={ handleReturnToLogin } />

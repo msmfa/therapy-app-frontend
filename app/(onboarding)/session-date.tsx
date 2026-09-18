@@ -18,6 +18,7 @@ import {
     latestFirstSessionAt,
 } from '../../src/utils/sessionWindow';
 import { ACTION_ORANGE, COLOR_VARIANTS, TEXT_COLORS, THEME_COLORS } from 'designs/designs-colors';
+import { useTranslation } from 'react-i18next';
 
 type Field = 'date' | 'time';
 
@@ -35,6 +36,7 @@ const pickerSeed = (): Date => {
 };
 
 export default function SessionDateScreen() {
+    const { t: tOnboarding } = useTranslation('onboarding');
     const router = useRouter();
     const { answers, setAnswer } = useOnboardingAnswers();
 
@@ -172,8 +174,8 @@ export default function SessionDateScreen() {
                             <TouchableOpacity
                                 onPress={ () => togglePicker(row.field) }
                                 accessibilityRole="button"
-                                accessibilityLabel={ `${row.label}. ${row.value ?? 'Not chosen'}` }
-                                accessibilityHint={ `Choose your therapy session ${row.label.toLowerCase()}` }
+                                accessibilityLabel={ `${row.label}. ${row.value ?? tOnboarding('notChosen')}` }
+                                accessibilityHint={ tOnboarding('chooseHint', { field: row.label.toLowerCase() }) }
                                 accessibilityState={ { expanded: isOpen } }
                                 style={ styles.row }
                             >

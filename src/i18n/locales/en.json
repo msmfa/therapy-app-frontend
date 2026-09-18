@@ -4,7 +4,9 @@
       "logOut": "Log out",
       "loggingOut": "Logging out…",
       "tryAgain": "Try again",
-      "back": "Back"
+      "back": "Back",
+      "learnMore": "Learn more",
+      "close": "Close"
     },
     "error": {
       "title": "Error",
@@ -22,7 +24,8 @@
       "hidePassword": "Hide password",
       "loading": "Loading",
       "showPassword": "Show password",
-      "tryAgainQuestion": "Try Again?"
+      "tryAgainQuestion": "Try Again?",
+      "source": "Source {{position}}: {{text}}"
     },
     "tab": {
       "calendar": "Calendar",
@@ -39,6 +42,7 @@
   "settings": {
     "title": "Settings",
     "hub": {
+      "language": "Language",
       "references": "References",
       "settings": "Settings",
       "rateApp": "Rate this App",
@@ -73,7 +77,9 @@
       "saveFailedTitle": "Language not saved",
       "saveFailedMessage": "The app is now in {{language}}, but we could not remember that choice. Please try again.",
       "a11yRow": "{{label}}, {{detail}}",
-      "a11yHint": "Changes the language of the app straight away"
+      "a11yHint": "Changes the language of the app straight away",
+      "choose": "Choose a language",
+      "a11yDropdownHint": "Opens the list of languages"
     }
   },
   "reminderSettings": {
@@ -117,7 +123,8 @@
       "cancelEdit": "Cancel edit",
       "saveUnavailable": "Unable to save note right now.",
       "howTo": "How to take notes",
-      "saveNote": "Save note"
+      "saveNote": "Save note",
+      "edit": "edit"
     },
     "review": {
       "reviewed": "REVIEWED",
@@ -162,7 +169,19 @@
       "h4": "Leave this blank if nothing was agreed or suggested.",
       "q5": "What do you want to return to in your next session?",
       "h5": "One subject is enough."
-    }
+    },
+    "a11y": {
+      "openNote": "Open note",
+      "editNote": "Edit note",
+      "saveChanges": "Save changes",
+      "question": "Question {{position}} of {{total}}. {{question}}"
+    },
+    "whatWasSaid": "what was said",
+    "bars": {
+      "title": "The bars",
+      "intro": "After you've reviewed a note click review and these bars will update."
+    },
+    "dateHeading": "{{weekday}} at {{time}}"
   },
   "auth": {
     "signIn": {
@@ -191,7 +210,8 @@
       "password": "Password",
       "confirmPassword": "Confirm password",
       "newPassword": "New password",
-      "resetCode": "Reset code"
+      "resetCode": "Reset code",
+      "resetCodePlaceholder": "6-digit code"
     },
     "forgot": {
       "emailRequiredTitle": "Oops",
@@ -210,7 +230,12 @@
       "resetFailedMessage": "We could not reset your password.",
       "sendCode": "Send reset code",
       "updatePassword": "Update password",
-      "backToSignIn": "Back to sign in"
+      "backToSignIn": "Back to sign in",
+      "requestTitle": "Forgot password",
+      "requestSubtitle": "Enter your account email. We will send you a reset code.",
+      "resetSubtitle": "Paste the reset code and choose a new password.",
+      "doneTitle": "Password updated",
+      "doneSubtitle": "Your password has been reset. Sign in with your new password to continue."
     },
     "apple": {
       "continueWith": "Continue with Apple",
@@ -225,7 +250,8 @@
       "tooShort_other": "Password must be at least {{count}} characters long",
       "needsUppercase": "Password must include at least one uppercase letter",
       "needsSymbol": "Password must include at least one symbol"
-    }
+    },
+    "orContinueWith": "Or continue with"
   },
   "calendar": {
     "nextSession": "Next session",
@@ -248,7 +274,8 @@
       "repeatCount_other": "{{count}} sessions",
       "delete": "Delete",
       "update": "Update",
-      "add": "Add Session"
+      "add": "Add Session",
+      "appointmentAt": "Appointment at {{time}}"
     },
     "error": {
       "timeout": {
@@ -287,7 +314,8 @@
         "title": "Something went wrong",
         "message": "We couldn’t load your therapy sessions. Please try again later."
       }
-    }
+    },
+    "nothingScheduled": "Nothing scheduled"
   },
   "onboarding": {
     "welcome": {
@@ -516,6 +544,360 @@
       "unexpectedTitle": "Something went wrong",
       "unexpectedBody": "Your answers are still here. Please try again.",
       "retryCta": "Try again"
+    },
+    "signUpSubtitle": "Save your between-session plan and keep your schedule connected.",
+    "timeline": {
+      "templateName": "5 minute, 5 questions template",
+      "postSessionLabel": "After your {{weekday}} session",
+      "postSessionBody": "We will send you a notification just after your session on {{weekday}} to remind you to take a note on what you discussed. If you're not sure where to start we have a {{template}} that makes it easy.",
+      "postSleepLabel": "Later that {{weekday}} evening",
+      "postSleepBody": "Return to your note while the session is still fresh.",
+      "morningLabel": "{{weekday}} Morning",
+      "morningBody": "Revisit what you discussed in your session the day before.",
+      "midLabel": "Between sessions",
+      "midBody": "A short reminder to read your note again during the week, so what you talked about does not fade before your next session.",
+      "preLabel": "{{weekday}} evening",
+      "preBody": "One last look at your note the evening before, so you arrive knowing what you want to continue from your last session.",
+      "research": "Research",
+      "researchLabel": "Research:",
+      "opensResearch": "Opens the research for this reminder",
+      "opensFiveQuestions": "Opens why these five questions"
+    },
+    "summary": {
+      "alreadyActive": "Your subscription is already active, so there is nothing to confirm. {{cancel}}",
+      "leadSignedIn": "When you continue",
+      "leadSignedOut": "After you sign in",
+      "confirmTrial": "{{lead}}, Apple will ask you to confirm your free trial. You won't be charged today. {{cancel}}",
+      "confirmSubscription": "{{lead}}, Apple will ask you to confirm your subscription. {{cancel}}"
+    },
+    "chooseDate": "Choose a date",
+    "notChosen": "Not chosen",
+    "chooseHint": "Choose your therapy session {{field}}",
+    "accountSettings": "Account settings",
+    "loadingSubscriptions": "Loading subscriptions",
+    "planPreview": {
+      "sheetImage": "The five-question note sheet"
+    },
+    "progress": {
+      "label": "{{current}} of {{total}}",
+      "a11y": "Step {{current}} of {{total}}"
+    },
+    "a11y": {
+      "notificationPreview": "An iPhone notification from {{title}}: {{body}}",
+      "notesList": "A list of past therapy notes, each with the date of its session"
+    }
+  },
+  "science": {
+    "sources": "Sources",
+    "jumpToSource": "Jump to this source in the references below.",
+    "openSource": "Open this source in your browser.",
+    "referencesIntervals": "The science behind our reminder intervals",
+    "referencesNote": "Your five-minute therapy note",
+    "template": {
+      "title": "Template",
+      "recommendBefore": "We recommend you use our",
+      "cheatsheetLink": "cheatsheet",
+      "researchBefore": "To find out why we’ve picked these 5 questions and the research,",
+      "researchLink": "click here",
+      "cheatsheetImage": "The five questions, as they appear on the cheatsheet"
+    },
+    "reminder": {
+      "postSession": {
+        "time": "Evening of your session",
+        "reason": "A same-day return gives you another chance to recall what stood out while the session is still recent."
+      },
+      "postSleep": {
+        "time": "Morning after your session",
+        "reason": "A short review the next morning separates your second look from the first instead of repeating it all at once."
+      },
+      "midSession": {
+        "time": "Between your sessions",
+        "reason": "Brief returns across the gap use spaced retrieval: revisiting after a delay rather than rereading repeatedly in one sitting."
+      },
+      "preSession": {
+        "time": "Evening before your next session",
+        "reason": "A final review puts your own note back in view while you choose what you want to bring into the next session."
+      }
+    },
+    "explainer": {
+      "earlyConsolidation": {
+        "title": "Early Consolidation",
+        "tldr": "A memory is not stored all at once: your brain carries on stabilising it after the session has ended. So the first reminder comes the evening of your session, while the notes you took that day are still fresh in your mind.",
+        "body": [
+          "In the first few hours after learning something new, your brain enters the early phase of memory formation, where proteins activate and synaptic connections begin to strengthen.[1] This is a critical window.",
+          "That strengthening does not arrive all at once. Tracking it directly, researchers found it comes in waves: one in the hippocampus straight after learning, a second during that night's sleep, and a third the following night in the cortex, each doing a different job.[1] Reviewing your notes the same evening falls between the first wave and the second.",
+          "Until that work is done the memory stays open to disruption. The protein building that fixes a change in place is not finished for a day or two after learning,[3] and a new memory stays vulnerable to interference while it is still settling.[2] Going back to your notes inside that window protects a fragile insight from being crowded out by the rest of your day.",
+          "What is happening in your brain: neurons ramp up receptor sensitivity and activate the protein machinery that rewires a connection.[1, 2] Looking back at your notes while that is running deepens the imprint of the session and makes the change more durable."
+        ]
+      },
+      "sleepDependentConsolidation": {
+        "title": "Sleep-Dependent Consolidation",
+        "tldr": "Sleep actively supports the way new memories are processed and organised, and sleep after learning is linked with stronger storage of what was learned. That is why the next reminder arrives the following morning.",
+        "body": [
+          "Sleep is when your brain does heavy memory work. During slow wave sleep it replays the neural patterns from your daily activities (which in our case includes a therapy session) and shifts them from temporary storage in the hippocampus toward longer term cortical networks.[1, 6]",
+          "You can picture it as your brain organizing files overnight. The hippocampus reactivates memories alongside sharp wave ripples and sleep spindles that help move information into long term storage.[2]",
+          "Both slow wave sleep and REM sleep contribute to emotional memory consolidation.[3, 5] Slow wave sleep handles the transfer and restructuring and REM helps stabilize the transformed insights, which is especially important for emotionally charged material.",
+          "Why review in the morning: sleep dependent consolidation varies with the amount and quality of slow wave sleep,[4] so the morning after a session is a sweet spot when the reorganized memory is still easy to access. A quick review catches those changes and strengthens them again before they drift."
+        ]
+      },
+      "spacedReactivation": {
+        "title": "Spaced Reactivation",
+        "tldr": "Reviews are more useful when they are separated by time instead of grouped together: people remember more after spaced repetitions than after immediate ones. So reminders are spread across the gap between your sessions.",
+        "body": [
+          "When you reactivate a memory after a delay it briefly opens up for modification before it settles again.[2] That reconsolidation window is why spaced follow ups are more potent than cramming everything at once.[1]",
+          "Decades of research on the spacing effect show that repetitions spread over time build much stronger memories than massed practice.[1, 2, 3] Strategic reactivation engages different mechanisms than immediate repetition and triggers reconsolidation that strengthens the trace.[2]",
+          "Think of the neural pathway like a garden path that needs to be walked. Each time you revisit your notes you recruit many of the same neurons that fired in session, and the reactivation stabilizes the pathway in a more resilient form.[1]",
+          "The gap between sessions matters because a memory needs time to consolidate before the next reactivation can build on it.[2] That leaves a window either side of the right moment. Too soon and the circuit has not reset, so a second pass adds little to the first. Too long and the memory has faded far enough that bringing it back is work rather than a refresh.[4] Where the window sits depends on how long you need to hold on to the material: for something you need weeks from now, the best gap is around a fifth of that span, and the proportion shrinks as the span grows.[5] The schedule here follows that shape. Rather than spacing reminders evenly, it widens the gaps as your next session approaches: the evening of your session, the next morning, then a few days later, then the night before you go back.",
+          "What is happening in your brain: bringing a memory back after a delay switches on genes in the cells that hold it, and the proteins they build reinforce the connection. The delay is what triggers that rebuilding, which is why spacing reviews out does more than repeating them close together.[2]"
+        ]
+      },
+      "stateReinstatement": {
+        "title": "State Reinstatement",
+        "tldr": "The cues around a memory affect how easily it comes back, and returning to part of the original context supports recall. Reviewing your note before therapy acts as a cue for the previous conversation, helping you arrive ready to continue it.",
+        "body": [
+          "Memory is easier to reach when the state you are in matches the state you were in when you formed it. A meta-analysis of the environmental version of this found the effect reliable across studies,[1] and work on internal brain state shows the same pattern: retrieval succeeds best when the state at recall matches the state at encoding.[3]",
+          "You cannot go back and sit in last week's session, but you do not have to. In that same meta-analysis, mentally reinstating the context at the point of recall reduced the penalty for being somewhere different.[1] Reading your notes the night before does that job: it puts you back in the session without the room.",
+          "The practical effect is on how the next session opens. Arriving with the material already loaded means the first part of the hour goes on the work rather than on rebuilding where you left off.",
+          "What is happening in your brain: remembering an episode partially reactivates the regions that were active when you first encoded it, and the closer that overlap, the better the retrieval.[2] Reviewing the night before starts that reactivation early, while there is still time for it to be useful."
+        ]
+      }
+    },
+    "fiveQuestions": {
+      "title": "Why these five questions",
+      "intro": "These five questions are based on the research explained below. They help you remember what mattered, notice thoughts and feelings during the week, put insights into your own words, note anything you want to try, and decide what to revisit next session.",
+      "opening": "Most of a session does not survive the week. In studies of medical consultations, 40 to 80 per cent of what a practitioner says is forgotten immediately, and almost half of what patients do remember, they remember wrongly.[1] This matters more in therapy than it sounds: in cognitive therapy for depression, how much of the actual treatment content a patient can recall predicts how closely they follow the work, whether they respond, and whether the depression comes back.[2]",
+      "lead": "So an after-therapy note is not admin. Each of these five lines is doing a specific job, and each one is built on a method with a large evidence base behind it.",
+      "outro": "These are findings about methods, not promises about your therapy. What they support is the shape of the sheet: recall rather than transcribe, name one thing to watch, use your own words, pair a situation with a response, and come back to it.",
+      "q1": {
+        "question": "What stayed with you from today’s session?",
+        "paragraphs": [
+          "The single best-evidenced way to keep something is to pull it back out of your head, not to read it again. A meta-analysis of 272 comparisons across 188 experiments found that people who practised recalling material later remembered substantially more than people who simply restudied it, and far more than people who did nothing extra.[3] Writing this line from memory, on a blank sheet, is that test. It is why the template gives you an empty line instead of a summary to tick."
+        ]
+      },
+      "q2": {
+        "question": "What situation, thought or feeling do you want to notice this week?",
+        "paragraphs": [
+          "What you do between sessions is not a supplement to therapy, it is a large part of what makes it work. Across 23 studies, how much between-session work people actually did predicted how well they came out of treatment, with a strong effect at the end of therapy (g = 0.79) across more than 1,500 people.[4] Naming one specific thing to watch for is the smallest version of that work.",
+          "Naming the feeling earns its place separately. In a randomised experiment, spider-fearful people who put their fear into words during exposure showed a weaker physiological fear response a week later, facing a different spider in a different room, than people who reframed the fear, distracted themselves, or were simply exposed.[5] Putting it in words did more than trying to think about it differently."
+        ]
+      },
+      "q3": {
+        "question": "What did you understand differently?",
+        "paragraphs": [
+          "This line asks for your own words on purpose. A meta-analysis of 64 research reports found that prompting people to explain material to themselves, rather than restate it, produced a substantial improvement in what they learned, and it held across subjects, ages and task types.[6] A sentence you built yourself is also a better hook to find the idea by later than one you copied down."
+        ]
+      },
+      "q4": {
+        "question": "Is there anything you want to try or remember?",
+        "paragraphs": [
+          "Naming the situation and the response together, in the form “if this happens, I will do that”, is one of the most reliable findings in the psychology of follow-through. A meta-analysis of 94 independent tests found a medium-to-large effect on whether people actually did the thing they intended.[7] A general intention to do better does not carry that effect. The line stays optional: if nothing was agreed in the session, an invented plan is worse than a blank."
+        ]
+      },
+      "q5": {
+        "question": "What do you want to return to in your next session?",
+        "paragraphs": [
+          "Coming back to something across days beats going over it once, however hard. A synthesis of 839 comparisons drawn from 317 experiments found spaced review consistently outperformed massed review, and that the longer you need to hold on to something, the wider the gaps should be.[8] Choosing one subject now sets up the return, and means the next session opens on something rather than on a blank."
+        ]
+      }
+    },
+    "intervals": {
+      "title": "Why these review moments",
+      "loading": "Loading your review times",
+      "failedTitle": "We couldn’t load your review times",
+      "failedBody": "Check your connection and try again.",
+      "emptyTitle": "No review times yet",
+      "emptyNoSessions": "There are no upcoming reviews in your current schedule.",
+      "emptyAddFollowing": "Add your following session to place exact review times in the gap.",
+      "emptyAddSessions": "Add your next therapy sessions in Calendar to build a review schedule.",
+      "nextOf_one": "next of {{count}}",
+      "nextOf_other": "next of {{count}}"
+    },
+    "reminders": {
+      "learnMoreAbout": "Learn more about {{date}}",
+      "scienceBehind": "The science behind {{date}}"
+    },
+    "tldr": "TL;DR",
+    "tldrLabel": "TLDR: ",
+    "caveat": "This research explains the memory methods that inform the schedule.",
+    "references": "References"
+  },
+  "legal": {
+    "privacy": {
+      "effectiveDate": "Effective date: {{date}}",
+      "s1": {
+        "heading": "About this policy",
+        "bodies": [
+          "Plastic Brains (\"we\", \"us\", or \"our\") helps you prepare for, reflect on, and follow up on therapy sessions. This policy explains how we handle your information in line with App Store requirements. By using the app, you agree to the practices described here."
+        ]
+      },
+      "s2": {
+        "heading": "Information we collect",
+        "bodies": [
+          "- Account details you provide, such as your name, email address, and authentication identifiers when you sign in with email or Apple.\n- Therapy session details and preferences you enter, including session dates, reminder times, and the reflection goal you choose during onboarding.\n- Device and usage information, such as app version, device type, crash logs, and basic interactions used to keep the service reliable.\n- Information from authentication partners (Apple), limited to the identifiers, names, and email addresses you authorize them to share with us.\n- Subscription and entitlement information, described in the section below.",
+          "Therapy note contents are encrypted and stored locally on your iPhone. We do not collect, upload, or retain the contents of your therapy notes on our servers."
+        ]
+      },
+      "s3": {
+        "heading": "Subscription and entitlement data",
+        "bodies": [
+          "Subscriptions are bought through Apple. We never see or receive your card details, billing address, or full Apple ID: payment is handled entirely by Apple, and we are not a party to it.",
+          "To know whether your subscription is active, we process:\n- Which plan you chose (monthly or annual) and whether an introductory trial applied.\n- The product identifier and an Apple transaction identifier for the purchase.\n- The current status of the subscription, such as active, in trial, expired or cancelled, and the date the current period ends.\n- Whether your Apple ID was eligible for an introductory offer, as reported by Apple.",
+          "This information is linked to your Plastic Brains account so the app can unlock the features you have paid for on any device you sign in to, and so Restore Purchases works. It is not used for advertising, is never combined with the contents of your therapy notes, and is not sold. Limited subscription events may be shared with PostHog as described below. Payment credentials and Apple transaction identifiers are not included in those analytics.",
+          "Apple may also send us server notifications about changes to your subscription, such as a renewal, a cancellation, or a refund Apple has granted, so that access stays accurate. We keep subscription records for as long as your account exists and for the period required for tax and accounting, then delete them. Deleting your account removes them on the same terms described under Data retention & deletion; it does not cancel an Apple subscription, which you cancel in your Apple ID subscription settings."
+        ]
+      },
+      "s4": {
+        "heading": "App analytics",
+        "bodies": [
+          "Plastic Brains uses PostHog for app analytics. PostHog receives a small set of events about onboarding, checkout, saving or opening notes, confirming reviews, notification setup and opens, and errors that prevent an action from completing. These events help us understand which features work and where people get stuck.",
+          "Events use an account identifier so we can understand repeat use across visits. We do not send your name, email address, note contents or titles, therapy goals, exact appointment dates, passwords, or notification contents to PostHog. We do not record your screen or automatically capture taps. An account identifier is pseudonymous, not anonymous.",
+          "You can request deletion of analytics history by contacting us, including when deleting your account. We do not use these events for advertising."
+        ]
+      },
+      "s5": {
+        "heading": "Website analytics & iOS release signup",
+        "bodies": [
+          "On the Plastic Brains website, we use Google Analytics 4 to understand site visits, where visitors came from, general interactions such as scrolling and following links, and selected actions such as opening the release signup, completing or failing a signup, opening an FAQ answer, and following an evidence link.",
+          "Google Analytics does not set analytics cookies unless you choose “Allow analytics” on the website. Advertising storage, Google signals, and ad personalisation remain disabled. We do not send email addresses, therapy note contents, form text, or other health information to Google Analytics.",
+          "If you sign up for the iOS release notification, Loops receives your email address and adds it to the private Plastic Brains iOS release list. Loops will ask you to confirm your email address first. We use confirmed addresses only to send the App Store download link on release day, not for general marketing.",
+          "You can unsubscribe using the link in an email or by contacting us. We keep the signup record only while it is needed for the release notification. Loops may keep a suppression record after you unsubscribe so we can respect your choice and avoid emailing you again."
+        ]
+      },
+      "s6": {
+        "heading": "How we use information",
+        "bodies": [
+          "- Deliver core features such as storing notes locally, saving the therapy session dates and reflection goal you enter, personalising note prompts, and scheduling reminders.\n- Authenticate your account, prevent fraud, and keep the app secure.\n- Send optional push notifications about upcoming sessions or follow-up reminders when you enable them.\n- Improve performance, troubleshoot issues, and develop new features based on aggregate usage trends."
+        ]
+      },
+      "s7": {
+        "heading": "Device permissions & third parties",
+        "bodies": [
+          "- Notifications: We request permission to send push notifications so you can receive reminders. You can change this at any time in your device settings.\n- Secure storage: We use the device's secure storage APIs to keep authentication tokens protected locally.\n- Session data: The app stores the session times you enter and syncs those times with our backend so we can schedule reminders. It does not read or sync with your external calendar.",
+          "We rely on trusted service providers to operate the app, including authentication through Apple, cloud hosting, and push notification delivery via Expo services. These partners process your data only to provide the services we request and are bound by contractual safeguards."
+        ]
+      },
+      "s8": {
+        "heading": "How we share information",
+        "bodies": [
+          "We do not sell your personal information. We only share data with:\n- Service providers that help us operate the app (hosting, authentication, notifications), and PostHog when you choose optional app analytics.\n- Authorities or advisors when required by law or to protect rights, safety, or property."
+        ]
+      },
+      "s9": {
+        "heading": "Data retention & deletion",
+        "bodies": [
+          "We keep your account information, therapy session dates, reflection goal, reminder settings, and registered device information for as long as you maintain an account. You can request deletion from the Settings screen or by contacting us. Once deleted, we remove personal data from active systems within 30 days unless we must retain it for legal obligations.",
+          "Your therapy notes are not part of your server account or its retention period. They remain encrypted on your iPhone until you delete them or remove the app. We never retain server copies of your notes."
+        ]
+      },
+      "s10": {
+        "heading": "Security",
+        "bodies": [
+          "We implement administrative, technical, and physical safeguards to protect your information, including encrypted network connections, secure credential storage, and access controls. No method of transmission or storage is completely secure, so we encourage you to use unique passwords and keep your device protected."
+        ]
+      },
+      "s11": {
+        "heading": "International users",
+        "bodies": [
+          "Our servers are operated by third-party providers that may process data in the United States and other countries. By using the app, you understand your data may be transferred to and processed in jurisdictions that may have different data protection laws than your home country."
+        ]
+      },
+      "s12": {
+        "heading": "Children's privacy",
+        "bodies": [
+          "Plastic Brains is designed for adults aged 18 and over. We do not knowingly collect personal information from anyone under 18. If you believe someone under 18 has provided us with personal data, contact us so we can delete it."
+        ]
+      },
+      "s13": {
+        "heading": "Your rights & choices",
+        "bodies": [
+          "Depending on where you live, you may have rights to access, correct, export, or delete your data, and to object to or restrict certain processing. You can manage most settings directly in the app or by emailing us. We will respond within 30 days as required by the app stores and applicable law."
+        ]
+      },
+      "s14": {
+        "heading": "Changes to this policy",
+        "bodies": [
+          "We may update this policy to reflect new features or legal requirements. If we make material changes, we will notify you in the app or by email and update the effective date above. Continued use of the app after a change means you accept the revised policy."
+        ]
+      },
+      "s15": {
+        "heading": "Contact us",
+        "bodies": [
+          "For questions or to exercise your privacy rights, email us at michael@plastic-brains.com."
+        ]
+      }
+    },
+    "terms": {
+      "s1": {
+        "heading": "Acceptance of these terms",
+        "bodies": [
+          "Plastic Brains (\"we\", \"us\", or \"our\") provides tools to help you prepare for, reflect on, and follow up on therapy sessions. By creating an account or using the app, you agree to these Terms of Service and our Privacy Policy. If you do not agree, do not use the app."
+        ]
+      },
+      "s2": {
+        "heading": "Eligibility & accounts",
+        "bodies": [
+          "You must be at least 18 years old, or the age of majority in your jurisdiction, to use the app. You are responsible for the accuracy of the information you provide and for keeping your login credentials secure. If you believe your account has been compromised, contact us immediately so we can help secure it."
+        ]
+      },
+      "s3": {
+        "heading": "App usage",
+        "bodies": [
+          "The app is designed for personal, non-commercial use. You agree not to misuse the service, including by attempting to reverse engineer, disrupt, or interfere with our systems. You may not upload unlawful, infringing, or harmful content. We may suspend or terminate accounts that violate these terms."
+        ]
+      },
+      "s4": {
+        "heading": "Health & safety disclaimer",
+        "bodies": [
+          "Plastic Brains does not provide medical or mental health advice, diagnosis, or treatment. The information in the app is for reflection and organization only. Always seek the advice of a licensed professional with any questions about your mental health or medical condition. Call emergency services or a crisis hotline if you are in danger or experiencing a mental health emergency."
+        ]
+      },
+      "s5": {
+        "heading": "Subscriptions and billing",
+        "bodies": [
+          "Plastic Brains is free to download. Access to the note, review and preparation features requires a paid subscription, offered as an auto-renewing monthly plan or an auto-renewing annual plan. Prices are shown in the app in your local currency before you confirm, and are set by us through the App Store.",
+          "Eligible subscribers receive a two-week free trial with the annual plan or a one-week free trial with the monthly plan. Apple decides whether your Apple ID is eligible for an introductory offer. If you are not eligible, no trial is shown and billing begins immediately. Unless you cancel at least 24 hours before the trial ends, your selected subscription begins automatically at the price shown.",
+          "Payment is charged to your Apple ID account at confirmation of purchase. Subscriptions renew automatically unless auto-renew is turned off at least 24 hours before the end of the current period, and your account is charged for renewal within 24 hours of the end of that period.",
+          "You can manage or cancel a subscription, and turn off auto-renewal, in your Apple ID subscription settings on your device. Cancelling stops future renewals; access continues until the end of the period you have already paid for. We cannot cancel an Apple subscription on your behalf.",
+          "If you reinstall the app or use another device signed in to the same Apple ID, use Restore Purchases to reconnect an existing subscription. Restoring finds subscriptions bought with that Apple ID only.",
+          "Purchases are made through Apple, so refunds are handled by Apple under their terms. Requests are made through Apple Support, and we cannot grant or guarantee a refund. Your statutory rights, where they apply, are unaffected."
+        ]
+      },
+      "s6": {
+        "heading": "User content & data",
+        "bodies": [
+          "You retain ownership of the notes and information you store in the app. Therapy note contents are processed locally on your device and are not uploaded to us. We process your account and therapy session information only as needed to provide the features you request. Refer to the Privacy Policy for details on how we collect, use, and protect your data."
+        ]
+      },
+      "s7": {
+        "heading": "Service changes",
+        "bodies": [
+          "We may update, suspend, or discontinue features to comply with platform policies, enhance security, or improve the experience. We will provide notice of material changes within the app or by email when required. Continued use of the app after changes become effective signifies your acceptance of the updates."
+        ]
+      },
+      "s8": {
+        "heading": "Termination",
+        "bodies": [
+          "You may stop using the app at any time and can request deletion of your account from the Settings screen. We may terminate or suspend access if you violate these terms or if we discontinue the service. Upon termination, sections of these terms that by their nature should survive (such as ownership, disclaimers, and liability limitations) will continue to apply."
+        ]
+      },
+      "s9": {
+        "heading": "Limitation of liability",
+        "bodies": [
+          "Nothing in these terms excludes or limits liability where doing so would be unlawful, including liability for death or personal injury caused by negligence, fraud, or fraudulent misrepresentation. Subject to that, Plastic Brains is not responsible for losses that were not reasonably foreseeable or that result from circumstances beyond our reasonable control. Nothing in these terms affects your statutory consumer rights."
+        ]
+      },
+      "s10": {
+        "heading": "Governing law",
+        "bodies": [
+          "These terms are governed by the laws of England and Wales. If you live elsewhere, you keep any mandatory consumer protections provided by the laws of the country where you live. If any part of these terms is found unenforceable, the remaining provisions remain in effect."
+        ]
+      },
+      "s11": {
+        "heading": "Contact",
+        "bodies": [
+          "For questions about these terms, email us at michael@plastic-brains.com."
+        ]
+      }
     }
   },
   "serverError": {
@@ -550,6 +932,28 @@
     "device_token_not_found": "Reminders were not set up on this device.",
     "not_found": "We could not find what you were looking for.",
     "request_timeout": "That took too long. Check your connection and try again.",
-    "server_error": "Something went wrong at our end. Please try again."
+    "server_error": "Something went wrong at our end. Please try again.",
+    "apple_account_deletion_unavailable": "We cannot delete this Apple-linked account right now. Please try again later.",
+    "apple_authorization_failed": "We could not confirm your identity with Apple. Please confirm with Apple again.",
+    "apple_deletion_credentials_missing": "Apple did not provide the confirmation needed to delete this account. Please try again.",
+    "apple_account_mismatch": "Confirm with the Apple account connected to this Plastic Brains account.",
+    "apple_revocation_failed": "We could not disconnect this account from Apple. Your account has not been deleted. Please try again.",
+    "appointment_limit_reached": "You have reached the appointment limit. Remove an appointment before adding another.",
+    "appointment_changed": "This appointment changed on another device. Refresh your calendar before editing it again.",
+    "duplicate_appointment": "An appointment was included more than once. Refresh your calendar and try again.",
+    "invalid_calendar_window": "That date range is not valid. Refresh your calendar and try again.",
+    "calendar_refresh_required": "Use the latest version of the app and refresh your calendar before removing appointments.",
+    "appointment_time_conflict": "An appointment already starts at that time. Refresh your calendar and choose a different time.",
+    "appointment_day_conflict": "You can only have one session per day. Refresh your calendar and edit the existing session.",
+    "invalid_subscription_transaction": "We could not read the purchase details needed to confirm this subscription. Please try restoring your purchases.",
+    "apple_verification_unavailable": "We cannot verify your purchase with Apple right now. Please try again later.",
+    "apple_verification_failed": "We could not verify this Apple purchase. Please try restoring your purchases.",
+    "subscription_account_mismatch": "This subscription belongs to a different Plastic Brains account. Sign in to that account to use it.",
+    "subscription_already_linked": "This subscription is already linked to another Plastic Brains account. Sign in to that account to use it.",
+    "unknown_subscription_product": "This purchase does not match a Plastic Brains subscription.",
+    "unsupported_transaction_environment": "This purchase cannot be used with this version of the app.",
+    "test_purchase_not_allowed": "This test purchase cannot be used with this version of the app.",
+    "network": "We could not connect. Check your internet connection and try again.",
+    "session_changed": "Your sign-in session changed. Please try again."
   }
 }

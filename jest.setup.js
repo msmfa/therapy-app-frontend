@@ -106,6 +106,25 @@ jest.mock(
 jest.mock('react-native-safe-area-context', () =>
     require('react-native-safe-area-context/jest/mock').default);
 
+// A fixed device locale, so no assertion depends on the machine running it.
+//
+// `formattingLocale()` composes the app's language with the device's region,
+// and the only place that knows the region is expo-localization. Left
+// unmocked it reports nothing under Jest, so the region is dropped and dates
+// format as "Mon, Sep 14" rather than "Mon 14 Sep". Before that composition
+// existed the region came from Node's own ICU default, which is the developer's
+// machine: the onboarding-account suite asserted UK date order and passed here
+// only because this laptop is set to en-GB. It would have failed on a US one.
+jest.mock('expo-localization', () => ({
+    getLocales: () => [{
+        languageTag: 'en-GB',
+        languageCode: 'en',
+        regionCode: 'GB',
+        textDirection: 'ltr',
+    }],
+    getCalendars: () => [{ timeZone: 'Europe/London', calendar: 'gregory' }],
+}));
+
 // i18next is initialised at import time, and in the app that happens through
 // app/_layout.tsx before any screen mounts. A component test renders a single
 // component with no root layout above it, so without this the instance never

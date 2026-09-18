@@ -6,6 +6,7 @@ import { useTheme } from '@react-navigation/native';
 import { GlassCircleButton } from './ui/GlassCircleButton';
 import AppText from './ui/AppText';
 import { COLOR_VARIANTS, SURFACE_BLUE, SURFACE_BLUE_FADE } from 'designs/designs-colors';
+import { useTranslation } from 'react-i18next';
 
 interface ModalProps {
     children: React.ReactNode;
@@ -33,6 +34,7 @@ const FADE_RAMP = 24;
 const SCROLLABLE_EPSILON = 1;
 
 export function AppModal({ children, isVisible, onClose, title }: ModalProps) {
+    const { t } = useTranslation('common');
     const { colors } = useTheme();
     // Read outside the Modal on purpose. A Modal renders in its own native view
     // hierarchy, where the safe-area view measures nothing and reports zero
@@ -83,7 +85,7 @@ export function AppModal({ children, isVisible, onClose, title }: ModalProps) {
                 >
                     <View style={ styles.header }>
                         <GlassCircleButton
-                            accessibilityLabel="Close"
+                            accessibilityLabel={ t('a11y.close') }
                             icon="close"
                             iconColor={ COLOR_VARIANTS.black.primary }
                             size={ CLOSE_BUTTON_SIZE }

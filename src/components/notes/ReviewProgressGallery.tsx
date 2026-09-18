@@ -83,7 +83,7 @@ export function ReviewProgressGallery({ expanded: controlled, onToggle }: Props)
                 style={ styles.header }
             >
                 <AppText variant='body' style={ styles.title }>
-                    The bars
+                    { t('bars.title') }
                 </AppText>
                 { !expanded && <CollapsedTeaser /> }
                 <Ionicons
@@ -96,8 +96,7 @@ export function ReviewProgressGallery({ expanded: controlled, onToggle }: Props)
             { expanded && (
                 <View>
                     <AppText variant='caption' style={ styles.intro }>
-                        After you&apos;ve reviewed a note click review and these bars
-                        will update.
+                        { t('bars.intro') }
                     </AppText>
                     { REVIEW_PROGRESS_PREVIEWS.map((preview) => (
                         <ReviewProgressBar

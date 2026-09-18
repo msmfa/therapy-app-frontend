@@ -6,11 +6,18 @@
  * English sentence with nothing.
  */
 
-import { ApiError } from '../../api/client';
+import { ApiError, apiRequest, configureApiClient } from '../../api/client';
+import { BASE_URL } from '../../constants/env';
 import { serverErrorMessage, serverMessageForCode, isTranslatedServerCode } from '../../features/errors/serverErrorMessage';
 import { i18next } from '../index';
 import en from '../locales/en.json';
 import fr from '../locales/fr.json';
+import de from '../locales/de.json';
+
+const translatedLocales = [
+    { language: 'fr', messages: fr.serverError },
+    { language: 'de', messages: de.serverError },
+] as const;
 
 const apiError = (status: number, payload: { message: string; code?: string }) =>
     new ApiError(status, payload);
@@ -47,6 +54,39 @@ describe('serverErrorMessage', () => {
         expect(serverErrorMessage(error)).toBe('morningReminderMinutes must be a whole number');
     });
 
+    it.each(translatedLocales)('keeps unknown coded 401 and 408 details in $language', async ({ language }) => {
+        await i18next.changeLanguage(language);
+        for (const status of [401, 408]) {
+            const error = apiError(status, { message: 'A specific upstream job expired', code: 'upstream_job_expired' });
+            expect(serverErrorMessage(error)).toBe('A specific upstream job expired');
+        }
+    });
+
+    it.each(translatedLocales)('prefers a known code over the 408 status in $language', async ({ language, messages }) => {
+        await i18next.changeLanguage(language);
+        const error = apiError(408, { message: 'Session expired', code: 'session_expired' });
+
+        expect(serverErrorMessage(error)).toBe(messages.session_expired);
+    });
+
+    it.each(translatedLocales)('translates appointment, deletion and purchase errors in $language', async ({ language, messages }) => {
+        await i18next.changeLanguage(language);
+        for (const code of ['appointment_limit_reached', 'apple_account_deletion_unavailable', 'test_purchase_not_allowed'] as const) {
+            const error = apiError(403, { message: 'English server explanation', code });
+
+            expect(serverErrorMessage(error)).toBe(messages[code]);
+            expect(serverErrorMessage(error)).not.toBe('English server explanation');
+        }
+    });
+
+    it.each(translatedLocales)('distinguishes a changed sign-in session from an expired session in $language', async ({ language, messages }) => {
+        await i18next.changeLanguage(language);
+        const error = apiError(401, { message: 'Session changed', code: 'session_changed' });
+
+        expect(serverErrorMessage(error)).toBe(messages.session_changed);
+        expect(serverErrorMessage(error)).not.toBe(messages.session_expired);
+    });
+
     it('flattens a validation failure to one translated sentence', async () => {
         // A deliberate trade. The server's text names the field, but the names
         // are internal identifiers ("morningReminderMinutes must be a whole
@@ -71,9 +111,84 @@ describe('serverErrorMessage', () => {
         expect(serverErrorMessage(undefined)).toBe(fr.serverError.server_error);
     });
 
-    it('passes a plain Error through, since it carries no code', () => {
+    it.each(translatedLocales)('passes a plain Error through in $language, since it carries no code', async ({ language }) => {
+        await i18next.changeLanguage(language);
         expect(serverErrorMessage(new TypeError('Network request failed')))
             .toBe('Network request failed');
+    });
+});
+
+describe('API transport errors shown in the current language', () => {
+    beforeEach(() => {
+        configureApiClient({
+            baseUrl: 'https://api.example.com',
+            defaultTimeoutMs: 1000,
+            getToken: undefined,
+            getSessionVersion: undefined,
+            refreshAuth: undefined,
+            onAuthFailure: undefined,
+        });
+    });
+
+    afterEach(async () => {
+        jest.restoreAllMocks();
+        configureApiClient({
+            baseUrl: BASE_URL,
+            defaultTimeoutMs: 15000,
+            getToken: undefined,
+            getSessionVersion: undefined,
+            refreshAuth: undefined,
+            onAuthFailure: undefined,
+        });
+        await i18next.changeLanguage('en');
+    });
+
+    it.each(translatedLocales)('translates a real fetch network rejection into $language', async ({ language, messages }) => {
+        await i18next.changeLanguage(language);
+        jest.spyOn(global, 'fetch').mockRejectedValueOnce(new TypeError('Network request failed'));
+
+        const error = await apiRequest('/test', { auth: false }).catch((caught: unknown) => caught);
+
+        expect(error).toBeInstanceOf(ApiError);
+        expect(error).toMatchObject({ status: 0, code: 'network' });
+        expect(serverErrorMessage(error)).toBe(messages.network);
+        expect(serverErrorMessage(error)).not.toBe('Network request failed');
+    });
+
+    it.each(translatedLocales)('translates a real fetch abort into $language', async ({ language, messages }) => {
+        await i18next.changeLanguage(language);
+        // Matches the React Native fetch shape on Hermes, which has no global
+        // DOMException. The client turns this into an uncoded 408 ApiError.
+        const abortError = new Error('Aborted');
+        abortError.name = 'AbortError';
+        jest.spyOn(global, 'fetch').mockRejectedValueOnce(abortError);
+
+        const error = await apiRequest('/test', { auth: false }).catch((caught: unknown) => caught);
+
+        expect(error).toBeInstanceOf(ApiError);
+        expect(error).toMatchObject({ status: 408, code: undefined });
+        expect(serverErrorMessage(error)).toBe(messages.request_timeout);
+        expect(serverErrorMessage(error)).not.toBe('Request timed out');
+    });
+
+    it.each(translatedLocales)('translates an expired session after a failed refresh into $language', async ({ language, messages }) => {
+        await i18next.changeLanguage(language);
+        const refreshAuth = jest.fn(async () => false);
+        configureApiClient({ refreshAuth });
+        jest.spyOn(global, 'fetch').mockResolvedValueOnce({
+            ok: false,
+            status: 401,
+            headers: new Headers({ 'content-type': 'application/json' }),
+            json: async () => ({ message: 'Authentication required' }),
+        } as Response);
+
+        const error = await apiRequest('/test').catch((caught: unknown) => caught);
+
+        expect(refreshAuth).toHaveBeenCalledTimes(1);
+        expect(error).toBeInstanceOf(ApiError);
+        expect(error).toMatchObject({ status: 401, code: 'session_expired' });
+        expect(serverErrorMessage(error)).toBe(messages.session_expired);
+        expect(serverErrorMessage(error)).not.toBe('Authentication required');
     });
 });
 

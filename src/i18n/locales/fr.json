@@ -4,7 +4,9 @@
       "logOut": "Se déconnecter",
       "loggingOut": "Déconnexion…",
       "tryAgain": "Réessayer",
-      "back": "Retour"
+      "back": "Retour",
+      "learnMore": "En savoir plus",
+      "close": "Fermer"
     },
     "error": {
       "title": "Erreur",
@@ -22,7 +24,8 @@
       "hidePassword": "Masquer le mot de passe",
       "loading": "Chargement",
       "showPassword": "Afficher le mot de passe",
-      "tryAgainQuestion": "Réessayer ?"
+      "tryAgainQuestion": "Réessayer ?",
+      "source": "Source {{position}} : {{text}}"
     },
     "tab": {
       "calendar": "Calendrier",
@@ -39,6 +42,7 @@
   "settings": {
     "title": "Réglages",
     "hub": {
+      "language": "Langue",
       "references": "Références",
       "settings": "Réglages",
       "rateApp": "Noter cette application",
@@ -73,7 +77,9 @@
       "saveFailedTitle": "Langue non enregistrée",
       "saveFailedMessage": "L’application est maintenant en {{language}}, mais ce choix n’a pas pu être mémorisé. Veuillez réessayer.",
       "a11yRow": "{{label}}, {{detail}}",
-      "a11yHint": "Change immédiatement la langue de l’application"
+      "a11yHint": "Change immédiatement la langue de l’application",
+      "choose": "Choisir une langue",
+      "a11yDropdownHint": "Ouvre la liste des langues"
     }
   },
   "reminderSettings": {
@@ -117,7 +123,8 @@
       "cancelEdit": "Annuler la modification",
       "saveUnavailable": "Impossible d’enregistrer la note pour le moment.",
       "howTo": "Comment prendre des notes",
-      "saveNote": "Enregistrer la note"
+      "saveNote": "Enregistrer la note",
+      "edit": "modifier"
     },
     "review": {
       "reviewed": "REVU",
@@ -162,7 +169,19 @@
       "h4": "Laissez vide si rien n’a été convenu ni suggéré.",
       "q5": "Sur quoi voulez-vous revenir lors de votre prochaine séance ?",
       "h5": "Un seul sujet suffit."
-    }
+    },
+    "a11y": {
+      "openNote": "Ouvrir la note",
+      "editNote": "Modifier la note",
+      "saveChanges": "Enregistrer les modifications",
+      "question": "Question {{position}} sur {{total}}. {{question}}"
+    },
+    "whatWasSaid": "ce qui a été dit",
+    "bars": {
+      "title": "Les barres",
+      "intro": "Après avoir relu une note, appuyez sur « Marquer comme revu » et ces barres se mettront à jour."
+    },
+    "dateHeading": "{{weekday}} à {{time}}"
   },
   "auth": {
     "signIn": {
@@ -191,7 +210,8 @@
       "password": "Mot de passe",
       "confirmPassword": "Confirmer le mot de passe",
       "newPassword": "Nouveau mot de passe",
-      "resetCode": "Code de réinitialisation"
+      "resetCode": "Code de réinitialisation",
+      "resetCodePlaceholder": "code à 6 chiffres"
     },
     "forgot": {
       "emailRequiredTitle": "Adresse manquante",
@@ -210,7 +230,12 @@
       "resetFailedMessage": "Votre mot de passe n’a pas pu être réinitialisé.",
       "sendCode": "Envoyer le code",
       "updatePassword": "Mettre à jour le mot de passe",
-      "backToSignIn": "Retour à la connexion"
+      "backToSignIn": "Retour à la connexion",
+      "requestTitle": "Mot de passe oublié",
+      "requestSubtitle": "Saisissez l’adresse e-mail de votre compte. Nous vous enverrons un code de réinitialisation.",
+      "resetSubtitle": "Collez le code de réinitialisation et choisissez un nouveau mot de passe.",
+      "doneTitle": "Mot de passe mis à jour",
+      "doneSubtitle": "Votre mot de passe a été réinitialisé. Connectez-vous avec votre nouveau mot de passe pour continuer."
     },
     "apple": {
       "continueWith": "Continuer avec Apple",
@@ -225,7 +250,8 @@
       "tooShort_other": "Le mot de passe doit contenir au moins {{count}} caractères",
       "needsUppercase": "Le mot de passe doit contenir au moins une majuscule",
       "needsSymbol": "Le mot de passe doit contenir au moins un symbole"
-    }
+    },
+    "orContinueWith": "Ou continuer avec"
   },
   "calendar": {
     "nextSession": "Prochaine séance",
@@ -248,7 +274,8 @@
       "repeatCount_other": "{{count}} séances",
       "delete": "Supprimer",
       "update": "Mettre à jour",
-      "add": "Ajouter une séance"
+      "add": "Ajouter une séance",
+      "appointmentAt": "Rendez-vous à {{time}}"
     },
     "error": {
       "timeout": {
@@ -287,7 +314,8 @@
         "title": "Une erreur est survenue",
         "message": "Vos séances n’ont pas pu être chargées. Veuillez réessayer plus tard."
       }
-    }
+    },
+    "nothingScheduled": "Rien de prévu"
   },
   "onboarding": {
     "welcome": {
@@ -516,6 +544,360 @@
       "unexpectedTitle": "Une erreur est survenue",
       "unexpectedBody": "Vos réponses sont conservées. Veuillez réessayer.",
       "retryCta": "Réessayer"
+    },
+    "signUpSubtitle": "Enregistrez votre programme entre les séances et gardez votre calendrier rattaché.",
+    "timeline": {
+      "templateName": "modèle de 5 questions en 5 minutes",
+      "postSessionLabel": "Après votre séance du {{weekday}}",
+      "postSessionBody": "Nous vous enverrons une notification juste après votre séance du {{weekday}} pour vous rappeler de noter ce que vous avez abordé. Si vous ne savez pas par où commencer, nous avons un {{template}} qui facilite les choses.",
+      "postSleepLabel": "Plus tard ce {{weekday}} soir",
+      "postSleepBody": "Revenez à votre note tant que la séance est encore fraîche.",
+      "morningLabel": "{{weekday}} matin",
+      "morningBody": "Relisez ce que vous avez abordé lors de la séance de la veille.",
+      "midLabel": "Entre les séances",
+      "midBody": "Un court rappel pour relire votre note dans la semaine, afin que ce dont vous avez parlé ne s’estompe pas avant la prochaine séance.",
+      "preLabel": "{{weekday}} soir",
+      "preBody": "Un dernier coup d’œil à votre note la veille au soir, pour arriver en sachant ce que vous voulez reprendre de la dernière séance.",
+      "research": "Recherche",
+      "researchLabel": "Recherche :",
+      "opensResearch": "Ouvre la recherche sur ce rappel",
+      "opensFiveQuestions": "Ouvre « Pourquoi ces cinq questions ? »"
+    },
+    "summary": {
+      "alreadyActive": "Votre abonnement est déjà actif, il n’y a donc rien à confirmer. {{cancel}}",
+      "leadSignedIn": "Lorsque vous continuerez",
+      "leadSignedOut": "Après votre connexion",
+      "confirmTrial": "{{lead}}, Apple vous demandera de confirmer votre essai gratuit. Vous ne serez pas facturé aujourd’hui. {{cancel}}",
+      "confirmSubscription": "{{lead}}, Apple vous demandera de confirmer votre abonnement. {{cancel}}"
+    },
+    "chooseDate": "Choisir une date",
+    "notChosen": "Non renseigné",
+    "chooseHint": "Choisissez {{field}} de votre séance",
+    "accountSettings": "Réglages du compte",
+    "loadingSubscriptions": "Chargement des abonnements",
+    "planPreview": {
+      "sheetImage": "La fiche de notes à cinq questions"
+    },
+    "progress": {
+      "label": "{{current}} sur {{total}}",
+      "a11y": "Étape {{current}} sur {{total}}"
+    },
+    "a11y": {
+      "notificationPreview": "Une notification iPhone de {{title}} : {{body}}",
+      "notesList": "Une liste de notes de thérapie passées, chacune avec la date de sa séance"
+    }
+  },
+  "science": {
+    "sources": "Sources",
+    "jumpToSource": "Aller à cette source dans les références ci-dessous.",
+    "openSource": "Ouvrir cette source dans votre navigateur.",
+    "referencesIntervals": "La science derrière nos intervalles de rappel",
+    "referencesNote": "Votre note de thérapie en cinq minutes",
+    "template": {
+      "title": "Modèle",
+      "recommendBefore": "Nous vous recommandons d’utiliser notre",
+      "cheatsheetLink": "aide-mémoire",
+      "researchBefore": "Pour savoir pourquoi nous avons retenu ces 5 questions, et la recherche correspondante,",
+      "researchLink": "cliquez ici",
+      "cheatsheetImage": "Les cinq questions, telles qu’elles apparaissent sur l’aide-mémoire"
+    },
+    "reminder": {
+      "postSession": {
+        "time": "Le soir de votre séance",
+        "reason": "Y revenir le jour même vous donne une nouvelle occasion de vous rappeler ce qui vous a marqué, tant que la séance est récente."
+      },
+      "postSleep": {
+        "time": "Le matin après votre séance",
+        "reason": "Une courte révision le lendemain matin sépare votre deuxième lecture de la première, au lieu de tout répéter d’un coup."
+      },
+      "midSession": {
+        "time": "Entre vos séances",
+        "reason": "De brefs retours pendant l’intervalle relèvent de la récupération espacée : revenir au bout d’un délai plutôt que relire plusieurs fois d’affilée."
+      },
+      "preSession": {
+        "time": "La veille au soir de votre prochaine séance",
+        "reason": "Une dernière révision remet votre note sous vos yeux au moment où vous choisissez ce que vous voulez aborder à la prochaine séance."
+      }
+    },
+    "explainer": {
+      "earlyConsolidation": {
+        "title": "Consolidation précoce",
+        "tldr": "Un souvenir ne se fixe pas d’un seul coup : votre cerveau continue de le stabiliser après la fin de la séance. Le premier rappel arrive donc le soir de votre séance, alors que les notes prises dans la journée sont encore fraîches.",
+        "body": [
+          "Dans les premières heures qui suivent un apprentissage, votre cerveau entre dans la phase précoce de formation du souvenir : des protéines s’activent et les connexions synaptiques commencent à se renforcer.[1] C’est une fenêtre décisive.",
+          "Ce renforcement ne se produit pas d’un bloc. En le suivant directement, des chercheurs ont constaté qu’il arrive par vagues : une dans l’hippocampe juste après l’apprentissage, une deuxième pendant le sommeil de la nuit suivante, et une troisième la nuit d’après dans le cortex, chacune jouant un rôle différent.[1] Relire vos notes le soir même se situe entre la première vague et la deuxième.",
+          "Jusqu’à ce que ce travail soit terminé, le souvenir reste exposé aux perturbations. La synthèse protéique qui fixe une modification n’est achevée qu’un à deux jours après l’apprentissage,[3] et un souvenir récent reste vulnérable aux interférences tant qu’il n’est pas stabilisé.[2] Revenir à vos notes dans cette fenêtre évite qu’une prise de conscience fragile ne soit noyée par le reste de votre journée.",
+          "Ce qui se passe dans votre cerveau : les neurones augmentent la sensibilité de leurs récepteurs et activent la machinerie protéique qui remanie une connexion.[1, 2] Relire vos notes pendant que cela se produit approfondit l’empreinte de la séance et rend le changement plus durable."
+        ]
+      },
+      "sleepDependentConsolidation": {
+        "title": "Consolidation pendant le sommeil",
+        "tldr": "Le sommeil soutient activement la façon dont les souvenirs récents sont traités et organisés, et dormir après un apprentissage est associé à une meilleure conservation de ce qui a été appris. C’est pourquoi le rappel suivant arrive le lendemain matin.",
+        "body": [
+          "C’est pendant le sommeil que votre cerveau accomplit l’essentiel du travail de mémoire. Durant le sommeil lent, il rejoue les schémas neuronaux de vos activités de la journée (ce qui, dans notre cas, inclut une séance de thérapie) et les déplace d’un stockage temporaire dans l’hippocampe vers des réseaux corticaux plus durables.[1, 6]",
+          "On peut se le représenter comme un classement de dossiers pendant la nuit. L’hippocampe réactive les souvenirs en même temps que des ondulations à ondes aiguës et des fuseaux du sommeil, qui aident à faire passer l’information vers la mémoire à long terme.[2]",
+          "Le sommeil lent et le sommeil paradoxal contribuent tous deux à la consolidation des souvenirs émotionnels.[3, 5] Le sommeil lent assure le transfert et la restructuration, le sommeil paradoxal aide à stabiliser les prises de conscience ainsi transformées, ce qui compte particulièrement pour un contenu chargé émotionnellement.",
+          "Pourquoi réviser le matin : la consolidation liée au sommeil varie selon la quantité et la qualité du sommeil lent,[4] si bien que le matin après une séance est un moment idéal, quand le souvenir réorganisé reste facile d’accès. Une révision rapide capte ces changements et les renforce à nouveau avant qu’ils ne s’estompent."
+        ]
+      },
+      "spacedReactivation": {
+        "title": "Réactivation espacée",
+        "tldr": "Les révisions sont plus utiles lorsqu’elles sont séparées dans le temps plutôt que regroupées : on retient davantage après des répétitions espacées qu’après des répétitions immédiates. Les rappels sont donc répartis sur l’intervalle entre vos séances.",
+        "body": [
+          "Lorsque vous réactivez un souvenir après un délai, il s’ouvre brièvement à la modification avant de se fixer de nouveau.[2] C’est cette fenêtre de reconsolidation qui rend les retours espacés plus efficaces que tout réviser d’un coup.[1]",
+          "Des décennies de recherche sur l’effet d’espacement montrent que des répétitions réparties dans le temps construisent des souvenirs bien plus solides qu’une pratique massée.[1, 2, 3] Une réactivation stratégique mobilise d’autres mécanismes que la répétition immédiate et déclenche une reconsolidation qui renforce la trace.[2]",
+          "Imaginez le circuit neuronal comme un sentier qu’il faut emprunter. Chaque fois que vous relisez vos notes, vous sollicitez une bonne partie des neurones qui se sont activés en séance, et cette réactivation stabilise le sentier sous une forme plus résistante.[1]",
+          "L’intervalle entre les séances compte, parce qu’un souvenir a besoin de temps pour se consolider avant que la réactivation suivante puisse s’appuyer dessus.[2] Cela laisse une fenêtre de part et d’autre du bon moment. Trop tôt, le circuit ne s’est pas réinitialisé et un deuxième passage ajoute peu au premier. Trop tard, le souvenir s’est assez effacé pour que le rappeler soit un effort plutôt qu’un rafraîchissement.[4] L’emplacement de cette fenêtre dépend de la durée pendant laquelle vous devez retenir le contenu : pour quelque chose dont vous aurez besoin dans plusieurs semaines, le meilleur intervalle représente environ un cinquième de ce délai, et cette proportion diminue à mesure que le délai s’allonge.[5] Le calendrier proposé ici suit cette forme. Plutôt que d’espacer les rappels régulièrement, il élargit les intervalles à mesure que votre prochaine séance approche : le soir de votre séance, le lendemain matin, puis quelques jours plus tard, puis la veille de votre retour.",
+          "Ce qui se passe dans votre cerveau : rappeler un souvenir après un délai active des gènes dans les cellules qui le portent, et les protéines qu’elles produisent renforcent la connexion. C’est le délai qui déclenche cette reconstruction, et c’est pourquoi espacer les révisions fait plus que les répéter coup sur coup.[2]"
+        ]
+      },
+      "stateReinstatement": {
+        "title": "Rétablissement du contexte",
+        "tldr": "Les indices qui entourent un souvenir influencent la facilité avec laquelle il revient, et retrouver une partie du contexte d’origine favorise le rappel. Relire votre note avant la thérapie sert d’indice pour la conversation précédente et vous aide à arriver prêt à la poursuivre.",
+        "body": [
+          "Un souvenir est plus accessible quand l’état dans lequel vous vous trouvez correspond à celui où vous l’avez formé. Une méta-analyse portant sur la version environnementale de ce phénomène a trouvé l’effet fiable d’une étude à l’autre,[1] et les travaux sur l’état cérébral interne montrent le même schéma : la récupération réussit mieux quand l’état au rappel correspond à l’état à l’encodage.[3]",
+          "Vous ne pouvez pas retourner vous asseoir dans la séance de la semaine dernière, mais ce n’est pas nécessaire. Dans cette même méta-analyse, rétablir mentalement le contexte au moment du rappel réduisait la pénalité liée au fait de se trouver ailleurs.[1] Relire vos notes la veille au soir remplit ce rôle : cela vous replace dans la séance, sans la pièce.",
+          "L’effet concret porte sur la façon dont la séance suivante démarre. Arriver avec le contenu déjà en tête permet de consacrer le début de l’heure au travail lui-même plutôt qu’à reconstituer où vous en étiez.",
+          "Ce qui se passe dans votre cerveau : se souvenir d’un épisode réactive en partie les régions qui étaient actives lors de son encodage, et plus ce recouvrement est étroit, meilleure est la récupération.[2] Relire la veille au soir amorce cette réactivation tôt, tant qu’il reste du temps pour qu’elle serve."
+        ]
+      }
+    },
+    "fiveQuestions": {
+      "title": "Pourquoi ces cinq questions",
+      "intro": "Ces cinq questions s’appuient sur la recherche présentée ci-dessous. Elles vous aident à retenir ce qui a compté, à repérer pensées et émotions au fil de la semaine, à formuler vos prises de conscience avec vos propres mots, à noter ce que vous voulez essayer et à choisir ce que vous reprendrez à la prochaine séance.",
+      "opening": "L’essentiel d’une séance ne survit pas à la semaine. Dans les études sur les consultations médicales, 40 à 80 pour cent de ce que dit un praticien est oublié immédiatement, et près de la moitié de ce que les patients retiennent, ils le retiennent de travers.[1] Cela compte davantage en thérapie qu’il n’y paraît : en thérapie cognitive de la dépression, la part du contenu réel du traitement dont un patient se souvient prédit son assiduité au travail, sa réponse au traitement et le risque de rechute.[2]",
+      "lead": "Une note d’après-séance n’est donc pas de la paperasse. Chacune de ces cinq lignes remplit une fonction précise, et chacune repose sur une méthode étayée par un large corpus de preuves.",
+      "outro": "Ce sont des résultats portant sur des méthodes, non des promesses concernant votre thérapie. Ce qu’ils soutiennent, c’est la forme de la fiche : se remémorer plutôt que transcrire, nommer une chose à observer, employer ses propres mots, associer une situation à une réponse, et y revenir.",
+      "q1": {
+        "question": "Qu’est-ce qui vous est resté de la séance d’aujourd’hui ?",
+        "paragraphs": [
+          "Le moyen le mieux étayé de retenir quelque chose est de le ressortir de sa mémoire, pas de le relire. Une méta-analyse de 272 comparaisons issues de 188 expériences a montré que les personnes qui s’entraînaient à se remémorer un contenu en retenaient nettement plus que celles qui se contentaient de le réviser, et bien plus encore que celles qui ne faisaient rien de particulier.[3] Écrire cette ligne de mémoire, sur une page blanche, c’est précisément cet exercice. C’est pourquoi le modèle vous laisse une ligne vide au lieu d’un résumé à cocher."
+        ]
+      },
+      "q2": {
+        "question": "Quelle situation, pensée ou émotion voulez-vous observer cette semaine ?",
+        "paragraphs": [
+          "Ce que vous faites entre les séances n’est pas un complément à la thérapie, c’est une grande part de ce qui la fait fonctionner. Sur 23 études, la quantité de travail réellement accompli entre les séances prédisait l’issue du traitement, avec un effet fort en fin de thérapie (g = 0,79) sur plus de 1 500 personnes.[4] Nommer une chose précise à observer est la plus petite version de ce travail.",
+          "Nommer l’émotion mérite une place à part. Dans une expérience randomisée, des personnes ayant peur des araignées qui mettaient leur peur en mots pendant l’exposition présentaient une semaine plus tard une réaction physiologique de peur plus faible, face à une autre araignée dans une autre pièce, que celles qui recadraient leur peur, se distrayaient ou étaient simplement exposées.[5] Mettre la peur en mots a fait plus que tenter de la voir autrement."
+        ]
+      },
+      "q3": {
+        "question": "Qu’avez-vous compris différemment ?",
+        "paragraphs": [
+          "Cette ligne demande vos propres mots, à dessein. Une méta-analyse de 64 rapports de recherche a montré qu’inviter les gens à s’expliquer un contenu à eux-mêmes, plutôt qu’à le reformuler, améliorait sensiblement ce qu’ils en retenaient, et cela se vérifiait quels que soient la matière, l’âge et le type de tâche.[6] Une phrase que vous avez construite vous-même est aussi une meilleure accroche pour retrouver l’idée plus tard qu’une phrase recopiée."
+        ]
+      },
+      "q4": {
+        "question": "Y a-t-il quelque chose que vous voulez essayer ou retenir ?",
+        "paragraphs": [
+          "Nommer ensemble la situation et la réponse, sous la forme « si cela se produit, je ferai ceci », est l’un des résultats les plus solides de la psychologie du passage à l’acte. Une méta-analyse de 94 tests indépendants a trouvé un effet moyen à fort sur le fait que les gens accomplissent réellement ce qu’ils avaient prévu.[7] Une intention générale de mieux faire n’a pas cet effet. La ligne reste facultative : si rien n’a été convenu en séance, un plan inventé vaut moins qu’un blanc."
+        ]
+      },
+      "q5": {
+        "question": "Sur quoi voulez-vous revenir lors de votre prochaine séance ?",
+        "paragraphs": [
+          "Y revenir sur plusieurs jours vaut mieux que de s’y pencher une seule fois, aussi intensément que ce soit. Une synthèse de 839 comparaisons issues de 317 expériences a montré que la révision espacée surpassait systématiquement la révision massée, et que plus longtemps vous devez retenir quelque chose, plus les intervalles doivent être larges.[8] Choisir un sujet dès maintenant prépare ce retour, et fait que la prochaine séance s’ouvre sur quelque chose plutôt que sur une page blanche."
+        ]
+      }
+    },
+    "intervals": {
+      "title": "Pourquoi ces moments de révision",
+      "loading": "Chargement de vos horaires de révision",
+      "failedTitle": "Impossible de charger vos horaires de révision",
+      "failedBody": "Vérifiez votre connexion et réessayez.",
+      "emptyTitle": "Aucun horaire de révision pour l’instant",
+      "emptyNoSessions": "Aucune révision à venir dans votre calendrier actuel.",
+      "emptyAddFollowing": "Ajoutez votre séance suivante pour placer des moments de révision précis dans l’intervalle.",
+      "emptyAddSessions": "Ajoutez vos prochaines séances de thérapie dans le Calendrier pour établir un programme de révision.",
+      "nextOf_one": "prochain sur {{count}}",
+      "nextOf_other": "prochain sur {{count}}"
+    },
+    "reminders": {
+      "learnMoreAbout": "En savoir plus sur le {{date}}",
+      "scienceBehind": "La science derrière le {{date}}"
+    },
+    "tldr": "EN BREF",
+    "tldrLabel": "EN BREF : ",
+    "caveat": "Ces travaux expliquent les méthodes de mémorisation sur lesquelles repose le programme.",
+    "references": "Références"
+  },
+  "legal": {
+    "privacy": {
+      "effectiveDate": "Date d’entrée en vigueur : {{date}}",
+      "s1": {
+        "heading": "À propos de cette politique",
+        "bodies": [
+          "Plastic Brains (« nous ») vous aide à préparer vos séances de thérapie, à y réfléchir et à en assurer le suivi. Cette politique explique comment nous traitons vos informations, conformément aux exigences de l’App Store. En utilisant l’application, vous acceptez les pratiques décrites ici."
+        ]
+      },
+      "s2": {
+        "heading": "Informations que nous collectons",
+        "bodies": [
+          "- Les informations de compte que vous fournissez : nom, adresse e-mail et identifiants d’authentification lorsque vous vous connectez par e-mail ou avec Apple.\n- Les informations de séance et les préférences que vous saisissez : dates de séance, horaires de rappel et objectif de réflexion choisi lors de la configuration.\n- Des informations sur l’appareil et l’usage : version de l’application, type d’appareil, rapports d’incident et interactions de base servant à maintenir la fiabilité du service.\n- Des informations provenant de nos partenaires d’authentification (Apple), limitées aux identifiants, noms et adresses e-mail que vous les autorisez à partager avec nous.\n- Des informations d’abonnement et de droits d’accès, décrites dans la section ci-dessous.",
+          "Le contenu de vos notes de thérapie est chiffré et conservé localement sur votre iPhone. Nous ne collectons, ne transférons et ne conservons pas le contenu de vos notes sur nos serveurs."
+        ]
+      },
+      "s3": {
+        "heading": "Données d’abonnement et de droits d’accès",
+        "bodies": [
+          "Les abonnements sont achetés via Apple. Nous ne voyons ni ne recevons jamais vos coordonnées bancaires, votre adresse de facturation ou votre identifiant Apple complet : le paiement est entièrement géré par Apple et nous n’y sommes pas partie.",
+          "Pour savoir si votre abonnement est actif, nous traitons :\n- L’offre que vous avez choisie (mensuelle ou annuelle) et l’application éventuelle d’un essai de lancement.\n- L’identifiant du produit et un identifiant de transaction Apple pour l’achat.\n- L’état actuel de l’abonnement (actif, en période d’essai, expiré ou résilié) et la date de fin de la période en cours.\n- L’éligibilité de votre identifiant Apple à une offre de lancement, telle que communiquée par Apple.",
+          "Ces informations sont rattachées à votre compte Plastic Brains afin que l’application puisse débloquer les fonctionnalités que vous avez payées sur tout appareil où vous vous connectez, et pour que « Restaurer les achats » fonctionne. Elles ne servent pas à la publicité, ne sont jamais associées au contenu de vos notes et ne sont pas vendues. Certains événements d’abonnement limités peuvent être transmis à PostHog, comme décrit ci-dessous. Les données de paiement et les identifiants de transaction Apple ne figurent pas dans ces statistiques.",
+          "Apple peut également nous envoyer des notifications serveur concernant les changements de votre abonnement (renouvellement, résiliation ou remboursement accordé par Apple) afin que votre accès reste exact. Nous conservons les données d’abonnement tant que votre compte existe, puis pendant la durée requise en matière fiscale et comptable, avant de les supprimer. La suppression de votre compte les supprime selon les mêmes modalités que celles décrites à la section « Conservation et suppression des données » ; elle ne résilie pas un abonnement Apple, que vous résiliez dans les réglages d’abonnement de votre identifiant Apple."
+        ]
+      },
+      "s4": {
+        "heading": "Statistiques d’utilisation de l’application",
+        "bodies": [
+          "Plastic Brains utilise PostHog pour les statistiques d’utilisation. PostHog reçoit un petit ensemble d’événements concernant la configuration initiale, le paiement, l’enregistrement ou l’ouverture de notes, la confirmation des révisions, la configuration et l’ouverture des notifications, ainsi que les erreurs empêchant une action d’aboutir. Ces événements nous aident à comprendre quelles fonctionnalités fonctionnent et où les utilisateurs se bloquent.",
+          "Les événements utilisent un identifiant de compte afin que nous puissions comprendre les usages répétés d’une visite à l’autre. Nous n’envoyons pas à PostHog votre nom, votre adresse e-mail, le contenu ou les titres de vos notes, vos objectifs thérapeutiques, les dates exactes de vos rendez-vous, vos mots de passe ni le contenu des notifications. Nous n’enregistrons pas votre écran et ne capturons pas automatiquement vos interactions. Un identifiant de compte est pseudonyme, non anonyme.",
+          "Vous pouvez demander la suppression de votre historique de statistiques en nous contactant, y compris lors de la suppression de votre compte. Nous n’utilisons pas ces événements à des fins publicitaires."
+        ]
+      },
+      "s5": {
+        "heading": "Statistiques du site et inscription à la sortie iOS",
+        "bodies": [
+          "Sur le site Plastic Brains, nous utilisons Google Analytics 4 pour comprendre les visites, leur provenance, les interactions générales telles que le défilement et le suivi de liens, ainsi que certaines actions : ouverture du formulaire d’inscription à la sortie, inscription réussie ou échouée, ouverture d’une réponse de la FAQ et consultation d’un lien vers une étude.",
+          "Google Analytics ne dépose pas de cookies de mesure à moins que vous ne choisissiez « Autoriser les statistiques » sur le site. Le stockage publicitaire, les signaux Google et la personnalisation des annonces restent désactivés. Nous n’envoyons à Google Analytics ni adresse e-mail, ni contenu de note, ni texte de formulaire, ni aucune autre information de santé.",
+          "Si vous vous inscrivez pour être averti de la sortie sur iOS, Loops reçoit votre adresse e-mail et l’ajoute à la liste privée de lancement iOS de Plastic Brains. Loops vous demandera d’abord de confirmer votre adresse. Nous n’utilisons les adresses confirmées que pour envoyer le lien de téléchargement App Store le jour du lancement, et non pour de la prospection générale.",
+          "Vous pouvez vous désinscrire via le lien figurant dans un e-mail ou en nous contactant. Nous ne conservons l’inscription que le temps nécessaire à la notification de sortie. Loops peut conserver une trace de désinscription afin que nous respections votre choix et ne vous écrivions plus."
+        ]
+      },
+      "s6": {
+        "heading": "Comment nous utilisons les informations",
+        "bodies": [
+          "- Fournir les fonctionnalités essentielles : conservation locale des notes, enregistrement des dates de séance et de l’objectif de réflexion que vous saisissez, personnalisation des invitations à écrire et programmation des rappels.\n- Authentifier votre compte, prévenir la fraude et assurer la sécurité de l’application.\n- Envoyer des notifications facultatives concernant vos prochaines séances ou des rappels de suivi, lorsque vous les activez.\n- Améliorer les performances, résoudre les problèmes et développer de nouvelles fonctionnalités à partir de tendances d’usage agrégées."
+        ]
+      },
+      "s7": {
+        "heading": "Autorisations de l’appareil et tiers",
+        "bodies": [
+          "- Notifications : nous demandons l’autorisation d’envoyer des notifications afin que vous puissiez recevoir vos rappels. Vous pouvez modifier ce choix à tout moment dans les réglages de votre appareil.\n- Stockage sécurisé : nous utilisons les interfaces de stockage sécurisé de l’appareil pour protéger localement les jetons d’authentification.\n- Données de séance : l’application enregistre les horaires de séance que vous saisissez et les synchronise avec notre serveur afin de programmer les rappels. Elle ne lit pas votre calendrier externe et ne s’y synchronise pas.",
+          "Nous faisons appel à des prestataires de confiance pour faire fonctionner l’application : authentification via Apple, hébergement cloud et acheminement des notifications via les services Expo. Ces partenaires ne traitent vos données que pour fournir les services que nous leur demandons et sont tenus par des garanties contractuelles."
+        ]
+      },
+      "s8": {
+        "heading": "Comment nous partageons les informations",
+        "bodies": [
+          "Nous ne vendons pas vos données personnelles. Nous ne les partageons qu’avec :\n- Les prestataires qui nous aident à faire fonctionner l’application (hébergement, authentification, notifications), et PostHog lorsque vous acceptez les statistiques facultatives.\n- Les autorités ou conseils, lorsque la loi l’exige ou pour protéger des droits, la sécurité ou des biens."
+        ]
+      },
+      "s9": {
+        "heading": "Conservation et suppression des données",
+        "bodies": [
+          "Nous conservons les informations de votre compte, vos dates de séance, votre objectif de réflexion, vos paramètres de rappel et les informations relatives aux appareils enregistrés aussi longtemps que vous conservez un compte. Vous pouvez demander leur suppression depuis l’écran Réglages ou en nous contactant. Après suppression, nous retirons les données personnelles de nos systèmes actifs dans un délai de 30 jours, sauf obligation légale de conservation.",
+          "Vos notes de thérapie ne font pas partie de votre compte serveur ni de sa durée de conservation. Elles restent chiffrées sur votre iPhone jusqu’à ce que vous les supprimiez ou que vous retiriez l’application. Nous ne conservons jamais de copie de vos notes sur nos serveurs."
+        ]
+      },
+      "s10": {
+        "heading": "Sécurité",
+        "bodies": [
+          "Nous mettons en œuvre des mesures administratives, techniques et physiques pour protéger vos informations : connexions réseau chiffrées, stockage sécurisé des identifiants et contrôles d’accès. Aucun mode de transmission ou de stockage n’est parfaitement sûr, c’est pourquoi nous vous encourageons à utiliser des mots de passe uniques et à protéger votre appareil."
+        ]
+      },
+      "s11": {
+        "heading": "Utilisateurs internationaux",
+        "bodies": [
+          "Nos serveurs sont exploités par des prestataires tiers susceptibles de traiter des données aux États-Unis et dans d’autres pays. En utilisant l’application, vous comprenez que vos données peuvent être transférées et traitées dans des juridictions dont la législation sur la protection des données peut différer de celle de votre pays."
+        ]
+      },
+      "s12": {
+        "heading": "Protection des mineurs",
+        "bodies": [
+          "Plastic Brains est conçue pour des adultes de 18 ans et plus. Nous ne collectons pas sciemment de données personnelles concernant des personnes de moins de 18 ans. Si vous pensez qu’une personne de moins de 18 ans nous a communiqué des données personnelles, contactez-nous afin que nous puissions les supprimer."
+        ]
+      },
+      "s13": {
+        "heading": "Vos droits et vos choix",
+        "bodies": [
+          "Selon votre lieu de résidence, vous pouvez disposer de droits d’accès, de rectification, de portabilité ou d’effacement de vos données, ainsi que du droit de vous opposer à certains traitements ou de les limiter. Vous pouvez gérer la plupart des réglages directement dans l’application ou en nous écrivant. Nous répondrons dans un délai de 30 jours, conformément aux exigences des magasins d’applications et à la législation applicable."
+        ]
+      },
+      "s14": {
+        "heading": "Modifications de cette politique",
+        "bodies": [
+          "Nous pouvons mettre à jour cette politique pour tenir compte de nouvelles fonctionnalités ou d’obligations légales. En cas de modification substantielle, nous vous en informerons dans l’application ou par e-mail et mettrons à jour la date d’entrée en vigueur ci-dessus. Continuer à utiliser l’application après une modification vaut acceptation de la politique révisée."
+        ]
+      },
+      "s15": {
+        "heading": "Nous contacter",
+        "bodies": [
+          "Pour toute question ou pour exercer vos droits en matière de confidentialité, écrivez-nous à michael@plastic-brains.com."
+        ]
+      }
+    },
+    "terms": {
+      "s1": {
+        "heading": "Acceptation des présentes conditions",
+        "bodies": [
+          "Plastic Brains (« nous ») propose des outils destinés à vous aider à préparer vos séances de thérapie, à y réfléchir et à en assurer le suivi. En créant un compte ou en utilisant l’application, vous acceptez les présentes conditions d’utilisation ainsi que notre politique de confidentialité. Si vous ne les acceptez pas, n’utilisez pas l’application."
+        ]
+      },
+      "s2": {
+        "heading": "Conditions d’accès et comptes",
+        "bodies": [
+          "Vous devez avoir au moins 18 ans, ou l’âge de la majorité dans votre juridiction, pour utiliser l’application. Vous êtes responsable de l’exactitude des informations que vous fournissez et de la sécurité de vos identifiants de connexion. Si vous pensez que votre compte a été compromis, contactez-nous immédiatement afin que nous puissions vous aider à le sécuriser."
+        ]
+      },
+      "s3": {
+        "heading": "Utilisation de l’application",
+        "bodies": [
+          "L’application est destinée à un usage personnel et non commercial. Vous vous engagez à ne pas détourner le service, notamment en tentant d’en faire l’ingénierie inverse, de le perturber ou d’interférer avec nos systèmes. Vous ne pouvez pas téléverser de contenu illicite, contrefaisant ou préjudiciable. Nous pouvons suspendre ou résilier les comptes qui enfreignent les présentes conditions."
+        ]
+      },
+      "s4": {
+        "heading": "Avertissement relatif à la santé et à la sécurité",
+        "bodies": [
+          "Plastic Brains ne fournit ni conseil médical ou psychologique, ni diagnostic, ni traitement. Les informations présentes dans l’application servent uniquement à la réflexion et à l’organisation. Consultez toujours un professionnel agréé pour toute question relative à votre santé mentale ou à votre état de santé. Appelez les services d’urgence ou une ligne d’écoute en cas de danger ou d’urgence psychologique."
+        ]
+      },
+      "s5": {
+        "heading": "Abonnements et facturation",
+        "bodies": [
+          "Plastic Brains est gratuite à télécharger. L’accès aux fonctions de prise de notes, de révision et de préparation nécessite un abonnement payant, proposé sous forme de formule mensuelle ou annuelle à renouvellement automatique. Les prix sont indiqués dans l’application, dans votre devise locale, avant confirmation, et sont fixés par nous via l’App Store.",
+          "Les abonnés éligibles bénéficient de deux semaines d’essai gratuit avec la formule annuelle, ou d’une semaine d’essai gratuit avec la formule mensuelle. C’est Apple qui détermine si votre identifiant Apple est éligible à une offre de lancement. Si vous ne l’êtes pas, aucun essai n’est proposé et la facturation commence immédiatement. Sauf résiliation au moins 24 heures avant la fin de l’essai, l’abonnement que vous avez choisi commence automatiquement au prix affiché.",
+          "Le paiement est prélevé sur votre compte identifiant Apple à la confirmation de l’achat. Les abonnements se renouvellent automatiquement, sauf si le renouvellement automatique est désactivé au moins 24 heures avant la fin de la période en cours, et votre compte est débité du renouvellement dans les 24 heures précédant la fin de cette période.",
+          "Vous pouvez gérer ou résilier un abonnement, et désactiver le renouvellement automatique, dans les réglages d’abonnement de votre identifiant Apple sur votre appareil. La résiliation met fin aux renouvellements futurs ; l’accès se poursuit jusqu’à la fin de la période déjà payée. Nous ne pouvons pas résilier un abonnement Apple à votre place.",
+          "Si vous réinstallez l’application ou utilisez un autre appareil connecté au même identifiant Apple, utilisez « Restaurer les achats » pour retrouver un abonnement existant. La restauration ne retrouve que les abonnements achetés avec cet identifiant Apple.",
+          "Les achats sont effectués via Apple : les remboursements sont donc gérés par Apple, selon ses propres conditions. Les demandes se font auprès de l’assistance Apple, et nous ne pouvons ni accorder ni garantir un remboursement. Vos droits légaux, lorsqu’ils s’appliquent, ne sont pas affectés."
+        ]
+      },
+      "s6": {
+        "heading": "Vos contenus et vos données",
+        "bodies": [
+          "Vous restez propriétaire des notes et des informations que vous conservez dans l’application. Le contenu de vos notes de thérapie est traité localement sur votre appareil et ne nous est pas transmis. Nous ne traitons les informations de votre compte et de vos séances que dans la mesure nécessaire pour fournir les fonctionnalités que vous demandez. Consultez la politique de confidentialité pour savoir comment nous collectons, utilisons et protégeons vos données."
+        ]
+      },
+      "s7": {
+        "heading": "Évolutions du service",
+        "bodies": [
+          "Nous pouvons mettre à jour, suspendre ou interrompre des fonctionnalités pour respecter les règles des plateformes, renforcer la sécurité ou améliorer l’expérience. Nous vous informerons de toute modification substantielle dans l’application ou par e-mail lorsque cela est requis. Continuer à utiliser l’application après l’entrée en vigueur des modifications vaut acceptation de celles-ci."
+        ]
+      },
+      "s8": {
+        "heading": "Résiliation",
+        "bodies": [
+          "Vous pouvez cesser d’utiliser l’application à tout moment et demander la suppression de votre compte depuis l’écran Réglages. Nous pouvons résilier ou suspendre votre accès si vous enfreignez les présentes conditions ou si nous interrompons le service. À la résiliation, les clauses des présentes conditions qui, par leur nature, doivent survivre (notamment celles relatives à la propriété, aux avertissements et aux limitations de responsabilité) continuent de s’appliquer."
+        ]
+      },
+      "s9": {
+        "heading": "Limitation de responsabilité",
+        "bodies": [
+          "Rien dans les présentes conditions n’exclut ni ne limite notre responsabilité lorsque la loi l’interdit, y compris la responsabilité en cas de décès ou de dommage corporel causé par une négligence, une fraude ou une déclaration frauduleuse. Sous cette réserve, Plastic Brains n’est pas responsable des préjudices qui n’étaient pas raisonnablement prévisibles ou qui résultent de circonstances échappant à son contrôle raisonnable. Rien dans les présentes conditions n’affecte vos droits légaux de consommateur."
+        ]
+      },
+      "s10": {
+        "heading": "Droit applicable",
+        "bodies": [
+          "Les présentes conditions sont régies par le droit de l’Angleterre et du pays de Galles. Si vous résidez ailleurs, vous conservez le bénéfice des protections impératives des consommateurs prévues par le droit de votre pays de résidence. Si une partie des présentes conditions est jugée inapplicable, les autres dispositions demeurent en vigueur."
+        ]
+      },
+      "s11": {
+        "heading": "Nous contacter",
+        "bodies": [
+          "Pour toute question sur les présentes conditions, écrivez-nous à michael@plastic-brains.com."
+        ]
+      }
     }
   },
   "serverError": {
@@ -550,6 +932,28 @@
     "device_token_not_found": "Les rappels n’étaient pas activés sur cet appareil.",
     "not_found": "Nous n’avons pas trouvé ce que vous cherchiez.",
     "request_timeout": "L’opération a pris trop de temps. Vérifiez votre connexion et réessayez.",
-    "server_error": "Un problème est survenu de notre côté. Veuillez réessayer."
+    "server_error": "Un problème est survenu de notre côté. Veuillez réessayer.",
+    "apple_account_deletion_unavailable": "Ce compte lié à Apple ne peut pas être supprimé pour le moment. Veuillez réessayer plus tard.",
+    "apple_authorization_failed": "Votre identité n’a pas pu être confirmée auprès d’Apple. Veuillez confirmer à nouveau avec Apple.",
+    "apple_deletion_credentials_missing": "Apple n’a pas fourni la confirmation nécessaire à la suppression de ce compte. Veuillez réessayer.",
+    "apple_account_mismatch": "Confirmez avec le compte Apple associé à ce compte Plastic Brains.",
+    "apple_revocation_failed": "La connexion entre ce compte et Apple n’a pas pu être supprimée. Votre compte n’a pas été supprimé. Veuillez réessayer.",
+    "appointment_limit_reached": "Vous avez atteint la limite de rendez-vous. Supprimez un rendez-vous avant d’en ajouter un autre.",
+    "appointment_changed": "Ce rendez-vous a été modifié sur un autre appareil. Actualisez votre calendrier avant de le modifier à nouveau.",
+    "duplicate_appointment": "Un rendez-vous a été inclus plusieurs fois. Actualisez votre calendrier et réessayez.",
+    "invalid_calendar_window": "Cette plage de dates n’est pas valide. Actualisez votre calendrier et réessayez.",
+    "calendar_refresh_required": "Utilisez la dernière version de l’application et actualisez votre calendrier avant de supprimer des rendez-vous.",
+    "appointment_time_conflict": "Un rendez-vous commence déjà à cette heure. Actualisez votre calendrier et choisissez un autre horaire.",
+    "appointment_day_conflict": "Vous ne pouvez avoir qu’une séance par jour. Actualisez votre calendrier et modifiez la séance existante.",
+    "invalid_subscription_transaction": "Les informations d’achat nécessaires à la confirmation de cet abonnement n’ont pas pu être lues. Essayez de restaurer vos achats.",
+    "apple_verification_unavailable": "Votre achat ne peut pas être vérifié auprès d’Apple pour le moment. Veuillez réessayer plus tard.",
+    "apple_verification_failed": "Cet achat Apple n’a pas pu être vérifié. Essayez de restaurer vos achats.",
+    "subscription_account_mismatch": "Cet abonnement appartient à un autre compte Plastic Brains. Connectez-vous à ce compte pour l’utiliser.",
+    "subscription_already_linked": "Cet abonnement est déjà associé à un autre compte Plastic Brains. Connectez-vous à ce compte pour l’utiliser.",
+    "unknown_subscription_product": "Cet achat ne correspond pas à un abonnement Plastic Brains.",
+    "unsupported_transaction_environment": "Cet achat ne peut pas être utilisé avec cette version de l’application.",
+    "test_purchase_not_allowed": "Cet achat de test ne peut pas être utilisé avec cette version de l’application.",
+    "network": "La connexion a échoué. Vérifiez votre connexion Internet et réessayez.",
+    "session_changed": "Votre session de connexion a changé. Veuillez réessayer."
   }
 }

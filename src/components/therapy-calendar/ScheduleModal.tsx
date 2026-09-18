@@ -109,7 +109,7 @@ export default function ScheduleModal({
                     { selectedDay && (
                         <View style={ styles.selectedDayBlock }>
                             <AppText variant="h2" style={ styles.selectedDay }>
-                                { selectedDay.format('dddd Do') }
+                                { selectedDay.format('dddd D') }
                             </AppText>
                             <View style={ styles.selectedDayRule }>
                                 { Array.from({ length: 18 }, (_unused, index) => (
@@ -126,7 +126,7 @@ export default function ScheduleModal({
                                     <TouchableOpacity key={ session.id } accessibilityRole="button"
                                         accessibilityState={ { selected: session.id === existingSession?.id } }
                                         onPress={ () => onSelectSession(session.id) } style={ styles.timeButton }>
-                                        <AppText variant="body">{ `Appointment at ${dayjs(session.time).format('h:mm A')}` }</AppText>
+                                        <AppText variant="body">{ t('schedule.appointmentAt', { time: dayjs(session.time).format('LT') }) }</AppText>
                                     </TouchableOpacity>
                                 )) }
                             </View>
@@ -151,7 +151,7 @@ export default function ScheduleModal({
                                     <TouchableOpacity style={ styles.timeButton } onPress={ () => setShowPicker(true) }>
                                         <Ionicons name="time-outline" size={ 20 } />
                                         <AppText style={ styles.timeLabel } variant='body'>
-                                            { dayjs(time).format('h:mm A') }
+                                            { dayjs(time).format('LT') }
                                         </AppText>
                                     </TouchableOpacity>
                                     { showPicker && (

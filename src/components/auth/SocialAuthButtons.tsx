@@ -36,7 +36,7 @@ export const SocialAuthButtons: React.FC<Props> = ({ onSuccess, disabled = false
         <View style={ styles.section }>
             <Spacer variant={ SpacerVariant.large } />
             <AppText variant="caption" align="center">
-                Or continue with
+                { t('orContinueWith') }
             </AppText>
             <Spacer variant={ SpacerVariant.large } />
             <View style={ styles.buttonRow }>

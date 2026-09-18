@@ -268,11 +268,14 @@ export default function AccountPreviewScreen() {
 
                         { /* The two documents as their own targets. Inline
                              links inside the sentence would be 14pt tall,
-                             well under the 44pt minimum. */ }
+                             well under the 44pt minimum. Held to one row:
+                             the French labels are long enough that the pair
+                             wrapped and stranded one link on its own line. */ }
                         <View style={ styles.legalLinks }>
                             <OnboardingLink
                                 label={ accountCopy().legalTerms }
                                 size="caption"
+                                fitOnOneLine
                                 disabled={ busy }
                                 onPress={ () => router.push('/terms-of-service') }
                                 style={ styles.legalLink }
@@ -281,6 +284,7 @@ export default function AccountPreviewScreen() {
                             <OnboardingLink
                                 label={ accountCopy().legalPrivacy }
                                 size="caption"
+                                fitOnOneLine
                                 disabled={ busy }
                                 onPress={ () => router.push('/privacy-policy') }
                                 style={ styles.legalLink }
@@ -313,11 +317,14 @@ const styles = StyleSheet.create({
     },
     legalLinks: {
         flexDirection: 'row',
-        flexWrap: 'wrap',
+        // No wrapping: the labels shrink to fit instead, so the two documents
+        // stay side by side and read as a pair.
+        flexWrap: 'nowrap',
         justifyContent: 'center',
-        columnGap: 20,
+        columnGap: 12,
     },
     legalLink: {
         minWidth: 44,
+        flexShrink: 1,
     },
 });

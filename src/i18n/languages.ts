@@ -11,6 +11,7 @@
 
 import en from './locales/en.json';
 import fr from './locales/fr.json';
+import de from './locales/de.json';
 
 /** The language English falls back to, and the source of truth for keys. */
 export const FALLBACK_LANGUAGE = 'en';
@@ -32,6 +33,7 @@ export type LanguageDefinition = {
 export const LANGUAGES = [
     { tag: 'en', endonym: 'English', resources: en },
     { tag: 'fr', endonym: 'Français', resources: fr },
+    { tag: 'de', endonym: 'Deutsch', resources: de },
 ] as const satisfies readonly LanguageDefinition[];
 
 /** A tag the app has translations for. */

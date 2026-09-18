@@ -24,10 +24,12 @@ describe('resolveDeviceLanguage', () => {
     it('matches on the language subtag, so regional variants resolve', () => {
         expect(resolveDeviceLanguage(['fr-CA'])).toBe('fr');
         expect(resolveDeviceLanguage(['fr-FR'])).toBe('fr');
+        expect(resolveDeviceLanguage(['de-AT'])).toBe('de');
+        expect(resolveDeviceLanguage(['de-CH'])).toBe('de');
     });
 
     it('falls back to English when nothing is translated', () => {
-        expect(resolveDeviceLanguage(['de-DE', 'it-IT'])).toBe('en');
+        expect(resolveDeviceLanguage(['it-IT', 'ja-JP'])).toBe('en');
     });
 
     it('falls back to English for an empty device list', () => {
@@ -69,9 +71,9 @@ describe('parsePreference', () => {
     });
 
     it('falls back to System for a language the build no longer ships', () => {
-        // A stored 'de' from a release that had German must not pin the user to
-        // a language this build cannot render.
-        expect(parsePreference('de')).toBe(SYSTEM_PREFERENCE);
+        // A stored tag from a release that shipped a language this build has
+        // since dropped must not pin the user to something it cannot render.
+        expect(parsePreference('it')).toBe(SYSTEM_PREFERENCE);
         expect(parsePreference('')).toBe(SYSTEM_PREFERENCE);
     });
 });

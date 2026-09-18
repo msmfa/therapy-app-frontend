@@ -16,9 +16,10 @@ import { t } from '../../i18n/translate';
  * written copy for yet, and the validation errors whose text names a specific
  * field and so says more than any fixed translation could.
  *
- * Anything that is not an ApiError, a thrown TypeError from a dead connection
- * for instance, has no code and no server prose worth showing, so it gets the
- * generic line.
+ * The API client also wraps transport failures: network errors have the
+ * `network` code, while request aborts have status 408 and no code. Plain
+ * Errors keep their message, since it may contain useful caller-specific
+ * copy; only missing messages need the generic fallback.
  */
 
 /**
@@ -34,8 +35,16 @@ export const isTranslatedServerCode = (code: unknown): code is ServerErrorCode =
     typeof code === 'string' && TRANSLATED_CODES.has(code);
 
 export const serverErrorMessage = (error: unknown, fallback?: string): string => {
-    if (error instanceof ApiError && isTranslatedServerCode(error.code)) {
-        return t(`serverError:${error.code}`);
+    if (error instanceof ApiError) {
+        if (isTranslatedServerCode(error.code)) {
+            return t(`serverError:${error.code}`);
+        }
+
+        // The client's AbortError wrapper has no code. Do not let a status
+        // fallback erase a more specific, unfamiliar server code's message.
+        if (error.status === 408 && error.code === undefined) {
+            return t('serverError:request_timeout');
+        }
     }
 
     // No code, or one this build does not know: the server's own words are

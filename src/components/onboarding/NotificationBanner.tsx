@@ -2,6 +2,7 @@ import type { LayoutChangeEvent, StyleProp, ViewStyle } from 'react-native';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
 import { COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
     title: string;
@@ -23,12 +24,13 @@ type Props = {
  * real one would be.
  */
 export function NotificationBanner({ title, body, time, width, style, onLayout }: Props) {
+    const { t } = useTranslation('onboarding');
     return (
         <View
             style={ [styles.panel, { width }, style] }
             onLayout={ onLayout }
             accessible
-            accessibilityLabel={ `An iPhone notification from ${title}: ${body}` }
+            accessibilityLabel={ t('a11y.notificationPreview', { title, body }) }
         >
             <Image
                 source={ require('../../../assets/brain-logo.png') as ImageSourcePropType }

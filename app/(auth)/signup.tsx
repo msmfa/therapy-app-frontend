@@ -37,6 +37,7 @@ export default function SignUpScreen() {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const { t } = useTranslation('auth');
+    const { t: tOnboarding } = useTranslation('onboarding');
 
     const validate = useCallback(() => {
         const nextErrors: Record<string, string> = {};
@@ -87,7 +88,7 @@ export default function SignUpScreen() {
                         <View style={ styles.header }>
                             <AppText variant="h1" align="center">{ t('signUp.title') }</AppText>
                             <AppText variant="bodySecondary" align="center">
-                                Save your between-session plan and keep your schedule connected.
+                                { tOnboarding('signUpSubtitle') }
                             </AppText>
                         </View>
                         <TextField

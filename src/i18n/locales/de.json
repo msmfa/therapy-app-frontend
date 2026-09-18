@@ -1,0 +1,959 @@
+{
+  "common": {
+    "action": {
+      "logOut": "Abmelden",
+      "loggingOut": "Abmeldung läuft…",
+      "tryAgain": "Erneut versuchen",
+      "back": "Zurück",
+      "learnMore": "Mehr erfahren",
+      "close": "Schließen"
+    },
+    "error": {
+      "title": "Fehler",
+      "tryAgain": "Bitte versuchen Sie es erneut."
+    },
+    "screen": {
+      "privacyPolicy": "Datenschutzerklärung",
+      "termsOfService": "Nutzungsbedingungen",
+      "references": "Quellenverzeichnis"
+    },
+    "a11y": {
+      "close": "Schließen",
+      "dismissAlert": "Hinweis schließen",
+      "dismissError": "Fehlermeldung schließen",
+      "hidePassword": "Passwort verbergen",
+      "loading": "Wird geladen",
+      "showPassword": "Passwort anzeigen",
+      "tryAgainQuestion": "Erneut versuchen?",
+      "source": "Quelle {{position}}: {{text}}"
+    },
+    "tab": {
+      "calendar": "Kalender",
+      "newNote": "Neue Notiz",
+      "notes": "Notizen",
+      "settings": "Einstellungen"
+    },
+    "notFound": {
+      "body": "Wir konnten nicht finden, wonach Sie gesucht haben. Entschuldigung!",
+      "cta": "Zur Startseite",
+      "title": "Hoppla!"
+    }
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "hub": {
+      "language": "Sprache",
+      "references": "Quellenverzeichnis",
+      "settings": "Einstellungen",
+      "rateApp": "Diese App bewerten",
+      "version": "v{{version}}",
+      "logOutFailed": "Abmeldung fehlgeschlagen, bitte versuchen Sie es erneut",
+      "rateUnavailableTitle": "Nicht verfügbar",
+      "rateUnavailableMessage": "Bewertungen werden auf dieser Plattform noch nicht unterstützt.",
+      "storeOpenFailed": "Der Store lässt sich im Moment nicht öffnen."
+    },
+    "rows": {
+      "reminderSettings": "Erinnerungseinstellungen",
+      "contactUs": "Kontakt aufnehmen",
+      "privacyPolicy": "Datenschutzerklärung",
+      "deleteAccount": "Konto löschen",
+      "termsOfService": "Nutzungsbedingungen"
+    },
+    "account": {
+      "logOutFailed": "Abmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+      "mailOpenFailed": "Ihre E-Mail-App lässt sich im Moment nicht öffnen.",
+      "subscriptionsTitle": "Abonnements lassen sich nicht öffnen",
+      "subscriptionsMessage": "Öffnen Sie die Einstellungen auf Ihrem iPhone oder iPad, tippen Sie auf Ihren Namen und dann auf „Abonnements“, um Ihr App-Store-Abonnement zu verwalten.",
+      "deleteUnavailable": "Das Konto lässt sich im Moment nicht löschen.",
+      "deleteFailed": "Konto konnte nicht gelöscht werden",
+      "deleteConfirmTitle": "Konto löschen",
+      "deleteConfirmMessage": "Dadurch werden Ihr Konto und sämtliche gespeicherten Daten dauerhaft entfernt. Dieser Schritt lässt sich nicht rückgängig machen.\n\nDas Löschen Ihres Kontos kündigt weder ein App-Store-Abonnement noch eine kostenlose Testphase. Die Abrechnung über Apple läuft weiter, solange Sie sie nicht unter „Abonnements“ kündigen. Bitte kündigen Sie, bevor Sie Ihr Konto löschen. Sie können Ihr Konto trotzdem sofort löschen.",
+      "manageSubscription": "Abonnement verwalten"
+    },
+    "language": {
+      "title": "Sprache",
+      "system": "System",
+      "systemDetail": "Derzeit {{language}}",
+      "saveFailedTitle": "Sprache nicht gespeichert",
+      "saveFailedMessage": "Die App ist jetzt auf {{language}} eingestellt, diese Auswahl konnte aber nicht gespeichert werden. Bitte versuchen Sie es erneut.",
+      "a11yRow": "{{label}}, {{detail}}",
+      "a11yHint": "Ändert die Sprache der App sofort",
+      "choose": "Sprache auswählen",
+      "a11yDropdownHint": "Öffnet die Liste der Sprachen"
+    }
+  },
+  "reminderSettings": {
+    "title": "Erinnerungseinstellungen",
+    "intro": "Wählen Sie, wann kurze Wiederholungen in Ihren Alltag passen. Die Aufforderung zur Notiz erreicht Sie weiterhin kurz nach jeder Therapiesitzung.",
+    "morning": "Wiederholungen am Morgen",
+    "evening": "Wiederholungen am Abend",
+    "save": "Erinnerungszeiten speichern",
+    "permissions": "Benachrichtigungsberechtigung: {{state}}",
+    "permissionOn": "Ein",
+    "permissionOff": "Aus",
+    "a11yTime": "{{label}}, {{time}}",
+    "loadFailed": "Die Erinnerungseinstellungen konnten nicht geladen werden",
+    "enableFailed": "Die Erinnerungen konnten nicht aktiviert werden",
+    "enableFailedMessage": "Bitte versuchen Sie es erneut, sobald Sie online sind.",
+    "permissionFailed": "Der Benachrichtigungszugriff konnte nicht aktualisiert werden",
+    "saved": "Erinnerungszeiten aktualisiert",
+    "savedMessage": "Ihre künftigen Wiederholungen verwenden diese Zeiten.",
+    "saveFailed": "Die Erinnerungszeiten konnten nicht aktualisiert werden"
+  },
+  "notes": {
+    "reviewProgress_one": "{{count}} von {{total}} wiederholt",
+    "reviewProgress_other": "{{count}} von {{total}} wiederholt",
+    "reviewProgressNone": "Noch keine Wiederholungen geplant",
+    "empty": {
+      "title": "Ihre erste Notiz",
+      "withSession": "Direkt nach Ihrer nächsten Sitzung am <date>{{date}}</date> senden wir Ihnen eine Benachrichtigung, damit Sie Ihre erste Notiz festhalten können. Danach sehen Sie sie hier.",
+      "noSession": "Sie haben noch keine Sitzungen geplant. Tragen Sie eine im Kalender ein, und wir erinnern Sie direkt danach, damit Sie Ihre erste Notiz festhalten können.",
+      "getStarted": "Wenn Sie gleich beginnen möchten, tippen Sie unten links auf das Plus-Symbol. Es lohnt sich, vorher kurz zu lesen, <link>welche Art des Notierens in der Therapie am besten funktioniert</link>.",
+      "example": "Beispiel"
+    },
+    "list": {
+      "loadFailed": "Die Notizen konnten nicht geladen werden"
+    },
+    "editor": {
+      "empty": "Notizen dürfen nicht leer sein.",
+      "updateFailed": "Die Notiz konnte nicht aktualisiert werden.",
+      "addFailed": "Die Notiz konnte nicht hinzugefügt werden",
+      "signInToSave": "Melden Sie sich an, um eine Notiz zu speichern.",
+      "cancel": "abbrechen",
+      "cancelEdit": "Bearbeitung abbrechen",
+      "saveUnavailable": "Die Notiz lässt sich im Moment nicht speichern.",
+      "howTo": "Wie man Notizen macht",
+      "saveNote": "Notiz speichern",
+      "edit": "bearbeiten"
+    },
+    "review": {
+      "reviewed": "WIEDERHOLT",
+      "markReviewed": "Als wiederholt markieren",
+      "saveFailed": "Die Wiederholung konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.",
+      "loadFailed": "Die Wiederholungen konnten nicht geladen werden",
+      "saveStateFailed": "Die Wiederholung konnte nicht gespeichert werden",
+      "undoFailed": "Die Wiederholung konnte nicht rückgängig gemacht werden"
+    },
+    "prompt": {
+      "default": "Was war in Ihrer Therapiesitzung wichtig?",
+      "remember": "Woran möchten Sie sich aus dieser Sitzung erinnern?",
+      "practise": "Welche Erkenntnis möchten Sie im Alltag ausprobieren?",
+      "prepare": "Welchen klaren Faden möchten Sie beim nächsten Mal wieder aufnehmen?",
+      "habit": "Was möchten Sie mit der Zeit besser verstehen oder verändern?"
+    },
+    "progressPreview": {
+      "none": "Noch nicht wiederholt",
+      "once": "Einmal wiederholt",
+      "halfway": "Zur Hälfte geschafft",
+      "almost": "Fast geschafft",
+      "done": "Alles erledigt"
+    },
+    "sample": {
+      "text": "Wir haben den größten Teil der Stunde damit verbracht, wie ich mich innerlich gegen Kritik wappne, bevor überhaupt etwas passiert ist. Sie hat angemerkt, dass ich mich in Besprechungen genauso verhalte wie gegenüber meinem Bruder, was ich vorher nie zusammengebracht hatte."
+    },
+    "cheatsheet": {
+      "titleSans": "Spick",
+      "titleSerif": "zettel"
+    },
+    "template": {
+      "title": "Ihre Therapienotiz in fünf Minuten",
+      "subtitle": "Fünf Fragen, um das Wesentliche festzuhalten",
+      "intro": "Schreiben Sie so viel oder so wenig, wie Ihnen guttut. Das ist Ihre private Notiz und kein Protokoll, das perfekt sein muss.",
+      "q1": "Was ist Ihnen aus der heutigen Sitzung geblieben?",
+      "h1": "Ein Gedanke, ein Satz, eine Erkenntnis oder ein Moment, den Sie nicht verlieren möchten.",
+      "q2": "Welche Situation, welchen Gedanken oder welches Gefühl möchten Sie diese Woche bewusst wahrnehmen?",
+      "h2": "Etwas, das mit dem Besprochenen zusammenhängt, falls es das gibt.",
+      "q3": "Was haben Sie anders verstanden als vorher?",
+      "h3": "Halten Sie es in Ihren eigenen Worten fest.",
+      "q4": "Gibt es etwas, das Sie ausprobieren oder sich merken möchten?",
+      "h4": "Lassen Sie das Feld leer, wenn nichts vereinbart oder vorgeschlagen wurde.",
+      "q5": "Worauf möchten Sie in Ihrer nächsten Sitzung zurückkommen?",
+      "h5": "Ein Thema genügt."
+    },
+    "a11y": {
+      "openNote": "Notiz öffnen",
+      "editNote": "Notiz bearbeiten",
+      "saveChanges": "Änderungen speichern",
+      "question": "Frage {{position}} von {{total}}. {{question}}"
+    },
+    "whatWasSaid": "was gesagt wurde",
+    "bars": {
+      "title": "Die Balken",
+      "intro": "Sobald Sie eine Notiz wiederholt haben, tippen Sie auf „Als wiederholt markieren“, und diese Balken aktualisieren sich."
+    },
+    "dateHeading": "{{weekday}} um {{time}}"
+  },
+  "auth": {
+    "signIn": {
+      "title": "Anmelden",
+      "submit": "Anmelden",
+      "forgotPassword": "Passwort vergessen?",
+      "noAccount": "Noch kein Konto?",
+      "signUpHere": "Hier registrieren",
+      "missingDetailsTitle": "Geben Sie Ihre Daten ein",
+      "missingDetailsMessage": "Geben Sie Ihre E-Mail-Adresse und Ihr Passwort ein.",
+      "failedTitle": "Die Anmeldung hat nicht geklappt"
+    },
+    "signUp": {
+      "title": "Konto erstellen",
+      "submit": "Konto anlegen",
+      "failedTitle": "Ihr Konto konnte nicht erstellt werden",
+      "nameRequired": "Name ist erforderlich",
+      "invalidEmail": "Geben Sie eine gültige E-Mail-Adresse ein",
+      "passwordsMustMatch": "Die Passwörter müssen übereinstimmen"
+    },
+    "field": {
+      "name": "Name",
+      "namePlaceholder": "Erika Mustermann",
+      "email": "E-Mail",
+      "emailPlaceholder": "name@beispiel.de",
+      "password": "Passwort",
+      "confirmPassword": "Passwort bestätigen",
+      "newPassword": "Neues Passwort",
+      "resetCode": "Code zum Zurücksetzen",
+      "resetCodePlaceholder": "6-stelliger Code"
+    },
+    "forgot": {
+      "emailRequiredTitle": "Hoppla",
+      "emailRequiredMessage": "Geben Sie die E-Mail-Adresse ein, mit der Sie Ihr Konto angelegt haben",
+      "checkEmailTitle": "Prüfen Sie Ihre E-Mails",
+      "requestFailedTitle": "Anfrage fehlgeschlagen",
+      "requestFailedMessage": "Das Zurücksetzen konnte nicht gestartet werden.",
+      "invalidCodeTitle": "Ungültiger Code",
+      "invalidCodeMessage": "Geben Sie den 6-stelligen Code aus Ihrer E-Mail ein.",
+      "weakPasswordTitle": "Schwaches Passwort",
+      "weakPasswordMessage_one": "Verwenden Sie mindestens {{count}} Zeichen.",
+      "weakPasswordMessage_other": "Verwenden Sie mindestens {{count}} Zeichen.",
+      "mismatchTitle": "Die Passwörter stimmen nicht überein",
+      "mismatchMessage": "Achten Sie darauf, dass beide Passwortfelder übereinstimmen.",
+      "resetFailedTitle": "Zurücksetzen fehlgeschlagen",
+      "resetFailedMessage": "Ihr Passwort konnte nicht zurückgesetzt werden.",
+      "sendCode": "Code zum Zurücksetzen senden",
+      "updatePassword": "Passwort aktualisieren",
+      "backToSignIn": "Zurück zur Anmeldung",
+      "requestTitle": "Passwort vergessen",
+      "requestSubtitle": "Geben Sie die E-Mail-Adresse Ihres Kontos ein. Wir senden Ihnen einen Code zum Zurücksetzen.",
+      "resetSubtitle": "Fügen Sie den Code ein und wählen Sie ein neues Passwort.",
+      "doneTitle": "Passwort aktualisiert",
+      "doneSubtitle": "Ihr Passwort wurde zurückgesetzt. Melden Sie sich mit Ihrem neuen Passwort an, um fortzufahren."
+    },
+    "apple": {
+      "continueWith": "Mit Apple fortfahren",
+      "signingIn": "Anmeldung mit Apple läuft",
+      "unavailableTitle": "Apple-Anmeldung nicht verfügbar",
+      "unavailableMessage": "Dieses Gerät unterstützt „Mit Apple anmelden“ nicht.",
+      "failedTitle": "Apple-Anmeldung fehlgeschlagen",
+      "authFailedTitle": "Authentifizierung fehlgeschlagen"
+    },
+    "password": {
+      "tooShort_one": "Das Passwort muss mindestens {{count}} Zeichen lang sein",
+      "tooShort_other": "Das Passwort muss mindestens {{count}} Zeichen lang sein",
+      "needsUppercase": "Das Passwort muss mindestens einen Großbuchstaben enthalten",
+      "needsSymbol": "Das Passwort muss mindestens ein Sonderzeichen enthalten"
+    },
+    "orContinueWith": "Oder fortfahren mit"
+  },
+  "calendar": {
+    "nextSession": "Nächste Sitzung",
+    "nextReminder": "Nächste Erinnerung",
+    "clear": "Zurücksetzen",
+    "save": "Speichern",
+    "clearA11y": "Therapiesitzungen zurücksetzen",
+    "saveA11y": "Therapiesitzungen speichern",
+    "saved": "Ihre Therapiesitzungen wurden aktualisiert",
+    "changedTitle": "Kalender geändert",
+    "refresh": "Kalender aktualisieren",
+    "saveFailed": "Die Sitzungen lassen sich im Moment nicht speichern.",
+    "outOfRange": "Termine müssen zwischen heute und einem Jahr in der Zukunft liegen. Bitte passen Sie Ihre Auswahl an.",
+    "sessionChanged": "Die Sitzung hat sich geändert. Bitte versuchen Sie es erneut.",
+    "schedule": {
+      "thisDayOnly": "Nur an diesem Tag",
+      "everyWeek": "Jede Woche",
+      "nextTwoMonths": "Für die nächsten zwei Monate",
+      "repeatCount_one": "{{count}} Sitzung",
+      "repeatCount_other": "{{count}} Sitzungen",
+      "delete": "Löschen",
+      "update": "Aktualisieren",
+      "add": "Sitzung hinzufügen",
+      "appointmentAt": "Termin um {{time}}"
+    },
+    "error": {
+      "timeout": {
+        "title": "Zeitüberschreitung der Verbindung",
+        "message": "Ihr Therapieplan konnte nicht erreicht werden. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut."
+      },
+      "unauthorized": {
+        "title": "Melden Sie sich an, um fortzufahren",
+        "message": "Ihre Sitzung ist abgelaufen. Melden Sie sich erneut an, um Ihre Therapieerinnerungen zu laden."
+      },
+      "forbidden": {
+        "title": "Zugriff verweigert",
+        "message": "Ihr Konto hat keinen Zugriff mehr auf diese Sitzungen. Wenden Sie sich an den Support, falls das unerwartet ist."
+      },
+      "notFound": {
+        "title": "Keine Sitzungen gefunden",
+        "message": "Wir konnten keine bevorstehenden Therapiesitzungen finden. Tragen Sie neue Sitzungen ein, um hier Erinnerungen zu sehen."
+      },
+      "rateLimited": {
+        "title": "Bitte warten Sie einen Moment",
+        "message": "Ihre Therapiesitzungen werden gerade zu schnell hintereinander geladen. Versuchen Sie es in einigen Sekunden erneut."
+      },
+      "server": {
+        "title": "Dienst nicht verfügbar",
+        "message": "Die Sitzungen lassen sich gerade nur schwer laden. Versuchen Sie es gleich noch einmal."
+      },
+      "maintenance": {
+        "title": "Funktion vorübergehend offline",
+        "message": "Wir aktualisieren gerade die Therapieerinnerungen. Schauen Sie in Kürze wieder vorbei."
+      },
+      "network": {
+        "title": "Keine Internetverbindung",
+        "message": "Sie scheinen offline zu sein. Stellen Sie die Internetverbindung wieder her und versuchen Sie es erneut."
+      },
+      "unknown": {
+        "title": "Etwas ist schiefgelaufen",
+        "message": "Ihre Therapiesitzungen konnten nicht geladen werden. Bitte versuchen Sie es später erneut."
+      }
+    },
+    "nothingScheduled": "Nichts geplant"
+  },
+  "onboarding": {
+    "welcome": {
+      "headline": "Ein Therapietagebuch, das Sie daran erinnert, Ihre Therapienotizen zu wiederholen",
+      "primaryCta": "Meinen Plan erstellen",
+      "secondaryCta": "Ich habe bereits ein Konto"
+    },
+    "goalOption": {
+      "practise": {
+        "label": "Therapie-Erkenntnisse in die Praxis umsetzen",
+        "subscriptionHeadline": "Setzen Sie Therapie-Erkenntnisse in die Praxis um",
+        "restated": "Therapie-Erkenntnisse in die Praxis umsetzen",
+        "noteSupport": "Benachrichtigungen zwischen den Sitzungen helfen Ihnen, das Besprochene aus Ihrer letzten Sitzung im Alltag umzusetzen."
+      },
+      "prepare": {
+        "label": "Besser auf meine nächste Sitzung vorbereitet sein",
+        "subscriptionHeadline": "Gehen Sie vorbereitet in Ihre nächste Sitzung",
+        "restated": "Besser auf Ihre nächste Sitzung vorbereitet sein",
+        "noteSupport": "Am Abend vor Ihrer nächsten Sitzung erinnern wir Sie daran, Ihre letzte Notiz noch einmal durchzugehen."
+      },
+      "habit": {
+        "label": "Meinen Fortschritt über die Zeit verfolgen",
+        "subscriptionHeadline": "Verfolgen Sie Ihren Fortschritt über die Zeit",
+        "restated": "Ihren Fortschritt über die Zeit verfolgen",
+        "noteSupport": "Gehen Sie Ihre Notizen von vor Wochen und Monaten noch einmal durch, um zu sehen, worin Sie sich verbessern und woran Sie noch arbeiten möchten."
+      }
+    },
+    "goalPriority": {
+      "remember": "sich zu merken, was in Ihren Sitzungen zur Sprache kam",
+      "practise": "das, was in der Therapie zur Sprache kommt, im Lauf der Woche umzusetzen",
+      "prepare": "vorbereitet in Ihre nächste Sitzung zu gehen",
+      "habit": "zu sehen, wie sich Ihr Fortschritt mit der Zeit aufbaut"
+    },
+    "goal": {
+      "headline": "Was würde Ihnen helfen, mehr aus der Therapie mitzunehmen?",
+      "supporting": "Wählen Sie das Ergebnis, das Ihnen am wichtigsten ist.",
+      "primaryCta": "Weiter"
+    },
+    "sessionDate": {
+      "headline": "Wann ist Ihre nächste Sitzung?",
+      "supporting": "Daran richten wir Ihre erste Notiz und die folgenden Wiederholungen aus.",
+      "dateLabel": "Datum",
+      "timeLabel": "Uhrzeit",
+      "validation": "Wählen Sie eine Therapiesitzung in der Zukunft.",
+      "rangeValidation": "Wählen Sie eine Sitzung innerhalb der nächsten sechs Monate.",
+      "primaryCta": "Weiter",
+      "sampleCta": "Ich habe noch keinen Termin"
+    },
+    "cadenceOption": {
+      "weekly": "Jede Woche",
+      "fortnightly": "Alle zwei Wochen",
+      "monthly": "Einmal im Monat",
+      "varies": "Unterschiedlich"
+    },
+    "cadence": {
+      "headline": "Wie oft finden Ihre Sitzungen statt?",
+      "supporting": "So können wir die besten Zeitpunkte für Ihre Erinnerungen bestimmen.",
+      "primaryCta": "Erinnerungszeiten wählen"
+    },
+    "reminderTimes": {
+      "headline": "Wählen Sie Zeiten, die zu Ihrem Alltag passen",
+      "supporting": "Sie erhalten nur eine Morgenerinnerung pro Woche, jeweils nach Ihrer Sitzung.",
+      "morningLabel": "Wiederholungen am Morgen",
+      "eveningLabel": "Wiederholungen am Abend",
+      "quote": "Mir gefällt die Erinnerung vor meiner nächsten Sitzung. Früher fiel es mir schwer, mir zu überlegen, worüber ich sprechen wollte, und kaum war die Sitzung vorbei, fiel mir endlich ein, was ich hatte ansprechen wollen. Mit der Erinnerung vor der Sitzung mache ich einfach dort weiter, wo ich aufgehört habe.",
+      "quoteName": "Sarah",
+      "quoteRole": "Plastic-Brains-Nutzerin",
+      "primaryCta": "Meinen Plan ansehen"
+    },
+    "plan": {
+      "headline": "Ihr persönlicher Plan",
+      "sampleHeadline": "So könnte Ihr Plan aussehen",
+      "sampleBody": "Dieses Beispiel zeigt, wie sich Erinnerungen zwischen die Sitzungen einfügen. Tragen Sie Ihren gebuchten Termin später ein, und wir ersetzen diese Daten durch Ihren echten Plan.",
+      "sampleVariableBody": "Dieses Beispiel nutzt einen Abstand von einer Woche, um die Erinnerungen zu veranschaulichen. Tragen Sie Ihre gebuchten Termine später ein, und wir verwenden den tatsächlichen Abstand dazwischen.",
+      "evidenceStatement": "Diese Zeitpunkte stammen aus der Forschung zu Gedächtniskonsolidierung, Schlaf, verteiltem Abrufen und Kontextwiederherstellung.",
+      "evidenceStatementWithGoal": "Diese Zeitpunkte stammen aus der Forschung zu Gedächtniskonsolidierung, Schlaf, verteiltem Abrufen und Kontextwiederherstellung. Außerdem richten sie sich danach, was Ihnen nach eigener Aussage am wichtigsten ist: {{priority}}.",
+      "primaryCta": "Nach Ihrer Notiz"
+    },
+    "reviewsPreview": {
+      "headline": "Ihre persönlichen Erinnerungen",
+      "exampleGapNote": "Diese Daten verwenden beispielhaft einen Abstand von einer Woche. Sobald wir wissen, wann Ihre darauffolgende Sitzung stattfindet, richten sich Ihre Wiederholungen nach dem tatsächlichen Abstand.",
+      "sampleNote": "Diese Daten stammen aus der Beispielsitzung in Ihrem Musterplan. Tragen Sie Ihre nächste Sitzung später ein, und wir ersetzen sie durch Ihren echten Zeitplan.",
+      "primaryCta": "Ihre Notizen"
+    },
+    "notePreview": {
+      "headline": "Ihre Notizen",
+      "researchLink": "Warum diese fünf Fragen?",
+      "privacyTitle": "Ihre Notiz bleibt bei Ihnen",
+      "privacyBody": "Die Inhalte Ihrer Therapienotizen werden verschlüsselt und ausschließlich auf diesem iPhone gespeichert. Sie werden niemals auf unsere Server übertragen.",
+      "reminderTitle": "Plastic Brains",
+      "reminderBody": "Gehen Sie Ihre Notizen vor der morgigen Sitzung noch einmal durch",
+      "reminderTime": "jetzt",
+      "primaryCta": "Tarife ansehen"
+    },
+    "remainingQuestions_one": "{{count}} weitere Frage enthalten",
+    "remainingQuestions_other": "{{count}} weitere Fragen enthalten",
+    "subscription": {
+      "fallbackHeadline": "Nehmen Sie die Therapie zwischen den Sitzungen mit",
+      "body": "Behalten Sie den Plan, den Sie gerade erstellt haben: festhalten, wiederholen und vorbereiten, rund um jede Therapiesitzung.",
+      "planTitle": "Ihr Plan ist fertig",
+      "samplePlanTitle": "Ihr Musterplan ist fertig",
+      "samplePlanNote": "Tragen Sie Ihre nächste Sitzung später ein, dann werden diese Beispieldaten durch Ihren echten Zeitplan ersetzt.",
+      "nextSessionLabel": "Nächste Sitzung",
+      "sampleSessionLabel": "Beispielsitzung",
+      "firstNoteLabel": "Erste Notiz",
+      "reviewTimesLabel": "Wiederholungszeiten",
+      "quote": "Als Therapeutin, die selbst in Therapie ist, hätte ich nicht gedacht, dass mir so etwas etwas bringt. Aber bei so vielen Klientinnen und Klienten hilft es mir wirklich, mich für meine eigenen Sitzungen bereit zu fühlen.",
+      "quoteName": "Catherine",
+      "quoteRole": "Kognitive Verhaltenstherapeutin",
+      "annualCta": "Mit Jahresabo fortfahren",
+      "monthlyCta": "Mit Monatsabo fortfahren",
+      "annualTitle": "Jährlich",
+      "annualRenewal": "Verlängert sich jährlich, bis Sie kündigen.",
+      "annualRenewalNoTrial": "Heute abgerechnet. Verlängert sich jährlich, bis Sie kündigen.",
+      "monthlyTitle": "Monatlich",
+      "monthlyBadge": "Flexibel",
+      "monthlyRenewal": "Verlängert sich monatlich, bis Sie kündigen.",
+      "monthlyRenewalNoTrial": "Heute abgerechnet. Verlängert sich monatlich, bis Sie kündigen.",
+      "planHeader": "Ihr Plan",
+      "annualDescription": "Notizen, Wiederholungen, Erinnerungen und mehr",
+      "monthlyDescription": "Derselbe Plan, Monat für Monat",
+      "trialCta": "Kostenlose Testphase starten",
+      "cancelAnytime": "Jederzeit kündbar",
+      "trialTodayLabel": "Heute",
+      "trialTodayBody": "Voller Zugriff beginnt",
+      "trialCancelNote": "Jederzeit in den Abo-Einstellungen Ihrer Apple-ID kündbar.",
+      "restore": "Käufe wiederherstellen",
+      "restoring": "Wird wiederhergestellt…",
+      "terms": "Bedingungen",
+      "privacy": "Datenschutz",
+      "unavailableHeadline": "Die Abos lassen sich im Moment nicht laden",
+      "unavailableBody": "Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+      "unavailableCta": "Erneut versuchen",
+      "trialHeadline_day_one": "Ihr erster Tag geht auf uns",
+      "trialHeadline_day_other": "Ihre ersten {{count}} Tage gehen auf uns",
+      "trialHeadline_week_one": "Ihre erste Woche geht auf uns",
+      "trialHeadline_week_other": "Ihre ersten {{count}} Wochen gehen auf uns",
+      "trialHeadline_month_one": "Ihr erster Monat geht auf uns",
+      "trialHeadline_month_other": "Ihre ersten {{count}} Monate gehen auf uns",
+      "trialHeadline_year_one": "Ihr erstes Jahr geht auf uns",
+      "trialHeadline_year_other": "Ihre ersten {{count}} Jahre gehen auf uns",
+      "priceLine_year": "{{price}} pro Jahr",
+      "priceLine_month": "{{price}} pro Monat",
+      "priceLineThen_year": "Danach {{price}} pro Jahr",
+      "priceLineThen_month": "Danach {{price}} pro Monat",
+      "cardPrice_year": "{{price}}/Jahr",
+      "cardPrice_month": "{{price}}/Monat",
+      "cardPriceWithMonthly": "{{per}} (das sind {{monthly}}/Monat)",
+      "trialTimelineToday": "Heute: Kostenlose Testphase starten",
+      "trialTimelineCharge": "Tag {{day}}: Ihnen werden {{price}} berechnet",
+      "trialEndLine_annual": "Ihr Jahresabo beginnt zu {{price}}, sofern Sie nicht kündigen.",
+      "trialEndLine_monthly": "Ihr Monatsabo beginnt zu {{price}}, sofern Sie nicht kündigen.",
+      "trialBadge_day_one": "{{count}} Tag gratis",
+      "trialBadge_day_other": "{{count}} Tage gratis",
+      "trialBadge_week_one": "{{count}} Woche gratis",
+      "trialBadge_week_other": "{{count}} Wochen gratis",
+      "trialBadge_month_one": "{{count}} Monat gratis",
+      "trialBadge_month_other": "{{count}} Monate gratis",
+      "trialBadge_year_one": "{{count}} Jahr gratis",
+      "trialBadge_year_other": "{{count}} Jahre gratis"
+    },
+    "account": {
+      "headline": "Konto",
+      "body": "Erstellen Sie ein Konto, um Ihren Zeitplan, Ihre Erinnerungszeiten und Ihr Abo zu verknüpfen. Die Inhalte Ihrer Notizen bleiben weiterhin ausschließlich auf diesem iPhone.",
+      "authenticatedBody": "Ihr Zeitplan, Ihre Erinnerungszeiten und Ihr Abo werden mit Ihrem Konto verknüpft. Die Inhalte Ihrer Notizen bleiben weiterhin ausschließlich auf diesem iPhone.",
+      "continue": "Weiter",
+      "apple": "Mit Apple fortfahren",
+      "email": "Mit E-Mail fortfahren",
+      "sessionLabel": "Nächste Sitzung",
+      "noSession": "Tragen Sie Ihre nächste Sitzung im Kalender ein",
+      "remindersLabel": "Erinnerungszeiten",
+      "subscriptionLabel": "Abo",
+      "subscriptionActive": "Bereits aktiv",
+      "cancelAnytime": "Sie können jederzeit über die Apple-Abos kündigen.",
+      "legalIntro": "Wenn Sie fortfahren, stimmen Sie zu:",
+      "legalTerms": "Nutzungsbedingungen",
+      "legalPrivacy": "Datenschutzerklärung"
+    },
+    "purchase": {
+      "continue": "Weiter",
+      "cancelledTitle": "Kein Abo gestartet",
+      "cancelled": "Ihr Abo wurde nicht gestartet. Versuchen Sie es erneut, wenn Sie so weit sind.",
+      "pendingTitle": "Kauf ausstehend",
+      "pending": "Apple verarbeitet diesen Kauf noch. Sie können fortfahren, sobald er bestätigt ist.",
+      "errorTitle": "Ihr Abo konnte nicht gestartet werden",
+      "errorBody": "Ihnen wurde nichts berechnet. Bitte versuchen Sie es erneut.",
+      "errorPrimary": "Erneut versuchen",
+      "errorSecondary": "Zurück zu den Tarifen",
+      "unlinkedTitle": "Dieses Abo konnte nicht verknüpft werden",
+      "unlinkedBody": "Apple hat die Transaktion abgeschlossen, sie ist aber nicht mit diesem Plastic-Brains-Konto verknüpft. Versuchen Sie „Käufe wiederherstellen“ mit dem ursprünglichen Konto. Für dasselbe aktive Abo wird Ihnen nichts erneut berechnet.",
+      "restoreEmpty": "Für diese Apple-ID wurde kein aktives Abo gefunden.",
+      "restoreErrorTitle": "Die Käufe konnten nicht wiederhergestellt werden",
+      "restoreError": "Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+      "restoredTitle": "Abo wiederhergestellt",
+      "restored": "Ihr Abo ist für diese Apple-ID aktiv."
+    },
+    "notifications": {
+      "body": "Aktivieren Sie Benachrichtigungen, damit Ihr Plan Sie zu den gewählten Zeiten erreicht.",
+      "privacy": "Benachrichtigungen zeigen die Erinnerung, niemals etwas von dem, was Sie geschrieben haben.",
+      "primaryCta": "Benachrichtigungen aktivieren",
+      "secondaryCta": "Jetzt nicht",
+      "deniedHeadline": "Benachrichtigungen in den Einstellungen aktivieren",
+      "deniedBody": "Benachrichtigungen sind derzeit deaktiviert. Sie können sie in den iPhone-Einstellungen aktivieren, wenn Sie so weit sind.",
+      "deniedPrimaryCta": "Einstellungen öffnen",
+      "registrationErrorTitle": "Die Benachrichtigungen konnten nicht aktiviert werden",
+      "registrationErrorBody": "Prüfen Sie Ihre Verbindung und versuchen Sie es erneut, oder wählen Sie „Jetzt nicht“.",
+      "headline": "Ihre erste Notiz-Erinnerung erreicht Sie {{weekday}} um {{time}}"
+    },
+    "success": {
+      "headline": "Ihr Plan für die Zeit zwischen den Sitzungen ist fertig",
+      "withoutRemindersBody": "Speichern Sie ihn jetzt. Benachrichtigungen können Sie später in den Einstellungen aktivieren.",
+      "primaryCta": "Speichern und meine Notizen ansehen",
+      "sampleHeadline": "Ihr Musterplan ist fertig",
+      "sampleBody": "Speichern Sie jetzt Ihre Einstellungen. Tragen Sie Ihre nächste Sitzung im Kalender ein, und wir bauen den echten Plan darum herum auf.",
+      "samplePrimaryCta": "Speichern und meine Notizen ansehen",
+      "body": "Speichern Sie ihn jetzt, dann erreicht Sie Ihre erste Notiz-Erinnerung {{weekday}} um {{time}}."
+    },
+    "error": {
+      "saveTitle": "Ihr Plan konnte nicht gespeichert werden",
+      "saveBody": "Ihre Antworten sind noch da. Bitte versuchen Sie es erneut.",
+      "offlineTitle": "Sie sind offline",
+      "offlineBody": "Stellen Sie die Verbindung wieder her, um Ihren Plan weiter einzurichten.",
+      "signInTitle": "Melden Sie sich an, um Ihren Plan zu speichern",
+      "signInBody": "Ihre Antworten sind noch da. Melden Sie sich an, um die Einrichtung abzuschließen.",
+      "signInCta": "Weiter",
+      "unexpectedTitle": "Etwas ist schiefgelaufen",
+      "unexpectedBody": "Ihre Antworten sind noch da. Bitte versuchen Sie es erneut.",
+      "retryCta": "Erneut versuchen"
+    },
+    "signUpSubtitle": "Sichern Sie Ihren Plan für die Zeit zwischen den Sitzungen und halten Sie Ihren Zeitplan verknüpft.",
+    "timeline": {
+      "templateName": "Vorlage mit 5 Fragen in 5 Minuten",
+      "postSessionLabel": "Nach Ihrer Sitzung am {{weekday}}",
+      "postSessionBody": "Direkt nach Ihrer Sitzung am {{weekday}} senden wir Ihnen eine Benachrichtigung, die Sie daran erinnert, das Besprochene festzuhalten. Wenn Sie nicht wissen, wo Sie anfangen sollen, haben wir eine {{template}}, die es Ihnen leicht macht.",
+      "postSleepLabel": "Später am {{weekday}}abend",
+      "postSleepBody": "Kehren Sie zu Ihrer Notiz zurück, solange die Sitzung noch frisch ist.",
+      "morningLabel": "{{weekday}}morgen",
+      "morningBody": "Gehen Sie noch einmal durch, was Sie am Vortag in Ihrer Sitzung besprochen haben.",
+      "midLabel": "Zwischen den Sitzungen",
+      "midBody": "Eine kurze Erinnerung, Ihre Notiz im Lauf der Woche noch einmal zu lesen, damit das Besprochene bis zur nächsten Sitzung nicht verblasst.",
+      "preLabel": "{{weekday}}abend",
+      "preBody": "Ein letzter Blick auf Ihre Notiz am Abend davor, damit Sie wissen, woran Sie aus Ihrer letzten Sitzung anknüpfen möchten.",
+      "research": "Forschung",
+      "researchLabel": "Forschung:",
+      "opensResearch": "Öffnet die Forschung zu dieser Erinnerung",
+      "opensFiveQuestions": "Öffnet die Erklärung zu diesen fünf Fragen"
+    },
+    "summary": {
+      "alreadyActive": "Ihr Abo ist bereits aktiv, es gibt also nichts zu bestätigen. {{cancel}}",
+      "leadSignedIn": "Wenn Sie fortfahren",
+      "leadSignedOut": "Nach Ihrer Anmeldung",
+      "confirmTrial": "{{lead}}, bittet Apple Sie, Ihre kostenlose Testphase zu bestätigen. Heute wird Ihnen nichts berechnet. {{cancel}}",
+      "confirmSubscription": "{{lead}}, bittet Apple Sie, Ihr Abo zu bestätigen. {{cancel}}"
+    },
+    "chooseDate": "Datum wählen",
+    "notChosen": "Nicht gewählt",
+    "chooseHint": "Wählen Sie {{field}} Ihrer Therapiesitzung",
+    "accountSettings": "Kontoeinstellungen",
+    "loadingSubscriptions": "Abos werden geladen",
+    "planPreview": {
+      "sheetImage": "Das Notizblatt mit den fünf Fragen"
+    },
+    "progress": {
+      "label": "{{current}} von {{total}}",
+      "a11y": "Schritt {{current}} von {{total}}"
+    },
+    "a11y": {
+      "notificationPreview": "Eine iPhone-Benachrichtigung von {{title}}: {{body}}",
+      "notesList": "Eine Liste früherer Therapienotizen, jeweils mit dem Datum der Sitzung"
+    }
+  },
+  "science": {
+    "sources": "Quellen",
+    "jumpToSource": "Zu dieser Quelle im Verzeichnis unten springen.",
+    "openSource": "Diese Quelle im Browser öffnen.",
+    "referencesIntervals": "Die Wissenschaft hinter unseren Erinnerungsabständen",
+    "referencesNote": "Ihre Therapienotiz in fünf Minuten",
+    "template": {
+      "title": "Vorlage",
+      "recommendBefore": "Wir empfehlen Ihnen unseren",
+      "cheatsheetLink": "Spickzettel",
+      "researchBefore": "Warum wir diese 5 Fragen gewählt haben und welche Forschung dahintersteht,",
+      "researchLink": "hier klicken",
+      "cheatsheetImage": "Die fünf Fragen, wie sie auf dem Spickzettel stehen"
+    },
+    "reminder": {
+      "postSession": {
+        "time": "Am Abend Ihrer Sitzung",
+        "reason": "Eine Rückkehr am selben Tag gibt Ihnen eine weitere Gelegenheit, sich an das Auffällige zu erinnern, solange die Sitzung noch nah ist."
+      },
+      "postSleep": {
+        "time": "Am Morgen nach Ihrer Sitzung",
+        "reason": "Eine kurze Wiederholung am nächsten Morgen trennt den zweiten Blick vom ersten, statt alles auf einmal zu wiederholen."
+      },
+      "midSession": {
+        "time": "Zwischen Ihren Sitzungen",
+        "reason": "Kurze Rückkehren über den Zwischenraum hinweg nutzen verteiltes Abrufen: erneutes Aufgreifen nach einer Pause statt wiederholtem Lesen in einem Zug."
+      },
+      "preSession": {
+        "time": "Am Abend vor Ihrer nächsten Sitzung",
+        "reason": "Eine letzte Wiederholung holt Ihre eigene Notiz zurück ins Blickfeld, während Sie auswählen, was Sie in die nächste Sitzung mitnehmen möchten."
+      }
+    },
+    "explainer": {
+      "earlyConsolidation": {
+        "title": "Frühe Konsolidierung",
+        "tldr": "Eine Erinnerung wird nicht auf einmal gespeichert: Ihr Gehirn stabilisiert sie weiter, nachdem die Sitzung zu Ende ist. Deshalb kommt die erste Erinnerung am Abend Ihrer Sitzung, solange die Notizen dieses Tages noch frisch sind.",
+        "body": [
+          "In den ersten Stunden, nachdem Sie etwas Neues gelernt haben, tritt Ihr Gehirn in die frühe Phase der Gedächtnisbildung ein, in der Proteine aktiviert werden und synaptische Verbindungen beginnen, sich zu festigen.[1] Das ist ein kritisches Zeitfenster.",
+          "Diese Festigung stellt sich nicht auf einmal ein. Als Forschende sie direkt verfolgten, zeigte sich, dass sie in Wellen kommt: eine im Hippocampus unmittelbar nach dem Lernen, eine zweite im Schlaf derselben Nacht und eine dritte in der folgenden Nacht im Kortex, jede mit einer anderen Aufgabe.[1] Ihre Notizen am selben Abend zu wiederholen, fällt zwischen die erste und die zweite Welle.",
+          "Solange diese Arbeit nicht abgeschlossen ist, bleibt die Erinnerung störanfällig. Der Proteinaufbau, der eine Veränderung festschreibt, ist erst ein bis zwei Tage nach dem Lernen abgeschlossen,[3] und eine neue Erinnerung bleibt anfällig für Interferenzen, solange sie sich noch setzt.[2] Innerhalb dieses Fensters zu Ihren Notizen zurückzukehren, schützt eine fragile Erkenntnis davor, vom Rest Ihres Tages verdrängt zu werden.",
+          "Was in Ihrem Gehirn geschieht: Neuronen steigern die Empfindlichkeit ihrer Rezeptoren und aktivieren die Proteinmaschinerie, die eine Verbindung umbaut.[1, 2] Ein Blick zurück auf Ihre Notizen, während das läuft, vertieft den Abdruck der Sitzung und macht die Veränderung dauerhafter."
+        ]
+      },
+      "sleepDependentConsolidation": {
+        "title": "Schlafabhängige Konsolidierung",
+        "tldr": "Schlaf unterstützt aktiv, wie neue Erinnerungen verarbeitet und geordnet werden, und Schlaf nach dem Lernen geht mit einer stärkeren Speicherung des Gelernten einher. Deshalb kommt die nächste Erinnerung am folgenden Morgen.",
+        "body": [
+          "Im Schlaf leistet Ihr Gehirn die schwere Gedächtnisarbeit. Im Tiefschlaf spielt es die neuronalen Muster Ihrer Tagesaktivitäten noch einmal ab (in unserem Fall gehört dazu eine Therapiesitzung) und verlagert sie aus dem Zwischenspeicher im Hippocampus in längerfristige kortikale Netzwerke.[1, 6]",
+          "Sie können es sich vorstellen, als ordne Ihr Gehirn über Nacht Akten. Der Hippocampus reaktiviert Erinnerungen zusammen mit Sharp-Wave-Ripples und Schlafspindeln, die helfen, Informationen in den Langzeitspeicher zu überführen.[2]",
+          "Sowohl Tiefschlaf als auch REM-Schlaf tragen zur Konsolidierung emotionaler Erinnerungen bei.[3, 5] Der Tiefschlaf übernimmt Übertragung und Umstrukturierung, und der REM-Schlaf hilft, die umgeformten Erkenntnisse zu stabilisieren, was bei emotional aufgeladenem Material besonders wichtig ist.",
+          "Warum am Morgen wiederholen: Die schlafabhängige Konsolidierung hängt von Menge und Qualität des Tiefschlafs ab,[4] daher ist der Morgen nach einer Sitzung ein günstiger Zeitpunkt, an dem die neu geordnete Erinnerung noch leicht zugänglich ist. Eine kurze Wiederholung greift diese Veränderungen auf und festigt sie erneut, bevor sie verblassen."
+        ]
+      },
+      "spacedReactivation": {
+        "title": "Verteilte Reaktivierung",
+        "tldr": "Wiederholungen nützen mehr, wenn Zeit zwischen ihnen liegt, statt sie zu bündeln: Menschen behalten nach verteilten Wiederholungen mehr als nach unmittelbaren. Deshalb verteilen sich die Erinnerungen über den Zeitraum zwischen Ihren Sitzungen.",
+        "body": [
+          "Wenn Sie eine Erinnerung nach einer Pause reaktivieren, öffnet sie sich kurz für Veränderungen, bevor sie sich wieder setzt.[2] Dieses Rekonsolidierungsfenster ist der Grund, warum verteilte Wiederholungen wirksamer sind, als alles auf einmal zu pauken.[1]",
+          "Jahrzehnte der Forschung zum Verteilungseffekt zeigen, dass über die Zeit verteilte Wiederholungen weit stärkere Erinnerungen aufbauen als geballtes Üben.[1, 2, 3] Gezielte Reaktivierung setzt andere Mechanismen in Gang als unmittelbare Wiederholung und löst eine Rekonsolidierung aus, die die Gedächtnisspur festigt.[2]",
+          "Stellen Sie sich die neuronale Bahn wie einen Gartenweg vor, der begangen werden muss. Jedes Mal, wenn Sie Ihre Notizen wieder aufgreifen, aktivieren Sie viele derselben Neuronen, die in der Sitzung gefeuert haben, und die Reaktivierung festigt die Bahn in einer widerstandsfähigeren Form.[1]",
+          "Der Abstand zwischen den Sitzungen ist wichtig, weil eine Erinnerung Zeit zum Konsolidieren braucht, bevor die nächste Reaktivierung darauf aufbauen kann.[2] Daraus ergibt sich ein Fenster zu beiden Seiten des richtigen Moments. Zu früh, und der Schaltkreis hat sich noch nicht zurückgesetzt, sodass ein zweiter Durchgang dem ersten wenig hinzufügt. Zu spät, und die Erinnerung ist so weit verblasst, dass ihr Zurückholen Arbeit ist statt einer Auffrischung.[4] Wo dieses Fenster liegt, hängt davon ab, wie lange Sie das Material behalten müssen: Für etwas, das Sie in einigen Wochen brauchen, liegt der beste Abstand bei etwa einem Fünftel dieser Spanne, und der Anteil sinkt, je länger die Spanne wird.[5] Der Zeitplan hier folgt dieser Form. Statt die Erinnerungen gleichmäßig zu verteilen, verändert er die Abstände, je näher Ihre nächste Sitzung rückt: am Abend Ihrer Sitzung, am nächsten Morgen, dann einige Tage später, dann am Abend, bevor Sie wieder hingehen.",
+          "Was in Ihrem Gehirn geschieht: Eine Erinnerung nach einer Pause zurückzuholen, schaltet Gene in den Zellen an, die sie tragen, und die Proteine, die sie bilden, verstärken die Verbindung. Die Pause ist es, die diesen Umbau auslöst, und deshalb bringt es mehr, Wiederholungen zu verteilen, als sie dicht aufeinanderfolgen zu lassen.[2]"
+        ]
+      },
+      "stateReinstatement": {
+        "title": "Wiederherstellung des Zustands",
+        "tldr": "Die Hinweisreize rund um eine Erinnerung beeinflussen, wie leicht sie zurückkommt, und die Rückkehr in einen Teil des ursprünglichen Kontexts unterstützt das Erinnern. Ihre Notiz vor der Therapie zu lesen, wirkt als Hinweisreiz auf das vorherige Gespräch und hilft Ihnen, bereit anzukommen, um es fortzusetzen.",
+        "body": [
+          "Erinnerungen sind leichter zugänglich, wenn der Zustand, in dem Sie sich befinden, dem Zustand entspricht, in dem Sie sie gebildet haben. Eine Metaanalyse zur umgebungsbezogenen Variante fand den Effekt über Studien hinweg verlässlich,[1] und Arbeiten zum inneren Hirnzustand zeigen dasselbe Muster: Der Abruf gelingt am besten, wenn der Zustand beim Erinnern dem Zustand beim Einprägen entspricht.[3]",
+          "Sie können nicht zurückgehen und in der Sitzung der vergangenen Woche sitzen, aber das müssen Sie auch nicht. In derselben Metaanalyse verringerte es den Nachteil, an einem anderen Ort zu sein, wenn der Kontext beim Abruf gedanklich wiederhergestellt wurde.[1] Ihre Notizen am Abend davor zu lesen, leistet genau das: Es versetzt Sie zurück in die Sitzung, ohne den Raum.",
+          "Die praktische Wirkung zeigt sich darin, wie die nächste Sitzung beginnt. Wenn Sie mit bereits präsentem Material ankommen, geht der erste Teil der Stunde in die Arbeit statt in das Rekonstruieren dessen, wo Sie aufgehört haben.",
+          "Was in Ihrem Gehirn geschieht: Sich an eine Episode zu erinnern, reaktiviert teilweise die Regionen, die beim ersten Einprägen aktiv waren, und je größer diese Überschneidung, desto besser der Abruf.[2] Die Wiederholung am Abend davor setzt diese Reaktivierung früh in Gang, solange noch Zeit bleibt, dass sie nützt."
+        ]
+      }
+    },
+    "fiveQuestions": {
+      "title": "Warum diese fünf Fragen",
+      "intro": "Diese fünf Fragen beruhen auf der unten erläuterten Forschung. Sie helfen Ihnen, sich an das Wesentliche zu erinnern, Gedanken und Gefühle im Lauf der Woche wahrzunehmen, Erkenntnisse in eigene Worte zu fassen, festzuhalten, was Sie ausprobieren möchten, und zu entscheiden, worauf Sie in der nächsten Sitzung zurückkommen.",
+      "opening": "Das meiste aus einer Sitzung übersteht die Woche nicht. In Studien zu ärztlichen Gesprächen werden 40 bis 80 Prozent dessen, was eine Fachperson sagt, sofort vergessen, und fast die Hälfte dessen, woran sich Patientinnen und Patienten erinnern, erinnern sie falsch.[1] In der Therapie wiegt das schwerer, als es klingt: In der kognitiven Therapie bei Depression sagt der Anteil der tatsächlichen Behandlungsinhalte, den jemand erinnern kann, voraus, wie genau die Arbeit umgesetzt wird, ob jemand darauf anspricht und ob die Depression zurückkehrt.[2]",
+      "lead": "Eine Notiz nach der Therapie ist also keine Formsache. Jede dieser fünf Zeilen erfüllt eine bestimmte Aufgabe, und jede beruht auf einer Methode mit einer breiten Evidenzbasis.",
+      "outro": "Das sind Befunde zu Methoden, keine Versprechen über Ihre Therapie. Was sie stützen, ist der Aufbau des Blattes: erinnern statt abschreiben, eine Sache benennen, auf die Sie achten, eigene Worte verwenden, eine Situation mit einer Reaktion verknüpfen und darauf zurückkommen.",
+      "q1": {
+        "question": "Was ist Ihnen aus der heutigen Sitzung geblieben?",
+        "paragraphs": [
+          "Der am besten belegte Weg, etwas zu behalten, besteht darin, es aus dem Kopf wieder hervorzuholen, nicht darin, es noch einmal zu lesen. Eine Metaanalyse von 272 Vergleichen aus 188 Experimenten ergab, dass Menschen, die das Abrufen des Stoffes übten, später deutlich mehr behielten als Menschen, die ihn lediglich erneut lasen, und weit mehr als Menschen, die nichts zusätzlich taten.[3] Diese Zeile aus dem Gedächtnis auf ein leeres Blatt zu schreiben, ist genau dieser Test. Deshalb gibt Ihnen die Vorlage eine leere Zeile statt einer Zusammenfassung zum Abhaken."
+        ]
+      },
+      "q2": {
+        "question": "Welche Situation, welchen Gedanken oder welches Gefühl möchten Sie diese Woche bewusst wahrnehmen?",
+        "paragraphs": [
+          "Was Sie zwischen den Sitzungen tun, ist keine Ergänzung zur Therapie, sondern ein großer Teil dessen, was sie wirksam macht. Über 23 Studien hinweg sagte der Umfang der tatsächlich geleisteten Arbeit zwischen den Sitzungen voraus, wie gut Menschen aus der Behandlung hervorgingen, mit einem starken Effekt am Ende der Therapie (g = 0,79) bei mehr als 1.500 Personen.[4] Eine konkrete Sache zu benennen, auf die Sie achten, ist die kleinste Form dieser Arbeit.",
+          "Das Gefühl zu benennen, verdient einen eigenen Platz. In einem randomisierten Experiment zeigten Menschen mit Spinnenangst, die ihre Angst während der Konfrontation in Worte fassten, eine Woche später vor einer anderen Spinne in einem anderen Raum eine schwächere körperliche Angstreaktion als Menschen, die die Angst umdeuteten, sich ablenkten oder nur konfrontiert wurden.[5] Es in Worte zu fassen, brachte mehr als der Versuch, anders darüber zu denken."
+        ]
+      },
+      "q3": {
+        "question": "Was haben Sie anders verstanden als vorher?",
+        "paragraphs": [
+          "Diese Zeile verlangt bewusst Ihre eigenen Worte. Eine Metaanalyse von 64 Forschungsberichten ergab, dass die Aufforderung, sich den Stoff selbst zu erklären statt ihn nur wiederzugeben, den Lernerfolg deutlich verbesserte, und zwar über Fächer, Altersgruppen und Aufgabentypen hinweg.[6] Ein Satz, den Sie selbst gebildet haben, ist später außerdem ein besserer Haken, um den Gedanken wiederzufinden, als einer, den Sie abgeschrieben haben."
+        ]
+      },
+      "q4": {
+        "question": "Gibt es etwas, das Sie ausprobieren oder sich merken möchten?",
+        "paragraphs": [
+          "Situation und Reaktion gemeinsam zu benennen, in der Form „Wenn das passiert, werde ich das tun“, gehört zu den verlässlichsten Befunden der Psychologie des Umsetzens. Eine Metaanalyse von 94 unabhängigen Tests fand einen mittleren bis großen Effekt darauf, ob Menschen das, was sie sich vorgenommen hatten, auch tatsächlich taten.[7] Ein allgemeiner Vorsatz, es besser zu machen, trägt diesen Effekt nicht. Die Zeile bleibt freiwillig: Wenn in der Sitzung nichts vereinbart wurde, ist ein erfundener Plan schlechter als eine leere Zeile."
+        ]
+      },
+      "q5": {
+        "question": "Worauf möchten Sie in Ihrer nächsten Sitzung zurückkommen?",
+        "paragraphs": [
+          "Über mehrere Tage hinweg auf etwas zurückzukommen, schlägt einmaliges Durchgehen, so gründlich es auch sein mag. Eine Zusammenschau von 839 Vergleichen aus 317 Experimenten ergab, dass verteiltes Wiederholen geballtem Wiederholen durchgehend überlegen war und dass die Abstände umso größer sein sollten, je länger Sie etwas behalten müssen.[8] Jetzt ein Thema zu wählen, bahnt diese Rückkehr an und sorgt dafür, dass die nächste Sitzung mit etwas beginnt statt mit einer Leerstelle."
+        ]
+      }
+    },
+    "intervals": {
+      "title": "Warum diese Wiederholungszeitpunkte",
+      "loading": "Ihre Wiederholungszeiten werden geladen",
+      "failedTitle": "Ihre Wiederholungszeiten konnten nicht geladen werden",
+      "failedBody": "Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+      "emptyTitle": "Noch keine Wiederholungszeiten",
+      "emptyNoSessions": "In Ihrem aktuellen Zeitplan stehen keine Wiederholungen an.",
+      "emptyAddFollowing": "Tragen Sie Ihre darauffolgende Sitzung ein, um genaue Wiederholungszeiten in den Zwischenraum zu legen.",
+      "emptyAddSessions": "Tragen Sie Ihre nächsten Therapiesitzungen im Kalender ein, um einen Wiederholungsplan aufzubauen.",
+      "nextOf_one": "nächste von {{count}}",
+      "nextOf_other": "nächste von {{count}}"
+    },
+    "reminders": {
+      "learnMoreAbout": "Mehr über {{date}} erfahren",
+      "scienceBehind": "Die Wissenschaft hinter {{date}}"
+    },
+    "tldr": "Kurz gesagt",
+    "tldrLabel": "Kurz gesagt: ",
+    "caveat": "Diese Forschung erläutert die Gedächtnismethoden, auf denen der Zeitplan beruht.",
+    "references": "Quellenverzeichnis"
+  },
+  "legal": {
+    "privacy": {
+      "effectiveDate": "Gültig ab: {{date}}",
+      "s1": {
+        "heading": "Über diese Erklärung",
+        "bodies": [
+          "Plastic Brains („wir“, „uns“ oder „unser“) hilft Ihnen, Therapiesitzungen vorzubereiten, nachzubereiten und daran anzuknüpfen. Diese Erklärung beschreibt, wie wir im Einklang mit den Anforderungen des App Store mit Ihren Daten umgehen. Mit der Nutzung der App stimmen Sie den hier beschriebenen Praktiken zu."
+        ]
+      },
+      "s2": {
+        "heading": "Daten, die wir erheben",
+        "bodies": [
+          "- Kontodaten, die Sie angeben, etwa Ihr Name, Ihre E-Mail-Adresse und Authentifizierungskennungen, wenn Sie sich per E-Mail oder mit Apple anmelden.\n- Angaben zu Therapiesitzungen und Einstellungen, die Sie eingeben, einschließlich Sitzungsterminen, Erinnerungszeiten und des Reflexionsziels, das Sie bei der Einrichtung wählen.\n- Geräte- und Nutzungsdaten, etwa App-Version, Gerätetyp, Absturzprotokolle und grundlegende Interaktionen, die dazu dienen, den Dienst zuverlässig zu halten.\n- Daten von Authentifizierungspartnern (Apple), beschränkt auf die Kennungen, Namen und E-Mail-Adressen, deren Weitergabe an uns Sie autorisieren.\n- Abonnement- und Berechtigungsdaten, wie im folgenden Abschnitt beschrieben.",
+          "Die Inhalte Ihrer Therapienotizen werden verschlüsselt und lokal auf Ihrem iPhone gespeichert. Wir erheben, übertragen und speichern die Inhalte Ihrer Therapienotizen nicht auf unseren Servern."
+        ]
+      },
+      "s3": {
+        "heading": "Abonnement- und Berechtigungsdaten",
+        "bodies": [
+          "Abonnements werden über Apple gekauft. Wir sehen und erhalten weder Ihre Kartendaten noch Ihre Rechnungsadresse oder Ihre vollständige Apple-ID: Die Zahlung wird vollständig von Apple abgewickelt, und wir sind daran nicht beteiligt.",
+          "Um zu wissen, ob Ihr Abonnement aktiv ist, verarbeiten wir:\n- Welchen Tarif Sie gewählt haben (monatlich oder jährlich) und ob eine Einführungstestphase galt.\n- Die Produktkennung und eine Apple-Transaktionskennung für den Kauf.\n- Den aktuellen Status des Abonnements, etwa aktiv, in der Testphase, abgelaufen oder gekündigt, sowie das Datum, an dem der laufende Zeitraum endet.\n- Ob Ihre Apple-ID nach Auskunft von Apple für ein Einführungsangebot infrage kam.",
+          "Diese Daten sind mit Ihrem Plastic-Brains-Konto verknüpft, damit die App die von Ihnen bezahlten Funktionen auf jedem Gerät freischalten kann, auf dem Sie sich anmelden, und damit „Käufe wiederherstellen“ funktioniert. Sie werden nicht für Werbung genutzt, niemals mit den Inhalten Ihrer Therapienotizen zusammengeführt und nicht verkauft. Einzelne Abonnementereignisse können, wie unten beschrieben, an PostHog übermittelt werden. Zahlungsdaten und Apple-Transaktionskennungen sind in dieser Analyse nicht enthalten.",
+          "Apple kann uns außerdem Serverbenachrichtigungen über Änderungen an Ihrem Abonnement senden, etwa eine Verlängerung, eine Kündigung oder eine von Apple gewährte Rückerstattung, damit der Zugang korrekt bleibt. Wir bewahren Abonnementunterlagen auf, solange Ihr Konto besteht, sowie für den steuer- und buchhaltungsrechtlich erforderlichen Zeitraum, und löschen sie anschließend. Das Löschen Ihres Kontos entfernt sie zu denselben Bedingungen, die unter „Aufbewahrung und Löschung von Daten“ beschrieben sind; es kündigt kein Apple-Abonnement, das Sie in den Abo-Einstellungen Ihrer Apple-ID kündigen."
+        ]
+      },
+      "s4": {
+        "heading": "App-Analyse",
+        "bodies": [
+          "Plastic Brains nutzt PostHog für die App-Analyse. PostHog erhält eine kleine Menge an Ereignissen zu Einrichtung, Kaufvorgang, Speichern oder Öffnen von Notizen, Bestätigen von Wiederholungen, Einrichten und Öffnen von Benachrichtigungen sowie zu Fehlern, die eine Aktion verhindern. Diese Ereignisse helfen uns zu verstehen, welche Funktionen sich bewähren und wo Menschen nicht weiterkommen.",
+          "Die Ereignisse verwenden eine Kontokennung, damit wir die wiederholte Nutzung über mehrere Besuche hinweg verstehen können. Wir übermitteln weder Ihren Namen, Ihre E-Mail-Adresse, Notizinhalte oder -titel, Therapieziele, genaue Termindaten, Passwörter noch Benachrichtigungsinhalte an PostHog. Wir zeichnen Ihren Bildschirm nicht auf und erfassen Tippbewegungen nicht automatisch. Eine Kontokennung ist pseudonym, nicht anonym.",
+          "Sie können die Löschung des Analyseverlaufs verlangen, indem Sie uns kontaktieren, auch im Zuge der Löschung Ihres Kontos. Wir nutzen diese Ereignisse nicht für Werbung."
+        ]
+      },
+      "s5": {
+        "heading": "Website-Analyse und Anmeldung zum iOS-Release",
+        "bodies": [
+          "Auf der Website von Plastic Brains nutzen wir Google Analytics 4, um Websitebesuche, die Herkunft der Besucherinnen und Besucher, allgemeine Interaktionen wie Scrollen und das Folgen von Links sowie ausgewählte Aktionen zu verstehen, etwa das Öffnen der Release-Anmeldung, eine erfolgreiche oder fehlgeschlagene Anmeldung, das Öffnen einer FAQ-Antwort und das Folgen eines Belegverweises.",
+          "Google Analytics setzt keine Analyse-Cookies, sofern Sie auf der Website nicht „Analyse erlauben“ wählen. Werbespeicher, Google-Signale und personalisierte Werbung bleiben deaktiviert. Wir übermitteln keine E-Mail-Adressen, Inhalte von Therapienotizen, Formulartexte oder andere Gesundheitsdaten an Google Analytics.",
+          "Wenn Sie sich für die Benachrichtigung zum iOS-Release anmelden, erhält Loops Ihre E-Mail-Adresse und trägt sie in die private Plastic-Brains-Liste für den iOS-Release ein. Loops bittet Sie zunächst, Ihre E-Mail-Adresse zu bestätigen. Bestätigte Adressen verwenden wir ausschließlich, um am Tag der Veröffentlichung den App-Store-Link zu senden, nicht für allgemeine Werbung.",
+          "Sie können sich über den Link in einer E-Mail oder durch eine Nachricht an uns abmelden. Wir bewahren den Anmeldedatensatz nur so lange auf, wie er für die Release-Benachrichtigung benötigt wird. Loops kann nach Ihrer Abmeldung einen Sperrvermerk behalten, damit wir Ihre Entscheidung respektieren und Sie nicht erneut anschreiben."
+        ]
+      },
+      "s6": {
+        "heading": "Wie wir Daten verwenden",
+        "bodies": [
+          "- Kernfunktionen bereitstellen, etwa Notizen lokal speichern, die von Ihnen eingegebenen Sitzungstermine und das Reflexionsziel sichern, Notiz-Aufforderungen personalisieren und Erinnerungen planen.\n- Ihr Konto authentifizieren, Betrug verhindern und die App sicher halten.\n- Optionale Push-Benachrichtigungen zu bevorstehenden Sitzungen oder Folgeerinnerungen senden, wenn Sie diese aktivieren.\n- Leistung verbessern, Probleme beheben und neue Funktionen auf Grundlage aggregierter Nutzungstrends entwickeln."
+        ]
+      },
+      "s7": {
+        "heading": "Geräteberechtigungen und Dritte",
+        "bodies": [
+          "- Benachrichtigungen: Wir bitten um die Erlaubnis, Push-Benachrichtigungen zu senden, damit Sie Erinnerungen erhalten können. Sie können dies jederzeit in Ihren Geräteeinstellungen ändern.\n- Sichere Speicherung: Wir nutzen die sicheren Speicher-APIs des Geräts, um Authentifizierungs-Token lokal geschützt aufzubewahren.\n- Sitzungsdaten: Die App speichert die von Ihnen eingegebenen Sitzungszeiten und gleicht diese mit unserem Backend ab, damit wir Erinnerungen planen können. Sie liest Ihren externen Kalender nicht und gleicht sich nicht mit ihm ab.",
+          "Für den Betrieb der App greifen wir auf vertrauenswürdige Dienstleister zurück, darunter die Authentifizierung über Apple, Cloud-Hosting und die Zustellung von Push-Benachrichtigungen über Expo-Dienste. Diese Partner verarbeiten Ihre Daten ausschließlich zur Erbringung der von uns beauftragten Leistungen und sind vertraglich gebunden."
+        ]
+      },
+      "s8": {
+        "heading": "Wie wir Daten weitergeben",
+        "bodies": [
+          "Wir verkaufen Ihre personenbezogenen Daten nicht. Wir geben Daten nur weiter an:\n- Dienstleister, die uns beim Betrieb der App unterstützen (Hosting, Authentifizierung, Benachrichtigungen), und an PostHog, wenn Sie die optionale App-Analyse wählen.\n- Behörden oder Berater, sofern dies gesetzlich vorgeschrieben ist oder dem Schutz von Rechten, Sicherheit oder Eigentum dient."
+        ]
+      },
+      "s9": {
+        "heading": "Aufbewahrung und Löschung von Daten",
+        "bodies": [
+          "Wir bewahren Ihre Kontodaten, Therapiesitzungstermine, Ihr Reflexionsziel, Ihre Erinnerungseinstellungen und die registrierten Gerätedaten auf, solange Sie ein Konto unterhalten. Sie können die Löschung über den Einstellungsbildschirm oder durch eine Nachricht an uns verlangen. Nach der Löschung entfernen wir personenbezogene Daten innerhalb von 30 Tagen aus den aktiven Systemen, sofern wir sie nicht aufgrund gesetzlicher Pflichten aufbewahren müssen.",
+          "Ihre Therapienotizen sind nicht Teil Ihres Serverkontos und unterliegen nicht dessen Aufbewahrungsfrist. Sie bleiben verschlüsselt auf Ihrem iPhone, bis Sie sie löschen oder die App entfernen. Wir bewahren niemals Serverkopien Ihrer Notizen auf."
+        ]
+      },
+      "s10": {
+        "heading": "Sicherheit",
+        "bodies": [
+          "Wir setzen organisatorische, technische und physische Schutzmaßnahmen ein, um Ihre Daten zu schützen, darunter verschlüsselte Netzwerkverbindungen, die sichere Speicherung von Zugangsdaten und Zugriffskontrollen. Keine Übertragungs- oder Speichermethode ist vollständig sicher, daher empfehlen wir Ihnen, eindeutige Passwörter zu verwenden und Ihr Gerät geschützt zu halten."
+        ]
+      },
+      "s11": {
+        "heading": "Internationale Nutzerinnen und Nutzer",
+        "bodies": [
+          "Unsere Server werden von Drittanbietern betrieben, die Daten in den Vereinigten Staaten und anderen Ländern verarbeiten können. Mit der Nutzung der App nehmen Sie zur Kenntnis, dass Ihre Daten in Länder übermittelt und dort verarbeitet werden können, in denen andere Datenschutzgesetze gelten als in Ihrem Heimatland."
+        ]
+      },
+      "s12": {
+        "heading": "Datenschutz für Minderjährige",
+        "bodies": [
+          "Plastic Brains ist für Erwachsene ab 18 Jahren gedacht. Wir erheben wissentlich keine personenbezogenen Daten von Personen unter 18 Jahren. Wenn Sie glauben, dass uns eine Person unter 18 Jahren personenbezogene Daten übermittelt hat, kontaktieren Sie uns, damit wir sie löschen können."
+        ]
+      },
+      "s13": {
+        "heading": "Ihre Rechte und Wahlmöglichkeiten",
+        "bodies": [
+          "Je nachdem, wo Sie leben, haben Sie möglicherweise das Recht, Ihre Daten einzusehen, zu berichtigen, zu exportieren oder zu löschen sowie bestimmten Verarbeitungen zu widersprechen oder sie einschränken zu lassen. Die meisten Einstellungen können Sie direkt in der App verwalten oder uns per E-Mail mitteilen. Wir antworten innerhalb von 30 Tagen, wie von den App-Stores und dem geltenden Recht verlangt."
+        ]
+      },
+      "s14": {
+        "heading": "Änderungen dieser Erklärung",
+        "bodies": [
+          "Wir können diese Erklärung aktualisieren, um neue Funktionen oder rechtliche Anforderungen abzubilden. Bei wesentlichen Änderungen informieren wir Sie in der App oder per E-Mail und aktualisieren das oben genannte Datum. Die weitere Nutzung der App nach einer Änderung bedeutet, dass Sie die überarbeitete Erklärung akzeptieren."
+        ]
+      },
+      "s15": {
+        "heading": "Kontakt",
+        "bodies": [
+          "Bei Fragen oder zur Ausübung Ihrer Datenschutzrechte schreiben Sie uns an michael@plastic-brains.com."
+        ]
+      }
+    },
+    "terms": {
+      "s1": {
+        "heading": "Annahme dieser Bedingungen",
+        "bodies": [
+          "Plastic Brains („wir“, „uns“ oder „unser“) stellt Werkzeuge bereit, die Ihnen helfen, Therapiesitzungen vorzubereiten, nachzubereiten und daran anzuknüpfen. Mit der Erstellung eines Kontos oder der Nutzung der App stimmen Sie diesen Nutzungsbedingungen und unserer Datenschutzerklärung zu. Wenn Sie nicht zustimmen, nutzen Sie die App bitte nicht."
+        ]
+      },
+      "s2": {
+        "heading": "Voraussetzungen und Konten",
+        "bodies": [
+          "Sie müssen mindestens 18 Jahre alt sein oder das in Ihrem Land geltende Volljährigkeitsalter erreicht haben, um die App zu nutzen. Sie sind für die Richtigkeit der von Ihnen angegebenen Daten und für die Sicherheit Ihrer Zugangsdaten verantwortlich. Wenn Sie vermuten, dass Ihr Konto kompromittiert wurde, kontaktieren Sie uns umgehend, damit wir helfen können, es zu sichern."
+        ]
+      },
+      "s3": {
+        "heading": "Nutzung der App",
+        "bodies": [
+          "Die App ist für den persönlichen, nicht gewerblichen Gebrauch bestimmt. Sie verpflichten sich, den Dienst nicht zu missbrauchen, insbesondere nicht zu versuchen, unsere Systeme zurückzuentwickeln, zu stören oder zu beeinträchtigen. Sie dürfen keine rechtswidrigen, rechtsverletzenden oder schädlichen Inhalte hochladen. Wir können Konten sperren oder kündigen, die gegen diese Bedingungen verstoßen."
+        ]
+      },
+      "s4": {
+        "heading": "Hinweis zu Gesundheit und Sicherheit",
+        "bodies": [
+          "Plastic Brains bietet keine medizinische oder psychologische Beratung, Diagnose oder Behandlung. Die Informationen in der App dienen ausschließlich der Reflexion und der Strukturierung. Wenden Sie sich bei Fragen zu Ihrer psychischen Gesundheit oder zu einer Erkrankung stets an eine zugelassene Fachperson. Rufen Sie den Notdienst oder eine Krisenhotline an, wenn Sie in Gefahr sind oder sich in einer psychischen Notlage befinden."
+        ]
+      },
+      "s5": {
+        "heading": "Abonnements und Abrechnung",
+        "bodies": [
+          "Plastic Brains ist kostenlos erhältlich. Der Zugang zu den Funktionen für Notizen, Wiederholungen und Vorbereitung erfordert ein kostenpflichtiges Abonnement, das als automatisch verlängerbarer Monats- oder Jahrestarif angeboten wird. Die Preise werden in der App in Ihrer Landeswährung angezeigt, bevor Sie bestätigen, und werden von uns über den App Store festgelegt.",
+          "Berechtigte Abonnentinnen und Abonnenten erhalten eine zweiwöchige kostenlose Testphase beim Jahrestarif oder eine einwöchige beim Monatstarif. Apple entscheidet, ob Ihre Apple-ID für ein Einführungsangebot infrage kommt. Kommen Sie nicht infrage, wird keine Testphase angezeigt und die Abrechnung beginnt sofort. Sofern Sie nicht mindestens 24 Stunden vor Ende der Testphase kündigen, beginnt das gewählte Abonnement automatisch zum angezeigten Preis.",
+          "Die Zahlung wird bei Bestätigung des Kaufs Ihrem Apple-ID-Konto belastet. Abonnements verlängern sich automatisch, sofern die automatische Verlängerung nicht mindestens 24 Stunden vor Ende des laufenden Zeitraums deaktiviert wird; die Abbuchung für die Verlängerung erfolgt innerhalb von 24 Stunden vor Ende dieses Zeitraums.",
+          "Sie können ein Abonnement in den Abo-Einstellungen Ihrer Apple-ID auf Ihrem Gerät verwalten oder kündigen und die automatische Verlängerung deaktivieren. Eine Kündigung stoppt künftige Verlängerungen; der Zugang bleibt bis zum Ende des bereits bezahlten Zeitraums bestehen. Wir können ein Apple-Abonnement nicht für Sie kündigen.",
+          "Wenn Sie die App neu installieren oder ein anderes Gerät mit derselben Apple-ID verwenden, nutzen Sie „Käufe wiederherstellen“, um ein bestehendes Abonnement wieder zu verbinden. Die Wiederherstellung findet ausschließlich Abonnements, die mit dieser Apple-ID gekauft wurden.",
+          "Käufe erfolgen über Apple, daher werden Rückerstattungen von Apple nach deren Bedingungen abgewickelt. Anträge stellen Sie über den Apple Support; wir können eine Rückerstattung weder gewähren noch zusichern. Ihre gesetzlichen Rechte bleiben, soweit sie gelten, unberührt."
+        ]
+      },
+      "s6": {
+        "heading": "Nutzerinhalte und Daten",
+        "bodies": [
+          "Die Notizen und Informationen, die Sie in der App speichern, bleiben Ihr Eigentum. Die Inhalte Ihrer Therapienotizen werden lokal auf Ihrem Gerät verarbeitet und nicht an uns übertragen. Ihre Konto- und Therapiesitzungsdaten verarbeiten wir nur, soweit dies zur Bereitstellung der von Ihnen gewünschten Funktionen erforderlich ist. Einzelheiten dazu, wie wir Ihre Daten erheben, nutzen und schützen, finden Sie in der Datenschutzerklärung."
+        ]
+      },
+      "s7": {
+        "heading": "Änderungen des Dienstes",
+        "bodies": [
+          "Wir können Funktionen aktualisieren, aussetzen oder einstellen, um Plattformrichtlinien einzuhalten, die Sicherheit zu erhöhen oder die Nutzung zu verbessern. Über wesentliche Änderungen informieren wir, sofern erforderlich, in der App oder per E-Mail. Die weitere Nutzung der App nach Wirksamwerden der Änderungen bedeutet, dass Sie die Aktualisierungen akzeptieren."
+        ]
+      },
+      "s8": {
+        "heading": "Beendigung",
+        "bodies": [
+          "Sie können die Nutzung der App jederzeit einstellen und die Löschung Ihres Kontos über den Einstellungsbildschirm verlangen. Wir können den Zugang beenden oder aussetzen, wenn Sie gegen diese Bedingungen verstoßen oder wenn wir den Dienst einstellen. Nach Beendigung gelten diejenigen Abschnitte dieser Bedingungen weiter, die ihrer Natur nach fortbestehen sollen, etwa Eigentum, Haftungsausschlüsse und Haftungsbeschränkungen."
+        ]
+      },
+      "s9": {
+        "heading": "Haftungsbeschränkung",
+        "bodies": [
+          "Nichts in diesen Bedingungen schließt die Haftung aus oder beschränkt sie, soweit dies unzulässig wäre, einschließlich der Haftung für Tod oder Körperverletzung durch Fahrlässigkeit, für Betrug oder für arglistige Täuschung. Vorbehaltlich dessen haftet Plastic Brains nicht für Schäden, die nicht vernünftigerweise vorhersehbar waren oder die auf Umständen außerhalb unserer zumutbaren Kontrolle beruhen. Ihre gesetzlichen Verbraucherrechte bleiben von diesen Bedingungen unberührt."
+        ]
+      },
+      "s10": {
+        "heading": "Anwendbares Recht",
+        "bodies": [
+          "Diese Bedingungen unterliegen dem Recht von England und Wales. Wenn Sie anderswo leben, bleiben Ihnen alle zwingenden Verbraucherschutzrechte des Landes erhalten, in dem Sie leben. Sollte ein Teil dieser Bedingungen undurchsetzbar sein, bleiben die übrigen Bestimmungen wirksam."
+        ]
+      },
+      "s11": {
+        "heading": "Kontakt",
+        "bodies": [
+          "Bei Fragen zu diesen Bedingungen schreiben Sie uns an michael@plastic-brains.com."
+        ]
+      }
+    }
+  },
+  "serverError": {
+    "invalid_credentials": "Diese E-Mail-Adresse und dieses Passwort stimmen mit keinem Konto überein.",
+    "user_already_exists": "Für diese E-Mail-Adresse besteht bereits ein Konto.",
+    "password_login_unavailable": "Dieses Konto wurde mit Apple erstellt. Verwenden Sie „Mit Apple fortfahren“, um sich anzumelden.",
+    "missing_credentials": "Geben Sie Ihre E-Mail-Adresse und Ihr Passwort ein.",
+    "missing_registration_fields": "Geben Sie Ihren Namen, Ihre E-Mail-Adresse und Ihr Passwort ein.",
+    "validation_failed": "Eine Ihrer Eingaben wurde nicht akzeptiert. Bitte prüfen Sie Ihre Angaben und versuchen Sie es erneut.",
+    "rate_limited": "Zu viele Versuche. Bitte warten Sie einen Moment und versuchen Sie es erneut.",
+    "invalid_password_reset_token": "Dieser Code zum Zurücksetzen des Passworts ist falsch oder abgelaufen. Fordern Sie einen neuen an.",
+    "password_reset_requested": "Falls ein Konto mit dieser E-Mail-Adresse besteht, haben wir Ihnen eine Anleitung zum Zurücksetzen des Passworts gesendet.",
+    "password_reset_complete": "Ihr Passwort wurde geändert.",
+    "session_expired": "Ihre Sitzung ist abgelaufen. Melden Sie sich erneut an.",
+    "no_token": "Ihre Sitzung ist abgelaufen. Melden Sie sich erneut an.",
+    "unauthorized": "Ihre Sitzung ist abgelaufen. Melden Sie sich erneut an.",
+    "invalid_refresh_token": "Ihre Sitzung ist abgelaufen. Melden Sie sich erneut an.",
+    "missing_refresh_token": "Ihre Sitzung ist abgelaufen. Melden Sie sich erneut an.",
+    "invalid_user_context": "Ihre Sitzung ist abgelaufen. Melden Sie sich erneut an.",
+    "user_not_found": "Ihr Konto konnte nicht gefunden werden.",
+    "account_deleted": "Ihr Konto wurde gelöscht.",
+    "oauth_failed": "Die Anmeldung über diesen Anbieter ist fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "oauth_email_unverified": "Ihr Anbieter hat keine bestätigte E-Mail-Adresse übermittelt. Diese wird benötigt, um Ihr Konto zu erstellen.",
+    "oauth_name_required": "Zum Erstellen Ihres Kontos wird ein Name benötigt.",
+    "oauth_provider_required": "Die Anmeldemethode konnte nicht ermittelt werden. Bitte versuchen Sie es erneut.",
+    "oauth_provider_unsupported": "Diese Anmeldemethode wird nicht unterstützt.",
+    "oauth_provider_mismatch": "Diese Anmeldemethode passt nicht zu diesem Konto.",
+    "email_verification_required": "Bestätigen Sie Ihre E-Mail-Adresse, bevor Sie sich auf diese Weise anmelden.",
+    "apple_reauthentication_required": "Bestätigen Sie Ihre Identität mit Apple, um dieses Konto zu löschen.",
+    "device_register_failed": "Erinnerungen konnten auf diesem Gerät nicht eingerichtet werden. Bitte versuchen Sie es erneut.",
+    "device_unregister_failed": "Erinnerungen konnten auf diesem Gerät nicht deaktiviert werden. Bitte versuchen Sie es erneut.",
+    "device_token_not_found": "Auf diesem Gerät waren keine Erinnerungen eingerichtet.",
+    "not_found": "Wir konnten nicht finden, wonach Sie gesucht haben.",
+    "request_timeout": "Das hat zu lange gedauert. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+    "server_error": "Auf unserer Seite ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+    "apple_account_deletion_unavailable": "Dieses mit Apple verknüpfte Konto kann derzeit nicht gelöscht werden. Bitte versuchen Sie es später erneut.",
+    "apple_authorization_failed": "Ihre Identität konnte nicht mit Apple bestätigt werden. Bitte bestätigen Sie sie erneut mit Apple.",
+    "apple_deletion_credentials_missing": "Apple hat die zum Löschen dieses Kontos erforderliche Bestätigung nicht übermittelt. Bitte versuchen Sie es erneut.",
+    "apple_account_mismatch": "Bestätigen Sie Ihre Identität mit dem Apple-Konto, das mit diesem Plastic-Brains-Konto verknüpft ist.",
+    "apple_revocation_failed": "Die Verbindung zwischen diesem Konto und Apple konnte nicht getrennt werden. Ihr Konto wurde nicht gelöscht. Bitte versuchen Sie es erneut.",
+    "appointment_limit_reached": "Sie haben die Höchstzahl an Terminen erreicht. Entfernen Sie einen Termin, bevor Sie einen weiteren hinzufügen.",
+    "appointment_changed": "Dieser Termin wurde auf einem anderen Gerät geändert. Aktualisieren Sie Ihren Kalender, bevor Sie ihn erneut bearbeiten.",
+    "duplicate_appointment": "Ein Termin wurde mehrfach angegeben. Aktualisieren Sie Ihren Kalender und versuchen Sie es erneut.",
+    "invalid_calendar_window": "Dieser Datumsbereich ist ungültig. Aktualisieren Sie Ihren Kalender und versuchen Sie es erneut.",
+    "calendar_refresh_required": "Verwenden Sie die neueste Version der App und aktualisieren Sie Ihren Kalender, bevor Sie Termine entfernen.",
+    "appointment_time_conflict": "Zu dieser Uhrzeit beginnt bereits ein Termin. Aktualisieren Sie Ihren Kalender und wählen Sie eine andere Uhrzeit.",
+    "appointment_day_conflict": "Sie können nur eine Sitzung pro Tag haben. Aktualisieren Sie Ihren Kalender und bearbeiten Sie die bestehende Sitzung.",
+    "invalid_subscription_transaction": "Die zum Bestätigen dieses Abonnements erforderlichen Kaufdaten konnten nicht gelesen werden. Versuchen Sie, Ihre Käufe wiederherzustellen.",
+    "apple_verification_unavailable": "Ihr Kauf kann derzeit nicht bei Apple überprüft werden. Bitte versuchen Sie es später erneut.",
+    "apple_verification_failed": "Dieser Apple-Kauf konnte nicht überprüft werden. Versuchen Sie, Ihre Käufe wiederherzustellen.",
+    "subscription_account_mismatch": "Dieses Abonnement gehört zu einem anderen Plastic-Brains-Konto. Melden Sie sich bei diesem Konto an, um es zu nutzen.",
+    "subscription_already_linked": "Dieses Abonnement ist bereits mit einem anderen Plastic-Brains-Konto verknüpft. Melden Sie sich bei diesem Konto an, um es zu nutzen.",
+    "unknown_subscription_product": "Dieser Kauf entspricht keinem Plastic-Brains-Abonnement.",
+    "unsupported_transaction_environment": "Dieser Kauf kann mit dieser Version der App nicht verwendet werden.",
+    "test_purchase_not_allowed": "Dieser Testkauf kann mit dieser Version der App nicht verwendet werden.",
+    "network": "Die Verbindung konnte nicht hergestellt werden. Prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.",
+    "session_changed": "Ihre Anmeldesitzung hat sich geändert. Bitte versuchen Sie es erneut."
+  }
+}

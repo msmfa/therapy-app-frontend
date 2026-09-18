@@ -4,6 +4,7 @@ import AppText from '../ui/AppText';
 import { TEXT_COLORS } from 'designs/designs-colors';
 import { TickMeter } from '../ui/TickMeter';
 import { ONBOARDING_QUESTION_COUNT } from '../../features/onboarding/onboardingCopy';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
     step: number;
@@ -24,15 +25,18 @@ type Props = {
  * before they have answered anything makes the flow feel longer than it is.
  */
 export function OnboardingProgress({ step, total = ONBOARDING_QUESTION_COUNT, inline = false }: Props) {
+    const { t } = useTranslation('onboarding');
     const clamped = Math.min(Math.max(step, 1), total);
-    const label = `${clamped} of ${total}`;
+    // Both of these were built by concatenation, so the visible counter read
+    // "1 of 5" in French too.
+    const label = t('progress.label', { current: clamped, total });
 
     return (
         <View
             style={ [styles.container, inline && styles.inlineContainer] }
             accessible
             accessibilityRole="progressbar"
-            accessibilityLabel={ `Step ${clamped} of ${total}` }
+            accessibilityLabel={ t('progress.a11y', { current: clamped, total }) }
             accessibilityValue={ { min: 0, max: total, now: clamped } }
         >
             <View style={ styles.meter }>

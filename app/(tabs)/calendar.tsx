@@ -44,6 +44,7 @@ type NextEventCardProps = {
 // and the day number carrying the card the way a temperature does, with the
 // month sitting up against it as the unit.
 const NextEventCard = React.memo(function NextEventCard({ label, date, accent }: NextEventCardProps) {
+    const { t } = useTranslation('calendar');
     const when = date ? dayjs(date) : null;
 
     return (
@@ -66,7 +67,7 @@ const NextEventCard = React.memo(function NextEventCard({ label, date, accent }:
                         </View>
                     ) : (
                         <AppText variant="body" style={ styles.eventEmpty }>
-                            Nothing scheduled
+                            { t('nothingScheduled') }
                         </AppText>
                     ) }
 
@@ -81,7 +82,7 @@ const NextEventCard = React.memo(function NextEventCard({ label, date, accent }:
                         </View>
                         { when ? (
                             <AppText variant="caption" style={ styles.eventMeta }>
-                                { when.format('ddd, h:mm A') }
+                                { when.format('ddd, LT') }
                             </AppText>
                         ) : null }
                     </View>
