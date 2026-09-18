@@ -47,7 +47,7 @@ export default function SettingsScreen() {
     const handleRateApp = useCallback(
         createHandleRateApp({
             select: Platform.select,
-            openURL: Linking.openURL,
+            openURL: (url) => Linking.openURL(url),
             alert: showAlert,
             t,
             tCommon,
