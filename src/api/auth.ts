@@ -28,8 +28,13 @@ export type OAuthExchangeSuccess = {
     refreshToken?: string | null;
 };
 
-export async function requestPasswordReset(email: string): Promise<string> {
-    const response = await apiPost<{ message: string }>(
+export type PasswordResetResponse = {
+    message: string;
+    code?: string;
+};
+
+export async function requestPasswordReset(email: string): Promise<PasswordResetResponse> {
+    const response = await apiPost<PasswordResetResponse>(
         '/api/auth/forgot-password',
         { email: email.trim() },
         { auth: false },
@@ -39,7 +44,7 @@ export async function requestPasswordReset(email: string): Promise<string> {
         throw new Error('Unexpected response from password reset endpoint.');
     }
 
-    return response.message;
+    return response;
 }
 
 /**

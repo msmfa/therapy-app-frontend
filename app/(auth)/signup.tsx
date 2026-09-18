@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/auth/AuthContext';
-import { handleError, validatePassword } from 'src/utils';
+import { validatePassword } from 'src/utils';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import TextField from 'src/components/ui/TextField';
 import PasswordField from 'src/components/ui/PasswordField';
@@ -17,6 +17,7 @@ import { BackButton } from 'src/components/ui/BackButton';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { useTranslation } from 'react-i18next';
+import { serverErrorMessage } from 'src/features/errors/serverErrorMessage';
 
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -60,7 +61,7 @@ export default function SignUpScreen() {
             await setAuth(token, user, refreshToken ?? null);
             router.replace(returnRoute ?? '/');
         } catch (err) {
-            showAlert(t('signUp.failedTitle'), handleError(err));
+            showAlert(t('signUp.failedTitle'), serverErrorMessage(err));
         } finally {
             setLoading(false);
         }

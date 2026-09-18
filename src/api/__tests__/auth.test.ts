@@ -14,17 +14,20 @@ describe('auth password helpers', () => {
         jest.clearAllMocks();
     });
 
-    it('requests a password reset with trimmed email and returns message', async () => {
-        apiPost.mockResolvedValueOnce({ message: 'Reset email sent' });
+    it.each([
+        { message: 'Reset email sent', code: 'password_reset_requested' },
+        { message: 'Legacy reset confirmation' },
+    ])('preserves password reset confirmation metadata: %j', async (response) => {
+        apiPost.mockResolvedValueOnce(response);
 
-        const message = await requestPasswordReset('   person@example.com   ');
+        const result = await requestPasswordReset('   person@example.com   ');
 
         expect(apiPost).toHaveBeenCalledWith(
             '/api/auth/forgot-password',
             { email: 'person@example.com' },
             { auth: false },
         );
-        expect(message).toBe('Reset email sent');
+        expect(result).toEqual(response);
     });
 
     it('resets the password with the account email, trimmed token and auth disabled', async () => {
