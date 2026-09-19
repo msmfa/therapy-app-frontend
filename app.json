@@ -29,9 +29,9 @@
       "expo-iap"
     ],
     "splash": {
-      "image": "./assets/brain-logo.png",
+      "image": "./assets/splash-brain.png",
       "resizeMode": "contain",
-      "backgroundColor": "#FFFFFF"
+      "backgroundColor": "#E1E6EA"
     },
     "ios": {
       "icon": "./assets/brain-logo.png",
