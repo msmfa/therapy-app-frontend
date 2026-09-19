@@ -64,7 +64,9 @@ describe('interval science cards', () => {
             time: '15:15',
         });
         expect(cards[0].caption).toContain('next of 2');
-        expect(cards[0].caption).toMatch(/EST|GMT-5/);
+        // The zone still decides the clock -- 20:15 UTC is 15:15 in New York,
+        // asserted above -- but it is no longer named in the caption.
+        expect(cards[0].caption).not.toMatch(/EST|GMT/);
     });
 
     it('orders card types by their next real occurrence and drops invalid instants', () => {
