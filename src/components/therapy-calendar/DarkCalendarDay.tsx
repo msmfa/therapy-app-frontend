@@ -36,9 +36,9 @@ const DOT_COUNT = 3;
 // weighed the same as the library's hidden dot did: the cell centres its
 // contents, so anything below the numeral lifts the numeral off centre by half
 // that thing's height, and the number sat high inside the today disc.
-function DayDots({ color }: { color: string }) {
+function DayDots({ color, inset = false }: { color: string; inset?: boolean }) {
     return (
-        <View pointerEvents="none" style={ styles.dotRow }>
+        <View pointerEvents="none" style={ [styles.dotRow, inset && styles.dotRowInset] }>
             { Array.from({ length: DOT_COUNT }, (_unused, index) => (
                 <View key={ index } style={ [styles.dot, { backgroundColor: color }] } />
             )) }
@@ -54,12 +54,18 @@ export function DarkCalendarDay({ date, state, marking, onPress, accessibilityLa
     const kind = marking?.kind;
     const isPressed = Boolean(marking?.pressed);
     const isToday = state === 'today';
-    const isTodayCell = !isPressed && !kind && isToday;
+    // Today keeps its disc even when it is also a session or a reminder. The
+    // two used to be exclusive, so the one day you are most likely to look at
+    // was the one day whose dots were dropped: a session this evening showed as
+    // a plain black circle with nothing under it, indistinguishable from a
+    // today with nothing on at all. The disc says which day it is and the dots
+    // say what is on it, and neither answers for the other.
+    const isTodayCell = !isPressed && isToday;
 
     const dotColor = kind === 'session'
-        ? CALENDAR_DARK_COLORS.sessionDot
+        ? (isTodayCell ? CALENDAR_DARK_COLORS.sessionDotOnToday : CALENDAR_DARK_COLORS.sessionDot)
         : kind === 'reminder'
-            ? CALENDAR_DARK_COLORS.reminderDot
+            ? (isTodayCell ? CALENDAR_DARK_COLORS.reminderDotOnToday : CALENDAR_DARK_COLORS.reminderDot)
             : undefined;
 
     const cellStyle = [
@@ -90,7 +96,7 @@ export function DarkCalendarDay({ date, state, marking, onPress, accessibilityLa
             <Text allowFontScaling={ false } style={ [styles.text, { color }] }>
                 { children }
             </Text>
-            <DayDots color={ dotColor ?? 'transparent' } />
+            <DayDots color={ dotColor ?? 'transparent' } inset={ isTodayCell } />
         </TouchableOpacity>
     );
 }
@@ -129,6 +135,12 @@ const styles = StyleSheet.create({
         left: 0,
         position: 'absolute',
         right: 0,
+    },
+    // Inside the today disc the row lifts clear of the curve: 3pt from the
+    // bottom of a 40pt circle leaves only about 21pt of width for an 18pt row,
+    // so the dots would sit hard against the edge.
+    dotRowInset: {
+        bottom: 6,
     },
     dot: {
         borderRadius: 2,

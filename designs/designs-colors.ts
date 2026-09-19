@@ -289,6 +289,11 @@ export const CALENDAR_DARK_COLORS = {
   // Today is the one solid disc in the month, so it reads before the dots do.
   todayBackground: 'hsl(240, 8%, 10%)',
   todayText: 'hsl(0, 0%, 78%)',
+  // Today wears its disc even when it is also a session or a reminder, so the
+  // dots have to stay legible on a near-black ground. The orange already does;
+  // the blue is far too dark against it and lightens to match.
+  sessionDotOnToday: ACTION_ORANGE,
+  reminderDotOnToday: 'hsl(226, 85%, 72%)',
   // Press feedback on a day that is neither a session nor a reminder.
   pressedBackground: 'hsla(240, 8%, 16%, 0.10)',
   pressedText: 'hsl(240, 8%, 16%)',
