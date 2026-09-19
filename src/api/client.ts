@@ -272,7 +272,7 @@ export async function apiRequest<T = unknown>(path: string, options: ApiRequestO
         }
 
         await config.onAuthFailure?.();
-        throw new ApiError(401, { message: 'Authentication required' });
+        throw new ApiError(401, { message: 'Authentication required', code: 'session_expired' });
     }
 
     if (!response.ok) {

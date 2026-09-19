@@ -14,7 +14,7 @@ export default function NotesScreen() {
     const { t } = useTranslation('notes');
     const { t: tCommon } = useTranslation('common');
     const { user } = useAuth();
-    const { notes, loading, error, refresh, updateNote } = useNotes(user?.id);
+    const { notes, loading, error, refresh, updateNote, deleteNote } = useNotes(user?.id);
     const { progressFor, reviewState, markReviewed } = useNoteReviews(user?.id);
     const { showAlert } = useAppAlert();
 
@@ -35,6 +35,13 @@ export default function NotesScreen() {
             await updateNote(noteId, { text });
         },
         [updateNote],
+    );
+
+    const handleDeleteNote = React.useCallback(
+        async (noteId: string) => {
+            await deleteNote(noteId);
+        },
+        [deleteNote],
     );
 
     useFocusEffect(
@@ -64,6 +71,7 @@ export default function NotesScreen() {
                         loading={ loading }
                         refresh={ refresh }
                         onUpdateNote={ handleUpdateNote }
+                        onDeleteNote={ handleDeleteNote }
                         progressFor={ progressFor }
                         canReview={ canReview }
                         onReviewed={ handleReviewed }

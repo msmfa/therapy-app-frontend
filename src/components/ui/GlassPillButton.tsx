@@ -117,7 +117,16 @@ export function GlassPillButton({
                     minimumFontScale={ 0.8 }
                     style={ [
                         styles.label,
-                        { color: resolvedLabelColor, fontSize: labelSize },
+                        // `lineHeight` is cleared, not merely overridden. AppText's
+                        // `body` variant carries `lineHeight: 24` for running text,
+                        // and iOS lays a fixed line height out by putting all the
+                        // spare leading above the glyphs, so a 16pt label inside a
+                        // 24pt line box was drawn about 4pt below the middle of the
+                        // pill. The pill centres a single line, so the font's own
+                        // metrics are the ones that centre it; leaving it unset also
+                        // keeps the label centred when `adjustsFontSizeToFit` shrinks
+                        // a long translation, which a fixed line height would not.
+                        { color: resolvedLabelColor, fontSize: labelSize, lineHeight: undefined },
                         disabled && !disabledLabelColor && styles.disabledLabel,
                         contentSized && styles.contentSizedLabel,
                         loading && styles.hiddenLabel,

@@ -8,7 +8,7 @@ export type IntervalCard = {
     reason: Reason;
     /** The exact time shown in the dot-matrix panel. */
     time: string;
-    /** The date, zone and optional occurrence count below the time. */
+    /** The date and optional occurrence count below the time. */
     caption: string;
 };
 
@@ -54,20 +54,15 @@ const dateAt = (date: Date, timeZone?: string, locale?: string): string =>
         locale,
     );
 
-const zoneAt = (date: Date, timeZone: string, locale?: string): string => {
-    try {
-        const part = new Intl.DateTimeFormat(locale, {
-            timeZone,
-            timeZoneName: 'short',
-        })
-            .formatToParts(date)
-            .find(({ type }) => type === 'timeZoneName');
-        return part?.value ?? timeZone;
-    } catch {
-        return timeZone;
-    }
-};
-
+/**
+ * The zone still decides what the clock reads; it is no longer written out.
+ *
+ * The caption used to carry the zone's short name, so a card read "Wed, 16 Sep
+ * · GMT · next of 3". The times are already shown in the user's own zone, which
+ * is the only zone they are in, so naming it added a word that could only ever
+ * say what the reader already assumed. `timeZone` stays a parameter because
+ * `dateAt` and `timeAt` still resolve the instant in it.
+ */
 const captionAt = (
     date: Date,
     count: number,
@@ -75,7 +70,6 @@ const captionAt = (
     locale?: string,
 ): string => {
     const parts = [dateAt(date, timeZone, locale)];
-    if (timeZone !== undefined) parts.push(zoneAt(date, timeZone, locale));
     if (count > 1) parts.push(t('science:intervals.nextOf', { count }));
     return parts.join(' · ');
 };
@@ -110,7 +104,7 @@ export const intervalCardsFromPlan = (
  *
  * The server response is the same answer the push sender uses. Grouping it here
  * avoids showing several identical science cards while still making the next
- * date, exact time, server zone and number of remaining occurrences explicit.
+ * date, exact time and number of remaining occurrences explicit.
  */
 export const intervalCardsFromSchedule = (
     reminders: Reminder[],

@@ -193,3 +193,90 @@ it('keeps a failed review open, shows the error, and allows a successful retry',
     expect(reviewed).toHaveBeenCalledTimes(2);
     expect(close).toHaveBeenCalledTimes(1);
 });
+
+/**
+ * Deleting a note is the one action in this modal that cannot be undone, so it
+ * is behind a confirmation. The confirmation is a second state of the action
+ * row rather than the app alert: `AppAlertProvider` mounts its modal above this
+ * component, and iOS draws a modal presented from outside the presented one
+ * behind it, so from in here the alert would not have been visible at all.
+ */
+describe('deleting a note', () => {
+    const renderWithDelete = (
+        onDeleteNote: jest.Mock,
+        onClose: jest.Mock = jest.fn(),
+    ) => render(
+        <SafeAreaProvider initialMetrics={ METRICS }>
+            <NotePreviewModal
+                visible
+                note={ note }
+                onClose={ onClose }
+                onUpdateNote={ jest.fn() }
+                onDeleteNote={ onDeleteNote }
+            />
+        </SafeAreaProvider>,
+    );
+
+    it('asks first, and one press of the delete affordance deletes nothing', () => {
+        const remove = jest.fn().mockResolvedValue(undefined);
+        renderWithDelete(remove);
+
+        fireEvent.press(screen.getByLabelText('Delete note'));
+
+        expect(remove).not.toHaveBeenCalled();
+        expect(screen.getByText('Delete this note? This cannot be undone.')).toBeTruthy();
+    });
+
+    it('keeps the note when the confirmation is declined', () => {
+        const remove = jest.fn().mockResolvedValue(undefined);
+        renderWithDelete(remove);
+
+        fireEvent.press(screen.getByLabelText('Delete note'));
+        fireEvent.press(screen.getByLabelText('Keep note'));
+
+        expect(remove).not.toHaveBeenCalled();
+        expect(screen.queryByLabelText('Delete note permanently')).toBeNull();
+        expect(screen.getByLabelText('Delete note')).toBeTruthy();
+    });
+
+    it('deletes and closes once the confirmation is taken', async () => {
+        const remove = jest.fn().mockResolvedValue(undefined);
+        const close = jest.fn();
+        renderWithDelete(remove, close);
+
+        fireEvent.press(screen.getByLabelText('Delete note'));
+        await act(async () => { fireEvent.press(screen.getByLabelText('Delete note permanently')); });
+
+        expect(remove).toHaveBeenCalledWith('note-1');
+        expect(close).toHaveBeenCalledTimes(1);
+    });
+
+    it('holds the note open and says so when the delete fails', async () => {
+        const remove = jest.fn().mockRejectedValue(new Error('Unable to delete note right now.'));
+        const close = jest.fn();
+        renderWithDelete(remove, close);
+
+        fireEvent.press(screen.getByLabelText('Delete note'));
+        await act(async () => { fireEvent.press(screen.getByLabelText('Delete note permanently')); });
+
+        expect(close).not.toHaveBeenCalled();
+        expect(screen.getByText('Unable to delete note right now.')).toBeTruthy();
+        // Back to the resting state, so a retry is a deliberate two presses
+        // again rather than one press away from a second attempt.
+        expect(screen.getByLabelText('Delete note')).toBeTruthy();
+    });
+
+    it('is absent while editing, where cancel and save own the row', () => {
+        renderWithDelete(jest.fn());
+
+        fireEvent.press(screen.getByLabelText('Edit note'));
+
+        expect(screen.queryByLabelText('Delete note')).toBeNull();
+    });
+
+    it('is absent entirely when no delete handler is supplied', () => {
+        renderModal();
+
+        expect(screen.queryByLabelText('Delete note')).toBeNull();
+    });
+});

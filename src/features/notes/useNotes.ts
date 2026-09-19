@@ -358,6 +358,10 @@ export function useNotes(userId: string | undefined) {
             } catch (err) {
                 console.warn('useNotes.deleteNote', err);
                 setError('Failed to delete note');
+                // Thrown as well as recorded, the way `updateNote` does it. The
+                // caller is a button the user is waiting on, and it has to know
+                // not to close the note it has just failed to remove.
+                throw new Error('Unable to delete note right now.');
             }
         },
         [notes, userId],

@@ -8,6 +8,7 @@ import { GlassCircleButton } from '../ui/GlassCircleButton';
 import type { NoteReviewProgress } from '../../features/reviews';
 import { ReviewProgressBar } from './ReviewProgressBar';
 import { useTranslation } from 'react-i18next';
+import { shortDatePattern } from '../../i18n/dayjsLocale';
 
 const PREVIEW_LINES = 4;
 const OPEN_BUTTON = 32;
@@ -48,7 +49,7 @@ export function NoteCard({ item, index, onPress, progress }: Props) {
             </View>
             <View style={ styles.noteHeader }>
                 <AppText variant='h3' numberOfLines={ 1 } style={ styles.date }>
-                    { dayjs(item.createdAt).format('dddd, LL') }
+                    { dayjs(item.createdAt).format(`dddd, ${shortDatePattern()}`) }
                 </AppText>
                 <AppText variant='caption' style={ styles.time }>
                     { dayjs(item.createdAt).format('LT') }

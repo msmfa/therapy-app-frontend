@@ -412,8 +412,10 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
 }
 
 const styles = StyleSheet.create({
+    // Matches the launch splash and the screens inside it, so nothing white
+    // shows through between the splash going away and the first screen drawing.
     root: {
         flex: 1,
-        backgroundColor: COLOR_VARIANTS.white.primary,
+        backgroundColor: GRADIENTS.background.bottom,
     },
 });

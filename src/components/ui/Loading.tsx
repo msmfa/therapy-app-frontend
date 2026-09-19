@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
+import { PALETTE, SURFACE_BLUE } from 'designs/designs-colors';
 import DancingSquare from './PulsingSquare';
 import { useTranslation } from 'react-i18next';
 
@@ -40,8 +40,11 @@ const styles = StyleSheet.create({
     screen: {
         flex: 1,
     },
+    // The app's own ground, not white. This is the screen the launch splash
+    // hands over to, and a white one made the boot read as two steps: the
+    // splash, then a white flash, then the pale blue the app is actually on.
     opaqueScreen: {
-        backgroundColor: COLOR_VARIANTS.white.primary,
+        backgroundColor: SURFACE_BLUE,
     },
     container: {
         padding: 20,

@@ -77,7 +77,18 @@ export default function NewNoteScreen() {
                                         multiline
                                         numberOfLines={ 10 }
                                         underlineColorAndroid={ COLOR_VARIANTS.transparent }
-                                        style={ styles.textInput }
+                                        // The prompt keeps the big display size
+                                        // that gives the blank screen its voice;
+                                        // what the user writes drops to reading
+                                        // size, which is what a note of any
+                                        // length needs. Switching on content
+                                        // rather than focus means the prompt is
+                                        // never shrunk while it is still the
+                                        // thing being read.
+                                        style={ [
+                                            styles.textInput,
+                                            text.length > 0 && styles.textInputFilled,
+                                        ] }
                                         placeholderTextColor={ COLOR_VARIANTS.black.primary }
                                         selectionColor={ COLOR_VARIANTS.white.quaternary }
                                     />
@@ -162,6 +173,10 @@ const styles = StyleSheet.create({
         textAlignVertical: 'top',
         padding: 0,
         paddingBottom: 70,
+    },
+    textInputFilled: {
+        fontSize: 16,
+        lineHeight: 22,
     },
     footer: {
         flexDirection: 'row',
