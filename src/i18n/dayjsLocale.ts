@@ -31,6 +31,7 @@
  */
 import dayjs from 'dayjs';
 import localizedFormat from 'dayjs/plugin/localizedFormat';
+import localeData from 'dayjs/plugin/localeData';
 import 'dayjs/locale/en-gb';
 import 'dayjs/locale/en-ie';
 import 'dayjs/locale/en-au';
@@ -47,6 +48,7 @@ import 'dayjs/locale/de-ch';
 import { languageSubtag } from './resolve';
 
 dayjs.extend(localizedFormat);
+dayjs.extend(localeData);
 
 /**
  * The tags dayjs has data bundled for here, beyond its built-in `en`.
@@ -79,3 +81,24 @@ export const applyDayjsLocale = (locale: string): void => {
     const language = languageSubtag(tag);
     dayjs.locale(BUNDLED.has(language) ? language : FALLBACK);
 };
+
+/**
+ * The active locale's long date with the year dropped and the month shortened:
+ * "15 Sep", "Sep 15", "15. Sep", "15 sept.".
+ *
+ * Built from the locale's own `LL` pattern rather than written out as a fixed
+ * one. A hardcoded "D MMM" reads "15 Sep" to a British user, who writes it that
+ * way, and the same "15 Sep" to an American, who writes "Sep 15"; German wants
+ * the ordinal point after the day. Deriving from `LL` keeps each language's
+ * own order and separators and only edits the two parts that were asked for.
+ *
+ * `LL` is `D MMMM YYYY`, `MMMM D, YYYY` or `D. MMMM YYYY` across every locale
+ * bundled above, so the year is always trailing and takes its comma with it.
+ */
+export const shortDatePattern = (): string =>
+    dayjs
+        .localeData()
+        .longDateFormat('LL')
+        .replace('MMMM', 'MMM')
+        .replace(/,?\s*YYYY/, '')
+        .trim();

@@ -16,7 +16,7 @@
 
 import dayjs from 'dayjs';
 
-import { applyDayjsLocale } from '../dayjsLocale';
+import { applyDayjsLocale, shortDatePattern } from '../dayjsLocale';
 import { formattingLocale, i18next } from '../index';
 
 const EVENING = '2026-09-14T18:00:00';
@@ -96,5 +96,52 @@ describe('dayjs follows the formatting locale', () => {
             applyDayjsLocale('en');
             expect(dayjs(EVENING).format('LT')).toBe('6:00 PM');
         });
+    });
+});
+
+/**
+ * The note cards show the date without a year and with the month abbreviated,
+ * because a full month name in German or French runs past the width a card has
+ * for it. The pattern is derived from each locale's own `LL` rather than
+ * written out, so what these cases guard is that every language keeps its own
+ * order and separators while losing the same two things.
+ */
+describe('shortDatePattern', () => {
+    afterEach(() => {
+        applyDayjsLocale('en-GB');
+    });
+
+    const shortDate = (iso: string) => dayjs(iso).format(shortDatePattern());
+
+    it('drops the year and abbreviates the month for a UK device', () => {
+        applyDayjsLocale('en-GB');
+        expect(shortDate(EVENING)).toBe('14 Sep');
+    });
+
+    it('keeps the American order, where the month leads', () => {
+        applyDayjsLocale('en');
+        expect(shortDate(EVENING)).toBe('Sep 14');
+    });
+
+    it('keeps the German ordinal point after the day', () => {
+        applyDayjsLocale('de-DE');
+        // "Sept." rather than "Sep": the abbreviation is dayjs's own German
+        // data, and each language's is what this is meant to use.
+        expect(shortDate(EVENING)).toBe('14. Sept.');
+    });
+
+    it('uses the French abbreviation, not the English one', () => {
+        applyDayjsLocale('fr');
+        expect(shortDate(EVENING)).toBe('14 sept.');
+    });
+
+    it('never leaves a year or a stranded separator behind', () => {
+        for (const tag of ['en', 'en-GB', 'en-CA', 'en-AU', 'en-IN', 'fr', 'fr-CA', 'de-DE', 'de-AT', 'de-CH']) {
+            applyDayjsLocale(tag);
+            const rendered = shortDate(EVENING);
+            expect(rendered).not.toMatch(/2026/);
+            expect(rendered).not.toMatch(/,/);
+            expect(rendered.trim()).toBe(rendered);
+        }
     });
 });
