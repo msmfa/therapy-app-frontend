@@ -28,6 +28,7 @@ interface NotesListScreenProps {
     loading: boolean;
     refresh: () => void;
     onUpdateNote: (id: string, text: string) => Promise<void>;
+    onDeleteNote?: (id: string) => Promise<void>;
     progressFor?: (note: Note) => NoteReviewProgress;
     /** False when nothing is answerable right now, or the slot is already ticked. */
     canReview?: (note: Note) => boolean;
@@ -67,6 +68,7 @@ export default function NotesListScreen({
     loading,
     refresh,
     onUpdateNote,
+    onDeleteNote,
     progressFor,
     canReview,
     onReviewed,
@@ -201,6 +203,7 @@ export default function NotesListScreen({
                 note={ previewNote }
                 onClose={ closeNote }
                 onUpdateNote={ onUpdateNote }
+                onDeleteNote={ onDeleteNote }
                 canReview={ previewNote ? (canReview?.(previewNote) ?? false) : false }
                 onReviewed={ onReviewed }
             />

@@ -25,6 +25,8 @@ type NotePreviewModalProps = {
     note: Note | null;
     onClose: () => void;
     onUpdateNote: (id: string, text: string) => Promise<void>;
+    /** Omitted where a note is not the caller's to remove; the row is then absent. */
+    onDeleteNote?: (id: string) => Promise<void>;
     /**
      * False when no reminder is currently answerable, or when this slot has
      * already been ticked. Either way there is nothing a press could record.
@@ -38,6 +40,7 @@ export function NotePreviewModal({
     note,
     onClose,
     onUpdateNote,
+    onDeleteNote,
     canReview = false,
     onReviewed,
 }: NotePreviewModalProps) {
@@ -48,6 +51,11 @@ export function NotePreviewModal({
     const [saving, setSaving] = React.useState(false);
     const saveInFlight = React.useRef(false);
     const [error, setError] = React.useState<string | null>(null);
+    // The confirmation is a second state of the action row rather than an
+    // alert. `AppAlertProvider` mounts its modal above this component, and on
+    // iOS a modal presented from outside the presented one is drawn behind it,
+    // so the confirm would have been invisible from in here.
+    const [confirmingDelete, setConfirmingDelete] = React.useState(false);
 
     const insets = useSafeAreaInsets();
     const keyboardInset = useKeyboardInset();
@@ -58,6 +66,7 @@ export function NotePreviewModal({
             setDraft('');
             setSaving(false);
             setError(null);
+            setConfirmingDelete(false);
             return;
         }
 
@@ -71,6 +80,7 @@ export function NotePreviewModal({
         setIsEditing(false);
         setError(null);
         setSaving(false);
+        setConfirmingDelete(false);
         setDraft(note?.text ?? '');
         onClose();
     }, [note, onClose]);
@@ -97,8 +107,30 @@ export function NotePreviewModal({
         if (!note || saveInFlight.current) return;
         setDraft(note.text);
         setError(null);
+        setConfirmingDelete(false);
         setIsEditing(true);
     }, [note]);
+
+    const handleDelete = React.useCallback(async () => {
+        if (!note || !onDeleteNote || saveInFlight.current) return;
+        saveInFlight.current = true;
+        setSaving(true);
+        setError(null);
+        try {
+            await onDeleteNote(note.id);
+            // Cleared before closing: `handleClose` refuses to run while a
+            // write is in flight, the same guard the review button releases.
+            saveInFlight.current = false;
+            setConfirmingDelete(false);
+            handleClose();
+        } catch (err) {
+            setError(err instanceof Error ? err.message : t('editor.deleteFailed'));
+            setConfirmingDelete(false);
+        } finally {
+            saveInFlight.current = false;
+            setSaving(false);
+        }
+    }, [handleClose, note, onDeleteNote, t]);
 
     const handleCancelEditing = React.useCallback(() => {
         if (saveInFlight.current) return;
@@ -293,6 +325,57 @@ export function NotePreviewModal({
                     { /* A real sibling row, so it cannot overlap the text above it
                      however the buttons or Dynamic Type change size. */ }
                     <View testID="note-modal-actions" style={ styles.modalActions }>
+                        { /* Hidden while editing: the header already owns cancel
+                             and save there, and a third verb beside an unsaved
+                             draft invites deleting work that was about to be
+                             kept. */ }
+                        { onDeleteNote && note && !isEditing ? (
+                            confirmingDelete ? (
+                                <View style={ styles.deleteRow }>
+                                    <AppText style={ styles.deletePrompt } variant="caption">
+                                        { t('editor.deleteConfirm') }
+                                    </AppText>
+                                    <View style={ styles.headerActions }>
+                                        <TouchableOpacity
+                                            onPress={ () => setConfirmingDelete(false) }
+                                            accessibilityRole="button"
+                                            accessibilityLabel={ t('a11y.keepNote') }
+                                            disabled={ saving }
+                                            activeOpacity={ 0.7 }
+                                        >
+                                            <AppText style={ styles.headerActionMuted } variant="body">
+                                                { t('editor.deleteKeep') }
+                                            </AppText>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            testID="note-delete-confirm"
+                                            onPress={ () => { void handleDelete(); } }
+                                            accessibilityRole="button"
+                                            accessibilityLabel={ t('a11y.confirmDeleteNote') }
+                                            disabled={ saving }
+                                            activeOpacity={ 0.7 }
+                                        >
+                                            <AppText style={ styles.deleteConfirmAction } variant="body">
+                                                { t('editor.deleteConfirmAction') }
+                                            </AppText>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            ) : (
+                                <TouchableOpacity
+                                    testID="note-delete"
+                                    onPress={ () => setConfirmingDelete(true) }
+                                    accessibilityRole="button"
+                                    accessibilityLabel={ t('a11y.deleteNote') }
+                                    disabled={ saving }
+                                    activeOpacity={ 0.7 }
+                                >
+                                    <AppText style={ styles.deleteAction } variant="body">
+                                        { t('editor.delete') }
+                                    </AppText>
+                                </TouchableOpacity>
+                            )
+                        ) : null }
                     </View>
                 </View>
             </ImageBackground>
@@ -356,6 +439,27 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
         paddingTop: 16,
         paddingBottom: 16,
+    },
+    deleteRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 16,
+    },
+    // Quieter than edit. Deleting is the one thing here that cannot be undone,
+    // so it should be found when looked for rather than met on the way past.
+    deleteAction: {
+        color: 'hsla(219, 52%, 14%, 0.5)',
+        fontSize: 17,
+    },
+    deletePrompt: {
+        color: INK,
+        flexShrink: 1,
+        fontSize: 15,
+    },
+    deleteConfirmAction: {
+        color: THEME_COLORS.error,
+        fontSize: 20,
     },
     modalText: {
         color: 'hsla(219, 52%, 14%, 0.62)',

@@ -124,7 +124,12 @@
       "saveUnavailable": "Unable to save note right now.",
       "howTo": "How to take notes",
       "saveNote": "Save note",
-      "edit": "edit"
+      "edit": "edit",
+      "delete": "delete note",
+      "deleteConfirm": "Delete this note? This cannot be undone.",
+      "deleteKeep": "keep",
+      "deleteConfirmAction": "delete",
+      "deleteFailed": "Failed to delete note."
     },
     "review": {
       "reviewed": "REVIEWED",
@@ -174,6 +179,9 @@
       "openNote": "Open note",
       "editNote": "Edit note",
       "saveChanges": "Save changes",
+      "deleteNote": "Delete note",
+      "confirmDeleteNote": "Delete note permanently",
+      "keepNote": "Keep note",
       "question": "Question {{position}} of {{total}}. {{question}}"
     },
     "whatWasSaid": "what was said",

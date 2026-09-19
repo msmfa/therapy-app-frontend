@@ -124,7 +124,12 @@
       "saveUnavailable": "Die Notiz lässt sich im Moment nicht speichern.",
       "howTo": "Wie man Notizen macht",
       "saveNote": "Notiz speichern",
-      "edit": "bearbeiten"
+      "edit": "bearbeiten",
+      "delete": "notiz löschen",
+      "deleteConfirm": "Diese Notiz löschen? Das lässt sich nicht rückgängig machen.",
+      "deleteKeep": "behalten",
+      "deleteConfirmAction": "löschen",
+      "deleteFailed": "Die Notiz konnte nicht gelöscht werden."
     },
     "review": {
       "reviewed": "WIEDERHOLT",
@@ -174,6 +179,9 @@
       "openNote": "Notiz öffnen",
       "editNote": "Notiz bearbeiten",
       "saveChanges": "Änderungen speichern",
+      "deleteNote": "Notiz löschen",
+      "confirmDeleteNote": "Notiz endgültig löschen",
+      "keepNote": "Notiz behalten",
       "question": "Frage {{position}} von {{total}}. {{question}}"
     },
     "whatWasSaid": "was gesagt wurde",

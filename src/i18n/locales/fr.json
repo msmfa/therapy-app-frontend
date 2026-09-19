@@ -124,7 +124,12 @@
       "saveUnavailable": "Impossible d’enregistrer la note pour le moment.",
       "howTo": "Comment prendre des notes",
       "saveNote": "Enregistrer la note",
-      "edit": "modifier"
+      "edit": "modifier",
+      "delete": "supprimer la note",
+      "deleteConfirm": "Supprimer cette note ? C’est irréversible.",
+      "deleteKeep": "garder",
+      "deleteConfirmAction": "supprimer",
+      "deleteFailed": "Échec de la suppression de la note."
     },
     "review": {
       "reviewed": "REVU",
@@ -174,6 +179,9 @@
       "openNote": "Ouvrir la note",
       "editNote": "Modifier la note",
       "saveChanges": "Enregistrer les modifications",
+      "deleteNote": "Supprimer la note",
+      "confirmDeleteNote": "Supprimer définitivement la note",
+      "keepNote": "Garder la note",
       "question": "Question {{position}} sur {{total}}. {{question}}"
     },
     "whatWasSaid": "ce qui a été dit",
