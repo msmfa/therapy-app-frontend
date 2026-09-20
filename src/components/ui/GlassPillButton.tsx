@@ -33,6 +33,16 @@ type Props = {
     style?: StyleProp<ViewStyle>;
 };
 
+/**
+ * The clearance a shoulder keeps once it has given up the rest of its width.
+ *
+ * Past this the label has somewhere else to go: it shrinks itself, down to
+ * `minimumFontScale`, and only then truncates. Losing a point of type is a
+ * better trade than a label welded to the rim, and it is the order a pill
+ * should degrade in.
+ */
+const MIN_SHOULDER = 12;
+
 // The pill form of GlassCircleButton, built the same way: an almost clear
 // blurred body, a bright specular edge along the top that fades around the
 // shoulders, a fainter reflection along the bottom, and a shaded lower-right
@@ -104,8 +114,8 @@ export function GlassPillButton({
                      "Effacer" does not, so the label wrapped mid-word.
                      As flexible spacers they hold the same 38pt wherever
                      there is room, leaving the intrinsic width of every
-                     content-sized pill unchanged, and collapse when the
-                     label needs it. */ }
+                     content-sized pill unchanged, and give way down to
+                     MIN_SHOULDER when the label needs it. */ }
                 <View style={ styles.shoulder } />
                 <AppText
                     variant="body"
@@ -194,9 +204,17 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    // 38pt where there is room, and it gives way where there is not, but never
+    // all the way. `flexShrink` with no floor takes a shoulder to zero, and at
+    // zero the label is flush against the tip of the rounded cap: the widest
+    // point of the curve sits at the label's vertical centre, so the first and
+    // last glyph touch the rim. English never reached that, because the labels
+    // that share a pill with a fixed width are short ones; "Clear" fits the
+    // 56pt the calendar footer leaves and "Zurücksetzen" is twice that.
     shoulder: {
         width: 38,
         flexShrink: 1,
+        minWidth: MIN_SHOULDER,
     },
     label: {
         fontSize: 17,
