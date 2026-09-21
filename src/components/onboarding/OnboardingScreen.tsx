@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import type { LayoutChangeEvent, StyleProp, ViewStyle } from 'react-native';
 import type { Href } from 'expo-router';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaskedView from '@react-native-masked-view/masked-view';
@@ -15,6 +16,7 @@ import AppText from '../ui/AppText';
 import { OnboardingProgress } from './OnboardingProgress';
 import { BackButton } from '../ui/BackButton';
 import { GlassMorphismWithCircle } from '../ui/GlassMorphismWithCircle';
+import type { CirclePosition } from '../ui/LinearGradientCircle';
 import { PaperGrain } from './PaperGrain';
 import { onboardingAccentStyles, onboardingStyles } from './onboardingStyles';
 import { OnboardingStepAnalytics } from '../../features/onboarding/OnboardingStepAnalytics';
@@ -26,7 +28,12 @@ type BaseProps = {
     /** 1-4 for the personalisation questions; omitted elsewhere. */
     step?: number;
     headline: string;
-    supporting?: string;
+    /**
+     * A string is set as the flow's supporting paragraph. A node is placed in
+     * the band as given, for a screen whose supporting copy is more than one
+     * run of text.
+     */
+    supporting?: React.ReactNode;
     children?: React.ReactNode;
     /** Centre a short loading state within the space above the actions. */
     centeredBody?: boolean;
@@ -75,6 +82,25 @@ type BaseProps = {
      * than a note about the content below it.
      */
     supportingAppearance?: 'plain' | 'banner';
+    /**
+     * Draws Welcome's red gradient circle behind the glass, in the corner
+     * given.
+     *
+     * Off everywhere by default: repeating it behind every step made the
+     * artwork read as chrome rather than as the opening image. A screen that
+     * is asking for something rather than describing the plan can opt back
+     * into it, so the two ends of the flow are recognisably the same product.
+     */
+    circlePosition?: CirclePosition;
+    /**
+     * Whether the body's top and bottom edges dissolve as they scroll.
+     *
+     * On by default, and right wherever the body is cards on the page: content
+     * meeting the header or the actions with a hard edge reads as clipped. A
+     * screen whose body is one full-bleed image turns it off, because there the
+     * fade washes out the picture rather than the page it is on.
+     */
+    fadeBodyEdges?: boolean;
 };
 
 export type OnboardingSurface = 'light' | 'accent';
@@ -112,9 +138,48 @@ export const shouldUseCombinedOnboardingScroll = (fontScale: number): boolean =>
 export const ONBOARDING_SCREEN_PADDING = 24;
 const SCREEN_PADDING = ONBOARDING_SCREEN_PADDING;
 
+/** How far the grain is let down so a gradient circle stays visible through it. */
+const CIRCLE_GRAIN_OPACITY = 0.45;
+
 const BODY_TOP_FADE = 16;
 const BODY_BOTTOM_FADE = 48;
 const BUTTON_SHADOW_SPACE = 48;
+
+/**
+ * The body's scroll, masked or not.
+ *
+ * A plain View when the fade is off rather than a MaskedView with an opaque
+ * mask: the mask composites the whole scrolling body every frame, and a screen
+ * that has opted out of the effect should not pay for it. The layout is the
+ * same either way, so the backdrop still measures from the same box.
+ */
+function BodyEdges({
+    fade,
+    style,
+    onLayout,
+    maskElement,
+    children,
+}: {
+    fade: boolean;
+    style?: StyleProp<ViewStyle>;
+    onLayout?: (event: LayoutChangeEvent) => void;
+    maskElement: React.ReactElement;
+    children: React.ReactNode;
+}) {
+    if (!fade) {
+        return (
+            <View style={ style } onLayout={ onLayout }>
+                { children }
+            </View>
+        );
+    }
+
+    return (
+        <MaskedView style={ style } onLayout={ onLayout } maskElement={ maskElement }>
+            { children }
+        </MaskedView>
+    );
+}
 
 /**
  * The shell every onboarding screen sits in.
@@ -136,6 +201,8 @@ export function OnboardingScreen({
     footer,
     bottomBackdrop,
     surface = 'light',
+    circlePosition,
+    fadeBodyEdges = true,
     showBack = true,
     backHref,
 }: Props) {
@@ -197,9 +264,11 @@ export function OnboardingScreen({
                  edges of the display. */ }
             { supporting !== undefined && supportingAppearance === 'banner' && (
                 <View style={ [styles.supportingBanner, !titleBesideBack && styles.supporting] }>
-                    <AppText variant="body" style={ [onboardingStyles.body, styles.supportingBannerText] }>
-                        { supporting }
-                    </AppText>
+                    { typeof supporting === 'string' ? (
+                        <AppText variant="body" style={ [onboardingStyles.body, styles.supportingBannerText] }>
+                            { supporting }
+                        </AppText>
+                    ) : supporting }
                 </View>
             ) }
 
@@ -240,16 +309,17 @@ export function OnboardingScreen({
     return (
         <View style={ [styles.safeArea, isAccent && styles.accentSurface] }>
             { analyticsStep !== undefined && <OnboardingStepAnalytics step={ analyticsStep } /> }
-            { /* Glass only. The gradient circle is Welcome's alone: repeating it
-                 behind every step made the artwork read as chrome rather than
-                 as the opening image. */ }
-            { !isAccent && <GlassMorphismWithCircle /> }
+            { /* Glass, and the gradient circle only where a screen has asked
+                 for it. */ }
+            { !isAccent && <GlassMorphismWithCircle circlePosition={ circlePosition } /> }
 
             { /* The pale screens are printed on grain; the accent one is a
                  flat block of colour and stays flat. Over the glass, not under
                  it: the glass blurs whatever is behind it, and a blur is
-                 exactly what removes a texture this fine. */ }
-            { !isAccent && <PaperGrain /> }
+                 exactly what removes a texture this fine. Thinned over a
+                 circle, which full-strength grain paints straight over; the
+                 value matches Welcome, the other screen that shows one. */ }
+            { !isAccent && <PaperGrain opacity={ circlePosition === undefined ? 1 : CIRCLE_GRAIN_OPACITY } /> }
 
             <SafeAreaView
                 testID="onboarding-interaction-layer"
@@ -290,7 +360,7 @@ export function OnboardingScreen({
                 </View>
 
                 { useCombinedScroll ? (
-                    <MaskedView style={ styles.scroll } maskElement={ bodyMask }>
+                    <BodyEdges fade={ fadeBodyEdges } style={ styles.scroll } maskElement={ bodyMask }>
                         <ScrollView
                             testID="onboarding-combined-scroll"
                             style={ styles.scroll }
@@ -311,7 +381,7 @@ export function OnboardingScreen({
                                 </View>
                             ) }
                         </ScrollView>
-                    </MaskedView>
+                    </BodyEdges>
                 ) : (
                     <>
                         { bottomBackdrop !== undefined && (
@@ -327,7 +397,8 @@ export function OnboardingScreen({
                             </View>
                         ) }
 
-                        <MaskedView
+                        <BodyEdges
+                            fade={ fadeBodyEdges }
                             style={ styles.scroll }
                             onLayout={ (event) => setScrollTop(event.nativeEvent.layout.y) }
                             maskElement={ bodyMask }
@@ -335,7 +406,7 @@ export function OnboardingScreen({
                             <ScrollView
                                 testID="onboarding-body-scroll"
                                 style={ styles.scroll }
-                                contentContainerStyle={ [styles.scrollContent, titleBesideBack && styles.compactScrollContent, centeredBody && styles.centeredScrollContent] }
+                                contentContainerStyle={ [styles.scrollContent, titleBesideBack && styles.compactScrollContent, !fadeBodyEdges && styles.unfadedScrollContent, centeredBody && styles.centeredScrollContent] }
                                 onContentSizeChange={ (_width, height) => setBodyContentHeight(height) }
                                 onLayout={ (event) => setBodyViewportHeight(event.nativeEvent.layout.height) }
                                 scrollEnabled={ bodyOverflows }
@@ -345,7 +416,7 @@ export function OnboardingScreen({
                             >
                                 { body }
                             </ScrollView>
-                        </MaskedView>
+                        </BodyEdges>
 
                         <ScrollView
                             testID="onboarding-footer"
@@ -422,6 +493,12 @@ const styles = StyleSheet.create({
     // additional space that separates a question headline from its body.
     compactScrollContent: {
         paddingTop: 12,
+    },
+    // The tail of the content only has to clear the fade when there is one.
+    // Reserving the fade's height anyway cost a screen that had opted out the
+    // last line of what it was there to show.
+    unfadedScrollContent: {
+        paddingBottom: 24,
     },
     combinedScrollContent: {
         paddingHorizontal: 24,

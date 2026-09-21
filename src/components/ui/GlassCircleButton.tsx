@@ -43,6 +43,11 @@ export function GlassCircleButton({
 
     // The diagonal reads longer than the plus at the same arm, so it sits shorter.
     const arrowArm = size * 0.155;
+    // Back runs straight across, so it has none of the diagonal's extra length
+    // to give back and is set nearer the plus.
+    const backArm = size * 0.2;
+    /** The chevron's own reach, back along the shaft and out to each side. */
+    const backHead = size * 0.105;
     const closeArm = size * 0.16;
 
     // Specular arcs hug the rim; endpoints sit where the highlight has faded out.
@@ -149,16 +154,20 @@ export function GlassCircleButton({
                             />
                         </>
                     ) : icon === 'back' ? (
+                        /* Straight back along the axis the screen leaves on. The
+                           arrow used to point up and to the left, which read as
+                           a diagonal move to somewhere above rather than a step
+                           back through the flow. */
                         <>
                             <Path
-                                d={ `M ${center + arrowArm} ${center + arrowArm} L ${center - arrowArm} ${center - arrowArm}` }
+                                d={ `M ${center + backArm} ${center} L ${center - backArm} ${center}` }
                                 stroke={ iconColor }
                                 strokeWidth={ 2 }
                                 strokeLinecap="round"
                                 fill="none"
                             />
                             <Path
-                                d={ `M ${center - arrowArm} ${center - arrowArm + arrowArm * 1.05} L ${center - arrowArm} ${center - arrowArm} L ${center - arrowArm + arrowArm * 1.05} ${center - arrowArm}` }
+                                d={ `M ${center - backArm + backHead} ${center - backHead} L ${center - backArm} ${center} L ${center - backArm + backHead} ${center + backHead}` }
                                 stroke={ iconColor }
                                 strokeWidth={ 2 }
                                 strokeLinecap="round"

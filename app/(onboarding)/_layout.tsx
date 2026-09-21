@@ -35,6 +35,8 @@ export default function OnboardingLayout() {
             <Stack.Screen name="session-cadence" />
             <Stack.Screen name="reminder-times" />
             <Stack.Screen name="plan-preview" />
+            <Stack.Screen name="note-template" />
+            <Stack.Screen name="review-schedule" />
             { /* The one dark screen in the flow. Its ground has to be on the
                  stack's own card too, or the push animation slides a pale
                  rectangle in and the screen paints navy over it on arrival. */ }

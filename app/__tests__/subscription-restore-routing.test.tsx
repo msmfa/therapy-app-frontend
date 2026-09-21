@@ -401,8 +401,11 @@ describe('restored-subscription onboarding routing', () => {
         // The step is named Account whoever is looking at it; the body is what
         // tells a signed-in user there is nothing left to create.
         expect(getByText('Account')).toBeTruthy();
-        expect(getByText('Your schedule, reminder times and subscription will be connected to your account. Your note contents still stay only on this iPhone.')).toBeTruthy();
-        expect(queryByText('Create an account to connect your schedule, reminder times and subscription. Your note contents still stay only on this iPhone.')).toBeNull();
+        expect(getByText('Your schedule, reminder times and subscription will be connected to your account.')).toBeTruthy();
+        expect(queryByText('Create an account to connect your schedule, reminder times and subscription.')).toBeNull();
+        // The promise about where the notes live is made on the notes screen,
+        // and is not repeated here.
+        expect(queryByText(/stay only on this iPhone/)).toBeNull();
         fireEvent.press(getByText('Continue'));
 
         await waitFor(() => {

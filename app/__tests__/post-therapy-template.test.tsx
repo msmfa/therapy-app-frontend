@@ -53,26 +53,33 @@ beforeEach(() => {
 });
 
 describe('Template screen', () => {
-	it('shows the questions as a picture of the sheet rather than retyping them', () => {
-		const { getByText, getByLabelText, queryByText } = render(<HowToTakeNotesScreen />);
+	it('shows the sheet itself, drawn from the template copy', () => {
+		const { getByText, getByLabelText, getAllByText, queryByText } = render(<HowToTakeNotesScreen />);
 
 		getByText('Template');
 		getByLabelText('The five questions, as they appear on the cheatsheet');
 
-		// The sheet carries the wording now, so the page must not repeat it.
-		expect(queryByText(/Write as much or as little as feels useful/)).toBeNull();
-		expect(queryByText(/What stayed with you from today’s session\?/)).toBeNull();
+		// The sheet is drawn rather than photographed, so it says exactly what
+		// the resource says, in whatever language is set. One copy of each
+		// line: the page's own prose above it must still not repeat the sheet.
+		expect(getAllByText(/What stayed with you from today’s session\?/)).toHaveLength(1);
+		expect(getAllByText(/Write as much or as little as feels useful/)).toHaveLength(1);
+		// The reassurance about not needing a perfect record is said elsewhere
+		// and was dropped from the sheet.
+		expect(queryByText(/not a record you need to make perfect/)).toBeNull();
 	});
 
 	it('opens the cheatsheet popup from the link', () => {
-		const { getByText, queryByText } = render(<HowToTakeNotesScreen />);
+		const { getByText, getAllByText } = render(<HowToTakeNotesScreen />);
 
-		expect(queryByText(/An idea, phrase, realisation/)).toBeNull();
+		// The sheet behind the page already carries one copy of each line.
+		expect(getAllByText(/An idea, phrase, realisation/)).toHaveLength(1);
 
 		fireEvent.press(getByText('cheatsheet'));
 
-		getByText(/What stayed with you from today’s session\?/);
-		getByText('One subject is enough.');
+		// The popup adds the readable copy over it.
+		expect(getAllByText(/What stayed with you from today’s session\?/)).toHaveLength(2);
+		expect(getAllByText('One subject is enough.')).toHaveLength(2);
 	});
 
 	it('opens the research article from the link', () => {

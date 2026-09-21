@@ -1,7 +1,6 @@
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Linking, StyleSheet, View } from 'react-native';
-import type { ImageSourcePropType } from 'react-native';
 import { useRouter } from 'expo-router';
 import AppText from '../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
@@ -11,13 +10,6 @@ import { NoteSheetBackdrop } from '../src/components/notes/NoteSheetBackdrop';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { DottedGrid } from '../src/components/ui/DottedGrid';
 import { useTranslation } from 'react-i18next';
-// Named @3x so React Native reads the 1290x2060 capture as 430x687 points
-// rather than treating device pixels as points and rendering it oversized.
-const CHEATSHEET = require('../assets/illustrations/cheatsheet-preview.webp') as ImageSourcePropType;
-
-// The source capture, so the frame keeps the screen's proportions at any width.
-const CHEATSHEET_RATIO = 1290 / 2060;
-
 const RESEARCH_URL = 'https://www.plastic-brains.com/after-therapy-note-template/';
 
 export default function HowToTakeNotesScreen() {
@@ -89,7 +81,6 @@ export default function HowToTakeNotesScreen() {
             <View style={ styles.sheetArea }>
                 <View style={ styles.cheatsheetLayer } pointerEvents="none">
                     <NoteSheetBackdrop
-                        capture={ CHEATSHEET }
                         style={ styles.cheatsheet }
                         accessibilityLabel={ tScience('template.cheatsheetImage') }
                     />
@@ -141,10 +132,10 @@ const styles = StyleSheet.create({
     cheatsheet: {
         // Narrow enough that the tilt's wider bounding box still fits the
         // screen: at 4 degrees a tall sheet gains about 30pt of width, which
-        // was clipping its left edge at 90%.
+        // was clipping its left edge at 90%. The height is the drawn sheet's
+        // own, so the paper ends where the last question does.
         width: '80%',
         alignSelf: 'center',
-        aspectRatio: CHEATSHEET_RATIO,
         borderRadius: 18,
         // Nudged left before the tilt is applied, so the offset is in plain
         // page space rather than the rotated one.

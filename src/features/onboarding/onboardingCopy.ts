@@ -104,15 +104,34 @@ export const cadenceCopy = () => ({
     primaryCta: t('onboarding:cadence.primaryCta'),
 });
 
-export const reminderTimesCopy = () => ({
+/**
+ * Whose words the reminder-times screen carries.
+ *
+ * One testimonial for each goal on offer, so the person speaking is someone
+ * who wanted what this user said they wanted. A general endorsement of the app
+ * asks the reader to do the translating themselves.
+ *
+ * `remember` is a retired goal that older drafts can still hold, and a draft
+ * resumed before the first question has no goal at all. Both fall back to the
+ * preparation quote, which is the one the screen carried for everybody before
+ * the three existed.
+ */
+const TESTIMONIAL_GOALS = ['practise', 'prepare', 'habit'] as const;
+
+type TestimonialGoal = (typeof TESTIMONIAL_GOALS)[number];
+
+const testimonialGoal = (goal: GoalId | null): TestimonialGoal =>
+    TESTIMONIAL_GOALS.includes(goal as TestimonialGoal) ? (goal as TestimonialGoal) : 'prepare';
+
+export const reminderTimesCopy = (goal: GoalId | null = null) => ({
     headline: t('onboarding:reminderTimes.headline'),
     supporting: t('onboarding:reminderTimes.supporting'),
     morningLabel: t('onboarding:reminderTimes.morningLabel'),
     eveningLabel: t('onboarding:reminderTimes.eveningLabel'),
     testimonial: {
-        quote: t('onboarding:reminderTimes.quote'),
-        name: t('onboarding:reminderTimes.quoteName'),
-        role: t('onboarding:reminderTimes.quoteRole'),
+        quote: t(`onboarding:reminderTimes.testimonial.${testimonialGoal(goal)}.quote`),
+        name: t(`onboarding:reminderTimes.testimonial.${testimonialGoal(goal)}.name`),
+        role: t(`onboarding:reminderTimes.testimonial.${testimonialGoal(goal)}.role`),
     },
     primaryCta: t('onboarding:reminderTimes.primaryCta'),
 });
@@ -127,14 +146,33 @@ export const planCopy = () => ({
 
 export const reviewsPreviewCopy = () => ({
     headline: t('onboarding:reviewsPreview.headline'),
+    /** What the step before this one leads to, said before the reasoning. */
+    intro: t('onboarding:reviewsPreview.intro'),
+    /** What the next screen holds, and that each reminder on it opens its own reasoning. */
+    nextPage: t('onboarding:reviewsPreview.nextPage'),
+    primaryCta: t('onboarding:reviewsPreview.primaryCta'),
+});
+
+/** The cheat sheet on its own screen, between the plan and the reminders. */
+export const noteTemplateCopy = () => ({
+    headline: t('onboarding:noteTemplate.headline'),
+    /** The prompt drawn over the sheet, at the head of the arrow. */
+    tapHint: t('onboarding:noteTemplate.tapHint'),
+    /** What pressing the sheet does, for a reader who cannot see the arrow. */
+    openSheet: t('onboarding:noteTemplate.openSheet'),
+    primaryCta: t('onboarding:noteTemplate.primaryCta'),
+});
+
+export const reviewScheduleCopy = () => ({
+    headline: t('onboarding:reviewSchedule.headline'),
     /**
      * Reviews live inside the gap between two sessions, so a schedule that
      * varies, or one we have not been told about yet, produces no dated reviews
      * at all. The screen shows a one-week example rather than nothing.
      */
-    exampleGapNote: t('onboarding:reviewsPreview.exampleGapNote'),
-    sampleNote: t('onboarding:reviewsPreview.sampleNote'),
-    primaryCta: t('onboarding:reviewsPreview.primaryCta'),
+    exampleGapNote: t('onboarding:reviewSchedule.exampleGapNote'),
+    sampleNote: t('onboarding:reviewSchedule.sampleNote'),
+    primaryCta: t('onboarding:reviewSchedule.primaryCta'),
 });
 
 export const planHeadline = (): string => t('onboarding:plan.headline');
@@ -149,6 +187,19 @@ export const planHeadline = (): string => t('onboarding:plan.headline');
  * One key per shape rather than two sentences glued together, so a translator
  * can decide where the goal belongs in the sentence.
  */
+/**
+ * The evidence line, with the goal inside it named separately.
+ *
+ * The screen marks the goal in bold where it falls in the sentence, which
+ * needs the phrase on its own as well as the sentence it was interpolated
+ * into. `goal` is null only for a draft that somehow reached this screen
+ * without answering the first question, where the line has no goal in it.
+ */
+export const evidenceParts = (goal: GoalId | null): { statement: string; priority: string | null } => ({
+    statement: evidenceStatement(goal),
+    priority: goal === null ? null : t(`onboarding:goalPriority.${goal}`),
+});
+
 export const evidenceStatement = (goal: GoalId | null): string =>
     goal === null
         ? t('onboarding:plan.evidenceStatement')

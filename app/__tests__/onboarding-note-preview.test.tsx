@@ -146,21 +146,21 @@ describe('onboarding note preview', () => {
         expect(image.props.contentFit).toBe('contain');
     });
 
-    it('says the chosen goal back, with what the notes do for it', () => {
-        const { getByText } = render(<NotePreviewScreen />);
+    it('no longer says the chosen goal back on this screen', () => {
+        const { queryByText } = render(<NotePreviewScreen />);
 
-        const goal = goalOptions().find((option) => option.id === 'prepare')!;
-        // Said back in the second person: the option is worded as the user
-        // choosing it, which is wrong once the app is repeating it to them.
-        expect(getByText(goal.restated)).toBeTruthy();
-        expect(goal.restated).toContain('your next session');
-        expect(getByText(goal.noteSupport)).toBeTruthy();
+        // The card restating the goal has gone, and the list has the room it
+        // was taking. The goal still decides whether the notification lands
+        // over the list, which the cases below cover.
+        for (const option of goalOptions()) {
+            expect(queryByText(option.restated)).toBeNull();
+            expect(queryByText(option.noteSupport)).toBeNull();
+        }
     });
 
     it('lands the reminder over the list when the goal is the next session', () => {
         const { Dimensions } = require('react-native');
-        const { getByLabelText, getByText, getByTestId } = render(<NotePreviewScreen />);
-        const { LinearGradient } = require('expo-linear-gradient');
+        const { getByLabelText, getByText } = render(<NotePreviewScreen />);
 
         // The notification that starts it, and the list it arrives over.
         const banner = getByLabelText(
@@ -168,7 +168,6 @@ describe('onboarding note preview', () => {
         );
         expect(getByText("Review your notes before tomorrow's session")).toBeTruthy();
         expect(getByLabelText('A list of past therapy notes, each with the date of its session')).toBeTruthy();
-        expect(getByTestId('note-backdrop').findAllByType(LinearGradient)).toHaveLength(1);
 
         const style = Object.assign({}, ...[banner.props.style].flat(Infinity));
         const width = Dimensions.get('window').width;
@@ -189,25 +188,26 @@ describe('onboarding note preview', () => {
         }
     });
 
-    it('drops the card when no goal was chosen', () => {
+    it('shows the list unadorned when no goal was chosen', () => {
         mockGoal = null;
 
-        const { queryByText } = render(<NotePreviewScreen />);
+        const { getByLabelText, queryByLabelText } = render(<NotePreviewScreen />);
 
-        const goal = goalOptions().find((option) => option.id === 'prepare')!;
-        expect(queryByText(goal.restated)).toBeNull();
+        expect(getByLabelText('A list of past therapy notes, each with the date of its session')).toBeTruthy();
+        // No goal means no reason to promise the pre-session reminder.
+        expect(queryByLabelText(
+            "An iPhone notification from Plastic Brains: Review your notes before tomorrow's session",
+        )).toBeNull();
     });
 
-    it('fades the list out into its own pale ground, never into the navy page', () => {
+    it('lets the list run to the bottom edge instead of dissolving it', () => {
         mockGoal = 'practise';
         const { getByTestId } = render(<NotePreviewScreen />);
         const { LinearGradient } = require('expo-linear-gradient');
-        const { SURFACE_BLUE, SURFACE_BLUE_FADE } = require('designs/designs-colors');
 
-        const [fade] = getByTestId('note-backdrop').findAllByType(LinearGradient);
-
-        // The bottom of the screen belongs to the phone in the picture. Fading
-        // to the page's navy put a dark band over the last of the list.
-        expect(fade.props.colors).toEqual([SURFACE_BLUE_FADE, SURFACE_BLUE, SURFACE_BLUE]);
+        // The artwork used to dissolve into the page above the action. The
+        // button carries its own shadow and simply sits over the list now, so
+        // there is no gradient left in the backdrop at all.
+        expect(getByTestId('note-backdrop').findAllByType(LinearGradient)).toHaveLength(0);
     });
 });

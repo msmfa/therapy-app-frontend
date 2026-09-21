@@ -67,7 +67,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: ONBOARDING_SCREEN_PADDING,
         paddingTop: 2,
         paddingBottom: 2,
-        marginTop: 24,
+        // Flush against the band above it. Both run edge to edge, and the gap
+        // between them read as a seam in what is one printed slip.
+        marginTop: 0,
         borderRadius: 0,
         borderLeftWidth: 0,
         borderRightWidth: 0,

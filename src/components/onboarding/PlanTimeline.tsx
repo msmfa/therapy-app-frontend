@@ -48,28 +48,68 @@ type Props = {
  * phrase is still emphasised, so the template reads as a named thing whether or
  * not there is anywhere to go.
  */
-function renderBody(entry: PlanTimelineEntry, onOpenTemplate?: () => void): React.ReactNode {
-    const phrase = entry.bodyEmphasis;
-    if (phrase === undefined) return entry.body;
+function renderParagraph(
+    paragraph: string,
+    phrase: string | undefined,
+    isSession: boolean,
+    onOpenTemplate?: () => void,
+): React.ReactNode {
+    if (phrase === undefined) return paragraph;
 
-    const at = entry.body.indexOf(phrase);
-    if (at === -1) return entry.body;
+    const at = paragraph.indexOf(phrase);
+    if (at === -1) return paragraph;
+
+    // The sentence's own size and ink, then the mark on top of it: the phrase
+    // is part of the paragraph, and set a size smaller or a shade lighter than
+    // the words either side of it, it read as a different voice.
+    const phraseStyle = [
+        onboardingStyles.body,
+        styles.bodyCopy,
+        isSession && styles.bodySession,
+        onOpenTemplate === undefined ? styles.emphasis : styles.bodyLink,
+    ];
 
     return (
         <>
-            { entry.body.slice(0, at) }
+            { paragraph.slice(0, at) }
             <AppText
                 variant="body"
-                style={ [onboardingStyles.body, styles.bodyCopy, onOpenTemplate === undefined ? styles.emphasis : styles.bodyLink] }
+                style={ phraseStyle }
                 onPress={ onOpenTemplate }
                 accessibilityRole={ onOpenTemplate === undefined ? undefined : 'link' }
                 accessibilityHint={ onOpenTemplate === undefined ? undefined : translate('onboarding:timeline.opensFiveQuestions') }
             >
                 { phrase }
             </AppText>
-            { entry.body.slice(at + phrase.length) }
+            { paragraph.slice(at + phrase.length) }
         </>
     );
+}
+
+/**
+ * The entry's paragraphs, each as its own block.
+ *
+ * A blank line in the resource string is the break. Separate Text blocks
+ * rather than the newlines rendered inline, so the space between paragraphs is
+ * set here and does not inherit whatever line height the copy happens to have.
+ */
+function renderBody(entry: PlanTimelineEntry, onOpenTemplate?: () => void): React.ReactNode[] {
+    const isSession = entry.id === 'log_note';
+
+    return entry.body.split('\n\n').map((paragraph, index) => {
+        const paragraphStyle = [
+            onboardingStyles.body,
+            styles.bodyCopy,
+            isSession && styles.bodySession,
+            index === 0 ? styles.body : styles.bodyParagraph,
+        ];
+
+        return (
+            <AppText key={ paragraph } variant="body" style={ paragraphStyle }>
+                { renderParagraph(paragraph, entry.bodyEmphasis, isSession, onOpenTemplate) }
+            </AppText>
+        );
+    });
 }
 
 export function PlanTimeline({ entries, onOpenTemplate }: Props) {
@@ -123,7 +163,7 @@ export function PlanTimeline({ entries, onOpenTemplate }: Props) {
                                 style={ [
                                     onboardingStyles.card,
                                     styles.content,
-                                    isSession && styles.contentFullBleed,
+                                    !isSession && styles.contentCompact,
                                 ] }
                             >
                                 <View style={ styles.heading }>
@@ -165,18 +205,16 @@ export function PlanTimeline({ entries, onOpenTemplate }: Props) {
                                 <AppText variant="caption" style={ styles.when }>
                                     { occurrencesLabel(entry.occurrences) }
                                 </AppText>
-                                { /* The session's own card only. A rule between
-                                     the heading and the paragraph, dotted and
-                                     drawn edge to edge: the padding is
-                                     cancelled so the line runs the card's full
-                                     width rather than the paragraph's measure.
-                                     The review cards are short enough that a
-                                     rule only cut them in half. */ }
+                                { /* The session's own card only. A dotted rule
+                                     between the heading and the paragraphs,
+                                     set to the card's own measure: the panel
+                                     is rounded, and a line run out to its
+                                     edges crossed the corner radius. The
+                                     review cards are short enough that a rule
+                                     only cut them in half. */ }
                                 { isSession && <DottedDivider style={ styles.bodyRule } /> }
 
-                                <AppText variant="body" style={ [onboardingStyles.body, styles.bodyCopy, styles.body] }>
-                                    { renderBody(entry, isSession ? onOpenTemplate : undefined) }
-                                </AppText>
+                                { renderBody(entry, isSession ? onOpenTemplate : undefined) }
                             </View>
                         </>
                     );
@@ -225,9 +263,6 @@ export function PlanTimeline({ entries, onOpenTemplate }: Props) {
 /** The card's inset, which the full-width rule has to reach back through. */
 const CARD_PADDING = 20;
 
-/** The gutter the screen sets its content in, cancelled by the full-bleed row. */
-const SCREEN_PADDING = 24;
-
 const styles = StyleSheet.create({
     container: {
         marginTop: 4,
@@ -264,6 +299,15 @@ const styles = StyleSheet.create({
     railLineBelow: {
         flex: 1,
     },
+    /**
+     * The review rows are a label, a date and a sentence, and they are read as
+     * a list. The session's own card keeps the full inset: it is the only thing
+     * on its screen.
+     */
+    contentCompact: {
+        paddingVertical: 14,
+        marginBottom: 12,
+    },
     content: {
         flex: 1,
         padding: CARD_PADDING,
@@ -271,18 +315,6 @@ const styles = StyleSheet.create({
         // Brighter than the flow's shared card edge. These sit over artwork
         // and over the rail, and the highlight is what lifts them off both.
         borderColor: 'hsla(0, 0%, 100%, 0.85)',
-    },
-    /**
-     * The session's card is a band, not a card: it runs edge to edge of the
-     * display with square corners. It is the one thing on its screen, and a
-     * rounded panel with a margin either side made it a card among cards on a
-     * screen that has no others.
-     */
-    contentFullBleed: {
-        marginHorizontal: -SCREEN_PADDING,
-        borderRadius: 0,
-        borderLeftWidth: 0,
-        borderRightWidth: 0,
     },
     // Pulled back into the card's corner: at the full inset the arrow sat a
     // long way in from two edges it is supposed to mark.
@@ -304,24 +336,38 @@ const styles = StyleSheet.create({
     // The date sits under the label it belongs to and behind the paragraph in
     // importance, so it steps back a shade further than the flow's captions.
     when: {
-        marginTop: 2,
+        marginTop: 0,
+        fontSize: 13,
+        lineHeight: 18,
         color: TEXT_COLORS.quaternary,
     },
     // Larger than the flow's body copy: this paragraph is the card, and at the
     // shared 16pt it read as a caption under the label rather than the thing
     // the card is there to say.
-    /** Out through the card's own padding, so the rule meets both edges. */
     bodyRule: {
-        marginTop: 12,
-        marginHorizontal: -CARD_PADDING,
+        marginTop: 20,
         height: 1,
     },
     body: {
-        marginTop: 12,
+        marginTop: 6,
+    },
+    /** Between paragraphs inside one card, which are closer than cards are. */
+    bodyParagraph: {
+        marginTop: 14,
     },
     bodyCopy: {
         fontSize: 18,
         lineHeight: 27,
+    },
+    /**
+     * The session's card is the only thing on its screen and its paragraphs are
+     * what the screen is for, so they take the page's full-strength ink rather
+     * than the body's step-back grey, and a point more than the review rows.
+     */
+    bodySession: {
+        fontSize: 19,
+        lineHeight: 28,
+        color: TEXT_COLORS.primary,
     },
     /**
      * The brand faces ship no italic, so this is the system's slant over the

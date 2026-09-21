@@ -7,6 +7,7 @@ import AppText from '../../src/components/ui/AppText';
 import Loading from '../../src/components/ui/Loading';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import { SubscriptionPlanCard } from '../../src/components/onboarding/SubscriptionPlanCard';
+import { CirclePosition } from '../../src/components/ui/LinearGradientCircle';
 import {
     errorCopy,
     goalOptions,
@@ -173,7 +174,7 @@ export default function SubscriptionPreviewScreen() {
         || state.status === 'loading'
     ) {
         return (
-            <OnboardingScreen { ...backNavigation } headline={ tOnboarding('loadingSubscriptions') } centeredBody footer={ accountSettings }>
+            <OnboardingScreen { ...backNavigation } circlePosition={ PAYWALL_CIRCLE } headline={ tOnboarding('loadingSubscriptions') } centeredBody footer={ accountSettings }>
                 <Loading fullScreen={ false } />
             </OnboardingScreen>
         );
@@ -197,6 +198,7 @@ export default function SubscriptionPreviewScreen() {
         return (
             <OnboardingScreen
                 { ...backNavigation }
+                circlePosition={ PAYWALL_CIRCLE }
                 analyticsStep="subscription_preview"
                 headline={ failure.headline }
                 supporting={ failure.body }
@@ -218,6 +220,7 @@ export default function SubscriptionPreviewScreen() {
     return (
         <OnboardingScreen
             { ...backNavigation }
+            circlePosition={ PAYWALL_CIRCLE }
             analyticsStep="subscription_preview"
             interactionDisabled={ restoreInProgress }
             headline={ subscriptionCopy().planHeader }
@@ -255,6 +258,7 @@ export default function SubscriptionPreviewScreen() {
                     </View>
 
                     <OnboardingButton
+                        appearance="solid"
                         label={ showSelectedTrial
                             ? subscriptionCopy().trialCta
                             : planCtaLabel(selected) }
@@ -322,6 +326,14 @@ export default function SubscriptionPreviewScreen() {
         </OnboardingScreen>
     );
 }
+
+/**
+ * Welcome's red circle, brought back for the one screen that asks for money.
+ *
+ * Mirrored to the other corner so the two are a pair rather than a repeat: the
+ * opening screen carries it bottom-right, and this one bottom-left.
+ */
+const PAYWALL_CIRCLE = CirclePosition.BOTTOM_LEFT;
 
 const styles = StyleSheet.create({
     planTitle: {

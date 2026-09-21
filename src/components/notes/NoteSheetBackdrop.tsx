@@ -1,6 +1,6 @@
 import React from 'react';
 import { ImageSourcePropType, ImageStyle, StyleProp, StyleSheet, View } from 'react-native';
-import { Image, ImageBackground } from 'expo-image';
+import { ImageBackground } from 'expo-image';
 import { useTranslation } from 'react-i18next';
 
 import AppText from '../ui/AppText';
@@ -12,30 +12,17 @@ import {
 /**
  * The five-question sheet, shown behind a page as an illustration of itself.
  *
- * Two screens used a screenshot of the sheet here: a 1290x2060 capture with
- * the heading, the guidance and all five questions burned into the pixels. In
- * English that is a designed asset and it looks right. In French it was a
- * panel of English prose filling a translated screen, and no amount of
- * translating the accessibility label changes what is on the glass.
+ * Drawn from `notes:template.*`, which is where that copy already lives:
+ * `TemplateHelpModal` renders it the same way, and this shares its paper, ink
+ * and measurements.
  *
- * So the capture is used only for a language it was captured in, and every
- * other language gets the same sheet drawn from `notes:template.*`, which is
- * where that copy already lives: `TemplateHelpModal` renders it this way
- * already, and this shares its paper, ink and measurements.
- *
- * Drawing it also fixes a drift the captures had picked up. They read
- * "5 Minute Post Therapy Template" and "Answer these 5 questions after your
- * session", while the resource has said "Your five-minute therapy note" and
- * "Five questions to capture what mattered" for some time. A screenshot of
- * the app cannot be kept honest by the app.
+ * Two screens used a screenshot of the sheet here instead, with the heading,
+ * the guidance and all five questions burned into the pixels. It was only ever
+ * right in the language it was captured in, and it could not be kept honest by
+ * the app: the captures had already drifted from the wording they were meant
+ * to be showing, and editing that wording did nothing to them. Every language
+ * draws the sheet now, so the sheet always says what the resource says.
  */
-
-/**
- * The languages a capture exists for. Add a tag here when a capture is made
- * in that language; until then the tag falls through to the drawn sheet, which
- * is correct in every language rather than pixel-perfect in one.
- */
-const CAPTURED_LANGUAGES = new Set(['en']);
 
 // Very dark blue: near-black in weight, but clearly blue against the paper.
 // Same values as TemplateHelpModal, which draws the same sheet.
@@ -44,37 +31,17 @@ const INK_SOFT = 'hsla(219, 52%, 14%, 0.68)';
 const PAPER = require('../../../assets/textures/paper-green.webp') as ImageSourcePropType;
 
 type Props = {
-    /** The capture to use where one exists for the active language. */
-    capture: ImageSourcePropType;
     accessibilityLabel: string;
     /**
      * Typed as an image style because both callers size and tilt this as an
-     * image, and it has to satisfy the `Image` branch. Every property they
-     * pass is shared with a view style, so the drawn branch takes it as-is.
+     * image. Every property they pass is shared with a view style, so the sheet
+     * takes it as-is.
      */
     style?: StyleProp<ImageStyle>;
 };
 
-export function NoteSheetBackdrop({ capture, accessibilityLabel, style }: Props) {
+export function NoteSheetBackdrop({ accessibilityLabel, style }: Props) {
     const { t } = useTranslation('notes');
-    const { i18n } = useTranslation();
-
-    // The base subtag, so fr-CA and fr-FR resolve the same way the rest of the
-    // app resolves them.
-    const language = i18n.language.split('-')[0];
-
-    if (CAPTURED_LANGUAGES.has(language)) {
-        return (
-            <Image
-                source={ capture }
-                style={ style }
-                contentFit="contain"
-                accessible
-                accessibilityRole="image"
-                accessibilityLabel={ accessibilityLabel }
-            />
-        );
-    }
 
     return (
         <ImageBackground
@@ -121,10 +88,11 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
     // The capture's own gutter, so the drawn sheet lines up with the page
-    // margins the same way.
+    // margins the same way. The sheet is sized by this content now, so it also
+    // needs the paper to carry on past the last line rather than stopping on it.
     body: {
         paddingHorizontal: 30,
-        paddingTop: 28,
+        paddingVertical: 28,
         gap: 18,
     },
     headingSans: {
