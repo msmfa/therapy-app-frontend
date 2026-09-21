@@ -1,4 +1,4 @@
-export const ONBOARDING_STEPS = ['welcome', 'goal', 'session_date', 'session_cadence', 'reminder_times', 'plan_preview', 'reviews_preview', 'note_preview', 'subscription_preview', 'account_preview', 'notifications_preview', 'success'] as const;
+export const ONBOARDING_STEPS = ['welcome', 'goal', 'session_date', 'session_cadence', 'reminder_times', 'plan_preview', 'note_template', 'reviews_preview', 'review_schedule', 'note_preview', 'subscription_preview', 'account_preview', 'notifications_preview', 'success'] as const;
 export type OnboardingStep = typeof ONBOARDING_STEPS[number];
 export type ReviewKind = 'post_session' | 'post_sleep' | 'mid_session' | 'pre_session' | 'unprompted';
 export type AnalyticsErrorCode = 'network' | 'storage' | 'auth' | 'store' | 'unknown';

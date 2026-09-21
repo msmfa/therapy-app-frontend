@@ -49,6 +49,10 @@ export default function ReminderTimesScreen() {
     const onMorningChange = useMemo(() => change('morning'), [change]);
     const onEveningChange = useMemo(() => change('evening'), [change]);
 
+    // The chosen goal decides whose testimonial the screen carries, so the copy
+    // is read once here rather than per field.
+    const copy = reminderTimesCopy(answers.goal);
+
     const rows: {
         slot: Slot;
         label: string;
@@ -57,13 +61,13 @@ export default function ReminderTimesScreen() {
     }[] = [
         {
             slot: 'morning',
-            label: reminderTimesCopy().morningLabel,
+            label: copy.morningLabel,
             value: morningValue,
             onChange: onMorningChange,
         },
         {
             slot: 'evening',
-            label: reminderTimesCopy().eveningLabel,
+            label: copy.eveningLabel,
             value: eveningValue,
             onChange: onEveningChange,
         },
@@ -74,11 +78,11 @@ export default function ReminderTimesScreen() {
             analyticsStep="reminder_times"
             step={ 4 }
             backHref="/(onboarding)/session-cadence"
-            headline={ reminderTimesCopy().headline }
-            supporting={ reminderTimesCopy().supporting }
+            headline={ copy.headline }
+            supporting={ copy.supporting }
             footer={
                 <OnboardingButton
-                    label={ reminderTimesCopy().primaryCta }
+                    label={ copy.primaryCta }
                     onPress={ () => router.push('/(onboarding)/plan-preview') }
                 />
             }
@@ -128,9 +132,9 @@ export default function ReminderTimesScreen() {
 
             <View style={ styles.quote }>
                 <QuoteCard
-                    quote={ reminderTimesCopy().testimonial.quote }
-                    name={ reminderTimesCopy().testimonial.name }
-                    role={ reminderTimesCopy().testimonial.role }
+                    quote={ copy.testimonial.quote }
+                    name={ copy.testimonial.name }
+                    role={ copy.testimonial.role }
                 />
             </View>
 

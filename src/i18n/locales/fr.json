@@ -163,7 +163,7 @@
     "template": {
       "title": "Votre note de thérapie en cinq minutes",
       "subtitle": "Cinq questions pour saisir ce qui a compté",
-      "intro": "Écrivez autant ou aussi peu que vous le souhaitez. C’est votre note privée, pas un compte rendu à rendre parfait.",
+      "intro": "Écrivez autant ou aussi peu que vous le souhaitez.",
       "q1": "Qu’est-ce qui vous est resté de la séance d’aujourd’hui ?",
       "h1": "Une idée, une phrase, une prise de conscience ou un moment que vous ne voulez pas perdre.",
       "q2": "Quelle situation, pensée ou émotion voulez-vous observer cette semaine ?",
@@ -359,7 +359,7 @@
     },
     "goal": {
       "headline": "Qu’est-ce qui vous aiderait à tirer davantage de la thérapie ?",
-      "supporting": "Choisissez ce qui compte le plus pour vous.",
+      "supporting": "Cela nous aide à mettre en avant les fonctionnalités de l’application qui vous seront les plus utiles",
       "primaryCta": "Continuer"
     },
     "sessionDate": {
@@ -388,9 +388,23 @@
       "supporting": "Vous ne recevrez qu’un seul rappel matinal par semaine, après votre séance.",
       "morningLabel": "Révisions du matin",
       "eveningLabel": "Révisions du soir",
-      "quote": "J’aime bien le rappel avant ma prochaine séance. Avant, j’avais du mal à savoir de quoi parler, puis je ressortais de la séance en me souvenant enfin de ce que je voulais aborder. Avec le rappel d’avant-séance, je reprends simplement là où je m’étais arrêtée.",
-      "quoteName": "Sarah",
-      "quoteRole": "Utilisatrice de Plastic Brains",
+      "testimonial": {
+        "practise": {
+          "quote": "Ce sont les rappels en cours de semaine qui ont tout changé pour moi. Ce que ma thérapeute disait le mardi s’était évaporé dès le jeudi. Maintenant cela revient pendant qu’il me reste le temps de vraiment l’essayer.",
+          "name": "Marcus",
+          "role": "Utilisateur de Plastic Brains"
+        },
+        "prepare": {
+          "quote": "J’aime bien le rappel avant ma prochaine séance. Avant, j’avais du mal à savoir de quoi parler, puis je ressortais de la séance en me souvenant enfin de ce que je voulais aborder. Avec le rappel d’avant-séance, je reprends simplement là où je m’étais arrêtée.",
+          "name": "Sarah",
+          "role": "Utilisatrice de Plastic Brains"
+        },
+        "habit": {
+          "quote": "Relire quelques mois de notes, c’est la première fois que j’arrive à voir que quelque chose bougeait. D’une semaine à l’autre, cela paraît toujours minime. Sur une année, c’est évident.",
+          "name": "Priya",
+          "role": "Utilisatrice de Plastic Brains"
+        }
+      },
       "primaryCta": "Voir mon programme"
     },
     "plan": {
@@ -398,12 +412,24 @@
       "sampleHeadline": "Découvrez comment votre programme pourrait fonctionner",
       "sampleBody": "Cet exemple montre comment les rappels s’intercalent entre les séances. Ajoutez votre séance plus tard et nous remplacerons ces dates par votre programme réel.",
       "sampleVariableBody": "Cet exemple utilise un intervalle d’une semaine pour montrer le fonctionnement des rappels. Ajoutez vos séances plus tard et nous utiliserons l’intervalle réel qui les sépare.",
-      "evidenceStatement": "Ces horaires s’appuient sur la recherche sur la consolidation mnésique, le sommeil, la récupération espacée et la remise en contexte.",
-      "evidenceStatementWithGoal": "Ces horaires s’appuient sur la recherche sur la consolidation mnésique, le sommeil, la récupération espacée et la remise en contexte. Ils tiennent aussi compte de ce qui compte le plus pour vous : {{priority}}.",
-      "primaryCta": "Après votre note"
+      "evidenceStatement": "Vos intervalles de rappel découlent des recherches sur la consolidation mnésique, le sommeil, la récupération espacée et la remise en contexte.",
+      "evidenceStatementWithGoal": "Vos intervalles de rappel découlent des recherches sur la consolidation mnésique, le sommeil, la récupération espacée et la remise en contexte. Ils tiennent aussi compte de ce qui vous importe le plus : {{priority}}.",
+      "primaryCta": "Modèle en 5 minutes"
+    },
+    "noteTemplate": {
+      "headline": "Votre modèle en 5 minutes",
+      "tapHint": "Appuyez ici",
+      "openSheet": "Ouvrir la fiche pratique",
+      "primaryCta": "Vos rappels personnalisés"
     },
     "reviewsPreview": {
       "headline": "Vos rappels personnalisés",
+      "intro": "Une fois votre note écrite, nous vous rappellerons d’y revenir.",
+      "nextPage": "La page suivante présente vos rappels hebdomadaires. Appuyez sur un rappel pour savoir pourquoi nous avons choisi ce jour et cette heure.",
+      "primaryCta": "Vos rappels"
+    },
+    "reviewSchedule": {
+      "headline": "Vos rappels",
       "exampleGapNote": "Ces dates utilisent un intervalle d’une semaine à titre d’exemple. Dès que nous connaîtrons la date de votre séance suivante, vos révisions se caleront sur l’intervalle réel.",
       "sampleNote": "Ces dates proviennent de la séance d’exemple de votre programme type. Ajoutez votre prochaine séance plus tard et nous les remplacerons par votre véritable calendrier.",
       "primaryCta": "Vos notes"
@@ -487,8 +513,8 @@
     },
     "account": {
       "headline": "Compte",
-      "body": "Créez un compte pour y rattacher votre calendrier, vos horaires de rappel et votre abonnement. Le contenu de vos notes reste uniquement sur cet iPhone.",
-      "authenticatedBody": "Votre calendrier, vos horaires de rappel et votre abonnement seront rattachés à votre compte. Le contenu de vos notes reste uniquement sur cet iPhone.",
+      "body": "Créez un compte pour y rattacher votre calendrier, vos horaires de rappel et votre abonnement.",
+      "authenticatedBody": "Votre calendrier, vos horaires de rappel et votre abonnement seront rattachés à votre compte.",
       "continue": "Continuer",
       "apple": "Continuer avec Apple",
       "email": "Continuer avec un e-mail",
@@ -557,15 +583,15 @@
     "timeline": {
       "templateName": "modèle de 5 questions en 5 minutes",
       "postSessionLabel": "Après votre séance du {{weekday}}",
-      "postSessionBody": "Nous vous enverrons une notification juste après votre séance du {{weekday}} pour vous rappeler de noter ce que vous avez abordé. Si vous ne savez pas par où commencer, nous avons un {{template}} qui facilite les choses.",
+      "postSessionBody": "Nous vous enverrons une notification juste après votre séance du {{weekday}} pour vous rappeler de noter ce que vous avez abordé.\n\nLe mieux est d’écrire avec vos propres mots ce qui vous a semblé le plus important dans votre séance.\n\nCependant, si vous ne savez pas par où commencer, nous avons un {{template}} qui facilite les choses.",
       "postSleepLabel": "Plus tard ce {{weekday}} soir",
       "postSleepBody": "Revenez à votre note tant que la séance est encore fraîche.",
       "morningLabel": "{{weekday}} matin",
       "morningBody": "Relisez ce que vous avez abordé lors de la séance de la veille.",
       "midLabel": "Entre les séances",
-      "midBody": "Un court rappel pour relire votre note dans la semaine, afin que ce dont vous avez parlé ne s’estompe pas avant la prochaine séance.",
+      "midBody": "Un rappel pour relire votre note dans la semaine.",
       "preLabel": "{{weekday}} soir",
-      "preBody": "Un dernier coup d’œil à votre note la veille au soir, pour arriver en sachant ce que vous voulez reprendre de la dernière séance.",
+      "preBody": "Un dernier coup d’œil à votre note la veille au soir de votre prochaine séance.",
       "research": "Recherche",
       "researchLabel": "Recherche :",
       "opensResearch": "Ouvre la recherche sur ce rappel",

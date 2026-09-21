@@ -163,7 +163,7 @@
     "template": {
       "title": "Ihre Therapienotiz in fünf Minuten",
       "subtitle": "Fünf Fragen, um das Wesentliche festzuhalten",
-      "intro": "Schreiben Sie so viel oder so wenig, wie Ihnen guttut. Das ist Ihre private Notiz und kein Protokoll, das perfekt sein muss.",
+      "intro": "Schreiben Sie so viel oder so wenig, wie Ihnen guttut.",
       "q1": "Was ist Ihnen aus der heutigen Sitzung geblieben?",
       "h1": "Ein Gedanke, ein Satz, eine Erkenntnis oder ein Moment, den Sie nicht verlieren möchten.",
       "q2": "Welche Situation, welchen Gedanken oder welches Gefühl möchten Sie diese Woche bewusst wahrnehmen?",
@@ -359,7 +359,7 @@
     },
     "goal": {
       "headline": "Was würde Ihnen helfen, mehr aus der Therapie mitzunehmen?",
-      "supporting": "Wählen Sie das Ergebnis, das Ihnen am wichtigsten ist.",
+      "supporting": "So können wir die Funktionen der App hervorheben, die Ihnen am meisten nützen",
       "primaryCta": "Weiter"
     },
     "sessionDate": {
@@ -388,9 +388,23 @@
       "supporting": "Sie erhalten nur eine Morgenerinnerung pro Woche, jeweils nach Ihrer Sitzung.",
       "morningLabel": "Wiederholungen am Morgen",
       "eveningLabel": "Wiederholungen am Abend",
-      "quote": "Mir gefällt die Erinnerung vor meiner nächsten Sitzung. Früher fiel es mir schwer, mir zu überlegen, worüber ich sprechen wollte, und kaum war die Sitzung vorbei, fiel mir endlich ein, was ich hatte ansprechen wollen. Mit der Erinnerung vor der Sitzung mache ich einfach dort weiter, wo ich aufgehört habe.",
-      "quoteName": "Sarah",
-      "quoteRole": "Plastic-Brains-Nutzerin",
+      "testimonial": {
+        "practise": {
+          "quote": "Die Erinnerungen unter der Woche haben für mich den Unterschied gemacht. Was meine Therapeutin dienstags sagte, war donnerstags weg. Jetzt taucht es wieder auf, solange ich es noch ausprobieren kann.",
+          "name": "Marcus",
+          "role": "Plastic-Brains-Nutzer"
+        },
+        "prepare": {
+          "quote": "Mir gefällt die Erinnerung vor meiner nächsten Sitzung. Früher fiel es mir schwer, mir zu überlegen, worüber ich sprechen wollte, und kaum war die Sitzung vorbei, fiel mir endlich ein, was ich hatte ansprechen wollen. Mit der Erinnerung vor der Sitzung mache ich einfach dort weiter, wo ich aufgehört habe.",
+          "name": "Sarah",
+          "role": "Plastic-Brains-Nutzerin"
+        },
+        "habit": {
+          "quote": "Ein paar Monate Notizen noch einmal zu lesen, ist das erste Mal, dass ich sehen konnte, dass sich überhaupt etwas verändert. Von Woche zu Woche wirkt es nie nach viel. Über ein Jahr hinweg schon.",
+          "name": "Priya",
+          "role": "Plastic-Brains-Nutzerin"
+        }
+      },
       "primaryCta": "Meinen Plan ansehen"
     },
     "plan": {
@@ -398,12 +412,24 @@
       "sampleHeadline": "So könnte Ihr Plan aussehen",
       "sampleBody": "Dieses Beispiel zeigt, wie sich Erinnerungen zwischen die Sitzungen einfügen. Tragen Sie Ihren gebuchten Termin später ein, und wir ersetzen diese Daten durch Ihren echten Plan.",
       "sampleVariableBody": "Dieses Beispiel nutzt einen Abstand von einer Woche, um die Erinnerungen zu veranschaulichen. Tragen Sie Ihre gebuchten Termine später ein, und wir verwenden den tatsächlichen Abstand dazwischen.",
-      "evidenceStatement": "Diese Zeitpunkte stammen aus der Forschung zu Gedächtniskonsolidierung, Schlaf, verteiltem Abrufen und Kontextwiederherstellung.",
-      "evidenceStatementWithGoal": "Diese Zeitpunkte stammen aus der Forschung zu Gedächtniskonsolidierung, Schlaf, verteiltem Abrufen und Kontextwiederherstellung. Außerdem richten sie sich danach, was Ihnen nach eigener Aussage am wichtigsten ist: {{priority}}.",
-      "primaryCta": "Nach Ihrer Notiz"
+      "evidenceStatement": "Ihre Erinnerungsintervalle stammen aus der Forschung zu Gedächtniskonsolidierung, Schlaf, verteiltem Abrufen und Kontextwiederherstellung.",
+      "evidenceStatementWithGoal": "Ihre Erinnerungsintervalle stammen aus der Forschung zu Gedächtniskonsolidierung, Schlaf, verteiltem Abrufen und Kontextwiederherstellung. Außerdem richten sie sich nach dem, was Ihnen am wichtigsten ist: {{priority}}.",
+      "primaryCta": "5-Minuten-Vorlage"
+    },
+    "noteTemplate": {
+      "headline": "Ihre 5-Minuten-Vorlage",
+      "tapHint": "Hier tippen",
+      "openSheet": "Spickzettel öffnen",
+      "primaryCta": "Ihre persönlichen Erinnerungen"
     },
     "reviewsPreview": {
       "headline": "Ihre persönlichen Erinnerungen",
+      "intro": "Sobald Ihre Notiz steht, erinnern wir Sie daran, noch einmal hineinzuschauen.",
+      "nextPage": "Auf der nächsten Seite stehen Ihre wöchentlichen Erinnerungen. Tippen Sie auf eine, wenn Sie wissen möchten, warum wir diesen Tag und diese Zeit gewählt haben.",
+      "primaryCta": "Ihre Erinnerungen"
+    },
+    "reviewSchedule": {
+      "headline": "Ihre Erinnerungen",
       "exampleGapNote": "Diese Daten verwenden beispielhaft einen Abstand von einer Woche. Sobald wir wissen, wann Ihre darauffolgende Sitzung stattfindet, richten sich Ihre Wiederholungen nach dem tatsächlichen Abstand.",
       "sampleNote": "Diese Daten stammen aus der Beispielsitzung in Ihrem Musterplan. Tragen Sie Ihre nächste Sitzung später ein, und wir ersetzen sie durch Ihren echten Zeitplan.",
       "primaryCta": "Ihre Notizen"
@@ -487,8 +513,8 @@
     },
     "account": {
       "headline": "Konto",
-      "body": "Erstellen Sie ein Konto, um Ihren Zeitplan, Ihre Erinnerungszeiten und Ihr Abo zu verknüpfen. Die Inhalte Ihrer Notizen bleiben weiterhin ausschließlich auf diesem iPhone.",
-      "authenticatedBody": "Ihr Zeitplan, Ihre Erinnerungszeiten und Ihr Abo werden mit Ihrem Konto verknüpft. Die Inhalte Ihrer Notizen bleiben weiterhin ausschließlich auf diesem iPhone.",
+      "body": "Erstellen Sie ein Konto, um Ihren Zeitplan, Ihre Erinnerungszeiten und Ihr Abo zu verknüpfen.",
+      "authenticatedBody": "Ihr Zeitplan, Ihre Erinnerungszeiten und Ihr Abo werden mit Ihrem Konto verknüpft.",
       "continue": "Weiter",
       "apple": "Mit Apple fortfahren",
       "email": "Mit E-Mail fortfahren",
@@ -557,15 +583,15 @@
     "timeline": {
       "templateName": "Vorlage mit 5 Fragen in 5 Minuten",
       "postSessionLabel": "Nach Ihrer Sitzung am {{weekday}}",
-      "postSessionBody": "Direkt nach Ihrer Sitzung am {{weekday}} senden wir Ihnen eine Benachrichtigung, die Sie daran erinnert, das Besprochene festzuhalten. Wenn Sie nicht wissen, wo Sie anfangen sollen, haben wir eine {{template}}, die es Ihnen leicht macht.",
+      "postSessionBody": "Direkt nach Ihrer Sitzung am {{weekday}} senden wir Ihnen eine Benachrichtigung, die Sie daran erinnert, das Besprochene festzuhalten.\n\nAm besten schreiben Sie in eigenen Worten, was Ihnen in Ihrer Sitzung am wichtigsten erschien.\n\nWenn Sie jedoch nicht wissen, wo Sie anfangen sollen, haben wir eine {{template}}, die es Ihnen leicht macht.",
       "postSleepLabel": "Später am {{weekday}}abend",
       "postSleepBody": "Kehren Sie zu Ihrer Notiz zurück, solange die Sitzung noch frisch ist.",
       "morningLabel": "{{weekday}}morgen",
       "morningBody": "Gehen Sie noch einmal durch, was Sie am Vortag in Ihrer Sitzung besprochen haben.",
       "midLabel": "Zwischen den Sitzungen",
-      "midBody": "Eine kurze Erinnerung, Ihre Notiz im Lauf der Woche noch einmal zu lesen, damit das Besprochene bis zur nächsten Sitzung nicht verblasst.",
+      "midBody": "Eine Erinnerung, Ihre Notiz im Lauf der Woche noch einmal zu lesen.",
       "preLabel": "{{weekday}}abend",
-      "preBody": "Ein letzter Blick auf Ihre Notiz am Abend davor, damit Sie wissen, woran Sie aus Ihrer letzten Sitzung anknüpfen möchten.",
+      "preBody": "Ein letzter Blick auf Ihre Notiz am Abend vor Ihrer nächsten Sitzung.",
       "research": "Forschung",
       "researchLabel": "Forschung:",
       "opensResearch": "Öffnet die Forschung zu dieser Erinnerung",

@@ -163,7 +163,7 @@
     "template": {
       "title": "Your five-minute therapy note",
       "subtitle": "Five questions to capture what mattered",
-      "intro": "Write as much or as little as feels useful. This is your private note, not a record you need to make perfect.",
+      "intro": "Write as much or as little as feels useful.",
       "q1": "What stayed with you from today’s session?",
       "h1": "An idea, phrase, realisation or moment you do not want to lose.",
       "q2": "What situation, thought or feeling do you want to notice this week?",
@@ -359,7 +359,7 @@
     },
     "goal": {
       "headline": "What would help you get more from therapy?",
-      "supporting": "Choose the outcome that matters most to you.",
+      "supporting": "This helps us focus on the elements of the app that would benefit you the most",
       "primaryCta": "Continue"
     },
     "sessionDate": {
@@ -388,9 +388,23 @@
       "supporting": "You'll only receive one morning reminder a week, after your session.",
       "morningLabel": "Morning reviews",
       "eveningLabel": "Evening reviews",
-      "quote": "I like the reminder before my next session. I used to find it hard to think about what to talk about then I’d leave the session and finally remember things I wanted to bring up. With the pre-session reminder I just pick up from where I left off.",
-      "quoteName": "Sarah",
-      "quoteRole": "Plastic Brains User",
+      "testimonial": {
+        "practise": {
+          "quote": "The nudges during the week are what changed it for me. Something my therapist said on Tuesday used to be gone by Thursday. Now it turns up again while I still have a chance to actually try it.",
+          "name": "Marcus",
+          "role": "Plastic Brains User"
+        },
+        "prepare": {
+          "quote": "I like the reminder before my next session. I used to find it hard to think about what to talk about then I’d leave the session and finally remember things I wanted to bring up. With the pre-session reminder I just pick up from where I left off.",
+          "name": "Sarah",
+          "role": "Plastic Brains User"
+        },
+        "habit": {
+          "quote": "Reading back over a few months of notes is the first time I have been able to see that anything was changing. Week to week it never feels like much. Across a year it obviously is.",
+          "name": "Priya",
+          "role": "Plastic Brains User"
+        }
+      },
       "primaryCta": "See my plan"
     },
     "plan": {
@@ -398,12 +412,24 @@
       "sampleHeadline": "See how your plan could work",
       "sampleBody": "This example shows how reminders can fit between sessions. Add your booked session later and we'll replace these dates with your real plan.",
       "sampleVariableBody": "This example uses a one-week gap to show how reminders work. Add your booked sessions later and we'll use the real gap between them.",
-      "evidenceStatement": "These times come from research into memory consolidation, sleep, spaced retrieval and context reinstatement.",
-      "evidenceStatementWithGoal": "These times come from research into memory consolidation, sleep, spaced retrieval and context reinstatement. They are also shaped by what you told us matters most: {{priority}}.",
-      "primaryCta": "After your note"
+      "evidenceStatement": "Your custom reminder intervals come from research into memory consolidation, sleep, spaced retrieval and context reinstatement.",
+      "evidenceStatementWithGoal": "Your custom reminder intervals come from research into memory consolidation, sleep, spaced retrieval and context reinstatement. They are also shaped by what you told us matters most: {{priority}}.",
+      "primaryCta": "5 minute template"
+    },
+    "noteTemplate": {
+      "headline": "Your 5 minute template",
+      "tapHint": "Tap me",
+      "openSheet": "Open the cheatsheet",
+      "primaryCta": "Your custom reminders"
     },
     "reviewsPreview": {
       "headline": "Your Custom Reminders",
+      "intro": "Once you've written your note, we'll remind you to come back to it.",
+      "nextPage": "The next page shows your custom weekly reminders. If you're interested in the science behind them, you can tap each reminder to find out why we chose the days and times we did.",
+      "primaryCta": "Your reminders"
+    },
+    "reviewSchedule": {
+      "headline": "Your Reminders",
       "exampleGapNote": "These dates use a one-week gap as an example. Once we know when your following session is, your reviews will move to the real gap between them.",
       "sampleNote": "These dates come from the example session in your sample plan. Add your next session later and we'll replace them with your real schedule.",
       "primaryCta": "Your notes"
@@ -487,8 +513,8 @@
     },
     "account": {
       "headline": "Account",
-      "body": "Create an account to connect your schedule, reminder times and subscription. Your note contents still stay only on this iPhone.",
-      "authenticatedBody": "Your schedule, reminder times and subscription will be connected to your account. Your note contents still stay only on this iPhone.",
+      "body": "Create an account to connect your schedule, reminder times and subscription.",
+      "authenticatedBody": "Your schedule, reminder times and subscription will be connected to your account.",
       "continue": "Continue",
       "apple": "Continue with Apple",
       "email": "Continue with email",
@@ -557,15 +583,15 @@
     "timeline": {
       "templateName": "5 minute, 5 questions template",
       "postSessionLabel": "After your {{weekday}} session",
-      "postSessionBody": "We will send you a notification just after your session on {{weekday}} to remind you to take a note on what you discussed. If you're not sure where to start we have a {{template}} that makes it easy.",
+      "postSessionBody": "We will send you a notification just after your session on {{weekday}} to remind you to take a note on what you discussed.\n\nIt's best to write what you felt was most important that came up in your session in your own words.\n\nHowever, if you're not sure where to start we have a {{template}} that makes it easy.",
       "postSleepLabel": "Later that {{weekday}} evening",
       "postSleepBody": "Return to your note while the session is still fresh.",
       "morningLabel": "{{weekday}} Morning",
       "morningBody": "Revisit what you discussed in your session the day before.",
       "midLabel": "Between sessions",
-      "midBody": "A short reminder to read your note again during the week, so what you talked about does not fade before your next session.",
+      "midBody": "A reminder to read your note again during the week.",
       "preLabel": "{{weekday}} evening",
-      "preBody": "One last look at your note the evening before, so you arrive knowing what you want to continue from your last session.",
+      "preBody": "One last look at your note the evening before your next session.",
       "research": "Research",
       "researchLabel": "Research:",
       "opensResearch": "Opens the research for this reminder",

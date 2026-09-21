@@ -61,6 +61,7 @@ jest.mock('../../src/components/onboarding/OnboardingScreen', () => {
 import { OnboardingAnswersProvider } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { timeLabel } from '../../src/features/onboarding/formatting';
 import { reminderTimesCopy } from '../../src/features/onboarding/onboardingCopy';
+import type { GoalId } from '../../src/features/onboarding/onboardingCopy';
 import ReminderTimesScreen from '../(onboarding)/reminder-times';
 
 const at = (h: number, m: number) => {
@@ -108,6 +109,60 @@ describe('reminder times: what surrounds the pickers', () => {
         expect(view.getByText("You'll only receive one morning reminder a week, after your session.")).toBeTruthy();
         expect(view.queryByText(/Pick a time in the morning/)).toBeNull();
         view.unmount();
+    });
+});
+
+/**
+ * The screen asks for two times and, underneath, hands the reader someone
+ * else's experience of them. Whose experience is not incidental: a general
+ * endorsement of the app leaves the reader to do the translating from what
+ * they said they wanted into what the quote is about.
+ */
+describe('reminder times: whose words the screen carries', () => {
+    beforeEach(() => {
+        mockStore = {};
+        mockPickers.length = 0;
+    });
+
+    /** Seeds the keychain draft the provider hydrates from. */
+    const withGoal = (goal: string | null) => {
+        mockStore['onboarding.draft.v1.anon'] = JSON.stringify({ goal });
+    };
+
+    it.each([
+        ['practise', 'Marcus'],
+        ['prepare', 'Sarah'],
+        ['habit', 'Priya'],
+    ])('carries the %s testimonial when that is the chosen goal', async (goal, name) => {
+        withGoal(goal);
+        const view = renderScreen();
+        await waitFor(() => expect(morningPicker()).toBeDefined());
+
+        const expected = reminderTimesCopy(goal as GoalId).testimonial;
+        await waitFor(() => expect(view.getByText(expected.name)).toBeTruthy());
+        expect(expected.name).toBe(name);
+        expect(view.getByText(new RegExp(expected.quote.slice(0, 40)))).toBeTruthy();
+        view.unmount();
+    });
+
+    it('falls back to the preparation quote when no goal has been chosen', async () => {
+        withGoal(null);
+        const view = renderScreen();
+        await waitFor(() => expect(morningPicker()).toBeDefined());
+
+        // What the screen carried for everybody before the quotes were split,
+        // so a draft with no answer yet is never left without one.
+        expect(view.getByText(reminderTimesCopy('prepare').testimonial.name)).toBeTruthy();
+        view.unmount();
+    });
+
+    it('gives each goal a different person and a different quote', () => {
+        const goals: GoalId[] = ['practise', 'prepare', 'habit'];
+        const names = goals.map((goal) => reminderTimesCopy(goal).testimonial.name);
+        const quotes = goals.map((goal) => reminderTimesCopy(goal).testimonial.quote);
+
+        expect(new Set(names).size).toBe(goals.length);
+        expect(new Set(quotes).size).toBe(goals.length);
     });
 });
 

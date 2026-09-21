@@ -1,110 +1,115 @@
-import { useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import React from 'react';
+import { StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { TEXT_COLORS } from 'designs/designs-colors';
+import { ACCENT_SURFACE } from 'designs/designs-colors';
+import { BRAND_FONTS } from 'designs/designs-typography';
 import AppText from '../../src/components/ui/AppText';
 import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import { onboardingStyles } from '../../src/components/onboarding/onboardingStyles';
-import { PlanTimeline } from '../../src/components/onboarding/PlanTimeline';
 import {
-    evidenceStatement,
+    evidenceParts,
     reviewsPreviewCopy,
 } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
-import { planTimeline } from '../../src/features/onboarding/planTimeline';
-import { sampleSessionAt } from '../../src/features/onboarding/samplePlan';
 
 /**
- * Everything the plan does after the note is written.
+ * The goal set in bold inside the sentence that names it.
  *
- * The plan preview keeps the first point on its own, because capturing the
- * note is the one thing the user does; these are what the app does for them
- * afterwards, and a single list mixed the two together.
+ * Split rather than marked up, so the copy stays one readable sentence in the
+ * resource file instead of a list of fragments. The phrase is interpolated into
+ * that sentence, so it is always present verbatim; if a translation ever moves
+ * or reshapes it, the sentence is returned whole rather than mangled.
+ */
+function markPriority(sentence: string, priority: string): React.ReactNode {
+    const at = sentence.indexOf(priority);
+    if (at === -1) return sentence;
+
+    return (
+        <>
+            { sentence.slice(0, at) }
+            <AppText variant="body" style={ [styles.bannerText, styles.priority] }>
+                { priority }
+            </AppText>
+            { sentence.slice(at + priority.length) }
+        </>
+    );
+}
+
+/**
+ * Why the app will keep coming back to the note, in one band of orange.
  *
- * The screen leads with why the moments are where they are, so the reasoning
- * is read before the list rather than found underneath it.
+ * The band is the whole of the screen. The dated list of moments it used to
+ * carry underneath is its own screen now: the reasoning and the schedule are
+ * two different answers, and stacked together the band read as a caption
+ * introducing a list rather than as the thing the screen exists to say.
  *
- * Every one of these moments sits inside the gap between two sessions, which is
- * also how the server schedules them. A schedule that varies, or one not yet
- * answered, therefore has no gap to place them in, and the screen would
- * otherwise be a title and a sentence over empty space. It falls back to a
- * one-week example and labels it, rather than showing nothing.
+ * Three paragraphs, each doing a separate job. The first picks up the note the
+ * last screen was about and says what happens to it next, because otherwise
+ * this screen starts mid-thought. The second is where the times come from, the
+ * research and this person's own answer in one sentence. The third says what
+ * the next screen holds and that each reminder on it opens its own reasoning.
  */
 export default function ReviewsPreviewScreen() {
     const router = useRouter();
     const { answers } = useOnboardingAnswers();
-
-    const isSamplePlan = answers.sessionAt === null && answers.sessionDateSkipped;
-    const sessionAt = useMemo(
-        () => answers.sessionAt ?? sampleSessionAt(answers.eveningMinutes),
-        [answers.eveningMinutes, answers.sessionAt],
-    );
-
-    // Only a fixed cadence gives a following session, and without one there is
-    // no gap and so no review to date.
-    const hasKnownGap = answers.cadence !== null && answers.cadence !== 'varies';
-    const previewCadence = hasKnownGap ? answers.cadence : 'weekly';
-
-    const exampleNote = !hasKnownGap
-        ? reviewsPreviewCopy().exampleGapNote
-        : isSamplePlan
-            ? reviewsPreviewCopy().sampleNote
-            : null;
-
-    // The first entry is the note itself and stays on the previous screen.
-    const reviews = useMemo(
-        () =>
-            planTimeline({
-                sessionAt,
-                cadence: previewCadence,
-                morningMinutes: answers.morningMinutes,
-                eveningMinutes: answers.eveningMinutes,
-            }).slice(1),
-        [answers.eveningMinutes, answers.morningMinutes, previewCadence, sessionAt],
-    );
+    const { statement, priority } = evidenceParts(answers.goal);
 
     return (
         <OnboardingScreen
             analyticsStep="reviews_preview"
-            backHref="/(onboarding)/plan-preview"
+            backHref="/(onboarding)/note-template"
             headline={ reviewsPreviewCopy().headline }
-            supporting={ evidenceStatement(answers.goal) }
+            supporting={
+                <>
+                    <AppText variant="body" style={ [onboardingStyles.body, styles.bannerText] }>
+                        { reviewsPreviewCopy().intro }
+                    </AppText>
+
+                    <AppText variant="body" style={ [onboardingStyles.body, styles.bannerText, styles.paragraph] }>
+                        { priority === null ? statement : markPriority(statement, priority) }
+                    </AppText>
+
+                    <AppText variant="body" style={ [onboardingStyles.body, styles.bannerText, styles.paragraph] }>
+                        { reviewsPreviewCopy().nextPage }
+                    </AppText>
+                </>
+            }
             supportingAppearance="banner"
             footer={
                 <OnboardingButton
                     label={ reviewsPreviewCopy().primaryCta }
-                    onPress={ () => router.push('/(onboarding)/note-preview') }
+                    onPress={ () => router.push('/(onboarding)/review-schedule') }
                 />
             }
-        >
-            { exampleNote !== null && (
-                <View style={ [onboardingStyles.card, styles.note] }>
-                    <AppText variant="caption" style={ styles.noteText }>
-                        { exampleNote }
-                    </AppText>
-                </View>
-            ) }
-
-            <View style={ styles.timeline }>
-                <PlanTimeline entries={ reviews } />
-            </View>
-        </OnboardingScreen>
+        />
     );
 }
 
 const styles = StyleSheet.create({
-    note: {
-        padding: 16,
-        marginTop: 20,
+    /**
+     * A step up from the flow's body copy. The band is the whole of this
+     * screen, so it is being read rather than glanced at under something else.
+     */
+    bannerText: {
+        color: ACCENT_SURFACE.textPrimary,
+        fontSize: 21,
+        lineHeight: 31,
     },
-    noteText: {
-        fontSize: 14,
-        lineHeight: 21,
-        color: TEXT_COLORS.secondary,
+    paragraph: {
+        marginTop: 16,
     },
-    timeline: {
-        marginTop: 24,
-        marginHorizontal: -8,
+    /**
+     * The goal, picked out of the sentence that repeats it back. Weight rather
+     * than a rule: underlined, a phrase this long took a line of its own
+     * across three rows of the band and read as a link.
+     *
+     * Semibold, not bold. White on the brand orange already gains apparent
+     * weight, and at full bold the phrase stopped reading as part of the
+     * sentence it sits in.
+     */
+    priority: {
+        fontFamily: BRAND_FONTS.semibold,
+        fontWeight: undefined,
     },
 });

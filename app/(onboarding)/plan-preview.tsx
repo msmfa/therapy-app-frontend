@@ -1,11 +1,9 @@
 import { useMemo } from 'react';
-import { StyleSheet, View, useWindowDimensions } from 'react-native';
-import type { ImageSourcePropType } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useTranslation } from 'react-i18next';
-import { NoteSheetBackdrop } from '../../src/components/notes/NoteSheetBackdrop';
 import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
+import { CirclePosition } from '../../src/components/ui/LinearGradientCircle';
 import { PlanTimeline } from '../../src/components/onboarding/PlanTimeline';
 import {
     planCopy,
@@ -17,15 +15,8 @@ import { planTimeline } from '../../src/features/onboarding/planTimeline';
 import { sampleSessionAt } from '../../src/features/onboarding/samplePlan';
 
 export default function PlanPreviewScreen() {
-    const { t } = useTranslation('onboarding');
     const router = useRouter();
     const { answers } = useOnboardingAnswers();
-    const { width: screenWidth } = useWindowDimensions();
-
-    // Plain numbers: a percentage width plus an aspect ratio leaves an Image
-    // unconstrained on the new architecture and it renders at intrinsic size.
-    const imageWidth = screenWidth;
-    const imageHeight = Math.round(imageWidth / IMAGE_ASPECT);
 
     const isSamplePlan = answers.sessionAt === null && answers.sessionDateSkipped;
     const sessionAt = useMemo(
@@ -56,67 +47,27 @@ export default function PlanPreviewScreen() {
     return (
         <OnboardingScreen
             analyticsStep="plan_preview"
+            circlePosition={ CirclePosition.BOTTOM_RIGHT }
             backHref="/(onboarding)/reminder-times"
             headline={ isSamplePlan ? planCopy().sampleHeadline : planHeadline() }
             supporting={ isSamplePlan ? samplePlanBody(answers.cadence) : undefined }
-            // The note itself, as a background image behind the content,
-            // tilted a little so it reads as a sheet lying on the surface.
-            bottomBackdrop={ (contentBottom) => (
-                <NoteSheetBackdrop
-                    capture={ SHEET_CAPTURE }
-                    style={ [
-                        styles.sheetImage,
-                        {
-                            width: imageWidth,
-                            height: imageHeight,
-                            marginTop: contentBottom > 0 ? contentBottom + IMAGE_GAP : 0,
-                        },
-                    ] }
-                    accessibilityLabel={ t('planPreview.sheetImage') }
-                />
-            ) }
             footer={
                 <OnboardingButton
                     appearance="solid"
                     label={ planCopy().primaryCta }
-                    onPress={ () => router.push('/(onboarding)/reviews-preview') }
+                    onPress={ () => router.push('/(onboarding)/note-template') }
                 />
             }
         >
             <View style={ styles.timeline }>
-                <PlanTimeline
-                    entries={ noteEntry }
-                    onOpenTemplate={ () => router.push('/why-five-questions') }
-                />
+                <PlanTimeline entries={ noteEntry } />
             </View>
         </OnboardingScreen>
     );
 }
 
-/** The cheat sheet's own proportions, so nothing is stretched. */
-// The capture's own proportions, so the sheet keeps the screen's shape at any
-// width. Also the box the drawn sheet fills for a language with no capture.
-const SHEET_CAPTURE = require('../../assets/illustrations/note-cheatsheet-preview.webp') as ImageSourcePropType;
-
-const IMAGE_ASPECT = 1290 / 2661;
-
-/**
- * The space between the band above and the sheet's rounded top edge.
- *
- * Measured from where the content actually ends rather than set as a fraction
- * of the screen: the band is sized by its paragraph, so on a taller display it
- * finishes in the same place and a percentage left the sheet stranded below it.
- * The artwork carries only a hair of blank paper above its title, so this edge
- * is very nearly where the sheet's first words fall.
- */
-const IMAGE_GAP = 16;
-
 const styles = StyleSheet.create({
     timeline: {
         marginTop: 8,
-    },
-    sheetImage: {
-        transform: [{ rotate: '2.5deg' }],
-        borderRadius: 28,
     },
 });

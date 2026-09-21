@@ -76,7 +76,9 @@ describe('translation resources', () => {
                 'settings.language.a11yRow',
                 'reminderSettings.a11yTime',
                 // Proper nouns and the product's own name.
-                'onboarding.reminderTimes.quoteName',
+                'onboarding.reminderTimes.testimonial.practise.name',
+                'onboarding.reminderTimes.testimonial.prepare.name',
+                'onboarding.reminderTimes.testimonial.habit.name',
                 'onboarding.subscription.quoteName',
                 'onboarding.notePreview.reminderTitle',
             ];
