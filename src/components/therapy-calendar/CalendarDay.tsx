@@ -15,6 +15,10 @@ type Props = {
     state?: string;
     marking?: {
         kind?: CalendarDayKind;
+        /** A session day that also has a reminder due: dots under the disc. */
+        reminder?: boolean;
+        /** Before today: drawn faded, still pressable so its history can be read. */
+        muted?: boolean;
         pressed?: boolean;
         // Carried so the calendar's own MarkingProps stays assignable to this
         // narrower view of it.
@@ -76,6 +80,8 @@ export function CalendarDay({ date, state, marking, onPress, accessibilityLabel,
     const month = theme.calendar.month;
     const isDisabled = state === 'disabled';
     const kind = marking?.kind;
+    const hasReminder = kind === 'reminder' || Boolean(marking?.reminder);
+    const isMuted = Boolean(marking?.muted);
     const isPressed = Boolean(marking?.pressed);
     const isToday = state === 'today';
     // Today keeps its disc even when it is also a reminder, so the one day a
@@ -90,33 +96,35 @@ export function CalendarDay({ date, state, marking, onPress, accessibilityLabel,
     // opened on it owns the cell rather than competing with it.
     const showsSessionFill = kind === 'session' && !isPressed;
 
-    // react-native-calendars calls this component directly as `dayComponent`,
-    // so nothing upstream ever supplies `accessibilityLabel` in practice: it
-    // exists so a caller (or a test) can still override it, but every real
-    // day cell needs its label built here, from the same `date`/`marking` the
-    // dots and the disc already read. Without it VoiceOver read only the bare
-    // numeral, with no way to tell a session day from a reminder day or from
-    // today.
+    // react-native-calendars hands every day cell a label of its own, and it
+    // is the bare date: no session, no reminder, no today. The label built
+    // here reads the same `date`/`marking` the dots and the disc do, so it
+    // says what is on the day, and it wins whenever there is a date to build
+    // it from. The prop remains for a caller without one.
     const defaultAccessibilityLabel = date === undefined
         ? undefined
         : [
             isToday ? t('a11y.today') : null,
             longDateLabel(dateFromDateString(date.dateString)),
-            kind === 'session' ? t('a11y.therapySession') : kind === 'reminder' ? t('a11y.reminder') : null,
+            kind === 'session' ? t('a11y.therapySession') : null,
+            hasReminder ? t('a11y.reminder') : null,
         ].filter((part): part is string => part !== null).join(', ');
 
-    // Only a reminder still needs a dot colour: a session carries its kind in
-    // its own disc (sessionFill) instead, which reads on any ground without a
-    // separate "on today" variant the way a dot needs one.
-    const dotColor = kind === 'reminder'
-        ? (isTodayCell ? month.reminderDotOnToday : month.reminderDot)
-        : undefined;
+    // A reminder is dots; on a session disc they take the disc's ink so they
+    // still read on the orange. The post-session review lands on the evening
+    // of the session itself, so a session day with dots is the common case,
+    // not the exception.
+    const dotColor = !hasReminder
+        ? undefined
+        : showsSessionFill
+            ? month.sessionFillText
+            : isTodayCell ? month.reminderDotOnToday : month.reminderDot;
 
     const cellStyle = [
         styles.cell,
         // A marked day outside the month, or before the first bookable date,
         // keeps its dots and fades as a whole rather than losing them.
-        isDisabled && Boolean(kind) && styles.cellDisabled,
+        (isMuted || (isDisabled && Boolean(kind))) && styles.cellDisabled,
         isPressed && styles.cellPressed,
         isTodayCell && styles.cellToday,
         showsSessionFill && { backgroundColor: month.sessionFill },
@@ -132,7 +140,7 @@ export function CalendarDay({ date, state, marking, onPress, accessibilityLabel,
 
     return (
         <TouchableOpacity
-            accessibilityLabel={ accessibilityLabel ?? defaultAccessibilityLabel }
+            accessibilityLabel={ defaultAccessibilityLabel ?? accessibilityLabel }
             accessibilityRole={ isDisabled ? undefined : 'button' }
             activeOpacity={ 0.7 }
             disabled={ isDisabled }

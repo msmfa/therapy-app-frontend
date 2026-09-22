@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, TouchableOpacity, Modal, Platform, ScrollView, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Modal, Platform, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker, {
     type DateTimePickerEvent,
@@ -17,45 +17,54 @@ import { TIME_PICKER_BOUNDS } from '../../utils/timePickerBounds';
 import type { Theme } from 'designs/designs-themes';
 import { useTheme, useThemedStyles } from '../../context/theme';
 import { useTranslation } from 'react-i18next';
+import type { SessionCadence, SessionEditScope } from '../../api/therapy';
 
-interface Session {
+/** What the sheet knows about the appointment already on the day, if any. */
+export interface SheetSession {
     id: string;
-    date: string;
     time: Date;
+    /** True when the appointment belongs to a repeating series. */
+    inSeries: boolean;
 }
 
-type ScheduleMode = 'single' | 'weekly_pattern';
+/** A new appointment: one off, or the first of a weekly series. */
+export type ScheduleMode = 'single' | SessionCadence;
 
 interface ScheduleModalProps {
     visible: boolean;
     selectedDate: string | null;
-    existingSession: Session | null;
+    existingSession: SheetSession | null;
     defaultTime: Date;
-    onConfirm: (mode: ScheduleMode, time: Date) => void;
-    onDelete: () => void;
+    /** Set while a commit is on its way to the server. */
+    busy?: boolean;
+    onAdd: (mode: ScheduleMode, time: Date) => void;
+    onUpdate: (time: Date, scope: SessionEditScope) => void;
+    onDelete: (scope: SessionEditScope) => void;
     onCancel: () => void;
-    weeklyRepeatCount?: number;
-    sessionsOnDay?: Session[];
-    onSelectSession?: (id: string) => void;
 }
 
+/**
+ * The sheet a day opens into. Every button commits straight away: there is no
+ * draft to save afterwards, so what this sheet confirms is what the server
+ * holds by the time it closes.
+ */
 export default function ScheduleModal({
     visible,
     selectedDate,
     existingSession,
     defaultTime,
-    onConfirm,
+    busy = false,
+    onAdd,
+    onUpdate,
     onDelete,
     onCancel,
-    weeklyRepeatCount = 8,
-    sessionsOnDay = [],
-    onSelectSession,
 }: ScheduleModalProps) {
     const { t } = useTranslation('calendar');
     const { theme } = useTheme();
     const styles = useThemedStyles(makeStyles);
     const [time, setTime] = useState(defaultTime);
-    const [scheduleMode, setScheduleMode] = useState<ScheduleMode>('weekly_pattern');
+    const [mode, setMode] = useState<ScheduleMode>('weekly');
+    const [scope, setScope] = useState<SessionEditScope>('this');
     const [showPicker, setShowPicker] = useState(false);
     const existingSessionId = existingSession?.id;
     const initialTimeMs = (existingSession?.time ?? defaultTime).getTime();
@@ -63,7 +72,8 @@ export default function ScheduleModal({
     useEffect(() => {
         if (visible) {
             setTime(new Date(initialTimeMs));
-            setScheduleMode(existingSessionId === undefined ? 'weekly_pattern' : 'single');
+            setMode('weekly');
+            setScope('this');
             setShowPicker(false);
         }
         // Parent refreshes can recreate the same Date/session objects while
@@ -82,25 +92,44 @@ export default function ScheduleModal({
         }
     };
 
-    const handleConfirm = () => {
-        onConfirm(scheduleMode, time);
-    };
-
-    const isUpdateDisabled = !!existingSession && existingSession.time.getTime() === time.getTime();
-
+    const isUpdateDisabled = busy || (!!existingSession && existingSession.time.getTime() === time.getTime());
     const selectedDay = selectedDate ? dayjs(selectedDate) : null;
-    const scheduleModeOptions: ScheduleMode[] = ['weekly_pattern', 'single'];
-    const scheduleModeDictionary: Record<string, { title: string; note?: string }> = {
-        single: { title: t('schedule.thisDayOnly') },
-        weekly_pattern: {
-            title: t('schedule.everyWeek'),
-            // The count was pluralised by hand with a ternary, which only ever
-            // works for a language whose rule is "one, then add an s".
-            note: weeklyRepeatCount === 8
-                ? t('schedule.nextTwoMonths')
-                : t('schedule.repeatCount', { count: weeklyRepeatCount }),
-        },
-    };
+
+    const modeOptions: Array<{ value: ScheduleMode; title: string; note?: string }> = [
+        { value: 'weekly', title: t('schedule.everyWeek'), note: t('schedule.untilYouEndIt') },
+        { value: 'single', title: t('schedule.thisDayOnly') },
+    ];
+    const scopeOptions: Array<{ value: SessionEditScope; title: string; note?: string }> = [
+        { value: 'this', title: t('schedule.thisSessionOnly') },
+        { value: 'future', title: t('schedule.allFutureSessions'), note: t('schedule.allFutureNote') },
+    ];
+
+    const renderOptions = <Value extends string>(
+        options: Array<{ value: Value; title: string; note?: string }>,
+        selected: Value,
+        select: (value: Value) => void,
+    ) => (
+        <View style={ styles.sectionApplyTo }>
+            { options.map((option) => (
+                <RadioButton
+                    key={ option.value }
+                    selectedValue={ selected === option.value }
+                    onPress={ () => select(option.value) }
+                >
+                    <View style={ styles.modeRow }>
+                        <AppText variant="body" numberOfLines={ 1 } style={ styles.modeTitle }>
+                            { option.title.toUpperCase() }
+                        </AppText>
+                        { option.note ? (
+                            <AppText variant="caption" style={ styles.modeNote }>
+                                { option.note.toUpperCase() }
+                            </AppText>
+                        ) : null }
+                    </View>
+                </RadioButton>
+            )) }
+        </View>
+    );
 
     if (!visible) return null;
 
@@ -110,7 +139,7 @@ export default function ScheduleModal({
                 <TouchableOpacity
                     style={ styles.modalBackdrop }
                     activeOpacity={ 1 }
-                    onPress={ onCancel }
+                    onPress={ busy ? undefined : onCancel }
                     accessibilityRole="button"
                     accessibilityLabel={ t('a11y.dismissScheduling') }
                 />
@@ -127,19 +156,13 @@ export default function ScheduleModal({
                             </View>
                         </View>
                     ) }
+                    { existingSession?.inSeries ? (
+                        <AppText variant="caption" style={ styles.seriesBadge }>
+                            { t('schedule.partOfWeeklySeries').toUpperCase() }
+                        </AppText>
+                    ) : null }
 
                     <ScrollView style={ styles.scrollContent } bounces={ false }>
-                        { sessionsOnDay.length > 1 && onSelectSession && (
-                            <View>
-                                { sessionsOnDay.map(session => (
-                                    <TouchableOpacity key={ session.id } accessibilityRole="button"
-                                        accessibilityState={ { selected: session.id === existingSession?.id } }
-                                        onPress={ () => onSelectSession(session.id) } style={ styles.timeButton }>
-                                        <AppText variant="body">{ t('schedule.appointmentAt', { time: dayjs(session.time).format('LT') }) }</AppText>
-                                    </TouchableOpacity>
-                                )) }
-                            </View>
-                        ) }
                         <View style={ styles.datePicker }>
                             { Platform.OS === 'ios' ? (
                                 <GlassPickerPanel style={ styles.iosPickerWrapper }>
@@ -185,44 +208,22 @@ export default function ScheduleModal({
                             ) }
                         </View>
 
-                        { !existingSession && selectedDay && (
-                            <View style={ styles.sectionApplyTo }>
-                                { scheduleModeOptions.map((mode) => (
-                                    <RadioButton
-                                        key={ mode }
-                                        selectedValue={ scheduleMode === mode }
-                                        onPress={ () => setScheduleMode(mode) }
-                                    >
-                                        <View style={ styles.modeRow }>
-                                            <AppText
-                                                variant="body"
-                                                numberOfLines={ 1 }
-                                                style={ styles.modeTitle }
-                                            >
-                                                { scheduleModeDictionary[mode].title.toUpperCase() }
-                                            </AppText>
-                                            { scheduleModeDictionary[mode].note ? (
-                                                <AppText variant="caption" style={ styles.modeNote }>
-                                                    { scheduleModeDictionary[mode].note?.toUpperCase() }
-                                                </AppText>
-                                            ) : null }
-                                        </View>
-                                    </RadioButton>
-                                )) }
-                            </View>
-                        ) }
-
+                        { !existingSession && selectedDay ? renderOptions(modeOptions, mode, setMode) : null }
+                        { existingSession?.inSeries ? renderOptions(scopeOptions, scope, setScope) : null }
                     </ScrollView>
+
                     <View style={ styles.buttonRow }>
                         { existingSession ? (
                             <View style={ styles.actionButtonsRow }>
                                 <View style={ styles.actionButtonWrapper }>
                                     <GlassPillButton
-                                        label={ t('schedule.delete') }
+                                        label={ scope === 'future' ? t('schedule.endSeries') : t('schedule.delete') }
                                         height={ 60 }
                                         labelSize={ 16 }
                                         labelColor={ theme.accent.mark }
-                                        onPress={ onDelete }
+                                        disabledLabelColor={ theme.glass.disabledLabel }
+                                        disabled={ busy }
+                                        onPress={ () => onDelete(scope) }
                                         style={ styles.actionPill }
                                     />
                                 </View>
@@ -233,7 +234,7 @@ export default function ScheduleModal({
                                         labelSize={ 16 }
                                         labelColor={ theme.accent.mark }
                                         disabledLabelColor={ theme.glass.disabledLabel }
-                                        onPress={ handleConfirm }
+                                        onPress={ () => onUpdate(time, scope) }
                                         disabled={ isUpdateDisabled }
                                         style={ styles.actionPill }
                                     />
@@ -247,13 +248,20 @@ export default function ScheduleModal({
                                         height={ 60 }
                                         labelSize={ 16 }
                                         labelColor={ theme.accent.mark }
-                                        onPress={ handleConfirm }
+                                        disabledLabelColor={ theme.glass.disabledLabel }
+                                        disabled={ busy }
+                                        onPress={ () => onAdd(mode, time) }
                                         style={ styles.actionPill }
                                     />
                                 </View>
                             </View>
                         ) }
                     </View>
+                    { busy ? (
+                        <View pointerEvents="none" style={ styles.busy } accessibilityLabel={ t('schedule.saving') }>
+                            <ActivityIndicator color={ theme.accent.mark } />
+                        </View>
+                    ) : null }
                 </View>
             </View>
         </Modal>
@@ -287,6 +295,14 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         borderRadius: 1.5,
         height: 3,
         width: 3,
+    },
+    seriesBadge: {
+        color: theme.ink.quaternary,
+        fontSize: 10,
+        letterSpacing: 0.8,
+        position: 'absolute',
+        right: 20,
+        top: 30,
     },
     buttonRow: {
         alignItems: 'center',
@@ -337,7 +353,6 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         position: 'absolute',
         right: 0,
         top: 0,
-
     },
     modalContent: {
         maxHeight: '92%',
@@ -347,7 +362,6 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         paddingBottom: 40,
         paddingTop: 65,
         backgroundColor: theme.calendar.sheet.surface,
-
     },
     modalOverlay: {
         backgroundColor: theme.calendar.sheet.overlay,
@@ -361,7 +375,6 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     datePicker: {
         marginBottom: 20,
         alignItems: 'center',
-
     },
     // The panel supplies the blur, the border and the rounding; this is the
     // room the wheel needs inside it.
@@ -369,9 +382,7 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         paddingVertical: 12,
         paddingHorizontal: 10,
     },
-    iosPicker: {
-        // backgroundColor: 'hsl(220, 40%, 97%)',
-    },
+    iosPicker: {},
     timeButton: {
         alignItems: 'center',
         borderColor: theme.calendar.sheet.border,
@@ -380,6 +391,14 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         gap: 10,
         padding: 10,
     },
-    timeLabel: {
+    timeLabel: {},
+    busy: {
+        alignItems: 'center',
+        bottom: 0,
+        justifyContent: 'center',
+        left: 0,
+        position: 'absolute',
+        right: 0,
+        top: 0,
     },
 });

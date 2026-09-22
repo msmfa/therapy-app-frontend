@@ -278,26 +278,28 @@
  "calendar": {
   "nextSession": "Próxima sesión",
   "nextReminder": "Próximo recordatorio",
-  "clear": "Borrar",
-  "save": "Guardar",
-  "clearA11y": "Borrar sesiones de terapia",
-  "saveA11y": "Guardar sesiones de terapia",
-  "saved": "Actualizamos sus sesiones de terapia",
   "changedTitle": "El calendario cambió",
-  "refresh": "Actualizar calendario",
   "saveFailed": "No se pueden guardar las sesiones en este momento.",
   "outOfRange": "Las citas deben estar entre hoy y un año en el futuro. Actualice su selección.",
   "sessionChanged": "La sesión cambió. Inténtelo de nuevo.",
   "schedule": {
    "thisDayOnly": "Solo este día",
    "everyWeek": "Cada semana",
-   "nextTwoMonths": "Durante los próximos dos meses",
-   "repeatCount_one": "{{count}} sesión",
-   "repeatCount_other": "{{count}} sesiones",
    "delete": "Eliminar",
    "update": "Actualizar",
    "add": "Añadir sesión",
-   "appointmentAt": "Cita a las {{time}}"
+   "untilYouEndIt": "Hasta que la termines",
+   "thisSessionOnly": "Solo esta sesión",
+   "allFutureSessions": "Todas las sesiones futuras",
+   "allFutureNote": "Desde esta en adelante",
+   "endSeries": "Terminar serie",
+   "partOfWeeklySeries": "Parte de una serie semanal",
+   "saving": "Guardando",
+   "endSeriesTitle": "¿Terminar esta serie?",
+   "endSeriesMessage": "Se eliminará esta sesión y todas las posteriores de la serie. Las anteriores se quedan en el calendario.",
+   "dayTakenTitle": "Ese día está ocupado",
+   "dayTaken": "Ya hay una sesión ese día. Edita esa en su lugar.",
+   "keepSeries": "Mantener"
   },
   "error": {
    "timeout": {
@@ -343,7 +345,26 @@
    "therapySession": "Sesión de terapia",
    "reminder": "Recordatorio",
    "dismissScheduling": "Cerrar la programación",
-   "opensTimePicker": "Abre un selector de hora"
+   "opensTimePicker": "Abre un selector de hora",
+   "dismissReminder": "Cerrar recordatorio"
+  },
+  "changedMessage": "Tu calendario cambió en otro dispositivo. Se ha actualizado, así que vuelve a intentar el cambio.",
+  "reminder": {
+   "logNote": {
+    "title": "Anota tu sesión",
+    "reason": "Diez minutos después de que termine tu sesión, mientras los detalles siguen frescos."
+   },
+   "review": {
+    "title": "Repasa tus notas"
+   },
+   "status": {
+    "pending": "Programado",
+    "sent": "Enviado",
+    "missed": "Perdido"
+   },
+   "afterSession": "Después de tu sesión del {{date}}",
+   "beforeSession": "Antes de tu sesión del {{date}}",
+   "close": "Cerrar"
   }
  },
  "serverError": {
@@ -400,7 +421,8 @@
   "unsupported_transaction_environment": "Esta compra no se puede usar con esta versión de la app.",
   "test_purchase_not_allowed": "Esta compra de prueba no se puede usar con esta versión de la app.",
   "network": "No pudimos conectar. Revise su conexión a internet e inténtelo de nuevo.",
-  "session_changed": "Su sesión de inicio cambió. Inténtelo de nuevo."
+  "session_changed": "Su sesión de inicio cambió. Inténtelo de nuevo.",
+  "calendar_changed": "Tu calendario cambió en otro dispositivo. Actualiza y vuelve a intentarlo."
  },
  "onboarding": {
   "welcome": {

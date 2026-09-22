@@ -4,54 +4,44 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 
 import TherapyCalendar from '../TherapyCalendar';
 import { CALENDAR_MONTH_COLORS } from 'designs/designs-colors';
-
-// The real sheet pulls in a date picker. This stand-in keeps the two things
-// the calendar is responsible for: the date it was handed, and the confirm
-// callback that turns a press into a scheduled session.
-jest.mock('../ScheduleModal', () => {
-    const ReactModule = require('react');
-    const { Text, TouchableOpacity } = require('react-native');
-
-    return {
-        __esModule: true,
-        default: ({ visible, selectedDate, onConfirm }: {
-            visible: boolean;
-            selectedDate: string;
-            onConfirm: (mode: 'single' | 'weekly_pattern', time: Date) => void;
-        }) => (visible
-            ? ReactModule.createElement(
-                TouchableOpacity,
-                { onPress: () => onConfirm('single', new Date('2000-01-01T14:30:00')) },
-                ReactModule.createElement(Text, null, `sheet-for-${selectedDate}`),
-            )
-            : null),
-    };
-});
+import type { CalendarReminder, TherapySession } from '../../../api/therapy';
+import { Reason } from '../../../features/reminders/types';
 
 const TODAY = new Date('2026-09-01T09:00:00Z');
 const SESSION_KEY = '2026-09-08';
 const REMINDER_KEY = '2026-09-09';
-// Falls before minDate, so the grid renders it disabled while it still carries
-// a session.
+// Yesterday: still inside the fetched range, so it is drawn and pressable,
+// but faded because nothing on it can be changed any more.
 const PAST_SESSION_KEY = '2026-08-31';
+// Before the fetched range: the grid disables it outright.
+const ANCIENT_KEY = '2026-05-01';
 
-const renderCalendar = (onSelectedSessionsChange = jest.fn()) => ({
-    onSelectedSessionsChange,
+const session = (id: string, startsAtUtc: string, extra: Partial<TherapySession> = {}): TherapySession =>
+    ({ _id: id, startsAtUtc, durationMin: 50, ...extra });
+
+const reminder = (id: string, localDate: string, extra: Partial<CalendarReminder> = {}): CalendarReminder => ({
+    id, kind: 'review_note', reason: Reason.PreSession, dueAtUtc: `${localDate}T19:00:00.000Z`, localDate,
+    sessionId: 's1', status: 'pending', ...extra,
+});
+
+const renderCalendar = (onDayPress = jest.fn()) => ({
+    onDayPress,
     ...render(
-    <TherapyCalendar
-        dotDates={ [REMINDER_KEY] }
-        hideExtraDays={ false }
-        onSelectedSessionsChange={ onSelectedSessionsChange }
-        selectedSessions={ {
-            [SESSION_KEY]: new Date('2026-09-08T09:00:00Z'),
-            [PAST_SESSION_KEY]: new Date('2026-08-31T09:00:00Z'),
-        } }
-        variant="backdrop"
-    />,
+        <TherapyCalendar
+            sessions={ [
+                session('s1', '2026-09-08T09:00:00Z', { seriesId: 'ser' }),
+                session('s0', '2026-08-31T09:00:00Z'),
+            ] }
+            reminders={ [
+                reminder('r1', REMINDER_KEY),
+                reminder('r0', SESSION_KEY, { reason: Reason.PostSession }),
+            ] }
+            onDayPress={ onDayPress }
+        />,
     ),
 });
 
-describe('TherapyCalendar backdrop variant', () => {
+describe('TherapyCalendar month grid', () => {
     beforeEach(() => {
         jest.useFakeTimers();
         jest.setSystemTime(TODAY);
@@ -81,58 +71,61 @@ describe('TherapyCalendar backdrop variant', () => {
         renderCalendar();
 
         expect(dayStyle(SESSION_KEY).backgroundColor).toBe(CALENDAR_MONTH_COLORS.sessionFill);
-        expect(dotColours(SESSION_KEY)).toEqual(Array(3).fill('transparent'));
-        expect(dotColours(REMINDER_KEY)).toEqual(
-            Array(3).fill(CALENDAR_MONTH_COLORS.reminderDot),
-        );
+        expect(dotColours(REMINDER_KEY)).toEqual(Array(3).fill(CALENDAR_MONTH_COLORS.reminderDot));
+        expect(dayStyle(REMINDER_KEY).backgroundColor).toBeUndefined();
+    });
+
+    it('shows the dots on a session day too, in the ink of the disc', () => {
+        renderCalendar();
+
+        // The post-session review lands on the evening of the session itself,
+        // so the disc has to be able to carry the dots without losing them.
+        expect(dotColours(SESSION_KEY)).toEqual(Array(3).fill(CALENDAR_MONTH_COLORS.sessionFillText));
     });
 
     it('reserves the dot row on every day so the numerals share a baseline', () => {
         renderCalendar();
 
-        // An unmarked day still renders the row, transparent. Without it the
-        // cell centres a shorter stack and its numeral sits lower than the rest.
         expect(dotColours('2026-09-14')).toEqual(Array(3).fill('transparent'));
-        expect(dotColours(SESSION_KEY)).toHaveLength(3);
     });
 
-    it('keeps a marked day readable when the grid renders it disabled', () => {
+    it('fades the past without hiding what was on it', () => {
         renderCalendar();
 
-        // The dots survive; the whole cell fades instead of the mark vanishing.
-        expect(dotColours(PAST_SESSION_KEY)).toHaveLength(3);
+        expect(dayStyle(PAST_SESSION_KEY).backgroundColor).toBe(CALENDAR_MONTH_COLORS.sessionFill);
         expect(dayStyle(PAST_SESSION_KEY).opacity).toBeLessThan(1);
+        expect(dayStyle(SESSION_KEY).opacity ?? 1).toBe(1);
     });
 
-    it('opens the schedule sheet for the day that was pressed', () => {
-        renderCalendar();
+    it('reports the pressed day, past days included', () => {
+        const { onDayPress } = renderCalendar();
 
         fireEvent.press(screen.getByText('15'));
+        // Yesterday sits in last month's grid, so step back to it first.
+        fireEvent.press(screen.getByTestId('therapy-calendar.header.leftArrow', { includeHiddenElements: true }));
+        fireEvent.press(screen.getByTestId(`therapy-calendar.day_${PAST_SESSION_KEY}`));
 
-        expect(screen.getByText('sheet-for-2026-09-15')).toBeTruthy();
+        expect(onDayPress).toHaveBeenNthCalledWith(1, '2026-09-15');
+        expect(onDayPress).toHaveBeenNthCalledWith(2, PAST_SESSION_KEY);
     });
 
-    it('reports the new session back to the caller when the sheet confirms', () => {
-        // Save only lights up when the selection differs from what loaded, so
-        // this callback firing is the whole chain that ungreys the button.
-        const onSelectedSessionsChange = jest.fn();
-        renderCalendar(onSelectedSessionsChange);
-
-        fireEvent.press(screen.getByText('15'));
-        fireEvent.press(screen.getByText('sheet-for-2026-09-15'));
-
-        expect(onSelectedSessionsChange).toHaveBeenCalledTimes(1);
-        const next = onSelectedSessionsChange.mock.calls[0][0] as Record<string, Date>;
-        expect(Object.keys(next).sort()).toEqual([PAST_SESSION_KEY, SESSION_KEY, '2026-09-15']);
-        expect(next['2026-09-15'].getHours()).toBe(14);
-        expect(next['2026-09-15'].getMinutes()).toBe(30);
-    });
-
-    it('does not open the sheet for a day before the first allowed date', () => {
+    it('labels a day for VoiceOver with what is on it', () => {
         renderCalendar();
 
-        fireEvent.press(screen.getByText('31'));
+        const label = screen.getByTestId(`therapy-calendar.day_${SESSION_KEY}`).props.accessibilityLabel as string;
+        expect(label).toMatch(/Therapy session/);
+        expect(label).toMatch(/Reminder/);
+    });
 
-        expect(screen.queryByText(/^sheet-for-/)).toBeNull();
+    it('does not report a day before the fetched range', () => {
+        const { onDayPress } = renderCalendar();
+
+        // Walk back to May, four months before today.
+        for (let month = 0; month < 4; month += 1) {
+            fireEvent.press(screen.getByTestId('therapy-calendar.header.leftArrow', { includeHiddenElements: true }));
+        }
+        fireEvent.press(screen.getByTestId(`therapy-calendar.day_${ANCIENT_KEY}`));
+
+        expect(onDayPress).not.toHaveBeenCalled();
     });
 });

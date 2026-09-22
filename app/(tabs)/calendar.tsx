@@ -3,39 +3,34 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import dayjs from 'dayjs';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
-
-import TherapyCalendar from '../../src/components/therapy-calendar/TherapyCalendar';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTherapySessions } from '../../src/context/therapy-sessions/TherapySessionsContext';
-import type { TherapySession } from '../../src/api/therapy';
-import { ApiError } from '../../src/api/client';
-import { convertSessionsToCalendarFormat } from '../../src/utils/calendar';
 import { useFocusEffect } from 'expo-router';
-import LoadingSuccess from 'src/components/ui/LoadingWithSuccess';
+import { useTranslation } from 'react-i18next';
+
+import TherapyCalendar, { createDateFromKey, formatDateKey } from '../../src/components/therapy-calendar/TherapyCalendar';
+import ScheduleModal, { type ScheduleMode, type SheetSession } from '../../src/components/therapy-calendar/ScheduleModal';
+import ReminderSheet, { reminderHeadline } from '../../src/components/therapy-calendar/ReminderSheet';
+import { useTherapySessions } from '../../src/context/therapy-sessions/TherapySessionsContext';
+import type { CalendarReminder, SessionEditScope, TherapySession } from '../../src/api/therapy';
+import { ApiError } from '../../src/api/client';
 import ErrorModal from '../../src/components/ui/ErrorModal';
 import { CalendarBackdrop } from '../../src/components/ui/CalendarBackdrop';
 import { useAppAlert } from '../../src/context/alert';
 import Loading from 'src/components/ui/Loading';
-import { GlassButtonOutline } from '../../src/components/ui/GlassButtonOutline';
-import { GlassPillButton } from '../../src/components/ui/GlassPillButton';
 import AppText from 'src/components/ui/AppText';
 import { GradientCard } from '../../src/components/ui/GradientCard';
 import type { Theme } from 'designs/designs-themes';
 import { useTheme, useThemedStyles } from '../../src/context/theme';
-import { useTranslation } from 'react-i18next';
 import { serverErrorMessage } from '../../src/features/errors/serverErrorMessage';
+import { DEFAULT_SESSION_MINUTES } from '../../src/features/reminders/reminderScheduleConfig';
 
-type SelectedSessions = Record<string, Date>;
-type SessionsMapInput = Record<string, Date | undefined>;
-
-// The home screen lifts its button row off the bottom with a 40pt container
-// pad plus a 28pt footer margin, both outside the safe-area inset. Matching the
-// sum here keeps the two rows on the same line as you switch tabs.
-const HOME_FOOTER_OFFSET = 68;
+const DEFAULT_TIME = new Date(2024, 0, 1, 9, 0, 0);
 
 type NextEventCardProps = {
     label: string;
     date: Date | null;
+    /** What the event is, under the label: the review moment, or the session. */
+    detail?: string | null;
     /** Matches the dots the month uses for this kind of day. */
     accent: string;
 };
@@ -43,7 +38,7 @@ type NextEventCardProps = {
 // Reads like a weather tile: a quiet label with a coloured dot on the shoulder,
 // and the day number carrying the card the way a temperature does, with the
 // month sitting up against it as the unit.
-const NextEventCard = React.memo(function NextEventCard({ label, date, accent }: NextEventCardProps) {
+const NextEventCard = React.memo(function NextEventCard({ label, date, detail, accent }: NextEventCardProps) {
     const { t } = useTranslation('calendar');
     const { theme } = useTheme();
     const styles = useThemedStyles(makeStyles);
@@ -60,32 +55,22 @@ const NextEventCard = React.memo(function NextEventCard({ label, date, accent }:
                 <View style={ styles.eventValueRow }>
                     { when ? (
                         <View style={ styles.eventReading }>
-                            <AppText variant="h1" style={ styles.eventDay }>
-                                { when.format('D') }
-                            </AppText>
-                            <AppText variant="h1" style={ styles.eventMonth }>
-                                { when.format('MMM').toUpperCase() }
-                            </AppText>
+                            <AppText variant="h1" style={ styles.eventDay }>{ when.format('D') }</AppText>
+                            <AppText variant="h1" style={ styles.eventMonth }>{ when.format('MMM').toUpperCase() }</AppText>
                         </View>
                     ) : (
-                        <AppText variant="body" style={ styles.eventEmpty }>
-                            { t('nothingScheduled') }
-                        </AppText>
+                        <AppText variant="body" style={ styles.eventEmpty }>{ t('nothingScheduled') }</AppText>
                     ) }
-
-                    { /* Label and weekday stack together on the right, opposite
-                         the date. */ }
                     <View style={ styles.eventAside }>
                         <View style={ styles.eventLabelRow }>
-                            <AppText variant="caption" style={ styles.eventLabel }>
-                                { label }
-                            </AppText>
+                            <AppText variant="caption" style={ styles.eventLabel }>{ label }</AppText>
                             <View style={ [styles.eventDot, { backgroundColor: accent }] } />
                         </View>
+                        { when && detail ? (
+                            <AppText variant="caption" numberOfLines={ 1 } style={ styles.eventDetail }>{ detail }</AppText>
+                        ) : null }
                         { when ? (
-                            <AppText variant="caption" style={ styles.eventMeta }>
-                                { when.format('ddd, LT') }
-                            </AppText>
+                            <AppText variant="caption" style={ styles.eventMeta }>{ when.format('ddd, LT') }</AppText>
                         ) : null }
                     </View>
                 </View>
@@ -94,31 +79,7 @@ const NextEventCard = React.memo(function NextEventCard({ label, date, accent }:
     );
 });
 
-const cloneSessionsMap = (sessionsMap: SessionsMapInput): SelectedSessions => (
-    Object.keys(sessionsMap).reduce<SelectedSessions>((acc, key) => {
-        const value = sessionsMap[key];
-        if (value instanceof Date) {
-            acc[key] = new Date(value);
-        }
-        return acc;
-    }, {} as SelectedSessions)
-);
-
-const getSessionsSignature = (sessionsMap: SelectedSessions): string => (
-    Object.keys(sessionsMap)
-        .sort()
-        .map((key) => {
-            const value = sessionsMap[key];
-            if (value instanceof Date) {
-                const timestamp = value.getTime();
-                return `${key}-${Number.isNaN(timestamp) ? 'invalid' : timestamp}`;
-            }
-
-            return `${key}-missing`;
-        })
-        .join('|')
-);
-
+type OpenSheet = { kind: 'schedule' | 'reminder'; dateKey: string } | null;
 
 export default function CalendarScreen() {
     const { theme } = useTheme();
@@ -126,166 +87,129 @@ export default function CalendarScreen() {
     const { t } = useTranslation('calendar');
     const { t: tCommon } = useTranslation('common');
     const {
-        sessions,
-        syncSessions,
-        neuroReminders,
-        loading: sessionsLoading,
-        error: sessionsError,
-        refreshSessions,
+        sessions, scheduleSessions, reminders, nextSession, nextReminder,
+        hydrated, loading, error: sessionsError, refreshSessions,
+        addSession, updateSession, removeSession,
     } = useTherapySessions();
     const insets = useSafeAreaInsets();
-    const [saveStatus, setSaveStatus] = useState<'loading' | 'success' | null>(null);
+    const { showAlert } = useAppAlert();
+    const [sheet, setSheet] = useState<OpenSheet>(null);
+    const [busy, setBusy] = useState(false);
     const [errorModalVisible, setErrorModalVisible] = useState(false);
     const [errorDismissed, setErrorDismissed] = useState(false);
-    const initialSessions = useMemo(
-        () => convertSessionsToCalendarFormat(sessions),
-        [sessions],
-    );
 
-    const [selectedSessionsDraft, setSelectedSessionsDraft] = useState<SelectedSessions | null>(null);
-    const [draftBase, setDraftBase] = useState<TherapySession[] | null>(null);
-    const selectedSessions = selectedSessionsDraft ?? initialSessions;
-    const { showAlert } = useAppAlert();
-    const normalizeReminderDates = useCallback((values: typeof neuroReminders) =>
-        values
-            .map((item) => {
-                // Use the reminder's own local date. Deriving it from atUtc put
-                // the dot on the wrong day for any reminder that crosses UTC
-                // midnight — 20:00 in the Americas, 07:00 in Tokyo.
-                if (item.localDate) {
-                    return item.localDate;
-                }
-
-                const date = new Date(item.atUtc);
-                if (Number.isNaN(date.getTime())) {
-                    return null;
-                }
-                return date.toISOString().split('T')[0];
-            })
-            .filter((value): value is string => Boolean(value)),
-    [],);
-
-    const reminderDates = useMemo(
-        () => normalizeReminderDates(neuroReminders),
-        [neuroReminders, normalizeReminderDates],
-    );
-    const [reminderDatesDraft, setReminderDatesDraft] = useState<string[] | null>(null);
-    const dotDates = reminderDatesDraft ?? reminderDates;
-
-    useFocusEffect(
-        useCallback(() => {
-            setErrorDismissed(false);
-            if (sessionsError) {
-                setErrorModalVisible(true);
-            }
-            return () => {};
-        }, [sessionsError]),
-    );
-
-    // Unsaved edits belong to the visit, not to the app. The draft is what the
-    // screen shows in place of the loaded schedule, and nothing else clears it,
-    // so leaving without saving used to strand the screen on that draft: clear
-    // the calendar, switch tabs, and it stayed empty until the app restarted.
-    // Dropping it on blur rather than on focus means a refresh landing while
-    // you are still editing cannot wipe what you are part-way through.
-    useFocusEffect(
-        useCallback(() => () => {
-            setSelectedSessionsDraft(null);
-            setDraftBase(null);
-            setReminderDatesDraft(null);
-        }, []),
-    );
-
-    const sessionCount = Object.keys(selectedSessions).length;
-
-    const initialSignature = useMemo(
-        () => getSessionsSignature(initialSessions),
-        [initialSessions],
-    );
-
-    const selectedSignature = useMemo(
-        () => getSessionsSignature(selectedSessions),
-        [selectedSessions],
-    );
-
-    const hasChanges = selectedSignature !== initialSignature;
-
-    // One-off and irregular therapy are valid onboarding choices, so the main
-    // calendar must be able to save one session too. An empty changed selection
-    // is also valid: it is how someone removes a schedule that no longer exists.
-    const canSave = hasChanges;
-
-    const nextSessionDate = useMemo(() => {
-        const now = Date.now();
-        return Object.values(selectedSessions)
-            .filter((date) => !Number.isNaN(date.getTime()) && date.getTime() >= now)
-            .sort((first, second) => first.getTime() - second.getTime())[0] ?? null;
-    }, [selectedSessions]);
-
-    const nextReminderDate = useMemo(() => {
-        if (reminderDatesDraft?.length === 0) {
-            return null;
+    const sessionsByDay = useMemo(() => {
+        const byDay = new Map<string, TherapySession>();
+        for (const session of scheduleSessions) {
+            const date = new Date(session.startsAtUtc);
+            if (!Number.isNaN(date.getTime())) byDay.set(formatDateKey(date), session);
         }
+        return byDay;
+    }, [scheduleSessions]);
 
-        const now = Date.now();
-        return neuroReminders
-            .map(({ atUtc }) => new Date(atUtc))
-            .filter((date) => !Number.isNaN(date.getTime()) && date.getTime() >= now)
-            .sort((first, second) => first.getTime() - second.getTime())[0] ?? null;
-    }, [neuroReminders, reminderDatesDraft]);
+    const remindersByDay = useMemo(() => {
+        const byDay = new Map<string, CalendarReminder[]>();
+        for (const reminder of reminders) {
+            byDay.set(reminder.localDate, [...(byDay.get(reminder.localDate) ?? []), reminder]);
+        }
+        return byDay;
+    }, [reminders]);
 
-    const handleSessionsChange = useCallback((next: SessionsMapInput) => {
-        setDraftBase(base => base ?? sessions.map(session => ({ ...session })));
-        setSelectedSessionsDraft(cloneSessionsMap(next));
-    }, [sessions]);
+    const editableIds = useMemo(() => new Set(sessions.map((session) => session._id)), [sessions]);
 
-    const handleClearPress = useCallback(() => {
-        setDraftBase(base => base ?? sessions.map(session => ({ ...session })));
-        setSelectedSessionsDraft({});
-        setReminderDatesDraft([]);
-    }, [sessions]);
+    // A day opens into the sheet that fits it. A day still ahead opens the
+    // schedule sheet, whether to add or to edit; a day with only a reminder on
+    // it explains the reminder first and offers to add from there. The past
+    // is read-only: its reminders can be looked at, its sessions cannot move.
+    const handleDayPress = useCallback((dateKey: string) => {
+        const session = sessionsByDay.get(dateKey) ?? null;
+        const dayReminders = remindersByDay.get(dateKey) ?? [];
+        const editable = dateKey >= formatDateKey(new Date());
+        if (!editable) {
+            if (dayReminders.length > 0) setSheet({ kind: 'reminder', dateKey });
+            return;
+        }
+        if (session && editableIds.has(session._id)) {
+            setSheet({ kind: 'schedule', dateKey });
+            return;
+        }
+        setSheet({ kind: dayReminders.length > 0 ? 'reminder' : 'schedule', dateKey });
+    }, [sessionsByDay, remindersByDay, editableIds]);
 
-    const handleSavePress = useCallback(async () => {
-        setSaveStatus('loading');
+    const closeSheet = useCallback(() => setSheet(null), []);
+
+    // Leaving the tab closes whatever was open; the sheet belongs to the visit.
+    useFocusEffect(useCallback(() => () => setSheet(null), []));
+
+    const reportFailure = useCallback((err: unknown) => {
+        if (err instanceof ApiError && err.status === 412) {
+            showAlert(t('changedTitle'), t('changedMessage'));
+        } else if (err instanceof ApiError && err.code === 'appointment_day_conflict') {
+            showAlert(t('schedule.dayTakenTitle'), t('schedule.dayTaken'));
+        } else {
+            showAlert(tCommon('error.title'), serverErrorMessage(err, t('saveFailed')));
+        }
+    }, [showAlert, t, tCommon]);
+
+    const run = useCallback(async (write: () => Promise<unknown>) => {
+        setBusy(true);
         try {
-            await syncSessions(selectedSessions, 50, draftBase ?? sessions);
-            setSelectedSessionsDraft(null);
-            setDraftBase(null);
-            setReminderDatesDraft(null);
-            setSaveStatus('success');
-        } catch (error) {
-            console.error('syncSessions failed', error);
-            if (error instanceof ApiError && (error.status === 409 || error.status === 428)) {
-                showAlert(t('changedTitle'), serverErrorMessage(error), { primaryAction: {
-                    label: t('refresh'), onPress: async () => {
-                        await refreshSessions();
-                        setSelectedSessionsDraft(null);
-                        setDraftBase(null);
-                    },
-                } });
-            } else {
-                showAlert(tCommon('error.title'), serverErrorMessage(error, t('saveFailed')));
-            }
-            setSaveStatus(null);
+            await write();
+            setSheet(null);
+        } catch (err) {
+            console.error('calendar write failed', err);
+            reportFailure(err);
+        } finally {
+            setBusy(false);
         }
-    }, [selectedSessions, showAlert, syncSessions, draftBase, sessions, refreshSessions]);
+    }, [reportFailure]);
 
-    // Leave the confirmation visible long enough to be noticed.
+    const activeDateKey = sheet?.dateKey ?? null;
+    const activeSession = activeDateKey ? sessionsByDay.get(activeDateKey) ?? null : null;
+    const sheetSession: SheetSession | null = activeSession && editableIds.has(activeSession._id)
+        ? { id: activeSession._id, time: new Date(activeSession.startsAtUtc), inSeries: Boolean(activeSession.seriesId) }
+        : null;
+
+    const withTime = (dateKey: string, time: Date) => {
+        const start = createDateFromKey(dateKey);
+        start.setHours(time.getHours(), time.getMinutes(), 0, 0);
+        return start;
+    };
+
+    const handleAdd = useCallback((mode: ScheduleMode, time: Date) => {
+        if (!activeDateKey) return;
+        void run(() => addSession({
+            startsAtUtc: withTime(activeDateKey, time),
+            durationMin: DEFAULT_SESSION_MINUTES,
+            ...(mode === 'single' ? {} : { repeat: mode }),
+        }));
+    }, [activeDateKey, addSession, run]);
+
+    const handleUpdate = useCallback((time: Date, scope: SessionEditScope) => {
+        if (!activeDateKey || !sheetSession) return;
+        void run(() => updateSession(sheetSession.id, { startsAtUtc: withTime(activeDateKey, time), scope }));
+    }, [activeDateKey, sheetSession, updateSession, run]);
+
+    const handleDelete = useCallback((scope: SessionEditScope) => {
+        if (!sheetSession) return;
+        if (scope === 'this') {
+            void run(() => removeSession(sheetSession.id, 'this'));
+            return;
+        }
+        // Ending a series removes every later appointment in one go, which is
+        // the one edit on this screen that cannot be undone by tapping again.
+        showAlert(t('schedule.endSeriesTitle'), t('schedule.endSeriesMessage'), {
+            primaryAction: {
+                label: t('schedule.endSeries'),
+                tone: 'danger',
+                onPress: () => run(() => removeSession(sheetSession.id, 'future')),
+            },
+            secondaryAction: { label: t('schedule.keepSeries'), onPress: () => {} },
+        });
+    }, [sheetSession, removeSession, run, showAlert, t, tCommon]);
+
     useEffect(() => {
-        if (saveStatus === 'success') {
-            const timer = setTimeout(() => {
-                setSaveStatus(null);
-            }, 2500);
-
-            return () => clearTimeout(timer);
-        }
-    }, [saveStatus]);
-
-    useEffect(() => {
-        if (sessionsError && !errorDismissed) {
-            setErrorModalVisible(true);
-        }
-
+        if (sessionsError && !errorDismissed) setErrorModalVisible(true);
         if (!sessionsError) {
             setErrorModalVisible(false);
             setErrorDismissed(false);
@@ -299,7 +223,6 @@ export default function CalendarScreen() {
 
     const handleErrorPrimaryAction = useCallback(() => {
         if (!sessionsError) return;
-
         if (sessionsError.retryable) {
             setErrorDismissed(false);
             setErrorModalVisible(false);
@@ -309,7 +232,7 @@ export default function CalendarScreen() {
         }
     }, [sessionsError, refreshSessions, handleErrorModalClose]);
 
-    if (sessionsLoading && !sessions.length) {
+    if (loading && !hydrated) {
         // Keep this loader inside the tab screen. Loading's default Modal
         // covers the navigator, including the tab bar, and made a normal data
         // refresh look like the whole app had disappeared.
@@ -330,12 +253,10 @@ export default function CalendarScreen() {
             <CalendarBackdrop />
             <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'top'] }>
                 <TherapyCalendar
-                    dotDates={ dotDates }
-                    fillAvailableSpace={ false }
-                    hideExtraDays={ false }
-                    onSelectedSessionsChange={ handleSessionsChange }
-                    selectedSessions={ selectedSessions }
-                    variant="backdrop"
+                    sessions={ scheduleSessions }
+                    reminders={ reminders }
+                    activeDateKey={ activeDateKey }
+                    onDayPress={ handleDayPress }
                 />
 
                 <View style={ styles.sheet }>
@@ -349,9 +270,6 @@ export default function CalendarScreen() {
                         pointerEvents="none"
                         style={ styles.sheetHighlight }
                     />
-                    { /* The month grows to six rows in some months, which
-                         shortens the sheet. The cards give way by scrolling;
-                         the button row underneath stays put. */ }
                     <MaskedView
                         style={ styles.eventScroll }
                         maskElement={
@@ -363,58 +281,51 @@ export default function CalendarScreen() {
                         }
                     >
                         <ScrollView
-                            contentContainerStyle={ styles.eventCards }
+                            contentContainerStyle={ [styles.eventCards, { paddingBottom: insets.bottom + 24 }] }
                             showsVerticalScrollIndicator={ false }
                             style={ styles.eventScroll }
                         >
                             <NextEventCard
                                 label={ t('nextSession') }
-                                date={ nextSessionDate }
+                                date={ nextSession ? new Date(nextSession.startsAtUtc) : null }
+                                detail={ nextSession?.seriesId ? t('schedule.everyWeek') : null }
                                 accent={ theme.calendar.month.sessionDot }
                             />
                             <NextEventCard
                                 label={ t('nextReminder') }
-                                date={ nextReminderDate }
+                                date={ nextReminder ? new Date(nextReminder.dueAtUtc) : null }
+                                detail={ nextReminder ? reminderHeadline(nextReminder, t) : null }
                                 accent={ theme.calendar.month.reminderDot }
                             />
                         </ScrollView>
                     </MaskedView>
-
-                    <View style={ { paddingBottom: insets.bottom + HOME_FOOTER_OFFSET } }>
-                        <View style={ styles.calendarFooter }>
-                            <GlassButtonOutline buttonSize={ 72 } opacity={ 0.9 } />
-                            <GlassPillButton
-                                accessibilityLabel={ t('clearA11y') }
-                                disabled={ sessionCount === 0 }
-                                disabledLabelColor={ theme.glass.disabledLabel }
-                                height={ 72 }
-                                label={ t('clear') }
-                                labelColor={ theme.accent.mark }
-                                labelSize={ 16 }
-                                onPress={ handleClearPress }
-                                style={ styles.footerButton }
-                            />
-                            <GlassPillButton
-                                accessibilityLabel={ t('saveA11y') }
-                                height={ 72 }
-                                label={ t('save') }
-                                labelColor={ theme.accent.mark }
-                                disabledLabelColor={ theme.glass.disabledLabel }
-                                labelSize={ 16 }
-                                onPress={ handleSavePress }
-                                disabled={ !canSave }
-                                style={ styles.footerButton }
-                            />
-                        </View>
-                    </View>
                 </View>
             </SafeAreaView>
-            { saveStatus &&
-            <LoadingSuccess
-                visible={ !!saveStatus }
-                status={ saveStatus }
-                successText={ t('saved') }
-            /> }
+            { sheet?.kind === 'schedule' && (
+                <ScheduleModal
+                    visible
+                    selectedDate={ sheet.dateKey }
+                    existingSession={ sheetSession }
+                    defaultTime={ DEFAULT_TIME }
+                    busy={ busy }
+                    onAdd={ handleAdd }
+                    onUpdate={ handleUpdate }
+                    onDelete={ handleDelete }
+                    onCancel={ closeSheet }
+                />
+            ) }
+            { sheet?.kind === 'reminder' && (
+                <ReminderSheet
+                    visible
+                    selectedDate={ sheet.dateKey }
+                    reminders={ remindersByDay.get(sheet.dateKey) ?? [] }
+                    sessions={ scheduleSessions }
+                    onAddSession={ sheet.dateKey >= formatDateKey(new Date()) && !activeSession
+                        ? () => setSheet({ kind: 'schedule', dateKey: sheet.dateKey })
+                        : undefined }
+                    onClose={ closeSheet }
+                />
+            ) }
             { sessionsError && (
                 <ErrorModal
                     visible={ errorModalVisible }
@@ -462,7 +373,6 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     },
     eventCards: {
         gap: 12,
-        paddingBottom: 12,
         paddingHorizontal: 20,
         paddingTop: 20,
     },
@@ -524,6 +434,12 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         lineHeight: 34,
         marginLeft: 7,
     },
+    eventDetail: {
+        color: theme.ink.secondary,
+        fontSize: 13,
+        marginBottom: 2,
+        textAlign: 'right',
+    },
     eventMeta: {
         color: theme.ink.tertiary,
         fontSize: 13,
@@ -534,15 +450,5 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         color: theme.ink.tertiary,
         fontSize: 16,
         marginBottom: 4,
-    },
-    calendarFooter: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginHorizontal: 24,
-    },
-    footerButton: {
-        opacity: 1,
-        width: 132,
     },
 });

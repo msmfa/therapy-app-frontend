@@ -278,26 +278,28 @@
   "calendar": {
     "nextSession": "Nächste Sitzung",
     "nextReminder": "Nächste Erinnerung",
-    "clear": "Zurücksetzen",
-    "save": "Speichern",
-    "clearA11y": "Therapiesitzungen zurücksetzen",
-    "saveA11y": "Therapiesitzungen speichern",
-    "saved": "Ihre Therapiesitzungen wurden aktualisiert",
     "changedTitle": "Kalender geändert",
-    "refresh": "Kalender aktualisieren",
     "saveFailed": "Die Sitzungen lassen sich im Moment nicht speichern.",
     "outOfRange": "Termine müssen zwischen heute und einem Jahr in der Zukunft liegen. Bitte passen Sie Ihre Auswahl an.",
     "sessionChanged": "Die Sitzung hat sich geändert. Bitte versuchen Sie es erneut.",
     "schedule": {
       "thisDayOnly": "Nur an diesem Tag",
       "everyWeek": "Jede Woche",
-      "nextTwoMonths": "Für die nächsten zwei Monate",
-      "repeatCount_one": "{{count}} Sitzung",
-      "repeatCount_other": "{{count}} Sitzungen",
       "delete": "Löschen",
       "update": "Aktualisieren",
       "add": "Sitzung hinzufügen",
-      "appointmentAt": "Termin um {{time}}"
+      "untilYouEndIt": "Bis du sie beendest",
+      "thisSessionOnly": "Nur diese Sitzung",
+      "allFutureSessions": "Alle künftigen Sitzungen",
+      "allFutureNote": "Ab dieser Sitzung",
+      "endSeries": "Serie beenden",
+      "partOfWeeklySeries": "Teil einer wöchentlichen Serie",
+      "saving": "Wird gespeichert",
+      "endSeriesTitle": "Diese Serie beenden?",
+      "endSeriesMessage": "Diese Sitzung und alle späteren Sitzungen der Serie werden entfernt. Frühere Sitzungen bleiben im Kalender.",
+      "dayTakenTitle": "Dieser Tag ist belegt",
+      "dayTaken": "An diesem Tag gibt es bereits eine Sitzung. Bearbeite stattdessen diese.",
+      "keepSeries": "Behalten"
     },
     "error": {
       "timeout": {
@@ -343,7 +345,26 @@
       "therapySession": "Sitzung",
       "reminder": "Erinnerung",
       "dismissScheduling": "Terminplanung schließen",
-      "opensTimePicker": "Öffnet die Zeitauswahl"
+      "opensTimePicker": "Öffnet die Zeitauswahl",
+      "dismissReminder": "Erinnerung schließen"
+    },
+    "changedMessage": "Dein Kalender wurde auf einem anderen Gerät geändert. Er wurde aktualisiert, versuche die Änderung noch einmal.",
+    "reminder": {
+      "logNote": {
+        "title": "Sitzung festhalten",
+        "reason": "Zehn Minuten nach dem Ende deiner Sitzung, solange die Details noch frisch sind."
+      },
+      "review": {
+        "title": "Notizen durchsehen"
+      },
+      "status": {
+        "pending": "Geplant",
+        "sent": "Gesendet",
+        "missed": "Verpasst"
+      },
+      "afterSession": "Nach deiner Sitzung am {{date}}",
+      "beforeSession": "Vor deiner Sitzung am {{date}}",
+      "close": "Schließen"
     }
   },
   "onboarding": {
@@ -1009,6 +1030,7 @@
     "unsupported_transaction_environment": "Dieser Kauf kann mit dieser Version der App nicht verwendet werden.",
     "test_purchase_not_allowed": "Dieser Testkauf kann mit dieser Version der App nicht verwendet werden.",
     "network": "Die Verbindung konnte nicht hergestellt werden. Prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.",
-    "session_changed": "Ihre Anmeldesitzung hat sich geändert. Bitte versuchen Sie es erneut."
+    "session_changed": "Ihre Anmeldesitzung hat sich geändert. Bitte versuchen Sie es erneut.",
+    "calendar_changed": "Dein Kalender wurde auf einem anderen Gerät geändert. Aktualisiere und versuche es erneut."
   }
 }

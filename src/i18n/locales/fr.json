@@ -278,26 +278,28 @@
   "calendar": {
     "nextSession": "Prochaine séance",
     "nextReminder": "Prochain rappel",
-    "clear": "Effacer",
-    "save": "Enregistrer",
-    "clearA11y": "Effacer les séances",
-    "saveA11y": "Enregistrer les séances",
-    "saved": "Vos séances ont été mises à jour",
     "changedTitle": "Le calendrier a changé",
-    "refresh": "Actualiser le calendrier",
     "saveFailed": "Impossible d’enregistrer les séances pour le moment.",
     "outOfRange": "Les rendez-vous doivent se situer entre aujourd’hui et un an à l’avance. Veuillez modifier votre sélection.",
     "sessionChanged": "La séance a été modifiée. Veuillez réessayer.",
     "schedule": {
       "thisDayOnly": "Ce jour uniquement",
       "everyWeek": "Chaque semaine",
-      "nextTwoMonths": "Pour les deux prochains mois",
-      "repeatCount_one": "{{count}} séance",
-      "repeatCount_other": "{{count}} séances",
       "delete": "Supprimer",
       "update": "Mettre à jour",
       "add": "Ajouter une séance",
-      "appointmentAt": "Rendez-vous à {{time}}"
+      "untilYouEndIt": "Jusqu'à ce que vous l'arrêtiez",
+      "thisSessionOnly": "Cette séance seulement",
+      "allFutureSessions": "Toutes les séances à venir",
+      "allFutureNote": "À partir de celle-ci",
+      "endSeries": "Arrêter la série",
+      "partOfWeeklySeries": "Fait partie d'une série hebdomadaire",
+      "saving": "Enregistrement",
+      "endSeriesTitle": "Arrêter cette série ?",
+      "endSeriesMessage": "Cette séance et toutes les suivantes de la série seront supprimées. Les séances passées restent dans le calendrier.",
+      "dayTakenTitle": "Ce jour est pris",
+      "dayTaken": "Il y a déjà une séance ce jour-là. Modifiez plutôt celle-ci.",
+      "keepSeries": "Garder"
     },
     "error": {
       "timeout": {
@@ -343,7 +345,26 @@
       "therapySession": "Séance",
       "reminder": "Rappel",
       "dismissScheduling": "Fermer la planification",
-      "opensTimePicker": "Ouvre le sélecteur d'heure"
+      "opensTimePicker": "Ouvre le sélecteur d'heure",
+      "dismissReminder": "Fermer le rappel"
+    },
+    "changedMessage": "Votre calendrier a changé sur un autre appareil. Il a été actualisé, réessayez la modification.",
+    "reminder": {
+      "logNote": {
+        "title": "Notez votre séance",
+        "reason": "Dix minutes après la fin de votre séance, tant que les détails sont encore frais."
+      },
+      "review": {
+        "title": "Relisez vos notes"
+      },
+      "status": {
+        "pending": "Prévu",
+        "sent": "Envoyé",
+        "missed": "Manqué"
+      },
+      "afterSession": "Après votre séance du {{date}}",
+      "beforeSession": "Avant votre séance du {{date}}",
+      "close": "Fermer"
     }
   },
   "onboarding": {
@@ -1009,6 +1030,7 @@
     "unsupported_transaction_environment": "Cet achat ne peut pas être utilisé avec cette version de l’application.",
     "test_purchase_not_allowed": "Cet achat de test ne peut pas être utilisé avec cette version de l’application.",
     "network": "La connexion a échoué. Vérifiez votre connexion Internet et réessayez.",
-    "session_changed": "Votre session de connexion a changé. Veuillez réessayer."
+    "session_changed": "Votre session de connexion a changé. Veuillez réessayer.",
+    "calendar_changed": "Votre calendrier a changé sur un autre appareil. Actualisez et réessayez."
   }
 }

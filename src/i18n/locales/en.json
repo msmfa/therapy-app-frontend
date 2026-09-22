@@ -278,26 +278,28 @@
   "calendar": {
     "nextSession": "Next session",
     "nextReminder": "Next reminder",
-    "clear": "Clear",
-    "save": "Save",
-    "clearA11y": "Clear therapy sessions",
-    "saveA11y": "Save therapy sessions",
-    "saved": "Updated your therapy sessions",
     "changedTitle": "Calendar changed",
-    "refresh": "Refresh calendar",
     "saveFailed": "Unable to save sessions right now.",
     "outOfRange": "Appointments must be between today and one year ahead. Please update your selection.",
     "sessionChanged": "Session changed. Please try again.",
     "schedule": {
       "thisDayOnly": "This day only",
       "everyWeek": "Every week",
-      "nextTwoMonths": "For the next two months",
-      "repeatCount_one": "{{count}} session",
-      "repeatCount_other": "{{count}} sessions",
       "delete": "Delete",
       "update": "Update",
       "add": "Add Session",
-      "appointmentAt": "Appointment at {{time}}"
+      "untilYouEndIt": "Until you end it",
+      "thisSessionOnly": "This session only",
+      "allFutureSessions": "All future sessions",
+      "allFutureNote": "From this one onward",
+      "endSeries": "End series",
+      "partOfWeeklySeries": "Part of a weekly series",
+      "saving": "Saving",
+      "endSeriesTitle": "End this series?",
+      "endSeriesMessage": "This removes this session and every later one in the series. Earlier sessions stay on the calendar.",
+      "dayTakenTitle": "That day is taken",
+      "dayTaken": "There is already a session on that day. Edit that one instead.",
+      "keepSeries": "Keep"
     },
     "error": {
       "timeout": {
@@ -343,7 +345,26 @@
       "therapySession": "Therapy session",
       "reminder": "Reminder",
       "dismissScheduling": "Dismiss scheduling",
-      "opensTimePicker": "Opens a time picker"
+      "opensTimePicker": "Opens a time picker",
+      "dismissReminder": "Dismiss reminder"
+    },
+    "changedMessage": "Your calendar changed on another device. It has been refreshed, so try the edit again.",
+    "reminder": {
+      "logNote": {
+        "title": "Write up your session",
+        "reason": "Ten minutes after your session ends, while the detail is still fresh."
+      },
+      "review": {
+        "title": "Review your notes"
+      },
+      "status": {
+        "pending": "Scheduled",
+        "sent": "Sent",
+        "missed": "Missed"
+      },
+      "afterSession": "After your session on {{date}}",
+      "beforeSession": "Before your session on {{date}}",
+      "close": "Close"
     }
   },
   "onboarding": {
@@ -1009,6 +1030,7 @@
     "unsupported_transaction_environment": "This purchase cannot be used with this version of the app.",
     "test_purchase_not_allowed": "This test purchase cannot be used with this version of the app.",
     "network": "We could not connect. Check your internet connection and try again.",
-    "session_changed": "Your sign-in session changed. Please try again."
+    "session_changed": "Your sign-in session changed. Please try again.",
+    "calendar_changed": "Your calendar changed on another device. Refresh and try again."
   }
 }
