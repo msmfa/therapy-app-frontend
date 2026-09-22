@@ -16,15 +16,15 @@
 import { ACTION_ORANGE } from './designs-colors';
 
 /**
- * The ground. The reference's deepest panel is 6%; the app's sits at 8% so a
- * card lifted by 0.05 white still separates from it. Same cool hue as the
- * light app's SURFACE_BLUE, taken down 82 points. (Was 10%; taken down again
- * after the first pass read as too light beside the reference.)
+ * The ground. The reference's panel runs from about 16% down to 10%, and its
+ * shadows take that to 6%: a ground any darker than 9% leaves a black shadow
+ * nothing to fall on, which is what happened at 6%. Same cool hue as the
+ * light app's SURFACE_BLUE, taken down 81 points.
  */
-export const NIGHT_GROUND = 'hsl(212, 14%, 8%)';
-export const NIGHT_GROUND_FADE = 'hsla(212, 14%, 8%, 0)';
+export const NIGHT_GROUND = 'hsl(212, 14%, 9%)';
+export const NIGHT_GROUND_FADE = 'hsla(212, 14%, 9%, 0)';
 /** The ground in hex, for app.json's splash. */
-export const NIGHT_GROUND_HEX = '#121417';
+export const NIGHT_GROUND_HEX = '#141719';
 
 /**
  * The light app runs pink into pale blue, top to bottom. The night ground runs
@@ -33,9 +33,9 @@ export const NIGHT_GROUND_HEX = '#121417';
  * reference's shadowed panel, with every ink still well clear of 4.5:1.
  */
 export const NIGHT_GRADIENT = [
-    'hsl(213, 11%, 12%)',
-    'hsl(212, 12%, 11%)',
-    'hsl(211, 13%, 10%)',
+    'hsl(213, 12%, 12%)',
+    'hsl(212, 13%, 11%)',
+    'hsl(211, 14%, 10%)',
     NIGHT_GROUND,
     NIGHT_GROUND,
     NIGHT_GROUND,
@@ -57,29 +57,28 @@ export const NIGHT_INK = {
 
 /**
  * Surfaces. In the reference a card is barely lighter than its panel; what
- * separates it is a lit top edge and a deep shadow thrown down and to the
- * right. So these are small: the card is 0.05 white over the ground, its
- * border 0.08 brightening to 0.14 along the top, and its shadow is near-solid
- * black rather than the blue glow the light cards wear, which has nothing
- * pale to fall on at night.
+ * separates it is a lit top edge and a wide, soft, black shadow thrown down
+ * and to the right. The surfaces are opaque charcoal rather than white at a
+ * low alpha: iOS draws a layer's shadow from its alpha, so a translucent card
+ * threw a translucent shadow, and the reference's are solid.
  */
 export const NIGHT_SURFACE = {
-    card: 'hsla(0, 0%, 100%, 0.05)',
-    cardBorder: 'hsla(0, 0%, 100%, 0.08)',
-    cardEdge: 'hsla(0, 0%, 100%, 0.14)',
-    cardShadow: 'hsla(0, 0%, 0%, 0.85)',
-    frostedShadow: 'hsla(0, 0%, 0%, 0.80)',
-    gradientCardShadow: 'hsla(0, 0%, 0%, 0.85)',
+    card: 'hsl(213, 10%, 14%)',
+    cardBorder: 'hsla(0, 0%, 100%, 0.06)',
+    cardEdge: 'hsla(0, 0%, 100%, 0.16)',
+    cardShadow: 'hsl(0, 0%, 0%)',
+    frostedShadow: 'hsl(0, 0%, 0%)',
+    gradientCardShadow: 'hsl(0, 0%, 0%)',
     /** New-note field, social buttons, a chosen reference row. */
-    soft: 'hsla(0, 0%, 100%, 0.04)',
+    soft: 'hsl(213, 10%, 12%)',
     /** Note card arrow disc, reminder rows. */
-    medium: 'hsla(0, 0%, 100%, 0.10)',
+    medium: 'hsl(213, 9%, 18%)',
     /** A row inside a card: a hair above the card it sits in. */
-    row: 'hsla(0, 0%, 100%, 0.04)',
-    rowBorder: 'hsla(0, 0%, 100%, 0.08)',
+    row: 'hsl(213, 9%, 16%)',
+    rowBorder: 'hsla(0, 0%, 100%, 0.06)',
     /** A group of rows inside a card: the same lift as a row, bordered like a card. */
-    rowGroup: 'hsla(0, 0%, 100%, 0.04)',
-    rowGroupBorder: 'hsla(0, 0%, 100%, 0.08)',
+    rowGroup: 'hsl(213, 9%, 16%)',
+    rowGroupBorder: 'hsla(0, 0%, 100%, 0.06)',
     /**
      * Things that sit below the surface: the meter's resting ticks, inactive
      * pagination dots. The reference's credit-limit track is a groove cut into
@@ -87,13 +86,13 @@ export const NIGHT_SURFACE = {
      */
     groove: 'hsla(0, 0%, 0%, 0.35)',
     /** Page-white screens become the reference's panel, one step up. */
-    sheet: 'hsl(212, 9%, 14%)',
+    sheet: 'hsl(212, 9%, 13%)',
     /** Where a band on the sheet settles: a step back toward the ground. */
-    sheetTint: 'hsl(212, 12%, 12%)',
+    sheetTint: 'hsl(212, 12%, 11%)',
     /** A page of reading: the card, since there is no white to be nearly. */
-    readingCard: 'hsla(0, 0%, 100%, 0.05)',
+    readingCard: 'hsl(213, 10%, 14%)',
     /** A small grey pill. */
-    chip: 'hsla(0, 0%, 100%, 0.08)',
+    chip: 'hsl(213, 9%, 21%)',
     /** A card over artwork or the timeline's rail: a brighter edge than the shared one. */
     cardHighlight: 'hsla(0, 0%, 100%, 0.18)',
     /**
@@ -104,12 +103,12 @@ export const NIGHT_SURFACE = {
      */
     lightRim: ['hsla(0, 0%, 100%, 0.45)', 'hsla(0, 0%, 100%, 0.05)'] as const,
     /** Alert and error modals, the schedule sheet: one step up again. */
-    modal: 'hsl(214, 9%, 16%)',
+    modal: 'hsl(214, 9%, 15%)',
     /** A little heavier than the day's, so a sheet still separates from the ground under it. */
     scrim: 'rgba(0, 0, 0, 0.66)',
-    sheetCard: 'hsla(0, 0%, 100%, 0.06)',
-    sheetCardBorder: 'hsla(0, 0%, 100%, 0.10)',
-    field: 'hsla(0, 0%, 100%, 0.04)',
+    sheetCard: 'hsl(213, 10%, 14%)',
+    sheetCardBorder: 'hsla(0, 0%, 100%, 0.08)',
+    field: 'hsl(213, 10%, 11%)',
     fieldBorder: 'hsla(0, 0%, 100%, 0.14)',
     fieldBorderFocused: 'hsl(210, 19%, 94%)',
     disabledLight: 'hsla(0, 0%, 100%, 0.10)',
@@ -119,8 +118,8 @@ export const NIGHT_SURFACE = {
     tinted: (hue: number) => `hsla(${hue}, 40%, 60%, 0.14)`,
     tintedBorder: (hue: number) => `hsla(${hue}, 40%, 65%, 0.28)`,
     /** GradientCard with no hue: a step lighter than the ground, a step under the card. */
-    tintCard: 'hsla(0, 0%, 100%, 0.04)',
-    tintCardBorder: 'hsla(0, 0%, 100%, 0.08)',
+    tintCard: 'hsl(213, 10%, 12%)',
+    tintCardBorder: 'hsla(0, 0%, 100%, 0.06)',
 } as const;
 
 /**
@@ -150,9 +149,9 @@ export const NIGHT_MARK_SWEEP = ['hsl(210, 10%, 94%)', 'hsl(214, 8%, 64%)'] as c
 export const NIGHT_RADIO = {
     ring: NIGHT_MARK,
     ringUnselected: 'hsla(0, 0%, 100%, 0.16)',
-    selectedFill: 'hsl(214, 8%, 24%)',
+    selectedFill: 'hsl(214, 8%, 21%)',
     selectedBorder: 'hsla(0, 0%, 100%, 0.16)',
-    unselectedFill: 'hsla(0, 0%, 100%, 0.04)',
+    unselectedFill: 'hsl(213, 9%, 15%)',
     unselectedBorder: 'hsla(0, 0%, 100%, 0.08)',
 } as const;
 
@@ -162,7 +161,7 @@ export const NIGHT_RADIO = {
  * different colour. Near-black, with the primary ink on it (13:1).
  */
 export const NIGHT_SOLID = {
-    background: 'hsl(212, 12%, 7%)',
+    background: 'hsl(212, 14%, 4%)',
     border: 'hsla(0, 0%, 100%, 0.22)',
     text: NIGHT_INK.primary,
     disabledSurface: 'hsla(0, 0%, 100%, 0.04)',
@@ -176,7 +175,7 @@ export const NIGHT_SOLID = {
  * blurs into the deeper dark the reference's panels sit in. The hologram from
  * the reference's corner was tried here and read as a purple lamp.
  */
-export const NIGHT_SWEEP = ['hsl(212, 14%, 3%)', 'hsl(212, 12%, 9%)'] as const;
+export const NIGHT_SWEEP = ['hsl(212, 14%, 2%)', 'hsl(212, 12%, 7%)'] as const;
 
 /** The rule along the top of an emphasised panel: a hairline of light. */
 export const NIGHT_RULE = ['hsla(0, 0%, 100%, 0.04)', 'hsla(0, 0%, 100%, 0.42)', 'hsla(0, 0%, 100%, 0.04)'] as const;
@@ -197,9 +196,9 @@ export const NIGHT_ACCENT = {
     markSurface: 'hsla(0, 0%, 100%, 0.06)',
     /** Orange as a sentence: 7.9:1 on the ground. */
     markInk: 'hsl(22, 90%, 68%)',
-    panel: 'hsl(214, 8%, 22%)',
-    panelEdge: 'hsl(214, 8%, 26%)',
-    chosenFill: 'hsl(214, 8%, 24%)',
+    panel: 'hsl(214, 8%, 19%)',
+    panelEdge: 'hsl(214, 8%, 23%)',
+    chosenFill: 'hsl(214, 8%, 21%)',
 } as const;
 
 /**
@@ -209,10 +208,10 @@ export const NIGHT_ACCENT = {
  * and its 0.92 secondary ink with room to spare.
  */
 export const NIGHT_ACCENT_SCREEN = {
-    ground: 'hsl(213, 9%, 12%)',
+    ground: 'hsl(213, 10%, 11%)',
     textPrimary: 'hsl(0, 0%, 100%)',
     textSecondary: 'hsla(0, 0%, 100%, 0.92)',
-    card: 'hsla(0, 0%, 100%, 0.06)',
+    card: 'hsl(213, 9%, 16%)',
     cardBorder: 'hsla(0, 0%, 100%, 0.10)',
     cardEdge: 'hsla(0, 0%, 100%, 0.16)',
 } as const;
@@ -290,7 +289,7 @@ export const NIGHT_CALENDAR_BACKDROP_GLOW = [
 /** The schedule sheet: the panel, under a slightly heavier scrim. */
 export const NIGHT_CALENDAR_SHEET = {
     surface: NIGHT_SURFACE.modal,
-    border: 'hsla(0, 0%, 100%, 0.10)',
+    border: 'hsla(0, 0%, 100%, 0.08)',
     overlay: 'rgba(0, 0, 0, 0.66)',
 } as const;
 

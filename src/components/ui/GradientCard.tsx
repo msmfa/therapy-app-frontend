@@ -59,9 +59,9 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         borderRadius: DEFAULT_RADIUS,
         elevation: 12,
         shadowColor: theme.surface.gradientCardShadow,
-        shadowOffset: { height: 4, width: 0 },
-        shadowOpacity: 0.3,
-        shadowRadius: 30,
+        shadowOffset: theme.scheme === 'dark' ? theme.surface.shadowOffset : { height: 4, width: 0 },
+        shadowOpacity: theme.scheme === 'dark' ? theme.surface.cardShadowOpacity : 0.3,
+        shadowRadius: theme.scheme === 'dark' ? theme.surface.shadowRadius : 30,
     },
     legendCard: {
         borderRadius: DEFAULT_RADIUS,

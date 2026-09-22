@@ -119,6 +119,10 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     root: {
         borderRadius: 15,
         backgroundColor: theme.surface.card,
+        shadowColor: theme.surface.cardShadow,
+        shadowOffset: theme.surface.shadowOffset,
+        shadowOpacity: theme.scheme === 'dark' ? theme.surface.cardShadowOpacity : 0,
+        shadowRadius: theme.surface.shadowRadius,
         // A hairline of the bars' own green, faint enough to bound the box
         // without competing with the bars inside it.
         borderWidth: 1,

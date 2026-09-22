@@ -42,7 +42,7 @@
         "dark": {
           "image": "./assets/splash-brain.png",
           "resizeMode": "contain",
-          "backgroundColor": "#121417"
+          "backgroundColor": "#141719"
         }
       },
       "bundleIdentifier": "com.plastic-brains.app",
