@@ -1,5 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet, View, ViewStyle, StyleProp, ActivityIndicator, Text } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { spacing } from '../../constants';
 import { BUTTON_COLORS } from 'designs/designs-colors';
 
@@ -22,6 +23,7 @@ export function Button({
     addedStyles,
     loading = false,
 }: Props) {
+    const { t } = useTranslation('common');
     const isDisabled = disabled || loading;
     const showDisabledStyles = disabled && !loading;
 
@@ -46,7 +48,7 @@ export function Button({
             // dimmed, which reads as "unavailable" rather than "working".
             accessibilityState={ { disabled: isDisabled, busy: loading } }
             accessibilityLabel={ label }
-            accessibilityValue={ loading ? { text: 'Loading' } : undefined }
+            accessibilityValue={ loading ? { text: t('a11y.loading') } : undefined }
         >
             { loading ? (
                 <ActivityIndicator color={ spinnerColor } />

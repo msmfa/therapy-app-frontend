@@ -36,7 +36,7 @@ export function SettingsPageShell({ children, title, onBack }: Props) {
                             onPress={ onBack }
                         />
                         { title ? (
-                            <AppText variant="h3" style={ styles.headerTitle }>
+                            <AppText variant="h3" style={ styles.headerTitle } accessibilityRole="header">
                                 { title }
                             </AppText>
                         ) : null }

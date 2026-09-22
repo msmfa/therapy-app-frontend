@@ -86,7 +86,7 @@ export default function SignUpScreen() {
                         showsVerticalScrollIndicator={ false }
                     >
                         <View style={ styles.header }>
-                            <AppText variant="h1" align="center">{ t('signUp.title') }</AppText>
+                            <AppText variant="h1" align="center" accessibilityRole="header">{ t('signUp.title') }</AppText>
                             <AppText variant="bodySecondary" align="center">
                                 { tOnboarding('signUpSubtitle') }
                             </AppText>

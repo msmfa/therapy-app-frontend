@@ -3,6 +3,7 @@ import { ActivityIndicator, StyleProp, StyleSheet, TouchableOpacity, View, ViewS
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Defs, Rect, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
+import { useTranslation } from 'react-i18next';
 import AppText from './AppText';
 import { PALETTE } from 'designs/designs-colors';
 
@@ -61,6 +62,7 @@ export function GlassPillButton({
     fillColor,
     style,
 }: Props) {
+    const { t } = useTranslation('common');
     const resolvedLabelColor = disabled && disabledLabelColor ? disabledLabelColor : labelColor;
     const isSolid = fillColor !== undefined;
     // A blurred view over an opaque fill is a blur of nothing, and on Android it
@@ -82,7 +84,7 @@ export function GlassPillButton({
             accessibilityRole="button"
             accessibilityLabel={ accessibilityLabel ?? label }
             accessibilityState={ { disabled: disabled || loading, busy: loading } }
-            accessibilityValue={ loading ? { text: 'Loading' } : undefined }
+            accessibilityValue={ loading ? { text: t('a11y.loading') } : undefined }
             onLayout={ (event) => setLayout(event.nativeEvent.layout) }
             style={ [
                 styles.shadowWrapper,

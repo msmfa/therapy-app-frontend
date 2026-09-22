@@ -21,6 +21,12 @@ describe('ScheduleModal actions', () => {
         expect(screen.getByText('Add Session')).toBeTruthy();
     });
 
+    it('gives the dismiss backdrop a label, since it was previously an unlabelled tap target the size of the screen', () => {
+        render(<ScheduleModal { ...props } existingSession={ null } />);
+
+        expect(screen.getByRole('button', { name: 'Dismiss scheduling' })).toBeTruthy();
+    });
+
     it('offers Delete and Update on a day that already has one', () => {
         render(
             <ScheduleModal

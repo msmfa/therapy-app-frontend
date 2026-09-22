@@ -53,7 +53,7 @@ function PinnedHeader({ expanded, onToggle }: PinnedHeaderProps) {
     const { t } = useTranslation('common');
     return (
         <View style={ styles.header }>
-            <AppText variant='h3' style={ styles.headerLabel }>
+            <AppText variant='h3' style={ styles.headerLabel } accessibilityRole="header">
                 { t('tab.notes') }
             </AppText>
             <View style={ styles.gallery }>
@@ -183,10 +183,18 @@ export default function NotesListScreen({
                             </GradientCard>
                         }
                         ListHeaderComponent={
+                            // Layout-only: reserves the scroll space the real,
+                            // pinned PinnedHeader below occupies. pointerEvents
+                            // already keeps a real tap off it; VoiceOver does
+                            // not respect that, so without hiding it explicitly
+                            // it would add a second "Notes" heading to every
+                            // pass through this screen.
                             <View
                                 style={ styles.headerSpacer }
                                 pointerEvents='none'
                                 onLayout={ onSpacerLayout }
+                                accessibilityElementsHidden
+                                importantForAccessibility="no-hide-descendants"
                             >
                                 <PinnedHeader expanded={ galleryExpanded } onToggle={ toggleGallery } />
                             </View>

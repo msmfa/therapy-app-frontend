@@ -25,7 +25,8 @@
       "loading": "Chargement",
       "showPassword": "Afficher le mot de passe",
       "tryAgainQuestion": "Réessayer ?",
-      "source": "Source {{position}} : {{text}}"
+      "source": "Source {{position}} : {{text}}",
+      "opensReminderResearch": "Ouvre la recherche sur ce rappel"
     },
     "tab": {
       "calendar": "Calendrier",
@@ -327,7 +328,9 @@
     "a11y": {
       "today": "Aujourd’hui",
       "therapySession": "Séance",
-      "reminder": "Rappel"
+      "reminder": "Rappel",
+      "dismissScheduling": "Fermer la planification",
+      "opensTimePicker": "Ouvre le sélecteur d'heure"
     }
   },
   "onboarding": {
