@@ -1,9 +1,6 @@
 /**
- * The today disc and the session/reminder dots used to be mutually exclusive.
- *
- * `isTodayCell` required `!kind`, so the one day a user is most likely to look
- * at was the one day whose mark was dropped: a session this evening rendered as
- * a bare black circle, identical to a today with nothing on at all.
+ * A session day wears its own disc (sessionFill); today and a plain reminder
+ * still wear the today/dot treatment these tests were originally written for.
  *
  * These drive the day cell directly rather than through `Calendar`. The library
  * decides "today" with `xdate`, which binds the real `Date` at import and so
@@ -42,11 +39,11 @@ const dotColours = () => {
 };
 
 describe('DarkCalendarDay', () => {
-    it('keeps the today disc when today also carries a session', () => {
+    it('wears its own disc when today also carries a session, in place of the today disc', () => {
         renderDay({ marking: { kind: 'session' } });
 
-        expect(cellStyle().backgroundColor).toBe(CALENDAR_DARK_COLORS.todayBackground);
-        expect(dotColours()).toEqual(Array(3).fill(CALENDAR_DARK_COLORS.sessionDotOnToday));
+        expect(cellStyle().backgroundColor).toBe(CALENDAR_DARK_COLORS.sessionFill);
+        expect(dotColours()).toEqual(Array(3).fill('transparent'));
     });
 
     it('lightens a reminder dot on today, which is nearly black behind it', () => {
@@ -67,50 +64,30 @@ describe('DarkCalendarDay', () => {
         expect(dotColours()).toEqual(Array(3).fill('transparent'));
     });
 
-    it('leaves every other day its own dot colours', () => {
+    it('wears its disc on any other day too, not just today', () => {
         renderDay({ state: undefined, marking: { kind: 'session' } });
 
-        expect(cellStyle().backgroundColor).toBeUndefined();
-        expect(dotColours()).toEqual(Array(3).fill(CALENDAR_DARK_COLORS.sessionDot));
+        expect(cellStyle().backgroundColor).toBe(CALENDAR_DARK_COLORS.sessionFill);
+        expect(dotColours()).toEqual(Array(3).fill('transparent'));
     });
 
-    it('drops the disc while the day is pressed, so the sheet owns the cell', () => {
+    it('sets the numeral to the fill\'s own text colour on a session day', () => {
+        renderDay({ state: undefined, marking: { kind: 'session' } });
+
+        const text = screen.getByText('18');
+        expect(StyleSheet.flatten(text.props.style).color).toBe(CALENDAR_DARK_COLORS.sessionFillText);
+    });
+
+    it('drops the session disc while the day is pressed, so the sheet owns the cell', () => {
         renderDay({ marking: { kind: 'session', pressed: true } });
 
         expect(cellStyle().backgroundColor).toBe(CALENDAR_DARK_COLORS.pressedBackground);
-        expect(dotColours()).toEqual(Array(3).fill(CALENDAR_DARK_COLORS.sessionDot));
     });
 
-    it('rings a session day in the dots\' own colour, so it reads without the dots\' hue', () => {
-        renderDay({ state: undefined, marking: { kind: 'session' } });
-
-        expect(cellStyle().borderColor).toBe(CALENDAR_DARK_COLORS.sessionDot);
-        expect(cellStyle().borderWidth).toBeGreaterThan(0);
-    });
-
-    it('rings a session day even where the disc drops, since the ring answers the same question the dots do', () => {
-        renderDay({ marking: { kind: 'session', pressed: true } });
-
-        expect(cellStyle().borderColor).toBe(CALENDAR_DARK_COLORS.sessionDot);
-        expect(cellStyle().borderWidth).toBeGreaterThan(0);
-    });
-
-    it('uses the on-today session colour for the ring when today is also a session', () => {
-        renderDay({ marking: { kind: 'session' } });
-
-        expect(cellStyle().borderColor).toBe(CALENDAR_DARK_COLORS.sessionDotOnToday);
-    });
-
-    it('leaves a reminder day without a ring, since only the dots distinguish it', () => {
+    it('leaves a reminder day without a disc, since only its dots distinguish it', () => {
         renderDay({ state: undefined, marking: { kind: 'reminder' } });
 
-        expect(cellStyle().borderWidth ?? 0).toBe(0);
-    });
-
-    it('leaves an unmarked day without a ring', () => {
-        renderDay({ state: undefined });
-
-        expect(cellStyle().borderWidth ?? 0).toBe(0);
+        expect(cellStyle().backgroundColor).toBeUndefined();
     });
 
     it("builds VoiceOver's label from the date and what the day carries, since react-native-calendars never supplies one itself", () => {

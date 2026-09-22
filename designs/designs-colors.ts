@@ -295,18 +295,32 @@ export const CALENDAR_DARK_COLORS = {
   dayDefault: 'hsla(240, 8%, 16%, 0.88)',
   dayDisabled: 'hsla(240, 8%, 16%, 0.24)',
   arrows: 'hsla(240, 8%, 16%, 0.70)',
-  // Days are marked by three dots under the numeral rather than a disc behind
-  // it: orange for a therapy session, blue for a reminder.
+  // Reminder days are marked by three dots under the numeral; a session day
+  // instead wears a disc of its own (sessionFill below), since colour was the
+  // only thing telling the two apart and that is invisible to anyone who
+  // cannot separate orange from blue.
   sessionDot: ACTION_ORANGE,
   reminderDot: 'hsl(226, 62%, 48%)',
-  // Today is the one solid disc in the month, so it reads before the dots do.
+  // Today is otherwise the one solid disc in the month, so it reads before
+  // the dots do.
   todayBackground: 'hsl(240, 8%, 10%)',
   todayText: 'hsl(0, 0%, 78%)',
-  // Today wears its disc even when it is also a session or a reminder, so the
-  // dots have to stay legible on a near-black ground. The orange already does;
-  // the blue is far too dark against it and lightens to match.
-  sessionDotOnToday: ACTION_ORANGE,
+  // Today wears its disc even when it is also a reminder, so the dot has to
+  // stay legible on a near-black ground; too dark otherwise, so it lightens.
+  // A session's own disc (sessionFill) already reads on any ground, today's
+  // included, so it needs no "on today" variant the way the dots do.
   reminderDotOnToday: 'hsl(226, 85%, 72%)',
+  // The session disc. Same hue as sessionDot/ACTION_ORANGE (20°); white
+  // numerals on the brand orange itself only reach 3.25:1, short of the
+  // 4.5:1 a 17px numeral needs. Pushed to full saturation and down to 40%
+  // lightness rather than just darkened at ACTION_ORANGE's own 75%
+  // saturation, which read as brown once dark enough to pass; fully
+  // saturated instead reads as a deep orange at the same darkness (4.75:1).
+  // Kept as its own colour rather than darkening ACTION_ORANGE itself, which
+  // is the small-mark orange used everywhere else in the app and reads fine
+  // at its original weight there.
+  sessionFill: '#CC4500',
+  sessionFillText: COLOR_VARIANTS.white.primary,
   // Press feedback on a day that is neither a session nor a reminder.
   pressedBackground: 'hsla(240, 8%, 16%, 0.10)',
   pressedText: 'hsl(240, 8%, 16%)',
