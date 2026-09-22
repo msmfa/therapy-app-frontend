@@ -14,6 +14,7 @@ import { SampleNoteCard } from './SampleNoteCard';
 import { GradientCard } from '../ui/GradientCard';
 import AppText from '../ui/AppText';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
+import { useTheme } from '../../context/theme';
 import { captureNoteOpened } from '../../features/analytics/engagement';
 import { useTranslation } from 'react-i18next';
 
@@ -73,6 +74,7 @@ export default function NotesListScreen({
     canReview,
     onReviewed,
 }: NotesListScreenProps) {
+    const { theme } = useTheme();
     const headerHeight = useHeaderHeight();
     const [listHeight, setListHeight] = React.useState(0);
     const [headerBlockHeight, setHeaderBlockHeight] = React.useState(0);
@@ -158,8 +160,8 @@ export default function NotesListScreen({
                                 refreshing={ loading }
                                 onRefresh={ refresh }
                                 progressViewOffset={ headerBottom + HEADER_GAP }
-                                tintColor={ COLOR_VARIANTS.black.primary }
-                                colors={ [COLOR_VARIANTS.black.primary] }
+                                tintColor={ theme.ink.primary }
+                                colors={ [theme.ink.primary] }
                             />
                         }
                         ItemSeparatorComponent={ () => <View style={ { height: 12 } } /> }

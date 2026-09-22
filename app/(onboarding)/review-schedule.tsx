@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { TEXT_COLORS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useThemedStyles } from '../../src/context/theme';
 import AppText from '../../src/components/ui/AppText';
 import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
-import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
-import { onboardingStyles } from '../../src/components/onboarding/onboardingStyles';
+import { ONBOARDING_SCREEN_PADDING, OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import { PlanTimeline } from '../../src/components/onboarding/PlanTimeline';
 import { reviewScheduleCopy } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
@@ -27,6 +27,7 @@ import { sampleSessionAt } from '../../src/features/onboarding/samplePlan';
  * and labels it, rather than showing nothing.
  */
 export default function ReviewScheduleScreen() {
+    const styles = useThemedStyles(makeStyles);
     const router = useRouter();
     const { answers } = useOnboardingAnswers();
 
@@ -71,8 +72,11 @@ export default function ReviewScheduleScreen() {
                 />
             }
         >
+            { /* Not a card: the note is about the whole list under it, so it
+                 runs the full width of the screen as a band in the plan's
+                 orange, the same block the chosen plan is. */ }
             { exampleNote !== null && (
-                <View style={ [onboardingStyles.card, styles.note] }>
+                <View style={ styles.note }>
                     <AppText variant="caption" style={ styles.noteText }>
                         { exampleNote }
                     </AppText>
@@ -86,15 +90,19 @@ export default function ReviewScheduleScreen() {
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     note: {
-        padding: 16,
+        marginHorizontal: -ONBOARDING_SCREEN_PADDING,
+        paddingHorizontal: ONBOARDING_SCREEN_PADDING,
+        paddingVertical: 16,
         marginTop: 8,
+        marginBottom: 16,
+        backgroundColor: theme.plan.fill,
     },
     noteText: {
         fontSize: 14,
         lineHeight: 21,
-        color: TEXT_COLORS.secondary,
+        color: theme.plan.inkBrightest,
     },
     timeline: {
         marginTop: 0,

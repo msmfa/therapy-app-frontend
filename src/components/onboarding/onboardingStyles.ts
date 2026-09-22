@@ -1,25 +1,26 @@
+import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
-import { ACTION_BLUE_DARK, ACCENT_SURFACE, PALETTE, TEXT_COLORS } from 'designs/designs-colors';
 import { BRAND_FONTS } from 'designs/designs-typography';
-
-/**
- * One colour for every tappable piece of text in onboarding, and for the arrow
- * that follows it. Deep blue rather than the body's near-black, so a link is
- * distinguishable from the sentence around it without an underline.
- */
-export const ONBOARDING_LINK_COLOR = ACTION_BLUE_DARK;
+import type { Theme } from 'designs/designs-themes';
+import { useTheme } from '../../context/theme';
 
 /** Surfaces and type shared with the notes editor and reminder cards. */
-export const onboardingStyles = StyleSheet.create({
+/** The corner radius every onboarding card shares. */
+export const CARD_RADIUS = 26;
+
+export const makeOnboardingStyles = (theme: Theme) => StyleSheet.create({
     card: {
-        borderRadius: 26,
+        borderRadius: CARD_RADIUS,
         borderWidth: 1,
-        borderColor: PALETTE.overlay.whiteBorderTransparent,
-        backgroundColor: PALETTE.overlay.whiteSurfaceTransparent,
-        shadowColor: PALETTE.overlay.blueGlowTransparent,
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.18,
-        shadowRadius: 20,
+        borderColor: theme.surface.cardBorder,
+        // The lit top edge that lifts a card off a ground it is barely lighter
+        // than. Equal to the border by day, so nothing changes there.
+        borderTopColor: theme.surface.cardEdge,
+        backgroundColor: theme.surface.card,
+        shadowColor: theme.surface.cardShadow,
+        shadowOffset: theme.scheme === 'dark' ? theme.surface.shadowOffset : { width: 0, height: 8 },
+        shadowOpacity: theme.surface.cardShadowOpacity,
+        shadowRadius: theme.scheme === 'dark' ? theme.surface.shadowRadius : 20,
         elevation: 3,
     },
     headline: {
@@ -28,44 +29,45 @@ export const onboardingStyles = StyleSheet.create({
         fontSize: 32,
         lineHeight: 39,
         letterSpacing: -0.7,
-        color: TEXT_COLORS.primary,
+        color: theme.ink.primary,
     },
     title: {
         fontFamily: BRAND_FONTS.medium,
         fontWeight: undefined,
-        color: TEXT_COLORS.primary,
+        color: theme.ink.primary,
     },
     body: {
         fontFamily: BRAND_FONTS.regular,
         fontWeight: undefined,
-        color: TEXT_COLORS.secondary,
+        color: theme.ink.secondary,
         fontSize: 16,
         lineHeight: 25,
     },
     /**
-     * A link's label: deep blue, body weight, never underlined. The colour and
-     * the trailing arrow every link draws carry it together, so the affordance
-     * still survives for anyone who cannot separate the colour from the
-     * sentence around it.
+     * A link's label: the link colour, body weight, never underlined. The
+     * colour and the trailing arrow every link draws carry it together, so the
+     * affordance still survives for anyone who cannot separate the colour from
+     * the sentence around it.
      */
     linkLabel: {
         fontFamily: BRAND_FONTS.regular,
         fontWeight: undefined,
-        color: ONBOARDING_LINK_COLOR,
+        color: theme.link.color,
     },
 });
 
 /**
  * The same surfaces and type on the accent ground.
  *
- * Applied on top of `onboardingStyles`, never instead of it, so the metrics
+ * Applied on top of the base styles, never instead of them, so the metrics
  * (radius, size, leading, letterspacing) stay defined in exactly one place and
  * only the colours change with the surface.
  */
-export const onboardingAccentStyles = StyleSheet.create({
+export const makeOnboardingAccentStyles = (theme: Theme) => StyleSheet.create({
     card: {
-        borderColor: ACCENT_SURFACE.cardBorder,
-        backgroundColor: ACCENT_SURFACE.cardBackground,
+        borderColor: theme.accentScreen.cardBorder,
+        borderTopColor: theme.accentScreen.cardEdge,
+        backgroundColor: theme.accentScreen.card,
         // The light surface's card lifts off the page with a blue glow. On the
         // accent ground there is nothing paler behind it for a glow to fall on,
         // so the card is held by its border alone.
@@ -73,12 +75,29 @@ export const onboardingAccentStyles = StyleSheet.create({
         elevation: 0,
     },
     headline: {
-        color: ACCENT_SURFACE.textPrimary,
+        color: theme.accentScreen.textPrimary,
     },
     title: {
-        color: ACCENT_SURFACE.textPrimary,
+        color: theme.accentScreen.textPrimary,
     },
     body: {
-        color: ACCENT_SURFACE.textSecondary,
+        color: theme.accentScreen.textSecondary,
     },
 });
+
+export type OnboardingStyles = {
+    onboardingStyles: ReturnType<typeof makeOnboardingStyles>;
+    onboardingAccentStyles: ReturnType<typeof makeOnboardingAccentStyles>;
+    /** One colour for every tappable piece of text in onboarding, and the arrow after it. */
+    linkColor: string;
+};
+
+/** The shared onboarding sheets, built for the active theme. */
+export function useOnboardingStyles(): OnboardingStyles {
+    const { theme } = useTheme();
+    return useMemo(() => ({
+        onboardingStyles: makeOnboardingStyles(theme),
+        onboardingAccentStyles: makeOnboardingAccentStyles(theme),
+        linkColor: theme.link.color,
+    }), [theme]);
+}

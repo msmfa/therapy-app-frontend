@@ -44,6 +44,7 @@
     "title": "Einstellungen",
     "hub": {
       "language": "Sprache",
+      "appearance": "Erscheinungsbild",
       "references": "Quellenverzeichnis",
       "settings": "Einstellungen",
       "rateApp": "Diese App bewerten",
@@ -81,6 +82,17 @@
       "a11yHint": "Ändert die Sprache der App sofort",
       "choose": "Sprache auswählen",
       "a11yDropdownHint": "Öffnet die Liste der Sprachen"
+    },
+    "appearance": {
+      "title": "Erscheinungsbild",
+      "system": "System",
+      "systemDetail": "Derzeit {{scheme}}",
+      "light": "Hell",
+      "dark": "Dunkel",
+      "a11yRow": "{{label}}, {{detail}}",
+      "a11yHint": "Ändert das Erscheinungsbild der App sofort",
+      "saveFailedTitle": "Erscheinungsbild nicht gespeichert",
+      "saveFailedMessage": "Das Erscheinungsbild wurde geändert, diese Auswahl konnte aber nicht gespeichert werden. Bitte versuchen Sie es erneut."
     }
   },
   "reminderSettings": {

@@ -3,7 +3,8 @@ import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { TEXT_COLORS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useThemedStyles } from '../../src/context/theme';
 import { NoteSheetBackdrop } from '../../src/components/notes/NoteSheetBackdrop';
 import { TemplateHelpModal } from '../../src/components/notes/TemplateHelpModal';
 import { CurvedArrow } from '../../src/components/onboarding/CurvedArrow';
@@ -29,6 +30,7 @@ import { noteTemplateCopy } from '../../src/features/onboarding/onboardingCopy';
  * filling the space over it, with the prompt drawn at the top of that control.
  */
 export default function NoteTemplateScreen() {
+    const styles = useThemedStyles(makeStyles);
     const { t } = useTranslation('onboarding');
     const router = useRouter();
     const { width: screenWidth, height: screenHeight } = useWindowDimensions();
@@ -70,7 +72,7 @@ export default function NoteTemplateScreen() {
                 }
                 footer={
                     <OnboardingButton
-                        appearance="solid"
+                        appearance="ink"
                         label={ noteTemplateCopy().primaryCta }
                         onPress={ () => router.push('/(onboarding)/reviews-preview') }
                     />
@@ -137,7 +139,7 @@ const TAP_AREA_RATIO = 0.6;
  */
 const SHEET_OVERLAP = 18;
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     tapArea: {
         alignSelf: 'stretch',
     },
@@ -155,7 +157,7 @@ const styles = StyleSheet.create({
         fontWeight: undefined,
         fontSize: 30,
         lineHeight: 34,
-        color: TEXT_COLORS.secondary,
+        color: theme.ink.secondary,
         marginTop: 6,
     },
     sheet: {

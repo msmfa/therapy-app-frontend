@@ -6,7 +6,7 @@ import { useRouter } from 'expo-router';
 import { useIsFocused } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
-import { ACCENT_SURFACE } from 'designs/designs-colors';
+import { useTheme } from '../../src/context/theme';
 import { BRAND_FONTS } from 'designs/designs-typography';
 import { NotificationBanner } from '../../src/components/onboarding/NotificationBanner';
 import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
@@ -17,7 +17,8 @@ import {
     notePreviewCopy,
 } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
-import { onboardingAccentStyles, onboardingStyles } from '../../src/components/onboarding/onboardingStyles';
+import { CARD_RADIUS, useOnboardingStyles } from '../../src/components/onboarding/onboardingStyles';
+import { CardLight } from '../../src/components/onboarding/CardLight';
 import { useTranslation } from 'react-i18next';
 
 /** The screenshot's own proportions, so nothing is stretched. */
@@ -38,7 +39,14 @@ const NOTIFICATION_HEIGHT_GUESS = 74;
  * it was sitting on.
  */
 
+// The notes list as it looks in each appearance: a screenshot is a picture of
+// the app, and at night the app is dark.
+const NOTES_PREVIEW = require('../../assets/illustrations/notes-list-preview.webp') as ImageSourcePropType;
+const NOTES_PREVIEW_NIGHT = require('../../assets/illustrations/notes-list-preview-dark.jpg') as ImageSourcePropType;
+
 export default function NotePreviewScreen() {
+    const { theme } = useTheme();
+    const { onboardingStyles, onboardingAccentStyles } = useOnboardingStyles();
     const { t } = useTranslation('onboarding');
     const router = useRouter();
     const { answers } = useOnboardingAnswers();
@@ -94,7 +102,7 @@ export default function NotePreviewScreen() {
                     return (
                         <>
                             <Image
-                                source={ require('../../assets/illustrations/notes-list-preview.webp') as ImageSourcePropType }
+                                source={ theme.scheme === 'dark' ? NOTES_PREVIEW_NIGHT : NOTES_PREVIEW }
                                 style={ [
                                     styles.previewImage,
                                     {
@@ -135,7 +143,12 @@ export default function NotePreviewScreen() {
                     />
                 }
             >
-                <View style={ [onboardingStyles.card, onboardingAccentStyles.card, styles.privacy] }>
+                <View style={ [onboardingStyles.card, onboardingAccentStyles.card, styles.privacy, theme.accentScreen.cardLight !== null && styles.privacyLit] }>
+                    { /* At night the promise is the plan's orange, lit from its
+                         corner like the chosen plan card. */ }
+                    { theme.accentScreen.cardLight !== null && (
+                        <CardLight light={ theme.accentScreen.cardLight } radius={ CARD_RADIUS } />
+                    ) }
                     { /* The lock belongs to the title it marks. The paragraph runs
                      the full width underneath both, rather than in a column
                      beside the icon that cost it a word a line. */ }
@@ -143,7 +156,7 @@ export default function NotePreviewScreen() {
                         <Feather
                             name="lock"
                             size={ 18 }
-                            color={ ACCENT_SURFACE.textSecondary }
+                            color={ theme.accentScreen.textSecondary }
                             accessibilityElementsHidden
                             importantForAccessibility="no-hide-descendants"
                         />
@@ -190,6 +203,11 @@ const styles = StyleSheet.create({
     privacy: {
         padding: 18,
         marginTop: 8,
+    },
+    // The light paints the edge itself, so the border it covers must not
+    // show through as a second, flat outline.
+    privacyLit: {
+        borderColor: 'transparent',
     },
     privacyHeading: {
         flexDirection: 'row',

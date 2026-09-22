@@ -1,7 +1,8 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import AppText from '../ui/AppText';
-import { TEXT_COLORS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useThemedStyles } from '../../context/theme';
 import { TickMeter } from '../ui/TickMeter';
 import { ONBOARDING_QUESTION_COUNT } from '../../features/onboarding/onboardingCopy';
 import { useTranslation } from 'react-i18next';
@@ -26,6 +27,7 @@ type Props = {
  */
 export function OnboardingProgress({ step, total = ONBOARDING_QUESTION_COUNT, inline = false }: Props) {
     const { t } = useTranslation('onboarding');
+    const styles = useThemedStyles(makeStyles);
     const clamped = Math.min(Math.max(step, 1), total);
     // Both of these were built by concatenation, so the visible counter read
     // "1 of 5" in French too.
@@ -53,7 +55,7 @@ export function OnboardingProgress({ step, total = ONBOARDING_QUESTION_COUNT, in
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     container: {
         paddingHorizontal: 24,
         paddingTop: 8,
@@ -70,6 +72,6 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     label: {
-        color: TEXT_COLORS.secondary,
+        color: theme.ink.secondary,
     },
 });

@@ -11,7 +11,6 @@ import { neuroReminderCopy } from 'src/constants/neuroReminders';
 import { ChartBackground } from 'src/components/ui/ChartBackground';
 import { GlassMorphismWithSquare } from 'src/components/ui/GlassMorphismWithSquare';
 import { SquarePosition } from 'src/components/ui/LinearGradientSquare';
-import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { useOnboardingAnswers } from 'src/features/onboarding/OnboardingAnswersContext';
 import { planTimeline } from 'src/features/onboarding/planTimeline';
 import {
@@ -20,6 +19,7 @@ import {
 } from 'src/features/reminders/intervalCards';
 import { useTherapySessions } from 'src/context/therapy-sessions/TherapySessionsContext';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from 'src/context/theme';
 
 const HEADER_BUTTON_SIZE = 48;
 
@@ -27,6 +27,7 @@ export default function IntervalScienceScreen() {
     const { t } = useTranslation('common');
     const { t: tScience } = useTranslation('science');
     const router = useRouter();
+    const { theme } = useTheme();
     const { source } = useLocalSearchParams<{ source?: string | string[] }>();
     const showingOnboardingPlan = (Array.isArray(source) ? source[0] : source) === 'onboarding';
     const { answers, hydrated: answersHydrated } = useOnboardingAnswers();
@@ -81,14 +82,23 @@ export default function IntervalScienceScreen() {
             : tScience('intervals.emptyNoSessions');
 
     return (
-        <SafeAreaView style={ styles.container } edges={ ['top', 'left', 'right'] }>
-            <ChartBackground />
-            <GlassMorphismWithSquare squarePosition={ SquarePosition.BOTTOM_LEFT } />
+        <SafeAreaView
+            // By day the page sits on ruled paper under a sheet of glass; at
+            // night it is a plain black panel, and the cards carry the depth.
+            style={ [styles.container, { backgroundColor: theme.scheme === 'dark' ? theme.ground.base : theme.surface.sheet }] }
+            edges={ ['top', 'left', 'right'] }
+        >
+            { theme.scheme === 'light' && (
+                <>
+                    <ChartBackground />
+                    <GlassMorphismWithSquare squarePosition={ SquarePosition.BOTTOM_LEFT } />
+                </>
+            ) }
             <View style={ styles.pageHeader }>
                 <GlassCircleButton
                     accessibilityLabel={ t('action.back') }
                     icon="back"
-                    iconColor={ COLOR_VARIANTS.black.primary }
+                    iconColor={ theme.ink.primary }
                     size={ HEADER_BUTTON_SIZE }
                     onPress={ () => router.back() }
                     style={ styles.back }
@@ -142,7 +152,6 @@ export default function IntervalScienceScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: COLOR_VARIANTS.white.primary,
     },
     // The title is centred on the page, so the back arrow sits over the row
     // rather than in it and cannot pull the title off centre.

@@ -2,10 +2,10 @@ import React, { useRef, useState } from 'react'
 import { Animated, LayoutChangeEvent, Modal, View, StyleSheet } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useTheme } from '@react-navigation/native';
+import { useTheme as useNavigationTheme } from '@react-navigation/native';
 import { GlassCircleButton } from './ui/GlassCircleButton';
 import AppText from './ui/AppText';
-import { COLOR_VARIANTS, SURFACE_BLUE, SURFACE_BLUE_FADE } from 'designs/designs-colors';
+import { useTheme } from '../context/theme';
 import { useTranslation } from 'react-i18next';
 
 interface ModalProps {
@@ -35,7 +35,8 @@ const SCROLLABLE_EPSILON = 1;
 
 export function AppModal({ children, isVisible, onClose, title }: ModalProps) {
     const { t } = useTranslation('common');
-    const { colors } = useTheme();
+    const { colors } = useNavigationTheme();
+    const { theme } = useTheme();
     // Read outside the Modal on purpose. A Modal renders in its own native view
     // hierarchy, where the safe-area view measures nothing and reports zero
     // insets, so the header would sit under the status bar. This hook reads the
@@ -87,7 +88,7 @@ export function AppModal({ children, isVisible, onClose, title }: ModalProps) {
                         <GlassCircleButton
                             accessibilityLabel={ t('a11y.close') }
                             icon="close"
-                            iconColor={ COLOR_VARIANTS.black.primary }
+                            iconColor={ theme.ink.primary }
                             size={ CLOSE_BUTTON_SIZE }
                             onPress={ onClose }
                         />
@@ -120,7 +121,7 @@ export function AppModal({ children, isVisible, onClose, title }: ModalProps) {
                             style={ [styles.fade, styles.fadeTop, { opacity: topOpacity }] }
                         >
                             <LinearGradient
-                                colors={ [SURFACE_BLUE, SURFACE_BLUE_FADE] }
+                                colors={ [theme.ground.base, theme.ground.fade] }
                                 style={ StyleSheet.absoluteFill }
                             />
                         </Animated.View>
@@ -131,7 +132,7 @@ export function AppModal({ children, isVisible, onClose, title }: ModalProps) {
                             style={ [styles.fade, styles.fadeBottom, { opacity: bottomOpacity }] }
                         >
                             <LinearGradient
-                                colors={ [SURFACE_BLUE_FADE, SURFACE_BLUE] }
+                                colors={ [theme.ground.fade, theme.ground.base] }
                                 style={ StyleSheet.absoluteFill } />
                         </Animated.View>
                     </View>
@@ -164,7 +165,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     modalContent: { padding: 12, paddingBottom: 32 },
-    // The fades run to the theme's own ground, SURFACE_BLUE, so copy dissolves
+    // The fades run to the theme's own ground, so copy dissolves
     // into the page rather than under a visible band.
     fade: {
         height: FADE_HEIGHT,

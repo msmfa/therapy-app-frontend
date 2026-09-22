@@ -15,13 +15,14 @@ import { GlassMorphismWithCircle } from 'src/components/ui/GlassMorphismWithCirc
 import { GLASS_CARD_RADIUS } from 'src/components/ui/GlassMorphism';
 import { BackButton } from 'src/components/ui/BackButton';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
-import { COLOR_VARIANTS } from 'designs/designs-colors';
+import { useTheme } from 'src/context/theme';
 import { useTranslation } from 'react-i18next';
 import { serverErrorMessage } from 'src/features/errors/serverErrorMessage';
 
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 export default function SignUpScreen() {
+    const { theme } = useTheme();
     const router = useRouter();
     const { setAuth } = useAuth();
     const { showAlert } = useAppAlert();
@@ -101,7 +102,7 @@ export default function SignUpScreen() {
                             textContentType="name"
                             returnKeyType="next"
                             error={ errors.name }
-                            errorColor={ COLOR_VARIANTS.black.primary }
+                            errorColor={ theme.ink.primary }
                             editable={ !loading }
                         />
                         <TextField
@@ -115,7 +116,7 @@ export default function SignUpScreen() {
                             textContentType="emailAddress"
                             returnKeyType="next"
                             error={ errors.email }
-                            errorColor={ COLOR_VARIANTS.black.primary }
+                            errorColor={ theme.ink.primary }
                             editable={ !loading }
                         />
                         <PasswordField
@@ -126,7 +127,7 @@ export default function SignUpScreen() {
                             textContentType="newPassword"
                             returnKeyType="next"
                             error={ errors.password }
-                            errorColor={ COLOR_VARIANTS.black.primary }
+                            errorColor={ theme.ink.primary }
                             editable={ !loading }
                         />
                         <PasswordField
@@ -138,7 +139,7 @@ export default function SignUpScreen() {
                             returnKeyType="done"
                             onSubmitEditing={ onSubmit }
                             error={ errors.confirmPassword }
-                            errorColor={ COLOR_VARIANTS.black.primary }
+                            errorColor={ theme.ink.primary }
                             editable={ !loading }
                         />
                         { /* The flow's own action, as on the sign-in screen:

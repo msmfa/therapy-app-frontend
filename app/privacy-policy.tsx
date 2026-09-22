@@ -18,8 +18,8 @@ import dayjs from 'dayjs';
 import AppText from '../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { GlassCircleButton } from '../src/components/ui/GlassCircleButton';
-import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '../src/context/theme';
 import type { TFunction } from 'i18next';
 
 /**
@@ -53,18 +53,19 @@ export default function PrivacyPolicyScreen() {
     const { t } = useTranslation('common');
     const { t: tLegal } = useTranslation('legal');
     const router = useRouter();
+    const { theme } = useTheme();
 
     const handleBack = () => {
         router.back();
     };
 
     return (
-        <SafeAreaView style={ styles.container } edges={ ['top', 'left', 'right'] }>
+        <SafeAreaView style={ [styles.container, { backgroundColor: theme.surface.sheet }] } edges={ ['top', 'left', 'right'] }>
             <View style={ styles.pageHeader }>
                 <GlassCircleButton
                     accessibilityLabel={ t('action.back') }
                     icon="back"
-                    iconColor={ COLOR_VARIANTS.black.primary }
+                    iconColor={ theme.ink.primary }
                     size={ 48 }
                     onPress={ handleBack }
                 />
@@ -122,7 +123,6 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        backgroundColor: COLOR_VARIANTS.white.primary,
     },
     scroll: {
         flex: 1,

@@ -3,8 +3,10 @@ import { StyleSheet, TextStyle, View, ViewStyle } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import ScheduleModal from './ScheduleModal';
 import { GradientCard } from '../ui/GradientCard';
-import { CALENDAR_COLORS, CALENDAR_DARK_COLORS, COLOR_VARIANTS } from 'designs/designs-colors';
-import { DarkCalendarDay, DarkDayKind } from './DarkCalendarDay';
+import { CALENDAR_COLORS, COLOR_VARIANTS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme } from '../../context/theme';
+import { CalendarDay, CalendarDayKind } from './CalendarDay';
 import { getSessionsWindow, isWithinSessionsWindow } from '../../utils/sessionWindow';
 import { calendarSessionDates, WEEKLY_REPEAT_COUNT } from '../../features/therapy-sessions/calendarSchedule';
 import { applyCalendarLocale } from './calendarLocale';
@@ -32,16 +34,21 @@ export const COLORS = {
     dotIndicator: CALENDAR_COLORS.dotIndicator,
 };
 
-export type TherapyCalendarVariant = 'light' | 'dark';
+/**
+ * `card` is the original month on a gradient card; `backdrop` drops the card
+ * and puts the month straight onto the calendar backdrop, with its own day
+ * cell. (Formerly `light` and `dark`, which named the ink, not a theme.)
+ */
+export type TherapyCalendarVariant = 'card' | 'backdrop';
 
 // The shape react-native-calendars reads back off `markedDates` when
 // markingType is "custom".
 type DayMarking = {
     marked?: boolean;
     dotColor?: string;
-    /** Dark variant only: which of the two discs this day wears. */
-    kind?: DarkDayKind;
-    /** Dark variant only: the day whose schedule sheet is open. */
+    /** Backdrop variant only: which of the two discs this day wears. */
+    kind?: CalendarDayKind;
+    /** Backdrop variant only: the day whose schedule sheet is open. */
     pressed?: boolean;
     customStyles?: {
         container?: ViewStyle;
@@ -58,7 +65,7 @@ interface TherapyCalendarProps {
     dotDates?: Array<string | Date>;
     fillAvailableSpace?: boolean;
     hideExtraDays?: boolean;
-    /** `dark` drops the card and puts the month straight onto the backdrop. */
+    /** `backdrop` drops the card and puts the month straight onto the backdrop. */
     variant?: TherapyCalendarVariant;
     onSelectedSessionsChange: (sessions: SelectedSessions) => void;
 }
@@ -73,7 +80,7 @@ const createDateFromKey = (dateKey: string) => {
     return new Date(year, month - 1, day);
 };
 
-const LIGHT_THEME = {
+const CARD_THEME = {
     arrowColor: COLORS.arrows,
     backgroundColor: COLOR_VARIANTS.transparent,
     calendarBackground: COLOR_VARIANTS.transparent,
@@ -92,17 +99,17 @@ const LIGHT_THEME = {
     textMonthFontSize: 20,
 };
 
-const DARK_THEME = {
-    arrowColor: CALENDAR_DARK_COLORS.arrows,
+const makeBackdropTheme = (theme: Theme) => ({
+    arrowColor: theme.calendar.month.arrows,
     backgroundColor: COLOR_VARIANTS.transparent,
     calendarBackground: COLOR_VARIANTS.transparent,
-    dayTextColor: CALENDAR_DARK_COLORS.dayDefault,
-    monthTextColor: CALENDAR_DARK_COLORS.monthText,
+    dayTextColor: theme.calendar.month.dayDefault,
+    monthTextColor: theme.calendar.month.monthText,
     selectedDayBackgroundColor: COLOR_VARIANTS.transparent,
-    selectedDayTextColor: CALENDAR_DARK_COLORS.dayDefault,
-    textDisabledColor: CALENDAR_DARK_COLORS.dayDisabled,
-    textSectionTitleColor: CALENDAR_DARK_COLORS.weekdayHeader,
-    todayTextColor: CALENDAR_DARK_COLORS.todayText,
+    selectedDayTextColor: theme.calendar.month.dayDefault,
+    textDisabledColor: theme.calendar.month.dayDisabled,
+    textSectionTitleColor: theme.calendar.month.weekdayHeader,
+    todayTextColor: theme.calendar.month.todayText,
     textDayFontFamily: 'System',
     textDayFontSize: 17,
     textDayFontWeight: '400',
@@ -128,10 +135,10 @@ const DARK_THEME = {
             textAlign: 'center',
             fontSize: 15,
             fontWeight: '400',
-            color: CALENDAR_DARK_COLORS.weekdayHeader,
+            color: theme.calendar.month.weekdayHeader,
         },
     },
-};
+});
 
 export default function TherapyCalendar({
     onSelectedSessionsChange,
@@ -140,11 +147,13 @@ export default function TherapyCalendar({
     children,
     fillAvailableSpace = true,
     hideExtraDays = true,
-    variant = 'light',
+    variant = 'card',
 }: TherapyCalendarProps) {
     // Before the calendar renders, so its header is in the app's language
     // rather than the library's built-in English.
     applyCalendarLocale(formattingLocale());
+    const { theme } = useTheme();
+    const backdropTheme = useMemo(() => makeBackdropTheme(theme), [theme]);
     const [activeDateKey, setActiveDateKey] = useState<string | null>(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [activeSessionKey, setActiveSessionKey] = useState<string | null>(null);
@@ -154,7 +163,7 @@ export default function TherapyCalendar({
         .sort((a, b) => a[1].getTime() - b[1].getTime())
         .map(([id, time]) => ({ id, time, date: formatDateKey(time) })), [activeDateKey, selectedSessions]);
     const activeSession = sessionsOnDay.find(session => session.id === activeSessionKey) ?? sessionsOnDay[0] ?? null;
-    const isDark = variant === 'dark';
+    const onBackdrop = variant === 'backdrop';
 
     const dotDateKeys = useMemo(() => {
         if (!dotDates?.length) {
@@ -190,9 +199,9 @@ export default function TherapyCalendar({
         return Array.from(keys);
     }, [dotDates]);
 
-    // The dark variant renders its own day cell, so the marking map only has to
-    // say which disc each day wears; DarkCalendarDay owns the drawing.
-    const buildDarkMarkings = useCallback(() => {
+    // The backdrop variant renders its own day cell, so the marking map only
+    // has to say which disc each day wears; CalendarDay owns the drawing.
+    const buildBackdropMarkings = useCallback(() => {
         const entries: Record<string, DayMarking> = {};
 
         // Reminders first, so a day that is both falls through to the session
@@ -212,7 +221,7 @@ export default function TherapyCalendar({
         return entries;
     }, [sessionDateKeys, activeDateKey, dotDateKeys]);
 
-    const buildLightMarkings = useCallback(() => {
+    const buildCardMarkings = useCallback(() => {
         // ODO:: change dots to text color on the day so key will be text is red and circle will be therapy day
         const circleBaseStyle: ViewStyle = {
             alignItems: 'center',
@@ -315,8 +324,8 @@ export default function TherapyCalendar({
     }, [sessionDateKeys, activeDateKey, dotDateKeys]);
 
     const markedDates = useMemo(
-        () => (isDark ? buildDarkMarkings() : buildLightMarkings()),
-        [isDark, buildDarkMarkings, buildLightMarkings],
+        () => (onBackdrop ? buildBackdropMarkings() : buildCardMarkings()),
+        [onBackdrop, buildBackdropMarkings, buildCardMarkings],
     );
 
     const openModalForDate = useCallback((dateKey: string) => {
@@ -372,12 +381,12 @@ export default function TherapyCalendar({
         closeModal();
     }, [activeDateKey, activeSession, closeModal, onSelectedSessionsChange, selectedSessions]);
 
-    const calendarTheme = isDark ? DARK_THEME : LIGHT_THEME;
+    const calendarTheme = onBackdrop ? backdropTheme : CARD_THEME;
     const calendarWindow = getSessionsWindow();
 
     const calendar = (
         <Calendar
-            dayComponent={ isDark ? DarkCalendarDay : undefined }
+            dayComponent={ onBackdrop ? CalendarDay : undefined }
             hideExtraDays={ hideExtraDays }
             markedDates={ markedDates }
             markingType="custom"
@@ -386,7 +395,7 @@ export default function TherapyCalendar({
             disableAllTouchEventsForDisabledDays
             onDayPress={ handleDayPress }
             theme={ calendarTheme as never }
-            style={ isDark ? styles.calendarDark : styles.calendar }
+            style={ onBackdrop ? styles.calendarBackdrop : styles.calendar }
             testID="therapy-calendar"
         />
     );
@@ -394,7 +403,7 @@ export default function TherapyCalendar({
     return (
         <>
             <View style={ [styles.content, fillAvailableSpace && styles.contentFill] }>
-                { isDark ? calendar : (
+                { onBackdrop ? calendar : (
                     <GradientCard addedStyles={ styles.calendarWrapper }>
                         { calendar }
                     </GradientCard>
@@ -433,7 +442,7 @@ const styles = StyleSheet.create({
     calendar: {
         paddingVertical: 14,
     },
-    calendarDark: {
+    calendarBackdrop: {
         paddingHorizontal: 10,
         paddingTop: 4,
         paddingBottom: 22,

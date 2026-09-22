@@ -1,9 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { LayoutChangeEvent, PixelRatio, StyleSheet, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import AppText from '../ui/AppText';
-import { ACCENT_MARK, BRAND_ORANGE, BRAND_ORANGE_INK } from 'designs/designs-colors';
 import { BRAND_FONTS } from 'designs/designs-typography';
-import { onboardingStyles } from './onboardingStyles';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../../context/theme';
+import { CARD_RADIUS, useOnboardingStyles } from './onboardingStyles';
+import { CardLight } from './CardLight';
 
 type Props = {
     label: string;
@@ -20,6 +23,7 @@ type Props = {
 };
 
 const CHECK_SIZE = 20;
+const CARD_BORDER_WIDTH = 2;
 
 /**
  * One height for every option in a group: the tallest one's.
@@ -61,6 +65,11 @@ export function useEqualSelectableCardHeights(): {
  * cannot separate the two blues.
  */
 export function SelectableCard({ label, selected, onPress, height, onLayout }: Props) {
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
+    const { onboardingStyles } = useOnboardingStyles();
+    const light = selected ? theme.chosen.light : theme.surface.cardLight;
+
     return (
         <TouchableOpacity
             onPress={ onPress }
@@ -73,10 +82,21 @@ export function SelectableCard({ label, selected, onPress, height, onLayout }: P
                 onboardingStyles.card,
                 styles.card,
                 selected && styles.cardSelected,
+                // The light paints the edge itself, so the border it covers
+                // must not show through as a second, flat outline.
+                light !== null && styles.cardLit,
                 height !== undefined && { minHeight: height },
             ] }
         >
-            <View style={ [styles.radio, selected && styles.radioSelected] } />
+            { /* The night's cards are lit from the top-left corner, behind
+                 the content, where the day's card is one flat tint. */ }
+            { light !== null && <CardLight light={ light } radius={ CARD_RADIUS } borderWidth={ CARD_BORDER_WIDTH } /> }
+            { /* Filled, not ringed: the disc is the theme's mark, drawn as a
+                 gradient so the day's flat peach and the night's sweep take
+                 the same path. */ }
+            <View style={ [styles.radio, selected && styles.radioSelected] }>
+                { selected && <LinearGradient colors={ theme.chosen.mark } style={ [StyleSheet.absoluteFill, styles.markFill] } /> }
+            </View>
 
             <AppText
                 variant="h3"
@@ -93,7 +113,7 @@ export function SelectableCard({ label, selected, onPress, height, onLayout }: P
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     card: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -101,14 +121,17 @@ const styles = StyleSheet.create({
         minHeight: 72,
         paddingVertical: 18,
         paddingHorizontal: 20,
-        borderWidth: 2,
+        borderWidth: CARD_BORDER_WIDTH,
+    },
+    cardLit: {
+        borderColor: 'transparent',
     },
     // A chosen option is an orange section: a flat block of the brand's own
     // colour, with no outline drawn round it and nothing but the filled circle
     // and the type on it.
     cardSelected: {
-        backgroundColor: BRAND_ORANGE,
-        borderColor: BRAND_ORANGE,
+        backgroundColor: theme.chosen.fill,
+        borderColor: theme.chosen.ring,
     },
     radio: {
         flexShrink: 0,
@@ -116,15 +139,20 @@ const styles = StyleSheet.create({
         height: 22,
         borderRadius: 11,
         borderWidth: 2,
-        borderColor: 'hsla(222, 30%, 40%, 0.40)',
+        borderColor: theme.radio.ringUnselected,
         alignItems: 'center',
         justifyContent: 'center',
+        overflow: 'hidden',
     },
     // Filled, not ringed. A dot inside a ring of the same ink read as one blob
     // at this size, and outlining the dot to separate them only made a target.
     radioSelected: {
         borderColor: 'transparent',
-        backgroundColor: ACCENT_MARK,
+    },
+    // Rounded on the gradient itself: the native gradient view does not clip
+    // to its parent's corners, so without this the disc drew as a square.
+    markFill: {
+        borderRadius: 11,
     },
     // Sized against the ring's inner edge rather than its outer one: the ring
     // keeps its 22pt, and the dot grows into it until only a hairline of the
@@ -141,7 +169,7 @@ const styles = StyleSheet.create({
      * in the warm ink rather than white.
      */
     labelSelected: {
-        color: BRAND_ORANGE_INK,
+        color: theme.chosen.ink,
         fontFamily: BRAND_FONTS.regular,
         fontWeight: undefined,
         letterSpacing: 0.3,

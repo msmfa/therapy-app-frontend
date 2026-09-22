@@ -1,15 +1,11 @@
 import React from 'react';
 import { ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import {
-    ACCENT_SURFACE,
-    COLOR_VARIANTS,
-    PALETTE,
-    TEXT_COLORS,
-} from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
 import AppText from '../ui/AppText';
 import { GlassPillButton } from '../ui/GlassPillButton';
-import { onboardingStyles, ONBOARDING_LINK_COLOR } from './onboardingStyles';
+import { useTheme, useThemedStyles } from '../../context/theme';
+import { useOnboardingStyles } from './onboardingStyles';
 
 type Props = {
     label: string;
@@ -19,24 +15,28 @@ type Props = {
     transparent?: boolean;
     /**
      * The ground the button sits on. The glass pill is near-clear, so its label
-     * has to take the surface's ink: near-black on the pale ground, white on
+     * has to take the surface's ink: the page's ink on the pale ground, white on
      * the accent.
      */
     surface?: 'light' | 'accent';
     /**
      * `glass` is the flow's usual action, made of the same material as the
-     * page. `solid` is black with light grey on it, for the two moments that
-     * start something rather than continue it.
+     * page. `solid` is the ground's opposite by day, for the moments that
+     * start something rather than continue it; the theme may fold it back
+     * into glass, as the night does. `ink` is the ground's opposite in every
+     * theme, for an action that has to stay a dark block at night. `start` is
+     * the one action that opens the flow: black by day like `solid`, the
+     * plan's orange with a lit edge at night.
      */
-    appearance?: 'glass' | 'solid';
+    appearance?: 'glass' | 'solid' | 'ink' | 'start';
 };
 
 /**
  * The app's glass action, with an in-flow label for longer onboarding CTAs.
  *
  * The transparent variant is a secondary action drawn as text, so it takes the
- * same appearance as every other link in the flow: bold deep blue, a trailing
- * arrow, no underline.
+ * same appearance as every other link in the flow: bold link colour, a
+ * trailing arrow, no underline.
  */
 export function OnboardingButton({
     label,
@@ -47,10 +47,15 @@ export function OnboardingButton({
     surface = 'light',
     appearance = 'glass',
 }: Props) {
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
+    const { onboardingStyles, linkColor: pageLinkColor } = useOnboardingStyles();
     const isAccent = surface === 'accent';
 
     if (!transparent) {
-        const isSolid = appearance === 'solid';
+        const isStart = appearance === 'start';
+        const isSolid = appearance === 'ink' || (appearance === 'solid' && theme.solid.flowAction === 'solid');
+        const isFilled = isStart || isSolid;
 
         return (
             <GlassPillButton
@@ -60,25 +65,28 @@ export function OnboardingButton({
                 loading={ loading }
                 contentSized
                 height={ 60 }
-                fillColor={ isSolid ? PALETTE.neutral.black : undefined }
+                fillColor={ isStart ? theme.solid.start.background : isSolid ? theme.solid.background : undefined }
+                rim={ isStart ? theme.solid.start.rim : undefined }
                 labelColor={
-                    isSolid
-                        ? COLOR_VARIANTS.white.quaternary
-                        : isAccent ? ACCENT_SURFACE.textPrimary : TEXT_COLORS.primary
+                    isStart
+                        ? theme.solid.start.text
+                        : isSolid
+                            ? theme.solid.text
+                            : isAccent ? theme.accentScreen.textPrimary : theme.ink.primary
                 }
                 disabledLabelColor={
-                    isSolid
-                        ? COLOR_VARIANTS.black.quaternary
-                        : isAccent ? ACCENT_SURFACE.textSecondary : TEXT_COLORS.secondary
+                    isFilled
+                        ? theme.solid.disabledText
+                        : isAccent ? theme.accentScreen.textSecondary : theme.ink.secondary
                 }
                 style={ styles.primary }
             />
         );
     }
 
-    // Deep blue is a link on the pale ground and unreadable on the accent,
-    // where white carries the same job.
-    const linkColor = isAccent ? ACCENT_SURFACE.textPrimary : ONBOARDING_LINK_COLOR;
+    // The link colour is pitched for the pale ground and unreadable on the
+    // accent, where white carries the same job.
+    const linkColor = isAccent ? theme.accentScreen.textPrimary : pageLinkColor;
 
     return (
         <TouchableOpacity
@@ -109,7 +117,7 @@ export function OnboardingButton({
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     primary: { width: '100%' },
     secondary: {
         minHeight: 48,
@@ -121,6 +129,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     secondaryLabel: { flexShrink: 1, textAlign: 'center' },
-    accentLinkLabel: { color: ACCENT_SURFACE.textPrimary },
+    accentLinkLabel: { color: theme.accentScreen.textPrimary },
     disabled: { opacity: 0.5 },
 });

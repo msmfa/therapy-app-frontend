@@ -6,8 +6,8 @@ import AppText from '../ui/AppText';
 import { GlassCircleButton } from '../ui/GlassCircleButton';
 import { GlassMorphismWithCircle } from '../ui/GlassMorphismWithCircle';
 import { CirclePosition } from '../ui/LinearGradientCircle';
-import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '../../context/theme';
 
 type Props = {
     children: React.ReactNode;
@@ -20,6 +20,7 @@ type Props = {
 // surface as the one that opened it rather than a screen of its own.
 export function SettingsPageShell({ children, title, onBack }: Props) {
     const { t } = useTranslation('common');
+    const { theme } = useTheme();
     return (
         <View style={ styles.container }>
             <View pointerEvents="none" style={ styles.background }>
@@ -31,7 +32,7 @@ export function SettingsPageShell({ children, title, onBack }: Props) {
                         <GlassCircleButton
                             accessibilityLabel={ t('action.back') }
                             icon="back"
-                            iconColor={ COLOR_VARIANTS.black.primary }
+                            iconColor={ theme.ink.primary }
                             size={ 48 }
                             onPress={ onBack }
                         />
@@ -48,6 +49,8 @@ export function SettingsPageShell({ children, title, onBack }: Props) {
     );
 }
 
+// No colour here: the ground comes from the tab layout under it, the glass
+// takes its tint from the theme, and the ink is set where it is used.
 const styles = StyleSheet.create({
     container: {
         flex: 1,

@@ -1,0 +1,262 @@
+/**
+ * The light theme: every value is the primitive a component already read from
+ * designs-colors and designs-gradients, now reached by the name of its job.
+ * Adopting it moves no light pixel. See designs-theme-shape for what each key
+ * means.
+ */
+
+import {
+    ACCENT_INK_BRIGHT,
+    ACCENT_INK_BRIGHTEST,
+    ACCENT_MARK,
+    ACCENT_SURFACE,
+    ACTION_BLUE_DARK,
+    ACTION_ORANGE,
+    ACTION_ORANGE_INK,
+    ACTION_ORANGE_SURFACE,
+    BRAND_ORANGE,
+    BRAND_ORANGE_INK,
+    BUTTON_COLORS,
+    CALENDAR_COLORS,
+    CALENDAR_MONTH_COLORS,
+    COLOR_VARIANTS,
+    COMPONENT_COLORS,
+    GREEN_PANEL,
+    PALETTE,
+    SURFACE_ACCENT,
+    SURFACE_BLUE,
+    SURFACE_BLUE_FADE,
+    TEXT_COLORS,
+    THEME_COLORS,
+} from './designs-colors';
+import {
+    APP_GRADIENT,
+    CALENDAR_BACKDROP_BASE,
+    CALENDAR_BACKDROP_BASE_LOCATIONS,
+    CALENDAR_BACKDROP_GLOW,
+    CALENDAR_BACKDROP_GLOW_LOCATIONS,
+    SURFACE_TINTS,
+} from './designs-gradients';
+import type { Theme } from './designs-theme-shape';
+
+export const lightTheme: Theme = {
+    scheme: 'light',
+    statusBar: 'dark-content',
+    ink: {
+        primary: TEXT_COLORS.primary,
+        secondary: TEXT_COLORS.secondary,
+        tertiary: TEXT_COLORS.tertiary,
+        quaternary: TEXT_COLORS.quaternary,
+    },
+    ground: {
+        gradient: APP_GRADIENT,
+        base: SURFACE_BLUE,
+        fade: SURFACE_BLUE_FADE,
+    },
+    surface: {
+        card: PALETTE.overlay.whiteSurfaceTransparent,
+        cardBorder: PALETTE.overlay.whiteBorderTransparent,
+        cardEdge: PALETTE.overlay.whiteBorderTransparent,
+        cardLight: null,
+        cardShadow: PALETTE.overlay.blueGlowTransparent,
+        cardShadowOpacity: 0.18,
+        shadowOffset: { width: 0, height: 1 },
+        shadowRadius: 14,
+        frostedShadow: PALETTE.overlay.blueMildTransparent,
+        gradientCardShadow: PALETTE.overlay.blackLightTransparent,
+        soft: PALETTE.overlay.whiteSoftTransparent,
+        medium: PALETTE.overlay.whiteMediumTransparent,
+        row: COMPONENT_COLORS.settingsRowBackground,
+        rowBorder: PALETTE.overlay.whiteSurfaceTransparent,
+        rowGroup: COLOR_VARIANTS.white.secondary,
+        rowGroupBorder: PALETTE.overlay.whiteBorderTransparent,
+        groove: PALETTE.overlay.blackLightTransparent,
+        sheet: COLOR_VARIANTS.white.primary,
+        // SURFACE_BLUE's hue lifted most of the way to white.
+        sheetTint: 'hsl(206.67, 17.65%, 93.5%)',
+        // Near-white, so a write-up reads as a page rather than a grey panel.
+        readingCard: 'hsla(0, 0%, 100%, 0.88)',
+        chip: 'hsla(0, 0%, 0%, 0.06)',
+        cardHighlight: 'hsla(0, 0%, 100%, 0.85)',
+        lightRim: null,
+        modal: COLOR_VARIANTS.blue.lightest,
+        scrim: COLOR_VARIANTS.black.tertiary,
+        sheetCard: SURFACE_TINTS.sheetCardBackground,
+        sheetCardBorder: SURFACE_TINTS.sheetCardBorder,
+        field: COLOR_VARIANTS.transparent,
+        fieldBorder: PALETTE.neutral.boundary,
+        fieldBorderFocused: COLOR_VARIANTS.black.primary,
+        disabledLight: BUTTON_COLORS.disabledLight,
+        spinnerWell: PALETTE.overlay.taupeTransparent,
+        tinted: SURFACE_TINTS.tintedBackground,
+        tintedBorder: SURFACE_TINTS.tintedBorder,
+        tintCard: SURFACE_TINTS.defaultBackground,
+        tintCardBorder: SURFACE_TINTS.defaultBorder,
+    },
+    glass: {
+        tint: 'light',
+        background: COMPONENT_COLORS.glassBackground,
+        highlight: ['hsla(0, 0%, 100%, 0.42)', 'hsla(0, 0%, 100%, 0.08)'],
+        rim: COLOR_VARIANTS.white.primary,
+        rimOpacity: 1,
+        shade: '#1b2a44',
+        disabledLabel: COLOR_VARIANTS.white.quaternary,
+    },
+    radio: {
+        ring: ACTION_BLUE_DARK,
+        ringUnselected: 'hsla(222, 30%, 40%, 0.35)',
+        selectedFill: COLOR_VARIANTS.white.primary,
+        selectedBorder: COLOR_VARIANTS.white.primary,
+        unselectedFill: 'hsla(0, 0%, 100%, 0.55)',
+        unselectedBorder: 'hsla(0, 0%, 100%, 0.70)',
+    },
+    shadow: PALETTE.neutral.black,
+    solid: {
+        background: BUTTON_COLORS.primaryBackground,
+        border: BUTTON_COLORS.primaryBackground,
+        text: COLOR_VARIANTS.white.quaternary,
+        disabledSurface: BUTTON_COLORS.disabledSurface,
+        disabledBorder: BUTTON_COLORS.disabledDark,
+        disabledText: BUTTON_COLORS.disabledText,
+        flowAction: 'solid',
+        start: {
+            background: BUTTON_COLORS.primaryBackground,
+            text: COLOR_VARIANTS.white.quaternary,
+            rim: null,
+        },
+    },
+    link: {
+        color: ACTION_BLUE_DARK,
+        pressed: COLOR_VARIANTS.blue.light,
+        bright: COLOR_VARIANTS.blue.mid,
+        brightPressed: COLOR_VARIANTS.blue.light,
+    },
+    accent: {
+        mark: ACTION_ORANGE,
+        markSurface: ACTION_ORANGE_SURFACE,
+        markInk: ACTION_ORANGE_INK,
+        ring: BRAND_ORANGE,
+        sweep: [COLOR_VARIANTS.red.mid, COLOR_VARIANTS.red.dark],
+    },
+    chosen: {
+        fill: BRAND_ORANGE,
+        ink: BRAND_ORANGE_INK,
+        inkBright: ACCENT_INK_BRIGHT,
+        inkBrightest: ACCENT_INK_BRIGHTEST,
+        // A light edge, not a dark one: a deeper orange round a chosen card
+        // read as a shadow rather than as the card's own outline.
+        border: ACCENT_MARK,
+        light: null,
+        ring: BRAND_ORANGE,
+        mark: [ACCENT_MARK, ACCENT_MARK],
+        check: BRAND_ORANGE,
+        iconDisc: 'hsla(21, 75%, 54%, 0.20)',
+        // Black holds against the orange fill; the type steps down to grey.
+        trialFill: PALETTE.neutral.black,
+        trialText: COLOR_VARIANTS.white.secondary,
+    },
+    plan: {
+        fill: BRAND_ORANGE,
+        // A light edge, not a dark one: a deeper orange round a chosen card
+        // read as a shadow rather than as the card's own outline.
+        border: ACCENT_MARK,
+        light: null,
+        inkBright: ACCENT_INK_BRIGHT,
+        inkBrightest: ACCENT_INK_BRIGHTEST,
+        check: BRAND_ORANGE,
+        mark: [ACCENT_MARK, ACCENT_MARK],
+        iconDisc: 'hsla(21, 75%, 54%, 0.20)',
+        // Black holds against the orange fill; the type steps down to grey.
+        trialFill: PALETTE.neutral.black,
+        trialText: COLOR_VARIANTS.white.secondary,
+    },
+    testimonial: {
+        panel: BRAND_ORANGE,
+        ink: ACCENT_SURFACE.textPrimary,
+        inkMuted: 'hsla(0, 0%, 100%, 0.62)',
+        light: null,
+    },
+    emphasis: {
+        panel: BRAND_ORANGE,
+        rule: null,
+        ink: ACCENT_SURFACE.textPrimary,
+        inkSecondary: ACCENT_SURFACE.textSecondary,
+        inkMuted: 'hsla(0, 0%, 100%, 0.62)',
+    },
+    accentScreen: {
+        ground: SURFACE_ACCENT,
+        textPrimary: ACCENT_SURFACE.textPrimary,
+        textSecondary: ACCENT_SURFACE.textSecondary,
+        card: ACCENT_SURFACE.cardBackground,
+        cardLight: null,
+        cardBorder: ACCENT_SURFACE.cardBorder,
+        cardEdge: ACCENT_SURFACE.cardBorder,
+        glow: null,
+    },
+    status: {
+        success: THEME_COLORS.success,
+        successLight: THEME_COLORS.successLight,
+        warning: THEME_COLORS.warning,
+        warningLight: THEME_COLORS.warningLight,
+        error: THEME_COLORS.error,
+        errorLight: THEME_COLORS.errorLight,
+        danger: COLOR_VARIANTS.red.primary,
+        dangerText: COLOR_VARIANTS.red.primary,
+    },
+    red: {
+        light: COLOR_VARIANTS.red.light,
+        mid: COLOR_VARIANTS.red.mid,
+        dark: COLOR_VARIANTS.red.dark,
+    },
+    // The cool ground the reminder card's glow sits on, taken from the
+    // design's corners.
+    aura: {
+        top: 'rgb(197,204,213)',
+        mid: 'rgb(190,195,203)',
+        bottom: 'rgb(197,200,207)',
+        // The glow's core, brighter than the panel's own default.
+        core: '#F3782C',
+        glowOpacity: 1,
+    },
+    // Very dark blue: near-black in weight, but clearly blue against the paper.
+    paper: {
+        ink: 'hsl(219, 52%, 14%)',
+        inkSoft: 'hsla(219, 52%, 14%, 0.68)',
+        inkBody: 'hsla(219, 52%, 14%, 0.62)',
+        inkMuted: 'hsla(219, 52%, 14%, 0.5)',
+        rule: 'hsla(219, 52%, 14%, 0.18)',
+        circle: 'hsla(0, 0%, 0%, 0.06)',
+    },
+    trialBadge: GREEN_PANEL,
+    calendar: {
+        month: CALENDAR_MONTH_COLORS,
+        backdrop: {
+            base: CALENDAR_BACKDROP_BASE,
+            baseLocations: CALENDAR_BACKDROP_BASE_LOCATIONS,
+            glow: CALENDAR_BACKDROP_GLOW,
+            glowLocations: CALENDAR_BACKDROP_GLOW_LOCATIONS,
+            blurTint: 'light',
+            blurIntensity: 14,
+        },
+        sheet: {
+            surface: CALENDAR_COLORS.modalSurface,
+            border: CALENDAR_COLORS.modalBorder,
+            overlay: CALENDAR_COLORS.modalOverlayTransparent,
+        },
+    },
+    chart: {
+        rule: 'hsl(0, 0%, 92%)',
+        trace: 'hsl(0, 0%, 90%)',
+        marker: 'hsl(0, 0%, 87%)',
+        label: 'hsl(0, 0%, 86%)',
+    },
+    hairline: 'hsla(0, 0%, 0%, 0.20)',
+    hairlineFaint: 'hsla(0, 0%, 0%, 0.07)',
+    navigation: {
+        background: SURFACE_BLUE,
+        card: COLOR_VARIANTS.white.primary,
+        text: TEXT_COLORS.primary,
+        border: PALETTE.neutral.boundary,
+    },
+};
+

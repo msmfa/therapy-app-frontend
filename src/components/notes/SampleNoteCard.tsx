@@ -3,7 +3,8 @@ import { View, StyleSheet } from 'react-native';
 import AppText from '../ui/AppText';
 import { NoteCard } from './NoteCard';
 import { REVIEW_PROGRESS_PREVIEWS } from './reviewProgressPreview';
-import { TEXT_COLORS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useThemedStyles } from '../../context/theme';
 import type { Note } from '../../features/notes/useNotes';
 import { useTranslation } from 'react-i18next';
 
@@ -23,6 +24,7 @@ const SAMPLE_PROGRESS = REVIEW_PROGRESS_PREVIEWS[2].progress;
 
 export function SampleNoteCard() {
     const { t } = useTranslation('notes');
+    const styles = useThemedStyles(makeStyles);
     const sampleNote: Note = {
         id: 'sample-note',
         text: t('sample.text'),
@@ -46,7 +48,7 @@ export function SampleNoteCard() {
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     root: {
         marginTop: 22,
         // The paragraph below carries its own 14, so 8 here lands the gap under
@@ -58,6 +60,6 @@ const styles = StyleSheet.create({
         paddingLeft: 4,
         textTransform: 'uppercase',
         letterSpacing: 0.5,
-        color: TEXT_COLORS.quaternary,
+        color: theme.ink.quaternary,
     },
 });

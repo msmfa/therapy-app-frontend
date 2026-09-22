@@ -11,6 +11,8 @@ import {
 import { OnboardingButton as Button } from '../OnboardingButton';
 import { NoteTemplateSheet } from '../NoteTemplateSheet';
 import { postTherapyQuestions } from '../../../constants/postTherapyTemplate';
+import { darkTheme, type Theme } from 'designs/designs-themes';
+import { contrastRatio } from '../../../utils/colorContrast';
 
 jest.mock('expo-router', () => ({
     useRouter: () => ({ canGoBack: () => true, back: jest.fn(), replace: jest.fn() }),
@@ -269,5 +271,63 @@ describe('OnboardingScreen layout contract', () => {
 		expect(getByTestId('onboarding-combined-scroll')).toBeTruthy();
 		expect(getByTestId('onboarding-footer')).toBeTruthy();
 		expect(getByRole('button', { name: 'Start my free trial' })).toBeTruthy();
+	});
+});
+
+/**
+ * Every pair of type and the ground it is read on, in the worst case that
+ * ground takes: a card at the top of the screen, where the gradient is
+ * lightest. Nothing here can regress silently: there are no snapshots, and a
+ * grey that drifts two points darker reads fine to the eye that chose it.
+ */
+const textPairs = (theme: Theme): [string, string, string[]][] => {
+	const top = theme.ground.gradient[0];
+	const onCard = [theme.surface.card, top];
+	return [
+		['primary ink on a card', theme.ink.primary, onCard],
+		['secondary ink on a card', theme.ink.secondary, onCard],
+		['tertiary ink on a card', theme.ink.tertiary, onCard],
+		['quaternary ink on a card', theme.ink.quaternary, onCard],
+		['secondary ink on a row group in a card', theme.ink.secondary, [theme.surface.rowGroup, ...onCard]],
+		['primary ink on the sheet', theme.ink.primary, [theme.surface.sheet]],
+		['secondary ink on the sheet', theme.ink.secondary, [theme.surface.sheet]],
+		['primary ink on a modal', theme.ink.primary, [theme.surface.modal]],
+		['secondary ink on a modal', theme.ink.secondary, [theme.surface.modal]],
+		['the onboarding link on a card', theme.link.color, onCard],
+		['the inline link on a card', theme.link.bright, onCard],
+		['an error on a card', theme.status.error, onCard],
+		['the danger text on a card', theme.status.dangerText, onCard],
+		['orange as a sentence on a card', theme.accent.markInk, onCard],
+		['a disabled solid label on a card', theme.solid.disabledText, onCard],
+		['a disabled glass label on a card', theme.glass.disabledLabel, onCard],
+		['the solid pill label', theme.solid.text, [theme.solid.background]],
+		['the start pill label', theme.solid.start.text, [theme.solid.start.background]],
+		['the accent screen heading', theme.accentScreen.textPrimary, [theme.accentScreen.card, theme.accentScreen.ground]],
+		['the accent screen body', theme.accentScreen.textSecondary, [theme.accentScreen.card, theme.accentScreen.ground]],
+		['a chosen option label', theme.chosen.ink, [theme.chosen.fill]],
+		['a chosen plan title', theme.plan.inkBright, [theme.plan.fill]],
+		['a chosen plan renewal line', theme.plan.inkBrightest, [theme.plan.fill]],
+		['a chosen plan title on the lit corner', theme.plan.inkBright, [theme.plan.light?.face.colors[0] ?? theme.plan.fill]],
+		['the privacy promise on the lit corner', theme.accentScreen.textSecondary, [theme.accentScreen.cardLight?.face.colors[0] ?? theme.accentScreen.card]],
+		['the example-dates band', theme.plan.inkBrightest, [theme.plan.fill]],
+		['a chosen plan trial badge', theme.plan.trialText, [theme.plan.trialFill]],
+		['the supporting banner', theme.emphasis.ink, [theme.emphasis.panel]],
+		['the science summary', theme.emphasis.inkSecondary, [theme.emphasis.panel]],
+		['a quote', theme.testimonial.ink, [theme.testimonial.light?.face.colors[0] ?? theme.testimonial.panel]],
+		['a quote attribution', theme.testimonial.inkMuted, [theme.testimonial.panel]],
+		['the trial badge', theme.trialBadge.text, [theme.trialBadge.background, ...onCard]],
+		['a red badge', theme.red.dark, [theme.red.light, ...onCard]],
+		['the month title', theme.calendar.month.monthText, [theme.calendar.backdrop.base[0], top]],
+		['the weekday headers', theme.calendar.month.weekdayHeader, [theme.calendar.backdrop.base[0], top]],
+		['a day numeral', theme.calendar.month.dayDefault, [theme.calendar.backdrop.base[0], top]],
+		['today\'s numeral', theme.calendar.month.todayText, [theme.calendar.month.todayBackground]],
+		['a session day numeral', theme.calendar.month.sessionFillText, [theme.calendar.month.sessionFill]],
+		['the schedule sheet ink', theme.ink.secondary, [theme.calendar.sheet.surface]],
+	];
+};
+
+describe('dark theme contrast', () => {
+	it.each(textPairs(darkTheme))('%s reads at 4.5:1 or better', (_label, text, layers) => {
+		expect(contrastRatio(text, ...layers)).toBeGreaterThanOrEqual(4.5);
 	});
 });

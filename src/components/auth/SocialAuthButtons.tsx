@@ -7,7 +7,8 @@ import {
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { useOAuthLogin } from '../../auth/useOAuthLogin';
-import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../../context/theme';
 import AppText from '../ui/AppText';
 import Spacer, { SpacerVariant } from '../ui/Spacer';
 import { useTranslation } from 'react-i18next';
@@ -24,6 +25,8 @@ const APPLE_MARK_PATH = 'M1393 321q-39 -125 -123 -250q-129 -196 -257 -196q-49 0 
 
 export const SocialAuthButtons: React.FC<Props> = ({ onSuccess, disabled = false }) => {
     const { t } = useTranslation('auth');
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
     const { appleAvailable, loadingProvider, signInWithApple } =
         useOAuthLogin(onSuccess);
 
@@ -50,7 +53,7 @@ export const SocialAuthButtons: React.FC<Props> = ({ onSuccess, disabled = false
                 >
                     { appleLoading ? (
                         <ActivityIndicator
-                            color={ COLOR_VARIANTS.black.primary }
+                            color={ theme.ink.primary }
                             accessibilityLabel={ t('apple.signingIn') }
                         />
                     ) : (
@@ -64,7 +67,7 @@ export const SocialAuthButtons: React.FC<Props> = ({ onSuccess, disabled = false
                             <Path
                                 d={ APPLE_MARK_PATH }
                                 transform="translate(0 1536) scale(1 -1)"
-                                fill={ COLOR_VARIANTS.black.primary }
+                                fill={ theme.ink.primary }
                             />
                         </Svg>
                     ) }
@@ -74,7 +77,7 @@ export const SocialAuthButtons: React.FC<Props> = ({ onSuccess, disabled = false
     );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     section: {
         width: '100%',
         marginBottom: 16,
@@ -89,8 +92,9 @@ const styles = StyleSheet.create({
         height: 56,
         borderRadius: 28,
         borderWidth: 1,
-        borderColor: PALETTE.overlay.whiteSoftTransparent,
-        backgroundColor: PALETTE.overlay.whiteSoftTransparent,
+        borderColor: theme.surface.cardBorder,
+        borderTopColor: theme.surface.cardEdge,
+        backgroundColor: theme.surface.soft,
         alignItems: 'center',
         justifyContent: 'center',
         marginHorizontal: 8,

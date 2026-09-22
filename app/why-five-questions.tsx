@@ -11,7 +11,9 @@ import { useRouter } from 'expo-router';
 import AppText from '../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { GlassCircleButton } from '../src/components/ui/GlassCircleButton';
-import { ACTION_ORANGE_SURFACE, BRAND_ORANGE, COLOR_VARIANTS } from 'designs/designs-colors';
+import { COLOR_VARIANTS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../src/context/theme';
 import { ExternalLink } from 'src/components/ui/ExternalLink';
 import { CitedText } from 'src/components/ui/CitedText';
 import { useTranslation } from 'react-i18next';
@@ -93,6 +95,8 @@ export default function WhyFiveQuestionsScreen() {
     const { t: tScience } = useTranslation('science');
     const router = useRouter();
     const insets = useSafeAreaInsets();
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
     const scrollRef = useRef<ScrollView>(null);
     const referencesTop = useRef<number | null>(null);
     const referenceOffsets = useRef<Record<number, number>>({});
@@ -130,7 +134,7 @@ export default function WhyFiveQuestionsScreen() {
                 <GlassCircleButton
                     accessibilityLabel={ t('action.back') }
                     icon="back"
-                    iconColor={ COLOR_VARIANTS.black.primary }
+                    iconColor={ theme.ink.primary }
                     size={ 48 }
                     onPress={ handleBack }
                 />
@@ -156,6 +160,17 @@ export default function WhyFiveQuestionsScreen() {
                     showsVerticalScrollIndicator={ false }
                 >
                     <View style={ styles.summaryBanner }>
+                        { /* At night the band is the panel charcoal and its
+                             emphasis is a lit rule along the top; by day the
+                             orange fill carries it and there is no rule. */ }
+                        { theme.emphasis.rule !== null && (
+                            <LinearGradient
+                                colors={ theme.emphasis.rule }
+                                start={ { x: 0, y: 0 } }
+                                end={ { x: 1, y: 0 } }
+                                style={ styles.emphasisRule }
+                            />
+                        ) }
                         <AppText variant="h2" accessibilityRole="header" style={ styles.summaryText }>{ tScience('tldr') }</AppText>
                         <Spacer variant={ SpacerVariant.small } />
                         <AppText variant="body" style={ styles.summaryText }>{ tScience('fiveQuestions.intro') }</AppText>
@@ -233,7 +248,7 @@ export default function WhyFiveQuestionsScreen() {
 const PAGE_PADDING = 24;
 const TOP_FADE_HEIGHT = 16;
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     pageHeader: {
         alignItems: 'center',
         flexDirection: 'row',
@@ -254,13 +269,14 @@ const styles = StyleSheet.create({
         marginHorizontal: -PAGE_PADDING,
         paddingHorizontal: PAGE_PADDING,
         paddingVertical: 24,
-        backgroundColor: BRAND_ORANGE,
+        backgroundColor: theme.emphasis.panel,
     },
-    summaryText: { color: COLOR_VARIANTS.white.primary },
+    emphasisRule: { position: 'absolute', top: 0, left: 0, right: 0, height: 2 },
+    summaryText: { color: theme.emphasis.ink },
     sectionList: { gap: 24 },
     referenceList: { gap: 12 },
     reference: { flexDirection: 'row', gap: 8, marginHorizontal: -8, paddingHorizontal: 8, borderRadius: 8 },
-    referenceSelected: { backgroundColor: ACTION_ORANGE_SURFACE },
+    referenceSelected: { backgroundColor: theme.accent.markSurface },
     referenceMarker: { width: 20, paddingTop: 6 },
     referenceLink: { flex: 1 },
 });

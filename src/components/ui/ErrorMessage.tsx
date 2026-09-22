@@ -2,8 +2,9 @@ import React from 'react';
 import { View, StyleSheet, Pressable, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AppText from './AppText';
-import { COLOR_VARIANTS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
 import { useTranslation } from 'react-i18next';
+import { useTheme, useThemedStyles } from '../../context/theme';
 
 type Props = {
     message: string | null;
@@ -14,9 +15,11 @@ type Props = {
 
 export function ErrorMessage({ message, onDismiss, style, testID }: Props) {
     const { t } = useTranslation('common');
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
     return (
         <View style={ [styles.container, style] } testID={ testID }>
-            <Ionicons name="alert-circle" size={ 18 } color={ COLOR_VARIANTS.red.mid } style={ styles.icon } />
+            <Ionicons name="alert-circle" size={ 18 } color={ theme.red.mid } style={ styles.icon } />
             <AppText style={ styles.text } variant='body'>
                 { message }
             </AppText>
@@ -29,14 +32,14 @@ export function ErrorMessage({ message, onDismiss, style, testID }: Props) {
                     hitSlop={ 8 }
                     style={ styles.close }
                 >
-                    <Ionicons name="close" size={ 18 } color={ COLOR_VARIANTS.red.mid } />
+                    <Ionicons name="close" size={ 18 } color={ theme.red.mid } />
                 </Pressable>
             ) : null }
         </View>
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     container: {
         flexDirection: 'row',
         alignItems: 'flex-start',
@@ -44,7 +47,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         borderRadius: 10,
         borderWidth: 1,
-        borderColor: COLOR_VARIANTS.red.light,
+        borderColor: theme.red.light,
     },
     icon: {
         marginRight: 8,

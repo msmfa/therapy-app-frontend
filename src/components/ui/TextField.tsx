@@ -9,7 +9,8 @@ import {
     ViewStyle,
 } from 'react-native';
 import { spacing } from '../../constants';
-import { COLOR_VARIANTS, PALETTE, THEME_COLORS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../../context/theme';
 import AppText from './AppText';
 
 type TextFieldProps = TextInputProps & {
@@ -28,7 +29,7 @@ const TextField = forwardRef<TextInput, TextFieldProps>(
         {
             label,
             error,
-            errorColor = THEME_COLORS.error,
+            errorColor: errorColorProp,
             containerStyle,
             labelStyle,
             inputWrapperStyle,
@@ -41,6 +42,9 @@ const TextField = forwardRef<TextInput, TextFieldProps>(
         },
         ref,
     ) => {
+        const { theme } = useTheme();
+        const styles = useThemedStyles(makeStyles);
+        const errorColor = errorColorProp ?? theme.status.error;
         const [focused, setFocused] = useState(false);
         type FocusEventType = Parameters<NonNullable<TextInputProps['onFocus']>>[0];
         type BlurEventType = Parameters<NonNullable<TextInputProps['onBlur']>>[0];
@@ -72,7 +76,8 @@ const TextField = forwardRef<TextInput, TextFieldProps>(
                     <TextInput
                         ref={ ref }
                         style={ [styles.input, style] }
-                        placeholderTextColor={ COLOR_VARIANTS.black.tertiary }
+                        placeholderTextColor={ theme.ink.tertiary }
+                        keyboardAppearance={ theme.scheme }
                         accessibilityLabel={ accessibilityLabel ?? label }
                         { ...inputProps }
                         onFocus={ handleFocus }
@@ -101,7 +106,7 @@ TextField.displayName = 'TextField';
 export type { TextFieldProps };
 export default TextField;
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     container: {
         marginBottom: spacing.lg,
     },
@@ -112,7 +117,8 @@ const styles = StyleSheet.create({
     },
     inputWrapper: {
         borderWidth: 1,
-        borderColor: PALETTE.neutral.boundary,
+        borderColor: theme.surface.fieldBorder,
+        backgroundColor: theme.surface.field,
         borderRadius: 12,
         flexDirection: 'row',
         alignItems: 'center',
@@ -120,7 +126,7 @@ const styles = StyleSheet.create({
         minHeight: 48,
     },
     inputWrapperFocused: {
-        borderColor: COLOR_VARIANTS.black.primary,
+        borderColor: theme.surface.fieldBorderFocused,
     },
     input: {
         flex: 1,
@@ -132,7 +138,7 @@ const styles = StyleSheet.create({
         // correctly from the first frame.
         lineHeight: 20,
         height: 20,
-        color: COLOR_VARIANTS.black.secondary,
+        color: theme.ink.secondary,
         paddingVertical: 0,
         textAlignVertical: 'center',
         includeFontPadding: false,

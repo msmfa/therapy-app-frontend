@@ -1,6 +1,7 @@
-import { ACTION_BLUE_DARK, PALETTE } from 'designs/designs-colors';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import type { Theme } from 'designs/designs-themes';
+import { useThemedStyles } from '../../context/theme';
 
 export type RadioOption = {
     value: string;
@@ -14,6 +15,8 @@ export type RadioButtonProps = {
 };
 
 export default function RadioButton({ selectedValue, onPress, children }: RadioButtonProps) {
+    const styles = useThemedStyles(makeStyles);
+
     return (
         <TouchableOpacity
             style={ [
@@ -32,32 +35,32 @@ export default function RadioButton({ selectedValue, onPress, children }: RadioB
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     circleNotSelected: {
-        borderColor: 'hsla(222, 30%, 40%, 0.35)',
+        borderColor: theme.radio.ringUnselected,
     },
-    // Unselected is the same white box, just sitting flatter on the sheet.
+    // Unselected is the same box, just sitting flatter on the sheet.
     notSelectedWrapper: {
-        backgroundColor: 'hsla(0, 0%, 100%, 0.55)',
-        borderColor: 'hsla(0, 0%, 100%, 0.70)',
+        backgroundColor: theme.radio.unselectedFill,
+        borderColor: theme.radio.unselectedBorder,
         shadowOpacity: 0.05,
     },
     selectedDot: {
-        backgroundColor: ACTION_BLUE_DARK,
+        backgroundColor: theme.radio.ring,
         borderRadius: 6.5,
         height: 13,
         width: 13,
     },
-    // Selected is the same box lifted off the sheet: solid white with a
-    // stronger shadow, so the choice reads without a second colour.
+    // Selected is the same box lifted off the sheet: solid, with a stronger
+    // shadow, so the choice reads without a second colour.
     selectedWrapper: {
-        backgroundColor: 'hsl(0, 0%, 100%)',
-        borderColor: 'hsl(0, 0%, 100%)',
+        backgroundColor: theme.radio.selectedFill,
+        borderColor: theme.radio.selectedBorder,
         shadowOpacity: 0.16,
     },
     sharedDot: {
         alignItems: 'center',
-        borderColor: ACTION_BLUE_DARK,
+        borderColor: theme.radio.ring,
         borderRadius: 10,
         borderWidth: 2,
         height: 20,
@@ -75,7 +78,7 @@ const styles = StyleSheet.create({
         height: 72,
         paddingHorizontal: 16,
         paddingVertical: 0,
-        shadowColor: PALETTE.neutral.black,
+        shadowColor: theme.shadow,
         shadowOffset: { width: 0, height: 8 },
         shadowRadius: 14,
     },

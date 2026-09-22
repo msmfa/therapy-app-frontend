@@ -3,7 +3,8 @@ import { Note } from "../../features/notes/useNotes";
 import AppText from "../ui/AppText";
 import Spacer from "../ui/Spacer";
 import dayjs from 'dayjs';
-import { COLOR_VARIANTS, PALETTE, TEXT_COLORS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../../context/theme';
 import { GlassCircleButton } from '../ui/GlassCircleButton';
 import type { NoteReviewProgress } from '../../features/reviews';
 import { ReviewProgressBar } from './ReviewProgressBar';
@@ -26,6 +27,8 @@ const PREVIEW_LABEL_LENGTH = 100;
 
 export function NoteCard({ item, index, onPress, progress }: Props) {
     const { t } = useTranslation('notes');
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
 
     const dateText = dayjs(item.createdAt).format(`dddd, ${shortDatePattern()}`);
     const timeText = dayjs(item.createdAt).format('LT');
@@ -62,7 +65,7 @@ export function NoteCard({ item, index, onPress, progress }: Props) {
                 <GlassCircleButton
                     accessibilityLabel={ t('a11y.openNote') }
                     icon='back'
-                    iconColor={ COLOR_VARIANTS.red.primary }
+                    iconColor={ theme.status.dangerText }
                     size={ OPEN_BUTTON }
                     onPress={ () => onPress(item) }
                     style={ styles.openButtonGlass }
@@ -89,15 +92,17 @@ export function NoteCard({ item, index, onPress, progress }: Props) {
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     cardWrapper: {
         flex: 1,
         borderRadius: 15,
-        backgroundColor: PALETTE.overlay.whiteSurfaceTransparent,
-        shadowColor: PALETTE.overlay.blueGlowTransparent,
-        shadowOffset: { width: 0, height: 22 },
-        shadowOpacity: 0.3,
-        shadowRadius: 140,
+        backgroundColor: theme.surface.card,
+        shadowColor: theme.surface.cardShadow,
+        // By day a wide blue glow; at night the theme's hard black shadow,
+        // thrown down and to the right.
+        shadowOffset: theme.scheme === 'dark' ? theme.surface.shadowOffset : { width: 0, height: 22 },
+        shadowOpacity: theme.scheme === 'dark' ? theme.surface.cardShadowOpacity : 0.3,
+        shadowRadius: theme.scheme === 'dark' ? theme.surface.shadowRadius : 140,
         elevation: 20,
         alignSelf: 'stretch',
         paddingTop: 28,
@@ -105,17 +110,18 @@ const styles = StyleSheet.create({
         paddingHorizontal: 22,
     },
     noteCardPressed: {
-        backgroundColor: PALETTE.overlay.whiteMediumTransparent,
+        backgroundColor: theme.surface.medium,
         transform: [{ scale: 0.98 }],
     },
     firstCard: {
-        backgroundColor: PALETTE.overlay.whiteMediumTransparent,
-        shadowColor: PALETTE.overlay.blueGlowTransparent,
-        shadowOffset: { width: 0, height: 22 },
-        shadowOpacity: 0.1,
-        shadowRadius: 40,
+        backgroundColor: theme.surface.medium,
+        shadowColor: theme.surface.cardShadow,
+        shadowOffset: theme.scheme === 'dark' ? theme.surface.shadowOffset : { width: 0, height: 22 },
+        shadowOpacity: theme.scheme === 'dark' ? theme.surface.cardShadowOpacity : 0.1,
+        shadowRadius: theme.scheme === 'dark' ? theme.surface.shadowRadius : 40,
         elevation: 24,
-        borderColor: PALETTE.overlay.whiteSurfaceTransparent,
+        borderColor: theme.surface.rowBorder,
+        borderTopColor: theme.surface.cardEdge,
         borderWidth: 1,
     },
     preview: {
@@ -145,6 +151,6 @@ const styles = StyleSheet.create({
         transform: [{ scaleX: -1 }],
     },
     time: {
-        color: TEXT_COLORS.tertiary,
+        color: theme.ink.tertiary,
     },
 });

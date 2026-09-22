@@ -19,7 +19,7 @@ export const GlassMorphismWithSquare = ({ children, style, squarePosition, squar
             <View style={ styles.gradientSquareContainer }>
                 <LinearGradientSquare position={ squarePosition } style={ squareStyle } rotation={ squareRotation } />
             </View>
-            <GlassMorphism tint="light" style={ style } panelRadius={ panelRadius }>
+            <GlassMorphism style={ style } panelRadius={ panelRadius }>
                 { children }
             </GlassMorphism>
         </View>

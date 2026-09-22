@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import AppText from '../ui/AppText';
-import { ACTION_ORANGE, COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../../context/theme';
 import type { PlanTimelineEntry } from '../../features/onboarding/planTimeline';
 import { occurrencesLabel } from '../../features/onboarding/formatting';
 import { ReminderType } from '../../utils/types';
@@ -10,7 +11,8 @@ import { GlassCircleButton } from '../ui/GlassCircleButton';
 import { DottedDivider } from '../ui/DottedDivider';
 import { AppModal } from '../Modal';
 import { ScienceTextModal } from '../ScienceTextModal';
-import { onboardingStyles, ONBOARDING_LINK_COLOR } from './onboardingStyles';
+import { CARD_RADIUS, useOnboardingStyles, type OnboardingStyles } from './onboardingStyles';
+import { CardLight } from './CardLight';
 import { BRAND_FONTS } from 'designs/designs-typography';
 import { useTranslation } from 'react-i18next';
 import { t as translate } from '../../i18n/translate';
@@ -48,10 +50,16 @@ type Props = {
  * phrase is still emphasised, so the template reads as a named thing whether or
  * not there is anywhere to go.
  */
+type Sheets = {
+    styles: ReturnType<typeof makeStyles>;
+    onboardingStyles: OnboardingStyles['onboardingStyles'];
+};
+
 function renderParagraph(
     paragraph: string,
     phrase: string | undefined,
     isSession: boolean,
+    { styles, onboardingStyles }: Sheets,
     onOpenTemplate?: () => void,
 ): React.ReactNode {
     if (phrase === undefined) return paragraph;
@@ -93,7 +101,8 @@ function renderParagraph(
  * rather than the newlines rendered inline, so the space between paragraphs is
  * set here and does not inherit whatever line height the copy happens to have.
  */
-function renderBody(entry: PlanTimelineEntry, onOpenTemplate?: () => void): React.ReactNode[] {
+function renderBody(entry: PlanTimelineEntry, sheets: Sheets, onOpenTemplate?: () => void): React.ReactNode[] {
+    const { styles, onboardingStyles } = sheets;
     const isSession = entry.id === 'log_note';
 
     return entry.body.split('\n\n').map((paragraph, index) => {
@@ -106,13 +115,17 @@ function renderBody(entry: PlanTimelineEntry, onOpenTemplate?: () => void): Reac
 
         return (
             <AppText key={ paragraph } variant="body" style={ paragraphStyle }>
-                { renderParagraph(paragraph, entry.bodyEmphasis, isSession, onOpenTemplate) }
+                { renderParagraph(paragraph, entry.bodyEmphasis, isSession, sheets, onOpenTemplate) }
             </AppText>
         );
     });
 }
 
 export function PlanTimeline({ entries, onOpenTemplate }: Props) {
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
+    const { onboardingStyles, linkColor } = useOnboardingStyles();
+    const sheets: Sheets = { styles, onboardingStyles };
     const { t } = useTranslation('onboarding');
     const [openResearch, setOpenResearch] = useState<ReminderType | null>(null);
 
@@ -153,7 +166,7 @@ export function PlanTimeline({ entries, onOpenTemplate }: Props) {
                                         ] }
                                     />
                                     <View
-                                        style={ [styles.marker, { backgroundColor: ACTION_ORANGE }] }
+                                        style={ [styles.marker, { backgroundColor: theme.accent.mark }] }
                                     />
                                     { !isLast && <View style={ [styles.railLine, styles.railLineBelow] } /> }
                                 </View>
@@ -164,12 +177,21 @@ export function PlanTimeline({ entries, onOpenTemplate }: Props) {
                                     onboardingStyles.card,
                                     styles.content,
                                     !isSession && styles.contentCompact,
+                                    // The light paints the edge itself, so the
+                                    // border it covers must not show through
+                                    // as a second, flat outline.
+                                    theme.surface.cardLight !== null && styles.contentLit,
                                 ] }
                             >
+                                { /* Lit from the top-left corner at night, like
+                                     every other card in the flow. */ }
+                                { theme.surface.cardLight !== null && (
+                                    <CardLight light={ theme.surface.cardLight } radius={ CARD_RADIUS } />
+                                ) }
                                 <View style={ styles.heading }>
                                     { isSession && (
                                         <View
-                                            style={ [styles.marker, { backgroundColor: ACTION_ORANGE }] }
+                                            style={ [styles.marker, { backgroundColor: theme.accent.mark }] }
                                         />
                                     ) }
                                     <AppText
@@ -195,7 +217,7 @@ export function PlanTimeline({ entries, onOpenTemplate }: Props) {
                                             <GlassCircleButton
                                                 accessibilityLabel={ researchLabel ?? t('timeline.research') }
                                                 icon="forward"
-                                                iconColor={ ONBOARDING_LINK_COLOR }
+                                                iconColor={ linkColor }
                                                 size={ 40 }
                                                 onPress={ () => setOpenResearch(entry.researchTarget) }
                                             />
@@ -214,7 +236,7 @@ export function PlanTimeline({ entries, onOpenTemplate }: Props) {
                                      only cut them in half. */ }
                                 { isSession && <DottedDivider style={ styles.bodyRule } /> }
 
-                                { renderBody(entry, isSession ? onOpenTemplate : undefined) }
+                                { renderBody(entry, sheets, isSession ? onOpenTemplate : undefined) }
                             </View>
                         </>
                     );
@@ -263,7 +285,7 @@ export function PlanTimeline({ entries, onOpenTemplate }: Props) {
 /** The card's inset, which the full-width rule has to reach back through. */
 const CARD_PADDING = 20;
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     container: {
         marginTop: 4,
     },
@@ -289,7 +311,7 @@ const styles = StyleSheet.create({
         width: 2,
         // Lighter than the type it runs beside: the line is there to show that
         // the points belong to one sequence, not to be read itself.
-        backgroundColor: 'hsla(0, 0%, 0%, 0.07)',
+        backgroundColor: theme.hairlineFaint,
     },
     /** Reaches the dot from the top of the row, level with the card's title. */
     railLineAbove: {
@@ -314,7 +336,10 @@ const styles = StyleSheet.create({
         marginBottom: 16,
         // Brighter than the flow's shared card edge. These sit over artwork
         // and over the rail, and the highlight is what lifts them off both.
-        borderColor: 'hsla(0, 0%, 100%, 0.85)',
+        borderColor: theme.surface.cardHighlight,
+    },
+    contentLit: {
+        borderColor: 'transparent',
     },
     // Pulled back into the card's corner: at the full inset the arrow sat a
     // long way in from two edges it is supposed to mark.
@@ -339,7 +364,7 @@ const styles = StyleSheet.create({
         marginTop: 0,
         fontSize: 13,
         lineHeight: 18,
-        color: TEXT_COLORS.quaternary,
+        color: theme.ink.quaternary,
     },
     // Larger than the flow's body copy: this paragraph is the card, and at the
     // shared 16pt it read as a caption under the label rather than the thing
@@ -367,7 +392,7 @@ const styles = StyleSheet.create({
     bodySession: {
         fontSize: 19,
         lineHeight: 28,
-        color: TEXT_COLORS.primary,
+        color: theme.ink.primary,
     },
     /**
      * The brand faces ship no italic, so this is the system's slant over the
@@ -381,7 +406,7 @@ const styles = StyleSheet.create({
      * distinguish the link without making it look like a different paragraph.
      */
     bodyLink: {
-        color: COLOR_VARIANTS.black.primary,
+        color: theme.ink.primary,
         fontFamily: BRAND_FONTS.medium,
         fontWeight: undefined,
     },

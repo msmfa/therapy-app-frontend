@@ -5,20 +5,16 @@ import type { Href } from 'expo-router';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
-import {
-    ACCENT_SURFACE,
-    BRAND_ORANGE,
-    COLOR_VARIANTS,
-    SURFACE_ACCENT,
-    SURFACE_BLUE,
-} from 'designs/designs-colors';
+import { COLOR_VARIANTS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
 import AppText from '../ui/AppText';
 import { OnboardingProgress } from './OnboardingProgress';
 import { BackButton } from '../ui/BackButton';
 import { GlassMorphismWithCircle } from '../ui/GlassMorphismWithCircle';
-import type { CirclePosition } from '../ui/LinearGradientCircle';
+import { CirclePosition } from '../ui/LinearGradientCircle';
 import { PaperGrain } from './PaperGrain';
-import { onboardingAccentStyles, onboardingStyles } from './onboardingStyles';
+import { useOnboardingStyles } from './onboardingStyles';
+import { useTheme, useThemedStyles } from '../../context/theme';
 import { OnboardingStepAnalytics } from '../../features/onboarding/OnboardingStepAnalytics';
 import type { OnboardingStep } from '../../features/analytics/events';
 
@@ -206,6 +202,9 @@ export function OnboardingScreen({
     showBack = true,
     backHref,
 }: Props) {
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
+    const { onboardingStyles, onboardingAccentStyles } = useOnboardingStyles();
     const isAccent = surface === 'accent';
     // Where the body's last card ends, in the backdrop's own coordinates.
     //
@@ -264,6 +263,17 @@ export function OnboardingScreen({
                  edges of the display. */ }
             { supporting !== undefined && supportingAppearance === 'banner' && (
                 <View style={ [styles.supportingBanner, !titleBesideBack && styles.supporting] }>
+                    { /* At night the band is the panel charcoal and its
+                         emphasis is a lit rule along the top; by day the
+                         orange fill carries it and there is no rule. */ }
+                    { theme.emphasis.rule !== null && (
+                        <LinearGradient
+                            colors={ theme.emphasis.rule }
+                            start={ { x: 0, y: 0 } }
+                            end={ { x: 1, y: 0 } }
+                            style={ styles.emphasisRule }
+                        />
+                    ) }
                     { typeof supporting === 'string' ? (
                         <AppText variant="body" style={ [onboardingStyles.body, styles.supportingBannerText] }>
                             { supporting }
@@ -313,12 +323,21 @@ export function OnboardingScreen({
                  for it. */ }
             { !isAccent && <GlassMorphismWithCircle circlePosition={ circlePosition } /> }
 
+            { /* The accent ground is a flat block of colour by day. Where the
+                 theme gives it a glow, the glow is the same construction as
+                 every other screen: the sweep, blurred by the glass, in the
+                 corner behind the screen's object. */ }
+            { isAccent && theme.accentScreen.glow !== null && (
+                <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_RIGHT } />
+            ) }
+
             { /* The pale screens are printed on grain; the accent one is a
                  flat block of colour and stays flat. Over the glass, not under
                  it: the glass blurs whatever is behind it, and a blur is
                  exactly what removes a texture this fine. Thinned over a
                  circle, which full-strength grain paints straight over; the
-                 value matches Welcome, the other screen that shows one. */ }
+                 value matches Welcome, the other screen that shows one. The
+                 grain picks its own tile for the theme. */ }
             { !isAccent && <PaperGrain opacity={ circlePosition === undefined ? 1 : CIRCLE_GRAIN_OPACITY } /> }
 
             <SafeAreaView
@@ -438,17 +457,17 @@ export function OnboardingScreen({
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     safeArea: {
         flex: 1,
     },
     accentSurface: {
-        backgroundColor: SURFACE_ACCENT,
+        backgroundColor: theme.accentScreen.ground,
     },
     // Sized by the button it holds, so the disc cannot drift from the glass.
     backOnAccent: {
         borderRadius: 24,
-        backgroundColor: SURFACE_BLUE,
+        backgroundColor: theme.ground.base,
     },
     header: {
         paddingHorizontal: 24,
@@ -520,10 +539,17 @@ const styles = StyleSheet.create({
         marginHorizontal: -SCREEN_PADDING,
         paddingHorizontal: SCREEN_PADDING,
         paddingVertical: 18,
-        backgroundColor: BRAND_ORANGE,
+        backgroundColor: theme.emphasis.panel,
     },
     supportingBannerText: {
-        color: ACCENT_SURFACE.textPrimary,
+        color: theme.emphasis.ink,
+    },
+    emphasisRule: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 2,
     },
     footer: {
         flexGrow: 0,

@@ -10,7 +10,8 @@ import { AuraPanel } from 'src/components/ui/AuraPanel';
 import { GlassButtonOutline } from 'src/components/ui/GlassButtonOutline';
 import { GlassCircleButton } from 'src/components/ui/GlassCircleButton';
 import { GlassPillButton } from 'src/components/ui/GlassPillButton';
-import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from 'src/context/theme';
 import { BRAND_FONTS } from 'designs/designs-typography';
 import { ReminderType } from '../../utils/types';
 import { useTranslation } from 'react-i18next';
@@ -25,17 +26,9 @@ const PHOTO_RADIUS = CARD_RADIUS - PHOTO_INSET;
  * short screen than this, so the card still fits a page that does not scroll. */
 const PHOTO_MAX_SCREEN_SHARE = 0.38;
 
-/** The glow's core, brighter than the panel's own default. */
-const AURA_CORE = '#F3782C';
-
-/**
- * The footer's tone at its deepest, at the bottom of the card: SURFACE_BLUE's
- * hue lifted most of the way to white. The band starts from the card's own
- * white and settles into this, so it has no top edge, and by the time it
- * reaches the buttons there is enough of it for their white outline tray to
- * read against.
- */
-const FOOTER_TINT = 'hsl(206.67, 17.65%, 93.5%)';
+// The footer's band starts from the card's own sheet and settles into the
+// theme's sheetTint, so it has no top edge, and by the time it reaches the
+// buttons there is enough of it for their outline tray to read against.
 
 /** The copy is clamped so every card is the same height whatever its length. */
 const DESCRIPTION_LINES = 3;
@@ -66,6 +59,8 @@ type Props = {
  * card rather than ending on a hard edge.
  */
 export function ReminderCard({ date, description, link, time, caption }: Props) {
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
     const { t: tScience } = useTranslation('science');
     const { t: tCommon } = useTranslation('common');
     const { height: screenHeight } = useWindowDimensions();
@@ -95,7 +90,7 @@ export function ReminderCard({ date, description, link, time, caption }: Props) 
                         <AuraPanel
                             text={ time }
                             caption={ caption }
-                            coreColor={ AURA_CORE }
+                            coreColor={ theme.aura.core }
                             width={ panel.width }
                             height={ panel.height }
                         />
@@ -121,7 +116,7 @@ export function ReminderCard({ date, description, link, time, caption }: Props) 
                 <View style={ styles.footer }>
                     <LinearGradient
                         pointerEvents="none"
-                        colors={ [COLOR_VARIANTS.white.primary, FOOTER_TINT] }
+                        colors={ [theme.surface.sheet, theme.surface.sheetTint] }
                         style={ StyleSheet.absoluteFill }
                     />
                     <View style={ styles.actions }>
@@ -131,13 +126,13 @@ export function ReminderCard({ date, description, link, time, caption }: Props) 
                             label={ tCommon('action.learnMore') }
                             height={ actionSize }
                             labelSize={ ACTION_LABEL_SIZE }
-                            labelColor={ COLOR_VARIANTS.black.primary }
+                            labelColor={ theme.ink.primary }
                             onPress={ openModal }
                         />
                         <GlassCircleButton
                             accessibilityLabel={ tScience('reminders.scienceBehind', { date }) }
                             icon="forward"
-                            iconColor={ COLOR_VARIANTS.black.tertiary }
+                            iconColor={ theme.ink.tertiary }
                             size={ actionSize }
                             onPress={ openModal }
                         />
@@ -157,16 +152,16 @@ export function ReminderCard({ date, description, link, time, caption }: Props) 
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     card: {
         // flexGrow rather than flex: a zero flex-basis would report the card as
         // having no height of its own, and the deck sizes its row from the
         // tallest card's natural height before stretching the rest to match.
         flexGrow: 1,
         borderRadius: CARD_RADIUS,
-        backgroundColor: COLOR_VARIANTS.white.primary,
+        backgroundColor: theme.surface.sheet,
         padding: PHOTO_INSET,
-        shadowColor: PALETTE.neutral.black,
+        shadowColor: theme.shadow,
         shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.1,
         shadowRadius: 16,

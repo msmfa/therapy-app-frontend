@@ -23,7 +23,8 @@ import { readNotificationPermission, requestNotificationPermission } from '../sr
 import { ensurePushRegistration } from '../src/services/notifications/pushRegistration';
 import { dateToMinutes, minutesToDate, timeLabel } from '../src/features/onboarding/formatting';
 import { TIME_PICKER_BOUNDS } from '../src/utils/timePickerBounds';
-import { ACTION_ORANGE, COLOR_VARIANTS, PALETTE, TEXT_COLORS } from '../designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../src/context/theme';
 import { GlassPickerPanel } from '../src/components/ui/GlassPickerPanel';
 import { DottedDivider } from '../src/components/ui/DottedDivider';
 import { formattingLocale } from '../src/i18n';
@@ -32,6 +33,8 @@ type Slot = 'morning' | 'evening';
 type NotificationStatus = 'checking' | 'on' | 'off';
 
 export default function ReminderSettingsScreen() {
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
     const router = useRouter();
     const { showAlert } = useAppAlert();
     const { t } = useTranslation('reminderSettings');
@@ -183,11 +186,11 @@ export default function ReminderSettingsScreen() {
                                     { Platform.OS === 'ios' ? (
                                         <DateTimePicker
                                             { ...TIME_PICKER_BOUNDS }
-                                            accentColor={ ACTION_ORANGE }
+                                            accentColor={ theme.accent.mark }
                                             value={ value }
                                             mode="time"
                                             display="compact"
-                                            themeVariant="light"
+                                            themeVariant={ theme.scheme }
                                             // Apple's control reads the device
                                             // locale by default, which would
                                             // show an AM/PM dial next to French
@@ -225,7 +228,7 @@ export default function ReminderSettingsScreen() {
                 <GlassPickerPanel style={ styles.androidPicker }>
                     <DateTimePicker
                         { ...TIME_PICKER_BOUNDS }
-                        accentColor={ ACTION_ORANGE }
+                        accentColor={ theme.accent.mark }
                         locale={ formattingLocale() }
                         value={ minutesToDate(
                             androidSlot === 'morning' ? morningMinutes : eveningMinutes,
@@ -242,7 +245,7 @@ export default function ReminderSettingsScreen() {
 
 const TIME_ROWS_PADDING = 14;
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     androidPicker: {
         marginTop: 16,
     },
@@ -251,7 +254,7 @@ const styles = StyleSheet.create({
         paddingVertical: 20,
     },
     intro: {
-        color: TEXT_COLORS.secondary,
+        color: theme.ink.secondary,
     },
     timeRows: {
         marginTop: 20,
@@ -259,8 +262,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: TIME_ROWS_PADDING,
         borderRadius: 16,
         borderWidth: 1,
-        borderColor: PALETTE.overlay.whiteBorderTransparent,
-        backgroundColor: COLOR_VARIANTS.white.secondary,
+        borderColor: theme.surface.rowGroupBorder,
+        backgroundColor: theme.surface.rowGroup,
     },
     divider: {
         marginHorizontal: -TIME_ROWS_PADDING,

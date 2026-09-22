@@ -17,8 +17,8 @@ import { useRouter } from 'expo-router';
 import AppText from '../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { GlassCircleButton } from '../src/components/ui/GlassCircleButton';
-import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '../src/context/theme';
 import type { TFunction } from 'i18next';
 
 /** The sections, in reading order. See the note in app/privacy-policy.tsx. */
@@ -33,18 +33,19 @@ export default function TermsOfServiceScreen() {
     const { t } = useTranslation('common');
     const { t: tLegal } = useTranslation('legal');
     const router = useRouter();
+    const { theme } = useTheme();
 
     const handleBack = () => {
         router.back();
     };
 
     return (
-        <SafeAreaView style={ styles.container } edges={ ['top', 'left', 'right'] }>
+        <SafeAreaView style={ [styles.container, { backgroundColor: theme.surface.sheet }] } edges={ ['top', 'left', 'right'] }>
             <View style={ styles.pageHeader }>
                 <GlassCircleButton
                     accessibilityLabel={ t('action.back') }
                     icon="back"
-                    iconColor={ COLOR_VARIANTS.black.primary }
+                    iconColor={ theme.ink.primary }
                     size={ 48 }
                     onPress={ handleBack }
                 />
@@ -98,7 +99,6 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        backgroundColor: COLOR_VARIANTS.white.primary,
     },
     scroll: {
         flex: 1,

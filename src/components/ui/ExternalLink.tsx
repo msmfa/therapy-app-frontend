@@ -1,7 +1,8 @@
 import React from 'react';
 import { Linking, Pressable, StyleSheet, StyleProp, TextStyle, ViewStyle } from 'react-native';
-import { COLOR_VARIANTS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
 import AppText, { AppTextProps } from './AppText';
+import { useThemedStyles } from '../../context/theme';
 
 type TextProps = Omit<AppTextProps, 'variant' | 'onPress' | 'children' | 'style'>;
 
@@ -21,6 +22,7 @@ export function ExternalLink({
     textStyle,
     ...rest
 }: ExternalLinkProps) {
+    const styles = useThemedStyles(makeStyles);
     const handlePress = () => {
         void Linking.openURL(url).catch(() => undefined);
     };
@@ -45,15 +47,15 @@ export function ExternalLink({
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     container: {
         alignSelf: 'stretch',
         paddingVertical: 6,
     },
     linkText: {
-        color: COLOR_VARIANTS.blue.mid,
+        color: theme.link.bright,
     },
     linkTextPressed: {
-        color: COLOR_VARIANTS.blue.light,
+        color: theme.link.brightPressed,
     },
 });

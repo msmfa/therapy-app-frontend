@@ -284,10 +284,11 @@ export const COMPONENT_COLORS = {
 } as const;
 
 
-// The calendar surface. The month sits straight on the app background rather
+// The month grid, where it sits straight on the calendar backdrop rather
 // than on a card, so every colour here has to hold up against the pale
-// blue-to-grey backdrop.
-export const CALENDAR_DARK_COLORS = {
+// blue-to-grey sheet. Near-black ink; nothing to do with a dark theme (the
+// night values are in designs-night, and components read the theme).
+export const CALENDAR_MONTH_COLORS = {
   monthText: 'hsl(240, 8%, 16%)',
   // 0.55 read at 3.32:1 against the calendar's pale ground, under the 4.5:1
   // body-text minimum; 0.68 clears it with a small margin.

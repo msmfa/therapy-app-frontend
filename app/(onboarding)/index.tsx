@@ -20,13 +20,14 @@ import { safeOnboardingResumeRoute } from '../../src/features/onboarding/onboard
 import Loading from '../../src/components/ui/Loading';
 import { GlassMorphismWithCircle } from '../../src/components/ui/GlassMorphismWithCircle';
 import { CirclePosition } from '../../src/components/ui/LinearGradientCircle';
-import { onboardingStyles } from '../../src/components/onboarding/onboardingStyles';
+import { useOnboardingStyles } from '../../src/components/onboarding/onboardingStyles';
 import { BRAND_FONTS } from 'designs/designs-typography';
 import { PaperGrain } from '../../src/components/onboarding/PaperGrain';
 import { shouldUseCombinedOnboardingScroll } from '../../src/components/onboarding/OnboardingScreen';
 import { OnboardingStepAnalytics } from '../../src/features/onboarding/OnboardingStepAnalytics';
 
 export default function WelcomeScreen() {
+    const { onboardingStyles } = useOnboardingStyles();
     const router = useRouter();
     const { height, fontScale } = useWindowDimensions();
     const useCombinedScroll = shouldUseCombinedOnboardingScroll(fontScale);
@@ -73,7 +74,7 @@ export default function WelcomeScreen() {
     const footer = (
         <View style={ styles.footer }>
             <OnboardingButton
-                appearance="solid"
+                appearance="start"
                 label={ welcomeCopy().primaryCta }
                 onPress={ () => router.push('/(onboarding)/goal') }
             />

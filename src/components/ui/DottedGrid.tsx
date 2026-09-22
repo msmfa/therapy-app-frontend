@@ -1,16 +1,17 @@
 import React from 'react';
 import { StyleProp, StyleSheet, View, ViewStyle, useWindowDimensions } from 'react-native';
 import Svg, { Line } from 'react-native-svg';
+import { useTheme } from '../../context/theme';
 
 type Props = {
     style?: StyleProp<ViewStyle>;
     /** Distance between grid lines, in points. */
     spacing?: number;
+    /** Defaults to the theme's hairline. */
     color?: string;
 };
 
 const DEFAULT_SPACING = 120;
-const DEFAULT_COLOR = 'hsla(0, 0%, 0%, 0.20)';
 
 // Dot and gap along each line. A dash of 1 against a gap of 5 reads as dots
 // rather than a broken rule.
@@ -18,8 +19,10 @@ const DASH = '1 5';
 
 // Faint graph-paper ruling for a page that should read as a worksheet. Sits
 // behind everything and never takes a touch.
-export function DottedGrid({ style, spacing = DEFAULT_SPACING, color = DEFAULT_COLOR }: Props) {
+export function DottedGrid({ style, spacing = DEFAULT_SPACING, color: colorProp }: Props) {
     const { height, width } = useWindowDimensions();
+    const { theme } = useTheme();
+    const color = colorProp ?? theme.hairline;
 
     const columns = Math.ceil(width / spacing);
     const rows = Math.ceil(height / spacing);

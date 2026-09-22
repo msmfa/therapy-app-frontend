@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleProp, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import AppText from '../ui/AppText';
-import { onboardingStyles, ONBOARDING_LINK_COLOR } from './onboardingStyles';
+import { useOnboardingStyles } from './onboardingStyles';
 
 type Props = {
     label: string;
@@ -44,6 +44,7 @@ export function OnboardingLink({
     accessibilityHint,
     style,
 }: Props) {
+    const { onboardingStyles, linkColor } = useOnboardingStyles();
     return (
         <TouchableOpacity
             onPress={ onPress }
@@ -72,7 +73,7 @@ export function OnboardingLink({
             <Feather
                 name="arrow-right"
                 size={ size === 'caption' ? 16 : 18 }
-                color={ ONBOARDING_LINK_COLOR }
+                color={ linkColor }
                 accessibilityElementsHidden
                 importantForAccessibility="no-hide-descendants"
             />

@@ -6,7 +6,7 @@ import type { DateTimePickerEvent } from '@react-native-community/datetimepicker
 import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
 import AppText from '../../src/components/ui/AppText';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
-import { onboardingStyles } from '../../src/components/onboarding/onboardingStyles';
+import { useOnboardingStyles } from '../../src/components/onboarding/onboardingStyles';
 import { QuoteCard } from '../../src/components/onboarding/QuoteCard';
 import { GlassPickerPanel } from '../../src/components/ui/GlassPickerPanel';
 import { DottedDivider } from '../../src/components/ui/DottedDivider';
@@ -14,11 +14,13 @@ import { reminderTimesCopy } from '../../src/features/onboarding/onboardingCopy'
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { dateToMinutes, minutesToDate, timeLabel } from '../../src/features/onboarding/formatting';
 import { TIME_PICKER_BOUNDS } from '../../src/utils/timePickerBounds';
-import { ACTION_ORANGE } from 'designs/designs-colors';
+import { useTheme } from '../../src/context/theme';
 
 type Slot = 'morning' | 'evening';
 
 export default function ReminderTimesScreen() {
+    const { theme } = useTheme();
+    const { onboardingStyles } = useOnboardingStyles();
     const router = useRouter();
     const { width, fontScale } = useWindowDimensions();
     const stackTimeFields = width < 380 || fontScale >= 1.5 || Platform.OS !== 'ios';
@@ -109,11 +111,11 @@ export default function ReminderTimesScreen() {
                                 { Platform.OS === 'ios' ? (
                                     <DateTimePicker
                                         { ...TIME_PICKER_BOUNDS }
-                                        accentColor={ ACTION_ORANGE }
+                                        accentColor={ theme.accent.mark }
                                         value={ value }
                                         mode="time"
                                         display="compact"
-                                        themeVariant="light"
+                                        themeVariant={ theme.scheme }
                                         accessibilityLabel={ `${row.label}, ${timeLabel(value)}` }
                                         onChange={ row.onChange }
                                     />
@@ -142,7 +144,7 @@ export default function ReminderTimesScreen() {
                 <GlassPickerPanel style={ styles.androidPicker }>
                     <DateTimePicker
                         { ...TIME_PICKER_BOUNDS }
-                        accentColor={ ACTION_ORANGE }
+                        accentColor={ theme.accent.mark }
                         value={ androidSlot === 'morning' ? morningValue : eveningValue }
                         mode="time"
                         display="default"

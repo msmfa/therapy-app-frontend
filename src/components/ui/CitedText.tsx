@@ -1,8 +1,8 @@
 import React from 'react';
-import { Linking, StyleSheet, Text } from 'react-native';
-import { COLOR_VARIANTS } from 'designs/designs-colors';
+import { Linking, Text } from 'react-native';
 import AppText, { AppTextProps } from './AppText';
 import { t as translate } from '../../i18n/translate';
+import { useTheme } from '../../context/theme';
 
 export type Citation = {
     text: string;
@@ -30,6 +30,8 @@ const MARKER_PATTERN = /^\[(\d+(?:\s*,\s*\d+)*)\]$/;
  * list. Copy with no markers in it renders as an ordinary paragraph.
  */
 export function CitedText({ text, sources, onCitationPress, variant = 'body', ...rest }: Props) {
+    const { theme } = useTheme();
+    const markerStyle = { color: theme.link.bright };
     const getSource = (position: number) => {
         if (!Number.isSafeInteger(position) || position < 1) return undefined;
 
@@ -62,7 +64,7 @@ export function CitedText({ text, sources, onCitationPress, variant = 'body', ..
                 const positions = marker[1].split(',').map((part) => Number(part.trim()));
 
                 return (
-                    <Text key={ `marker-${segmentIndex}` } style={ styles.marker }>
+                    <Text key={ `marker-${segmentIndex}` } style={ markerStyle }>
                         { '[' }
                         { positions.map((position, positionIndex) => {
                             const source = getSource(position);
@@ -92,9 +94,3 @@ export function CitedText({ text, sources, onCitationPress, variant = 'body', ..
         </AppText>
     );
 }
-
-const styles = StyleSheet.create({
-    marker: {
-        color: COLOR_VARIANTS.blue.mid,
-    },
-});

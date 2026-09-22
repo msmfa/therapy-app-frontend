@@ -1,8 +1,8 @@
 import React from 'react';
 import { StyleProp, StyleSheet, ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { GradientColors } from 'src/utils/types';
+import { useTheme } from '../../context/theme';
 
 type LinearGradientCirclePosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 
@@ -42,12 +42,17 @@ const POSITION_STYLES: Record<CirclePosition, ViewStyle> = {
     },
 };
 
+/**
+ * The decorative circle behind the glass. Red by day; the theme's sweep by
+ * night, which is the one place the dark app has colour that is not a mark.
+ */
 export default function LinearGradientCircle({ gradient, style, position }: LinearGradientCardProps) {
+    const { theme } = useTheme();
     const positionStyle = position ? POSITION_STYLES[position] : undefined;
 
     return (
         <LinearGradient
-            colors={ gradient ?? [COLOR_VARIANTS.red.mid, COLOR_VARIANTS.red.dark] }
+            colors={ gradient ?? theme.accent.sweep }
             style={ [styles.gradientCircle, positionStyle, style] }
         />
     );

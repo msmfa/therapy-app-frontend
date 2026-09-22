@@ -1,7 +1,13 @@
 import { ErrorBoundaryProps, Stack, useRouter } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { ThemeProvider, DefaultTheme, Theme } from '@react-navigation/native';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+    ThemeProvider as NavigationThemeProvider,
+    DarkTheme as NavigationDarkTheme,
+    DefaultTheme as NavigationDefaultTheme,
+    type Theme as NavigationTheme,
+} from '@react-navigation/native';
+import { ThemeProvider, useTheme } from '../src/context/theme';
 import { AuthProvider, useAuth } from '../src/context/auth/AuthContext';
 import { OnboardingProvider, useOnboarding } from '../src/context/onboarding/OnboardingContext';
 import {
@@ -16,8 +22,6 @@ import { TherapySessionsProvider, useTherapySessions } from '../src/context/ther
 import { usePushNotifications } from '../src/hooks/usePushNotifications';
 import { useTimeZoneSync } from '../src/hooks/useTimeZoneSync';
 import { useLanguageSync } from '../src/i18n/useLanguageSync';
-import { COLOR_VARIANTS } from 'designs/designs-colors';
-import { GRADIENTS } from 'designs/designs-gradients';
 import { Platform, StatusBar, StyleSheet, View } from 'react-native';
 import Loading from '../src/components/ui/Loading';
 import { ErrorBoundaryUI } from '../src/components/ErrorBoundary';
@@ -64,15 +68,6 @@ Sentry.init({
     // spotlight: __DEV__,
 });
 
-const theme: Theme = {
-    ...DefaultTheme,
-    colors: {
-        ...DefaultTheme.colors,
-        background: GRADIENTS.background.bottom,
-        card: COLOR_VARIANTS.white.primary,
-    },
-};
-
 /**
  * Gate Component
  *
@@ -91,6 +86,10 @@ export function Gate() {
     const { hasOnboarded, hydrated: onboardingHydrated } = useOnboarding();
     const { hydrated: answersHydrated } = useOnboardingAnswers();
     const { state: entitlement } = useEntitlementState();
+    const { theme } = useTheme();
+    // Matches the launch splash and the screens inside it, so nothing white
+    // shows through between the splash going away and the first screen drawing.
+    const root = [styles.root, { backgroundColor: theme.ground.base }];
 
     // A subscriber whose plan lapsed has finished onboarding but still needs the
     // paywall, so the group stays mounted for them. Without this the paid area's
@@ -128,7 +127,7 @@ export function Gate() {
 
     if (!isFullyHydrated && !hasHydratedOnce) {
         return (
-            <View style={ styles.root }>
+            <View style={ root }>
                 <NotificationNavigationHandler isReady={ false } />
                 <Loading fullScreen />
             </View>
@@ -136,7 +135,7 @@ export function Gate() {
     }
 
     return (
-        <View style={ styles.root }>
+        <View style={ root }>
             <NotificationNavigationHandler isReady={ isMainAppReady } />
             <Stack screenOptions={ { headerShown: false } }>
                 { /* The root owns the checkout-to-app transition. Put the paid
@@ -178,12 +177,17 @@ export function Gate() {
  * Root Layout Component
  *
  * Provider hierarchy (order matters!):
- * 1. ThemeProvider - must wrap everything for styling
- * 2. AuthProvider - hydrates first, determines user
- * 3. TherapySessionsProvider - can mount early, doesn't depend on user
- * 4. OnboardingProvider - waits for auth to hydrate, then hydrates based on user
- * 5. OnboardingAnswersProvider - restores the encrypted in-progress draft
- * 6. SafeAreaProvider - handles device safe areas
+ * 1. ThemeProvider (ours) - reads the device scheme and the stored override,
+ *    and holds everything below it until the override is known, so the tree
+ *    mounts once in the right appearance. Outermost because every provider
+ *    below renders something that takes a colour, the alert modal included.
+ * 2. NavigationThemeProvider - derived from the active theme, so the
+ *    navigator's own ground and card colours follow it.
+ * 3. AuthProvider - hydrates first, determines user
+ * 4. TherapySessionsProvider - can mount early, doesn't depend on user
+ * 5. OnboardingProvider - waits for auth to hydrate, then hydrates based on user
+ * 6. OnboardingAnswersProvider - restores the encrypted in-progress draft
+ * 7. SafeAreaProvider - handles device safe areas
  *
  * The Gate component waits for both Auth and Onboarding to hydrate before routing.
  */
@@ -201,7 +205,36 @@ export default Sentry.wrap(function RootLayout() {
     });
 
     return (
-        <ThemeProvider value={ theme }>
+        <ThemeProvider>
+            <ThemedShell />
+        </ThemeProvider>
+    );
+});
+
+/**
+ * Everything below the theme provider, split out so it can read the theme it
+ * is inside of: the navigator's own colours and the status bar's ink both
+ * follow the active scheme, and both change at runtime when the user does.
+ */
+function ThemedShell() {
+    const { theme } = useTheme();
+
+    const navigationTheme = useMemo<NavigationTheme>(() => {
+        const base = theme.scheme === 'dark' ? NavigationDarkTheme : NavigationDefaultTheme;
+        return {
+            ...base,
+            colors: {
+                ...base.colors,
+                background: theme.navigation.background,
+                card: theme.navigation.card,
+                text: theme.navigation.text,
+                border: theme.navigation.border,
+            },
+        };
+    }, [theme]);
+
+    return (
+        <NavigationThemeProvider value={ navigationTheme }>
             { /* Outermost provider that renders copy: everything below it,
                  including the alert modal, mounts with the user's language
                  already applied rather than the device's. */ }
@@ -231,10 +264,10 @@ export default Sentry.wrap(function RootLayout() {
                     </AuthProvider>
                 </AppAlertProvider>
             </LanguageGate>
-            <StatusBar barStyle="dark-content" backgroundColor={ theme.colors.background } />
-        </ThemeProvider>
+            <StatusBar barStyle={ theme.statusBar } backgroundColor={ theme.ground.base } />
+        </NavigationThemeProvider>
     );
-});
+}
 
 /**
  * Initializer Component
@@ -412,10 +445,9 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
 }
 
 const styles = StyleSheet.create({
-    // Matches the launch splash and the screens inside it, so nothing white
-    // shows through between the splash going away and the first screen drawing.
+    // The background is set where it is used: it comes from the theme and
+    // this sheet is frozen at import.
     root: {
         flex: 1,
-        backgroundColor: GRADIENTS.background.bottom,
     },
 });

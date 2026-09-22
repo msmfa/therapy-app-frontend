@@ -8,7 +8,7 @@ import AppText from '../../src/components/ui/AppText';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
 import { GlassPickerPanel } from '../../src/components/ui/GlassPickerPanel';
 import { DottedDivider } from '../../src/components/ui/DottedDivider';
-import { onboardingStyles } from '../../src/components/onboarding/onboardingStyles';
+import { useOnboardingStyles } from '../../src/components/onboarding/onboardingStyles';
 import { sessionDateCopy } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { longDateLabel, timeLabel } from '../../src/features/onboarding/formatting';
@@ -17,7 +17,8 @@ import {
     isWithinFirstSessionWindow,
     latestFirstSessionAt,
 } from '../../src/utils/sessionWindow';
-import { ACTION_ORANGE, COLOR_VARIANTS, TEXT_COLORS, THEME_COLORS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../../src/context/theme';
 import { useTranslation } from 'react-i18next';
 
 type Field = 'date' | 'time';
@@ -36,6 +37,9 @@ const pickerSeed = (): Date => {
 };
 
 export default function SessionDateScreen() {
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
+    const { onboardingStyles } = useOnboardingStyles();
     const { t: tOnboarding } = useTranslation('onboarding');
     const router = useRouter();
     const { answers, setAnswer } = useOnboardingAnswers();
@@ -197,14 +201,14 @@ export default function SessionDateScreen() {
                             { isOpen && (
                                 <GlassPickerPanel style={ styles.pickerPanel }>
                                     <DateTimePicker
-                                        accentColor={ ACTION_ORANGE }
+                                        accentColor={ theme.accent.mark }
                                         value={ draft }
                                         mode={ row.field }
                                         display={ Platform.OS === 'ios' ? 'spinner' : 'default' }
                                         minimumDate={ row.field === 'date' ? validationNow : TIME_PICKER_BOUNDS.minimumDate }
                                         maximumDate={ row.field === 'date' ? latestAllowed : TIME_PICKER_BOUNDS.maximumDate }
-                                        themeVariant="light"
-                                        textColor={ COLOR_VARIANTS.black.primary }
+                                        themeVariant={ theme.scheme }
+                                        textColor={ theme.ink.primary }
                                         onChange={ row.field === 'date' ? applyDate : applyTime }
                                     />
                                 </GlassPickerPanel>
@@ -235,7 +239,7 @@ export default function SessionDateScreen() {
 /** The fields card's own inset, which the picker panel reaches back through. */
 const FIELDS_PADDING = 20;
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     fields: {
         marginTop: 24,
         paddingHorizontal: FIELDS_PADDING,
@@ -257,12 +261,12 @@ const styles = StyleSheet.create({
     value: {
         flexShrink: 1,
         textAlign: 'right',
-        color: TEXT_COLORS.primary,
+        color: theme.ink.primary,
     },
     placeholder: {
         flexShrink: 1,
         textAlign: 'right',
-        color: TEXT_COLORS.secondary,
+        color: theme.ink.secondary,
     },
     pickerPanel: {
         marginBottom: 14,
@@ -273,6 +277,6 @@ const styles = StyleSheet.create({
     },
     validation: {
         marginTop: 12,
-        color: THEME_COLORS.error,
+        color: theme.status.error,
     },
 });
