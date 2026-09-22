@@ -20,6 +20,8 @@
 import '@formatjs/intl-pluralrules/polyfill-force.js';
 import '@formatjs/intl-pluralrules/locale-data/en.js';
 import '@formatjs/intl-pluralrules/locale-data/fr.js';
+import '@formatjs/intl-pluralrules/locale-data/de.js';
+import '@formatjs/intl-pluralrules/locale-data/es.js';
 
 import { getLocales } from 'expo-localization';
 import i18next from 'i18next';

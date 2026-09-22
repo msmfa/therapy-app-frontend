@@ -19,9 +19,15 @@
  * which a bare "en" throws away. The app knows the region -- `formattingLocale()`
  * composes it -- so the whole tag comes in here now.
  *
- * Region changes the format tokens only for English: en, en-gb, en-au and en-ca
- * disagree about the clock, the date order, or both, while fr and de agree with
- * their regions on both. German still earns its regions for a different reason:
+ * Region changes the format tokens for English and for Spanish: en, en-gb,
+ * en-au and en-ca disagree about the clock, the date order, or both, and es-us
+ * is on a 12-hour clock where es and es-mx are on 24, so a Spanish-speaking US
+ * device would otherwise have read 18:00 for six in the evening. es-mx matches
+ * es and is carried because Mexico is the storefront the Spanish listing
+ * targets. es-do and es-pr match es-us and are not carried, so those devices
+ * fall back to es and get the 24-hour clock; add them here if that shows up.
+ * fr agrees with its regions on both. German still earns its regions for a
+ * different reason:
  * de-at writes January as "Jänner" where de writes "Januar", so an Austrian
  * device would otherwise read a month name no Austrian uses. de-ch matches de
  * and is carried only so the German set is not half-present. The regional
@@ -44,6 +50,9 @@ import 'dayjs/locale/fr-ch';
 import 'dayjs/locale/de';
 import 'dayjs/locale/de-at';
 import 'dayjs/locale/de-ch';
+import 'dayjs/locale/es';
+import 'dayjs/locale/es-mx';
+import 'dayjs/locale/es-us';
 
 import { languageSubtag } from './resolve';
 
@@ -60,6 +69,7 @@ const BUNDLED = new Set([
     'en-gb', 'en-ie', 'en-au', 'en-nz', 'en-ca', 'en-in',
     'fr', 'fr-ca', 'fr-ch',
     'de', 'de-at', 'de-ch',
+    'es', 'es-mx', 'es-us',
 ]);
 
 /** dayjs's own built-in, and the last resort. */
