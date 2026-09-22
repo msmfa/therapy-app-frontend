@@ -26,9 +26,9 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     shadowWrapper: {
         borderRadius: 18,
         shadowColor: theme.surface.frostedShadow,
-        shadowOffset: { width: 0, height: 1 },
+        shadowOffset: theme.surface.shadowOffset,
         shadowOpacity: 1,
-        shadowRadius: 14,
+        shadowRadius: theme.surface.shadowRadius,
         elevation: 18,
     },
     card: {

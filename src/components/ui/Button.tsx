@@ -83,7 +83,7 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         borderWidth: 1,
         minHeight: 44,
         width: '100%',
-        borderColor: theme.solid.background,
+        borderColor: theme.solid.border,
         backgroundColor: theme.solid.background,
     },
     actionButtonTransparent: {

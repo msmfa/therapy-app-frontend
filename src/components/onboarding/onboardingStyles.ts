@@ -15,9 +15,9 @@ export const makeOnboardingStyles = (theme: Theme) => StyleSheet.create({
         borderTopColor: theme.surface.cardEdge,
         backgroundColor: theme.surface.card,
         shadowColor: theme.surface.cardShadow,
-        shadowOffset: { width: 0, height: 8 },
+        shadowOffset: theme.scheme === 'dark' ? theme.surface.shadowOffset : { width: 0, height: 8 },
         shadowOpacity: theme.surface.cardShadowOpacity,
-        shadowRadius: 20,
+        shadowRadius: theme.scheme === 'dark' ? theme.surface.shadowRadius : 20,
         elevation: 3,
     },
     headline: {

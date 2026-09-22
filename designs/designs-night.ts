@@ -16,32 +16,26 @@
 import { ACTION_ORANGE } from './designs-colors';
 
 /**
- * The violet from the middle of the hologram (below), where one solid colour
- * is needed: the ring on a chosen card, the radio's dot.
- */
-export const HOLOGRAM_VIOLET = 'hsl(259, 76%, 59%)';
-
-/**
- * The ground. The reference's deepest panel is 6%; the app's sits at 10% so a
+ * The ground. The reference's deepest panel is 6%; the app's sits at 8% so a
  * card lifted by 0.05 white still separates from it. Same cool hue as the
- * light app's SURFACE_BLUE, taken down 80 points.
+ * light app's SURFACE_BLUE, taken down 82 points. (Was 10%; taken down again
+ * after the first pass read as too light beside the reference.)
  */
-export const NIGHT_GROUND = 'hsl(212, 14%, 10%)';
-export const NIGHT_GROUND_FADE = 'hsla(212, 14%, 10%, 0)';
+export const NIGHT_GROUND = 'hsl(212, 14%, 8%)';
+export const NIGHT_GROUND_FADE = 'hsla(212, 14%, 8%, 0)';
 /** The ground in hex, for app.json's splash. */
-export const NIGHT_GROUND_HEX = '#16191D';
+export const NIGHT_GROUND_HEX = '#121417';
 
 /**
  * The light app runs pink into pale blue, top to bottom. The night ground runs
  * lit into shadow instead: the reference's panel top down to its deepest
- * panel. Capped at 16% at the top, which is where a 66% grey stops clearing
- * 4.5:1 on a card; any lighter and body copy fails on the first card of a
- * screen.
+ * panel. The top sits at 12%: dark enough that the screen reads as the
+ * reference's shadowed panel, with every ink still well clear of 4.5:1.
  */
 export const NIGHT_GRADIENT = [
-    'hsl(213, 11%, 16%)',
-    'hsl(212, 12%, 14%)',
-    'hsl(211, 13%, 12%)',
+    'hsl(213, 11%, 12%)',
+    'hsl(212, 12%, 11%)',
+    'hsl(211, 13%, 10%)',
     NIGHT_GROUND,
     NIGHT_GROUND,
     NIGHT_GROUND,
@@ -63,18 +57,19 @@ export const NIGHT_INK = {
 
 /**
  * Surfaces. In the reference a card is barely lighter than its panel; what
- * separates it is a lit top edge and a deep shadow. So these are small: the
- * card is 0.05 white over the ground, its border 0.08 brightening to 0.14
- * along the top, and its shadow is black at 0.55 rather than the blue glow the
- * light cards wear, which has nothing pale to fall on at night.
+ * separates it is a lit top edge and a deep shadow thrown down and to the
+ * right. So these are small: the card is 0.05 white over the ground, its
+ * border 0.08 brightening to 0.14 along the top, and its shadow is near-solid
+ * black rather than the blue glow the light cards wear, which has nothing
+ * pale to fall on at night.
  */
 export const NIGHT_SURFACE = {
     card: 'hsla(0, 0%, 100%, 0.05)',
     cardBorder: 'hsla(0, 0%, 100%, 0.08)',
     cardEdge: 'hsla(0, 0%, 100%, 0.14)',
-    cardShadow: 'hsla(0, 0%, 0%, 0.55)',
-    frostedShadow: 'hsla(0, 0%, 0%, 0.45)',
-    gradientCardShadow: 'hsla(0, 0%, 0%, 0.50)',
+    cardShadow: 'hsla(0, 0%, 0%, 0.85)',
+    frostedShadow: 'hsla(0, 0%, 0%, 0.80)',
+    gradientCardShadow: 'hsla(0, 0%, 0%, 0.85)',
     /** New-note field, social buttons, a chosen reference row. */
     soft: 'hsla(0, 0%, 100%, 0.04)',
     /** Note card arrow disc, reminder rows. */
@@ -101,6 +96,13 @@ export const NIGHT_SURFACE = {
     chip: 'hsla(0, 0%, 100%, 0.08)',
     /** A card over artwork or the timeline's rail: a brighter edge than the shared one. */
     cardHighlight: 'hsla(0, 0%, 100%, 0.18)',
+    /**
+     * The lit rim round a solid object: a dark pill, the mock notification.
+     * The reference's buttons are black with a hairline of light along the
+     * top that fades down the sides; this is that hairline, as a gradient
+     * drawn just outside the object.
+     */
+    lightRim: ['hsla(0, 0%, 100%, 0.45)', 'hsla(0, 0%, 100%, 0.05)'] as const,
     /** Alert and error modals, the schedule sheet: one step up again. */
     modal: 'hsl(214, 9%, 16%)',
     /** A little heavier than the day's, so a sheet still separates from the ground under it. */
@@ -134,13 +136,19 @@ export const NIGHT_GLASS = {
     shade: '#000000',
 } as const;
 
+/** The night's one mark colour: a light grey, for rings and the chosen disc. */
+export const NIGHT_MARK = 'hsl(214, 8%, 72%)';
+
+/** The chosen disc, a light grey with a little turn in it, drawn as a gradient. */
+export const NIGHT_MARK_SWEEP = ['hsl(210, 10%, 94%)', 'hsl(214, 8%, 64%)'] as const;
+
 /**
  * The radio. By day it is a white box lifted off the sheet with a deep blue
- * ring; at night the box is the panel charcoal and the ring is the hologram's
- * violet, so the chosen option is marked the same way a chosen card is.
+ * ring; at night the box is the panel charcoal and the ring is a light grey,
+ * so the chosen option is marked the same way a chosen card is.
  */
 export const NIGHT_RADIO = {
-    ring: HOLOGRAM_VIOLET,
+    ring: NIGHT_MARK,
     ringUnselected: 'hsla(0, 0%, 100%, 0.16)',
     selectedFill: 'hsl(214, 8%, 24%)',
     selectedBorder: 'hsla(0, 0%, 100%, 0.16)',
@@ -149,26 +157,29 @@ export const NIGHT_RADIO = {
 } as const;
 
 /**
- * The solid pill inverts. A black pill on charcoal would vanish, so the two
- * moments that start something get a light pill with the ground's own ink on
- * it (11.9:1).
+ * The solid pill stays dark: the reference's buttons are black objects held
+ * off the panel by a lit rim (NIGHT_SURFACE.lightRim) rather than by being a
+ * different colour. Near-black, with the primary ink on it (13:1).
  */
 export const NIGHT_SOLID = {
-    background: NIGHT_INK.primary,
-    text: 'hsl(212, 10%, 18%)',
+    background: 'hsl(212, 12%, 7%)',
+    border: 'hsla(0, 0%, 100%, 0.22)',
+    text: NIGHT_INK.primary,
     disabledSurface: 'hsla(0, 0%, 100%, 0.04)',
     disabledBorder: 'hsla(0, 0%, 100%, 0.12)',
     disabledText: NIGHT_INK.quaternary,
 } as const;
 
 /**
- * The hologram, sampled along the reference's corner from its pink edge into
- * the deep blue it dissolves into. The night app's one piece of colour that
- * is not a mark: the gradient circle behind the glass, the ring and disc on a
- * chosen option, the rule on an emphasised panel, the glow on the accent
- * screen.
+ * The shape behind the glass. By day it is a red circle that the glass blurs
+ * into a glow; at night it is a shadow, a soft near-black blob that the glass
+ * blurs into the deeper dark the reference's panels sit in. The hologram from
+ * the reference's corner was tried here and read as a purple lamp.
  */
-export const HOLOGRAM = ['#ECA8C0', '#7A49E6', '#4342C6', '#35429B', '#2F445E'] as const;
+export const NIGHT_SWEEP = ['hsl(212, 14%, 3%)', 'hsl(212, 12%, 9%)'] as const;
+
+/** The rule along the top of an emphasised panel: a hairline of light. */
+export const NIGHT_RULE = ['hsla(0, 0%, 100%, 0.04)', 'hsla(0, 0%, 100%, 0.42)', 'hsla(0, 0%, 100%, 0.04)'] as const;
 
 
 /** Its blue, lifted until it reads as type: 5.4:1 on a card at the top. */
@@ -177,8 +188,8 @@ export const NIGHT_LINK_PRESSED = 'hsl(248, 70%, 66%)';
 
 /**
  * The brand orange's jobs at night. The reference has no orange, so a fill
- * becomes the panel charcoal and the emphasis it carried moves to a hologram
- * rule along its top; a chosen card is that panel with a violet ring. Only
+ * becomes the panel charcoal and the emphasis it carried moves to a lit rule
+ * along its top; a chosen card is that panel with a light grey ring. Only
  * ACTION_ORANGE survives, as the small marks that carry meaning.
  */
 export const NIGHT_ACCENT = {
@@ -192,13 +203,13 @@ export const NIGHT_ACCENT = {
 } as const;
 
 /**
- * The accent screen: the reference's panel, with the hologram glowing behind
- * the notes screenshot so the screenshot is the lit object and the ground no
+ * The accent screen: the reference's panel, with a shadow pooled behind the
+ * notes screenshot so the screenshot is the lit object and the ground no
  * longer competes with it. White reads at 15:1, so the screen affords its card
  * and its 0.92 secondary ink with room to spare.
  */
 export const NIGHT_ACCENT_SCREEN = {
-    ground: 'hsl(213, 9%, 15%)',
+    ground: 'hsl(213, 9%, 12%)',
     textPrimary: 'hsl(0, 0%, 100%)',
     textSecondary: 'hsla(0, 0%, 100%, 0.92)',
     card: 'hsla(0, 0%, 100%, 0.06)',
@@ -232,17 +243,12 @@ export const NIGHT_GREEN_PANEL = {
     text: 'hsl(142, 70%, 72%)',
 } as const;
 
-/**
- * The gradient circle behind the glass. The red one lit the light app; at
- * night it is the hologram, blurred by the same glass.
- */
-export const NIGHT_CIRCLE = HOLOGRAM;
 
 /**
  * The month grid. The near-black ink family mirrors to the near-white one;
- * today is still the one solid disc in the month, now the one light thing on
- * a dark grid, and the reminder dot takes the hologram's blue, lifted for a
- * dark ground (5.4:1). The session disc is unchanged: white on it was already
+ * today is still the one solid disc in the month, a mid grey that lifts off
+ * the grid without glaring, and the reminder dot is a blue lifted for a dark
+ * ground (5.4:1). The session disc is unchanged: white on it was already
  * 4.75:1 and it reads on any ground.
  */
 export const NIGHT_CALENDAR_MONTH = {
@@ -253,9 +259,9 @@ export const NIGHT_CALENDAR_MONTH = {
     arrows: 'hsla(210, 19%, 94%, 0.70)',
     sessionDot: ACTION_ORANGE,
     reminderDot: 'hsl(232, 70%, 72%)',
-    todayBackground: NIGHT_INK.primary,
-    todayText: 'hsl(212, 10%, 12%)',
-    reminderDotOnToday: 'hsl(240, 54%, 45%)',
+    todayBackground: 'hsl(214, 8%, 30%)',
+    todayText: NIGHT_INK.primary,
+    reminderDotOnToday: 'hsl(232, 70%, 78%)',
     sessionFill: '#CC4500',
     sessionFillText: 'hsl(0, 0%, 100%)',
     pressedBackground: 'hsla(210, 19%, 94%, 0.10)',
@@ -265,8 +271,8 @@ export const NIGHT_CALENDAR_MONTH = {
 
 /**
  * The calendar's backdrop: a sheet lifted just off the ground, fading out
- * down the month the way the light one does, with the haze at its top taking
- * the hologram's violet instead of the day's blue.
+ * down the month the way the light one does, with a shadow pooled at its top
+ * where the day's version has a blue glow.
  */
 export const NIGHT_CALENDAR_BACKDROP_BASE = [
     'hsla(210, 10%, 70%, 0.08)',
@@ -276,9 +282,9 @@ export const NIGHT_CALENDAR_BACKDROP_BASE = [
 ] as const;
 
 export const NIGHT_CALENDAR_BACKDROP_GLOW = [
-    'hsla(259, 60%, 55%, 0.16)',
-    'hsla(259, 55%, 50%, 0.06)',
-    'hsla(259, 50%, 45%, 0)',
+    'hsla(0, 0%, 0%, 0.45)',
+    'hsla(0, 0%, 0%, 0.15)',
+    'hsla(0, 0%, 0%, 0)',
 ] as const;
 
 /** The schedule sheet: the panel, under a slightly heavier scrim. */
@@ -293,9 +299,26 @@ export const NIGHT_CALENDAR_SHEET = {
  * sky behind it goes to the panel charcoal.
  */
 export const NIGHT_AURA = {
-    top: 'hsl(212, 12%, 18%)',
-    mid: 'hsl(212, 12%, 15%)',
-    bottom: 'hsl(212, 12%, 17%)',
+    top: 'hsl(212, 12%, 14%)',
+    mid: 'hsl(212, 12%, 11%)',
+    bottom: 'hsl(212, 12%, 13%)',
+    /** The sunrise, banked: the same orange taken most of the way down. */
+    core: 'hsl(20, 70%, 34%)',
+    glowOpacity: 0.55,
+} as const;
+
+/**
+ * The paper objects at night: the same sheets, printed on dark grained paper
+ * (paper-*-dark.webp, made from the light textures), with a light ink where
+ * the day's is navy.
+ */
+export const NIGHT_PAPER = {
+    ink: 'hsl(210, 19%, 92%)',
+    inkSoft: 'hsla(210, 19%, 92%, 0.68)',
+    inkBody: 'hsla(210, 19%, 92%, 0.66)',
+    inkMuted: 'hsla(210, 19%, 92%, 0.55)',
+    rule: 'hsla(210, 19%, 92%, 0.18)',
+    circle: 'hsla(0, 0%, 100%, 0.08)',
 } as const;
 
 /** ChartBackground's four rules: the same four steps off the ground. */

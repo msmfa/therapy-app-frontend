@@ -26,9 +26,6 @@ const PHOTO_RADIUS = CARD_RADIUS - PHOTO_INSET;
  * short screen than this, so the card still fits a page that does not scroll. */
 const PHOTO_MAX_SCREEN_SHARE = 0.38;
 
-/** The glow's core, brighter than the panel's own default. */
-const AURA_CORE = '#F3782C';
-
 // The footer's band starts from the card's own sheet and settles into the
 // theme's sheetTint, so it has no top edge, and by the time it reaches the
 // buttons there is enough of it for their outline tray to read against.
@@ -93,7 +90,7 @@ export function ReminderCard({ date, description, link, time, caption }: Props) 
                         <AuraPanel
                             text={ time }
                             caption={ caption }
-                            coreColor={ AURA_CORE }
+                            coreColor={ theme.aura.core }
                             width={ panel.width }
                             height={ panel.height }
                         />

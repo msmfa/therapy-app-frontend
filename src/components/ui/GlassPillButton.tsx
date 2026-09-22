@@ -72,6 +72,11 @@ export function GlassPillButton({
     // A blurred view over an opaque fill is a blur of nothing, and on Android it
     // is a real cost, so the solid form drops to a plain view.
     const Body = isSolid ? View : BlurView;
+    // A solid pill at night is a dark object held off the panel by a hairline
+    // of light along its top: the rim is a gradient drawn just outside the
+    // fill, which is inset by its width to leave it showing.
+    const solidRim = isSolid ? theme.surface.lightRim : null;
+    const RIM_WIDTH = 1.5;
     const [layout, setLayout] = React.useState({ width: 0, height });
     const { width } = layout;
     const renderedHeight = contentSized ? layout.height : height;
@@ -97,6 +102,13 @@ export function GlassPillButton({
                 style,
             ] }
         >
+            { solidRim !== null && (
+                <LinearGradient
+                    pointerEvents="none"
+                    colors={ solidRim }
+                    style={ [StyleSheet.absoluteFill, { borderRadius: radius }] }
+                />
+            ) }
             <Body
                 intensity={ 46 }
                 tint={ theme.glass.tint }
@@ -105,6 +117,7 @@ export function GlassPillButton({
                     contentSized ? { minHeight: height, paddingVertical: 18 } : { height },
                     { borderRadius: radius },
                     isSolid && { backgroundColor: fillColor },
+                    solidRim !== null && { margin: RIM_WIDTH, borderRadius: radius - RIM_WIDTH, minHeight: undefined, height: contentSized ? undefined : height - RIM_WIDTH * 2 },
                 ] }
             >
                 { !isSolid && (

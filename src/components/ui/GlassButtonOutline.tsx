@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { LayoutChangeEvent, StyleSheet, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
+import { useTheme } from '../../context/theme';
 
 type Props = {
     buttonSize: number;
-    // White disappears on pale backgrounds; paper screens pass their ink.
+    /** Defaults to the theme's glass rim; paper screens pass their ink. */
     color?: string;
+    /** Scaled by the theme's rim strength, so the line dims with the glass at night. */
     opacity?: number;
 };
 
@@ -20,7 +22,10 @@ const INSET = 4;
 // button to the other, wrapping around the far side of each button, and running
 // straight back along the bottom to close the loop. Render it absolutely inside
 // a row whose first and last children are the two buttons.
-export function GlassButtonOutline({ buttonSize, color = '#ffffff', opacity = 0.28 }: Props) {
+export function GlassButtonOutline({ buttonSize, color: colorProp, opacity = 0.28 }: Props) {
+    const { theme } = useTheme();
+    const color = colorProp ?? theme.glass.rim;
+    const strokeOpacity = opacity * theme.glass.rimOpacity;
     const [layout, setLayout] = useState({ width: 0, height: 0 });
 
     const handleLayout = (event: LayoutChangeEvent) => {
@@ -56,7 +61,7 @@ export function GlassButtonOutline({ buttonSize, color = '#ffffff', opacity = 0.
                     <Path
                         d={ path }
                         stroke={ color }
-                        strokeOpacity={ opacity }
+                        strokeOpacity={ strokeOpacity }
                         strokeWidth={ 1 }
                         fill="none"
                     />

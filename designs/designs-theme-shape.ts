@@ -48,6 +48,9 @@ export type Theme = {
          * ground it is barely lighter than, and has to be deep.
          */
         cardShadowOpacity: number;
+        /** Where a lifted card's shadow falls, and how far it spreads. */
+        shadowOffset: { width: number; height: number };
+        shadowRadius: number;
         frostedShadow: string;
         gradientCardShadow: string;
         soft: string;
@@ -69,6 +72,8 @@ export type Theme = {
         chip: string;
         /** A card edge brighter than the shared one, for cards over artwork. */
         cardHighlight: string;
+        /** A lit gradient rim round a solid object (a dark pill, the mock notification), or none. */
+        lightRim: GradientStops | null;
         /** Alert and error modals, the schedule sheet. */
         modal: string;
         /** The dimming behind a modal. */
@@ -113,6 +118,7 @@ export type Theme = {
 
     solid: {
         background: string;
+        border: string;
         text: string;
         disabledSurface: string;
         disabledBorder: string;
@@ -201,11 +207,23 @@ export type Theme = {
         dark: string;
     };
 
-    /** The ground the reminder card's aura is painted on. */
+    /** The reminder card's aura: the ground it is painted on, its core, and how much of the glow shows. */
     aura: {
         top: string;
         mid: string;
         bottom: string;
+        core: string;
+        glowOpacity: number;
+    };
+
+    /** The paper objects: the cheatsheet, the note sheet, the note editor. Their ink, on their paper. */
+    paper: {
+        ink: string;
+        inkSoft: string;
+        inkBody: string;
+        inkMuted: string;
+        rule: string;
+        circle: string;
     };
 
     trialBadge: {

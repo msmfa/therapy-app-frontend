@@ -4,6 +4,8 @@ import { ImageBackground } from 'expo-image';
 import type { StyleProp, ViewStyle } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
 import AppText from '../ui/AppText';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../../context/theme';
 import {
     postTherapyQuestions,
     postTherapyTemplateIntro,
@@ -13,10 +15,11 @@ import {
 import { remainingQuestions } from '../../features/onboarding/onboardingCopy';
 import { useTranslation } from 'react-i18next';
 
-// The cheatsheet's ink, so the preview sheet reads as the same paper the note
-// editor uses rather than a new surface invented for onboarding.
-const INK = 'hsl(219, 52%, 14%)';
-const INK_SOFT = 'hsla(219, 52%, 14%, 0.68)';
+// The cheatsheet's paper and ink (theme.paper), so the preview sheet reads as
+// the same paper the note editor uses rather than a new surface invented for
+// onboarding. A dark-grained copy of the paper for the night.
+const PAPER = require('../../../assets/textures/paper-green.webp') as ImageSourcePropType;
+const PAPER_NIGHT = require('../../../assets/textures/paper-green-dark.jpg') as ImageSourcePropType;
 
 const QUESTIONS_SHOWN = 2;
 
@@ -29,11 +32,13 @@ const QUESTIONS_SHOWN = 2;
  */
 export function NoteTemplateSheet({ style }: { style?: StyleProp<ViewStyle> }) {
     const { t } = useTranslation('notes');
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
     const shown = postTherapyQuestions().slice(0, QUESTIONS_SHOWN);
 
     return (
         <ImageBackground
-            source={ require('../../../assets/textures/paper-green.webp') as ImageSourcePropType }
+            source={ theme.scheme === 'dark' ? PAPER_NIGHT : PAPER }
             contentFit="cover"
             imageStyle={ styles.sheetImage }
             style={ [styles.sheet, style] }
@@ -87,7 +92,7 @@ export function NoteTemplateSheet({ style }: { style?: StyleProp<ViewStyle> }) {
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     sheet: {
         marginTop: 24,
         paddingHorizontal: 20,
@@ -99,16 +104,16 @@ const styles = StyleSheet.create({
         borderRadius: 18,
     },
     sheetTitle: {
-        color: INK,
+        color: theme.paper.ink,
         fontSize: 19,
         lineHeight: 25,
     },
     sheetSubtitle: {
-        color: INK_SOFT,
+        color: theme.paper.inkSoft,
         marginTop: 2,
     },
     sheetIntro: {
-        color: INK_SOFT,
+        color: theme.paper.inkSoft,
         marginTop: 14,
         fontSize: 16,
         lineHeight: 23,
@@ -122,27 +127,27 @@ const styles = StyleSheet.create({
         gap: 10,
     },
     questionNumber: {
-        color: INK_SOFT,
+        color: theme.paper.inkSoft,
         marginTop: 3,
     },
     questionBody: {
         flex: 1,
     },
     questionText: {
-        color: INK,
+        color: theme.paper.ink,
         fontSize: 17,
         lineHeight: 24,
     },
     writingLine: {
         height: 1,
         marginTop: 14,
-        backgroundColor: 'hsla(219, 52%, 14%, 0.18)',
+        backgroundColor: theme.paper.rule,
     },
     writingLineShort: {
         width: '65%',
     },
     more: {
-        color: INK_SOFT,
+        color: theme.paper.inkSoft,
         marginTop: 18,
     },
 });

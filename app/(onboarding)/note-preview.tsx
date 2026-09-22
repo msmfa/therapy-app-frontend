@@ -38,6 +38,11 @@ const NOTIFICATION_HEIGHT_GUESS = 74;
  * it was sitting on.
  */
 
+// The notes list as it looks in each appearance: a screenshot is a picture of
+// the app, and at night the app is dark.
+const NOTES_PREVIEW = require('../../assets/illustrations/notes-list-preview.webp') as ImageSourcePropType;
+const NOTES_PREVIEW_NIGHT = require('../../assets/illustrations/notes-list-preview-dark.jpg') as ImageSourcePropType;
+
 export default function NotePreviewScreen() {
     const { theme } = useTheme();
     const { onboardingStyles, onboardingAccentStyles } = useOnboardingStyles();
@@ -96,7 +101,7 @@ export default function NotePreviewScreen() {
                     return (
                         <>
                             <Image
-                                source={ require('../../assets/illustrations/notes-list-preview.webp') as ImageSourcePropType }
+                                source={ theme.scheme === 'dark' ? NOTES_PREVIEW_NIGHT : NOTES_PREVIEW }
                                 style={ [
                                     styles.previewImage,
                                     {

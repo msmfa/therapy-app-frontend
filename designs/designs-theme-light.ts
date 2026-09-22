@@ -59,6 +59,8 @@ export const lightTheme: Theme = {
         cardEdge: PALETTE.overlay.whiteBorderTransparent,
         cardShadow: PALETTE.overlay.blueGlowTransparent,
         cardShadowOpacity: 0.18,
+        shadowOffset: { width: 0, height: 1 },
+        shadowRadius: 14,
         frostedShadow: PALETTE.overlay.blueMildTransparent,
         gradientCardShadow: PALETTE.overlay.blackLightTransparent,
         soft: PALETTE.overlay.whiteSoftTransparent,
@@ -75,6 +77,7 @@ export const lightTheme: Theme = {
         readingCard: 'hsla(0, 0%, 100%, 0.88)',
         chip: 'hsla(0, 0%, 0%, 0.06)',
         cardHighlight: 'hsla(0, 0%, 100%, 0.85)',
+        lightRim: null,
         modal: COLOR_VARIANTS.blue.lightest,
         scrim: COLOR_VARIANTS.black.tertiary,
         sheetCard: SURFACE_TINTS.sheetCardBackground,
@@ -109,6 +112,7 @@ export const lightTheme: Theme = {
     shadow: PALETTE.neutral.black,
     solid: {
         background: BUTTON_COLORS.primaryBackground,
+        border: BUTTON_COLORS.primaryBackground,
         text: COLOR_VARIANTS.white.quaternary,
         disabledSurface: BUTTON_COLORS.disabledSurface,
         disabledBorder: BUTTON_COLORS.disabledDark,
@@ -180,6 +184,18 @@ export const lightTheme: Theme = {
         top: 'rgb(197,204,213)',
         mid: 'rgb(190,195,203)',
         bottom: 'rgb(197,200,207)',
+        // The glow's core, brighter than the panel's own default.
+        core: '#F3782C',
+        glowOpacity: 1,
+    },
+    // Very dark blue: near-black in weight, but clearly blue against the paper.
+    paper: {
+        ink: 'hsl(219, 52%, 14%)',
+        inkSoft: 'hsla(219, 52%, 14%, 0.68)',
+        inkBody: 'hsla(219, 52%, 14%, 0.62)',
+        inkMuted: 'hsla(219, 52%, 14%, 0.5)',
+        rule: 'hsla(219, 52%, 14%, 0.18)',
+        circle: 'hsla(0, 0%, 0%, 0.06)',
     },
     trialBadge: GREEN_PANEL,
     calendar: {

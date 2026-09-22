@@ -105,7 +105,7 @@ const CAPTION_OPACITY = 0.92;
 
 export function AuraPanel({ text, caption, coreColor, width, height, style }: Props) {
     const { theme } = useTheme();
-    const { top: GROUND_TOP, mid: GROUND_MID, bottom: GROUND_BOTTOM } = theme.aura;
+    const { top: GROUND_TOP, mid: GROUND_MID, bottom: GROUND_BOTTOM, glowOpacity } = theme.aura;
     const glowStops = coreColor
         ? GLOW_STOPS.map((stop) => (stop.offset <= 0.25 ? { ...stop, color: coreColor } : stop))
         : GLOW_STOPS;
@@ -168,7 +168,7 @@ export function AuraPanel({ text, caption, coreColor, width, height, style }: Pr
                                 key={ stop.offset }
                                 offset={ stop.offset }
                                 stopColor={ stop.color }
-                                stopOpacity={ stop.opacity }
+                                stopOpacity={ stop.opacity * glowOpacity }
                             />
                         )) }
                     </RadialGradient>

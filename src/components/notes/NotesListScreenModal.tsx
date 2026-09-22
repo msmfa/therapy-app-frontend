@@ -10,12 +10,15 @@ import { GlassCircleButton } from '../ui/GlassCircleButton';
 import { GlassPillButton } from '../ui/GlassPillButton';
 import { GlassButtonOutline } from '../ui/GlassButtonOutline';
 import AppText from "../ui/AppText";
-import { COLOR_VARIANTS, THEME_COLORS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../../context/theme';
 import { useTranslation } from 'react-i18next';
 import { formattingLocale } from '../../i18n';
 
-// Matches the cheatsheet's ink so the two paper screens read as a pair.
-const INK = 'hsl(219, 52%, 14%)';
+// The paper, and a dark-grained copy for the night. The ink is theme.paper,
+// which matches the cheatsheet's so the two paper screens read as a pair.
+const PAPER = require('../../../assets/textures/paper-blue.webp') as ImageSourcePropType;
+const PAPER_NIGHT = require('../../../assets/textures/paper-blue-dark.jpg') as ImageSourcePropType;
 
 // Both header buttons share a height so the tray outline hugs them with one radius.
 const HEADER_BUTTON = 56;
@@ -46,6 +49,8 @@ export function NotePreviewModal({
 }: NotePreviewModalProps) {
     const { t } = useTranslation('notes');
     const { t: tCommon } = useTranslation('common');
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
     const [isEditing, setIsEditing] = React.useState(false);
     const [draft, setDraft] = React.useState('');
     const [saving, setSaving] = React.useState(false);
@@ -202,7 +207,7 @@ export function NotePreviewModal({
             { /* The keyboard already covers the home indicator, so the bottom
                  inset is the larger of the two rather than their sum. */ }
             <ImageBackground
-                source={ require('../../../assets/textures/paper-blue.webp') as ImageSourcePropType }
+                source={ theme.scheme === 'dark' ? PAPER_NIGHT : PAPER }
                 contentFit="cover"
                 style={ styles.modalRoot }
                 accessible={ false }
@@ -226,14 +231,14 @@ export function NotePreviewModal({
                         <GlassCircleButton
                             accessibilityLabel={ tCommon('action.back') }
                             icon="back"
-                            iconColor={ INK }
+                            iconColor={ theme.paper.ink }
                             size={ HEADER_BUTTON }
                             onPress={ handleClose }
                             disabled={ saving }
                         />
                         <GlassPillButton
                             label={ t('review.reviewed') }
-                            labelColor={ INK }
+                            labelColor={ theme.paper.ink }
                             labelSize={ 18 }
                             onPress={ () => { void handleReviewed(); } }
                             disabled={ saving || !canReview }
@@ -385,7 +390,7 @@ export function NotePreviewModal({
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     modalRoot: { flex: 1 },
     modalInner: { flex: 1 },
     header: {
@@ -395,7 +400,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 24,
     },
     headerAction: {
-        color: INK,
+        color: theme.paper.ink,
         fontSize: 20,
     },
     headerActions: {
@@ -404,11 +409,11 @@ const styles = StyleSheet.create({
         gap: 20,
     },
     headerActionMuted: {
-        color: 'hsla(219, 52%, 14%, 0.5)',
+        color: theme.paper.inkMuted,
         fontSize: 20,
     },
     noteHeading: {
-        color: INK,
+        color: theme.paper.ink,
         fontSize: 40,
         lineHeight: 48,
         fontWeight: '400',
@@ -425,7 +430,7 @@ const styles = StyleSheet.create({
         marginTop: 30,
     },
     headerDate: {
-        color: 'hsla(219, 52%, 14%, 0.5)',
+        color: theme.paper.inkMuted,
         fontSize: 15,
         letterSpacing: 1.2,
     },
@@ -451,34 +456,34 @@ const styles = StyleSheet.create({
     // Quieter than edit. Deleting is the one thing here that cannot be undone,
     // so it should be found when looked for rather than met on the way past.
     deleteAction: {
-        color: 'hsla(219, 52%, 14%, 0.5)',
+        color: theme.paper.inkMuted,
         fontSize: 17,
     },
     deletePrompt: {
-        color: INK,
+        color: theme.paper.ink,
         flexShrink: 1,
         fontSize: 15,
     },
     deleteConfirmAction: {
-        color: THEME_COLORS.error,
+        color: theme.status.error,
         fontSize: 20,
     },
     modalText: {
-        color: 'hsla(219, 52%, 14%, 0.62)',
+        color: theme.paper.inkBody,
         fontSize: 18,
         lineHeight: 28,
         marginHorizontal: 5,
     },
     errorText: {
         marginTop: 12,
-        color: THEME_COLORS.error,
+        color: theme.status.error,
         marginHorizontal: 5,
     },
     editableText: {
         flex: 1,
         fontSize: 18,
         lineHeight: 28,
-        color: COLOR_VARIANTS.black.primary,
+        color: theme.paper.ink,
         padding: 0,
         marginHorizontal: 5,
     },
