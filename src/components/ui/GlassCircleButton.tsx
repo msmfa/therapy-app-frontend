@@ -39,6 +39,7 @@ export function GlassCircleButton({
     const { theme } = useTheme();
     const styles = useThemedStyles(makeStyles);
     const { rim, rimOpacity, shade } = theme.glass;
+    const markColor = disabled ? theme.glass.disabledLabel : iconColor;
     const radius = size / 2;
     const canvasSize = size + CANVAS_PAD * 2;
     const center = CANVAS_PAD + radius;
@@ -140,14 +141,14 @@ export function GlassCircleButton({
                         <>
                             <Path
                                 d={ `M ${center - arrowArm} ${center + arrowArm} L ${center + arrowArm} ${center - arrowArm}` }
-                                stroke={ iconColor }
+                                stroke={ markColor }
                                 strokeWidth={ 2 }
                                 strokeLinecap="round"
                                 fill="none"
                             />
                             <Path
                                 d={ `M ${center + arrowArm - arrowArm * 1.05} ${center - arrowArm} L ${center + arrowArm} ${center - arrowArm} L ${center + arrowArm} ${center - arrowArm + arrowArm * 1.05}` }
-                                stroke={ iconColor }
+                                stroke={ markColor }
                                 strokeWidth={ 2 }
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
@@ -162,14 +163,14 @@ export function GlassCircleButton({
                         <>
                             <Path
                                 d={ `M ${center + backArm} ${center} L ${center - backArm} ${center}` }
-                                stroke={ iconColor }
+                                stroke={ markColor }
                                 strokeWidth={ 2 }
                                 strokeLinecap="round"
                                 fill="none"
                             />
                             <Path
                                 d={ `M ${center - backArm + backHead} ${center - backHead} L ${center - backArm} ${center} L ${center - backArm + backHead} ${center + backHead}` }
-                                stroke={ iconColor }
+                                stroke={ markColor }
                                 strokeWidth={ 2 }
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
@@ -183,7 +184,7 @@ export function GlassCircleButton({
                                 y1={ center - closeArm }
                                 x2={ center + closeArm }
                                 y2={ center + closeArm }
-                                stroke={ iconColor }
+                                stroke={ markColor }
                                 strokeWidth={ 2 }
                                 strokeLinecap="round"
                             />
@@ -192,7 +193,7 @@ export function GlassCircleButton({
                                 y1={ center - closeArm }
                                 x2={ center - closeArm }
                                 y2={ center + closeArm }
-                                stroke={ iconColor }
+                                stroke={ markColor }
                                 strokeWidth={ 2 }
                                 strokeLinecap="round"
                             />
@@ -204,7 +205,7 @@ export function GlassCircleButton({
                                 y1={ center }
                                 x2={ center + plusArm }
                                 y2={ center }
-                                stroke={ iconColor }
+                                stroke={ markColor }
                                 strokeWidth={ 2 }
                                 strokeLinecap="round"
                             />
@@ -213,7 +214,7 @@ export function GlassCircleButton({
                                 y1={ center - plusArm }
                                 x2={ center }
                                 y2={ center + plusArm }
-                                stroke={ iconColor }
+                                stroke={ markColor }
                                 strokeWidth={ 2 }
                                 strokeLinecap="round"
                             />
@@ -222,7 +223,7 @@ export function GlassCircleButton({
                         <SvgText
                             x={ center }
                             y={ center + size * 0.15 }
-                            fill={ iconColor }
+                            fill={ markColor }
                             fontSize={ size * 0.42 }
                             fontWeight="300"
                             textAnchor="middle"
@@ -251,7 +252,9 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     canvas: {
         position: 'absolute',
     },
+    // Faint enough that a plus with nothing to save is plainly not a button
+    // yet. At half opacity the two states were near enough to be missed.
     disabled: {
-        opacity: 0.5,
+        opacity: 0.3,
     },
 });

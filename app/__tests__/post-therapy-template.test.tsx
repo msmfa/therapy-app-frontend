@@ -265,11 +265,11 @@ describe('New note screen help popup', () => {
 	});
 
 	it('opens the 5 minute template advice when the question button is pressed', () => {
-		const { getByLabelText, getByText, queryByText } = render(<NewNoteScreen />);
+		const { getByText, queryByText } = render(<NewNoteScreen />);
 
 		expect(queryByText(/An idea, phrase, realisation/)).toBeNull();
 
-		fireEvent.press(getByLabelText('How to take notes'));
+		fireEvent.press(getByText('Need guidance?'));
 
 		getByText(/Cheat/);
 		getByText('sheet');
@@ -278,9 +278,9 @@ describe('New note screen help popup', () => {
 	});
 
 	it('closes the popup from the circled back arrow', () => {
-		const { getByLabelText, queryByText } = render(<NewNoteScreen />);
+		const { getByLabelText, getByText, queryByText } = render(<NewNoteScreen />);
 
-		fireEvent.press(getByLabelText('How to take notes'));
+		fireEvent.press(getByText('Need guidance?'));
 		fireEvent.press(getByLabelText('Back'));
 
 		expect(queryByText(/An idea, phrase, realisation/)).toBeNull();
