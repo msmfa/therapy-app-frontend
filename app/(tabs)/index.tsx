@@ -72,6 +72,7 @@ export default function NewNoteScreen() {
                                 <View style={ styles.cardOverlay }>
                                     <TextInput
                                         placeholder={ notePrompt }
+                                        accessibilityLabel={ notePrompt }
                                         value={ text }
                                         editable={ !saving }
                                         onChangeText={ setText }

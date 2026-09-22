@@ -36,6 +36,7 @@ const TextField = forwardRef<TextInput, TextFieldProps>(
             onFocus,
             onBlur,
             style,
+            accessibilityLabel,
             ...inputProps
         },
         ref,
@@ -72,6 +73,7 @@ const TextField = forwardRef<TextInput, TextFieldProps>(
                         ref={ ref }
                         style={ [styles.input, style] }
                         placeholderTextColor={ COLOR_VARIANTS.black.tertiary }
+                        accessibilityLabel={ accessibilityLabel ?? label }
                         { ...inputProps }
                         onFocus={ handleFocus }
                         onBlur={ handleBlur }
@@ -81,7 +83,11 @@ const TextField = forwardRef<TextInput, TextFieldProps>(
                 </View>
 
                 { error ? (
-                    <AppText style={ [styles.error, { color: errorColor }] } variant='caption'>
+                    <AppText
+                        style={ [styles.error, { color: errorColor }] }
+                        variant='caption'
+                        accessibilityLiveRegion='polite'
+                    >
                         { error }
                     </AppText>
                 ) : null }
