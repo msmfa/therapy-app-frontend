@@ -1,7 +1,8 @@
 import { ReactNode } from "react";
 import { View, StyleSheet, StyleProp, ViewStyle } from "react-native";
 import AppText from "./AppText";
-import { COLOR_VARIANTS } from "designs/designs-colors";
+import type { Theme } from 'designs/designs-themes';
+import { useThemedStyles } from '../../context/theme';
 
 type Props = {
     children: ReactNode;
@@ -11,6 +12,8 @@ type Props = {
 }
 
 export default function Badge({ children, addedStyles, tabWithBorder }: Props) {
+    const styles = useThemedStyles(makeStyles);
+
     return (
         <View style={ [styles.badge, tabWithBorder && styles.tabWithBorder, addedStyles] }>
             <AppText
@@ -23,7 +26,7 @@ export default function Badge({ children, addedStyles, tabWithBorder }: Props) {
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     badge: {
         paddingHorizontal: 8,
         paddingVertical: 4,
@@ -32,7 +35,7 @@ const styles = StyleSheet.create({
         height: '100%',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: COLOR_VARIANTS.red.light,
+        backgroundColor: theme.badge.fill,
     },
     tabWithBorder: {
         borderWidth: 1,
@@ -41,9 +44,9 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 0,
         borderBottomLeftRadius: 8,
         borderBottomRightRadius: 8,
-        borderColor: COLOR_VARIANTS.red.mid,
+        borderColor: theme.badge.border,
     },
     badgeText: {
-        color: COLOR_VARIANTS.red.dark,
+        color: theme.badge.text,
     },
 });

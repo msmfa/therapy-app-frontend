@@ -1,11 +1,12 @@
 import { Stack } from 'expo-router';
-import { useTheme } from '@react-navigation/native';
-import { SURFACE_ACCENT } from 'designs/designs-colors';
+import { useTheme as useNavigationTheme } from '@react-navigation/native';
 import Loading from '../../src/components/ui/Loading';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
+import { useTheme } from '../../src/context/theme';
 
 export default function OnboardingLayout() {
-    const { colors } = useTheme();
+    const { colors } = useNavigationTheme();
+    const { theme } = useTheme();
     const { hydrated } = useOnboardingAnswers();
 
     // Reading the draft out of the keychain is quick, but not instant. Waiting
@@ -37,12 +38,13 @@ export default function OnboardingLayout() {
             <Stack.Screen name="plan-preview" />
             <Stack.Screen name="note-template" />
             <Stack.Screen name="review-schedule" />
-            { /* The one dark screen in the flow. Its ground has to be on the
+            { /* The one accent screen in the flow. Its ground has to be on the
                  stack's own card too, or the push animation slides a pale
-                 rectangle in and the screen paints navy over it on arrival. */ }
+                 rectangle in and the screen paints its colour over it on
+                 arrival. */ }
             <Stack.Screen
                 name="note-preview"
-                options={ { contentStyle: { backgroundColor: SURFACE_ACCENT } } }
+                options={ { contentStyle: { backgroundColor: theme.accentScreen.ground } } }
             />
             <Stack.Screen name="subscription-preview" />
             <Stack.Screen name="account-preview" />

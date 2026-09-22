@@ -5,7 +5,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Defs, Rect, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
 import { useTranslation } from 'react-i18next';
 import AppText from './AppText';
-import { PALETTE } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../../context/theme';
 
 type Props = {
     label: string;
@@ -63,6 +64,9 @@ export function GlassPillButton({
     style,
 }: Props) {
     const { t } = useTranslation('common');
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
+    const { rim, rimOpacity, shade } = theme.glass;
     const resolvedLabelColor = disabled && disabledLabelColor ? disabledLabelColor : labelColor;
     const isSolid = fillColor !== undefined;
     // A blurred view over an opaque fill is a blur of nothing, and on Android it
@@ -95,7 +99,7 @@ export function GlassPillButton({
         >
             <Body
                 intensity={ 46 }
-                tint="light"
+                tint={ theme.glass.tint }
                 style={ [
                     styles.pill,
                     contentSized ? { minHeight: height, paddingVertical: 18 } : { height },
@@ -105,7 +109,7 @@ export function GlassPillButton({
             >
                 { !isSolid && (
                     <LinearGradient
-                        colors={ ['hsla(0, 0%, 100%, 0.42)', 'hsla(0, 0%, 100%, 0.08)'] }
+                        colors={ theme.glass.highlight }
                         style={ StyleSheet.absoluteFill }
                     />
                 ) }
@@ -154,15 +158,15 @@ export function GlassPillButton({
                     <Svg width={ width } height={ renderedHeight }>
                         <Defs>
                             <SvgGradient id="pillRimShade" x1="0" y1="0" x2="1" y2="1">
-                                <Stop offset="0" stopColor="#1b2a44" stopOpacity="0" />
-                                <Stop offset="0.55" stopColor="#1b2a44" stopOpacity="0.06" />
-                                <Stop offset="1" stopColor="#1b2a44" stopOpacity="0.22" />
+                                <Stop offset="0" stopColor={ shade } stopOpacity="0" />
+                                <Stop offset="0.55" stopColor={ shade } stopOpacity="0.06" />
+                                <Stop offset="1" stopColor={ shade } stopOpacity="0.22" />
                             </SvgGradient>
                             <SvgGradient id="pillSpec" x1="0" y1="0" x2="0" y2="1">
-                                <Stop offset="0" stopColor="#ffffff" stopOpacity="0.95" />
-                                <Stop offset="0.35" stopColor="#ffffff" stopOpacity="0.3" />
-                                <Stop offset="0.75" stopColor="#ffffff" stopOpacity="0.06" />
-                                <Stop offset="1" stopColor="#ffffff" stopOpacity="0.38" />
+                                <Stop offset="0" stopColor={ rim } stopOpacity={ 0.95 * rimOpacity } />
+                                <Stop offset="0.35" stopColor={ rim } stopOpacity={ 0.3 * rimOpacity } />
+                                <Stop offset="0.75" stopColor={ rim } stopOpacity={ 0.06 * rimOpacity } />
+                                <Stop offset="1" stopColor={ rim } stopOpacity={ 0.38 * rimOpacity } />
                             </SvgGradient>
                         </Defs>
                         <Rect
@@ -192,9 +196,9 @@ export function GlassPillButton({
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     shadowWrapper: {
-        shadowColor: PALETTE.neutral.black,
+        shadowColor: theme.shadow,
         shadowOffset: { width: 0, height: 12 },
         shadowOpacity: 0.16,
         shadowRadius: 14,

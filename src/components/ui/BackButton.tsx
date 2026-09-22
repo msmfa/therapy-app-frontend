@@ -3,9 +3,9 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import type { Href } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { TEXT_COLORS } from 'designs/designs-colors';
 import { GlassCircleButton } from './GlassCircleButton';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '../../context/theme';
 
 type Props = {
     /** Logical previous screen to use when this route has no navigation history. */
@@ -25,6 +25,7 @@ export function BackButton({ fallbackHref, appearance = 'plain' }: Props) {
     const router = useRouter();
     // Before the early return below: hooks cannot be called conditionally.
     const { t } = useTranslation('common');
+    const { theme } = useTheme();
     const canGoBack = router.canGoBack();
 
     if (!canGoBack && fallbackHref === undefined) {
@@ -47,7 +48,7 @@ export function BackButton({ fallbackHref, appearance = 'plain' }: Props) {
             <GlassCircleButton
                 accessibilityLabel={ t('action.back') }
                 icon="back"
-                iconColor={ TEXT_COLORS.primary }
+                iconColor={ theme.ink.primary }
                 size={ 48 }
                 onPress={ handlePress }
             />
@@ -62,7 +63,7 @@ export function BackButton({ fallbackHref, appearance = 'plain' }: Props) {
             style={ styles.button }
             activeOpacity={ 0.7 }
         >
-            <Feather name="arrow-left" size={ 22 } color={ TEXT_COLORS.primary } />
+            <Feather name="arrow-left" size={ 22 } color={ theme.ink.primary } />
         </TouchableOpacity>
     );
 }

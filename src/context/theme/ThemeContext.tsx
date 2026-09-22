@@ -107,6 +107,40 @@ export function useTheme(): ThemeContextValue {
     return useContext(ThemeContext);
 }
 
+/**
+ * A StyleSheet that follows the theme.
+ *
+ * `StyleSheet.create` at module scope evaluates once and freezes, so a colour
+ * in it can never react to a theme change. Components declare a module-level
+ * factory instead and build the sheet here, once per theme. The factory must
+ * be a stable reference (module scope, not an inline arrow) or the sheet is
+ * rebuilt on every render.
+ */
+export function useThemedStyles<T>(factory: (theme: Theme) => T): T {
+    const { theme } = useTheme();
+    return useMemo(() => factory(theme), [factory, theme]);
+}
+
+/**
+ * A subtree pinned to one scheme regardless of the device or the user's
+ * choice. For tests, which cannot wait on storage, and for the rare surface
+ * that is one colour by design.
+ */
+export function FixedThemeProvider({ scheme, children }: { scheme: ColorScheme; children: React.ReactNode }) {
+    const value = useMemo<ThemeContextValue>(() => ({
+        theme: themeFor(scheme),
+        scheme,
+        preference: scheme,
+        setPreference: noop,
+    }), [scheme]);
+
+    return (
+        <ThemeContext.Provider value={ value }>
+            { children }
+        </ThemeContext.Provider>
+    );
+}
+
 const styles = StyleSheet.create({
     holding: {
         flex: 1,

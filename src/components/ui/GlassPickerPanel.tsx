@@ -1,7 +1,8 @@
 import React from 'react';
 import { StyleProp, StyleSheet, ViewStyle } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { COMPONENT_COLORS, PALETTE } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../../context/theme';
 
 /**
  * The pane a date or time picker sits in.
@@ -28,10 +29,13 @@ type Props = {
 };
 
 export function GlassPickerPanel({ children, radius = 22, style }: Props) {
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
+
     return (
         <BlurView
             intensity={ 40 }
-            tint="light"
+            tint={ theme.glass.tint }
             // overflow: hidden clips the blur to the panel's own corners;
             // without it the blur squares off the rounding underneath.
             style={ [styles.panel, { borderRadius: radius }, style] }
@@ -41,11 +45,12 @@ export function GlassPickerPanel({ children, radius = 22, style }: Props) {
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     panel: {
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: PALETTE.overlay.whiteBorderTransparent,
-        backgroundColor: COMPONENT_COLORS.glassBackground,
+        borderColor: theme.surface.cardBorder,
+        borderTopColor: theme.surface.cardEdge,
+        backgroundColor: theme.glass.background,
     },
 });

@@ -2,7 +2,8 @@ import React from 'react';
 import { TouchableOpacity, StyleSheet, View, ViewStyle, StyleProp, ActivityIndicator, Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { spacing } from '../../constants';
-import { BUTTON_COLORS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../../context/theme';
 
 interface Props {
     label: string;
@@ -24,11 +25,16 @@ export function Button({
     loading = false,
 }: Props) {
     const { t } = useTranslation('common');
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
     const isDisabled = disabled || loading;
     const showDisabledStyles = disabled && !loading;
 
-    const baseTextColor = transparent ? BUTTON_COLORS.secondaryText: BUTTON_COLORS.primaryText;
-    const textColor = showDisabledStyles ? BUTTON_COLORS.disabledText : baseTextColor;
+    // The solid pill is the ground's opposite: black with light type by day,
+    // light with dark type at night. The transparent one is outlined in the
+    // page's own ink.
+    const baseTextColor = transparent ? theme.ink.primary : theme.solid.text;
+    const textColor = showDisabledStyles ? theme.solid.disabledText : baseTextColor;
     const spinnerColor = loading ? baseTextColor : textColor;
 
     return (
@@ -66,7 +72,7 @@ export function Button({
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     actionButton: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -77,16 +83,16 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         minHeight: 44,
         width: '100%',
-        borderColor: BUTTON_COLORS.primaryBackground,
-        backgroundColor: BUTTON_COLORS.primaryBackground,
+        borderColor: theme.solid.background,
+        backgroundColor: theme.solid.background,
     },
     actionButtonTransparent: {
-        backgroundColor: BUTTON_COLORS.secondaryBackground,
-        borderColor: BUTTON_COLORS.secondaryText,
+        backgroundColor: 'transparent',
+        borderColor: theme.ink.primary,
     },
     actionButtonDisabled: {
-        backgroundColor: BUTTON_COLORS.disabledSurface,
-        borderColor: BUTTON_COLORS.disabledDark,
+        backgroundColor: theme.solid.disabledSurface,
+        borderColor: theme.solid.disabledBorder,
     },
     iconWrapper: {
         marginRight: spacing.sm,

@@ -42,6 +42,12 @@ export type Theme = {
         /** The card's top edge, where the light catches it. */
         cardEdge: string;
         cardShadow: string;
+        /**
+         * How hard the card's shadow is thrown. The light shadow is a tinted
+         * glow and stays soft; the dark one is what separates a card from a
+         * ground it is barely lighter than, and has to be deep.
+         */
+        cardShadowOpacity: number;
         frostedShadow: string;
         gradientCardShadow: string;
         soft: string;
@@ -69,8 +75,19 @@ export type Theme = {
         tint: 'light' | 'dark';
         background: string;
         highlight: readonly [string, string];
+        /** The specular edge's colour, and how much of it there is. */
         rim: string;
+        rimOpacity: number;
         shade: string;
+    };
+
+    radio: {
+        ring: string;
+        ringUnselected: string;
+        selectedFill: string;
+        selectedBorder: string;
+        unselectedFill: string;
+        unselectedBorder: string;
     };
 
     /** Drop shadows are black in both themes; only surfaces change. */

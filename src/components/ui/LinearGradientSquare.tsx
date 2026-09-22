@@ -3,6 +3,7 @@ import { StyleProp, StyleSheet, ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { GradientColors } from 'src/utils/types';
+import { useTheme } from '../../context/theme';
 
 export enum SquarePosition {
     TOP_LEFT = 'top-left',
@@ -48,12 +49,19 @@ const POSITION_STYLES: Record<SquarePosition, ViewStyle> = {
 };
 
 export default function LinearGradientSquare({ gradient, style, position, rotation }: LinearGradientSquareProps) {
+    const { theme } = useTheme();
     const positionStyle = position ? POSITION_STYLES[position] : undefined;
     const rotationStyle = rotation ? { transform: [{ rotate: rotation }] } : styles.defaultRotation;
+    // A flat deep red by day. At night it takes the same sweep as the circle,
+    // so the one screen that shows a square (the science page) is lit the
+    // same way as the rest of the app.
+    const defaultGradient: GradientColors = theme.scheme === 'dark'
+        ? theme.accent.sweep
+        : [COLOR_VARIANTS.red.dark, COLOR_VARIANTS.red.dark, COLOR_VARIANTS.red.dark];
 
     return (
         <LinearGradient
-            colors={ gradient ?? [COLOR_VARIANTS.red.dark, COLOR_VARIANTS.red.dark, COLOR_VARIANTS.red.dark] }
+            colors={ gradient ?? defaultGradient }
             style={ [styles.gradientSquare, positionStyle, rotationStyle, style] }
         />
     );

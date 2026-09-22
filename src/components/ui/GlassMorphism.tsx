@@ -1,7 +1,8 @@
 import { BlurView, BlurViewProps } from "expo-blur";
 import { StyleProp, View, StyleSheet, ViewStyle } from "react-native";
-import { COMPONENT_COLORS, PALETTE } from 'designs/designs-colors';
 import { ReactNode } from "react";
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../../context/theme';
 
 /** The rounding an inset glass panel takes, where it reads as a card. */
 export const GLASS_CARD_RADIUS = 48;
@@ -23,12 +24,21 @@ interface GlassProps extends BlurViewProps {
     panelRadius?: number;
 };
 
-export default function GlassMorphism({ children, style, panelRadius = 0, ...blurViewProps }: GlassProps) {
+/**
+ * The sheet of glass most screens sit behind.
+ *
+ * The blur's tint follows the theme unless a caller overrides it: light glass
+ * over a dark ground reads as a grey film rather than as glass.
+ */
+export default function GlassMorphism({ children, style, panelRadius = 0, tint, ...blurViewProps }: GlassProps) {
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
+
     return (
         <View pointerEvents="box-none" style={ [styles.glassContainer, style] }>
             <BlurView
                 pointerEvents="box-none"
-                tint={ blurViewProps.tint }
+                tint={ tint ?? theme.glass.tint }
                 { ...blurViewProps }
                 style={ [styles.glassPanel, { borderRadius: panelRadius }] }
             >
@@ -38,11 +48,11 @@ export default function GlassMorphism({ children, style, panelRadius = 0, ...blu
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     glassContainer: {
         flex: 1,
-        backgroundColor: COMPONENT_COLORS.glassBackground,
-        shadowColor: PALETTE.neutral.black,
+        backgroundColor: theme.glass.background,
+        shadowColor: theme.shadow,
         shadowOffset: { width: 0, height: 20 },
         shadowOpacity: 0.25,
         shadowRadius: 30,

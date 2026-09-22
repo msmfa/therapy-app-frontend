@@ -21,7 +21,7 @@ export const GlassMorphismWithCircle = ({ children, style, circlePosition, circl
                     <LinearGradientCircle position={ circlePosition } style={ circleStyle } />
                 </View>
             ) }
-            <GlassMorphism tint="light" style={ style } panelRadius={ panelRadius }>
+            <GlassMorphism style={ style } panelRadius={ panelRadius }>
                 { children }
             </GlassMorphism>
         </View>

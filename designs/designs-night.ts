@@ -16,6 +16,12 @@
 import { ACTION_ORANGE } from './designs-colors';
 
 /**
+ * The violet from the middle of the hologram (below), where one solid colour
+ * is needed: the ring on a chosen card, the radio's dot.
+ */
+export const HOLOGRAM_VIOLET = 'hsl(259, 76%, 59%)';
+
+/**
  * The ground. The reference's deepest panel is 6%; the app's sits at 10% so a
  * card lifted by 0.05 white still separates from it. Same cool hue as the
  * light app's SURFACE_BLUE, taken down 80 points.
@@ -106,8 +112,24 @@ export const NIGHT_SURFACE = {
  */
 export const NIGHT_GLASS = {
     highlight: ['hsla(0, 0%, 100%, 0.10)', 'hsla(0, 0%, 100%, 0.02)'] as const,
-    rim: 'hsla(0, 0%, 100%, 0.18)',
+    rim: '#ffffff',
+    /** The specular stops keep their shape and lose two thirds of their light. */
+    rimOpacity: 0.3,
     shade: '#000000',
+} as const;
+
+/**
+ * The radio. By day it is a white box lifted off the sheet with a deep blue
+ * ring; at night the box is the panel charcoal and the ring is the hologram's
+ * violet, so the chosen option is marked the same way a chosen card is.
+ */
+export const NIGHT_RADIO = {
+    ring: HOLOGRAM_VIOLET,
+    ringUnselected: 'hsla(0, 0%, 100%, 0.16)',
+    selectedFill: 'hsl(214, 8%, 24%)',
+    selectedBorder: 'hsla(0, 0%, 100%, 0.16)',
+    unselectedFill: 'hsla(0, 0%, 100%, 0.04)',
+    unselectedBorder: 'hsla(0, 0%, 100%, 0.08)',
 } as const;
 
 /**
@@ -132,8 +154,6 @@ export const NIGHT_SOLID = {
  */
 export const HOLOGRAM = ['#ECA8C0', '#7A49E6', '#4342C6', '#35429B', '#2F445E'] as const;
 
-/** The violet from the middle of that sweep, where one solid colour is needed. */
-export const HOLOGRAM_VIOLET = 'hsl(259, 76%, 59%)';
 
 /** Its blue, lifted until it reads as type: 5.4:1 on a card at the top. */
 export const NIGHT_LINK = 'hsl(248, 85%, 80%)';

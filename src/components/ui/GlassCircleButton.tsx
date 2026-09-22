@@ -3,7 +3,8 @@ import { StyleProp, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Defs, Line, Path, LinearGradient as SvgGradient, Stop, Text as SvgText } from 'react-native-svg';
-import { PALETTE } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../../context/theme';
 
 export type GlassCircleIcon = 'plus' | 'question' | 'back' | 'forward' | 'close';
 
@@ -35,6 +36,9 @@ export function GlassCircleButton({
     disabled = false,
     style,
 }: Props) {
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
+    const { rim, rimOpacity, shade } = theme.glass;
     const radius = size / 2;
     const canvasSize = size + CANVAS_PAD * 2;
     const center = CANVAS_PAD + radius;
@@ -72,14 +76,11 @@ export function GlassCircleButton({
         >
             <BlurView
                 intensity={ 46 }
-                tint="light"
+                tint={ theme.glass.tint }
                 style={ [styles.circle, { borderRadius: radius }] }
             >
                 <LinearGradient
-                    colors={ [
-                        'hsla(0, 0%, 100%, 0.42)',
-                        'hsla(0, 0%, 100%, 0.08)',
-                    ] }
+                    colors={ theme.glass.highlight }
                     style={ StyleSheet.absoluteFill }
                 />
             </BlurView>
@@ -87,21 +88,21 @@ export function GlassCircleButton({
                 <Svg width={ canvasSize } height={ canvasSize }>
                     <Defs>
                         <SvgGradient id="specTop" x1="0" y1="0" x2="1" y2="0">
-                            <Stop offset="0" stopColor="#ffffff" stopOpacity="0" />
-                            <Stop offset="0.2" stopColor="#ffffff" stopOpacity="0.55" />
-                            <Stop offset="0.5" stopColor="#ffffff" stopOpacity="0.95" />
-                            <Stop offset="0.8" stopColor="#ffffff" stopOpacity="0.55" />
-                            <Stop offset="1" stopColor="#ffffff" stopOpacity="0" />
+                            <Stop offset="0" stopColor={ rim } stopOpacity="0" />
+                            <Stop offset="0.2" stopColor={ rim } stopOpacity={ 0.55 * rimOpacity } />
+                            <Stop offset="0.5" stopColor={ rim } stopOpacity={ 0.95 * rimOpacity } />
+                            <Stop offset="0.8" stopColor={ rim } stopOpacity={ 0.55 * rimOpacity } />
+                            <Stop offset="1" stopColor={ rim } stopOpacity="0" />
                         </SvgGradient>
                         <SvgGradient id="rimShade" x1="0" y1="0" x2="1" y2="1">
-                            <Stop offset="0" stopColor="#1b2a44" stopOpacity="0" />
-                            <Stop offset="0.55" stopColor="#1b2a44" stopOpacity="0.06" />
-                            <Stop offset="1" stopColor="#1b2a44" stopOpacity="0.22" />
+                            <Stop offset="0" stopColor={ shade } stopOpacity="0" />
+                            <Stop offset="0.55" stopColor={ shade } stopOpacity="0.06" />
+                            <Stop offset="1" stopColor={ shade } stopOpacity="0.22" />
                         </SvgGradient>
                         <SvgGradient id="specBottom" x1="0" y1="0" x2="1" y2="0">
-                            <Stop offset="0" stopColor="#ffffff" stopOpacity="0" />
-                            <Stop offset="0.5" stopColor="#ffffff" stopOpacity="0.38" />
-                            <Stop offset="1" stopColor="#ffffff" stopOpacity="0" />
+                            <Stop offset="0" stopColor={ rim } stopOpacity="0" />
+                            <Stop offset="0.5" stopColor={ rim } stopOpacity={ 0.38 * rimOpacity } />
+                            <Stop offset="1" stopColor={ rim } stopOpacity="0" />
                         </SvgGradient>
                     </Defs>
                     <Circle
@@ -116,8 +117,8 @@ export function GlassCircleButton({
                         cx={ center }
                         cy={ center }
                         r={ radius - 0.8 }
-                        stroke="#ffffff"
-                        strokeOpacity={ 0.3 }
+                        stroke={ rim }
+                        strokeOpacity={ 0.3 * rimOpacity }
                         strokeWidth={ 1 }
                         fill="none"
                     />
@@ -235,9 +236,9 @@ export function GlassCircleButton({
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     shadowWrapper: {
-        shadowColor: PALETTE.neutral.black,
+        shadowColor: theme.shadow,
         shadowOffset: { width: 0, height: 12 },
         shadowOpacity: 0.16,
         shadowRadius: 14,

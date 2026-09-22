@@ -5,12 +5,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../src/context/auth/AuthContext';
 import { EntitlementGate } from '../../src/features/subscription/EntitlementGate';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
-import { GRADIENTS } from 'designs/designs-gradients';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '../../src/context/theme';
 
 export default function TabsLayout() {
     const { t } = useTranslation('common');
     const { isAuthenticated } = useAuth();
+    const { theme } = useTheme();
 
     if (!isAuthenticated) {
         return <Redirect href="/(auth)/login" />;
@@ -21,7 +22,7 @@ export default function TabsLayout() {
         // whether the subscription is still active, so the store is asked here
         // rather than trusting either flag.
         <EntitlementGate>
-            <View style={ styles.root }>
+            <View style={ [styles.root, { backgroundColor: theme.ground.base }] }>
                 <Tabs
                     initialRouteName="notes"
                     screenOptions={ {
@@ -43,8 +44,8 @@ export default function TabsLayout() {
                             right: 50,
                             bottom: 0,
                         },
-                        tabBarActiveTintColor: COLOR_VARIANTS.black.quaternary,
-                        tabBarInactiveTintColor: COLOR_VARIANTS.black.secondary,
+                        tabBarActiveTintColor: theme.ink.quaternary,
+                        tabBarInactiveTintColor: theme.ink.secondary,
                         tabBarShowLabel: false,
                     } }
                 >
@@ -99,8 +100,9 @@ export default function TabsLayout() {
 }
 
 const styles = StyleSheet.create({
+    // The ground is set where it is used: it comes from the theme and this
+    // sheet is frozen at import.
     root: {
         flex: 1,
-        backgroundColor: GRADIENTS.background.bottom,
     },
 });
