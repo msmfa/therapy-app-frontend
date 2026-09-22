@@ -323,7 +323,12 @@
         "message": "Ihre Therapiesitzungen konnten nicht geladen werden. Bitte versuchen Sie es später erneut."
       }
     },
-    "nothingScheduled": "Nichts geplant"
+    "nothingScheduled": "Nichts geplant",
+    "a11y": {
+      "today": "Heute",
+      "therapySession": "Sitzung",
+      "reminder": "Erinnerung"
+    }
   },
   "onboarding": {
     "welcome": {

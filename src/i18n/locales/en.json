@@ -323,7 +323,12 @@
         "message": "We couldn’t load your therapy sessions. Please try again later."
       }
     },
-    "nothingScheduled": "Nothing scheduled"
+    "nothingScheduled": "Nothing scheduled",
+    "a11y": {
+      "today": "Today",
+      "therapySession": "Therapy session",
+      "reminder": "Reminder"
+    }
   },
   "onboarding": {
     "welcome": {

@@ -1,7 +1,9 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { DateData } from 'react-native-calendars';
+import { useTranslation } from 'react-i18next';
 import { CALENDAR_DARK_COLORS } from 'designs/designs-colors';
+import { longDateLabel } from '../../features/onboarding/formatting';
 
 export type DarkDayKind = 'session' | 'reminder';
 
@@ -28,6 +30,15 @@ const RADIUS = DARK_DAY_SIZE / 2;
 
 const DOT_COUNT = 3;
 
+// `date.dateString` is "YYYY-MM-DD". Built with the Date constructor directly
+// it parses as UTC midnight, which lands on the wrong day near either end of
+// a negative or positive time zone; the parts are read out and reassembled as
+// local time instead, same as TherapyCalendar's own createDateFromKey.
+function dateFromDateString(dateString: string): Date {
+    const [year, month, day] = dateString.split('-').map(Number);
+    return new Date(year, month - 1, day);
+}
+
 // Marks sit under the numeral rather than behind it, so the month reads as a
 // plain grid of dates and the kind is carried by the colour of the dots.
 //
@@ -50,6 +61,7 @@ function DayDots({ color, inset = false }: { color: string; inset?: boolean }) {
 // always renders a 4pt dot under the text, invisible but not weightless, which
 // lifts every number off centre by a couple of points.
 export function DarkCalendarDay({ date, state, marking, onPress, accessibilityLabel, testID, children }: Props) {
+    const { t } = useTranslation('calendar');
     const isDisabled = state === 'disabled';
     const kind = marking?.kind;
     const isPressed = Boolean(marking?.pressed);
@@ -61,6 +73,21 @@ export function DarkCalendarDay({ date, state, marking, onPress, accessibilityLa
     // today with nothing on at all. The disc says which day it is and the dots
     // say what is on it, and neither answers for the other.
     const isTodayCell = !isPressed && isToday;
+
+    // react-native-calendars calls this component directly as `dayComponent`,
+    // so nothing upstream ever supplies `accessibilityLabel` in practice: it
+    // exists so a caller (or a test) can still override it, but every real
+    // day cell needs its label built here, from the same `date`/`marking` the
+    // dots and the disc already read. Without it VoiceOver read only the bare
+    // numeral, with no way to tell a session day from a reminder day or from
+    // today.
+    const defaultAccessibilityLabel = date === undefined
+        ? undefined
+        : [
+            isToday ? t('a11y.today') : null,
+            longDateLabel(dateFromDateString(date.dateString)),
+            kind === 'session' ? t('a11y.therapySession') : kind === 'reminder' ? t('a11y.reminder') : null,
+        ].filter((part): part is string => part !== null).join(', ');
 
     const dotColor = kind === 'session'
         ? (isTodayCell ? CALENDAR_DARK_COLORS.sessionDotOnToday : CALENDAR_DARK_COLORS.sessionDot)
@@ -85,7 +112,7 @@ export function DarkCalendarDay({ date, state, marking, onPress, accessibilityLa
 
     return (
         <TouchableOpacity
-            accessibilityLabel={ accessibilityLabel }
+            accessibilityLabel={ accessibilityLabel ?? defaultAccessibilityLabel }
             accessibilityRole={ isDisabled ? undefined : 'button' }
             activeOpacity={ 0.7 }
             disabled={ isDisabled }

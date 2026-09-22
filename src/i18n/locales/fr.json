@@ -323,7 +323,12 @@
         "message": "Vos séances n’ont pas pu être chargées. Veuillez réessayer plus tard."
       }
     },
-    "nothingScheduled": "Rien de prévu"
+    "nothingScheduled": "Rien de prévu",
+    "a11y": {
+      "today": "Aujourd’hui",
+      "therapySession": "Séance",
+      "reminder": "Rappel"
+    }
   },
   "onboarding": {
     "welcome": {

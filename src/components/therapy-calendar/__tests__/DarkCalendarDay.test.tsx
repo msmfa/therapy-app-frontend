@@ -80,4 +80,34 @@ describe('DarkCalendarDay', () => {
         expect(cellStyle().backgroundColor).toBe(CALENDAR_DARK_COLORS.pressedBackground);
         expect(dotColours()).toEqual(Array(3).fill(CALENDAR_DARK_COLORS.sessionDot));
     });
+
+    it("builds VoiceOver's label from the date and what the day carries, since react-native-calendars never supplies one itself", () => {
+        renderDay({
+            date: { dateString: '2026-03-04', day: 4, month: 3, year: 2026, timestamp: 0 },
+            marking: { kind: 'session' },
+        });
+
+        const label = screen.getByTestId('day').props.accessibilityLabel as string;
+        expect(label).toContain('Today');
+        expect(label).toContain('Therapy session');
+        expect(label).toMatch(/Wednesday.*4.*March.*2026/);
+    });
+
+    it('names a reminder day without the word "Today" once it is no longer today', () => {
+        renderDay({
+            state: undefined,
+            date: { dateString: '2026-03-04', day: 4, month: 3, year: 2026, timestamp: 0 },
+            marking: { kind: 'reminder' },
+        });
+
+        const label = screen.getByTestId('day').props.accessibilityLabel as string;
+        expect(label).not.toContain('Today');
+        expect(label).toContain('Reminder');
+    });
+
+    it('lets a caller override the built label', () => {
+        renderDay({ accessibilityLabel: 'Custom label' });
+
+        expect(screen.getByTestId('day').props.accessibilityLabel).toBe('Custom label');
+    });
 });
