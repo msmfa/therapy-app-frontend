@@ -2,9 +2,10 @@
  * The reminder vocabulary, shared by the API client and the copy that explains
  * each reminder to the user.
  *
- * The schedule itself is no longer computed here. It is computed once, on the
- * server, by the same code that sends the pushes, and fetched from
- * `GET /api/reminders`. These are the wire types for that response.
+ * The schedule itself is not computed here. The server materialises it into
+ * the rows its cron sends from, and `GET /api/calendar` returns those rows;
+ * this is the older, id-less shape the science screen and the reviews
+ * feature still read, mapped from them.
  *
  * Keeping a second scheduler in the app was what let the calendar and the
  * notifications disagree: the two implementations matched, but they were fed

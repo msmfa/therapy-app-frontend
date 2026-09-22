@@ -1,103 +1,162 @@
-import { apiGet, apiPost } from './client';
-
-type TherapySessionSyncPayload = {
-    id?: string;
-    startsAtUtc: string;
-    durationMin?: number;
-};
-
-type TherapySessionSyncResult = {
-    created: number;
-    updated: number;
-    deleted: number;
-};
+import { apiDelete, apiGet, apiPost, apiPut, type ApiRequestOptions } from './client';
+import type { Reason } from '../features/reminders/types';
 
 /**
- * Shape of a session as returned by the list endpoint, which projects only
- * these fields. All mutations go through syncTherapySessions.
+ * The calendar API.
+ *
+ * One read returns everything the calendar screen draws: the sessions, the
+ * series they belong to, and the reminder plan the server has materialised for
+ * them. Writes are per appointment and commit immediately; the server rebuilds
+ * the plan inside the same transaction, so a refetch straight after a write
+ * shows the dots the pushes will actually follow.
+ */
+
+export type SessionCadence = 'weekly' | 'fortnightly' | 'monthly';
+
+/** How far an edit or a delete reaches when the appointment is part of a series. */
+export type SessionEditScope = 'this' | 'future';
+
+/**
+ * Shape of a session as the calendar endpoint returns it.
+ *
+ * `_id` rather than `id` because every consumer of the sessions list, from the
+ * reviews feature to the next-session card, was written against the shape the
+ * old list endpoint returned. The mapping happens once, in `getCalendar`.
  */
 export type TherapySession = {
     _id: string;
     startsAtUtc: string;
     durationMin?: number;
+    /** Present when the appointment was created by a repeating series. */
+    seriesId?: string;
+    /** Edited on its own, so a later "all future sessions" change leaves it be. */
+    exception?: boolean;
 };
 
-export type SessionsWindow = {
-    from: Date;
-    to: Date;
+export type TherapySeries = {
+    id: string;
+    cadence: SessionCadence;
+    startsAtUtc: string;
+    timeZone: string;
+    durationMin?: number;
+    /** Exclusive. Absent while the series is open ended. */
+    endsAtUtc?: string;
 };
+
+export type ReminderKind = 'log_note' | 'review_note';
+export type ReminderStatus = 'pending' | 'sent' | 'missed';
 
 /**
- * The exact UTC instants a `[from, to]` pair widens to when querying the
- * backend. Shared between fetching and syncing so the sync's deletion scope
- * can never exceed the window the client actually loaded.
+ * One row of the plan the cron sends from. Past rows come back too, with
+ * `status` saying what became of them, which is how the calendar can show a
+ * reminder that has already fired.
  */
-export const toUtcDayRange = (from: Date, to: Date): { fromUTC: Date; toUTC: Date } => {
-    const fromUTC = new Date(Date.UTC(
-        from.getUTCFullYear(),
-        from.getUTCMonth(),
-        from.getUTCDate(),
-        0,
-        0,
-        0,
-        0,
-    ));
-
-    const toUTC = new Date(Date.UTC(
-        to.getUTCFullYear(),
-        to.getUTCMonth(),
-        to.getUTCDate(),
-        23,
-        59,
-        59,
-        999,
-    ));
-
-    return { fromUTC, toUTC };
+export type CalendarReminder = {
+    id: string;
+    kind: ReminderKind;
+    /** Review reminders only: which of the four review moments this is. */
+    reason?: Reason;
+    dueAtUtc: string;
+    /** The calendar day this belongs to in the user's zone, as YYYY-MM-DD. */
+    localDate: string;
+    /** The session this follows; for a review, the one that opened the gap. */
+    sessionId: string;
+    nextSessionId?: string;
+    gapIndex?: number;
+    status: ReminderStatus;
 };
 
-export async function getTherapySessions(
-    from: Date,
-    to: Date,
-): Promise<TherapySession[]> {
-    const { fromUTC, toUTC } = toUtcDayRange(from, to);
+export type CalendarSnapshot = {
+    /** Bumped on every write. Sent back as If-Match so a stale edit is refused. */
+    revision: number;
+    timeZone: string;
+    morningReminderMinutes: number;
+    eveningReminderMinutes: number;
+    sessions: TherapySession[];
+    series: TherapySeries[];
+    reminders: CalendarReminder[];
+};
 
-    const params = new URLSearchParams({
-        from: fromUTC.toISOString(),
-        to: toUTC.toISOString(),
-    });
+type WireSession = Omit<TherapySession, '_id'> & { id: string };
+type WireCalendar = Omit<CalendarSnapshot, 'sessions'> & { sessions: WireSession[] };
 
-    return apiGet<TherapySession[]>(`/api/therapy-sessions?${params.toString()}`);
+const fromWire = ({ id, ...session }: WireSession): TherapySession => ({ _id: id, ...session });
+
+export async function getCalendar(from: Date, to: Date): Promise<CalendarSnapshot> {
+    const params = new URLSearchParams({ from: from.toISOString(), to: to.toISOString() });
+    const wire = await apiGet<WireCalendar>(`/api/calendar?${params.toString()}`);
+    return { ...wire, sessions: wire.sessions.map(fromWire) };
 }
 
-export async function syncTherapySessions(
-    payload: TherapySessionSyncPayload[],
-    window?: SessionsWindow,
-    baseSessions: TherapySession[] = [],
-): Promise<TherapySessionSyncResult> {
-    const body: {
-        sessions: TherapySessionSyncPayload[];
-        baseSessions: TherapySessionSyncPayload[];
-        from?: string;
-        to?: string;
-    } = {
-        sessions: payload,
-        baseSessions: baseSessions.map(session => ({ id: session._id, startsAtUtc: session.startsAtUtc, durationMin: session.durationMin })),
-    };
+/**
+ * The revision the client last saw, for the server to compare against.
+ *
+ * Optional because a client that has never loaded the calendar has nothing to
+ * compare, and refusing its first write would be wrong; the server treats an
+ * absent header as "no expectation".
+ */
+const ifMatch = (revision?: number): Pick<ApiRequestOptions, 'headers'> =>
+    revision === undefined ? {} : { headers: { 'If-Match': `"${revision}"` } };
 
-    if (window) {
-        // These Dates are already the exact local-midnight boundaries of the
-        // editable calendar window. Converting their UTC date parts back to a
-        // UTC day widens the deletion range into the previous local day for
-        // every non-UTC user, where it can remove a session the UI never
-        // showed. Fetching may safely be wider; deletion must stay inside the
-        // exact window the user was allowed to edit.
-        body.from = window.from.toISOString();
-        body.to = window.to.toISOString();
-    }
+export type CreateSessionInput = {
+    startsAtUtc: Date;
+    durationMin?: number;
+    /** Omit for a one-off appointment. */
+    repeat?: SessionCadence;
+};
 
-    return apiPost<TherapySessionSyncResult>(
-        '/api/therapy-sessions/sync',
-        body,
+export type SessionWriteResult = {
+    revision: number;
+    session: TherapySession;
+    series?: TherapySeries;
+    created: number;
+};
+
+type WireSessionWrite = Omit<SessionWriteResult, 'session'> & { session: WireSession };
+
+export async function createSession(
+    input: CreateSessionInput,
+    revision?: number,
+): Promise<SessionWriteResult> {
+    const wire = await apiPost<WireSessionWrite>('/api/therapy-sessions', {
+        startsAtUtc: input.startsAtUtc.toISOString(),
+        ...(input.durationMin === undefined ? {} : { durationMin: input.durationMin }),
+        ...(input.repeat === undefined ? {} : { repeat: input.repeat }),
+    }, ifMatch(revision));
+    return { ...wire, session: fromWire(wire.session) };
+}
+
+export type UpdateSessionInput = {
+    startsAtUtc?: Date;
+    durationMin?: number;
+    scope?: SessionEditScope;
+};
+
+export async function updateSession(
+    id: string,
+    input: UpdateSessionInput,
+    revision?: number,
+): Promise<{ revision: number; session: TherapySession }> {
+    const wire = await apiPut<{ revision: number; session: WireSession }>(
+        `/api/therapy-sessions/${encodeURIComponent(id)}`,
+        {
+            ...(input.startsAtUtc === undefined ? {} : { startsAtUtc: input.startsAtUtc.toISOString() }),
+            ...(input.durationMin === undefined ? {} : { durationMin: input.durationMin }),
+            ...(input.scope === undefined ? {} : { scope: input.scope }),
+        },
+        ifMatch(revision),
+    );
+    return { revision: wire.revision, session: fromWire(wire.session) };
+}
+
+export async function deleteSession(
+    id: string,
+    scope: SessionEditScope = 'this',
+    revision?: number,
+): Promise<{ revision: number; deleted: number }> {
+    const params = new URLSearchParams({ scope });
+    return apiDelete<{ revision: number; deleted: number }>(
+        `/api/therapy-sessions/${encodeURIComponent(id)}?${params.toString()}`,
+        ifMatch(revision),
     );
 }

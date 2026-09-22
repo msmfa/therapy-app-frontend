@@ -14,15 +14,16 @@ import { useAuth } from '../../context/auth/AuthContext';
 import { useOnboarding } from '../../context/onboarding/OnboardingContext';
 import { useTherapySessions } from '../../context/therapy-sessions/TherapySessionsContext';
 import { useDeviceTimeZone } from '../../hooks/useDeviceTimeZone';
-import { useScheduleTimeZone } from '../reminders/useScheduleTimeZone';
 import { hasSeeded, isDemoSeedEnabled, seedDemoData } from './demoSeed';
 
 export function DemoSeedRunner(): null {
     const { user, isAuthenticated } = useAuth();
-    const { scheduleSessions } = useTherapySessions();
+    const { scheduleSessions, reminderScheduleSettings } = useTherapySessions();
     const { hasOnboarded, hydrated: onboardingHydrated, finishOnboarding } = useOnboarding();
     const deviceTimeZone = useDeviceTimeZone();
-    const timeZone = useScheduleTimeZone(deviceTimeZone, user?.id ?? 'signed-out');
+    // The zone the server resolved the plan in, which is the zone the pushes
+    // fire in; the device zone only until a calendar has been fetched.
+    const timeZone = reminderScheduleSettings?.timeZone ?? deviceTimeZone;
 
     const userId = user?.id;
     // A gap needs two sessions. Below that there is no schedule to hang a note

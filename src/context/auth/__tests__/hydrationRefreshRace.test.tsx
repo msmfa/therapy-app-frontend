@@ -91,6 +91,10 @@ afterEach(() => {
     jest.resetAllMocks();
 });
 
+// The calendar request is what 401s here, so it has to be the real one rather
+// than the stand-in jest.setup gives every other suite.
+jest.unmock('../../../api/therapy');
+
 import { AuthProvider, useAuth } from '../AuthContext';
 import { TherapySessionsProvider } from '../../therapy-sessions/TherapySessionsContext';
 

@@ -1,79 +1,98 @@
 import { describe, expect, it, beforeEach, jest } from '@jest/globals';
 import * as therapyModule from '../therapy';
-import type { TherapySession } from '../therapy';
 import * as clientModule from '../client';
+
+// jest.setup mocks this module for every suite that renders the provider;
+// this suite is about the real helpers.
+jest.unmock('../therapy');
 
 jest.mock('../client', () => ({
   apiGet: jest.fn(),
   apiPost: jest.fn(),
+  apiPut: jest.fn(),
+  apiDelete: jest.fn(),
 }));
 
-const {
-  getTherapySessions,
-  syncTherapySessions,
-} = therapyModule;
+const { getCalendar, createSession, updateSession, deleteSession } = therapyModule;
+const { apiGet, apiPost, apiPut, apiDelete } = jest.mocked(clientModule);
 
-const { apiGet, apiPost } = jest.mocked(clientModule);
+const wireCalendar = {
+  revision: 7,
+  timeZone: 'Europe/London',
+  morningReminderMinutes: 450,
+  eveningReminderMinutes: 1215,
+  sessions: [{ id: 'abc', startsAtUtc: '2026-09-15T13:30:00.000Z', durationMin: 50, seriesId: 'ser', exception: false }],
+  series: [{ id: 'ser', cadence: 'weekly', startsAtUtc: '2026-09-15T13:30:00.000Z', timeZone: 'Europe/London' }],
+  reminders: [],
+};
 
-describe('therapy api helpers', () => {
+describe('calendar api helpers', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('requests therapy sessions with the correct UTC day bounds', async () => {
-    const data: TherapySession[] = [];
-    apiGet.mockResolvedValueOnce(data);
+  it('fetches the calendar for the exact window and maps ids to the shape the app uses', async () => {
+    apiGet.mockResolvedValueOnce(wireCalendar);
+    const from = new Date('2026-06-03T00:00:00.000Z');
+    const to = new Date('2027-09-01T23:59:59.999Z');
 
-    const from = new Date('2024-02-01T06:12:00.000Z');
-    const to = new Date('2024-02-05T21:30:00.000Z');
+    const result = await getCalendar(from, to);
 
-    const result = await getTherapySessions(from, to);
-
-    expect(apiGet).toHaveBeenCalledTimes(1);
-    const calledUrl = apiGet.mock.calls[0]?.[0];
-
-    expect(calledUrl).toMatch(/^\/api\/therapy-sessions\?/);
-    const url = new URL(`https://example.com${calledUrl}`);
-    expect(url.searchParams.get('from')).toBe('2024-02-01T00:00:00.000Z');
-    expect(url.searchParams.get('to')).toBe('2024-02-05T23:59:59.999Z');
-    expect(result).toBe(data);
+    const url = new URL(`https://example.com${apiGet.mock.calls[0]?.[0]}`);
+    expect(url.pathname).toBe('/api/calendar');
+    expect(url.searchParams.get('from')).toBe(from.toISOString());
+    expect(url.searchParams.get('to')).toBe(to.toISOString());
+    // Every consumer of the session list was written against `_id`.
+    expect(result.sessions[0]).toEqual({
+      _id: 'abc', startsAtUtc: '2026-09-15T13:30:00.000Z', durationMin: 50, seriesId: 'ser', exception: false,
+    });
+    expect(result.revision).toBe(7);
   });
 
-  it('syncs therapy sessions with the bulk payload', async () => {
-    const payload = [
-      { id: 'one', startsAtUtc: '2024-02-01T10:00:00.000Z' },
-      { startsAtUtc: '2024-02-02T10:00:00.000Z', durationMin: 60 },
-    ];
-    const response = { created: 1, updated: 1, deleted: 0 };
-    apiPost.mockResolvedValueOnce(response);
+  it('creates a weekly series and sends the revision it last saw as If-Match', async () => {
+    apiPost.mockResolvedValueOnce({ revision: 8, session: wireCalendar.sessions[0], series: wireCalendar.series[0], created: 52 });
 
-    const result = await syncTherapySessions(payload);
+    const result = await createSession(
+      { startsAtUtc: new Date('2026-09-15T13:30:00.000Z'), durationMin: 50, repeat: 'weekly' },
+      7,
+    );
 
-    expect(apiPost).toHaveBeenCalledWith('/api/therapy-sessions/sync', {
-      sessions: payload,
-      baseSessions: [],
-    });
-    expect(result).toBe(response);
+    expect(apiPost).toHaveBeenCalledWith(
+      '/api/therapy-sessions',
+      { startsAtUtc: '2026-09-15T13:30:00.000Z', durationMin: 50, repeat: 'weekly' },
+      { headers: { 'If-Match': '"7"' } },
+    );
+    expect(result.session._id).toBe('abc');
+    expect(result.created).toBe(52);
   });
 
-  it('keeps the sync deletion window at the exact editable instants', async () => {
-    const payload = [{ startsAtUtc: '2024-02-02T10:00:00.000Z', durationMin: 60 }];
-    const response = { created: 0, updated: 0, deleted: 0 };
-    apiPost.mockResolvedValueOnce(response);
+  it('sends no If-Match when the client has never loaded the calendar', async () => {
+    apiPost.mockResolvedValueOnce({ revision: 1, session: wireCalendar.sessions[0], created: 1 });
 
-    // Fetching may widen safely, but deletion must not. These could be local
-    // midnight boundaries in a non-UTC zone; widening them to their UTC day
-    // would include appointments from a hidden part of the previous local day.
-    const from = new Date('2024-02-01T06:12:00.000Z');
-    const to = new Date('2024-02-05T21:30:00.000Z');
+    await createSession({ startsAtUtc: new Date('2026-09-15T13:30:00.000Z') });
 
-    await syncTherapySessions(payload, { from, to });
+    expect(apiPost).toHaveBeenCalledWith('/api/therapy-sessions', { startsAtUtc: '2026-09-15T13:30:00.000Z' }, {});
+  });
 
-    expect(apiPost).toHaveBeenCalledWith('/api/therapy-sessions/sync', {
-      sessions: payload,
-      baseSessions: [],
-      from: '2024-02-01T06:12:00.000Z',
-      to: '2024-02-05T21:30:00.000Z',
-    });
+  it('updates one appointment with the scope of the edit', async () => {
+    apiPut.mockResolvedValueOnce({ revision: 9, session: wireCalendar.sessions[0] });
+
+    await updateSession('abc', { startsAtUtc: new Date('2026-09-15T15:00:00.000Z'), scope: 'future' }, 8);
+
+    expect(apiPut).toHaveBeenCalledWith(
+      '/api/therapy-sessions/abc',
+      { startsAtUtc: '2026-09-15T15:00:00.000Z', scope: 'future' },
+      { headers: { 'If-Match': '"8"' } },
+    );
+  });
+
+  it('deletes with the scope in the query, defaulting to this appointment only', async () => {
+    apiDelete.mockResolvedValue({ revision: 10, deleted: 1 });
+
+    await deleteSession('abc');
+    await deleteSession('abc', 'future', 10);
+
+    expect(apiDelete).toHaveBeenNthCalledWith(1, '/api/therapy-sessions/abc?scope=this', {});
+    expect(apiDelete).toHaveBeenNthCalledWith(2, '/api/therapy-sessions/abc?scope=future', { headers: { 'If-Match': '"10"' } });
   });
 });
