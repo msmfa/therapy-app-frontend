@@ -16,7 +16,6 @@ import {
 } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
 import { postSessionNoteAt } from '../../src/features/onboarding/planTimeline';
-import { projectSessions } from '../../src/features/onboarding/sessionSeries';
 import { updateCurrentUser } from '../../src/api/users';
 import { DEFAULT_SESSION_MINUTES } from '../../src/features/reminders/reminderScheduleConfig';
 import { timeLabel, weekdayName } from '../../src/features/onboarding/formatting';
@@ -27,7 +26,7 @@ import { analytics } from '../../src/features/analytics/client';
 export default function SuccessScreen() {
     const router = useRouter();
     const { finishOnboarding } = useOnboarding();
-    const { addSessions, refreshReminderSchedule } = useTherapySessions();
+    const { addSeries, refreshReminderSchedule } = useTherapySessions();
     const { answers, discardDraft } = useOnboardingAnswers();
     const { showAlert } = useAppAlert();
     const completionTriggeredRef = useRef(false);
@@ -57,12 +56,15 @@ export default function SuccessScreen() {
             // user built actually exists on the server: marking it complete and
             // clearing the draft before the write would leave an account that
             // has "onboarded" with an empty calendar and no way back.
+            // One series rather than a list of dates: the server keeps the
+            // rule and extends it, so the calendar never runs out of the
+            // sessions the user said they have.
             if (answers.sessionAt !== null) {
-                const projected = projectSessions({
+                await addSeries({
                     firstSessionAt: answers.sessionAt,
                     cadence: answers.cadence,
+                    durationMin: DEFAULT_SESSION_MINUTES,
                 });
-                await addSessions(projected, DEFAULT_SESSION_MINUTES);
             }
 
             // The chosen reminder times, to the backend that actually sends the
@@ -74,9 +76,9 @@ export default function SuccessScreen() {
                 eveningReminderMinutes: answers.eveningMinutes,
                 ...(answers.goal === null ? {} : { reflectionGoal: answers.goal }),
             });
-            // addSessions can cause a schedule fetch before the preference
-            // write finishes. Invalidate that answer so calendar dots and
-            // review windows are rebuilt from the newly saved times.
+            // The series write fetched a calendar before the preference write
+            // landed, and the server rebuilt the plan on that write. Fetch
+            // again so calendar dots and review windows show the saved times.
             await refreshReminderSchedule();
 
             await finishOnboarding();
@@ -131,7 +133,7 @@ export default function SuccessScreen() {
         finishOnboarding,
         router,
         showAlert,
-        addSessions,
+        addSeries,
         refreshReminderSchedule,
     ]);
 
