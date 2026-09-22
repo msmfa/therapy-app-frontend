@@ -166,9 +166,13 @@ export const BLUE_PANEL = {
 
 // The one saturated surface in the app. The notes preview screen sits on it so
 // the screenshot of the notes list reads as a lit phone screen resting on the
-// page rather than as a second copy of the page itself. The brand orange, which
-// white type sits on cleanly.
-export const SURFACE_ACCENT = 'hsl(20, 99%, 55%)';
+// page rather than as a second copy of the page itself. The brand orange, taken
+// down from its original 55% lightness: white type on it read at 2.94:1 even at
+// full opacity, and no white is bright enough to clear 4.5:1 against 55%. 37%
+// is the least darkening that lets the existing near-white text (ACCENT_SURFACE
+// below) pass, rather than darkening the text and losing the white-on-orange
+// look this screen is built around.
+export const SURFACE_ACCENT = 'hsl(20, 99%, 37%)';
 
 export const TEXT_COLORS = {
   primary: COLOR_VARIANTS.black.primary,
