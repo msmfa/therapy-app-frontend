@@ -86,14 +86,17 @@ export const BRAND_ORANGE = 'hsl(19, 97%, 55%)';
 export const BRAND_ORANGE_EDGE = 'hsl(19, 88%, 46%)';
 
 /**
- * The type on that orange, and it is not white.
+ * The type on that orange.
  *
- * Read off the same artwork: the lettering there is a warm pale peach that
- * keeps the ground's own hue rather than a white laid over it, which is what
- * stops the words looking stuck on. Reserved for the orange sections; a page of
- * body copy needs more separation from its ground than this gives.
+ * Was a warm pale peach read off the marketing artwork (hsl(28, 100%, 90%)),
+ * keeping the ground's own hue rather than a white laid over it. It only ever
+ * reached 2.48:1 against BRAND_ORANGE, and no lighter version can do better:
+ * even flat white peaks at 3.03:1 against this ground, short of the 4.5:1 a
+ * card's selected-option label needs. Taken all the way down the same hue
+ * instead, which clears 4.5:1, so the app's own copy of this ink no longer
+ * matches the artwork it was read off.
  */
-export const BRAND_ORANGE_INK = 'hsl(28, 100%, 90%)';
+export const BRAND_ORANGE_INK = 'hsl(28, 100%, 14%)';
 
 /**
  * The same warm ink, taken up for reading rather than for a label.
