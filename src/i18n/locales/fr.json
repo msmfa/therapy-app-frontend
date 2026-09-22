@@ -44,6 +44,7 @@
     "title": "Réglages",
     "hub": {
       "language": "Langue",
+      "appearance": "Apparence",
       "references": "Références",
       "settings": "Réglages",
       "rateApp": "Noter cette application",
@@ -81,6 +82,17 @@
       "a11yHint": "Change immédiatement la langue de l’application",
       "choose": "Choisir une langue",
       "a11yDropdownHint": "Ouvre la liste des langues"
+    },
+    "appearance": {
+      "title": "Apparence",
+      "system": "Système",
+      "systemDetail": "Actuellement : {{scheme}}",
+      "light": "Clair",
+      "dark": "Sombre",
+      "a11yRow": "{{label}}, {{detail}}",
+      "a11yHint": "Change immédiatement l’apparence de l’application",
+      "saveFailedTitle": "Apparence non enregistrée",
+      "saveFailedMessage": "L’apparence a changé, mais ce choix n’a pas pu être mémorisé. Veuillez réessayer."
     }
   },
   "reminderSettings": {

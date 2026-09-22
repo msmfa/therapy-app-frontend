@@ -44,6 +44,7 @@
     "title": "Settings",
     "hub": {
       "language": "Language",
+      "appearance": "Appearance",
       "references": "References",
       "settings": "Settings",
       "rateApp": "Rate this App",
@@ -81,6 +82,17 @@
       "a11yHint": "Changes the language of the app straight away",
       "choose": "Choose a language",
       "a11yDropdownHint": "Opens the list of languages"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "system": "System",
+      "systemDetail": "Currently {{scheme}}",
+      "light": "Light",
+      "dark": "Dark",
+      "a11yRow": "{{label}}, {{detail}}",
+      "a11yHint": "Changes the appearance of the app straight away",
+      "saveFailedTitle": "Appearance not saved",
+      "saveFailedMessage": "The appearance has changed, but we could not remember that choice. Please try again."
     }
   },
   "reminderSettings": {

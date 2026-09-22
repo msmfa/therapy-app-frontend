@@ -74,6 +74,7 @@ describe('translation resources', () => {
                 // Only placeholders and punctuation.
                 'settings.hub.version',
                 'settings.language.a11yRow',
+                'settings.appearance.a11yRow',
                 'reminderSettings.a11yTime',
                 // Proper nouns and the product's own name.
                 'onboarding.reminderTimes.testimonial.practise.name',
@@ -93,6 +94,7 @@ describe('translation resources', () => {
                 // Words German happens to spell the same way.
                 de: [
                     'settings.language.system',
+                    'settings.appearance.system',
                     'auth.field.name',
                 ],
             };
