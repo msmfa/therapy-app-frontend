@@ -13,11 +13,11 @@ const TEXTURE_WIDTH = 326;
 const TEXTURE_HEIGHT = 270;
 
 /**
- * How much of the grain shows at night. The inverted tile is a full-strength
- * texture like the day's, but on charcoal the eye reads the same speckle as
- * noise rather than paper, so it is let down to half.
+ * How much of the grain shows at night. Nearly all of it: the night tile is
+ * cut to sit a hair above the ground, so at full strength it is the paper
+ * the ground is printed on rather than a film over it.
  */
-const NIGHT_STRENGTH = 0.5;
+const NIGHT_STRENGTH = 0.9;
 
 /**
  * Fine grey paper grain for the onboarding screens.

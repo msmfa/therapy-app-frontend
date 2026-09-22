@@ -51,9 +51,9 @@ describe('designs-themes', () => {
             if (kind === 'optional' || darkKind === 'optional') continue;
             expect({ path, kind: darkKind }).toEqual({ path, kind });
         }
-        // Only the optional gradients may be null, and only in one theme.
+        // The optional gradients are null where a theme draws none.
         expect(lightTheme.emphasis.rule).toBeNull();
-        expect(darkTheme.emphasis.rule).not.toBeNull();
+        expect(darkTheme.emphasis.rule).toBeNull();
         expect(lightTheme.accentScreen.glow).toBeNull();
         expect(darkTheme.accentScreen.glow).not.toBeNull();
     });

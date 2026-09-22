@@ -67,8 +67,8 @@ export function SubscriptionPlanCard({
                      the row: one mark saying chosen, on the control that does
                      the choosing. */ }
                 <View style={ [styles.radio, selected && styles.radioSelected] }>
-                    { selected && <LinearGradient colors={ theme.chosen.mark } style={ [StyleSheet.absoluteFill, styles.markFill] } /> }
-                    { selected && <Feather name="check" size={ 13 } color={ theme.chosen.check } /> }
+                    { selected && <LinearGradient colors={ theme.plan.mark } style={ [StyleSheet.absoluteFill, styles.markFill] } /> }
+                    { selected && <Feather name="check" size={ 13 } color={ theme.plan.check } /> }
                 </View>
 
                 <AppText
@@ -117,7 +117,7 @@ export function SubscriptionPlanCard({
                                 <Feather
                                     name={ step.icon }
                                     size={ 14 }
-                                    color={ selected ? theme.chosen.inkBrightest : theme.ink.primary }
+                                    color={ selected ? theme.plan.inkBrightest : theme.ink.primary }
                                 />
                             </View>
                             <AppText variant="body" style={ [styles.timelineText, selected && styles.onAccentSoftest] }>
@@ -171,7 +171,7 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     // The disc only earns its place on the orange, where it separates the icon
     // from the fill. On the white card it was a tint round three small marks.
     timelineIconSelected: {
-        backgroundColor: theme.chosen.iconDisc,
+        backgroundColor: theme.plan.iconDisc,
     },
     timelineText: {
         flex: 1,
@@ -186,8 +186,8 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     // The same chosen state as the questions' own options: one way of showing a
     // selection across the flow, whether the choice is a goal or a plan.
     cardSelected: {
-        backgroundColor: theme.chosen.fill,
-        borderColor: theme.chosen.border,
+        backgroundColor: theme.plan.fill,
+        borderColor: theme.plan.border,
     },
     headerRow: {
         flexDirection: 'row',
@@ -219,7 +219,7 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         fontSize: 18,
     },
     titleSelected: {
-        color: theme.chosen.inkBright,
+        color: theme.plan.inkBright,
     },
     /**
      * Every line inside a chosen card, which is a solid orange section: the
@@ -227,16 +227,16 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
      * hierarchy between them was never carrying much anyway.
      */
     onAccent: {
-        color: theme.chosen.inkBright,
+        color: theme.plan.inkBright,
     },
     onAccentSoftest: {
-        color: theme.chosen.inkBrightest,
+        color: theme.plan.inkBrightest,
     },
     /** The plain badge, as an outline rather than a grey pill on the orange. */
     badgeSelected: {
         backgroundColor: 'transparent',
         borderWidth: 1,
-        borderColor: theme.chosen.inkBrightest,
+        borderColor: theme.plan.inkBrightest,
     },
     badges: {
         flexDirection: 'row',
@@ -269,7 +269,7 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     // On a chosen card the green pill sat on orange and turned muddy. Black
     // holds against the fill, and the type inside it steps down to grey.
     trialBadgeSelected: {
-        backgroundColor: theme.chosen.trialFill,
+        backgroundColor: theme.plan.trialFill,
         borderWidth: 0,
         // Roomier than the plain badges beside it: the trial is the one thing
         // on the card worth stopping on.
@@ -277,7 +277,7 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     },
     trialBadgeSelectedText: {
         fontSize: 14,
-        color: theme.chosen.trialText,
+        color: theme.plan.trialText,
     },
     price: {
         marginTop: 12,

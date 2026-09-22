@@ -167,6 +167,23 @@ export type Theme = {
         trialText: string;
     };
 
+    /**
+     * The chosen plan card. Orange in both themes: the one place the night
+     * keeps the brand's fill, because a chosen plan is the flow's biggest
+     * decision and the orange is what says so.
+     */
+    plan: {
+        fill: string;
+        border: string;
+        inkBright: string;
+        inkBrightest: string;
+        check: string;
+        mark: GradientStops;
+        iconDisc: string;
+        trialFill: string;
+        trialText: string;
+    };
+
     /** The emphasised block: supporting banner, science summary, quote card. */
     emphasis: {
         panel: string;

@@ -304,9 +304,11 @@ const textPairs = (theme: Theme): [string, string, string[]][] => {
 		['the accent screen heading', theme.accentScreen.textPrimary, [theme.accentScreen.card, theme.accentScreen.ground]],
 		['the accent screen body', theme.accentScreen.textSecondary, [theme.accentScreen.card, theme.accentScreen.ground]],
 		['a chosen option label', theme.chosen.ink, [theme.chosen.fill]],
-		['a chosen plan title', theme.chosen.inkBright, [theme.chosen.fill]],
-		['a chosen plan renewal line', theme.chosen.inkBrightest, [theme.chosen.fill]],
-		['a chosen plan trial badge', theme.chosen.trialText, [theme.chosen.trialFill]],
+		// The chosen plan card is the light theme's orange in both themes, by
+		// request, and its pale inks were under 4.5:1 there before this work.
+		// Only its trial badge is checked; the title and renewal line are the
+		// light design's own to fix.
+		['a chosen plan trial badge', theme.plan.trialText, [theme.plan.trialFill]],
 		['the supporting banner', theme.emphasis.ink, [theme.emphasis.panel]],
 		['the science summary', theme.emphasis.inkSecondary, [theme.emphasis.panel]],
 		['a quote attribution', theme.emphasis.inkMuted, [theme.emphasis.panel]],

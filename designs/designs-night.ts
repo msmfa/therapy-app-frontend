@@ -135,11 +135,8 @@ export const NIGHT_GLASS = {
     shade: '#000000',
 } as const;
 
-/** The night's one mark colour: a light grey, for rings and the chosen disc. */
+/** The night's one mark colour: a light grey, for rings and the chosen disc, drawn flat. */
 export const NIGHT_MARK = 'hsl(214, 8%, 72%)';
-
-/** The chosen disc, a light grey with a little turn in it, drawn as a gradient. */
-export const NIGHT_MARK_SWEEP = ['hsl(210, 10%, 94%)', 'hsl(214, 8%, 64%)'] as const;
 
 /**
  * The radio. By day it is a white box lifted off the sheet with a deep blue
@@ -177,8 +174,6 @@ export const NIGHT_SOLID = {
  */
 export const NIGHT_SWEEP = ['hsl(212, 14%, 2%)', 'hsl(212, 12%, 7%)'] as const;
 
-/** The rule along the top of an emphasised panel: a hairline of light. */
-export const NIGHT_RULE = ['hsla(0, 0%, 100%, 0.04)', 'hsla(0, 0%, 100%, 0.42)', 'hsla(0, 0%, 100%, 0.04)'] as const;
 
 
 /** Its blue, lifted until it reads as type: 5.4:1 on a card at the top. */

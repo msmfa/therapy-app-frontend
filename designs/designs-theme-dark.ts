@@ -3,7 +3,7 @@
  * value live there, beside the value.
  */
 
-import { PALETTE } from './designs-colors';
+import { ACCENT_INK_BRIGHT, ACCENT_INK_BRIGHTEST, ACCENT_MARK, BRAND_ORANGE, COLOR_VARIANTS, PALETTE } from './designs-colors';
 import { CALENDAR_BACKDROP_BASE_LOCATIONS, CALENDAR_BACKDROP_GLOW_LOCATIONS } from './designs-gradients';
 import {
     NIGHT_ACCENT,
@@ -24,11 +24,9 @@ import {
     NIGHT_LINK,
     NIGHT_LINK_PRESSED,
     NIGHT_MARK,
-    NIGHT_MARK_SWEEP,
     NIGHT_PAPER,
     NIGHT_RADIO,
     NIGHT_RED,
-    NIGHT_RULE,
     NIGHT_SOLID,
     NIGHT_SWEEP,
     NIGHT_STATUS,
@@ -114,7 +112,7 @@ export const darkTheme: Theme = {
         inkBrightest: NIGHT_INK.secondary,
         border: 'hsla(0, 0%, 100%, 0.28)',
         ring: NIGHT_MARK,
-        mark: NIGHT_MARK_SWEEP,
+        mark: [NIGHT_MARK, NIGHT_MARK],
         check: NIGHT_SOLID.background,
         iconDisc: 'hsla(0, 0%, 100%, 0.10)',
         // The original's black badge, with grey type on it: the one object on
@@ -122,9 +120,22 @@ export const darkTheme: Theme = {
         trialFill: NIGHT_SOLID.background,
         trialText: NIGHT_INK.secondary,
     },
+    // The light theme's chosen plan card, unchanged: orange with its pale
+    // inks. Asked for by name; the one surface the night keeps the brand fill.
+    plan: {
+        fill: BRAND_ORANGE,
+        border: ACCENT_MARK,
+        inkBright: ACCENT_INK_BRIGHT,
+        inkBrightest: ACCENT_INK_BRIGHTEST,
+        check: BRAND_ORANGE,
+        mark: [ACCENT_MARK, ACCENT_MARK],
+        iconDisc: 'hsla(21, 75%, 54%, 0.20)',
+        trialFill: PALETTE.neutral.black,
+        trialText: COLOR_VARIANTS.white.secondary,
+    },
     emphasis: {
         panel: NIGHT_ACCENT.panel,
-        rule: NIGHT_RULE,
+        rule: null,
         ink: NIGHT_INK.primary,
         inkSecondary: NIGHT_INK.secondary,
         inkMuted: NIGHT_INK.secondary,

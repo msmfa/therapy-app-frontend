@@ -147,6 +147,20 @@ export const lightTheme: Theme = {
         trialFill: PALETTE.neutral.black,
         trialText: COLOR_VARIANTS.white.secondary,
     },
+    plan: {
+        fill: BRAND_ORANGE,
+        // A light edge, not a dark one: a deeper orange round a chosen card
+        // read as a shadow rather than as the card's own outline.
+        border: ACCENT_MARK,
+        inkBright: ACCENT_INK_BRIGHT,
+        inkBrightest: ACCENT_INK_BRIGHTEST,
+        check: BRAND_ORANGE,
+        mark: [ACCENT_MARK, ACCENT_MARK],
+        iconDisc: 'hsla(21, 75%, 54%, 0.20)',
+        // Black holds against the orange fill; the type steps down to grey.
+        trialFill: PALETTE.neutral.black,
+        trialText: COLOR_VARIANTS.white.secondary,
+    },
     emphasis: {
         panel: BRAND_ORANGE,
         rule: null,
