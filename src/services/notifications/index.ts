@@ -23,35 +23,6 @@ export async function ensureNotificationPermissions(): Promise<boolean> {
     return status === 'granted';
 }
 
-export type ScheduleNotificationParams = {
-    identifier: string;
-    title: string;
-    body: string;
-    when: Date;
-    data?: Record<string, unknown>;
-};
-
-export async function scheduleNotificationRequest({ identifier, title, body, when, data }: ScheduleNotificationParams): Promise<string> {
-    if (when.getTime() <= Date.now()) throw new Error('Pick a future date & time');
-
-    const trigger: Notifications.DateTriggerInput = {
-        type: Notifications.SchedulableTriggerInputTypes.DATE,
-        date: when,
-    };
-
-    return Notifications.scheduleNotificationAsync({
-        content: {
-            title,
-            body,
-            data: {
-                identifier,
-                ...data,
-            },
-        },
-        trigger,
-    });
-}
-
 export async function cancelNotificationById(notificationId: string): Promise<void> {
     try {
         await Notifications.cancelScheduledNotificationAsync(notificationId);
