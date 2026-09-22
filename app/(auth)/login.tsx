@@ -99,7 +99,7 @@ export default function LoginScreen() {
                         showsVerticalScrollIndicator={ false }
                     >
                         <View style={ styles.card }>
-                            <AppText variant="h1" align="center">
+                            <AppText variant="h1" align="center" accessibilityRole="header">
                                 { t('signIn.title') }
                             </AppText>
                             <Spacer />
@@ -139,6 +139,7 @@ export default function LoginScreen() {
                                     }) }
                                     style={ styles.forgotPassword }
                                     disabled={ loading }
+                                    accessibilityRole="link"
                                 >
                                     <AppText variant="caption">{ t('signIn.forgotPassword') }</AppText>
                                 </TouchableOpacity>

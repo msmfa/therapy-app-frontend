@@ -26,6 +26,9 @@ export function ReminderRow ({ date, description, link }: Props) {
             <TouchableOpacity
                 activeOpacity={ 0.85 }
                 onPress={ () => setOpenModal(link) }
+                accessibilityRole="link"
+                accessibilityLabel={ `${date}. ${description}` }
+                accessibilityHint={ tCommon('a11y.opensReminderResearch') }
             >
                 <FrostedCard>
                     <View style={ styles.container }>

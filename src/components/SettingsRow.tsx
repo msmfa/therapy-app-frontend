@@ -14,7 +14,7 @@ type Props = {
 
 export function SettingsRow({ text, onPress }: Props) {
     return (
-        <TouchableOpacity onPress={ onPress } style={ styles.wrapper }>
+        <TouchableOpacity onPress={ onPress } style={ styles.wrapper } accessibilityRole="button">
             <AppText numberOfLines={ 3 }  variant={ "body" } style={ styles.text }>
                 { text }
             </AppText>

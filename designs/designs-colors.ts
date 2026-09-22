@@ -30,7 +30,9 @@ export const COLOR_VARIANTS = {
     primary: 'hsl(0, 0%, 5%)',
     secondary: 'hsla(0, 0%, 0%, 0.70)',
     tertiary: 'hsla(0, 0%, 0%, 0.55)',
-    quaternary: 'hsla(0, 0%, 0%, 0.40)',
+    // 0.40 read at 2.85:1 against white, under the 4.5:1 body-text minimum;
+    // 0.54 is the least opacity that clears it.
+    quaternary: 'hsla(0, 0%, 0%, 0.54)',
   },
   white: {
     primary: 'hsl(0, 0%, 100%)',
@@ -84,14 +86,17 @@ export const BRAND_ORANGE = 'hsl(19, 97%, 55%)';
 export const BRAND_ORANGE_EDGE = 'hsl(19, 88%, 46%)';
 
 /**
- * The type on that orange, and it is not white.
+ * The type on that orange.
  *
- * Read off the same artwork: the lettering there is a warm pale peach that
- * keeps the ground's own hue rather than a white laid over it, which is what
- * stops the words looking stuck on. Reserved for the orange sections; a page of
- * body copy needs more separation from its ground than this gives.
+ * Was a warm pale peach read off the marketing artwork (hsl(28, 100%, 90%)),
+ * keeping the ground's own hue rather than a white laid over it. It only ever
+ * reached 2.48:1 against BRAND_ORANGE, and no lighter version can do better:
+ * even flat white peaks at 3.03:1 against this ground, short of the 4.5:1 a
+ * card's selected-option label needs. Taken all the way down the same hue
+ * instead, which clears 4.5:1, so the app's own copy of this ink no longer
+ * matches the artwork it was read off.
  */
-export const BRAND_ORANGE_INK = 'hsl(28, 100%, 90%)';
+export const BRAND_ORANGE_INK = 'hsl(28, 100%, 14%)';
 
 /**
  * The same warm ink, taken up for reading rather than for a label.
@@ -161,9 +166,13 @@ export const BLUE_PANEL = {
 
 // The one saturated surface in the app. The notes preview screen sits on it so
 // the screenshot of the notes list reads as a lit phone screen resting on the
-// page rather than as a second copy of the page itself. The brand orange, which
-// white type sits on cleanly.
-export const SURFACE_ACCENT = 'hsl(20, 99%, 55%)';
+// page rather than as a second copy of the page itself. The brand orange, taken
+// down from its original 55% lightness: white type on it read at 2.94:1 even at
+// full opacity, and no white is bright enough to clear 4.5:1 against 55%. 37%
+// is the least darkening that lets the existing near-white text (ACCENT_SURFACE
+// below) pass, rather than darkening the text and losing the white-on-orange
+// look this screen is built around.
+export const SURFACE_ACCENT = 'hsl(20, 99%, 37%)';
 
 export const TEXT_COLORS = {
   primary: COLOR_VARIANTS.black.primary,
@@ -225,7 +234,9 @@ export const CALENDAR_COLORS = {
   calendarDayDefault: COLOR_VARIANTS.black.secondary,
   calendarDayDisabled: 'hsla(0, 0%, 0%, 0.150)',
   calendarMonthText: COLOR_VARIANTS.black.secondary,
-  calendarWeekdayHeader: 'hsla(0, 0%, 0%, 0.30)',
+  // 0.30 read at 2.11:1 against the calendar's pale ground, under the 4.5:1
+  // body-text minimum; 0.54 is the least opacity that clears it.
+  calendarWeekdayHeader: 'hsla(0, 0%, 0%, 0.54)',
   arrows: COLOR_VARIANTS.black.secondary,
   reminderBackground: 'rgba(167, 202, 201, 0.96)',
   reminderBorder: 'rgba(37, 96, 88, 0.44)',
@@ -278,22 +289,38 @@ export const COMPONENT_COLORS = {
 // blue-to-grey backdrop.
 export const CALENDAR_DARK_COLORS = {
   monthText: 'hsl(240, 8%, 16%)',
-  weekdayHeader: 'hsla(240, 8%, 16%, 0.55)',
+  // 0.55 read at 3.32:1 against the calendar's pale ground, under the 4.5:1
+  // body-text minimum; 0.68 clears it with a small margin.
+  weekdayHeader: 'hsla(240, 8%, 16%, 0.68)',
   dayDefault: 'hsla(240, 8%, 16%, 0.88)',
   dayDisabled: 'hsla(240, 8%, 16%, 0.24)',
   arrows: 'hsla(240, 8%, 16%, 0.70)',
-  // Days are marked by three dots under the numeral rather than a disc behind
-  // it: orange for a therapy session, blue for a reminder.
+  // Reminder days are marked by three dots under the numeral; a session day
+  // instead wears a disc of its own (sessionFill below), since colour was the
+  // only thing telling the two apart and that is invisible to anyone who
+  // cannot separate orange from blue.
   sessionDot: ACTION_ORANGE,
   reminderDot: 'hsl(226, 62%, 48%)',
-  // Today is the one solid disc in the month, so it reads before the dots do.
+  // Today is otherwise the one solid disc in the month, so it reads before
+  // the dots do.
   todayBackground: 'hsl(240, 8%, 10%)',
   todayText: 'hsl(0, 0%, 78%)',
-  // Today wears its disc even when it is also a session or a reminder, so the
-  // dots have to stay legible on a near-black ground. The orange already does;
-  // the blue is far too dark against it and lightens to match.
-  sessionDotOnToday: ACTION_ORANGE,
+  // Today wears its disc even when it is also a reminder, so the dot has to
+  // stay legible on a near-black ground; too dark otherwise, so it lightens.
+  // A session's own disc (sessionFill) already reads on any ground, today's
+  // included, so it needs no "on today" variant the way the dots do.
   reminderDotOnToday: 'hsl(226, 85%, 72%)',
+  // The session disc. Same hue as sessionDot/ACTION_ORANGE (20°); white
+  // numerals on the brand orange itself only reach 3.25:1, short of the
+  // 4.5:1 a 17px numeral needs. Pushed to full saturation and down to 40%
+  // lightness rather than just darkened at ACTION_ORANGE's own 75%
+  // saturation, which read as brown once dark enough to pass; fully
+  // saturated instead reads as a deep orange at the same darkness (4.75:1).
+  // Kept as its own colour rather than darkening ACTION_ORANGE itself, which
+  // is the small-mark orange used everywhere else in the app and reads fine
+  // at its original weight there.
+  sessionFill: '#CC4500',
+  sessionFillText: COLOR_VARIANTS.white.primary,
   // Press feedback on a day that is neither a session nor a reminder.
   pressedBackground: 'hsla(240, 8%, 16%, 0.10)',
   pressedText: 'hsl(240, 8%, 16%)',

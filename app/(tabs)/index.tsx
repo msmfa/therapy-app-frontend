@@ -11,6 +11,7 @@ import { GlassCircleButton } from '../../src/components/ui/GlassCircleButton';
 import { GlassButtonOutline } from '../../src/components/ui/GlassButtonOutline';
 import { TemplateHelpModal } from '../../src/components/notes/TemplateHelpModal';
 import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
+import { BRAND_FONTS } from 'designs/designs-typography';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 import { useTranslation } from 'react-i18next';
 
@@ -71,6 +72,7 @@ export default function NewNoteScreen() {
                                 <View style={ styles.cardOverlay }>
                                     <TextInput
                                         placeholder={ notePrompt }
+                                        accessibilityLabel={ notePrompt }
                                         value={ text }
                                         editable={ !saving }
                                         onChangeText={ setText }
@@ -175,8 +177,12 @@ const styles = StyleSheet.create({
         paddingBottom: 70,
     },
     textInputFilled: {
-        fontSize: 16,
-        lineHeight: 22,
+        fontSize: 18,
+        lineHeight: 25,
+        // The base style's DMSans-Bold is the prompt's display voice; once
+        // there's real content this drops to the app's regular reading font
+        // instead of just shrinking a bold one.
+        fontFamily: BRAND_FONTS.regular,
     },
     footer: {
         flexDirection: 'row',

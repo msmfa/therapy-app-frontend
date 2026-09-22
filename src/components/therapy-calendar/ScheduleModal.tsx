@@ -104,7 +104,13 @@ export default function ScheduleModal({
     return (
         <Modal visible={ visible } transparent animationType="slide" onRequestClose={ onCancel }>
             <View style={ styles.modalOverlay }>
-                <TouchableOpacity style={ styles.modalBackdrop } activeOpacity={ 1 } onPress={ onCancel } />
+                <TouchableOpacity
+                    style={ styles.modalBackdrop }
+                    activeOpacity={ 1 }
+                    onPress={ onCancel }
+                    accessibilityRole="button"
+                    accessibilityLabel={ t('a11y.dismissScheduling') }
+                />
                 <View style={ styles.modalContent }>
                     { selectedDay && (
                         <View style={ styles.selectedDayBlock }>
@@ -148,7 +154,12 @@ export default function ScheduleModal({
                                 </GlassPickerPanel>
                             ) : (
                                 <>
-                                    <TouchableOpacity style={ styles.timeButton } onPress={ () => setShowPicker(true) }>
+                                    <TouchableOpacity
+                                        style={ styles.timeButton }
+                                        onPress={ () => setShowPicker(true) }
+                                        accessibilityRole="button"
+                                        accessibilityHint={ t('a11y.opensTimePicker') }
+                                    >
                                         <Ionicons name="time-outline" size={ 20 } />
                                         <AppText style={ styles.timeLabel } variant='body'>
                                             { dayjs(time).format('LT') }

@@ -77,12 +77,11 @@ describe('TherapyCalendar dark variant', () => {
             .map((style) => style.backgroundColor);
     };
 
-    it('marks sessions with orange dots and reminders with blue ones', () => {
+    it('marks a session with its own orange disc, and a reminder with blue dots', () => {
         renderCalendar();
 
-        expect(dotColours(SESSION_KEY)).toEqual(
-            Array(3).fill(CALENDAR_DARK_COLORS.sessionDot),
-        );
+        expect(dayStyle(SESSION_KEY).backgroundColor).toBe(CALENDAR_DARK_COLORS.sessionFill);
+        expect(dotColours(SESSION_KEY)).toEqual(Array(3).fill('transparent'));
         expect(dotColours(REMINDER_KEY)).toEqual(
             Array(3).fill(CALENDAR_DARK_COLORS.reminderDot),
         );
