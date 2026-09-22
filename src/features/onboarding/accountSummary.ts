@@ -15,6 +15,8 @@ export type AccountSummaryRow = {
     value: string;
     /** A line under the value, part of the same section. */
     note?: string;
+    /** The subscription row is set in the plan's orange, like the chosen plan itself. */
+    tone?: 'plan';
 };
 
 type ScheduleAnswers = Pick<OnboardingAnswers, 'sessionAt' | 'cadence'>;
@@ -97,6 +99,7 @@ export const accountSummaryRows = (
     { label: accountCopy().sessionLabel, value: accountSessionLine(answers) },
     { label: accountCopy().remindersLabel, value: accountRemindersLine(answers) },
     {
+        tone: 'plan',
         label: accountCopy().subscriptionLabel,
         value: accountSubscriptionLine(answers.plan, offer, alreadyActive),
         // What Apple does next belongs to the subscription, not to the slip

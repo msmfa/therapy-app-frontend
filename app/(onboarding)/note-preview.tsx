@@ -17,7 +17,8 @@ import {
     notePreviewCopy,
 } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
-import { useOnboardingStyles } from '../../src/components/onboarding/onboardingStyles';
+import { CARD_RADIUS, useOnboardingStyles } from '../../src/components/onboarding/onboardingStyles';
+import { CardLight } from '../../src/components/onboarding/CardLight';
 import { useTranslation } from 'react-i18next';
 
 /** The screenshot's own proportions, so nothing is stretched. */
@@ -142,7 +143,12 @@ export default function NotePreviewScreen() {
                     />
                 }
             >
-                <View style={ [onboardingStyles.card, onboardingAccentStyles.card, styles.privacy] }>
+                <View style={ [onboardingStyles.card, onboardingAccentStyles.card, styles.privacy, theme.accentScreen.cardLight !== null && styles.privacyLit] }>
+                    { /* At night the promise is the plan's orange, lit from its
+                         corner like the chosen plan card. */ }
+                    { theme.accentScreen.cardLight !== null && (
+                        <CardLight light={ theme.accentScreen.cardLight } radius={ CARD_RADIUS } />
+                    ) }
                     { /* The lock belongs to the title it marks. The paragraph runs
                      the full width underneath both, rather than in a column
                      beside the icon that cost it a word a line. */ }
@@ -197,6 +203,11 @@ const styles = StyleSheet.create({
     privacy: {
         padding: 18,
         marginTop: 8,
+    },
+    // The light paints the edge itself, so the border it covers must not
+    // show through as a second, flat outline.
+    privacyLit: {
+        borderColor: 'transparent',
     },
     privacyHeading: {
         flexDirection: 'row',

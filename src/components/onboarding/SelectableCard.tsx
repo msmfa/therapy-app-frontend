@@ -5,7 +5,8 @@ import AppText from '../ui/AppText';
 import { BRAND_FONTS } from 'designs/designs-typography';
 import type { Theme } from 'designs/designs-themes';
 import { useTheme, useThemedStyles } from '../../context/theme';
-import { useOnboardingStyles } from './onboardingStyles';
+import { CARD_RADIUS, useOnboardingStyles } from './onboardingStyles';
+import { CardLight } from './CardLight';
 
 type Props = {
     label: string;
@@ -22,6 +23,7 @@ type Props = {
 };
 
 const CHECK_SIZE = 20;
+const CARD_BORDER_WIDTH = 2;
 
 /**
  * One height for every option in a group: the tallest one's.
@@ -66,6 +68,7 @@ export function SelectableCard({ label, selected, onPress, height, onLayout }: P
     const { theme } = useTheme();
     const styles = useThemedStyles(makeStyles);
     const { onboardingStyles } = useOnboardingStyles();
+    const light = selected ? theme.chosen.light : theme.surface.cardLight;
 
     return (
         <TouchableOpacity
@@ -79,14 +82,15 @@ export function SelectableCard({ label, selected, onPress, height, onLayout }: P
                 onboardingStyles.card,
                 styles.card,
                 selected && styles.cardSelected,
+                // The light paints the edge itself, so the border it covers
+                // must not show through as a second, flat outline.
+                light !== null && styles.cardLit,
                 height !== undefined && { minHeight: height },
             ] }
         >
-            { /* The night's cards are lit from above: a sheen across the face
-                 behind the content, where the day's card is one flat tint. */ }
-            { !selected && theme.surface.cardSheen !== null && (
-                <LinearGradient pointerEvents="none" colors={ theme.surface.cardSheen } style={ styles.sheen } />
-            ) }
+            { /* The night's cards are lit from the top-left corner, behind
+                 the content, where the day's card is one flat tint. */ }
+            { light !== null && <CardLight light={ light } radius={ CARD_RADIUS } borderWidth={ CARD_BORDER_WIDTH } /> }
             { /* Filled, not ringed: the disc is the theme's mark, drawn as a
                  gradient so the day's flat peach and the night's sweep take
                  the same path. */ }
@@ -117,12 +121,10 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         minHeight: 72,
         paddingVertical: 18,
         paddingHorizontal: 20,
-        borderWidth: 2,
-        overflow: 'hidden',
+        borderWidth: CARD_BORDER_WIDTH,
     },
-    sheen: {
-        ...StyleSheet.absoluteFillObject,
-        borderRadius: 24,
+    cardLit: {
+        borderColor: 'transparent',
     },
     // A chosen option is an orange section: a flat block of the brand's own
     // colour, with no outline drawn round it and nothing but the filled circle

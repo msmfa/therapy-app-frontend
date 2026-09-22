@@ -72,7 +72,7 @@ export default function NoteTemplateScreen() {
                 }
                 footer={
                     <OnboardingButton
-                        appearance="solid"
+                        appearance="ink"
                         label={ noteTemplateCopy().primaryCta }
                         onPress={ () => router.push('/(onboarding)/reviews-preview') }
                     />

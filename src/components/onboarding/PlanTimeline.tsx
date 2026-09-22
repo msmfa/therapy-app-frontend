@@ -11,7 +11,8 @@ import { GlassCircleButton } from '../ui/GlassCircleButton';
 import { DottedDivider } from '../ui/DottedDivider';
 import { AppModal } from '../Modal';
 import { ScienceTextModal } from '../ScienceTextModal';
-import { useOnboardingStyles, type OnboardingStyles } from './onboardingStyles';
+import { CARD_RADIUS, useOnboardingStyles, type OnboardingStyles } from './onboardingStyles';
+import { CardLight } from './CardLight';
 import { BRAND_FONTS } from 'designs/designs-typography';
 import { useTranslation } from 'react-i18next';
 import { t as translate } from '../../i18n/translate';
@@ -176,8 +177,17 @@ export function PlanTimeline({ entries, onOpenTemplate }: Props) {
                                     onboardingStyles.card,
                                     styles.content,
                                     !isSession && styles.contentCompact,
+                                    // The light paints the edge itself, so the
+                                    // border it covers must not show through
+                                    // as a second, flat outline.
+                                    theme.surface.cardLight !== null && styles.contentLit,
                                 ] }
                             >
+                                { /* Lit from the top-left corner at night, like
+                                     every other card in the flow. */ }
+                                { theme.surface.cardLight !== null && (
+                                    <CardLight light={ theme.surface.cardLight } radius={ CARD_RADIUS } />
+                                ) }
                                 <View style={ styles.heading }>
                                     { isSession && (
                                         <View
@@ -327,6 +337,9 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         // Brighter than the flow's shared card edge. These sit over artwork
         // and over the rail, and the highlight is what lifts them off both.
         borderColor: theme.surface.cardHighlight,
+    },
+    contentLit: {
+        borderColor: 'transparent',
     },
     // Pulled back into the card's corner: at the full inset the arrow sat a
     // long way in from two edges it is supposed to mark.

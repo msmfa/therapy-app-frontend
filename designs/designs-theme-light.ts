@@ -57,7 +57,7 @@ export const lightTheme: Theme = {
         card: PALETTE.overlay.whiteSurfaceTransparent,
         cardBorder: PALETTE.overlay.whiteBorderTransparent,
         cardEdge: PALETTE.overlay.whiteBorderTransparent,
-        cardSheen: null,
+        cardLight: null,
         cardShadow: PALETTE.overlay.blueGlowTransparent,
         cardShadowOpacity: 0.18,
         shadowOffset: { width: 0, height: 1 },
@@ -118,6 +118,12 @@ export const lightTheme: Theme = {
         disabledSurface: BUTTON_COLORS.disabledSurface,
         disabledBorder: BUTTON_COLORS.disabledDark,
         disabledText: BUTTON_COLORS.disabledText,
+        flowAction: 'solid',
+        start: {
+            background: BUTTON_COLORS.primaryBackground,
+            text: COLOR_VARIANTS.white.quaternary,
+            rim: null,
+        },
     },
     link: {
         color: ACTION_BLUE_DARK,
@@ -140,6 +146,7 @@ export const lightTheme: Theme = {
         // A light edge, not a dark one: a deeper orange round a chosen card
         // read as a shadow rather than as the card's own outline.
         border: ACCENT_MARK,
+        light: null,
         ring: BRAND_ORANGE,
         mark: [ACCENT_MARK, ACCENT_MARK],
         check: BRAND_ORANGE,
@@ -153,6 +160,7 @@ export const lightTheme: Theme = {
         // A light edge, not a dark one: a deeper orange round a chosen card
         // read as a shadow rather than as the card's own outline.
         border: ACCENT_MARK,
+        light: null,
         inkBright: ACCENT_INK_BRIGHT,
         inkBrightest: ACCENT_INK_BRIGHTEST,
         check: BRAND_ORANGE,
@@ -161,6 +169,12 @@ export const lightTheme: Theme = {
         // Black holds against the orange fill; the type steps down to grey.
         trialFill: PALETTE.neutral.black,
         trialText: COLOR_VARIANTS.white.secondary,
+    },
+    testimonial: {
+        panel: BRAND_ORANGE,
+        ink: ACCENT_SURFACE.textPrimary,
+        inkMuted: 'hsla(0, 0%, 100%, 0.62)',
+        light: null,
     },
     emphasis: {
         panel: BRAND_ORANGE,
@@ -174,6 +188,7 @@ export const lightTheme: Theme = {
         textPrimary: ACCENT_SURFACE.textPrimary,
         textSecondary: ACCENT_SURFACE.textSecondary,
         card: ACCENT_SURFACE.cardBackground,
+        cardLight: null,
         cardBorder: ACCENT_SURFACE.cardBorder,
         cardEdge: ACCENT_SURFACE.cardBorder,
         glow: null,

@@ -6,6 +6,7 @@ import Svg, { Defs, Rect, LinearGradient as SvgGradient, Stop } from 'react-nati
 import { useTranslation } from 'react-i18next';
 import AppText from './AppText';
 import type { Theme } from 'designs/designs-themes';
+import type { GradientStops } from 'designs/designs-theme-shape';
 import { useTheme, useThemedStyles } from '../../context/theme';
 
 type Props = {
@@ -32,6 +33,11 @@ type Props = {
      * an opaque surface.
      */
     fillColor?: string;
+    /**
+     * The rim round a solid pill, in place of the theme's hairline of light:
+     * the start action's orange edge. Ignored on the glass form.
+     */
+    rim?: GradientStops | null;
     style?: StyleProp<ViewStyle>;
 };
 
@@ -61,6 +67,7 @@ export function GlassPillButton({
     loading = false,
     contentSized = false,
     fillColor,
+    rim: rimOverride,
     style,
 }: Props) {
     const { t } = useTranslation('common');
@@ -75,7 +82,7 @@ export function GlassPillButton({
     // A solid pill at night is a dark object held off the panel by a hairline
     // of light along its top: the rim is a gradient drawn just outside the
     // fill, which is inset by its width to leave it showing.
-    const solidRim = isSolid ? theme.surface.lightRim : null;
+    const solidRim = isSolid ? (rimOverride !== undefined ? rimOverride : theme.surface.lightRim) : null;
     const RIM_WIDTH = 1.5;
     const [layout, setLayout] = React.useState({ width: 0, height });
     const { width } = layout;

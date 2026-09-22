@@ -69,8 +69,22 @@ export const NIGHT_SURFACE = {
     // sides round every corner and read as a smear. The light comes from the
     // sheen instead.
     cardEdge: 'hsla(0, 0%, 100%, 0.06)',
-    /** Lit from above: a step lighter at the top, the fill by the bottom. */
-    cardSheen: ['hsl(213, 10%, 18%)', 'hsl(213, 10%, 13%)'] as const,
+    /**
+     * Lit from the top-left corner. The face pools a little light there and
+     * settles into the fill past the middle; the rim is brightest at that
+     * corner and fades round to almost nothing at the bottom right, so the
+     * edge reads as caught light rather than a drawn outline.
+     */
+    cardLight: {
+        face: {
+            colors: ['hsl(213, 10%, 17%)', 'hsl(213, 10%, 14%)', 'hsl(213, 10%, 13%)'] as const,
+            locations: [0, 0.4, 1] as const,
+        },
+        rim: {
+            colors: ['hsla(0, 0%, 100%, 0.22)', 'hsla(0, 0%, 100%, 0.08)', 'hsla(0, 0%, 100%, 0.03)'] as const,
+            locations: [0, 0.4, 1] as const,
+        },
+    },
     cardShadow: 'hsl(0, 0%, 0%)',
     frostedShadow: 'hsl(0, 0%, 0%)',
     gradientCardShadow: 'hsl(0, 0%, 0%)',
@@ -181,9 +195,12 @@ export const NIGHT_SWEEP = ['hsl(212, 14%, 2%)', 'hsl(212, 12%, 7%)'] as const;
 
 
 
-/** Its blue, lifted until it reads as type: 5.4:1 on a card at the top. */
-export const NIGHT_LINK = 'hsl(248, 85%, 80%)';
-export const NIGHT_LINK_PRESSED = 'hsl(248, 70%, 66%)';
+/**
+ * The day's blue, taken as dark as the charcoal allows: any deeper and it
+ * drops under 4.5:1 on a card at the top. 4.9:1 there as it stands.
+ */
+export const NIGHT_LINK = 'hsl(216, 80%, 62%)';
+export const NIGHT_LINK_PRESSED = 'hsl(216, 70%, 50%)';
 
 /**
  * The brand orange's jobs at night. The reference has no orange, so a fill
@@ -199,6 +216,17 @@ export const NIGHT_ACCENT = {
     panel: 'hsl(214, 8%, 19%)',
     panelEdge: 'hsl(214, 8%, 23%)',
     chosenFill: 'hsl(214, 8%, 21%)',
+    /** The chosen card: the same corner light as the others, turned up a step, with a brighter rim. */
+    chosenLight: {
+        face: {
+            colors: ['hsl(213, 9%, 25%)', 'hsl(213, 9%, 21%)', 'hsl(213, 9%, 19%)'] as const,
+            locations: [0, 0.4, 1] as const,
+        },
+        rim: {
+            colors: ['hsla(0, 0%, 100%, 0.45)', 'hsla(0, 0%, 100%, 0.16)', 'hsla(0, 0%, 100%, 0.06)'] as const,
+            locations: [0, 0.4, 1] as const,
+        },
+    },
 } as const;
 
 /**
@@ -207,13 +235,45 @@ export const NIGHT_ACCENT = {
  * longer competes with it. White reads at 15:1, so the screen affords its card
  * and its 0.92 secondary ink with room to spare.
  */
+/**
+ * The one orange that survives at night as a surface: the chosen plan, and
+ * with it the things that share its job of standing out from the charcoal,
+ * the privacy promise, the tester's quote, the example-dates band and the
+ * action that starts the flow. Banked from the brand orange so it marks
+ * without lighting the screen, but not so far that it goes brown; the pale
+ * ink clears 5:1 on it, and 4.5:1 on the lit corner.
+ */
+export const NIGHT_PLAN = {
+    fill: 'hsl(19, 64%, 42%)',
+    border: 'hsla(26, 100%, 78%, 0.55)',
+    /**
+     * The bright edge round the start action: a hot orange, pale along the
+     * top and deepening down the sides, drawn just outside the fill.
+     */
+    rim: ['hsl(32, 100%, 76%)', 'hsl(16, 100%, 54%)'] as const,
+    /** The same corner light as the charcoal cards, in the orange, with a peach rim. */
+    light: {
+        face: {
+            colors: ['hsl(19, 64%, 44%)', 'hsl(19, 64%, 42%)', 'hsl(19, 64%, 40%)'] as const,
+            locations: [0, 0.4, 1] as const,
+        },
+        rim: {
+            colors: ['hsla(28, 100%, 85%, 0.65)', 'hsla(28, 100%, 85%, 0.25)', 'hsla(28, 100%, 85%, 0.08)'] as const,
+            locations: [0, 0.4, 1] as const,
+        },
+    },
+} as const;
+
 export const NIGHT_ACCENT_SCREEN = {
     ground: 'hsl(213, 10%, 11%)',
     textPrimary: 'hsl(0, 0%, 100%)',
-    textSecondary: 'hsla(0, 0%, 100%, 0.92)',
-    card: 'hsl(213, 9%, 16%)',
-    cardBorder: 'hsla(0, 0%, 100%, 0.10)',
-    cardEdge: 'hsla(0, 0%, 100%, 0.10)',
+    // Full white, not the day's 0.92: on the orange's lit corner the softer
+    // white fell just under 4.5:1, and there is no darker orange to give back.
+    textSecondary: 'hsl(0, 0%, 100%)',
+    /** The privacy promise: the plan's orange, lit the same way. */
+    card: NIGHT_PLAN.fill,
+    cardBorder: NIGHT_PLAN.border,
+    cardEdge: NIGHT_PLAN.border,
 } as const;
 
 /** Status colours, each checked on a card at the top of the gradient. */

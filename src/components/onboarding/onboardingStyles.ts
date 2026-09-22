@@ -5,9 +5,12 @@ import type { Theme } from 'designs/designs-themes';
 import { useTheme } from '../../context/theme';
 
 /** Surfaces and type shared with the notes editor and reminder cards. */
+/** The corner radius every onboarding card shares. */
+export const CARD_RADIUS = 26;
+
 export const makeOnboardingStyles = (theme: Theme) => StyleSheet.create({
     card: {
-        borderRadius: 26,
+        borderRadius: CARD_RADIUS,
         borderWidth: 1,
         borderColor: theme.surface.cardBorder,
         // The lit top edge that lifts a card off a ground it is barely lighter

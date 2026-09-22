@@ -5,8 +5,11 @@ import { Feather } from '@expo/vector-icons';
 import AppText from '../ui/AppText';
 import type { Theme } from 'designs/designs-themes';
 import { useTheme, useThemedStyles } from '../../context/theme';
-import { useOnboardingStyles } from './onboardingStyles';
+import { CARD_RADIUS, useOnboardingStyles } from './onboardingStyles';
+import { CardLight } from './CardLight';
 import { subscriptionCopy } from '../../features/onboarding/onboardingCopy';
+
+const CARD_BORDER_WIDTH = 2;
 
 type Props = {
     title: string;
@@ -51,6 +54,8 @@ export function SubscriptionPlanCard({
     const { theme } = useTheme();
     const styles = useThemedStyles(makeStyles);
     const { onboardingStyles } = useOnboardingStyles();
+    // The chosen plan is lit in its own orange, where the theme has one.
+    const light = selected ? theme.plan.light : theme.surface.cardLight;
 
     return (
         <TouchableOpacity
@@ -60,13 +65,19 @@ export function SubscriptionPlanCard({
             accessibilityRole="radio"
             accessibilityLabel={ accessibilityLabel }
             accessibilityState={ { selected, checked: selected, disabled } }
-            style={ [onboardingStyles.card, styles.card, selected && styles.cardSelected, disabled && styles.disabled] }
+            style={ [
+                onboardingStyles.card,
+                styles.card,
+                selected && styles.cardSelected,
+                // The light paints the edge itself, so the border it covers
+                // must not show through as a second, flat outline.
+                light !== null && styles.cardLit,
+                disabled && styles.disabled,
+            ] }
         >
-            { /* The night's cards are lit from above: a sheen across the face
-                 behind the content, where the day's card is one flat tint. */ }
-            { !selected && theme.surface.cardSheen !== null && (
-                <LinearGradient pointerEvents="none" colors={ theme.surface.cardSheen } style={ styles.sheen } />
-            ) }
+            { /* The night's cards are lit from the top-left corner, behind
+                 the content, where the day's card is one flat tint. */ }
+            { light !== null && <CardLight light={ light } radius={ CARD_RADIUS } borderWidth={ CARD_BORDER_WIDTH } /> }
             <View style={ styles.headerRow }>
                 { /* The tick lives in the radio rather than off at the end of
                      the row: one mark saying chosen, on the control that does
@@ -183,15 +194,13 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         fontSize: 15,
     },
     card: {
-        borderWidth: 2,
+        borderWidth: CARD_BORDER_WIDTH,
         paddingHorizontal: 20,
         paddingVertical: 20,
         minHeight: 44,
-        overflow: 'hidden',
     },
-    sheen: {
-        ...StyleSheet.absoluteFillObject,
-        borderRadius: 24,
+    cardLit: {
+        borderColor: 'transparent',
     },
     // The same chosen state as the questions' own options: one way of showing a
     // selection across the flow, whether the choice is a goal or a plan.

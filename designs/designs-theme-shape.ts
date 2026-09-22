@@ -14,6 +14,19 @@
 export type ColorScheme = 'light' | 'dark';
 
 export type GradientStops = readonly [string, string, ...string[]];
+
+/**
+ * A card lit from its top-left corner, the way the reference's dark panels
+ * are: the face is a diagonal sweep from a lighter corner into the fill, and
+ * the rim is a hairline of light round the edge that is brightest at that
+ * corner and all but gone by the opposite one. `locations` place the stops
+ * along the diagonal, so the light can pool in the corner rather than spread
+ * evenly across the card.
+ */
+export type CardLight = {
+    face: { colors: GradientStops; locations: readonly [number, number, ...number[]] };
+    rim: { colors: GradientStops; locations: readonly [number, number, ...number[]] };
+};
 export type GradientLocations = readonly [number, number, ...number[]];
 
 export type Theme = {
@@ -42,11 +55,11 @@ export type Theme = {
         /** The card's top edge, where the light catches it. */
         cardEdge: string;
         /**
-         * A sheen across the card's face, top to bottom, or none. The night's
-         * cards are lit from above like the reference's panels: a little
-         * lighter at the top, settling into the fill.
+         * How an unchosen card is lit, or null for a flat card. The night's
+         * cards take the reference's corner light; the day's card is one tint
+         * with a plain border and needs none.
          */
-        cardSheen: GradientStops | null;
+        cardLight: CardLight | null;
         cardShadow: string;
         /**
          * How hard the card's shadow is thrown. The light shadow is a tinted
@@ -129,6 +142,19 @@ export type Theme = {
         disabledSurface: string;
         disabledBorder: string;
         disabledText: string;
+        /**
+         * How onboarding's solid actions are drawn. The ground's opposite by
+         * day; at night the same glass as every other action, since a black
+         * pill on the charcoal ground read as a hole cut in the page.
+         */
+        flowAction: 'solid' | 'glass';
+        /** The one action that starts the flow: black by day, the plan's orange at night. */
+        start: {
+            background: string;
+            text: string;
+            /** A bright rim round the start action, or none: the orange lit along its edge at night. */
+            rim: GradientStops | null;
+        };
     };
 
     link: {
@@ -160,6 +186,12 @@ export type Theme = {
         inkBrightest: string;
         /** The card's own outline. */
         border: string;
+        /**
+         * How a chosen card is lit, or null for a flat fill. At night the
+         * chosen card is the same lit panel a step brighter, with a stronger
+         * rim; by day it is the flat orange block.
+         */
+        light: CardLight | null;
         /** The radio's ring. */
         ring: string;
         /** The filled disc, drawn as a gradient so both themes take one path. */
@@ -181,6 +213,8 @@ export type Theme = {
     plan: {
         fill: string;
         border: string;
+        /** How the chosen plan card is lit, or null for the flat orange block. */
+        light: CardLight | null;
         inkBright: string;
         inkBrightest: string;
         check: string;
@@ -190,7 +224,20 @@ export type Theme = {
         trialText: string;
     };
 
-    /** The emphasised block: supporting banner, science summary, quote card. */
+    /**
+     * The tester's quote. By day the same orange block as the emphasis panel;
+     * at night the chosen plan's orange, since the emphasis panel goes
+     * charcoal there and a stranger's words have to stay the odd card out.
+     */
+    testimonial: {
+        panel: string;
+        ink: string;
+        /** The attribution line, held back from the quotation. */
+        inkMuted: string;
+        light: CardLight | null;
+    };
+
+    /** The emphasised block: supporting banner, science summary. */
     emphasis: {
         panel: string;
         /** A rule along the panel's top, or none. */
@@ -206,6 +253,8 @@ export type Theme = {
         textPrimary: string;
         textSecondary: string;
         card: string;
+        /** How the accent screen's card is lit, or null for a flat card. */
+        cardLight: CardLight | null;
         cardBorder: string;
         cardEdge: string;
         /** A glow behind the screen's object, or none. */

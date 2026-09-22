@@ -1,9 +1,9 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import AppText from '../ui/AppText';
 import { QuoteMark } from './QuoteMark';
-import { useOnboardingStyles } from './onboardingStyles';
+import { CARD_RADIUS, useOnboardingStyles } from './onboardingStyles';
+import { CardLight } from './CardLight';
 import type { Theme } from 'designs/designs-themes';
 import { useTheme, useThemedStyles } from '../../context/theme';
 
@@ -28,18 +28,13 @@ export function QuoteCard({ quote, name, role }: Props) {
     const styles = useThemedStyles(makeStyles);
     const { onboardingStyles } = useOnboardingStyles();
 
+    const light = theme.testimonial.light;
+
     return (
-        <View testID="quote-card" style={ [onboardingStyles.card, styles.card] }>
-            { /* At night the card is the panel charcoal and its emphasis is a
-                 lit rule along the top; by day the orange fill carries it. */ }
-            { theme.emphasis.rule !== null && (
-                <LinearGradient
-                    colors={ theme.emphasis.rule }
-                    start={ { x: 0, y: 0 } }
-                    end={ { x: 1, y: 0 } }
-                    style={ styles.emphasisRule }
-                />
-            ) }
+        <View testID="quote-card" style={ [onboardingStyles.card, styles.card, light !== null && styles.cardLit] }>
+            { /* At night the orange is lit from its corner like the chosen
+                 plan; by day the flat orange fill carries it alone. */ }
+            { light !== null && <CardLight light={ light } radius={ CARD_RADIUS } /> }
             { /* The mark sits inside the sentence rather than beside it, so
                  the quote wraps back under it instead of running in a narrow
                  column to its right. Decorative: the sentence is already read
@@ -51,7 +46,7 @@ export function QuoteCard({ quote, name, role }: Props) {
                     accessibilityElementsHidden
                     importantForAccessibility="no-hide-descendants"
                 >
-                    <QuoteMark width={ MARK_WIDTH } color={ theme.emphasis.ink } />
+                    <QuoteMark width={ MARK_WIDTH } color={ theme.testimonial.ink } />
                 </View>
                 { `  ${quote}` }
             </AppText>
@@ -93,16 +88,13 @@ const QUOTE_MARK_ASPECT = 30 / 24;
 const makeStyles = (theme: Theme) => StyleSheet.create({
     card: {
         padding: 22,
-        backgroundColor: theme.emphasis.panel,
-        borderColor: theme.emphasis.panel,
-        overflow: 'hidden',
+        backgroundColor: theme.testimonial.panel,
+        borderColor: theme.testimonial.panel,
     },
-    emphasisRule: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        height: 2,
+    // The light paints the edge itself, so the border it covers must not
+    // show through as a second, flat outline.
+    cardLit: {
+        borderColor: 'transparent',
     },
     /**
      * An inline box inside the text, which needs its own size: nested in a
@@ -122,7 +114,7 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         flex: 1,
         fontSize: 18,
         lineHeight: 27,
-        color: theme.emphasis.ink,
+        color: theme.testimonial.ink,
     },
     attribution: {
         marginTop: 14,
@@ -137,10 +129,10 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     // what separates it from the role beside it.
     name: {
         fontSize: 15,
-        color: theme.emphasis.inkMuted,
+        color: theme.testimonial.inkMuted,
     },
     role: {
         flexShrink: 1,
-        color: theme.emphasis.inkMuted,
+        color: theme.testimonial.inkMuted,
     },
 });

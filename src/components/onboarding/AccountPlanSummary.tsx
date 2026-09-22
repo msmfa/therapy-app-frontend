@@ -41,15 +41,18 @@ export function AccountPlanSummary({ rows }: Props) {
             { rows.map((row, index) => (
                 <View key={ row.label }>
                     { index > 0 && <DottedRule /> }
-                    <View style={ styles.row }>
-                        <AppText variant="caption" style={ styles.label }>
+                    { /* The subscription row is the plan's orange, run out
+                         through the gutter like the slip itself so it reads
+                         as a band of the page and not a box in the slip. */ }
+                    <View style={ [styles.row, row.tone === 'plan' && styles.rowPlan] }>
+                        <AppText variant="caption" style={ [styles.label, row.tone === 'plan' && styles.planNote] }>
                             { row.label }
                         </AppText>
-                        <AppText variant="h3" style={ [onboardingStyles.title, styles.value] }>
+                        <AppText variant="h3" style={ [onboardingStyles.title, styles.value, row.tone === 'plan' && styles.planValue] }>
                             { row.value }
                         </AppText>
                         { row.note !== undefined && (
-                            <AppText variant="caption" style={ styles.note }>
+                            <AppText variant="caption" style={ [styles.note, row.tone === 'plan' && styles.planNote] }>
                                 { row.note }
                             </AppText>
                         ) }
@@ -77,6 +80,20 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     },
     row: {
         paddingVertical: 20,
+    },
+    rowPlan: {
+        marginHorizontal: -ONBOARDING_SCREEN_PADDING,
+        paddingHorizontal: ONBOARDING_SCREEN_PADDING,
+        // Down through the slip's own bottom padding, so the orange meets
+        // its edge rather than stopping a hair short of it.
+        marginBottom: -2,
+        backgroundColor: theme.plan.fill,
+    },
+    planValue: {
+        color: theme.plan.inkBright,
+    },
+    planNote: {
+        color: theme.plan.inkBrightest,
     },
     // Back out through the strip's own padding, so the rule runs edge to edge.
     ruleClip: {

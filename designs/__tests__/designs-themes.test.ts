@@ -38,12 +38,30 @@ function describeShape(value: unknown, path: string, out: Map<string, string>): 
     out.set(path, typeof value);
 }
 
+/**
+ * An optional value may be a whole object on the other side, such as a card
+ * light with a face and a rim. Its leaves fold back into the one path so the
+ * two maps line up, and the kind check below skips it as optional.
+ */
+function collapseOptional(optional: Map<string, string>, other: Map<string, string>): void {
+    for (const [path, kind] of optional) {
+        if (kind !== 'optional') continue;
+        const prefix = `${path}.`;
+        const nested = [...other.keys()].filter((key) => key.startsWith(prefix));
+        if (nested.length === 0) continue;
+        for (const key of nested) other.delete(key);
+        other.set(path, 'object');
+    }
+}
+
 describe('designs-themes', () => {
     it('gives both themes exactly the same shape', () => {
         const light = new Map<string, string>();
         const dark = new Map<string, string>();
         describeShape(lightTheme, '', light);
         describeShape(darkTheme, '', dark);
+        collapseOptional(light, dark);
+        collapseOptional(dark, light);
 
         expect([...dark.keys()].sort()).toEqual([...light.keys()].sort());
         for (const [path, kind] of light) {
@@ -56,6 +74,11 @@ describe('designs-themes', () => {
         expect(darkTheme.emphasis.rule).toBeNull();
         expect(lightTheme.accentScreen.glow).toBeNull();
         expect(darkTheme.accentScreen.glow).not.toBeNull();
+        // The corner light on the night's cards, none on the day's flat ones.
+        expect(lightTheme.surface.cardLight).toBeNull();
+        expect(lightTheme.chosen.light).toBeNull();
+        expect(darkTheme.surface.cardLight).not.toBeNull();
+        expect(darkTheme.chosen.light).not.toBeNull();
     });
 
     it('keeps the light theme on the primitives the app already paints with', () => {

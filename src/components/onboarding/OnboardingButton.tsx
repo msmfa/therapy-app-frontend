@@ -21,10 +21,14 @@ type Props = {
     surface?: 'light' | 'accent';
     /**
      * `glass` is the flow's usual action, made of the same material as the
-     * page. `solid` is the ground's opposite (black by day, light at night),
-     * for the two moments that start something rather than continue it.
+     * page. `solid` is the ground's opposite by day, for the moments that
+     * start something rather than continue it; the theme may fold it back
+     * into glass, as the night does. `ink` is the ground's opposite in every
+     * theme, for an action that has to stay a dark block at night. `start` is
+     * the one action that opens the flow: black by day like `solid`, the
+     * plan's orange with a lit edge at night.
      */
-    appearance?: 'glass' | 'solid';
+    appearance?: 'glass' | 'solid' | 'ink' | 'start';
 };
 
 /**
@@ -49,7 +53,9 @@ export function OnboardingButton({
     const isAccent = surface === 'accent';
 
     if (!transparent) {
-        const isSolid = appearance === 'solid';
+        const isStart = appearance === 'start';
+        const isSolid = appearance === 'ink' || (appearance === 'solid' && theme.solid.flowAction === 'solid');
+        const isFilled = isStart || isSolid;
 
         return (
             <GlassPillButton
@@ -59,14 +65,17 @@ export function OnboardingButton({
                 loading={ loading }
                 contentSized
                 height={ 60 }
-                fillColor={ isSolid ? theme.solid.background : undefined }
+                fillColor={ isStart ? theme.solid.start.background : isSolid ? theme.solid.background : undefined }
+                rim={ isStart ? theme.solid.start.rim : undefined }
                 labelColor={
-                    isSolid
-                        ? theme.solid.text
-                        : isAccent ? theme.accentScreen.textPrimary : theme.ink.primary
+                    isStart
+                        ? theme.solid.start.text
+                        : isSolid
+                            ? theme.solid.text
+                            : isAccent ? theme.accentScreen.textPrimary : theme.ink.primary
                 }
                 disabledLabelColor={
-                    isSolid
+                    isFilled
                         ? theme.solid.disabledText
                         : isAccent ? theme.accentScreen.textSecondary : theme.ink.secondary
                 }

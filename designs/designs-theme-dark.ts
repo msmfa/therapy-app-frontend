@@ -8,6 +8,7 @@ import { CALENDAR_BACKDROP_BASE_LOCATIONS, CALENDAR_BACKDROP_GLOW_LOCATIONS } fr
 import {
     NIGHT_ACCENT,
     NIGHT_ACCENT_SCREEN,
+    NIGHT_PLAN,
     NIGHT_AURA,
     NIGHT_CALENDAR_BACKDROP_BASE,
     NIGHT_CALENDAR_BACKDROP_GLOW,
@@ -47,7 +48,7 @@ export const darkTheme: Theme = {
         card: NIGHT_SURFACE.card,
         cardBorder: NIGHT_SURFACE.cardBorder,
         cardEdge: NIGHT_SURFACE.cardEdge,
-        cardSheen: NIGHT_SURFACE.cardSheen,
+        cardLight: NIGHT_SURFACE.cardLight,
         cardShadow: NIGHT_SURFACE.cardShadow,
         cardShadowOpacity: 0.9,
         shadowOffset: { width: 12, height: 18 },
@@ -92,7 +93,15 @@ export const darkTheme: Theme = {
     },
     radio: NIGHT_RADIO,
     shadow: PALETTE.neutral.black,
-    solid: NIGHT_SOLID,
+    solid: {
+        ...NIGHT_SOLID,
+        flowAction: 'glass',
+        start: {
+            background: NIGHT_PLAN.fill,
+            text: ACCENT_INK_BRIGHTEST,
+            rim: NIGHT_PLAN.rim,
+        },
+    },
     link: {
         color: NIGHT_LINK,
         pressed: NIGHT_LINK_PRESSED,
@@ -112,6 +121,7 @@ export const darkTheme: Theme = {
         inkBright: NIGHT_INK.primary,
         inkBrightest: NIGHT_INK.secondary,
         border: 'hsla(0, 0%, 100%, 0.28)',
+        light: NIGHT_ACCENT.chosenLight,
         ring: NIGHT_MARK,
         mark: [NIGHT_MARK, NIGHT_MARK],
         check: NIGHT_SOLID.background,
@@ -127,15 +137,22 @@ export const darkTheme: Theme = {
     // it marks the chosen plan without lighting the screen, and the pale
     // ink clears 4.5:1 on it (5.8:1).
     plan: {
-        fill: 'hsl(19, 55%, 38%)',
-        border: 'hsla(26, 100%, 78%, 0.55)',
+        fill: NIGHT_PLAN.fill,
+        border: NIGHT_PLAN.border,
+        light: NIGHT_PLAN.light,
         inkBright: ACCENT_INK_BRIGHTEST,
         inkBrightest: ACCENT_INK_BRIGHTEST,
-        check: 'hsl(19, 55%, 38%)',
+        check: NIGHT_PLAN.fill,
         mark: [ACCENT_MARK, ACCENT_MARK],
         iconDisc: 'hsla(21, 75%, 54%, 0.20)',
         trialFill: PALETTE.neutral.black,
         trialText: COLOR_VARIANTS.white.secondary,
+    },
+    testimonial: {
+        panel: NIGHT_PLAN.fill,
+        ink: ACCENT_INK_BRIGHTEST,
+        inkMuted: ACCENT_INK_BRIGHTEST,
+        light: NIGHT_PLAN.light,
     },
     emphasis: {
         panel: NIGHT_ACCENT.panel,
@@ -149,6 +166,7 @@ export const darkTheme: Theme = {
         textPrimary: NIGHT_ACCENT_SCREEN.textPrimary,
         textSecondary: NIGHT_ACCENT_SCREEN.textSecondary,
         card: NIGHT_ACCENT_SCREEN.card,
+        cardLight: NIGHT_PLAN.light,
         cardBorder: NIGHT_ACCENT_SCREEN.cardBorder,
         cardEdge: NIGHT_ACCENT_SCREEN.cardEdge,
         glow: NIGHT_SWEEP,

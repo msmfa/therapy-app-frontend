@@ -74,7 +74,7 @@ export default function WelcomeScreen() {
     const footer = (
         <View style={ styles.footer }>
             <OnboardingButton
-                appearance="solid"
+                appearance="start"
                 label={ welcomeCopy().primaryCta }
                 onPress={ () => router.push('/(onboarding)/goal') }
             />
