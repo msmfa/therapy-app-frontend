@@ -25,7 +25,8 @@
    "loading": "Cargando",
    "showPassword": "Mostrar contraseña",
    "tryAgainQuestion": "¿Intentar de nuevo?",
-   "source": "Fuente {{position}}: {{text}}"
+   "source": "Fuente {{position}}: {{text}}",
+   "opensReminderResearch": "Abre la investigación de este recordatorio"
   },
   "tab": {
    "calendar": "Calendario",
@@ -43,6 +44,7 @@
   "title": "Ajustes",
   "hub": {
    "language": "Idioma",
+   "appearance": "Aspecto",
    "references": "Referencias",
    "settings": "Ajustes",
    "rateApp": "Valorar esta app",
@@ -80,6 +82,17 @@
    "a11yHint": "Cambia el idioma de la app de inmediato",
    "choose": "Elija un idioma",
    "a11yDropdownHint": "Abre la lista de idiomas"
+  },
+  "appearance": {
+   "title": "Aspecto",
+   "system": "Sistema",
+   "systemDetail": "Ahora {{scheme}}",
+   "light": "Claro",
+   "dark": "Oscuro",
+   "a11yRow": "{{label}}, {{detail}}",
+   "a11yHint": "Cambia el aspecto de la aplicación al instante",
+   "saveFailedTitle": "Aspecto no guardado",
+   "saveFailedMessage": "El aspecto ha cambiado, pero no hemos podido guardar esa elección. Inténtelo de nuevo."
   }
  },
  "reminderSettings": {
@@ -323,7 +336,14 @@
     "message": "No pudimos cargar sus sesiones de terapia. Inténtelo de nuevo más tarde."
    }
   },
-  "nothingScheduled": "Nada programado"
+  "nothingScheduled": "Nada programado",
+  "a11y": {
+   "today": "Hoy",
+   "therapySession": "Sesión de terapia",
+   "reminder": "Recordatorio",
+   "dismissScheduling": "Cerrar la programación",
+   "opensTimePicker": "Abre un selector de hora"
+  }
  },
  "serverError": {
   "invalid_credentials": "Ese correo y esa contraseña no coinciden con ninguna cuenta.",
