@@ -5,7 +5,8 @@ import { Trans, useTranslation } from 'react-i18next';
 import { useTherapySessions } from '../../context/therapy-sessions/TherapySessionsContext';
 import AppText from '../ui/AppText';
 import { formattingLocale } from '../../i18n';
-import { COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useThemedStyles } from '../../context/theme';
 
 /**
  * What sits in the list before there is anything in it.
@@ -23,6 +24,7 @@ type Props = {
 };
 
 export function EmptyNoteCard({ children }: Props) {
+    const styles = useThemedStyles(makeStyles);
     const router = useRouter();
     const { t } = useTranslation('notes');
     const { nextSession } = useTherapySessions();
@@ -94,7 +96,7 @@ export function EmptyNoteCard({ children }: Props) {
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     card: {
         paddingTop: 4,
     },
@@ -107,15 +109,15 @@ const styles = StyleSheet.create({
     body: {
         marginBottom: 0,
         marginTop: 14,
-        color: TEXT_COLORS.secondary,
+        color: theme.ink.secondary,
     },
     sessionDate: {
-        color: TEXT_COLORS.primary,
+        color: theme.ink.primary,
         fontWeight: '600',
     },
     link: {
         // The same red as the arrow on a card, so the two accents agree.
-        color: COLOR_VARIANTS.red.primary,
+        color: theme.status.dangerText,
         fontWeight: '600',
     },
 });

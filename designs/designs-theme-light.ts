@@ -6,6 +6,8 @@
  */
 
 import {
+    ACCENT_INK_BRIGHT,
+    ACCENT_INK_BRIGHTEST,
     ACCENT_MARK,
     ACCENT_SURFACE,
     ACTION_BLUE_DARK,
@@ -16,7 +18,7 @@ import {
     BRAND_ORANGE_INK,
     BUTTON_COLORS,
     CALENDAR_COLORS,
-    CALENDAR_DARK_COLORS,
+    CALENDAR_MONTH_COLORS,
     COLOR_VARIANTS,
     COMPONENT_COLORS,
     GREEN_PANEL,
@@ -29,10 +31,10 @@ import {
 } from './designs-colors';
 import {
     APP_GRADIENT,
-    DARK_BACKDROP_BASE,
-    DARK_BACKDROP_BASE_LOCATIONS,
-    DARK_BACKDROP_GLOW,
-    DARK_BACKDROP_GLOW_LOCATIONS,
+    CALENDAR_BACKDROP_BASE,
+    CALENDAR_BACKDROP_BASE_LOCATIONS,
+    CALENDAR_BACKDROP_GLOW,
+    CALENDAR_BACKDROP_GLOW_LOCATIONS,
     SURFACE_TINTS,
 } from './designs-gradients';
 import type { Theme } from './designs-theme-shape';
@@ -63,9 +65,18 @@ export const lightTheme: Theme = {
         medium: PALETTE.overlay.whiteMediumTransparent,
         row: COMPONENT_COLORS.settingsRowBackground,
         rowBorder: PALETTE.overlay.whiteSurfaceTransparent,
+        rowGroup: COLOR_VARIANTS.white.secondary,
+        rowGroupBorder: PALETTE.overlay.whiteBorderTransparent,
         groove: PALETTE.overlay.blackLightTransparent,
         sheet: COLOR_VARIANTS.white.primary,
+        // SURFACE_BLUE's hue lifted most of the way to white.
+        sheetTint: 'hsl(206.67, 17.65%, 93.5%)',
+        // Near-white, so a write-up reads as a page rather than a grey panel.
+        readingCard: 'hsla(0, 0%, 100%, 0.88)',
+        chip: 'hsla(0, 0%, 0%, 0.06)',
+        cardHighlight: 'hsla(0, 0%, 100%, 0.85)',
         modal: COLOR_VARIANTS.blue.lightest,
+        scrim: COLOR_VARIANTS.black.tertiary,
         sheetCard: SURFACE_TINTS.sheetCardBackground,
         sheetCardBorder: SURFACE_TINTS.sheetCardBorder,
         field: COLOR_VARIANTS.transparent,
@@ -75,6 +86,8 @@ export const lightTheme: Theme = {
         spinnerWell: PALETTE.overlay.taupeTransparent,
         tinted: SURFACE_TINTS.tintedBackground,
         tintedBorder: SURFACE_TINTS.tintedBorder,
+        tintCard: SURFACE_TINTS.defaultBackground,
+        tintCardBorder: SURFACE_TINTS.defaultBorder,
     },
     glass: {
         tint: 'light',
@@ -83,6 +96,7 @@ export const lightTheme: Theme = {
         rim: COLOR_VARIANTS.white.primary,
         rimOpacity: 1,
         shade: '#1b2a44',
+        disabledLabel: COLOR_VARIANTS.white.quaternary,
     },
     radio: {
         ring: ACTION_BLUE_DARK,
@@ -103,6 +117,8 @@ export const lightTheme: Theme = {
     link: {
         color: ACTION_BLUE_DARK,
         pressed: COLOR_VARIANTS.blue.light,
+        bright: COLOR_VARIANTS.blue.mid,
+        brightPressed: COLOR_VARIANTS.blue.light,
     },
     accent: {
         mark: ACTION_ORANGE,
@@ -114,15 +130,25 @@ export const lightTheme: Theme = {
     chosen: {
         fill: BRAND_ORANGE,
         ink: BRAND_ORANGE_INK,
-        inkSecondary: BRAND_ORANGE_INK,
+        inkBright: ACCENT_INK_BRIGHT,
+        inkBrightest: ACCENT_INK_BRIGHTEST,
+        // A light edge, not a dark one: a deeper orange round a chosen card
+        // read as a shadow rather than as the card's own outline.
+        border: ACCENT_MARK,
         ring: BRAND_ORANGE,
         mark: [ACCENT_MARK, ACCENT_MARK],
+        check: BRAND_ORANGE,
+        iconDisc: 'hsla(21, 75%, 54%, 0.20)',
+        // Black holds against the orange fill; the type steps down to grey.
+        trialFill: PALETTE.neutral.black,
+        trialText: COLOR_VARIANTS.white.secondary,
     },
     emphasis: {
         panel: BRAND_ORANGE,
         rule: null,
         ink: ACCENT_SURFACE.textPrimary,
         inkSecondary: ACCENT_SURFACE.textSecondary,
+        inkMuted: 'hsla(0, 0%, 100%, 0.62)',
     },
     accentScreen: {
         ground: SURFACE_ACCENT,
@@ -143,19 +169,26 @@ export const lightTheme: Theme = {
         danger: COLOR_VARIANTS.red.primary,
         dangerText: COLOR_VARIANTS.red.primary,
     },
-    badge: {
-        fill: COLOR_VARIANTS.red.light,
-        border: COLOR_VARIANTS.red.mid,
-        text: COLOR_VARIANTS.red.dark,
+    red: {
+        light: COLOR_VARIANTS.red.light,
+        mid: COLOR_VARIANTS.red.mid,
+        dark: COLOR_VARIANTS.red.dark,
+    },
+    // The cool ground the reminder card's glow sits on, taken from the
+    // design's corners.
+    aura: {
+        top: 'rgb(197,204,213)',
+        mid: 'rgb(190,195,203)',
+        bottom: 'rgb(197,200,207)',
     },
     trialBadge: GREEN_PANEL,
     calendar: {
-        month: CALENDAR_DARK_COLORS,
+        month: CALENDAR_MONTH_COLORS,
         backdrop: {
-            base: DARK_BACKDROP_BASE,
-            baseLocations: DARK_BACKDROP_BASE_LOCATIONS,
-            glow: DARK_BACKDROP_GLOW,
-            glowLocations: DARK_BACKDROP_GLOW_LOCATIONS,
+            base: CALENDAR_BACKDROP_BASE,
+            baseLocations: CALENDAR_BACKDROP_BASE_LOCATIONS,
+            glow: CALENDAR_BACKDROP_GLOW,
+            glowLocations: CALENDAR_BACKDROP_GLOW_LOCATIONS,
             blurTint: 'light',
             blurIntensity: 14,
         },
@@ -171,7 +204,8 @@ export const lightTheme: Theme = {
         marker: 'hsl(0, 0%, 87%)',
         label: 'hsl(0, 0%, 86%)',
     },
-    hairline: 'hsla(0, 0%, 0%, 0.18)',
+    hairline: 'hsla(0, 0%, 0%, 0.20)',
+    hairlineFaint: 'hsla(0, 0%, 0%, 0.07)',
     navigation: {
         background: SURFACE_BLUE,
         card: COLOR_VARIANTS.white.primary,

@@ -82,6 +82,9 @@ export const NIGHT_SURFACE = {
     /** A row inside a card: a hair above the card it sits in. */
     row: 'hsla(0, 0%, 100%, 0.04)',
     rowBorder: 'hsla(0, 0%, 100%, 0.08)',
+    /** A group of rows inside a card: the same lift as a row, bordered like a card. */
+    rowGroup: 'hsla(0, 0%, 100%, 0.04)',
+    rowGroupBorder: 'hsla(0, 0%, 100%, 0.08)',
     /**
      * Things that sit below the surface: the meter's resting ticks, inactive
      * pagination dots. The reference's credit-limit track is a groove cut into
@@ -90,8 +93,18 @@ export const NIGHT_SURFACE = {
     groove: 'hsla(0, 0%, 0%, 0.35)',
     /** Page-white screens become the reference's panel, one step up. */
     sheet: 'hsl(212, 9%, 14%)',
+    /** Where a band on the sheet settles: a step back toward the ground. */
+    sheetTint: 'hsl(212, 12%, 12%)',
+    /** A page of reading: the card, since there is no white to be nearly. */
+    readingCard: 'hsla(0, 0%, 100%, 0.05)',
+    /** A small grey pill. */
+    chip: 'hsla(0, 0%, 100%, 0.08)',
+    /** A card over artwork or the timeline's rail: a brighter edge than the shared one. */
+    cardHighlight: 'hsla(0, 0%, 100%, 0.18)',
     /** Alert and error modals, the schedule sheet: one step up again. */
     modal: 'hsl(214, 9%, 16%)',
+    /** A little heavier than the day's, so a sheet still separates from the ground under it. */
+    scrim: 'rgba(0, 0, 0, 0.66)',
     sheetCard: 'hsla(0, 0%, 100%, 0.06)',
     sheetCardBorder: 'hsla(0, 0%, 100%, 0.10)',
     field: 'hsla(0, 0%, 100%, 0.04)',
@@ -103,6 +116,9 @@ export const NIGHT_SURFACE = {
     /** A tinted card at night is a faint wash of the hue over the charcoal. */
     tinted: (hue: number) => `hsla(${hue}, 40%, 60%, 0.14)`,
     tintedBorder: (hue: number) => `hsla(${hue}, 40%, 65%, 0.28)`,
+    /** GradientCard with no hue: a step lighter than the ground, a step under the card. */
+    tintCard: 'hsla(0, 0%, 100%, 0.04)',
+    tintCardBorder: 'hsla(0, 0%, 100%, 0.08)',
 } as const;
 
 /**
@@ -270,6 +286,16 @@ export const NIGHT_CALENDAR_SHEET = {
     surface: NIGHT_SURFACE.modal,
     border: 'hsla(0, 0%, 100%, 0.10)',
     overlay: 'rgba(0, 0, 0, 0.66)',
+} as const;
+
+/**
+ * The ground the reminder card's aura is painted on. The sunrise stays; the
+ * sky behind it goes to the panel charcoal.
+ */
+export const NIGHT_AURA = {
+    top: 'hsl(212, 12%, 18%)',
+    mid: 'hsl(212, 12%, 15%)',
+    bottom: 'hsl(212, 12%, 17%)',
 } as const;
 
 /** ChartBackground's four rules: the same four steps off the ground. */

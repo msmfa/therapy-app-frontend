@@ -7,11 +7,12 @@ import NotesListScreen from '../../src/components/notes/NotesListScreen';
 import Loading from '../../src/components/ui/Loading';
 import { useAppAlert } from '../../src/context/alert';
 import { useNoteReviews } from '../../src/features/reviews';
-import { GRADIENTS } from 'designs/designs-gradients';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '../../src/context/theme';
 
 export default function NotesScreen() {
     const { t } = useTranslation('notes');
+    const { theme } = useTheme();
     const { t: tCommon } = useTranslation('common');
     const { user } = useAuth();
     const { notes, loading, error, refresh, updateNote, deleteNote } = useNotes(user?.id);
@@ -63,7 +64,7 @@ export default function NotesScreen() {
     const isLoading = !user?.id || (loading && notes.length === 0);
 
     return (
-        <View style={ styles.container }>
+        <View style={ [styles.container, { backgroundColor: theme.ground.base }] }>
             <View style={ styles.content }>
                 { isLoading ? <Loading /> : (
                     <NotesListScreen
@@ -85,7 +86,6 @@ export default function NotesScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: GRADIENTS.background.bottom,
     },
     content: {
         flex: 1,

@@ -14,7 +14,8 @@ import TextField from 'src/components/ui/TextField';
 import PasswordField from 'src/components/ui/PasswordField';
 import { Button } from 'src/components/ui/Button';
 import AppText from '../src/components/ui/AppText';
-import { COLOR_VARIANTS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useThemedStyles } from 'src/context/theme';
 import { GlassMorphismWithCircle } from 'src/components/ui/GlassMorphismWithCircle';
 import { GLASS_CARD_RADIUS } from 'src/components/ui/GlassMorphism';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
@@ -26,6 +27,7 @@ import { serverErrorMessage, serverMessageForCode } from '../src/features/errors
 const MIN_PASSWORD_LENGTH = 8;
 
 export default function ForgotPasswordScreen() {
+    const styles = useThemedStyles(makeStyles);
     const { t } = useTranslation('auth');
     const router = useRouter();
     const { returnTo, source } = useLocalSearchParams<{
@@ -222,7 +224,7 @@ export default function ForgotPasswordScreen() {
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     root: {
         flex: 1,
     },
@@ -238,7 +240,7 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         padding: 24,
         gap: 16,
-        shadowColor: COLOR_VARIANTS.black.primary,
+        shadowColor: theme.shadow,
         shadowOpacity: 0.06,
         shadowOffset: { width: 0, height: 4 },
         shadowRadius: 12,

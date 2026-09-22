@@ -1,18 +1,11 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import AppText from '../ui/AppText';
-import {
-    ACCENT_INK_BRIGHT,
-    ACCENT_INK_BRIGHTEST,
-    ACCENT_MARK,
-    BRAND_ORANGE,
-    COLOR_VARIANTS,
-    GREEN_PANEL,
-    PALETTE,
-    TEXT_COLORS,
-} from 'designs/designs-colors';
-import { onboardingStyles } from './onboardingStyles';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../../context/theme';
+import { useOnboardingStyles } from './onboardingStyles';
 import { subscriptionCopy } from '../../features/onboarding/onboardingCopy';
 
 type Props = {
@@ -55,6 +48,10 @@ export function SubscriptionPlanCard({
     onPress,
     accessibilityLabel,
 }: Props) {
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
+    const { onboardingStyles } = useOnboardingStyles();
+
     return (
         <TouchableOpacity
             onPress={ onPress }
@@ -70,7 +67,8 @@ export function SubscriptionPlanCard({
                      the row: one mark saying chosen, on the control that does
                      the choosing. */ }
                 <View style={ [styles.radio, selected && styles.radioSelected] }>
-                    { selected && <Feather name="check" size={ 13 } color={ BRAND_ORANGE } /> }
+                    { selected && <LinearGradient colors={ theme.chosen.mark } style={ StyleSheet.absoluteFill } /> }
+                    { selected && <Feather name="check" size={ 13 } color={ theme.chosen.check } /> }
                 </View>
 
                 <AppText
@@ -119,7 +117,7 @@ export function SubscriptionPlanCard({
                                 <Feather
                                     name={ step.icon }
                                     size={ 14 }
-                                    color={ selected ? ACCENT_INK_BRIGHTEST : TEXT_COLORS.primary }
+                                    color={ selected ? theme.chosen.inkBrightest : theme.ink.primary }
                                 />
                             </View>
                             <AppText variant="body" style={ [styles.timelineText, selected && styles.onAccentSoftest] }>
@@ -146,13 +144,13 @@ export function SubscriptionPlanCard({
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     disabled: {
         opacity: 0.5,
     },
     description: {
         marginTop: 8,
-        color: TEXT_COLORS.secondary,
+        color: theme.ink.secondary,
     },
     timeline: {
         marginTop: 12,
@@ -173,7 +171,7 @@ const styles = StyleSheet.create({
     // The disc only earns its place on the orange, where it separates the icon
     // from the fill. On the white card it was a tint round three small marks.
     timelineIconSelected: {
-        backgroundColor: 'hsla(21, 75%, 54%, 0.20)',
+        backgroundColor: theme.chosen.iconDisc,
     },
     timelineText: {
         flex: 1,
@@ -188,10 +186,8 @@ const styles = StyleSheet.create({
     // The same chosen state as the questions' own options: one way of showing a
     // selection across the flow, whether the choice is a goal or a plan.
     cardSelected: {
-        backgroundColor: BRAND_ORANGE,
-        // A light edge, not a dark one: a deeper orange round a chosen card
-        // read as a shadow rather than as the card's own outline.
-        borderColor: ACCENT_MARK,
+        backgroundColor: theme.chosen.fill,
+        borderColor: theme.chosen.border,
     },
     headerRow: {
         flexDirection: 'row',
@@ -205,20 +201,20 @@ const styles = StyleSheet.create({
         height: 22,
         borderRadius: 11,
         borderWidth: 2,
-        borderColor: 'hsla(222, 30%, 40%, 0.40)',
+        borderColor: theme.radio.ringUnselected,
         alignItems: 'center',
         justifyContent: 'center',
+        overflow: 'hidden',
     },
     // The questions' own radio, filled rather than ringed.
     radioSelected: {
         borderColor: 'transparent',
-        backgroundColor: ACCENT_MARK,
     },
     title: {
         fontSize: 18,
     },
     titleSelected: {
-        color: ACCENT_INK_BRIGHT,
+        color: theme.chosen.inkBright,
     },
     /**
      * Every line inside a chosen card, which is a solid orange section: the
@@ -226,16 +222,16 @@ const styles = StyleSheet.create({
      * hierarchy between them was never carrying much anyway.
      */
     onAccent: {
-        color: ACCENT_INK_BRIGHT,
+        color: theme.chosen.inkBright,
     },
     onAccentSoftest: {
-        color: ACCENT_INK_BRIGHTEST,
+        color: theme.chosen.inkBrightest,
     },
     /** The plain badge, as an outline rather than a grey pill on the orange. */
     badgeSelected: {
         backgroundColor: 'transparent',
         borderWidth: 1,
-        borderColor: ACCENT_INK_BRIGHTEST,
+        borderColor: theme.chosen.inkBrightest,
     },
     badges: {
         flexDirection: 'row',
@@ -247,28 +243,28 @@ const styles = StyleSheet.create({
         paddingHorizontal: 8,
         paddingVertical: 3,
         borderRadius: 12,
-        backgroundColor: 'hsla(0, 0%, 0%, 0.06)',
+        backgroundColor: theme.surface.chip,
     },
     badgeText: {
         fontSize: 14,
-        color: TEXT_COLORS.secondary,
+        color: theme.ink.secondary,
     },
     // Free time is the good news on the card, so it is the app's green rather
     // than another grey pill: a pale fill inside a border, with an ink darker
     // than both so it reads at 14pt.
     trialBadge: {
-        backgroundColor: GREEN_PANEL.background,
+        backgroundColor: theme.trialBadge.background,
         borderWidth: 1,
-        borderColor: GREEN_PANEL.border,
+        borderColor: theme.trialBadge.border,
     },
     trialBadgeText: {
         fontSize: 14,
-        color: GREEN_PANEL.text,
+        color: theme.trialBadge.text,
     },
     // On a chosen card the green pill sat on orange and turned muddy. Black
     // holds against the fill, and the type inside it steps down to grey.
     trialBadgeSelected: {
-        backgroundColor: PALETTE.neutral.black,
+        backgroundColor: theme.chosen.trialFill,
         borderWidth: 0,
         // Roomier than the plain badges beside it: the trial is the one thing
         // on the card worth stopping on.
@@ -276,7 +272,7 @@ const styles = StyleSheet.create({
     },
     trialBadgeSelectedText: {
         fontSize: 14,
-        color: COLOR_VARIANTS.white.secondary,
+        color: theme.chosen.trialText,
     },
     price: {
         marginTop: 12,
@@ -284,10 +280,10 @@ const styles = StyleSheet.create({
     },
     secondary: {
         marginTop: 2,
-        color: TEXT_COLORS.secondary,
+        color: theme.ink.secondary,
     },
     renewal: {
         marginTop: 8,
-        color: TEXT_COLORS.tertiary,
+        color: theme.ink.tertiary,
     },
 });

@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { LayoutChangeEvent, PixelRatio, StyleSheet, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import AppText from '../ui/AppText';
-import { ACCENT_MARK, BRAND_ORANGE, BRAND_ORANGE_INK } from 'designs/designs-colors';
 import { BRAND_FONTS } from 'designs/designs-typography';
-import { onboardingStyles } from './onboardingStyles';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../../context/theme';
+import { useOnboardingStyles } from './onboardingStyles';
 
 type Props = {
     label: string;
@@ -61,6 +63,10 @@ export function useEqualSelectableCardHeights(): {
  * cannot separate the two blues.
  */
 export function SelectableCard({ label, selected, onPress, height, onLayout }: Props) {
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
+    const { onboardingStyles } = useOnboardingStyles();
+
     return (
         <TouchableOpacity
             onPress={ onPress }
@@ -76,7 +82,12 @@ export function SelectableCard({ label, selected, onPress, height, onLayout }: P
                 height !== undefined && { minHeight: height },
             ] }
         >
-            <View style={ [styles.radio, selected && styles.radioSelected] } />
+            { /* Filled, not ringed: the disc is the theme's mark, drawn as a
+                 gradient so the day's flat peach and the night's sweep take
+                 the same path. */ }
+            <View style={ [styles.radio, selected && styles.radioSelected] }>
+                { selected && <LinearGradient colors={ theme.chosen.mark } style={ StyleSheet.absoluteFill } /> }
+            </View>
 
             <AppText
                 variant="h3"
@@ -93,7 +104,7 @@ export function SelectableCard({ label, selected, onPress, height, onLayout }: P
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     card: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -107,8 +118,8 @@ const styles = StyleSheet.create({
     // colour, with no outline drawn round it and nothing but the filled circle
     // and the type on it.
     cardSelected: {
-        backgroundColor: BRAND_ORANGE,
-        borderColor: BRAND_ORANGE,
+        backgroundColor: theme.chosen.fill,
+        borderColor: theme.chosen.ring,
     },
     radio: {
         flexShrink: 0,
@@ -116,15 +127,15 @@ const styles = StyleSheet.create({
         height: 22,
         borderRadius: 11,
         borderWidth: 2,
-        borderColor: 'hsla(222, 30%, 40%, 0.40)',
+        borderColor: theme.radio.ringUnselected,
         alignItems: 'center',
         justifyContent: 'center',
+        overflow: 'hidden',
     },
     // Filled, not ringed. A dot inside a ring of the same ink read as one blob
     // at this size, and outlining the dot to separate them only made a target.
     radioSelected: {
         borderColor: 'transparent',
-        backgroundColor: ACCENT_MARK,
     },
     // Sized against the ring's inner edge rather than its outer one: the ring
     // keeps its 22pt, and the dot grows into it until only a hairline of the
@@ -141,7 +152,7 @@ const styles = StyleSheet.create({
      * in the warm ink rather than white.
      */
     labelSelected: {
-        color: BRAND_ORANGE_INK,
+        color: theme.chosen.ink,
         fontFamily: BRAND_FONTS.regular,
         fontWeight: undefined,
         letterSpacing: 0.3,

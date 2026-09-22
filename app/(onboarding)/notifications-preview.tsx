@@ -21,12 +21,16 @@ import {
 import { ensurePushRegistration } from '../../src/services/notifications/pushRegistration';
 import { useAppAlert } from '../../src/context/alert';
 import { reportHandledFailure } from '../../src/utils/telemetry';
-import { TEXT_COLORS } from 'designs/designs-colors';
-import { onboardingStyles } from '../../src/components/onboarding/onboardingStyles';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../../src/context/theme';
+import { useOnboardingStyles } from '../../src/components/onboarding/onboardingStyles';
 
 type PermissionStage = 'checking' | 'askable' | 'blocked' | 'requesting';
 
 export default function NotificationsPreviewScreen() {
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
+    const { onboardingStyles } = useOnboardingStyles();
     const router = useRouter();
     const { answers, setAnswer } = useOnboardingAnswers();
     const { showAlert } = useAppAlert();
@@ -207,7 +211,7 @@ export default function NotificationsPreviewScreen() {
             }
         >
             <View style={ [onboardingStyles.card, styles.privacy] }>
-                <Feather name="lock" size={ 18 } color={ TEXT_COLORS.secondary } />
+                <Feather name="lock" size={ 18 } color={ theme.ink.secondary } />
                 <AppText variant="body" style={ styles.privacyText }>
                     { notificationsCopy().privacy }
                 </AppText>
@@ -216,7 +220,7 @@ export default function NotificationsPreviewScreen() {
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     privacy: {
         padding: 20,
         marginTop: 24,
@@ -225,6 +229,6 @@ const styles = StyleSheet.create({
     },
     privacyText: {
         flex: 1,
-        color: TEXT_COLORS.secondary,
+        color: theme.ink.secondary,
     },
 });

@@ -13,14 +13,14 @@ import React from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 import { render, screen } from '@testing-library/react-native';
 
-import { DarkCalendarDay } from '../DarkCalendarDay';
-import { CALENDAR_DARK_COLORS } from 'designs/designs-colors';
+import { CalendarDay } from '../CalendarDay';
+import { CALENDAR_MONTH_COLORS } from 'designs/designs-colors';
 
-const renderDay = (props: Partial<React.ComponentProps<typeof DarkCalendarDay>> = {}) =>
+const renderDay = (props: Partial<React.ComponentProps<typeof CalendarDay>> = {}) =>
     render(
-        <DarkCalendarDay testID="day" state="today" { ...props }>
+        <CalendarDay testID="day" state="today" { ...props }>
             18
-        </DarkCalendarDay>,
+        </CalendarDay>,
     );
 
 const cellStyle = () => StyleSheet.flatten(
@@ -38,36 +38,36 @@ const dotColours = () => {
         .map((style) => style.backgroundColor);
 };
 
-describe('DarkCalendarDay', () => {
+describe('CalendarDay', () => {
     it('wears its own disc when today also carries a session, in place of the today disc', () => {
         renderDay({ marking: { kind: 'session' } });
 
-        expect(cellStyle().backgroundColor).toBe(CALENDAR_DARK_COLORS.sessionFill);
+        expect(cellStyle().backgroundColor).toBe(CALENDAR_MONTH_COLORS.sessionFill);
         expect(dotColours()).toEqual(Array(3).fill('transparent'));
     });
 
     it('lightens a reminder dot on today, which is nearly black behind it', () => {
         renderDay({ marking: { kind: 'reminder' } });
 
-        expect(cellStyle().backgroundColor).toBe(CALENDAR_DARK_COLORS.todayBackground);
-        expect(dotColours()).toEqual(Array(3).fill(CALENDAR_DARK_COLORS.reminderDotOnToday));
+        expect(cellStyle().backgroundColor).toBe(CALENDAR_MONTH_COLORS.todayBackground);
+        expect(dotColours()).toEqual(Array(3).fill(CALENDAR_MONTH_COLORS.reminderDotOnToday));
         // The month's blue is far too dark to read on the disc; if these ever
         // collapse to one value the dots have gone invisible again.
-        expect(CALENDAR_DARK_COLORS.reminderDotOnToday)
-            .not.toBe(CALENDAR_DARK_COLORS.reminderDot);
+        expect(CALENDAR_MONTH_COLORS.reminderDotOnToday)
+            .not.toBe(CALENDAR_MONTH_COLORS.reminderDot);
     });
 
     it('still shows the disc on a today with nothing on it', () => {
         renderDay();
 
-        expect(cellStyle().backgroundColor).toBe(CALENDAR_DARK_COLORS.todayBackground);
+        expect(cellStyle().backgroundColor).toBe(CALENDAR_MONTH_COLORS.todayBackground);
         expect(dotColours()).toEqual(Array(3).fill('transparent'));
     });
 
     it('wears its disc on any other day too, not just today', () => {
         renderDay({ state: undefined, marking: { kind: 'session' } });
 
-        expect(cellStyle().backgroundColor).toBe(CALENDAR_DARK_COLORS.sessionFill);
+        expect(cellStyle().backgroundColor).toBe(CALENDAR_MONTH_COLORS.sessionFill);
         expect(dotColours()).toEqual(Array(3).fill('transparent'));
     });
 
@@ -75,13 +75,13 @@ describe('DarkCalendarDay', () => {
         renderDay({ state: undefined, marking: { kind: 'session' } });
 
         const text = screen.getByText('18');
-        expect(StyleSheet.flatten(text.props.style).color).toBe(CALENDAR_DARK_COLORS.sessionFillText);
+        expect(StyleSheet.flatten(text.props.style).color).toBe(CALENDAR_MONTH_COLORS.sessionFillText);
     });
 
     it('drops the session disc while the day is pressed, so the sheet owns the cell', () => {
         renderDay({ marking: { kind: 'session', pressed: true } });
 
-        expect(cellStyle().backgroundColor).toBe(CALENDAR_DARK_COLORS.pressedBackground);
+        expect(cellStyle().backgroundColor).toBe(CALENDAR_MONTH_COLORS.pressedBackground);
     });
 
     it('leaves a reminder day without a disc, since only its dots distinguish it', () => {

@@ -22,7 +22,8 @@ import { useSubscriptionOffer } from '../../src/features/subscription/useSubscri
 import { accountSummaryRows } from '../../src/features/onboarding/accountSummary';
 import { useEntitlementState } from '../../src/features/subscription/EntitlementContext';
 import { useOnboarding } from '../../src/context/onboarding/OnboardingContext';
-import { TEXT_COLORS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useThemedStyles } from '../../src/context/theme';
 import { firstIncompletePlanRoute } from '../../src/features/onboarding/flowGuard';
 
 type Stage = 'account' | 'purchasing' | 'purchase_failed' | 'purchase_unlinked';
@@ -37,6 +38,7 @@ type Stage = 'account' | 'purchasing' | 'purchase_failed' | 'purchase_unlinked';
  * the previous screen starts immediately afterwards.
  */
 export default function AccountPreviewScreen() {
+    const styles = useThemedStyles(makeStyles);
     const router = useRouter();
     const { isAuthenticated } = useAuth();
     const { answers, setAnswer } = useOnboardingAnswers();
@@ -305,14 +307,14 @@ export default function AccountPreviewScreen() {
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     legal: {
         alignItems: 'center',
     },
     legalText: {
         fontSize: 14,
         lineHeight: 21,
-        color: TEXT_COLORS.tertiary,
+        color: theme.ink.tertiary,
         textAlign: 'center',
     },
     legalLinks: {

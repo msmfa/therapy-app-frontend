@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useThemedStyles } from '../../context/theme';
 
 type PaginationDotsProps = {
     count: number;
@@ -13,6 +14,7 @@ type PaginationDotsProps = {
  * readers - the carousel itself already announces which card is in view.
  */
 export function PaginationDots({ count, activeIndex }: PaginationDotsProps) {
+    const styles = useThemedStyles(makeStyles);
     if (count < 2) {
         return null;
     }
@@ -29,7 +31,7 @@ export function PaginationDots({ count, activeIndex }: PaginationDotsProps) {
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     row: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -43,10 +45,10 @@ const styles = StyleSheet.create({
     },
     dotActive: {
         width: 36,
-        backgroundColor: COLOR_VARIANTS.black.primary,
+        backgroundColor: theme.ink.primary,
     },
     dotInactive: {
         width: 16,
-        backgroundColor: PALETTE.overlay.whiteMediumTransparent,
+        backgroundColor: theme.surface.medium,
     },
 });

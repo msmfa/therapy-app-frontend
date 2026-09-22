@@ -1,11 +1,12 @@
 import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { TEXT_COLORS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useThemedStyles } from '../../src/context/theme';
 import AppText from '../../src/components/ui/AppText';
 import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
-import { onboardingStyles } from '../../src/components/onboarding/onboardingStyles';
+import { useOnboardingStyles } from '../../src/components/onboarding/onboardingStyles';
 import { PlanTimeline } from '../../src/components/onboarding/PlanTimeline';
 import { reviewScheduleCopy } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
@@ -27,6 +28,8 @@ import { sampleSessionAt } from '../../src/features/onboarding/samplePlan';
  * and labels it, rather than showing nothing.
  */
 export default function ReviewScheduleScreen() {
+    const styles = useThemedStyles(makeStyles);
+    const { onboardingStyles } = useOnboardingStyles();
     const router = useRouter();
     const { answers } = useOnboardingAnswers();
 
@@ -86,7 +89,7 @@ export default function ReviewScheduleScreen() {
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     note: {
         padding: 16,
         marginTop: 8,
@@ -94,7 +97,7 @@ const styles = StyleSheet.create({
     noteText: {
         fontSize: 14,
         lineHeight: 21,
-        color: TEXT_COLORS.secondary,
+        color: theme.ink.secondary,
     },
     timeline: {
         marginTop: 0,

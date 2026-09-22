@@ -2,18 +2,19 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { DateData } from 'react-native-calendars';
 import { useTranslation } from 'react-i18next';
-import { CALENDAR_DARK_COLORS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../../context/theme';
 import { longDateLabel } from '../../features/onboarding/formatting';
 
-export type DarkDayKind = 'session' | 'reminder';
+export type CalendarDayKind = 'session' | 'reminder';
 
-export const DARK_DAY_SIZE = 40;
+export const CALENDAR_DAY_SIZE = 40;
 
 type Props = {
     date?: DateData;
     state?: string;
     marking?: {
-        kind?: DarkDayKind;
+        kind?: CalendarDayKind;
         pressed?: boolean;
         // Carried so the calendar's own MarkingProps stays assignable to this
         // narrower view of it.
@@ -26,7 +27,7 @@ type Props = {
     children?: React.ReactNode;
 };
 
-const RADIUS = DARK_DAY_SIZE / 2;
+const RADIUS = CALENDAR_DAY_SIZE / 2;
 
 const DOT_COUNT = 3;
 
@@ -40,8 +41,8 @@ function dateFromDateString(dateString: string): Date {
 }
 
 // A reminder is marked by three dots under the numeral rather than a disc
-// behind it (a session gets its own disc — see sessionFill below); the month
-// still reads as a plain grid of dates with nothing on it, most days.
+// behind it (a session gets its own disc, sessionFill); the month still reads
+// as a plain grid of dates with nothing on it, most days.
 //
 // Rendered on every day, transparent where there is nothing to show, and
 // positioned absolutely so it takes no space in the cell's column. In flow it
@@ -49,6 +50,7 @@ function dateFromDateString(dateString: string): Date {
 // contents, so anything below the numeral lifts the numeral off centre by half
 // that thing's height, and the number sat high inside the today disc.
 function DayDots({ color, inset = false }: { color: string; inset?: boolean }) {
+    const styles = useThemedStyles(makeStyles);
     return (
         <View pointerEvents="none" style={ [styles.dotRow, inset && styles.dotRowInset] }>
             { Array.from({ length: DOT_COUNT }, (_unused, index) => (
@@ -58,22 +60,31 @@ function DayDots({ color, inset = false }: { color: string; inset?: boolean }) {
     );
 }
 
-// Replaces the library's day so the numeral can sit dead centre. BasicDay
-// always renders a 4pt dot under the text, invisible but not weightless, which
-// lifts every number off centre by a couple of points.
-export function DarkCalendarDay({ date, state, marking, onPress, accessibilityLabel, testID, children }: Props) {
+/**
+ * The month grid's own day cell, used when the calendar sits straight on the
+ * backdrop. Replaces the library's day so the numeral can sit dead centre:
+ * BasicDay always renders a 4pt dot under the text, invisible but not
+ * weightless, which lifts every number off centre by a couple of points.
+ *
+ * Every colour comes from theme.calendar.month: near-black ink on the pale
+ * sheet by day, near-white on the charcoal at night.
+ */
+export function CalendarDay({ date, state, marking, onPress, accessibilityLabel, testID, children }: Props) {
     const { t } = useTranslation('calendar');
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
+    const month = theme.calendar.month;
     const isDisabled = state === 'disabled';
     const kind = marking?.kind;
     const isPressed = Boolean(marking?.pressed);
     const isToday = state === 'today';
     // Today keeps its disc even when it is also a reminder, so the one day a
-    // user is most likely to look at is never a plain black circle with
-    // nothing under it, indistinguishable from a today with nothing on at
-    // all. A session's own disc (below) still takes over on top of it: a
-    // session is the more specific fact about the day, and its disc already
-    // carries "this is a session" the way today's carries "this is today" —
-    // the accessibility label carries both regardless of which disc is drawn.
+    // user is most likely to look at is never a plain circle with nothing
+    // under it, indistinguishable from a today with nothing on at all. A
+    // session's own disc (below) still takes over on top of it: a session is
+    // the more specific fact about the day, and its disc already carries
+    // "this is a session" the way today's carries "this is today"; the
+    // accessibility label carries both regardless of which disc is drawn.
     const isTodayCell = !isPressed && isToday;
     // The disc drops while the day is pressed, same as today's, so the sheet
     // opened on it owns the cell rather than competing with it.
@@ -94,11 +105,11 @@ export function DarkCalendarDay({ date, state, marking, onPress, accessibilityLa
             kind === 'session' ? t('a11y.therapySession') : kind === 'reminder' ? t('a11y.reminder') : null,
         ].filter((part): part is string => part !== null).join(', ');
 
-    // Only a reminder still needs a dot colour — a session carries its kind in
+    // Only a reminder still needs a dot colour: a session carries its kind in
     // its own disc (sessionFill) instead, which reads on any ground without a
     // separate "on today" variant the way a dot needs one.
     const dotColor = kind === 'reminder'
-        ? (isTodayCell ? CALENDAR_DARK_COLORS.reminderDotOnToday : CALENDAR_DARK_COLORS.reminderDot)
+        ? (isTodayCell ? month.reminderDotOnToday : month.reminderDot)
         : undefined;
 
     const cellStyle = [
@@ -108,16 +119,16 @@ export function DarkCalendarDay({ date, state, marking, onPress, accessibilityLa
         isDisabled && Boolean(kind) && styles.cellDisabled,
         isPressed && styles.cellPressed,
         isTodayCell && styles.cellToday,
-        showsSessionFill && { backgroundColor: CALENDAR_DARK_COLORS.sessionFill },
+        showsSessionFill && { backgroundColor: month.sessionFill },
     ];
 
     const color = showsSessionFill
-        ? CALENDAR_DARK_COLORS.sessionFillText
+        ? month.sessionFillText
         : isTodayCell
-            ? CALENDAR_DARK_COLORS.todayText
+            ? month.todayText
             : isDisabled && !kind
-                ? CALENDAR_DARK_COLORS.dayDisabled
-                : CALENDAR_DARK_COLORS.dayDefault;
+                ? month.dayDisabled
+                : month.dayDefault;
 
     return (
         <TouchableOpacity
@@ -147,27 +158,27 @@ export function DarkCalendarDay({ date, state, marking, onPress, accessibilityLa
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     cell: {
         alignItems: 'center',
         borderRadius: RADIUS,
-        height: DARK_DAY_SIZE,
+        height: CALENDAR_DAY_SIZE,
         justifyContent: 'center',
-        width: DARK_DAY_SIZE,
+        width: CALENDAR_DAY_SIZE,
     },
     cellDisabled: {
         opacity: 0.45,
     },
     cellPressed: {
-        backgroundColor: CALENDAR_DARK_COLORS.pressedBackground,
+        backgroundColor: theme.calendar.month.pressedBackground,
     },
     cellToday: {
-        backgroundColor: CALENDAR_DARK_COLORS.todayBackground,
+        backgroundColor: theme.calendar.month.todayBackground,
     },
     text: {
         fontFamily: 'System',
         fontSize: 17,
-        fontWeight: CALENDAR_DARK_COLORS.dayFontWeight,
+        fontWeight: theme.calendar.month.dayFontWeight,
         includeFontPadding: false,
         textAlign: 'center',
     },

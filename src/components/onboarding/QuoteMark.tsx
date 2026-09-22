@@ -1,6 +1,6 @@
 import React from 'react';
 import Svg, { Path } from 'react-native-svg';
-import { TEXT_COLORS } from 'designs/designs-colors';
+import { useTheme } from '../../context/theme';
 
 type Props = {
     color?: string;
@@ -19,7 +19,9 @@ const ASPECT = 30 / 24;
  * that no font in the app carries, and a quote should look the same wherever a
  * reader meets it.
  */
-export function QuoteMark({ color = TEXT_COLORS.primary, width = 30 }: Props) {
+export function QuoteMark({ color: colorProp, width = 30 }: Props) {
+    const { theme } = useTheme();
+    const color = colorProp ?? theme.ink.primary;
     return (
         <Svg width={ width } height={ width / ASPECT } viewBox="0 0 30 24">
             <Path

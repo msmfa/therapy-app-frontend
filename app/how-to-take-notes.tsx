@@ -7,15 +7,18 @@ import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { GlassCircleButton } from '../src/components/ui/GlassCircleButton';
 import { TemplateHelpModal } from '../src/components/notes/TemplateHelpModal';
 import { NoteSheetBackdrop } from '../src/components/notes/NoteSheetBackdrop';
-import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { DottedGrid } from '../src/components/ui/DottedGrid';
 import { useTranslation } from 'react-i18next';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../src/context/theme';
 const RESEARCH_URL = 'https://www.plastic-brains.com/after-therapy-note-template/';
 
 export default function HowToTakeNotesScreen() {
     const { t } = useTranslation('common');
     const { t: tScience } = useTranslation('science');
     const router = useRouter();
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
     const [helpVisible, setHelpVisible] = React.useState(false);
 
     const handleBack = () => router.back();
@@ -37,7 +40,7 @@ export default function HowToTakeNotesScreen() {
                 <GlassCircleButton
                     accessibilityLabel={ t('action.back') }
                     icon="back"
-                    iconColor={ COLOR_VARIANTS.black.primary }
+                    iconColor={ theme.ink.primary }
                     size={ 48 }
                     onPress={ handleBack }
                 />
@@ -95,7 +98,7 @@ export default function HowToTakeNotesScreen() {
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     container: { flex: 1 },
     header: {
         flexDirection: 'row',
@@ -117,7 +120,7 @@ const styles = StyleSheet.create({
         lineHeight: 26,
     },
     link: {
-        color: COLOR_VARIANTS.red.primary,
+        color: theme.status.dangerText,
         fontWeight: '600',
     },
     sheetArea: {

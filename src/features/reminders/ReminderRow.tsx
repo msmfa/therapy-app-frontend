@@ -7,7 +7,8 @@ import { ScienceTextModal } from 'src/components/ScienceTextModal';
 import { reminderScienceCopy } from 'src/constants/neuroReminders';
 import AppText from 'src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
-import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from 'src/context/theme';
 import FrostedCard from "src/components/ui/FrostedCard";
 import { useTranslation } from 'react-i18next';
 
@@ -19,6 +20,8 @@ type Props = {
 
 export function ReminderRow ({ date, description, link }: Props) {
     const { t: tCommon } = useTranslation('common');
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
     const [openModal, setOpenModal] = useState<ReminderType | null>(null);
 
     return (
@@ -48,7 +51,7 @@ export function ReminderRow ({ date, description, link }: Props) {
                         <AppText variant="caption">
                             { tCommon('action.learnMore') }
                         </AppText>
-                        <Ionicons name={ 'arrow-forward-outline' } size={ 20 } color={ COLOR_VARIANTS.black.quaternary } />
+                        <Ionicons name={ 'arrow-forward-outline' } size={ 20 } color={ theme.ink.quaternary } />
                     </View>
                     <Spacer variant={ SpacerVariant.large } />
                 </FrostedCard>
@@ -66,7 +69,7 @@ export function ReminderRow ({ date, description, link }: Props) {
     )
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     container: {
         flex: 1,
     },
@@ -75,7 +78,7 @@ const styles = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: PALETTE.overlay.whiteMediumTransparent,
+        backgroundColor: theme.surface.medium,
         borderBottomLeftRadius: 10,
         borderBottomRightRadius: 10,
         flex: 1,

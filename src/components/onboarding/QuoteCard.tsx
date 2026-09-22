@@ -1,9 +1,11 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import AppText from '../ui/AppText';
 import { QuoteMark } from './QuoteMark';
-import { onboardingStyles } from './onboardingStyles';
-import { ACCENT_SURFACE, BRAND_ORANGE } from 'designs/designs-colors';
+import { useOnboardingStyles } from './onboardingStyles';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../../context/theme';
 
 type Props = {
     quote: string;
@@ -22,8 +24,22 @@ type Props = {
  * a reader can see at a glance that the words are not ours.
  */
 export function QuoteCard({ quote, name, role }: Props) {
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
+    const { onboardingStyles } = useOnboardingStyles();
+
     return (
         <View testID="quote-card" style={ [onboardingStyles.card, styles.card] }>
+            { /* At night the card is the panel charcoal and its emphasis is a
+                 lit rule along the top; by day the orange fill carries it. */ }
+            { theme.emphasis.rule !== null && (
+                <LinearGradient
+                    colors={ theme.emphasis.rule }
+                    start={ { x: 0, y: 0 } }
+                    end={ { x: 1, y: 0 } }
+                    style={ styles.emphasisRule }
+                />
+            ) }
             { /* The mark sits inside the sentence rather than beside it, so
                  the quote wraps back under it instead of running in a narrow
                  column to its right. Decorative: the sentence is already read
@@ -35,7 +51,7 @@ export function QuoteCard({ quote, name, role }: Props) {
                     accessibilityElementsHidden
                     importantForAccessibility="no-hide-descendants"
                 >
-                    <QuoteMark width={ MARK_WIDTH } color={ ACCENT_SURFACE.textPrimary } />
+                    <QuoteMark width={ MARK_WIDTH } color={ theme.emphasis.ink } />
                 </View>
                 { `  ${quote}` }
             </AppText>
@@ -68,20 +84,25 @@ export function QuoteCard({ quote, name, role }: Props) {
 /** Set against the 18pt quote it opens, not the website's own 16pt column. */
 const MARK_WIDTH = 22;
 
-/** The whole attribution line, held back from the quotation above it. */
-const ATTRIBUTION_INK = 'hsla(0, 0%, 100%, 0.62)';
-
 /** Between the name and the role; the row's gap does the spacing. */
 const ATTRIBUTION_SEPARATOR = '/';
 
 /** The mark's own proportions, from its 30x24 artboard. */
 const QUOTE_MARK_ASPECT = 30 / 24;
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     card: {
         padding: 22,
-        backgroundColor: BRAND_ORANGE,
-        borderColor: BRAND_ORANGE,
+        backgroundColor: theme.emphasis.panel,
+        borderColor: theme.emphasis.panel,
+        overflow: 'hidden',
+    },
+    emphasisRule: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 2,
     },
     /**
      * An inline box inside the text, which needs its own size: nested in a
@@ -101,7 +122,7 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: 18,
         lineHeight: 27,
-        color: ACCENT_SURFACE.textPrimary,
+        color: theme.emphasis.ink,
     },
     attribution: {
         marginTop: 14,
@@ -116,10 +137,10 @@ const styles = StyleSheet.create({
     // what separates it from the role beside it.
     name: {
         fontSize: 15,
-        color: ATTRIBUTION_INK,
+        color: theme.emphasis.inkMuted,
     },
     role: {
         flexShrink: 1,
-        color: ATTRIBUTION_INK,
+        color: theme.emphasis.inkMuted,
     },
 });

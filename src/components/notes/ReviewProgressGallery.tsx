@@ -5,7 +5,8 @@ import AppText from '../ui/AppText';
 import { ReviewProgressBar } from './ReviewProgressBar';
 import { COMPLETE_RAMP, rampColor } from '../ui/TickMeter';
 import { REVIEW_PROGRESS_PREVIEWS } from './reviewProgressPreview';
-import { COLOR_VARIANTS, PALETTE, TEXT_COLORS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../../context/theme';
 import { useTranslation } from 'react-i18next';
 
 // Android needs this switched on explicitly; on iOS it is already available.
@@ -40,6 +41,7 @@ type Props = {
 const TEASER_TICKS = 14;
 
 function CollapsedTeaser() {
+    const styles = useThemedStyles(makeStyles);
     return (
         <View style={ styles.teaser } pointerEvents='none'>
             { Array.from({ length: TEASER_TICKS }, (_, index) => (
@@ -62,6 +64,8 @@ function CollapsedTeaser() {
 
 export function ReviewProgressGallery({ expanded: controlled, onToggle }: Props) {
     const { t } = useTranslation('notes');
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
     const [ownExpanded, setOwnExpanded] = React.useState(false);
     const expanded = controlled ?? ownExpanded;
 
@@ -89,7 +93,7 @@ export function ReviewProgressGallery({ expanded: controlled, onToggle }: Props)
                 <Ionicons
                     name={ expanded ? 'chevron-up' : 'chevron-down' }
                     size={ 18 }
-                    color={ COLOR_VARIANTS.black.tertiary }
+                    color={ theme.ink.tertiary }
                 />
             </Pressable>
 
@@ -111,10 +115,10 @@ export function ReviewProgressGallery({ expanded: controlled, onToggle }: Props)
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     root: {
         borderRadius: 15,
-        backgroundColor: PALETTE.overlay.whiteSurfaceTransparent,
+        backgroundColor: theme.surface.card,
         // A hairline of the bars' own green, faint enough to bound the box
         // without competing with the bars inside it.
         borderWidth: 1,
@@ -136,7 +140,7 @@ const styles = StyleSheet.create({
     },
     intro: {
         marginTop: 6,
-        color: TEXT_COLORS.tertiary,
+        color: theme.ink.tertiary,
     },
     teaser: {
         flex: 1,

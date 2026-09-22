@@ -13,15 +13,15 @@ import { convertSessionsToCalendarFormat } from '../../src/utils/calendar';
 import { useFocusEffect } from 'expo-router';
 import LoadingSuccess from 'src/components/ui/LoadingWithSuccess';
 import ErrorModal from '../../src/components/ui/ErrorModal';
-import { DarkBackdrop } from '../../src/components/ui/DarkBackdrop';
+import { CalendarBackdrop } from '../../src/components/ui/CalendarBackdrop';
 import { useAppAlert } from '../../src/context/alert';
 import Loading from 'src/components/ui/Loading';
 import { GlassButtonOutline } from '../../src/components/ui/GlassButtonOutline';
 import { GlassPillButton } from '../../src/components/ui/GlassPillButton';
 import AppText from 'src/components/ui/AppText';
 import { GradientCard } from '../../src/components/ui/GradientCard';
-import { ACTION_ORANGE, CALENDAR_DARK_COLORS, COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
-import { GRADIENTS, SURFACE_TINTS } from 'designs/designs-gradients';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../../src/context/theme';
 import { useTranslation } from 'react-i18next';
 import { serverErrorMessage } from '../../src/features/errors/serverErrorMessage';
 
@@ -45,14 +45,16 @@ type NextEventCardProps = {
 // month sitting up against it as the unit.
 const NextEventCard = React.memo(function NextEventCard({ label, date, accent }: NextEventCardProps) {
     const { t } = useTranslation('calendar');
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
     const when = date ? dayjs(date) : null;
 
     return (
         <GradientCard
             addedStyles={ styles.eventCard }
             borderRadius={ 20 }
-            surfaceBackgroundColor={ SURFACE_TINTS.sheetCardBackground }
-            surfaceBorderColor={ SURFACE_TINTS.sheetCardBorder }
+            surfaceBackgroundColor={ theme.surface.sheetCard }
+            surfaceBorderColor={ theme.surface.sheetCardBorder }
         >
             <View style={ styles.eventCardBody }>
                 <View style={ styles.eventValueRow }>
@@ -119,6 +121,8 @@ const getSessionsSignature = (sessionsMap: SelectedSessions): string => (
 
 
 export default function CalendarScreen() {
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
     const { t } = useTranslation('calendar');
     const { t: tCommon } = useTranslation('common');
     const {
@@ -311,7 +315,7 @@ export default function CalendarScreen() {
         // refresh look like the whole app had disappeared.
         return (
             <View style={ styles.container }>
-                <DarkBackdrop />
+                <CalendarBackdrop />
                 <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'top'] }>
                     <View style={ styles.loadingBody }>
                         <Loading fullScreen={ false } />
@@ -323,7 +327,7 @@ export default function CalendarScreen() {
 
     return (
         <View style={ styles.container }>
-            <DarkBackdrop />
+            <CalendarBackdrop />
             <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'top'] }>
                 <TherapyCalendar
                     dotDates={ dotDates }
@@ -331,7 +335,7 @@ export default function CalendarScreen() {
                     hideExtraDays={ false }
                     onSelectedSessionsChange={ handleSessionsChange }
                     selectedSessions={ selectedSessions }
-                    variant="dark"
+                    variant="backdrop"
                 />
 
                 <View style={ styles.sheet }>
@@ -339,7 +343,7 @@ export default function CalendarScreen() {
                          middle, which is what separates it from the month
                          above without drawing a hard rule. */ }
                     <LinearGradient
-                        colors={ ['rgba(255,255,255,0)', 'rgba(255,255,255,0.95)', 'rgba(255,255,255,0)'] }
+                        colors={ ['rgba(255,255,255,0)', theme.surface.cardHighlight, 'rgba(255,255,255,0)'] }
                         start={ { x: 0, y: 0 } }
                         end={ { x: 1, y: 0 } }
                         pointerEvents="none"
@@ -366,12 +370,12 @@ export default function CalendarScreen() {
                             <NextEventCard
                                 label={ t('nextSession') }
                                 date={ nextSessionDate }
-                                accent={ CALENDAR_DARK_COLORS.sessionDot }
+                                accent={ theme.calendar.month.sessionDot }
                             />
                             <NextEventCard
                                 label={ t('nextReminder') }
                                 date={ nextReminderDate }
-                                accent={ CALENDAR_DARK_COLORS.reminderDot }
+                                accent={ theme.calendar.month.reminderDot }
                             />
                         </ScrollView>
                     </MaskedView>
@@ -382,10 +386,10 @@ export default function CalendarScreen() {
                             <GlassPillButton
                                 accessibilityLabel={ t('clearA11y') }
                                 disabled={ sessionCount === 0 }
-                                disabledLabelColor={ COLOR_VARIANTS.white.quaternary }
+                                disabledLabelColor={ theme.glass.disabledLabel }
                                 height={ 72 }
                                 label={ t('clear') }
-                                labelColor={ ACTION_ORANGE }
+                                labelColor={ theme.accent.mark }
                                 labelSize={ 16 }
                                 onPress={ handleClearPress }
                                 style={ styles.footerButton }
@@ -394,8 +398,8 @@ export default function CalendarScreen() {
                                 accessibilityLabel={ t('saveA11y') }
                                 height={ 72 }
                                 label={ t('save') }
-                                labelColor={ ACTION_ORANGE }
-                                disabledLabelColor={ COLOR_VARIANTS.white.quaternary }
+                                labelColor={ theme.accent.mark }
+                                disabledLabelColor={ theme.glass.disabledLabel }
                                 labelSize={ 16 }
                                 onPress={ handleSavePress }
                                 disabled={ !canSave }
@@ -425,7 +429,7 @@ export default function CalendarScreen() {
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     container: {
         flex: 1,
     },
@@ -440,7 +444,7 @@ const styles = StyleSheet.create({
     // corners are rounded.
     sheet: {
         flex: 1,
-        backgroundColor: GRADIENTS.background.bottom,
+        backgroundColor: theme.ground.base,
         borderTopLeftRadius: 28,
         borderTopRightRadius: 28,
         overflow: 'hidden',
@@ -486,7 +490,7 @@ const styles = StyleSheet.create({
         width: 6,
     },
     eventLabel: {
-        color: TEXT_COLORS.secondary,
+        color: theme.ink.secondary,
         fontSize: 12,
         fontWeight: '500',
         letterSpacing: 1.2,
@@ -506,14 +510,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     eventDay: {
-        color: TEXT_COLORS.primary,
+        color: theme.ink.primary,
         fontSize: 32,
         fontWeight: '500',
         letterSpacing: -0.8,
         lineHeight: 34,
     },
     eventMonth: {
-        color: TEXT_COLORS.primary,
+        color: theme.ink.primary,
         fontSize: 32,
         fontWeight: '500',
         letterSpacing: -0.8,
@@ -521,13 +525,13 @@ const styles = StyleSheet.create({
         marginLeft: 7,
     },
     eventMeta: {
-        color: TEXT_COLORS.tertiary,
+        color: theme.ink.tertiary,
         fontSize: 13,
         textAlign: 'right',
     },
     eventEmpty: {
         alignSelf: 'center',
-        color: TEXT_COLORS.tertiary,
+        color: theme.ink.tertiary,
         fontSize: 16,
         marginBottom: 4,
     },

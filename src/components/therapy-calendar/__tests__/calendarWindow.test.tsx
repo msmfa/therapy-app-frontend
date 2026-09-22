@@ -22,7 +22,7 @@ beforeEach(() => {
 });
 afterEach(() => { jest.useRealTimers(); });
 
-it.each(['light', 'dark'] as const)('bounds the %s calendar and ignores presses outside its window', (variant) => {
+it.each(['card', 'backdrop'] as const)('bounds the %s calendar and ignores presses outside its window', (variant) => {
     const view = render(<TherapyCalendar variant={variant} selectedSessions={{}} onSelectedSessionsChange={jest.fn()} />);
     const calendar = view.UNSAFE_getByType(Calendar);
     expect(calendar.props.minDate).toBe('2026-09-05');

@@ -1,7 +1,8 @@
 import type { LayoutChangeEvent, StyleProp, ViewStyle } from 'react-native';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import type { ImageSourcePropType } from 'react-native';
-import { COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useThemedStyles } from '../../context/theme';
 import { useTranslation } from 'react-i18next';
 
 type Props = {
@@ -25,6 +26,7 @@ type Props = {
  */
 export function NotificationBanner({ title, body, time, width, style, onLayout }: Props) {
     const { t } = useTranslation('onboarding');
+    const styles = useThemedStyles(makeStyles);
     return (
         <View
             style={ [styles.panel, { width }, style] }
@@ -49,7 +51,7 @@ export function NotificationBanner({ title, body, time, width, style, onLayout }
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     panel: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -57,8 +59,8 @@ const styles = StyleSheet.create({
         paddingVertical: 18,
         paddingHorizontal: 14,
         borderRadius: 20,
-        backgroundColor: COLOR_VARIANTS.white.primary,
-        shadowColor: COLOR_VARIANTS.black.primary,
+        backgroundColor: theme.surface.sheet,
+        shadowColor: theme.shadow,
         shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.18,
         shadowRadius: 18,
@@ -85,18 +87,18 @@ const styles = StyleSheet.create({
         fontSize: 15,
         lineHeight: 20,
         fontWeight: '600',
-        color: TEXT_COLORS.primary,
+        color: theme.ink.primary,
     },
     time: {
         fontSize: 13,
         lineHeight: 18,
-        color: TEXT_COLORS.quaternary,
+        color: theme.ink.quaternary,
     },
     // Lighter than the title, so the name is what is read first and the
     // message sits under it.
     body: {
         fontSize: 15,
         lineHeight: 20,
-        color: TEXT_COLORS.tertiary,
+        color: theme.ink.tertiary,
     },
 });

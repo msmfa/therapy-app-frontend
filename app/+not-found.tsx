@@ -7,9 +7,9 @@ import { useOnboarding } from '../src/context/onboarding/OnboardingContext';
 import AppText from '../src/components/ui/AppText';
 import { Button } from '../src/components/ui/Button';
 import Spacer, { SpacerVariant } from '../src/components/ui/Spacer';
-import { COLOR_VARIANTS } from '../designs/designs-colors';
 import * as Sentry from '@sentry/react-native';
 import { useTranslation } from 'react-i18next';
+import { useTheme } from '../src/context/theme';
 
 /**
  * Catch-all route for unmatched paths
@@ -23,6 +23,7 @@ export default function NotFound() {
     const router = useRouter();
     const { isAuthenticated } = useAuth();
     const { hasOnboarded } = useOnboarding();
+    const { theme } = useTheme();
 
     useEffect(() => {
         Sentry.withScope((scope) => {
@@ -43,7 +44,7 @@ export default function NotFound() {
     };
 
     return (
-        <SafeAreaView style={ styles.container } edges={ ['top', 'bottom'] }>
+        <SafeAreaView style={ [styles.container, { backgroundColor: theme.surface.sheet }] } edges={ ['top', 'bottom'] }>
             <View style={ styles.content }>
                 <AppText variant="h1">{ t('notFound.title') }</AppText>
                 <Spacer variant={ SpacerVariant.medium } />
@@ -60,7 +61,6 @@ export default function NotFound() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: COLOR_VARIANTS.white.primary,
     },
     content: {
         flex: 1,

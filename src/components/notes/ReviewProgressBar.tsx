@@ -2,7 +2,8 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import AppText from '../ui/AppText';
-import { TEXT_COLORS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useThemedStyles } from '../../context/theme';
 import { TickMeter } from '../ui/TickMeter';
 import type { NoteReviewProgress } from '../../features/reviews';
 
@@ -16,6 +17,7 @@ type Props = {
 
 export function ReviewProgressBar({ progress, label, showCaption = true }: Props) {
     const { t } = useTranslation('notes');
+    const styles = useThemedStyles(makeStyles);
     const { completed, total, hasSchedule, isComplete } = progress;
 
     // `count` is the number completed, not the total, because that is the
@@ -42,12 +44,12 @@ export function ReviewProgressBar({ progress, label, showCaption = true }: Props
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     root: {
         marginTop: 14,
     },
     caption: {
         marginTop: 8,
-        color: TEXT_COLORS.tertiary,
+        color: theme.ink.tertiary,
     },
 });

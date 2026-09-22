@@ -3,7 +3,8 @@ import { Feather } from '@expo/vector-icons';
 import AppText from './AppText';
 import Spacer, { SpacerVariant } from './Spacer';
 import Circle from './Circle';
-import { COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../../context/theme';
 
 type Props = {
     steps: string[];
@@ -12,10 +13,13 @@ type Props = {
     activeStep?: number;
 };
 
-const LINE_COLOR = COLOR_VARIANTS.red.light;
 const STEP_VERTICAL_SPACING = 10;
 
 export default function OnboardingSteps({ title, steps, activeStep }: Props) {
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
+    const lineColor = theme.red.light;
+
     return (
         <View >
             { title && (
@@ -53,7 +57,7 @@ export default function OnboardingSteps({ title, steps, activeStep }: Props) {
                             />
                             { isLast && (
                                 <View style={ styles.indicatorArrowWrapper }>
-                                    <Feather name='arrow-down' size={ 24 } color={ LINE_COLOR } />
+                                    <Feather name='arrow-down' size={ 24 } color={ lineColor } />
                                 </View>
                             ) }
                         </View>
@@ -70,10 +74,10 @@ export default function OnboardingSteps({ title, steps, activeStep }: Props) {
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     line: {
         height: 1,
-        backgroundColor: COLOR_VARIANTS.red.mid,
+        backgroundColor: theme.red.mid,
         alignSelf: 'stretch',
         marginHorizontal: -20,
     },
@@ -92,7 +96,7 @@ const styles = StyleSheet.create({
     indicatorTail: {
         width: 2,
         flexGrow: 1,
-        backgroundColor: COLOR_VARIANTS.red.light,
+        backgroundColor: theme.red.light,
         marginBottom: -STEP_VERTICAL_SPACING,
     },
     indicatorTailLast: {
@@ -111,9 +115,9 @@ const styles = StyleSheet.create({
     // disabled
     stepText: {
         flex: 1,
-        color: TEXT_COLORS.tertiary,
+        color: theme.ink.tertiary,
     },
     stepTextActive: {
-        color: COLOR_VARIANTS.black.primary,
+        color: theme.ink.primary,
     },
 });

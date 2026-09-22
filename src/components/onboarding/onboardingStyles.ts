@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import { BRAND_FONTS } from 'designs/designs-typography';
-import { lightTheme, type Theme } from 'designs/designs-themes';
+import type { Theme } from 'designs/designs-themes';
 import { useTheme } from '../../context/theme';
 
 /** Surfaces and type shared with the notes editor and reminder cards. */
@@ -98,14 +98,3 @@ export function useOnboardingStyles(): OnboardingStyles {
         linkColor: theme.link.color,
     }), [theme]);
 }
-
-/**
- * The light sheets, frozen at import.
- *
- * Kept for the screens that still read these at module scope; they are being
- * moved to `useOnboardingStyles` one by one, and these go when the last one
- * has. Nothing new should import them.
- */
-export const onboardingStyles = makeOnboardingStyles(lightTheme);
-export const onboardingAccentStyles = makeOnboardingAccentStyles(lightTheme);
-export const ONBOARDING_LINK_COLOR = lightTheme.link.color;

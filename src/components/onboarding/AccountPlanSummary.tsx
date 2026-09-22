@@ -1,16 +1,14 @@
 import { StyleSheet, View } from 'react-native';
-import { TEXT_COLORS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useThemedStyles } from '../../context/theme';
 import AppText from '../ui/AppText';
 import { ONBOARDING_SCREEN_PADDING } from './OnboardingScreen';
-import { onboardingStyles } from './onboardingStyles';
+import { useOnboardingStyles } from './onboardingStyles';
 import type { AccountSummaryRow } from '../../features/onboarding/accountSummary';
 
 type Props = {
     rows: AccountSummaryRow[];
 };
-
-/** Faint: a rule that separates without being read as a line of its own. */
-const RULE_COLOR = 'hsla(0, 0%, 0%, 0.18)';
 
 /**
  * A thin dotted rule.
@@ -19,6 +17,7 @@ const RULE_COLOR = 'hsla(0, 0%, 0%, 0.18)';
  * a box with a dotted border all round, clipped to its top edge.
  */
 function DottedRule() {
+    const styles = useThemedStyles(makeStyles);
     return (
         <View style={ styles.ruleClip } accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
             <View style={ styles.rule } />
@@ -35,6 +34,8 @@ function DottedRule() {
  * was chosen rather than as one more panel of the page.
  */
 export function AccountPlanSummary({ rows }: Props) {
+    const styles = useThemedStyles(makeStyles);
+    const { onboardingStyles } = useOnboardingStyles();
     return (
         <View style={ [onboardingStyles.card, styles.card] }>
             { rows.map((row, index) => (
@@ -59,7 +60,7 @@ export function AccountPlanSummary({ rows }: Props) {
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     // Out through the gutter to both edges, square-cornered and with no side
     // edges of its own, so it is a band of the page and not a box on it.
     card: {
@@ -87,10 +88,11 @@ const styles = StyleSheet.create({
         height: 3,
         borderWidth: 1,
         borderStyle: 'dotted',
-        borderColor: RULE_COLOR,
+        // Faint: a rule that separates without being read as a line of its own.
+        borderColor: theme.hairline,
     },
     label: {
-        color: TEXT_COLORS.tertiary,
+        color: theme.ink.tertiary,
     },
     value: {
         marginTop: 2,
@@ -98,6 +100,6 @@ const styles = StyleSheet.create({
     },
     note: {
         marginTop: 8,
-        color: TEXT_COLORS.secondary,
+        color: theme.ink.secondary,
     },
 });

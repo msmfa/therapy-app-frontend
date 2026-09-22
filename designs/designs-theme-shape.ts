@@ -54,12 +54,25 @@ export type Theme = {
         medium: string;
         row: string;
         rowBorder: string;
+        /** A group of rows inside a card: the language picker, the reminder times. */
+        rowGroup: string;
+        rowGroupBorder: string;
         /** Below the surface: meter tracks, inactive dots. */
         groove: string;
         /** An opaque page where the light app has a white one. */
         sheet: string;
+        /** The sheet's tone at its deepest, for a band that settles into it. */
+        sheetTint: string;
+        /** A near-opaque card for a page of reading. */
+        readingCard: string;
+        /** A small grey pill: the plain plan badge. */
+        chip: string;
+        /** A card edge brighter than the shared one, for cards over artwork. */
+        cardHighlight: string;
         /** Alert and error modals, the schedule sheet. */
         modal: string;
+        /** The dimming behind a modal. */
+        scrim: string;
         sheetCard: string;
         sheetCardBorder: string;
         field: string;
@@ -69,6 +82,9 @@ export type Theme = {
         spinnerWell: string;
         tinted: (hue: number) => string;
         tintedBorder: (hue: number) => string;
+        /** GradientCard with no hue: a lighter wash than the card. */
+        tintCard: string;
+        tintCardBorder: string;
     };
 
     glass: {
@@ -79,6 +95,8 @@ export type Theme = {
         rim: string;
         rimOpacity: number;
         shade: string;
+        /** A disabled label on a glass pill. */
+        disabledLabel: string;
     };
 
     radio: {
@@ -102,8 +120,12 @@ export type Theme = {
     };
 
     link: {
+        /** Onboarding's links: deep, set beside body copy. */
         color: string;
         pressed: string;
+        /** The brighter inline link: citations, external and internal links. */
+        bright: string;
+        brightPressed: string;
     };
 
     accent: {
@@ -119,11 +141,24 @@ export type Theme = {
 
     chosen: {
         fill: string;
+        /** The chosen option's label: the warm ink on orange by day. */
         ink: string;
-        inkSecondary: string;
+        /** A chosen plan card's reading inks, which sit lighter on the fill. */
+        inkBright: string;
+        inkBrightest: string;
+        /** The card's own outline. */
+        border: string;
+        /** The radio's ring. */
         ring: string;
         /** The filled disc, drawn as a gradient so both themes take one path. */
         mark: GradientStops;
+        /** The tick inside that disc. */
+        check: string;
+        /** The disc behind a timeline icon on a chosen card. */
+        iconDisc: string;
+        /** The trial badge on a chosen card. */
+        trialFill: string;
+        trialText: string;
     };
 
     /** The emphasised block: supporting banner, science summary, quote card. */
@@ -133,6 +168,8 @@ export type Theme = {
         rule: GradientStops | null;
         ink: string;
         inkSecondary: string;
+        /** The attribution line on a quote, held back from the quotation. */
+        inkMuted: string;
     };
 
     accentScreen: {
@@ -157,10 +194,18 @@ export type Theme = {
         dangerText: string;
     };
 
-    badge: {
-        fill: string;
-        border: string;
-        text: string;
+    /** The red family: a fill, a line, an ink. Badges, the step circles, error rows. */
+    red: {
+        light: string;
+        mid: string;
+        dark: string;
+    };
+
+    /** The ground the reminder card's aura is painted on. */
+    aura: {
+        top: string;
+        mid: string;
+        bottom: string;
     };
 
     trialBadge: {
@@ -210,6 +255,8 @@ export type Theme = {
     };
 
     hairline: string;
+    /** Fainter still: the timeline's rail. */
+    hairlineFaint: string;
 
     navigation: {
         background: string;

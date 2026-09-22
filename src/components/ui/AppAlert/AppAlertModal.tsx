@@ -1,7 +1,8 @@
 import React from 'react';
 import { Modal, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import AppText from '../AppText';
-import { COLOR_VARIANTS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useThemedStyles } from '../../../context/theme';
 import Spacer, { SpacerVariant } from '../Spacer';
 import ErrorGradients from '../ErrorGradients';
 import { Button } from '../Button';
@@ -17,6 +18,7 @@ type Props = {
 
 export function AppAlertModal({ title, message, options, onRequestClose }: Props) {
     const { t } = useTranslation('common');
+    const styles = useThemedStyles(makeStyles);
     const primaryAction = options?.primaryAction;
     const secondaryAction = options?.secondaryAction;
 
@@ -108,7 +110,7 @@ export function AppAlertModal({ title, message, options, onRequestClose }: Props
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     container: {
         position: 'relative',
         justifyContent: 'center',
@@ -117,9 +119,9 @@ const styles = StyleSheet.create({
         width: '100%',
         maxWidth: 360,
         maxHeight: '100%',
-        backgroundColor: COLOR_VARIANTS.blue.lightest,
+        backgroundColor: theme.surface.modal,
         borderRadius: 24,
-        shadowColor: COLOR_VARIANTS.black.primary,
+        shadowColor: theme.shadow,
         shadowOpacity: 0.2,
         shadowOffset: { width: 0, height: 12 },
         shadowRadius: 24,
@@ -135,7 +137,7 @@ const styles = StyleSheet.create({
     },
     overlay: {
         flex: 1,
-        backgroundColor: COLOR_VARIANTS.black.tertiary,
+        backgroundColor: theme.surface.scrim,
         alignItems: 'center',
         justifyContent: 'center',
         padding: 30,
@@ -144,7 +146,7 @@ const styles = StyleSheet.create({
         ...StyleSheet.absoluteFillObject,
     },
     primaryActionDanger: {
-        backgroundColor: COLOR_VARIANTS.red.primary,
-        borderColor: COLOR_VARIANTS.red.primary,
+        backgroundColor: theme.status.danger,
+        borderColor: theme.status.danger,
     },
 });

@@ -14,7 +14,8 @@ import { GlassPillButton } from '../ui/GlassPillButton';
 import { GlassPickerPanel } from '../ui/GlassPickerPanel';
 import AppText from '../ui/AppText';
 import { TIME_PICKER_BOUNDS } from '../../utils/timePickerBounds';
-import { ACTION_ORANGE, CALENDAR_COLORS, COLOR_VARIANTS, TEXT_COLORS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../../context/theme';
 import { useTranslation } from 'react-i18next';
 
 interface Session {
@@ -51,6 +52,8 @@ export default function ScheduleModal({
     onSelectSession,
 }: ScheduleModalProps) {
     const { t } = useTranslation('calendar');
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
     const [time, setTime] = useState(defaultTime);
     const [scheduleMode, setScheduleMode] = useState<ScheduleMode>('weekly_pattern');
     const [showPicker, setShowPicker] = useState(false);
@@ -142,13 +145,13 @@ export default function ScheduleModal({
                                 <GlassPickerPanel style={ styles.iosPickerWrapper }>
                                     <DateTimePicker
                                         { ...TIME_PICKER_BOUNDS }
-                                        accentColor={ ACTION_ORANGE }
+                                        accentColor={ theme.accent.mark }
                                         value={ time }
                                         mode="time"
                                         display="spinner"
                                         onChange={ handleTimeChange }
-                                        textColor={ COLOR_VARIANTS.black.secondary }
-                                        themeVariant="light"
+                                        textColor={ theme.ink.secondary }
+                                        themeVariant={ theme.scheme }
                                         style={ styles.iosPicker }
                                     />
                                 </GlassPickerPanel>
@@ -169,12 +172,12 @@ export default function ScheduleModal({
                                         <GlassPickerPanel style={ styles.androidPicker }>
                                             <DateTimePicker
                                                 { ...TIME_PICKER_BOUNDS }
-                                                accentColor={ ACTION_ORANGE }
+                                                accentColor={ theme.accent.mark }
                                                 value={ time }
                                                 mode="time"
                                                 display="default"
                                                 onChange={ handleTimeChange }
-                                                themeVariant="light"
+                                                themeVariant={ theme.scheme }
                                             />
                                         </GlassPickerPanel>
                                     ) }
@@ -218,7 +221,7 @@ export default function ScheduleModal({
                                         label={ t('schedule.delete') }
                                         height={ 60 }
                                         labelSize={ 16 }
-                                        labelColor={ ACTION_ORANGE }
+                                        labelColor={ theme.accent.mark }
                                         onPress={ onDelete }
                                         style={ styles.actionPill }
                                     />
@@ -228,8 +231,8 @@ export default function ScheduleModal({
                                         label={ t('schedule.update') }
                                         height={ 60 }
                                         labelSize={ 16 }
-                                        labelColor={ ACTION_ORANGE }
-                                        disabledLabelColor={ COLOR_VARIANTS.white.quaternary }
+                                        labelColor={ theme.accent.mark }
+                                        disabledLabelColor={ theme.glass.disabledLabel }
                                         onPress={ handleConfirm }
                                         disabled={ isUpdateDisabled }
                                         style={ styles.actionPill }
@@ -243,7 +246,7 @@ export default function ScheduleModal({
                                         label={ t('schedule.add') }
                                         height={ 60 }
                                         labelSize={ 16 }
-                                        labelColor={ ACTION_ORANGE }
+                                        labelColor={ theme.accent.mark }
                                         onPress={ handleConfirm }
                                         style={ styles.actionPill }
                                     />
@@ -257,7 +260,7 @@ export default function ScheduleModal({
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     androidPicker: {
         marginTop: 12,
     },
@@ -268,7 +271,7 @@ const styles = StyleSheet.create({
         top: 24,
     },
     selectedDay: {
-        color: TEXT_COLORS.secondary,
+        color: theme.ink.secondary,
         fontSize: 20,
         fontWeight: '300',
     },
@@ -280,7 +283,7 @@ const styles = StyleSheet.create({
         marginTop: 7,
     },
     selectedDayRuleDot: {
-        backgroundColor: ACTION_ORANGE,
+        backgroundColor: theme.accent.mark,
         borderRadius: 1.5,
         height: 3,
         width: 3,
@@ -316,7 +319,7 @@ const styles = StyleSheet.create({
         letterSpacing: 0.8,
     },
     modeNote: {
-        color: TEXT_COLORS.quaternary,
+        color: theme.ink.quaternary,
         flexShrink: 1,
         fontSize: 10,
         letterSpacing: 0.6,
@@ -334,23 +337,20 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 0,
         top: 0,
-        // backgroundColor: CALENDAR_COLORS.modalSurface,
 
     },
     modalContent: {
         maxHeight: '92%',
-        // backgroundColor: CALENDAR_COLORS.modalSurface,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         padding: 20,
         paddingBottom: 40,
         paddingTop: 65,
-        backgroundColor: CALENDAR_COLORS.modalSurface,
-        // shadowColor: CALENDAR_COLORS.modalOverlayTransparent,
+        backgroundColor: theme.calendar.sheet.surface,
 
     },
     modalOverlay: {
-        backgroundColor: CALENDAR_COLORS.modalOverlayTransparent,
+        backgroundColor: theme.calendar.sheet.overlay,
         flex: 1,
         justifyContent: 'flex-end',
     },
@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
     },
     timeButton: {
         alignItems: 'center',
-        borderColor: CALENDAR_COLORS.modalBorder,
+        borderColor: theme.calendar.sheet.border,
         borderRadius: 5,
         flexDirection: 'row',
         gap: 10,

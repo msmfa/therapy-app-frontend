@@ -3,9 +3,10 @@ import { Modal, View, StyleSheet } from 'react-native';
 import AppText from './AppText';
 import { Button } from './Button';
 import Spacer, { SpacerVariant } from './Spacer';
-import { COLOR_VARIANTS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import { useThemedStyles } from '../../context/theme';
 
 interface ErrorModalProps {
     visible: boolean;
@@ -25,6 +26,7 @@ export default function ErrorModal({
     onClose,
 }: ErrorModalProps) {
     const { t } = useTranslation('common');
+    const styles = useThemedStyles(makeStyles);
 
     return (
         <Modal
@@ -62,10 +64,10 @@ export default function ErrorModal({
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     root: {
         flex: 1,
-        backgroundColor: COLOR_VARIANTS.blue.lightest,
+        backgroundColor: theme.surface.modal,
         paddingHorizontal: 0,
         borderWidth: 1,
     },

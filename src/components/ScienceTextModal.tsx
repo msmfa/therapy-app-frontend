@@ -1,4 +1,5 @@
 import { StyleSheet, View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { ReminderType } from '../utils/types';
 import { reminderScienceCopy } from '../constants/neuroReminders';
 import AppText from './ui/AppText';
@@ -6,7 +7,8 @@ import Spacer, { SpacerVariant } from './ui/Spacer';
 import { CitedText } from './ui/CitedText';
 import { ExternalLink } from './ui/ExternalLink';
 import { GradientCard } from './ui/GradientCard';
-import { ACCENT_SURFACE, BRAND_ORANGE, TEXT_COLORS } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../context/theme';
 import { useTranslation } from 'react-i18next';
 
 type Props = {
@@ -20,6 +22,8 @@ type Props = {
  */
 export function ScienceTextModal({ type }: Props) {
     const { t } = useTranslation('science');
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
     const { body, sources, tldr } = reminderScienceCopy()[type];
 
     return (
@@ -30,6 +34,17 @@ export function ScienceTextModal({ type }: Props) {
                      is worth having, not to read the papers, and that reader
                      should not have to get past a caveat to reach the answer. */ }
                 <View style={ styles.tldrPanel }>
+                    { /* At night the panel is charcoal and its emphasis is a
+                         lit rule along the top; by day the orange fill carries
+                         it and there is no rule. */ }
+                    { theme.emphasis.rule !== null && (
+                        <LinearGradient
+                            colors={ theme.emphasis.rule }
+                            start={ { x: 0, y: 0 } }
+                            end={ { x: 1, y: 0 } }
+                            style={ styles.emphasisRule }
+                        />
+                    ) }
                     <AppText variant="body" style={ styles.tldr }>
                         <AppText variant="body" style={ styles.tldrLabel }>{ t('tldrLabel') }</AppText>
                         { tldr }
@@ -80,15 +95,14 @@ const CARD_PADDING = 20;
 /** And its corner radius, which the panel's top corners have to match. */
 const CARD_RADIUS = 16;
 
-const styles = StyleSheet.create({
-    // Near-white, so the write-up reads as a page rather than as a grey panel
-    // with type on it.
+const makeStyles = (theme: Theme) => StyleSheet.create({
+    // A page of reading rather than a grey panel with type on it.
     gradientContainer: {
-        backgroundColor: 'hsla(0, 0%, 100%, 0.88)',
+        backgroundColor: theme.surface.readingCard,
     },
     caveat: {
         fontWeight: '600',
-        color: TEXT_COLORS.primary,
+        color: theme.ink.primary,
     },
     /**
      * Held clear of the caveat above it and the research below, and run out
@@ -110,16 +124,24 @@ const styles = StyleSheet.create({
         paddingHorizontal: CARD_PADDING,
         borderTopLeftRadius: CARD_RADIUS,
         borderTopRightRadius: CARD_RADIUS,
-        backgroundColor: BRAND_ORANGE,
+        backgroundColor: theme.emphasis.panel,
+        overflow: 'hidden',
+    },
+    emphasisRule: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 2,
     },
     // The summary is a sentence to read, so it is set as one. Only its label is
     // bold, which is what makes the label a label.
     tldr: {
-        color: ACCENT_SURFACE.textPrimary,
+        color: theme.emphasis.ink,
     },
     tldrLabel: {
         fontWeight: '700',
-        color: ACCENT_SURFACE.textPrimary,
+        color: theme.emphasis.ink,
     },
     sourcesSection: {
         alignSelf: 'stretch',

@@ -6,7 +6,7 @@ import { useRouter } from 'expo-router';
 import { useIsFocused } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
-import { ACCENT_SURFACE } from 'designs/designs-colors';
+import { useTheme } from '../../src/context/theme';
 import { BRAND_FONTS } from 'designs/designs-typography';
 import { NotificationBanner } from '../../src/components/onboarding/NotificationBanner';
 import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
@@ -17,7 +17,7 @@ import {
     notePreviewCopy,
 } from '../../src/features/onboarding/onboardingCopy';
 import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAnswersContext';
-import { onboardingAccentStyles, onboardingStyles } from '../../src/components/onboarding/onboardingStyles';
+import { useOnboardingStyles } from '../../src/components/onboarding/onboardingStyles';
 import { useTranslation } from 'react-i18next';
 
 /** The screenshot's own proportions, so nothing is stretched. */
@@ -39,6 +39,8 @@ const NOTIFICATION_HEIGHT_GUESS = 74;
  */
 
 export default function NotePreviewScreen() {
+    const { theme } = useTheme();
+    const { onboardingStyles, onboardingAccentStyles } = useOnboardingStyles();
     const { t } = useTranslation('onboarding');
     const router = useRouter();
     const { answers } = useOnboardingAnswers();
@@ -143,7 +145,7 @@ export default function NotePreviewScreen() {
                         <Feather
                             name="lock"
                             size={ 18 }
-                            color={ ACCENT_SURFACE.textSecondary }
+                            color={ theme.accentScreen.textSecondary }
                             accessibilityElementsHidden
                             importantForAccessibility="no-hide-descendants"
                         />

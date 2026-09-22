@@ -1,15 +1,12 @@
 import React from 'react';
 import { StyleSheet, useWindowDimensions } from 'react-native';
 import Svg, { Circle, Line, Path, Text as SvgText } from 'react-native-svg';
+import { useTheme } from '../../context/theme';
 
 // The chart the page sits on: dashed horizontal rules, a stepped trace with
 // a marker at its start, and the week along the bottom. Everything is a tone
-// of grey a few steps off white, so it reads as ruled paper behind the cards
-// rather than as a chart of its own.
-const RULE_COLOR = 'hsl(0, 0%, 92%)';
-const TRACE_COLOR = 'hsl(0, 0%, 90%)';
-const MARKER_COLOR = 'hsl(0, 0%, 87%)';
-const LABEL_COLOR = 'hsl(0, 0%, 86%)';
+// of grey a few steps off the ground (theme.chart), so it reads as ruled
+// paper behind the cards rather than as a chart of its own.
 
 const RULE_SPACING = 88;
 const RULE_DASH = '8 7';
@@ -40,6 +37,8 @@ const MARKER_RADIUS = 5;
 
 export function ChartBackground() {
     const { width, height } = useWindowDimensions();
+    const { theme } = useTheme();
+    const { rule: RULE_COLOR, trace: TRACE_COLOR, marker: MARKER_COLOR, label: LABEL_COLOR } = theme.chart;
 
     const canvasWidth = width + OVERHANG_X * 2;
     const canvasHeight = height + OVERHANG_Y * 2;

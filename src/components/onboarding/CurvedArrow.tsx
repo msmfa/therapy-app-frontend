@@ -1,6 +1,6 @@
 import React from 'react';
 import Svg, { Path } from 'react-native-svg';
-import { TEXT_COLORS } from 'designs/designs-colors';
+import { useTheme } from '../../context/theme';
 
 type Props = {
     width?: number;
@@ -16,7 +16,9 @@ type Props = {
  * sits beside carries the meaning, and the whole thing is inside one accessible
  * control, so this is hidden from assistive technology by its parent.
  */
-export function CurvedArrow({ width = 64, height = 56, color = TEXT_COLORS.tertiary }: Props) {
+export function CurvedArrow({ width = 64, height = 56, color: colorProp }: Props) {
+    const { theme } = useTheme();
+    const color = colorProp ?? theme.ink.tertiary;
     return (
         <Svg width={ width } height={ height } viewBox="0 0 64 56" fill="none">
             { /* Start under the label, bow right, finish pointing down-left. */ }

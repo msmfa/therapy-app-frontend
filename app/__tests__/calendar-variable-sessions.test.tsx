@@ -98,8 +98,8 @@ jest.mock('../../src/components/ui/GlassButtonOutline', () => ({
     GlassButtonOutline: () => null,
 }));
 
-jest.mock('../../src/components/ui/DarkBackdrop', () => ({
-    DarkBackdrop: () => null,
+jest.mock('../../src/components/ui/CalendarBackdrop', () => ({
+    CalendarBackdrop: () => null,
 }));
 
 jest.mock('../../src/components/ui/LoadingWithSuccess', () => () => null);

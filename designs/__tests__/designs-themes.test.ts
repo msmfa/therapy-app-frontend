@@ -2,7 +2,7 @@ import { darkTheme, lightTheme } from '../designs-themes';
 import {
     ACCENT_SURFACE,
     BRAND_ORANGE,
-    CALENDAR_DARK_COLORS,
+    CALENDAR_MONTH_COLORS,
     PALETTE,
     SURFACE_BLUE,
     TEXT_COLORS,
@@ -68,7 +68,7 @@ describe('designs-themes', () => {
         expect(lightTheme.surface.cardShadow).toBe(PALETTE.overlay.blueGlowTransparent);
         expect(lightTheme.chosen.fill).toBe(BRAND_ORANGE);
         expect(lightTheme.accentScreen.textPrimary).toBe(ACCENT_SURFACE.textPrimary);
-        expect(lightTheme.calendar.month).toBe(CALENDAR_DARK_COLORS);
+        expect(lightTheme.calendar.month).toBe(CALENDAR_MONTH_COLORS);
         expect(lightTheme.statusBar).toBe('dark-content');
     });
 

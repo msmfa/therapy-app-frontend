@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import AppText from '../ui/AppText';
 import Spacer, { SpacerVariant } from '../ui/Spacer';
-import { COLOR_VARIANTS } from 'designs/designs-colors';
+import { useTheme } from '../../context/theme';
 import {
     postTherapyQuestions,
     postTherapyTemplateIntro,
@@ -32,6 +32,7 @@ export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) 
     const { t } = useTranslation('notes');
     const { t: tCommon } = useTranslation('common');
     const insets = useSafeAreaInsets();
+    const { theme } = useTheme();
 
     return (
         <Modal
@@ -43,9 +44,11 @@ export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) 
                 testID="template-help-modal-root"
                 source={ require('../../../assets/textures/paper-green.webp') as ImageSourcePropType }
                 contentFit="cover"
+                // The paper is the picture; the sheet behind it is the frame,
+                // and only the frame follows the theme.
                 style={ [
                     styles.modalRoot,
-                    { paddingTop: insets.top, paddingBottom: insets.bottom },
+                    { backgroundColor: theme.surface.sheet, paddingTop: insets.top, paddingBottom: insets.bottom },
                 ] }
             >
                 <View style={ styles.header }>
@@ -92,7 +95,7 @@ export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) 
 }
 
 const styles = StyleSheet.create({
-    modalRoot: { flex: 1, backgroundColor: COLOR_VARIANTS.white.primary },
+    modalRoot: { flex: 1 },
     scroll: { flex: 1 },
     scrollContent: { paddingHorizontal: H_PADDING, paddingTop: 20, paddingBottom: 32 },
     questionList: { gap: 26 },

@@ -10,16 +10,20 @@ import { GlassMorphismWithCircle } from '../../src/components/ui/GlassMorphismWi
 import { GlassCircleButton } from '../../src/components/ui/GlassCircleButton';
 import { GlassButtonOutline } from '../../src/components/ui/GlassButtonOutline';
 import { TemplateHelpModal } from '../../src/components/notes/TemplateHelpModal';
-import { COLOR_VARIANTS, PALETTE } from 'designs/designs-colors';
+import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { BRAND_FONTS } from 'designs/designs-typography';
+import type { Theme } from 'designs/designs-themes';
 import { CirclePosition } from 'src/components/ui/LinearGradientCircle';
 import { useTranslation } from 'react-i18next';
+import { useTheme, useThemedStyles } from '../../src/context/theme';
 
 
 export default function NewNoteScreen() {
     const { t } = useTranslation('notes');
     const router = useRouter();
     const { user } = useAuth();
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
 
     const { addNote } = useNotes(user?.id);
     const notePrompt = useNotePrompt(user?.id);
@@ -91,8 +95,9 @@ export default function NewNoteScreen() {
                                             styles.textInput,
                                             text.length > 0 && styles.textInputFilled,
                                         ] }
-                                        placeholderTextColor={ COLOR_VARIANTS.black.primary }
-                                        selectionColor={ COLOR_VARIANTS.white.quaternary }
+                                        placeholderTextColor={ theme.ink.primary }
+                                        selectionColor={ theme.ink.quaternary }
+                                        keyboardAppearance={ theme.scheme }
                                     />
                                 </View>
                             </View>
@@ -104,7 +109,7 @@ export default function NewNoteScreen() {
                             <GlassCircleButton
                                 accessibilityLabel={ t('editor.howTo') }
                                 icon="question"
-                                iconColor={ COLOR_VARIANTS.black.tertiary }
+                                iconColor={ theme.ink.tertiary }
                                 size={ saveButtonSize }
                                 onPress={ () => setHelpVisible(true) }
                             />
@@ -123,7 +128,7 @@ export default function NewNoteScreen() {
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     container: {
         flex: 1,
         paddingBottom: 40,
@@ -149,8 +154,8 @@ const styles = StyleSheet.create({
     cardWrapper: {
         flex: 1,
         borderRadius: 30,
-        backgroundColor: PALETTE.overlay.whiteSoftTransparent,
-        shadowColor: PALETTE.overlay.blueGlowTransparent,
+        backgroundColor: theme.surface.soft,
+        shadowColor: theme.surface.cardShadow,
         shadowOffset: { width: 0, height: 22 },
         shadowOpacity: 0.5,
         shadowRadius: 40,
@@ -171,7 +176,7 @@ const styles = StyleSheet.create({
         fontSize: 40,
         lineHeight: 46,
         fontFamily: 'DMSans-Bold',
-        color: COLOR_VARIANTS.black.primary,
+        color: theme.ink.primary,
         textAlignVertical: 'top',
         padding: 0,
         paddingBottom: 70,

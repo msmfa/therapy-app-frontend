@@ -4,12 +4,13 @@
  */
 
 import { PALETTE } from './designs-colors';
-import { DARK_BACKDROP_BASE_LOCATIONS, DARK_BACKDROP_GLOW_LOCATIONS } from './designs-gradients';
+import { CALENDAR_BACKDROP_BASE_LOCATIONS, CALENDAR_BACKDROP_GLOW_LOCATIONS } from './designs-gradients';
 import {
     HOLOGRAM,
     HOLOGRAM_VIOLET,
     NIGHT_ACCENT,
     NIGHT_ACCENT_SCREEN,
+    NIGHT_AURA,
     NIGHT_CALENDAR_BACKDROP_BASE,
     NIGHT_CALENDAR_BACKDROP_GLOW,
     NIGHT_CALENDAR_MONTH,
@@ -54,9 +55,16 @@ export const darkTheme: Theme = {
         medium: NIGHT_SURFACE.medium,
         row: NIGHT_SURFACE.row,
         rowBorder: NIGHT_SURFACE.rowBorder,
+        rowGroup: NIGHT_SURFACE.rowGroup,
+        rowGroupBorder: NIGHT_SURFACE.rowGroupBorder,
         groove: NIGHT_SURFACE.groove,
         sheet: NIGHT_SURFACE.sheet,
+        sheetTint: NIGHT_SURFACE.sheetTint,
+        readingCard: NIGHT_SURFACE.readingCard,
+        chip: NIGHT_SURFACE.chip,
+        cardHighlight: NIGHT_SURFACE.cardHighlight,
         modal: NIGHT_SURFACE.modal,
+        scrim: NIGHT_SURFACE.scrim,
         sheetCard: NIGHT_SURFACE.sheetCard,
         sheetCardBorder: NIGHT_SURFACE.sheetCardBorder,
         field: NIGHT_SURFACE.field,
@@ -66,6 +74,8 @@ export const darkTheme: Theme = {
         spinnerWell: NIGHT_SURFACE.spinnerWell,
         tinted: NIGHT_SURFACE.tinted,
         tintedBorder: NIGHT_SURFACE.tintedBorder,
+        tintCard: NIGHT_SURFACE.tintCard,
+        tintCardBorder: NIGHT_SURFACE.tintCardBorder,
     },
     glass: {
         tint: 'dark',
@@ -74,6 +84,7 @@ export const darkTheme: Theme = {
         rim: NIGHT_GLASS.rim,
         rimOpacity: NIGHT_GLASS.rimOpacity,
         shade: NIGHT_GLASS.shade,
+        disabledLabel: NIGHT_INK.quaternary,
     },
     radio: NIGHT_RADIO,
     shadow: PALETTE.neutral.black,
@@ -81,6 +92,8 @@ export const darkTheme: Theme = {
     link: {
         color: NIGHT_LINK,
         pressed: NIGHT_LINK_PRESSED,
+        bright: NIGHT_LINK,
+        brightPressed: NIGHT_LINK_PRESSED,
     },
     accent: {
         mark: NIGHT_ACCENT.mark,
@@ -92,15 +105,22 @@ export const darkTheme: Theme = {
     chosen: {
         fill: NIGHT_ACCENT.chosenFill,
         ink: NIGHT_INK.primary,
-        inkSecondary: NIGHT_INK.secondary,
+        inkBright: NIGHT_INK.primary,
+        inkBrightest: NIGHT_INK.secondary,
+        border: HOLOGRAM_VIOLET,
         ring: HOLOGRAM_VIOLET,
         mark: HOLOGRAM,
+        check: NIGHT_INK.primary,
+        iconDisc: 'hsla(0, 0%, 100%, 0.10)',
+        trialFill: NIGHT_INK.primary,
+        trialText: NIGHT_SOLID.text,
     },
     emphasis: {
         panel: NIGHT_ACCENT.panel,
         rule: HOLOGRAM,
         ink: NIGHT_INK.primary,
         inkSecondary: NIGHT_INK.secondary,
+        inkMuted: NIGHT_INK.secondary,
     },
     accentScreen: {
         ground: NIGHT_ACCENT_SCREEN.ground,
@@ -112,19 +132,16 @@ export const darkTheme: Theme = {
         glow: HOLOGRAM,
     },
     status: NIGHT_STATUS,
-    badge: {
-        fill: NIGHT_RED.light,
-        border: NIGHT_RED.mid,
-        text: NIGHT_RED.dark,
-    },
+    red: NIGHT_RED,
+    aura: NIGHT_AURA,
     trialBadge: NIGHT_GREEN_PANEL,
     calendar: {
         month: NIGHT_CALENDAR_MONTH,
         backdrop: {
             base: NIGHT_CALENDAR_BACKDROP_BASE,
-            baseLocations: DARK_BACKDROP_BASE_LOCATIONS,
+            baseLocations: CALENDAR_BACKDROP_BASE_LOCATIONS,
             glow: NIGHT_CALENDAR_BACKDROP_GLOW,
-            glowLocations: DARK_BACKDROP_GLOW_LOCATIONS,
+            glowLocations: CALENDAR_BACKDROP_GLOW_LOCATIONS,
             blurTint: 'dark',
             blurIntensity: 20,
         },
@@ -132,6 +149,7 @@ export const darkTheme: Theme = {
     },
     chart: NIGHT_CHART,
     hairline: NIGHT_HAIRLINE,
+    hairlineFaint: 'hsla(0, 0%, 100%, 0.08)',
     navigation: {
         background: NIGHT_GROUND,
         card: NIGHT_SURFACE.sheet,

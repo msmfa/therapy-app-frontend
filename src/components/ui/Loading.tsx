@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { PALETTE, SURFACE_BLUE } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
 import DancingSquare from './PulsingSquare';
 import { useTranslation } from 'react-i18next';
+import { useThemedStyles } from '../../context/theme';
 
 type LoadingProps = {
     fullScreen?: boolean;
@@ -14,6 +15,7 @@ export default function Loading({
     transparent = false,
 }: LoadingProps) {
     const { t } = useTranslation('common');
+    const styles = useThemedStyles(makeStyles);
     // These loaders belong to their screen. Presenting a native modal during
     // auth/entitlement transitions can compete with iOS authentication sheets
     // and can cover the current tab when an unfocused tab hydrates.
@@ -36,15 +38,15 @@ export default function Loading({
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     screen: {
         flex: 1,
     },
     // The app's own ground, not white. This is the screen the launch splash
     // hands over to, and a white one made the boot read as two steps: the
-    // splash, then a white flash, then the pale blue the app is actually on.
+    // splash, then a white flash, then the ground the app is actually on.
     opaqueScreen: {
-        backgroundColor: SURFACE_BLUE,
+        backgroundColor: theme.ground.base,
     },
     container: {
         padding: 20,
@@ -54,7 +56,7 @@ const styles = StyleSheet.create({
     spinnerContainer: {
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: PALETTE.overlay.taupeTransparent,
+        backgroundColor: theme.surface.spinnerWell,
         paddingHorizontal: 24,
     },
     fullScreenContainer: {

@@ -46,20 +46,21 @@ export const CARD_GRADIENTS: GradientColors[] = [
 // near-neutral grey, with a blue glow hanging off the top edge that runs out
 // before the last week of the month so the grid ends on flat light grey.
 // Semi-opaque, so the app's own pale blue shows through and the whole backdrop
-// reads as a sheet of glass rather than a painted panel.
-export const DARK_BACKDROP_BASE = [
+// reads as a sheet of glass rather than a painted panel. Pale, not dark: the
+// name once said "dark" after the ink drawn on it.
+export const CALENDAR_BACKDROP_BASE = [
   'hsla(240, 5%, 96%, 0.62)',
   'hsla(240, 5%, 94%, 0.55)',
   'hsla(240, 4%, 92%, 0.46)',
   'hsla(240, 4%, 91%, 0.38)',
 ] as const;
 
-export const DARK_BACKDROP_BASE_LOCATIONS = [0, 0.4, 0.72, 1] as const;
+export const CALENDAR_BACKDROP_BASE_LOCATIONS = [0, 0.4, 0.72, 1] as const;
 
-export const DARK_BACKDROP_GLOW = [
+export const CALENDAR_BACKDROP_GLOW = [
   'hsla(220, 60%, 50%, 0.22)',
   'hsla(220, 55%, 48%, 0.08)',
   'hsla(220, 50%, 45%, 0)',
 ] as const;
 
-export const DARK_BACKDROP_GLOW_LOCATIONS = [0, 0.38, 1] as const;
+export const CALENDAR_BACKDROP_GLOW_LOCATIONS = [0, 0.38, 1] as const;

@@ -11,6 +11,7 @@ import Svg, {
 } from 'react-native-svg';
 
 import { DOT_COLS, DOT_ROWS, glyphCells } from './dotMatrixFont';
+import { useTheme } from '../../context/theme';
 
 type Props = {
     /** Rendered as dots on the 5x7 lattice. Digits, letters and a few marks. */
@@ -39,8 +40,9 @@ const GLOW_STOPS: { offset: number; color: string; opacity: number }[] = [
     { offset: 1, color: 'rgb(196,196,200)', opacity: 0 },
 ];
 
-// The cool ground the glow sits on, taken from the design's corners.
-const [GROUND_TOP, GROUND_MID, GROUND_BOTTOM] = ['rgb(197,204,213)', 'rgb(190,195,203)', 'rgb(197,200,207)'];
+// The cool ground the glow sits on comes from the theme (theme.aura): the
+// design's corners by day, the panel charcoal at night. The glow itself is
+// the same in both.
 
 // The glow is centred right of the middle and reaches further sideways than it
 // does up and down.
@@ -102,6 +104,8 @@ const CAPTION_COLOR = 'rgb(255,254,242)';
 const CAPTION_OPACITY = 0.92;
 
 export function AuraPanel({ text, caption, coreColor, width, height, style }: Props) {
+    const { theme } = useTheme();
+    const { top: GROUND_TOP, mid: GROUND_MID, bottom: GROUND_BOTTOM } = theme.aura;
     const glowStops = coreColor
         ? GLOW_STOPS.map((stop) => (stop.offset <= 0.25 ? { ...stop, color: coreColor } : stop))
         : GLOW_STOPS;

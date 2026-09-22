@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { PALETTE } from 'designs/designs-colors';
+import { useTheme } from '../../context/theme';
 
 /**
  * The app's progress bar: a row of thin rounded ticks rather than one filled
@@ -48,13 +48,6 @@ export const COMPLETE_RAMP: readonly [Rgb, Rgb] = [
     { r: 124, g: 200, b: 74 },
 ];
 
-/**
- * The resting colour of a tick: light grey, and what the whole row looks like
- * until something actually happens. Not-yet-due, still-answerable and missed
- * all sit here, so colour only ever means a step that was taken.
- */
-export const TRACK_COLOR = PALETTE.overlay.blackLightTransparent;
-
 export const rampColor = ([from, to]: readonly [Rgb, Rgb], position: number): string => {
     const clamped = Math.min(1, Math.max(0, position));
     const channel = (start: number, end: number) =>
@@ -75,8 +68,15 @@ type Props = {
 };
 
 export function TickMeter({ completed, total, active = true, isComplete = false, height }: Props) {
+    const { theme } = useTheme();
+    // The resting colour of a tick: the theme's groove, and what the whole
+    // row looks like until something actually happens. Not-yet-due,
+    // still-answerable and missed all sit here, so colour only ever means a
+    // step that was taken.
+    const trackColor = theme.surface.groove;
+
     const ticks = React.useMemo(() => {
-        const empty = Array.from({ length: TICKS }, () => TRACK_COLOR);
+        const empty = Array.from({ length: TICKS }, () => trackColor);
         if (!active || total === 0 || completed === 0) return empty;
 
         const filled = Math.round((completed / total) * TICKS);
@@ -87,7 +87,7 @@ export function TickMeter({ completed, total, active = true, isComplete = false,
                 ? rampColor(ramp, filled > 1 ? index / (filled - 1) : 0)
                 : track,
         );
-    }, [active, completed, isComplete, total]);
+    }, [active, completed, isComplete, total, trackColor]);
 
     return (
         <View style={ styles.track }>

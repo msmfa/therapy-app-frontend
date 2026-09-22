@@ -35,7 +35,7 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         height: '100%',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: theme.badge.fill,
+        backgroundColor: theme.red.light,
     },
     tabWithBorder: {
         borderWidth: 1,
@@ -44,9 +44,9 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         borderTopRightRadius: 0,
         borderBottomLeftRadius: 8,
         borderBottomRightRadius: 8,
-        borderColor: theme.badge.border,
+        borderColor: theme.red.mid,
     },
     badgeText: {
-        color: theme.badge.text,
+        color: theme.red.dark,
     },
 });

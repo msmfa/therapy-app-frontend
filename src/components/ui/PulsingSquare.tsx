@@ -1,11 +1,12 @@
-import { COLOR_VARIANTS } from 'designs/designs-colors';
 import React, { useEffect, useRef } from 'react';
 import { StyleSheet, Animated, Easing } from 'react-native';
 import { useReduceMotion } from '../../hooks/useReduceMotion';
+import { useTheme } from '../../context/theme';
 
 const DancingSquare = () => {
     const animValue = useRef(new Animated.Value(0)).current;
     const reduceMotion = useReduceMotion();
+    const { theme } = useTheme();
 
     useEffect(() => {
         if (reduceMotion) {
@@ -49,6 +50,7 @@ const DancingSquare = () => {
             style={ [
                 styles.dancingSquare,
                 {
+                    borderColor: theme.ink.secondary,
                     transform: [{ rotate: rotation }, { scale }],
                     borderRadius,
                 },
@@ -62,7 +64,6 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         borderWidth: 2,
-        borderColor: COLOR_VARIANTS.black.secondary,
     },
 });
 

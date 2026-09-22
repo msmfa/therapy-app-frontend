@@ -76,7 +76,7 @@ describe('themed primitives', () => {
 
     it('sets the badge and the field in theme colours', () => {
         const d = dark(<><Badge>New</Badge><TextField label="Email" placeholder="you@example.com" /></>);
-        expect(flat<TextStyle>(d.getByText('New').props.style).color).toBe(darkTheme.badge.text);
+        expect(flat<TextStyle>(d.getByText('New').props.style).color).toBe(darkTheme.red.dark);
         const input = d.getByPlaceholderText('you@example.com');
         expect(input.props.placeholderTextColor).toBe(darkTheme.ink.tertiary);
         expect(input.props.keyboardAppearance).toBe('dark');

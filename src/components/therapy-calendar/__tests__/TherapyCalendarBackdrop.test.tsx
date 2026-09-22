@@ -3,7 +3,7 @@ import { StyleSheet, View, ViewStyle } from 'react-native';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 
 import TherapyCalendar from '../TherapyCalendar';
-import { CALENDAR_DARK_COLORS } from 'designs/designs-colors';
+import { CALENDAR_MONTH_COLORS } from 'designs/designs-colors';
 
 // The real sheet pulls in a date picker. This stand-in keeps the two things
 // the calendar is responsible for: the date it was handed, and the confirm
@@ -46,12 +46,12 @@ const renderCalendar = (onSelectedSessionsChange = jest.fn()) => ({
             [SESSION_KEY]: new Date('2026-09-08T09:00:00Z'),
             [PAST_SESSION_KEY]: new Date('2026-08-31T09:00:00Z'),
         } }
-        variant="dark"
+        variant="backdrop"
     />,
     ),
 });
 
-describe('TherapyCalendar dark variant', () => {
+describe('TherapyCalendar backdrop variant', () => {
     beforeEach(() => {
         jest.useFakeTimers();
         jest.setSystemTime(TODAY);
@@ -80,10 +80,10 @@ describe('TherapyCalendar dark variant', () => {
     it('marks a session with its own orange disc, and a reminder with blue dots', () => {
         renderCalendar();
 
-        expect(dayStyle(SESSION_KEY).backgroundColor).toBe(CALENDAR_DARK_COLORS.sessionFill);
+        expect(dayStyle(SESSION_KEY).backgroundColor).toBe(CALENDAR_MONTH_COLORS.sessionFill);
         expect(dotColours(SESSION_KEY)).toEqual(Array(3).fill('transparent'));
         expect(dotColours(REMINDER_KEY)).toEqual(
-            Array(3).fill(CALENDAR_DARK_COLORS.reminderDot),
+            Array(3).fill(CALENDAR_MONTH_COLORS.reminderDot),
         );
     });
 

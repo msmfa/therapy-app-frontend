@@ -1,12 +1,13 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ACCENT_SURFACE } from 'designs/designs-colors';
+import type { Theme } from 'designs/designs-themes';
+import { useThemedStyles } from '../../src/context/theme';
 import { BRAND_FONTS } from 'designs/designs-typography';
 import AppText from '../../src/components/ui/AppText';
 import { OnboardingButton } from '../../src/components/onboarding/OnboardingButton';
 import { OnboardingScreen } from '../../src/components/onboarding/OnboardingScreen';
-import { onboardingStyles } from '../../src/components/onboarding/onboardingStyles';
+import { useOnboardingStyles } from '../../src/components/onboarding/onboardingStyles';
 import {
     evidenceParts,
     reviewsPreviewCopy,
@@ -21,7 +22,7 @@ import { useOnboardingAnswers } from '../../src/features/onboarding/OnboardingAn
  * that sentence, so it is always present verbatim; if a translation ever moves
  * or reshapes it, the sentence is returned whole rather than mangled.
  */
-function markPriority(sentence: string, priority: string): React.ReactNode {
+function markPriority(sentence: string, priority: string, styles: ReturnType<typeof makeStyles>): React.ReactNode {
     const at = sentence.indexOf(priority);
     if (at === -1) return sentence;
 
@@ -51,6 +52,8 @@ function markPriority(sentence: string, priority: string): React.ReactNode {
  * the next screen holds and that each reminder on it opens its own reasoning.
  */
 export default function ReviewsPreviewScreen() {
+    const styles = useThemedStyles(makeStyles);
+    const { onboardingStyles } = useOnboardingStyles();
     const router = useRouter();
     const { answers } = useOnboardingAnswers();
     const { statement, priority } = evidenceParts(answers.goal);
@@ -67,7 +70,7 @@ export default function ReviewsPreviewScreen() {
                     </AppText>
 
                     <AppText variant="body" style={ [onboardingStyles.body, styles.bannerText, styles.paragraph] }>
-                        { priority === null ? statement : markPriority(statement, priority) }
+                        { priority === null ? statement : markPriority(statement, priority, styles) }
                     </AppText>
 
                     <AppText variant="body" style={ [onboardingStyles.body, styles.bannerText, styles.paragraph] }>
@@ -86,13 +89,13 @@ export default function ReviewsPreviewScreen() {
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     /**
      * A step up from the flow's body copy. The band is the whole of this
      * screen, so it is being read rather than glanced at under something else.
      */
     bannerText: {
-        color: ACCENT_SURFACE.textPrimary,
+        color: theme.emphasis.ink,
         fontSize: 21,
         lineHeight: 31,
     },

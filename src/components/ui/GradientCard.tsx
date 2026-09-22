@@ -1,7 +1,7 @@
 import { ReactNode, useMemo } from "react";
 import { View, StyleSheet, StyleProp, ViewStyle, ColorValue } from "react-native";
-import { PALETTE } from 'designs/designs-colors';
-import { SURFACE_TINTS } from 'designs/designs-gradients';
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../../context/theme';
 
 type Props = {
     children: ReactNode;
@@ -12,8 +12,6 @@ type Props = {
     surfaceBorderColor?: ColorValue;
 };
 
-const DEFAULT_BACKGROUND = SURFACE_TINTS.defaultBackground;
-const DEFAULT_BORDER = SURFACE_TINTS.defaultBorder;
 const DEFAULT_RADIUS = 16;
 const MIN_HUE = 0;
 const MAX_HUE = 360;
@@ -26,6 +24,9 @@ export function GradientCard({
     surfaceBackgroundColor,
     surfaceBorderColor,
 }: Props) {
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
+
     const normalizedHue = useMemo(
         () => Math.max(MIN_HUE, Math.min(MAX_HUE, hue ?? 0)),
         [hue]
@@ -33,11 +34,13 @@ export function GradientCard({
 
     const hasHue = typeof hue === 'number';
 
+    // A card with no hue is a light wash over the ground; with one it is a
+    // wash of that hue. Both formulas belong to the theme.
     const backgroundColor = surfaceBackgroundColor
-        ?? (hasHue ? SURFACE_TINTS.tintedBackground(normalizedHue) : DEFAULT_BACKGROUND);
+        ?? (hasHue ? theme.surface.tinted(normalizedHue) : theme.surface.tintCard);
 
     const borderColor = surfaceBorderColor
-        ?? (hasHue ? SURFACE_TINTS.tintedBorder(normalizedHue) : DEFAULT_BORDER);
+        ?? (hasHue ? theme.surface.tintedBorder(normalizedHue) : theme.surface.tintCardBorder);
 
     const computedBorderRadius = borderRadius ?? DEFAULT_RADIUS;
 
@@ -51,11 +54,11 @@ export function GradientCard({
     );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     legendWrapper: {
         borderRadius: DEFAULT_RADIUS,
         elevation: 12,
-        shadowColor: PALETTE.overlay.blackLightTransparent,
+        shadowColor: theme.surface.gradientCardShadow,
         shadowOffset: { height: 4, width: 0 },
         shadowOpacity: 0.3,
         shadowRadius: 30,

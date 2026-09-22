@@ -3,8 +3,9 @@ import { StyleSheet } from 'react-native';
 import { render } from '@testing-library/react-native';
 import { QuoteCard } from '../QuoteCard';
 import { QuoteMark } from '../QuoteMark';
-import { onboardingStyles } from '../onboardingStyles';
+import { makeOnboardingStyles } from '../onboardingStyles';
 import { BRAND_ORANGE } from 'designs/designs-colors';
+import { lightTheme } from 'designs/designs-themes';
 
 const TESTIMONIAL = {
     quote: 'It really helps me feel ready for my own therapy sessions.',
@@ -36,7 +37,7 @@ describe('QuoteCard', () => {
         expect(flat.borderColor).toBe(BRAND_ORANGE);
         // Different colour, same shape: it is still one of the flow's cards.
         expect(flat.borderRadius).toBe(
-            (StyleSheet.flatten(onboardingStyles.card) as { borderRadius: number }).borderRadius,
+            (StyleSheet.flatten(makeOnboardingStyles(lightTheme).card) as { borderRadius: number }).borderRadius,
         );
     });
 

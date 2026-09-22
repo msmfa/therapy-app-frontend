@@ -10,9 +10,8 @@ import { LANGUAGES } from '../../i18n/languages';
 import { SYSTEM_PREFERENCE, type LanguagePreference } from '../../i18n/resolve';
 import { t as translate } from '../../i18n/translate';
 import { useLanguage } from '../../i18n/useLanguage';
-import { ACTION_ORANGE, COLOR_VARIANTS, PALETTE, TEXT_COLORS } from 'designs/designs-colors';
-
-const ROW_INK = COLOR_VARIANTS.black.primary;
+import type { Theme } from 'designs/designs-themes';
+import { useTheme, useThemedStyles } from '../../context/theme';
 
 /**
  * System, then a dropdown of the shipped languages.
@@ -32,6 +31,8 @@ const ROW_INK = COLOR_VARIANTS.black.primary;
  */
 export function LanguagePicker() {
     const { t } = useTranslation('settings');
+    const { theme } = useTheme();
+    const styles = useThemedStyles(makeStyles);
     const { showAlert } = useAppAlert();
     const { preference, systemEndonym, setPreference } = useLanguage();
     const [open, setOpen] = useState(false);
@@ -110,7 +111,7 @@ export function LanguagePicker() {
                     <Ionicons
                         name={ open ? 'chevron-up' : 'chevron-down' }
                         size={ 20 }
-                        color={ ROW_INK }
+                        color={ theme.ink.primary }
                         // The trigger already announces its expanded state, so
                         // the glyph must not repeat it.
                         accessibilityElementsHidden
@@ -147,11 +148,12 @@ export function LanguagePicker() {
 }
 
 function SelectedMark() {
+    const { theme } = useTheme();
     return (
         <Ionicons
             name="checkmark"
             size={ 22 }
-            color={ ACTION_ORANGE }
+            color={ theme.accent.mark }
             // The row already announces its selected state, so the glyph must
             // not repeat it.
             accessibilityElementsHidden
@@ -162,13 +164,13 @@ function SelectedMark() {
 
 const ROWS_PADDING = 14;
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
     rows: {
         paddingHorizontal: ROWS_PADDING,
         borderRadius: 16,
         borderWidth: 1,
-        borderColor: PALETTE.overlay.whiteBorderTransparent,
-        backgroundColor: COLOR_VARIANTS.white.secondary,
+        borderColor: theme.surface.rowGroupBorder,
+        backgroundColor: theme.surface.rowGroup,
     },
     divider: {
         marginHorizontal: -ROWS_PADDING,
@@ -190,13 +192,13 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     label: {
-        color: ROW_INK,
+        color: theme.ink.primary,
     },
     placeholder: {
-        color: TEXT_COLORS.secondary,
+        color: theme.ink.secondary,
     },
     detail: {
-        color: TEXT_COLORS.secondary,
+        color: theme.ink.secondary,
         marginTop: 2,
     },
 });
