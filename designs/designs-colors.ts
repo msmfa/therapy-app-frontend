@@ -282,7 +282,9 @@ export const COMPONENT_COLORS = {
 // blue-to-grey backdrop.
 export const CALENDAR_DARK_COLORS = {
   monthText: 'hsl(240, 8%, 16%)',
-  weekdayHeader: 'hsla(240, 8%, 16%, 0.55)',
+  // 0.55 read at 3.32:1 against the calendar's pale ground, under the 4.5:1
+  // body-text minimum; 0.68 clears it with a small margin.
+  weekdayHeader: 'hsla(240, 8%, 16%, 0.68)',
   dayDefault: 'hsla(240, 8%, 16%, 0.88)',
   dayDisabled: 'hsla(240, 8%, 16%, 0.24)',
   arrows: 'hsla(240, 8%, 16%, 0.70)',
