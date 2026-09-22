@@ -46,6 +46,17 @@ describe('plural keys', () => {
         expect(t('notes:reviewProgress', { count: 0, total: 4 })).toBe('0 révision sur 4');
     });
 
+    it('selects the Spanish singular and plural forms', async () => {
+        await i18next.changeLanguage('es');
+
+        expect(t('notes:reviewProgress', { count: 1, total: 4 })).toBe('1 de 4 revisada');
+        expect(t('notes:reviewProgress', { count: 2, total: 4 })).toBe('2 de 4 revisadas');
+        // Spanish agrees with English on zero and disagrees with French, so
+        // this line is what distinguishes a working Spanish rule from the
+        // polyfill's fallback and from French's rule leaking across.
+        expect(t('notes:reviewProgress', { count: 0, total: 4 })).toBe('0 de 4 revisadas');
+    });
+
     it('interpolates both variables in English', async () => {
         await i18next.changeLanguage('en');
 

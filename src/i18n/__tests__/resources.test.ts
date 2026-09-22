@@ -95,6 +95,11 @@ describe('translation resources', () => {
                     'settings.language.system',
                     'auth.field.name',
                 ],
+                // Words Spanish happens to spell the same way.
+                es: [
+                    'common.error.title',
+                    'onboarding.subscription.monthlyBadge',
+                ],
             };
             const allowedIdentical = new Set([
                 ...allowedEverywhere,
