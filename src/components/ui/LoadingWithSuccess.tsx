@@ -4,6 +4,7 @@ import DancingSquare from './PulsingSquare';
 import { GlassMorphismWithCircle } from './GlassMorphismWithCircle';
 import { CirclePosition } from './LinearGradientCircle';
 import CheckGradients from './CheckGradients';
+import { useReduceMotion } from '../../hooks/useReduceMotion';
 
 type LoadingSuccessProps = {
     visible: boolean;
@@ -24,9 +25,26 @@ export default function LoadingSuccess({
     const fadeAnim = useRef(new Animated.Value(1)).current;
     const checkFadeAnim = useRef(new Animated.Value(0)).current;
     const scaleAnim = useRef(new Animated.Value(0)).current;
+    const reduceMotion = useReduceMotion();
 
     useEffect(() => {
         if (status === 'success') {
+            // The spring's overshoot is decorative; Reduce Motion keeps the
+            // checkmark's fade-in (the status change itself is essential) but
+            // has it reach full size directly instead of bouncing past it.
+            const checkmarkScale = reduceMotion
+                ? Animated.timing(scaleAnim, {
+                    toValue: 1,
+                    duration: 100,
+                    useNativeDriver: true,
+                })
+                : Animated.spring(scaleAnim, {
+                    toValue: 1,
+                    friction: 19, // ← Higher = less bouncy
+                    tension: 180, // ← Higher = faster/snappier
+                    useNativeDriver: true,
+                });
+
         // Fade out spinner
             Animated.timing(fadeAnim, {
                 toValue: 0,
@@ -42,12 +60,7 @@ export default function LoadingSuccess({
                             duration: 100, // ← How long checkmark takes to fade in
                             useNativeDriver: true,
                         }),
-                        Animated.spring(scaleAnim, {
-                            toValue: 1,
-                            friction: 19, // ← Higher = less bouncy
-                            tension: 180, // ← Higher = faster/snappier
-                            useNativeDriver: true,
-                        }),
+                        checkmarkScale,
                     ]).start(() => {
                         onSuccess?.();
                     });
@@ -58,7 +71,7 @@ export default function LoadingSuccess({
             checkFadeAnim.setValue(0);
             scaleAnim.setValue(0);
         }
-    }, [status, fadeAnim, checkFadeAnim, scaleAnim, onSuccess]);
+    }, [status, fadeAnim, checkFadeAnim, scaleAnim, onSuccess, reduceMotion]);
     return (
         <Modal
             transparent

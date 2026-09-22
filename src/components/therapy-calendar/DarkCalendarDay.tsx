@@ -93,7 +93,17 @@ export function DarkCalendarDay({ date, state, marking, onPress, accessibilityLa
             style={ cellStyle }
             testID={ testID }
         >
-            <Text allowFontScaling={ false } style={ [styles.text, { color }] }>
+            { /*
+                The numeral sits centred in a fixed 40pt circle with the
+                dot row anchored underneath it, so it can't grow freely with
+                Dynamic Type without colliding with the dots or the circle's
+                edge. Capped rather than fixed, so most Larger Text settings
+                still get some benefit here.
+            */ }
+            <Text
+                maxFontSizeMultiplier={ 1.3 }
+                style={ [styles.text, { color }] }
+            >
                 { children }
             </Text>
             <DayDots color={ dotColor ?? 'transparent' } inset={ isTodayCell } />

@@ -205,6 +205,8 @@ export function NotePreviewModal({
                 source={ require('../../../assets/textures/paper-blue.webp') as ImageSourcePropType }
                 contentFit="cover"
                 style={ styles.modalRoot }
+                accessible={ false }
+                importantForAccessibility="no"
             >
                 { /* The padded box keeps its own testID: ImageBackground spreads
                      stray props onto its inner Image, not onto the styled view. */ }

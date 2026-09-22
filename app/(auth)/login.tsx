@@ -139,6 +139,7 @@ export default function LoginScreen() {
                                     }) }
                                     style={ styles.forgotPassword }
                                     disabled={ loading }
+                                    accessibilityRole="link"
                                 >
                                     <AppText variant="caption">{ t('signIn.forgotPassword') }</AppText>
                                 </TouchableOpacity>
