@@ -1,0 +1,138 @@
+/**
+ * The dark theme, assembled from designs-night. The comments explaining each
+ * value live there, beside the value.
+ */
+
+import { PALETTE } from './designs-colors';
+import { DARK_BACKDROP_BASE_LOCATIONS, DARK_BACKDROP_GLOW_LOCATIONS } from './designs-gradients';
+import {
+    HOLOGRAM,
+    HOLOGRAM_VIOLET,
+    NIGHT_ACCENT,
+    NIGHT_ACCENT_SCREEN,
+    NIGHT_CALENDAR_BACKDROP_BASE,
+    NIGHT_CALENDAR_BACKDROP_GLOW,
+    NIGHT_CALENDAR_MONTH,
+    NIGHT_CALENDAR_SHEET,
+    NIGHT_CHART,
+    NIGHT_CIRCLE,
+    NIGHT_GLASS,
+    NIGHT_GRADIENT,
+    NIGHT_GREEN_PANEL,
+    NIGHT_GROUND,
+    NIGHT_GROUND_FADE,
+    NIGHT_HAIRLINE,
+    NIGHT_INK,
+    NIGHT_LINK,
+    NIGHT_LINK_PRESSED,
+    NIGHT_RED,
+    NIGHT_SOLID,
+    NIGHT_STATUS,
+    NIGHT_SURFACE,
+} from './designs-night';
+import type { Theme } from './designs-theme-shape';
+
+export const darkTheme: Theme = {
+    scheme: 'dark',
+    statusBar: 'light-content',
+    ink: NIGHT_INK,
+    ground: {
+        gradient: NIGHT_GRADIENT,
+        base: NIGHT_GROUND,
+        fade: NIGHT_GROUND_FADE,
+    },
+    surface: {
+        card: NIGHT_SURFACE.card,
+        cardBorder: NIGHT_SURFACE.cardBorder,
+        cardEdge: NIGHT_SURFACE.cardEdge,
+        cardShadow: NIGHT_SURFACE.cardShadow,
+        frostedShadow: NIGHT_SURFACE.frostedShadow,
+        gradientCardShadow: NIGHT_SURFACE.gradientCardShadow,
+        soft: NIGHT_SURFACE.soft,
+        medium: NIGHT_SURFACE.medium,
+        row: NIGHT_SURFACE.row,
+        rowBorder: NIGHT_SURFACE.rowBorder,
+        groove: NIGHT_SURFACE.groove,
+        sheet: NIGHT_SURFACE.sheet,
+        modal: NIGHT_SURFACE.modal,
+        sheetCard: NIGHT_SURFACE.sheetCard,
+        sheetCardBorder: NIGHT_SURFACE.sheetCardBorder,
+        field: NIGHT_SURFACE.field,
+        fieldBorder: NIGHT_SURFACE.fieldBorder,
+        fieldBorderFocused: NIGHT_SURFACE.fieldBorderFocused,
+        disabledLight: NIGHT_SURFACE.disabledLight,
+        spinnerWell: NIGHT_SURFACE.spinnerWell,
+        tinted: NIGHT_SURFACE.tinted,
+        tintedBorder: NIGHT_SURFACE.tintedBorder,
+    },
+    glass: {
+        tint: 'dark',
+        background: NIGHT_SURFACE.glass,
+        highlight: NIGHT_GLASS.highlight,
+        rim: NIGHT_GLASS.rim,
+        shade: NIGHT_GLASS.shade,
+    },
+    shadow: PALETTE.neutral.black,
+    solid: NIGHT_SOLID,
+    link: {
+        color: NIGHT_LINK,
+        pressed: NIGHT_LINK_PRESSED,
+    },
+    accent: {
+        mark: NIGHT_ACCENT.mark,
+        markSurface: NIGHT_ACCENT.markSurface,
+        markInk: NIGHT_ACCENT.markInk,
+        ring: HOLOGRAM_VIOLET,
+        sweep: NIGHT_CIRCLE,
+    },
+    chosen: {
+        fill: NIGHT_ACCENT.chosenFill,
+        ink: NIGHT_INK.primary,
+        inkSecondary: NIGHT_INK.secondary,
+        ring: HOLOGRAM_VIOLET,
+        mark: HOLOGRAM,
+    },
+    emphasis: {
+        panel: NIGHT_ACCENT.panel,
+        rule: HOLOGRAM,
+        ink: NIGHT_INK.primary,
+        inkSecondary: NIGHT_INK.secondary,
+    },
+    accentScreen: {
+        ground: NIGHT_ACCENT_SCREEN.ground,
+        textPrimary: NIGHT_ACCENT_SCREEN.textPrimary,
+        textSecondary: NIGHT_ACCENT_SCREEN.textSecondary,
+        card: NIGHT_ACCENT_SCREEN.card,
+        cardBorder: NIGHT_ACCENT_SCREEN.cardBorder,
+        cardEdge: NIGHT_ACCENT_SCREEN.cardEdge,
+        glow: HOLOGRAM,
+    },
+    status: NIGHT_STATUS,
+    badge: {
+        fill: NIGHT_RED.light,
+        border: NIGHT_RED.mid,
+        text: NIGHT_RED.dark,
+    },
+    trialBadge: NIGHT_GREEN_PANEL,
+    calendar: {
+        month: NIGHT_CALENDAR_MONTH,
+        backdrop: {
+            base: NIGHT_CALENDAR_BACKDROP_BASE,
+            baseLocations: DARK_BACKDROP_BASE_LOCATIONS,
+            glow: NIGHT_CALENDAR_BACKDROP_GLOW,
+            glowLocations: DARK_BACKDROP_GLOW_LOCATIONS,
+            blurTint: 'dark',
+            blurIntensity: 20,
+        },
+        sheet: NIGHT_CALENDAR_SHEET,
+    },
+    chart: NIGHT_CHART,
+    hairline: NIGHT_HAIRLINE,
+    navigation: {
+        background: NIGHT_GROUND,
+        card: NIGHT_SURFACE.sheet,
+        text: NIGHT_INK.primary,
+        border: NIGHT_SURFACE.cardBorder,
+    },
+};
+

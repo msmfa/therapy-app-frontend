@@ -9,7 +9,7 @@
       "typedRoutes": true
     },
     "icon": "./assets/brain-logo.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "plugins": [
       "expo-sqlite",
@@ -35,6 +35,16 @@
     },
     "ios": {
       "icon": "./assets/brain-logo.png",
+      "splash": {
+        "image": "./assets/splash-brain.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#E1E6EA",
+        "dark": {
+          "image": "./assets/splash-brain.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#16191D"
+        }
+      },
       "bundleIdentifier": "com.plastic-brains.app",
       "supportsTablet": true,
       "usesAppleSignIn": true,

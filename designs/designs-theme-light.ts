@@ -1,0 +1,172 @@
+/**
+ * The light theme: every value is the primitive a component already read from
+ * designs-colors and designs-gradients, now reached by the name of its job.
+ * Adopting it moves no light pixel. See designs-theme-shape for what each key
+ * means.
+ */
+
+import {
+    ACCENT_MARK,
+    ACCENT_SURFACE,
+    ACTION_BLUE_DARK,
+    ACTION_ORANGE,
+    ACTION_ORANGE_INK,
+    ACTION_ORANGE_SURFACE,
+    BRAND_ORANGE,
+    BRAND_ORANGE_INK,
+    BUTTON_COLORS,
+    CALENDAR_COLORS,
+    CALENDAR_DARK_COLORS,
+    COLOR_VARIANTS,
+    COMPONENT_COLORS,
+    GREEN_PANEL,
+    PALETTE,
+    SURFACE_ACCENT,
+    SURFACE_BLUE,
+    SURFACE_BLUE_FADE,
+    TEXT_COLORS,
+    THEME_COLORS,
+} from './designs-colors';
+import {
+    APP_GRADIENT,
+    DARK_BACKDROP_BASE,
+    DARK_BACKDROP_BASE_LOCATIONS,
+    DARK_BACKDROP_GLOW,
+    DARK_BACKDROP_GLOW_LOCATIONS,
+    SURFACE_TINTS,
+} from './designs-gradients';
+import type { Theme } from './designs-theme-shape';
+
+export const lightTheme: Theme = {
+    scheme: 'light',
+    statusBar: 'dark-content',
+    ink: {
+        primary: TEXT_COLORS.primary,
+        secondary: TEXT_COLORS.secondary,
+        tertiary: TEXT_COLORS.tertiary,
+        quaternary: TEXT_COLORS.quaternary,
+    },
+    ground: {
+        gradient: APP_GRADIENT,
+        base: SURFACE_BLUE,
+        fade: SURFACE_BLUE_FADE,
+    },
+    surface: {
+        card: PALETTE.overlay.whiteSurfaceTransparent,
+        cardBorder: PALETTE.overlay.whiteBorderTransparent,
+        cardEdge: PALETTE.overlay.whiteBorderTransparent,
+        cardShadow: PALETTE.overlay.blueGlowTransparent,
+        frostedShadow: PALETTE.overlay.blueMildTransparent,
+        gradientCardShadow: PALETTE.overlay.blackLightTransparent,
+        soft: PALETTE.overlay.whiteSoftTransparent,
+        medium: PALETTE.overlay.whiteMediumTransparent,
+        row: COMPONENT_COLORS.settingsRowBackground,
+        rowBorder: PALETTE.overlay.whiteSurfaceTransparent,
+        groove: PALETTE.overlay.blackLightTransparent,
+        sheet: COLOR_VARIANTS.white.primary,
+        modal: COLOR_VARIANTS.blue.lightest,
+        sheetCard: SURFACE_TINTS.sheetCardBackground,
+        sheetCardBorder: SURFACE_TINTS.sheetCardBorder,
+        field: COLOR_VARIANTS.transparent,
+        fieldBorder: PALETTE.neutral.boundary,
+        fieldBorderFocused: COLOR_VARIANTS.black.primary,
+        disabledLight: BUTTON_COLORS.disabledLight,
+        spinnerWell: PALETTE.overlay.taupeTransparent,
+        tinted: SURFACE_TINTS.tintedBackground,
+        tintedBorder: SURFACE_TINTS.tintedBorder,
+    },
+    glass: {
+        tint: 'light',
+        background: COMPONENT_COLORS.glassBackground,
+        highlight: ['hsla(0, 0%, 100%, 0.42)', 'hsla(0, 0%, 100%, 0.08)'],
+        rim: COLOR_VARIANTS.white.primary,
+        shade: '#1b2a44',
+    },
+    shadow: PALETTE.neutral.black,
+    solid: {
+        background: BUTTON_COLORS.primaryBackground,
+        text: COLOR_VARIANTS.white.quaternary,
+        disabledSurface: BUTTON_COLORS.disabledSurface,
+        disabledBorder: BUTTON_COLORS.disabledDark,
+        disabledText: BUTTON_COLORS.disabledText,
+    },
+    link: {
+        color: ACTION_BLUE_DARK,
+        pressed: COLOR_VARIANTS.blue.light,
+    },
+    accent: {
+        mark: ACTION_ORANGE,
+        markSurface: ACTION_ORANGE_SURFACE,
+        markInk: ACTION_ORANGE_INK,
+        ring: BRAND_ORANGE,
+        sweep: [COLOR_VARIANTS.red.mid, COLOR_VARIANTS.red.dark],
+    },
+    chosen: {
+        fill: BRAND_ORANGE,
+        ink: BRAND_ORANGE_INK,
+        inkSecondary: BRAND_ORANGE_INK,
+        ring: BRAND_ORANGE,
+        mark: [ACCENT_MARK, ACCENT_MARK],
+    },
+    emphasis: {
+        panel: BRAND_ORANGE,
+        rule: null,
+        ink: ACCENT_SURFACE.textPrimary,
+        inkSecondary: ACCENT_SURFACE.textSecondary,
+    },
+    accentScreen: {
+        ground: SURFACE_ACCENT,
+        textPrimary: ACCENT_SURFACE.textPrimary,
+        textSecondary: ACCENT_SURFACE.textSecondary,
+        card: ACCENT_SURFACE.cardBackground,
+        cardBorder: ACCENT_SURFACE.cardBorder,
+        cardEdge: ACCENT_SURFACE.cardBorder,
+        glow: null,
+    },
+    status: {
+        success: THEME_COLORS.success,
+        successLight: THEME_COLORS.successLight,
+        warning: THEME_COLORS.warning,
+        warningLight: THEME_COLORS.warningLight,
+        error: THEME_COLORS.error,
+        errorLight: THEME_COLORS.errorLight,
+        danger: COLOR_VARIANTS.red.primary,
+        dangerText: COLOR_VARIANTS.red.primary,
+    },
+    badge: {
+        fill: COLOR_VARIANTS.red.light,
+        border: COLOR_VARIANTS.red.mid,
+        text: COLOR_VARIANTS.red.dark,
+    },
+    trialBadge: GREEN_PANEL,
+    calendar: {
+        month: CALENDAR_DARK_COLORS,
+        backdrop: {
+            base: DARK_BACKDROP_BASE,
+            baseLocations: DARK_BACKDROP_BASE_LOCATIONS,
+            glow: DARK_BACKDROP_GLOW,
+            glowLocations: DARK_BACKDROP_GLOW_LOCATIONS,
+            blurTint: 'light',
+            blurIntensity: 14,
+        },
+        sheet: {
+            surface: CALENDAR_COLORS.modalSurface,
+            border: CALENDAR_COLORS.modalBorder,
+            overlay: CALENDAR_COLORS.modalOverlayTransparent,
+        },
+    },
+    chart: {
+        rule: 'hsl(0, 0%, 92%)',
+        trace: 'hsl(0, 0%, 90%)',
+        marker: 'hsl(0, 0%, 87%)',
+        label: 'hsl(0, 0%, 86%)',
+    },
+    hairline: 'hsla(0, 0%, 0%, 0.18)',
+    navigation: {
+        background: SURFACE_BLUE,
+        card: COLOR_VARIANTS.white.primary,
+        text: TEXT_COLORS.primary,
+        border: PALETTE.neutral.boundary,
+    },
+};
+
