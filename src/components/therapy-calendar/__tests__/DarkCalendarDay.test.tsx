@@ -81,6 +81,38 @@ describe('DarkCalendarDay', () => {
         expect(dotColours()).toEqual(Array(3).fill(CALENDAR_DARK_COLORS.sessionDot));
     });
 
+    it('rings a session day in the dots\' own colour, so it reads without the dots\' hue', () => {
+        renderDay({ state: undefined, marking: { kind: 'session' } });
+
+        expect(cellStyle().borderColor).toBe(CALENDAR_DARK_COLORS.sessionDot);
+        expect(cellStyle().borderWidth).toBeGreaterThan(0);
+    });
+
+    it('rings a session day even where the disc drops, since the ring answers the same question the dots do', () => {
+        renderDay({ marking: { kind: 'session', pressed: true } });
+
+        expect(cellStyle().borderColor).toBe(CALENDAR_DARK_COLORS.sessionDot);
+        expect(cellStyle().borderWidth).toBeGreaterThan(0);
+    });
+
+    it('uses the on-today session colour for the ring when today is also a session', () => {
+        renderDay({ marking: { kind: 'session' } });
+
+        expect(cellStyle().borderColor).toBe(CALENDAR_DARK_COLORS.sessionDotOnToday);
+    });
+
+    it('leaves a reminder day without a ring, since only the dots distinguish it', () => {
+        renderDay({ state: undefined, marking: { kind: 'reminder' } });
+
+        expect(cellStyle().borderWidth ?? 0).toBe(0);
+    });
+
+    it('leaves an unmarked day without a ring', () => {
+        renderDay({ state: undefined });
+
+        expect(cellStyle().borderWidth ?? 0).toBe(0);
+    });
+
     it("builds VoiceOver's label from the date and what the day carries, since react-native-calendars never supplies one itself", () => {
         renderDay({
             date: { dateString: '2026-03-04', day: 4, month: 3, year: 2026, timestamp: 0 },

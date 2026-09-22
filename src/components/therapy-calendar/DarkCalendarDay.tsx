@@ -30,6 +30,8 @@ const RADIUS = DARK_DAY_SIZE / 2;
 
 const DOT_COUNT = 3;
 
+const SESSION_RING_WIDTH = 2;
+
 // `date.dateString` is "YYYY-MM-DD". Built with the Date constructor directly
 // it parses as UTC midnight, which lands on the wrong day near either end of
 // a negative or positive time zone; the parts are read out and reassembled as
@@ -95,6 +97,12 @@ export function DarkCalendarDay({ date, state, marking, onPress, accessibilityLa
             ? (isTodayCell ? CALENDAR_DARK_COLORS.reminderDotOnToday : CALENDAR_DARK_COLORS.reminderDot)
             : undefined;
 
+    // A session day also gets a ring in the dots' own colour, not just the
+    // dots themselves: colour was the only thing telling a session day from a
+    // reminder day apart, which is invisible to anyone who cannot separate
+    // orange from blue. The ring stays in step with the dots rather than with
+    // the disc — on whenever `kind` is 'session', pressed or not — since it is
+    // answering the same question they are.
     const cellStyle = [
         styles.cell,
         // A marked day outside the month, or before the first bookable date,
@@ -102,6 +110,7 @@ export function DarkCalendarDay({ date, state, marking, onPress, accessibilityLa
         isDisabled && Boolean(kind) && styles.cellDisabled,
         isPressed && styles.cellPressed,
         isTodayCell && styles.cellToday,
+        kind === 'session' && { borderWidth: SESSION_RING_WIDTH, borderColor: dotColor },
     ];
 
     const color = isTodayCell
