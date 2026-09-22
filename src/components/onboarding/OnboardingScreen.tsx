@@ -336,14 +336,9 @@ export function OnboardingScreen({
                  it: the glass blurs whatever is behind it, and a blur is
                  exactly what removes a texture this fine. Thinned over a
                  circle, which full-strength grain paints straight over; the
-                 value matches Welcome, the other screen that shows one.
-
-                 Light only for now: the tile is light speckle on light and
-                 laid over a dark ground it reads as a grey film. A dark tile
-                 is Phase 5 of the dark mode work. */ }
-            { !isAccent && theme.scheme === 'light' && (
-                <PaperGrain opacity={ circlePosition === undefined ? 1 : CIRCLE_GRAIN_OPACITY } />
-            ) }
+                 value matches Welcome, the other screen that shows one. The
+                 grain picks its own tile for the theme. */ }
+            { !isAccent && <PaperGrain opacity={ circlePosition === undefined ? 1 : CIRCLE_GRAIN_OPACITY } /> }
 
             <SafeAreaView
                 testID="onboarding-interaction-layer"
