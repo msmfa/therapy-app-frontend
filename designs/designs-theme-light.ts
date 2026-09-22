@@ -57,6 +57,7 @@ export const lightTheme: Theme = {
         card: PALETTE.overlay.whiteSurfaceTransparent,
         cardBorder: PALETTE.overlay.whiteBorderTransparent,
         cardEdge: PALETTE.overlay.whiteBorderTransparent,
+        cardSheen: null,
         cardShadow: PALETTE.overlay.blueGlowTransparent,
         cardShadowOpacity: 0.18,
         shadowOffset: { width: 0, height: 1 },

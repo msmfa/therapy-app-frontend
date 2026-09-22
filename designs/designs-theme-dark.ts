@@ -3,7 +3,7 @@
  * value live there, beside the value.
  */
 
-import { ACCENT_INK_BRIGHT, ACCENT_INK_BRIGHTEST, ACCENT_MARK, BRAND_ORANGE, COLOR_VARIANTS, PALETTE } from './designs-colors';
+import { ACCENT_INK_BRIGHTEST, ACCENT_MARK, COLOR_VARIANTS, PALETTE } from './designs-colors';
 import { CALENDAR_BACKDROP_BASE_LOCATIONS, CALENDAR_BACKDROP_GLOW_LOCATIONS } from './designs-gradients';
 import {
     NIGHT_ACCENT,
@@ -47,6 +47,7 @@ export const darkTheme: Theme = {
         card: NIGHT_SURFACE.card,
         cardBorder: NIGHT_SURFACE.cardBorder,
         cardEdge: NIGHT_SURFACE.cardEdge,
+        cardSheen: NIGHT_SURFACE.cardSheen,
         cardShadow: NIGHT_SURFACE.cardShadow,
         cardShadowOpacity: 0.9,
         shadowOffset: { width: 12, height: 18 },
@@ -122,12 +123,15 @@ export const darkTheme: Theme = {
     },
     // The light theme's chosen plan card, unchanged: orange with its pale
     // inks. Asked for by name; the one surface the night keeps the brand fill.
+    // The brand orange, banked for the night: less saturated and darker, so
+    // it marks the chosen plan without lighting the screen, and the pale
+    // ink clears 4.5:1 on it (5.8:1).
     plan: {
-        fill: BRAND_ORANGE,
-        border: ACCENT_MARK,
-        inkBright: ACCENT_INK_BRIGHT,
+        fill: 'hsl(19, 55%, 38%)',
+        border: 'hsla(26, 100%, 78%, 0.55)',
+        inkBright: ACCENT_INK_BRIGHTEST,
         inkBrightest: ACCENT_INK_BRIGHTEST,
-        check: BRAND_ORANGE,
+        check: 'hsl(19, 55%, 38%)',
         mark: [ACCENT_MARK, ACCENT_MARK],
         iconDisc: 'hsla(21, 75%, 54%, 0.20)',
         trialFill: PALETTE.neutral.black,

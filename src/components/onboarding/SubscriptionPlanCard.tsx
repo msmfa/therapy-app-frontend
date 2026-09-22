@@ -62,6 +62,11 @@ export function SubscriptionPlanCard({
             accessibilityState={ { selected, checked: selected, disabled } }
             style={ [onboardingStyles.card, styles.card, selected && styles.cardSelected, disabled && styles.disabled] }
         >
+            { /* The night's cards are lit from above: a sheen across the face
+                 behind the content, where the day's card is one flat tint. */ }
+            { !selected && theme.surface.cardSheen !== null && (
+                <LinearGradient pointerEvents="none" colors={ theme.surface.cardSheen } style={ styles.sheen } />
+            ) }
             <View style={ styles.headerRow }>
                 { /* The tick lives in the radio rather than off at the end of
                      the row: one mark saying chosen, on the control that does
@@ -182,6 +187,11 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 20,
         minHeight: 44,
+        overflow: 'hidden',
+    },
+    sheen: {
+        ...StyleSheet.absoluteFillObject,
+        borderRadius: 24,
     },
     // The same chosen state as the questions' own options: one way of showing a
     // selection across the flow, whether the choice is a goal or a plan.

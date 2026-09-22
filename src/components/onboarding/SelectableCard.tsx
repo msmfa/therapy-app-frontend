@@ -82,6 +82,11 @@ export function SelectableCard({ label, selected, onPress, height, onLayout }: P
                 height !== undefined && { minHeight: height },
             ] }
         >
+            { /* The night's cards are lit from above: a sheen across the face
+                 behind the content, where the day's card is one flat tint. */ }
+            { !selected && theme.surface.cardSheen !== null && (
+                <LinearGradient pointerEvents="none" colors={ theme.surface.cardSheen } style={ styles.sheen } />
+            ) }
             { /* Filled, not ringed: the disc is the theme's mark, drawn as a
                  gradient so the day's flat peach and the night's sweep take
                  the same path. */ }
@@ -113,6 +118,11 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         paddingVertical: 18,
         paddingHorizontal: 20,
         borderWidth: 2,
+        overflow: 'hidden',
+    },
+    sheen: {
+        ...StyleSheet.absoluteFillObject,
+        borderRadius: 24,
     },
     // A chosen option is an orange section: a flat block of the brand's own
     // colour, with no outline drawn round it and nothing but the filled circle

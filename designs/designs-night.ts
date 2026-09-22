@@ -65,7 +65,12 @@ export const NIGHT_INK = {
 export const NIGHT_SURFACE = {
     card: 'hsl(213, 10%, 14%)',
     cardBorder: 'hsla(0, 0%, 100%, 0.06)',
-    cardEdge: 'hsla(0, 0%, 100%, 0.16)',
+    // The same as the border: a brighter top edge blended into the darker
+    // sides round every corner and read as a smear. The light comes from the
+    // sheen instead.
+    cardEdge: 'hsla(0, 0%, 100%, 0.06)',
+    /** Lit from above: a step lighter at the top, the fill by the bottom. */
+    cardSheen: ['hsl(213, 10%, 18%)', 'hsl(213, 10%, 13%)'] as const,
     cardShadow: 'hsl(0, 0%, 0%)',
     frostedShadow: 'hsl(0, 0%, 0%)',
     gradientCardShadow: 'hsl(0, 0%, 0%)',
@@ -208,7 +213,7 @@ export const NIGHT_ACCENT_SCREEN = {
     textSecondary: 'hsla(0, 0%, 100%, 0.92)',
     card: 'hsl(213, 9%, 16%)',
     cardBorder: 'hsla(0, 0%, 100%, 0.10)',
-    cardEdge: 'hsla(0, 0%, 100%, 0.16)',
+    cardEdge: 'hsla(0, 0%, 100%, 0.10)',
 } as const;
 
 /** Status colours, each checked on a card at the top of the gradient. */

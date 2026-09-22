@@ -41,6 +41,12 @@ export type Theme = {
         cardBorder: string;
         /** The card's top edge, where the light catches it. */
         cardEdge: string;
+        /**
+         * A sheen across the card's face, top to bottom, or none. The night's
+         * cards are lit from above like the reference's panels: a little
+         * lighter at the top, settling into the fill.
+         */
+        cardSheen: GradientStops | null;
         cardShadow: string;
         /**
          * How hard the card's shadow is thrown. The light shadow is a tinted
