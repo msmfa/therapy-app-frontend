@@ -67,7 +67,7 @@ export function SubscriptionPlanCard({
                      the row: one mark saying chosen, on the control that does
                      the choosing. */ }
                 <View style={ [styles.radio, selected && styles.radioSelected] }>
-                    { selected && <LinearGradient colors={ theme.chosen.mark } style={ StyleSheet.absoluteFill } /> }
+                    { selected && <LinearGradient colors={ theme.chosen.mark } style={ [StyleSheet.absoluteFill, styles.markFill] } /> }
                     { selected && <Feather name="check" size={ 13 } color={ theme.chosen.check } /> }
                 </View>
 
@@ -209,6 +209,11 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     // The questions' own radio, filled rather than ringed.
     radioSelected: {
         borderColor: 'transparent',
+    },
+    // Rounded on the gradient itself: the native gradient view does not clip
+    // to its parent's corners, so without this the disc drew as a square.
+    markFill: {
+        borderRadius: 11,
     },
     title: {
         fontSize: 18,

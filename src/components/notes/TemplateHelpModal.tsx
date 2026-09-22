@@ -5,8 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import AppText from '../ui/AppText';
 import Spacer, { SpacerVariant } from '../ui/Spacer';
-import type { Theme } from 'designs/designs-themes';
-import { useTheme, useThemedStyles } from '../../context/theme';
+import { useTheme } from '../../context/theme';
 import {
     postTherapyQuestions,
     postTherapyTemplateIntro,
@@ -18,10 +17,13 @@ type TemplateHelpModalProps = {
     onClose: () => void;
 };
 
-// The paper, and a dark-grained copy of it for the night; the ink is
-// theme.paper, navy by day and a light grey on the dark.
-const PAPER = require('../../../assets/textures/paper-green.webp') as ImageSourcePropType;
-const PAPER_NIGHT = require('../../../assets/textures/paper-green-dark.jpg') as ImageSourcePropType;
+const CIRCLE_FILL = 'hsla(0, 0%, 0%, 0.06)';
+
+// Very dark blue: near-black in weight, but clearly blue against the paper.
+const INK = 'hsl(219, 52%, 14%)';
+
+// Same ink, eased back so the hints sit under the questions rather than beside them.
+const INK_SOFT = 'hsla(219, 52%, 14%, 0.68)';
 
 // One gutter for the header and the body, so the two columns line up.
 const H_PADDING = 30;
@@ -31,7 +33,6 @@ export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) 
     const { t: tCommon } = useTranslation('common');
     const insets = useSafeAreaInsets();
     const { theme } = useTheme();
-    const styles = useThemedStyles(makeStyles);
 
     return (
         <Modal
@@ -41,7 +42,7 @@ export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) 
         >
             <ImageBackground
                 testID="template-help-modal-root"
-                source={ theme.scheme === 'dark' ? PAPER_NIGHT : PAPER }
+                source={ require('../../../assets/textures/paper-green.webp') as ImageSourcePropType }
                 contentFit="cover"
                 // The paper is the picture; the sheet behind it is the frame,
                 // and only the frame follows the theme.
@@ -58,7 +59,7 @@ export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) 
                         style={ styles.backButton }
                         activeOpacity={ 0.7 }
                     >
-                        <Feather name="arrow-left" size={ 22 } color={ theme.paper.ink } />
+                        <Feather name="arrow-left" size={ 22 } color={ INK } />
                     </TouchableOpacity>
                     <AppText variant="h1" style={ styles.headerWordSans }>
                         { t('cheatsheet.titleSans') }
@@ -93,7 +94,7 @@ export function TemplateHelpModal({ visible, onClose }: TemplateHelpModalProps) 
     );
 }
 
-const makeStyles = (theme: Theme) => StyleSheet.create({
+const styles = StyleSheet.create({
     modalRoot: { flex: 1 },
     scroll: { flex: 1 },
     scrollContent: { paddingHorizontal: H_PADDING, paddingTop: 20, paddingBottom: 32 },
@@ -111,23 +112,23 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         borderRadius: 22,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: theme.paper.circle,
+        backgroundColor: CIRCLE_FILL,
     },
     headerWordSans: {
-        color: theme.paper.ink,
+        color: INK,
         fontWeight: '700',
         fontSize: 38,
         lineHeight: 46,
         letterSpacing: -0.5,
     },
     headerWordSerif: {
-        color: theme.paper.ink,
+        color: INK,
         fontFamily: 'InstrumentSerif-Italic',
         fontSize: 40,
         lineHeight: 46,
         fontWeight: '400',
     },
-    intro: { color: theme.paper.ink, fontSize: 18, lineHeight: 26 },
-    questionText: { color: theme.paper.ink, fontSize: 19, lineHeight: 26 },
-    hintText: { color: theme.paper.inkSoft, fontSize: 18, lineHeight: 26, marginTop: 2 },
+    intro: { color: INK, fontSize: 18, lineHeight: 26 },
+    questionText: { color: INK, fontSize: 19, lineHeight: 26 },
+    hintText: { color: INK_SOFT, fontSize: 18, lineHeight: 26, marginTop: 2 },
 });

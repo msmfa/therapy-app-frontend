@@ -86,7 +86,7 @@ export function SelectableCard({ label, selected, onPress, height, onLayout }: P
                  gradient so the day's flat peach and the night's sweep take
                  the same path. */ }
             <View style={ [styles.radio, selected && styles.radioSelected] }>
-                { selected && <LinearGradient colors={ theme.chosen.mark } style={ StyleSheet.absoluteFill } /> }
+                { selected && <LinearGradient colors={ theme.chosen.mark } style={ [StyleSheet.absoluteFill, styles.markFill] } /> }
             </View>
 
             <AppText
@@ -136,6 +136,11 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     // at this size, and outlining the dot to separate them only made a target.
     radioSelected: {
         borderColor: 'transparent',
+    },
+    // Rounded on the gradient itself: the native gradient view does not clip
+    // to its parent's corners, so without this the disc drew as a square.
+    markFill: {
+        borderRadius: 11,
     },
     // Sized against the ring's inner edge rather than its outer one: the ring
     // keeps its 22pt, and the dot grows into it until only a hairline of the

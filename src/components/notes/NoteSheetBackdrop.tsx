@@ -4,8 +4,6 @@ import { ImageBackground } from 'expo-image';
 import { useTranslation } from 'react-i18next';
 
 import AppText from '../ui/AppText';
-import type { Theme } from 'designs/designs-themes';
-import { useTheme, useThemedStyles } from '../../context/theme';
 import {
     postTherapyQuestions,
     postTherapyTemplateIntro,
@@ -26,10 +24,11 @@ import {
  * draws the sheet now, so the sheet always says what the resource says.
  */
 
-// The paper, and a dark-grained copy of it for the night. The ink is
-// theme.paper: navy on the green by day, a light grey on the dark.
+// Very dark blue: near-black in weight, but clearly blue against the paper.
+// Same values as TemplateHelpModal, which draws the same sheet.
+const INK = 'hsl(219, 52%, 14%)';
+const INK_SOFT = 'hsla(219, 52%, 14%, 0.68)';
 const PAPER = require('../../../assets/textures/paper-green.webp') as ImageSourcePropType;
-const PAPER_NIGHT = require('../../../assets/textures/paper-green-dark.jpg') as ImageSourcePropType;
 
 type Props = {
     accessibilityLabel: string;
@@ -43,12 +42,10 @@ type Props = {
 
 export function NoteSheetBackdrop({ accessibilityLabel, style }: Props) {
     const { t } = useTranslation('notes');
-    const { theme } = useTheme();
-    const styles = useThemedStyles(makeStyles);
 
     return (
         <ImageBackground
-            source={ theme.scheme === 'dark' ? PAPER_NIGHT : PAPER }
+            source={ PAPER }
             contentFit="cover"
             style={ [styles.sheet, style] }
             // One label for the whole sheet, matching the capture it stands in
@@ -86,7 +83,7 @@ export function NoteSheetBackdrop({ accessibilityLabel, style }: Props) {
     );
 }
 
-const makeStyles = (theme: Theme) => StyleSheet.create({
+const styles = StyleSheet.create({
     sheet: {
         overflow: 'hidden',
     },
@@ -99,21 +96,21 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         gap: 18,
     },
     headingSans: {
-        color: theme.paper.ink,
+        color: INK,
         fontWeight: '700',
         fontSize: 34,
         lineHeight: 40,
         letterSpacing: -0.5,
     },
     headingSerif: {
-        color: theme.paper.ink,
+        color: INK,
         fontFamily: 'InstrumentSerif-Italic',
         fontSize: 36,
         lineHeight: 40,
         fontWeight: '400',
     },
-    intro: { color: theme.paper.ink, fontSize: 16, lineHeight: 23 },
+    intro: { color: INK, fontSize: 16, lineHeight: 23 },
     questionList: { gap: 18 },
-    question: { color: theme.paper.ink, fontSize: 17, lineHeight: 23 },
-    hint: { color: theme.paper.inkSoft, fontSize: 16, lineHeight: 23, marginTop: 2 },
+    question: { color: INK, fontSize: 17, lineHeight: 23 },
+    hint: { color: INK_SOFT, fontSize: 16, lineHeight: 23, marginTop: 2 },
 });

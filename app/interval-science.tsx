@@ -82,9 +82,18 @@ export default function IntervalScienceScreen() {
             : tScience('intervals.emptyNoSessions');
 
     return (
-        <SafeAreaView style={ [styles.container, { backgroundColor: theme.surface.sheet }] } edges={ ['top', 'left', 'right'] }>
-            <ChartBackground />
-            <GlassMorphismWithSquare squarePosition={ SquarePosition.BOTTOM_LEFT } />
+        <SafeAreaView
+            // By day the page sits on ruled paper under a sheet of glass; at
+            // night it is a plain black panel, and the cards carry the depth.
+            style={ [styles.container, { backgroundColor: theme.scheme === 'dark' ? theme.ground.base : theme.surface.sheet }] }
+            edges={ ['top', 'left', 'right'] }
+        >
+            { theme.scheme === 'light' && (
+                <>
+                    <ChartBackground />
+                    <GlassMorphismWithSquare squarePosition={ SquarePosition.BOTTOM_LEFT } />
+                </>
+            ) }
             <View style={ styles.pageHeader }>
                 <GlassCircleButton
                     accessibilityLabel={ t('action.back') }
