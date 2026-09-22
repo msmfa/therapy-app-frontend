@@ -21,6 +21,8 @@ export default function RadioButton({ selectedValue, onPress, children }: RadioB
                 selectedValue ? styles.selectedWrapper : styles.notSelectedWrapper,
             ] }
             onPress={ onPress }
+            accessibilityRole="radio"
+            accessibilityState={ { selected: selectedValue, checked: selectedValue } }
         >
             <View style={ [styles.sharedDot, !selectedValue && styles.circleNotSelected] }>
                 <View style={ selectedValue && styles.selectedDot } />

@@ -22,12 +22,23 @@ type Props = {
     progress?: NoteReviewProgress;
 }
 
+const PREVIEW_LABEL_LENGTH = 100;
+
 export function NoteCard({ item, index, onPress, progress }: Props) {
     const { t } = useTranslation('notes');
+
+    const dateText = dayjs(item.createdAt).format(`dddd, ${shortDatePattern()}`);
+    const timeText = dayjs(item.createdAt).format('LT');
+    const previewText = item.text.length > PREVIEW_LABEL_LENGTH
+        ? `${item.text.slice(0, PREVIEW_LABEL_LENGTH).trimEnd()}…`
+        : item.text;
 
     return (
         <Pressable
             onPress={ () => onPress(item) }
+            accessibilityRole="button"
+            accessibilityLabel={ `${dateText}, ${timeText}. ${previewText}` }
+            accessibilityHint={ t('a11y.openNote') }
             style={ ({ pressed }) => [
                 styles.cardWrapper,
                 pressed && styles.noteCardPressed,
@@ -36,8 +47,18 @@ export function NoteCard({ item, index, onPress, progress }: Props) {
         >
             { /* Decoration, not a second target: the whole card is already
                  pressable, so this lets the tap fall through to it. The `back`
-                 glyph points up-left, mirrored here to point out of the card. */ }
-            <View pointerEvents='none' style={ styles.openButton }>
+                 glyph points up-left, mirrored here to point out of the card.
+                 `pointerEvents='none'` only keeps a real tap from landing on
+                 it; VoiceOver's synthesized one does not respect that, so it
+                 still needs hiding explicitly or it shows up as a second,
+                 separately-announced "Open note" stop right next to the card
+                 that already says the same thing. */ }
+            <View
+                pointerEvents='none'
+                style={ styles.openButton }
+                accessibilityElementsHidden
+                importantForAccessibility="no-hide-descendants"
+            >
                 <GlassCircleButton
                     accessibilityLabel={ t('a11y.openNote') }
                     icon='back'

@@ -4,6 +4,7 @@ import DancingSquare from './PulsingSquare';
 import { GlassMorphismWithCircle } from './GlassMorphismWithCircle';
 import { CirclePosition } from './LinearGradientCircle';
 import CheckGradients from './CheckGradients';
+import AppText from './AppText';
 import { useReduceMotion } from '../../hooks/useReduceMotion';
 
 type LoadingSuccessProps = {
@@ -20,6 +21,8 @@ type LoadingSuccessProps = {
 export default function LoadingSuccess({
     visible,
     status,
+    text,
+    successText,
     onSuccess,
 }: LoadingSuccessProps) {
     const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -72,6 +75,13 @@ export default function LoadingSuccess({
             scaleAnim.setValue(0);
         }
     }, [status, fadeAnim, checkFadeAnim, scaleAnim, onSuccess, reduceMotion]);
+
+    // `text`/`successText` were accepted here and passed by the calendar's own
+    // save flow, but never rendered: the icon swap was the only feedback, so a
+    // VoiceOver user watching a session save got no confirmation it had, and a
+    // sighted one had to infer "saved" from a checkmark with no caption.
+    const statusText = status === 'success' ? successText : text;
+
     return (
         <Modal
             transparent
@@ -95,6 +105,17 @@ export default function LoadingSuccess({
                 >
                     <CheckGradients />
                 </Animated.View>
+                { statusText ? (
+                    <AppText
+                        testID="loading-success-status"
+                        variant="body"
+                        align="center"
+                        style={ styles.statusText }
+                        accessibilityLiveRegion="polite"
+                    >
+                        { statusText }
+                    </AppText>
+                ) : null }
             </View>
         </Modal>
     );
@@ -116,4 +137,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     background: StyleSheet.absoluteFillObject,
+    // Clears CheckGradients' widest ring (160pt) without needing to know
+    // which of the two icons is showing, since both are centred on the
+    // same point and this sits in normal flow below them.
+    statusText: {
+        marginTop: 110,
+        paddingHorizontal: 32,
+    },
 });
