@@ -386,6 +386,12 @@ export default function TherapyCalendar({
 
     const calendar = (
         <Calendar
+            // The library builds the header's and arrows' styles once, when
+            // it mounts, and never reads `theme` again: switching appearance
+            // left the month title, the arrows and the weekday labels in the
+            // old scheme's ink. Remounting on a scheme change is the only way
+            // to make it look at the new theme.
+            key={ theme.scheme }
             dayComponent={ onBackdrop ? CalendarDay : undefined }
             hideExtraDays={ hideExtraDays }
             markedDates={ markedDates }
