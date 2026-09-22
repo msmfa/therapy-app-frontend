@@ -30,7 +30,9 @@ export const COLOR_VARIANTS = {
     primary: 'hsl(0, 0%, 5%)',
     secondary: 'hsla(0, 0%, 0%, 0.70)',
     tertiary: 'hsla(0, 0%, 0%, 0.55)',
-    quaternary: 'hsla(0, 0%, 0%, 0.40)',
+    // 0.40 read at 2.85:1 against white, under the 4.5:1 body-text minimum;
+    // 0.54 is the least opacity that clears it.
+    quaternary: 'hsla(0, 0%, 0%, 0.54)',
   },
   white: {
     primary: 'hsl(0, 0%, 100%)',
@@ -225,7 +227,9 @@ export const CALENDAR_COLORS = {
   calendarDayDefault: COLOR_VARIANTS.black.secondary,
   calendarDayDisabled: 'hsla(0, 0%, 0%, 0.150)',
   calendarMonthText: COLOR_VARIANTS.black.secondary,
-  calendarWeekdayHeader: 'hsla(0, 0%, 0%, 0.30)',
+  // 0.30 read at 2.11:1 against the calendar's pale ground, under the 4.5:1
+  // body-text minimum; 0.54 is the least opacity that clears it.
+  calendarWeekdayHeader: 'hsla(0, 0%, 0%, 0.54)',
   arrows: COLOR_VARIANTS.black.secondary,
   reminderBackground: 'rgba(167, 202, 201, 0.96)',
   reminderBorder: 'rgba(37, 96, 88, 0.44)',
