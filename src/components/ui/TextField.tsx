@@ -1,6 +1,5 @@
 import React, { forwardRef, useState } from 'react';
 import {
-    Platform,
     StyleProp,
     StyleSheet,
     TextInput,
@@ -120,8 +119,15 @@ const styles = StyleSheet.create({
     input: {
         flex: 1,
         fontSize: 16,
+        // Fixed rather than left to intrinsic sizing: the wrapper centers this
+        // box via `alignItems: 'center'`, and centering a box whose height is
+        // derived from padding + content metrics depends on a layout pass
+        // completing before first paint. A literal height is centered
+        // correctly from the first frame.
+        lineHeight: 20,
+        height: 20,
         color: COLOR_VARIANTS.black.secondary,
-        paddingVertical: Platform.select({ android: 0, default: 8 }),
+        paddingVertical: 0,
         textAlignVertical: 'center',
         includeFontPadding: false,
     },
