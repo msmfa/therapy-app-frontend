@@ -13,6 +13,7 @@ import type { Theme } from 'designs/designs-themes';
 import { useTheme, useThemedStyles } from '../../context/theme';
 import { TIME_PICKER_BOUNDS } from '../../utils/timePickerBounds';
 import { dateToMinutes, minutesToDate } from '../../features/onboarding/formatting';
+import { SheetGlow } from './SheetGlow';
 
 /** Which of the two wall-clock times a reminder is pinned to. */
 export type ReminderSlot = 'morning' | 'evening';
@@ -75,6 +76,7 @@ export default function ReminderTimeSheet({ visible, slot, minutes, embedded = f
                     accessibilityLabel={ t('a11y.dismissHint') }
                 />
                 <View style={ styles.content } testID="reminder-time-sheet">
+                    <SheetGlow />
                     <AppText variant="h2" style={ styles.title }>{ t(`reminder.time.${slot}Title`) }</AppText>
                     <AppText variant="body" style={ styles.message }>{ t(`reminder.time.${slot}Message`) }</AppText>
 

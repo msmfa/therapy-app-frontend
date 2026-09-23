@@ -292,7 +292,6 @@
       "untilYouEndIt": "Until you end it",
       "thisSessionOnly": "This session only",
       "allFutureSessions": "All future sessions",
-      "allFutureNote": "From this one onward",
       "allSessionsOnThisDay": "Delete all {{weekday}} sessions",
       "endSeries": "End series",
       "saving": "Saving",
@@ -353,7 +352,7 @@
     "changedMessage": "Your calendar changed on another device. It has been refreshed, so try the edit again.",
     "reminder": {
       "logNote": {
-        "title": "Take a note after your session",
+        "title": "Take a post-session note",
         "reason": "Ten minutes after your session ends, while the detail is still fresh."
       },
       "review": {
@@ -374,7 +373,6 @@
         "eveningMessage": "Every evening reminder moves to this time, not just this one.",
         "save": "Save"
       },
-      "headlineOn": "{{headline}} on {{date}}",
       "whyThis": "Why this reminder"
     },
     "nextSessionHelp": {

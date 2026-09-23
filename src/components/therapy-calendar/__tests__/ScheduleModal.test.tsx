@@ -39,7 +39,7 @@ describe('ScheduleModal actions', () => {
     it('adds a one-off when asked to', () => {
         render(<ScheduleModal { ...props } existingSession={ null } />);
 
-        fireEvent.press(screen.getByText('THIS DAY ONLY'));
+        fireEvent.press(screen.getByText('This day only'));
         fireEvent.press(screen.getByText('Add Session'));
 
         expect(props.onAdd).toHaveBeenCalledWith('single', props.defaultTime);
@@ -56,8 +56,8 @@ describe('ScheduleModal actions', () => {
 
         expect(screen.getByText('Delete')).toBeTruthy();
         expect(screen.getByText('Update')).toBeTruthy();
-        expect(screen.queryByText('EVERY WEEK')).toBeNull();
-        expect(screen.queryByText('THIS SESSION ONLY')).toBeNull();
+        expect(screen.queryByText('Every week')).toBeNull();
+        expect(screen.queryByText('This session only')).toBeNull();
     });
 
     it('updates only this appointment when it is not part of a series', () => {
@@ -78,7 +78,7 @@ describe('ScheduleModal actions', () => {
         const newTime = new Date(2026, 8, 15, 11);
         pickTime(view, newTime);
 
-        fireEvent.press(screen.getByText('ALL FUTURE SESSIONS'));
+        fireEvent.press(screen.getByText('All future sessions'));
         fireEvent.press(screen.getByText('Update'));
 
         expect(props.onUpdate).toHaveBeenCalledWith(newTime, 'future');
@@ -90,7 +90,7 @@ describe('ScheduleModal actions', () => {
         fireEvent.press(screen.getByText('Delete'));
         expect(props.onDelete).toHaveBeenCalledWith('this');
 
-        fireEvent.press(screen.getByText('ALL FUTURE SESSIONS'));
+        fireEvent.press(screen.getByText('All future sessions'));
         expect(screen.getByText('Delete all Tuesday sessions')).toBeTruthy();
         expect(screen.queryByText('Delete')).toBeNull();
     });
@@ -102,7 +102,7 @@ describe('ScheduleModal actions', () => {
     it('asks inside the sheet before ending a series, and ends it only on yes', () => {
         render(<ScheduleModal { ...props } existingSession={ inSeries } />);
 
-        fireEvent.press(screen.getByText('ALL FUTURE SESSIONS'));
+        fireEvent.press(screen.getByText('All future sessions'));
         fireEvent.press(screen.getByText('Delete all Tuesday sessions'));
 
         expect(screen.getByTestId('schedule-modal.end-series-confirm')).toBeTruthy();
@@ -116,7 +116,7 @@ describe('ScheduleModal actions', () => {
     it('leaves the series alone when the question is declined', () => {
         render(<ScheduleModal { ...props } existingSession={ inSeries } />);
 
-        fireEvent.press(screen.getByText('ALL FUTURE SESSIONS'));
+        fireEvent.press(screen.getByText('All future sessions'));
         fireEvent.press(screen.getByText('Delete all Tuesday sessions'));
         fireEvent.press(screen.getByTestId('schedule-modal.end-series-confirm.keep'));
 

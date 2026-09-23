@@ -20,6 +20,7 @@ import type { Theme } from 'designs/designs-themes';
 import { useTheme, useThemedStyles } from '../../context/theme';
 import { useTranslation } from 'react-i18next';
 import type { SessionCadence, SessionEditScope } from '../../api/therapy';
+import { SheetGlow } from './SheetGlow';
 
 /** What the sheet knows about the appointment already on the day, if any. */
 export interface SheetSession {
@@ -49,7 +50,7 @@ interface ScheduleModalProps {
 /**
  * The room a RadioButton's shadow needs outside the box it is drawn on.
  *
- * `shadowOffset` 8 plus `shadowRadius` 14, rounded up. A ScrollView clips to
+ * `shadowOffset` 4 plus `shadowRadius` 12, with room to spare. A ScrollView clips to
  * its own bounds, so without this the cards' shadows were cut off in a hard
  * line along the bottom of the scroller and down both of its sides.
  */
@@ -125,17 +126,17 @@ export default function ScheduleModal({
     const selectedDay = selectedDate ? dayjs(selectedDate) : null;
     const selectedWeekday = selectedDay?.format('dddd') ?? '';
 
-    const modeOptions: Array<{ value: ScheduleMode; title: string; note?: string }> = [
+    const modeOptions: Array<{ value: ScheduleMode; title: string }> = [
         { value: 'weekly', title: t('schedule.everyWeek') },
         { value: 'single', title: t('schedule.thisDayOnly') },
     ];
-    const scopeOptions: Array<{ value: SessionEditScope; title: string; note?: string }> = [
+    const scopeOptions: Array<{ value: SessionEditScope; title: string }> = [
         { value: 'this', title: t('schedule.thisSessionOnly') },
-        { value: 'future', title: t('schedule.allFutureSessions'), note: t('schedule.allFutureNote') },
+        { value: 'future', title: t('schedule.allFutureSessions') },
     ];
 
     const renderOptions = <Value extends string>(
-        options: Array<{ value: Value; title: string; note?: string }>,
+        options: Array<{ value: Value; title: string }>,
         selected: Value,
         select: (value: Value) => void,
     ) => (
@@ -146,16 +147,9 @@ export default function ScheduleModal({
                     selectedValue={ selected === option.value }
                     onPress={ () => select(option.value) }
                 >
-                    <View style={ styles.modeRow }>
-                        <AppText variant="body" numberOfLines={ 1 } style={ styles.modeTitle }>
-                            { option.title.toUpperCase() }
-                        </AppText>
-                        { option.note ? (
-                            <AppText variant="caption" style={ styles.modeNote }>
-                                { option.note.toUpperCase() }
-                            </AppText>
-                        ) : null }
-                    </View>
+                    <AppText variant="body" numberOfLines={ 1 } style={ styles.modeTitle }>
+                        { option.title }
+                    </AppText>
                 </RadioButton>
             )) }
         </View>
@@ -173,6 +167,7 @@ export default function ScheduleModal({
                     accessibilityLabel={ t('a11y.dismissScheduling') }
                 />
                 <View style={ styles.modalContent }>
+                    <SheetGlow />
                     { selectedDay && (
                         <View style={ styles.selectedDayBlock }>
                             <AppText variant="h2" style={ styles.selectedDay }>
@@ -242,18 +237,14 @@ export default function ScheduleModal({
 
                     <View style={ styles.buttonRow }>
                         { existingSession ? (
-                            // Side by side while the destructive action is
-                            // just "Delete". Naming the scope makes that
-                            // label far too long for half a row, and a pill
-                            // is a single-line control that answers a long
-                            // label by shrinking the type, so it takes a row
-                            // of its own instead. `column-reverse` keeps
-                            // Update on top without reordering the source.
-                            <View style={ [
-                                styles.actionButtonsRow,
-                                scope === 'future' && styles.actionButtonsStacked,
-                            ] }>
-                                <View style={ scope === 'future' ? styles.actionButtonFull : styles.actionButtonWrapper }>
+                            // Always stacked, Update on top. Naming the
+                            // scope makes the destructive label far too long
+                            // for half a row, and switching layout when the
+                            // scope changes made the buttons jump under the
+                            // finger. `column-reverse` keeps Update on top
+                            // without reordering the source.
+                            <View style={ [styles.actionButtonsRow, styles.actionButtonsStacked] }>
+                                <View style={ styles.actionButtonFull }>
                                     <GlassPillButton
                                         label={ scope === 'future'
                                             ? t('schedule.allSessionsOnThisDay', { weekday: selectedWeekday })
@@ -268,7 +259,7 @@ export default function ScheduleModal({
                                         testID="schedule-modal.delete"
                                     />
                                 </View>
-                                <View style={ scope === 'future' ? styles.actionButtonFull : styles.actionButtonWrapper }>
+                                <View style={ styles.actionButtonFull }>
                                     <GlassPillButton
                                         label={ t('schedule.update') }
                                         height={ 60 }
@@ -314,6 +305,7 @@ export default function ScheduleModal({
                                 accessibilityLabel={ t('schedule.keepSeries') }
                             />
                             <View style={ styles.confirmSheet } testID="schedule-modal.end-series-confirm">
+                                <SheetGlow />
                                 <AppText variant="h2" style={ styles.confirmTitle }>
                                     { t('schedule.endSeriesTitle') }
                                 </AppText>
@@ -420,25 +412,13 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     actionPill: {
         width: '100%',
     },
-    modeRow: {
-        alignItems: 'center',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-    },
-    // The title holds its line; the note beside it is what gives way and wraps.
+    // Sentence case at a medium weight, like a list row's label, rather than
+    // the spaced capitals a heading takes.
     modeTitle: {
-        flexShrink: 0,
+        color: theme.ink.primary,
+        fontSize: 16,
         fontWeight: '600',
-        letterSpacing: 0.8,
-    },
-    modeNote: {
-        color: theme.ink.quaternary,
-        flexShrink: 1,
-        fontSize: 10,
-        letterSpacing: 0.6,
-        lineHeight: 14,
-        marginLeft: 12,
-        textAlign: 'right',
+        letterSpacing: -0.1,
     },
     sectionApplyTo: {
         gap: 10,

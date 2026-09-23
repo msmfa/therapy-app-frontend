@@ -109,3 +109,39 @@ describe('designs-themes', () => {
         }
     });
 });
+
+/**
+ * The session day's numeral sits on a solid orange disc, and orange is easy
+ * to nudge below legibility. The ratio is held here rather than in a comment:
+ * the 4.5:1 body-text minimum, since the numeral is 17px.
+ */
+describe('session day contrast', () => {
+    const channel = (value: number) => {
+        const v = value / 255;
+        return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+    };
+    const luminance = ([r, g, b]: number[]) => 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
+    const contrast = (a: number[], b: number[]) => {
+        const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+        return (hi + 0.05) / (lo + 0.05);
+    };
+    // Hex (#rrggbb) or hsl(h, s%, l%), the two forms the month's colours use.
+    const rgb = (color: string): number[] => {
+        if (color.startsWith('#')) return [1, 3, 5].map((i) => parseInt(color.slice(i, i + 2), 16));
+        const [h, s, l] = (color.match(/[\d.]+/g) ?? []).map(Number);
+        const a = (s / 100) * Math.min(l / 100, 1 - l / 100);
+        const f = (n: number) => {
+            const k = (n + h / 30) % 12;
+            return 255 * (l / 100 - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)));
+        };
+        return [f(0), f(8), f(4)];
+    };
+
+    it.each([
+        ['light', lightTheme],
+        ['dark', darkTheme],
+    ] as const)('%s: the numeral reads on the disc', (_name, theme) => {
+        const month = theme.calendar.month;
+        expect(contrast(rgb(month.sessionFillText), rgb(month.sessionFill))).toBeGreaterThanOrEqual(4.5);
+    });
+});

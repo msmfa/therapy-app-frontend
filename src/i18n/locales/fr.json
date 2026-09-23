@@ -292,7 +292,6 @@
       "untilYouEndIt": "Jusqu'à ce que vous l'arrêtiez",
       "thisSessionOnly": "Cette séance seulement",
       "allFutureSessions": "Toutes les séances à venir",
-      "allFutureNote": "À partir de celle-ci",
       "allSessionsOnThisDay": "Supprimer toutes les séances du {{weekday}}",
       "endSeries": "Arrêter la série",
       "saving": "Enregistrement",
@@ -353,7 +352,7 @@
     "changedMessage": "Votre calendrier a changé sur un autre appareil. Il a été actualisé, réessayez la modification.",
     "reminder": {
       "logNote": {
-        "title": "Prenez une note après votre séance",
+        "title": "Prenez une note post-séance",
         "reason": "Dix minutes après la fin de votre séance, tant que les détails sont encore frais."
       },
       "review": {
@@ -374,7 +373,6 @@
         "eveningMessage": "Tous les rappels du soir passent à cette heure, pas seulement celui-ci.",
         "save": "Enregistrer"
       },
-      "headlineOn": "{{headline}} le {{date}}",
       "whyThis": "Pourquoi ce rappel"
     },
     "nextSessionHelp": {

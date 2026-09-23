@@ -292,7 +292,6 @@
    "untilYouEndIt": "Hasta que la termines",
    "thisSessionOnly": "Solo esta sesión",
    "allFutureSessions": "Todas las sesiones futuras",
-   "allFutureNote": "Desde esta en adelante",
    "allSessionsOnThisDay": "Eliminar todas las sesiones del {{weekday}}",
    "endSeries": "Terminar serie",
    "saving": "Guardando",
@@ -353,7 +352,7 @@
   "changedMessage": "Tu calendario cambió en otro dispositivo. Se ha actualizado, así que vuelve a intentar el cambio.",
   "reminder": {
    "logNote": {
-    "title": "Toma una nota después de tu sesión",
+    "title": "Toma una nota post-sesión",
     "reason": "Diez minutos después de que termine tu sesión, mientras los detalles siguen frescos."
    },
    "review": {
@@ -374,7 +373,6 @@
     "eveningMessage": "Todos los recordatorios de la tarde pasan a esta hora, no solo este.",
     "save": "Guardar"
    },
-   "headlineOn": "{{headline}} el {{date}}",
    "whyThis": "Por qué este recordatorio"
   },
   "nextSessionHelp": {

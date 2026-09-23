@@ -1,14 +1,16 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import dayjs from 'dayjs';
 import { LinearGradient } from 'expo-linear-gradient';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
+import { BottomTabBarHeightContext } from '@react-navigation/bottom-tabs';
 import { useTranslation } from 'react-i18next';
 
 import TherapyCalendar, { createDateFromKey, formatDateKey, type CalendarFocus } from '../../src/components/therapy-calendar/TherapyCalendar';
 import ScheduleModal, { type ScheduleMode, type SheetSession } from '../../src/components/therapy-calendar/ScheduleModal';
 import ReminderSheet from '../../src/components/therapy-calendar/ReminderSheet';
+import { PassCard } from '../../src/components/therapy-calendar/PassCard';
 import { useTherapySessions } from '../../src/context/therapy-sessions/TherapySessionsContext';
 import type { CalendarReminder, SessionEditScope, TherapySession } from '../../src/api/therapy';
 import { ApiError } from '../../src/api/client';
@@ -20,19 +22,20 @@ import { CalendarBackdrop } from '../../src/components/ui/CalendarBackdrop';
 import { useAppAlert } from '../../src/context/alert';
 import Loading from 'src/components/ui/Loading';
 import AppText from 'src/components/ui/AppText';
-import { GradientCard } from '../../src/components/ui/GradientCard';
 import type { Theme } from 'designs/designs-themes';
 import { useTheme, useThemedStyles } from '../../src/context/theme';
 import { serverErrorMessage } from '../../src/features/errors/serverErrorMessage';
 import { DEFAULT_SESSION_MINUTES } from '../../src/features/reminders/reminderScheduleConfig';
 
 const DEFAULT_TIME = new Date(2024, 0, 1, 9, 0, 0);
+/** The tab bar's height as `(tabs)/_layout` sets it, for when no navigator reports it. */
+const TAB_BAR_HEIGHT = 76;
+/** How far above the tab bar the fade starts. */
+const BOTTOM_FADE_HEIGHT = 40;
 
 type NextEventCardProps = {
     label: string;
     date: Date | null;
-    /** What the event is, under the label: the review moment, or the session. */
-    detail?: string | null;
     /** Matches the dots the month uses for this kind of day. */
     accent: string;
     /** Given only when there is an event to open; the empty card is inert. */
@@ -42,12 +45,13 @@ type NextEventCardProps = {
     testID?: string;
 };
 
-// Reads like a weather tile: a quiet label with a coloured dot on the shoulder,
-// and the day number carrying the card the way a temperature does, with the
-// month sitting up against it as the unit.
-const NextEventCard = React.memo(function NextEventCard({ label, date, detail, accent, onPress, footnote, testID }: NextEventCardProps) {
+// Reads like a boarding pass. The upper half is the reading: the day number
+// carrying the card the way a temperature does, the month up against it as
+// the unit, and a quiet label with a coloured dot on the shoulder. A hard
+// break then cuts off a lighter band along the foot, which says what
+// pressing the card does, the way a pass keeps its fine print below the tear.
+const NextEventCard = React.memo(function NextEventCard({ label, date, accent, onPress, footnote, testID }: NextEventCardProps) {
     const { t } = useTranslation('calendar');
-    const { theme } = useTheme();
     const styles = useThemedStyles(makeStyles);
     const when = date ? dayjs(date) : null;
 
@@ -59,40 +63,31 @@ const NextEventCard = React.memo(function NextEventCard({ label, date, detail, a
             onPress={ onPress }
             testID={ testID }
         >
-            <GradientCard
-                addedStyles={ styles.eventCard }
-                borderRadius={ 20 }
-                surfaceBackgroundColor={ theme.surface.sheetCard }
-                surfaceBorderColor={ theme.surface.sheetCardBorder }
+            <PassCard
+                footer={ when && footnote
+                    ? <AppText variant="caption" style={ styles.eventFootnote }>{ footnote }</AppText>
+                    : null }
             >
-                <View style={ styles.eventCardBody }>
-                    <View style={ styles.eventValueRow }>
-                        { when ? (
-                            <View style={ styles.eventReading }>
-                                <AppText variant="h1" style={ styles.eventDay }>{ when.format('D') }</AppText>
-                                <AppText variant="h1" style={ styles.eventMonth }>{ when.format('MMM').toUpperCase() }</AppText>
-                            </View>
-                        ) : (
-                            <AppText variant="body" style={ styles.eventEmpty }>{ t('nothingScheduled') }</AppText>
-                        ) }
-                        <View style={ styles.eventAside }>
-                            <View style={ styles.eventLabelRow }>
-                                <AppText variant="caption" style={ styles.eventLabel }>{ label }</AppText>
-                                <View style={ [styles.eventDot, { backgroundColor: accent }] } />
-                            </View>
-                            { when && detail ? (
-                                <AppText variant="caption" numberOfLines={ 1 } style={ styles.eventDetail }>{ detail }</AppText>
-                            ) : null }
-                            { when ? (
-                                <AppText variant="caption" style={ styles.eventMeta }>{ when.format('ddd, LT') }</AppText>
-                            ) : null }
+                <View style={ styles.eventValueRow }>
+                    { when ? (
+                        <View style={ styles.eventReading }>
+                            <AppText variant="h1" style={ styles.eventDay }>{ when.format('D') }</AppText>
+                            <AppText variant="h1" style={ styles.eventMonth }>{ when.format('MMM').toUpperCase() }</AppText>
                         </View>
+                    ) : (
+                        <AppText variant="body" style={ styles.eventEmpty }>{ t('nothingScheduled') }</AppText>
+                    ) }
+                    <View style={ styles.eventAside }>
+                        <View style={ styles.eventLabelRow }>
+                            <AppText variant="caption" style={ styles.eventLabel }>{ label }</AppText>
+                            <View style={ [styles.eventDot, { backgroundColor: accent }] } />
+                        </View>
+                        { when ? (
+                            <AppText variant="caption" style={ styles.eventMeta }>{ when.format('ddd, LT') }</AppText>
+                        ) : null }
                     </View>
-                    { when && footnote ? (
-                        <AppText variant="caption" style={ styles.eventFootnote }>{ footnote }</AppText>
-                    ) : null }
                 </View>
-            </GradientCard>
+            </PassCard>
         </TouchableOpacity>
     );
 });
@@ -110,7 +105,9 @@ export default function CalendarScreen() {
         addSession, updateSession, removeSession,
         reminderScheduleSettings, refreshReminderSchedule,
     } = useTherapySessions();
-    const insets = useSafeAreaInsets();
+    // Read from the context rather than the hook, which throws outside the
+    // tab navigator (the screen tests render it bare).
+    const tabBarHeight = useContext(BottomTabBarHeightContext) ?? TAB_BAR_HEIGHT;
     const { showAlert } = useAppAlert();
     const [sheet, setSheet] = useState<OpenSheet>(null);
     const [focus, setFocus] = useState<CalendarFocus | null>(null);
@@ -339,6 +336,11 @@ export default function CalendarScreen() {
                 />
 
                 <View style={ styles.sheet }>
+                    <LinearGradient
+                        colors={ theme.calendar.eventCard.ground }
+                        pointerEvents="none"
+                        style={ StyleSheet.absoluteFill }
+                    />
                     { /* A lit edge along the sheet's lip, brightest in the
                          middle, which is what separates it from the month
                          above without drawing a hard rule. */ }
@@ -349,11 +351,10 @@ export default function CalendarScreen() {
                         pointerEvents="none"
                         style={ styles.sheetHighlight }
                     />
-                    <View style={ [styles.eventCards, { paddingBottom: insets.bottom + 32 }] }>
+                    <View style={ [styles.eventCards, { paddingBottom: tabBarHeight + BOTTOM_FADE_HEIGHT }] }>
                             <NextEventCard
                                 label={ t('nextSession') }
                                 date={ nextSession ? new Date(nextSession.startsAtUtc) : null }
-                                detail={ nextSession?.seriesId ? t('schedule.everyWeek') : null }
                                 accent={ theme.calendar.month.sessionDot }
                                 onPress={ nextSession ? handleNextSessionPress : undefined }
                                 footnote={ t('nextSessionHelp.message') }
@@ -370,12 +371,17 @@ export default function CalendarScreen() {
                     </View>
                 </View>
                 </ScrollView>
+                { /* The tab bar floats over the sheet with no ground of its
+                     own, so a card that runs on under it is faded out from a
+                     little above the icons down, into the colour the sheet's
+                     gradient ends on. */ }
                 { canScrollDown && (
                     <LinearGradient
                         testID="calendar.bottomFade"
                         pointerEvents="none"
-                        colors={ [theme.ground.fade, theme.ground.base] }
-                        style={ { position: 'absolute', bottom: 0, left: 0, right: 0, height: 36 } }
+                        colors={ [theme.calendar.eventCard.groundFade, theme.calendar.eventCard.ground[theme.calendar.eventCard.ground.length - 1]] }
+                        locations={ [0, 0.55] }
+                        style={ [styles.bottomFade, { height: tabBarHeight + BOTTOM_FADE_HEIGHT }] }
                     />
                 ) }
             </SafeAreaView>
@@ -441,6 +447,12 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         borderTopRightRadius: 28,
         overflow: 'hidden',
     },
+    bottomFade: {
+        bottom: 0,
+        left: 0,
+        position: 'absolute',
+        right: 0,
+    },
     sheetHighlight: {
         height: 1.5,
         left: 0,
@@ -454,13 +466,6 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         paddingHorizontal: 20,
         paddingTop: 20,
     },
-    eventCard: {
-        width: '100%',
-    },
-    eventCardBody: {
-        paddingBottom: 13,
-        paddingTop: 13,
-    },
     eventAside: {
         alignItems: 'flex-end',
         flexShrink: 1,
@@ -469,7 +474,7 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     eventLabelRow: {
         alignItems: 'center',
         flexDirection: 'row',
-        marginBottom: 6,
+        marginBottom: 1,
     },
     eventDot: {
         borderRadius: 3,
@@ -478,10 +483,11 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         width: 6,
     },
     eventLabel: {
-        color: theme.ink.secondary,
+        color: theme.ink.primary,
         fontSize: 12,
         fontWeight: '500',
         letterSpacing: 1.2,
+        lineHeight: 15,
         textAlign: 'right',
         textTransform: 'uppercase',
     },
@@ -512,23 +518,18 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         lineHeight: 34,
         marginLeft: 7,
     },
-    eventDetail: {
+    eventMeta: {
         color: theme.ink.secondary,
         fontSize: 13,
-        marginBottom: 2,
+        lineHeight: 16,
         textAlign: 'right',
     },
-    eventMeta: {
-        color: theme.ink.tertiary,
-        fontSize: 13,
-        textAlign: 'right',
-    },
-    // Under the reading, in the card's quietest ink: the card is a readout
+    // In the foot band, a step below the reading: the card is a readout
     // first, and this says what happens if you press it.
     eventFootnote: {
-        color: theme.ink.tertiary,
+        color: theme.ink.secondary,
         fontSize: 13,
-        marginTop: 10,
+        lineHeight: 17,
     },
     eventEmpty: {
         alignSelf: 'center',

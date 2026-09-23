@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import dayjs from 'dayjs';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 
@@ -16,8 +16,9 @@ import { neuroReminderCopy, reminderScienceCopy } from '../../constants/neuroRem
 import { AppModal } from '../Modal';
 import { ScienceTextModal } from '../ScienceTextModal';
 import type { ReminderType } from '../../utils/types';
-import { Reason } from '../../features/reminders/types';
 import ReminderTimeSheet, { type ReminderSlot } from './ReminderTimeSheet';
+import { ReminderCard } from './ReminderCard';
+import { SheetGlow } from './SheetGlow';
 
 interface ReminderSheetProps {
     visible: boolean;
@@ -38,18 +39,6 @@ interface ReminderSheetProps {
 }
 
 /**
- * Which wall-clock time a reminder takes, or none.
- *
- * The post-session note is the odd one out: it is placed against the session
- * that has just finished, not against a time of day, so it moves only when
- * the session does and there is nothing here for a picker to change.
- */
-export function reminderSlot(reminder: CalendarReminder): ReminderSlot | null {
-    if (reminder.kind === 'log_note') return null;
-    return reminder.reason === Reason.PostSleep ? 'morning' : 'evening';
-}
-
-/**
  * What a reminder day is about.
  *
  * The month only has room for dots. This is where the dot gets its words: which
@@ -61,51 +50,6 @@ export function reminderSlot(reminder: CalendarReminder): ReminderSlot | null {
 export function reminderHeadline(reminder: CalendarReminder, t: TFunction<'calendar'>): string {
     if (reminder.kind === 'log_note') return t('reminder.logNote.title');
     return reminder.reason ? neuroReminderCopy()[reminder.reason].time : t('reminder.review.title');
-}
-
-type SheetStyles = ReturnType<typeof makeStyles>;
-
-/**
- * The right-hand side of a reminder card.
- *
- * A reminder still to come is something that can be acted on, so it offers
- * the action rather than restating that it is scheduled, which the time
- * underneath already says. The post-session note has no time of day to move,
- * so it says as much in the same place. Once a reminder has gone out or been
- * missed it is history, and history reports what happened.
- */
-function reminderAction(
-    reminder: CalendarReminder,
-    onEditTime: ((slot: ReminderSlot) => void) | undefined,
-    styles: SheetStyles,
-    t: TFunction<'calendar'>,
-) {
-    if (reminder.status !== 'pending') {
-        return (
-            <AppText variant="caption" style={ [styles.status, reminder.status === 'missed' && styles.statusMissed] }>
-                { t(`reminder.status.${reminder.status}`) }
-            </AppText>
-        );
-    }
-
-    const slot = reminderSlot(reminder);
-    if (slot === null || !onEditTime) {
-        return (
-            <AppText variant="caption" style={ styles.status }>{ t('reminder.fixedTime') }</AppText>
-        );
-    }
-
-    return (
-        <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityHint={ t('a11y.opensTimePicker') }
-            onPress={ () => onEditTime(slot) }
-            style={ styles.updateButton }
-            testID={ `reminder-sheet.${reminder.id}.update` }
-        >
-            <AppText variant="caption" style={ styles.updateLabel }>{ t('reminder.update') }</AppText>
-        </TouchableOpacity>
-    );
 }
 
 export default function ReminderSheet({
@@ -146,49 +90,36 @@ export default function ReminderSheet({
                     accessibilityLabel={ t('a11y.dismissReminder') }
                 />
                 <ScrollView style={ { maxHeight: '90%', flexGrow: 0 } } contentContainerStyle={ styles.content }>
+                    <LinearGradient
+                        colors={ [theme.calendar.sheet.surface, theme.calendar.eventCard.ground[theme.calendar.eventCard.ground.length - 1]] }
+                        pointerEvents="none"
+                        style={ StyleSheet.absoluteFill }
+                    />
+                    <SheetGlow />
                     <AppText variant="h2" style={ styles.day }>{ dayjs(selectedDate).format('dddd D') }</AppText>
                     { reminders.map((reminder) => {
                         const reason = reminder.reason ? neuroReminderCopy()[reminder.reason].reason : t('reminder.logNote.reason');
                         // The session the reminder hangs off: the one it comes
-                        // before, or otherwise the one it follows. It used to
-                        // sit on its own line at the foot of the card, saying
-                        // in a sentence what the headline can say in two words.
-                        const on = reminder.reason === 'pre_session'
+                        // before, or otherwise the one it follows. The card
+                        // sets its date beside the time, where it reads as
+                        // the when, and leaves the headline to say the what.
+                        const sessionDate = reminder.reason === 'pre_session'
                             ? sessionLabel(reminder.nextSessionId)
                             : sessionLabel(reminder.sessionId);
-                        const plain = reminderHeadline(reminder, t);
-                        const headline = on ? t('reminder.headlineOn', { headline: plain, date: on }) : plain;
                         // Only the four review moments have a write-up behind
                         // them; the post-session note is a prompt, not an
                         // interval, and has nothing to open.
                         const link = reminder.reason ? neuroReminderCopy()[reminder.reason].link : null;
                         return (
-                            <View key={ reminder.id } style={ styles.card } testID={ `reminder-sheet.${reminder.id}` }>
-                                <View style={ styles.cardHeader }>
-                                    <AppText variant="caption" style={ styles.headline }>
-                                        { headline.toUpperCase() }
-                                    </AppText>
-                                    { reminderAction(reminder, canEditTime ? setEditingSlot : undefined, styles, t) }
-                                </View>
-                                <AppText variant="h1" style={ styles.time }>
-                                    { dayjs(reminder.dueAtUtc).format('LT') }
-                                </AppText>
-                                <View style={ styles.reasonRow }>
-                                    <AppText variant="body" style={ styles.reason }>{ reason }</AppText>
-                                    { link ? (
-                                        <TouchableOpacity
-                                            accessibilityRole="button"
-                                            accessibilityLabel={ t('reminder.whyThis') }
-                                            hitSlop={ 8 }
-                                            onPress={ () => setScienceLink(link) }
-                                            style={ styles.whyButton }
-                                            testID={ `reminder-sheet.${reminder.id}.why` }
-                                        >
-                                            <Ionicons name="arrow-forward-outline" size={ 18 } color={ theme.ink.primary } />
-                                        </TouchableOpacity>
-                                    ) : null }
-                                </View>
-                            </View>
+                            <ReminderCard
+                                key={ reminder.id }
+                                reminder={ reminder }
+                                headline={ reminderHeadline(reminder, t) }
+                                sessionDate={ sessionDate }
+                                reason={ reason }
+                                onEditTime={ canEditTime ? setEditingSlot : undefined }
+                                onOpenScience={ link ? () => setScienceLink(link) : undefined }
+                            />
                         );
                     }) }
                     <View style={ styles.buttons }>
@@ -266,6 +197,7 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         gap: 14,
+        overflow: 'hidden',
         padding: 20,
         paddingBottom: 40,
     },
@@ -273,66 +205,6 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         color: theme.ink.secondary,
         fontSize: 20,
         fontWeight: '300',
-    },
-    card: {
-        borderColor: theme.calendar.sheet.border,
-        borderRadius: 16,
-        borderWidth: 1,
-        gap: 6,
-        padding: 16,
-    },
-    cardHeader: {
-        alignItems: 'center',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-    },
-    headline: {
-        color: theme.ink.secondary,
-        flexShrink: 1,
-        fontSize: 12,
-        fontWeight: '500',
-        letterSpacing: 1.2,
-    },
-    status: {
-        color: theme.ink.tertiary,
-        fontSize: 12,
-        marginLeft: 12,
-    },
-    statusMissed: {
-        color: theme.status.dangerText,
-    },
-    updateButton: {
-        borderColor: theme.calendar.sheet.border,
-        borderRadius: 999,
-        borderWidth: 1,
-        marginLeft: 12,
-        paddingHorizontal: 14,
-        paddingVertical: 6,
-    },
-    updateLabel: {
-        color: theme.accent.mark,
-        fontSize: 12,
-        fontWeight: '500',
-    },
-    time: {
-        color: theme.ink.primary,
-        fontSize: 32,
-        fontWeight: '500',
-        letterSpacing: -0.8,
-        lineHeight: 36,
-    },
-    reasonRow: {
-        alignItems: 'center',
-        flexDirection: 'row',
-        gap: 12,
-    },
-    reason: {
-        color: theme.ink.secondary,
-        flexShrink: 1,
-    },
-    whyButton: {
-        alignItems: 'center',
-        justifyContent: 'center',
     },
     buttons: {
         flexDirection: 'row',

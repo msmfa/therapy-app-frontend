@@ -7,6 +7,7 @@ import { GlassPillButton } from '../ui/GlassPillButton';
 import { PresentedModal } from '../ui/PresentedModal';
 import type { Theme } from 'designs/designs-themes';
 import { useTheme, useThemedStyles } from '../../context/theme';
+import { SheetGlow } from './SheetGlow';
 
 interface CalendarHintSheetProps {
     visible: boolean;
@@ -44,6 +45,7 @@ export default function CalendarHintSheet({ visible, title, message, confirmLabe
                     accessibilityLabel={ t('a11y.dismissHint') }
                 />
                 <View style={ styles.content } testID="calendar-hint">
+                    <SheetGlow />
                     <AppText variant="h2" style={ styles.title }>{ title }</AppText>
                     <AppText variant="body" style={ styles.message }>{ message }</AppText>
                     <GlassPillButton

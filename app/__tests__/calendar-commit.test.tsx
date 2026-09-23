@@ -267,9 +267,10 @@ describe('calendar edits commit as they are made', () => {
         fireEvent.press(screen.getByTestId('therapy-calendar.day_2026-09-14'));
 
         expect(screen.getByTestId('reminder-sheet.r1')).toBeTruthy();
-        // The session the reminder is about is named in the headline now,
-        // rather than on a line of its own at the foot of the card.
-        expect(screen.getByText('EVENING BEFORE YOUR NEXT SESSION ON TUE 15 SEP')).toBeTruthy();
+        // The headline says which moment it is; the session it is about sits
+        // beside the time, rather than in the headline or at the foot.
+        expect(screen.getByText('EVENING BEFORE YOUR NEXT SESSION')).toBeTruthy();
+        expect(screen.getByText('Tue 15 Sep')).toBeTruthy();
         expect(screen.queryByText(/^After your session on/)).toBeNull();
         // A reminder still to come offers the edit rather than restating that
         // it is scheduled, which the time underneath already says.
@@ -289,7 +290,7 @@ describe('calendar edits commit as they are made', () => {
         fireEvent.press(screen.getByTestId('therapy-calendar.header.leftArrow', { includeHiddenElements: true }));
         fireEvent.press(screen.getByTestId('therapy-calendar.day_2026-08-25'));
 
-        expect(screen.getByText('TAKE A NOTE AFTER YOUR SESSION')).toBeTruthy();
+        expect(screen.getByText('TAKE A POST-SESSION NOTE')).toBeTruthy();
         expect(screen.getByText('Missed')).toBeTruthy();
         expect(screen.queryByText('Add Session')).toBeNull();
     });

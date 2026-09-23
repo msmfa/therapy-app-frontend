@@ -130,6 +130,10 @@ export type Theme = {
         selectedBorder: string;
         unselectedFill: string;
         unselectedBorder: string;
+        /** The round well at the option's leading end that the dot sits in. */
+        well: string;
+        /** The light down from the pill's top edge. */
+        sheen: GradientStops;
     };
 
     /** Drop shadows are black in both themes; only surfaces change. */
@@ -334,6 +338,32 @@ export type Theme = {
             surface: string;
             border: string;
             overlay: string;
+            /** The blue light along the sheet's top, fading down into the surface; stops at the backdrop glow's locations. */
+            glow: GradientStops;
+        };
+        /** The next-session and next-reminder cards under the month. */
+        eventCard: {
+            /** The ground the cards sit on, top to bottom. */
+            ground: GradientStops;
+            /** The ground's last stop at zero alpha, for the fade over the tab bar. */
+            groundFade: string;
+            /** The card's wash, top-left to bottom-right. */
+            fill: GradientStops;
+            /** The same wash thinned out, for cards on a sheet whose colour should come through. */
+            fillTranslucent: GradientStops;
+            border: string;
+            /** The band along the card's foot, lighter than the card above it. */
+            footer: string;
+            /** The hard break between the reading and the band. */
+            footerRule: string;
+            /** The one action on a card: a lit blue pill that throws its own blue shadow. */
+            action: {
+                fill: GradientStops;
+                label: string;
+                /** The inner ring where the pill catches the light. */
+                rim: string;
+                shadow: string;
+            };
         };
     };
 

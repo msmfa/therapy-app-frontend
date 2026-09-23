@@ -292,7 +292,6 @@
       "untilYouEndIt": "Bis du sie beendest",
       "thisSessionOnly": "Nur diese Sitzung",
       "allFutureSessions": "Alle künftigen Sitzungen",
-      "allFutureNote": "Ab dieser Sitzung",
       "allSessionsOnThisDay": "Alle Sitzungen am {{weekday}} löschen",
       "endSeries": "Serie beenden",
       "saving": "Wird gespeichert",
@@ -353,7 +352,7 @@
     "changedMessage": "Dein Kalender wurde auf einem anderen Gerät geändert. Er wurde aktualisiert, versuche die Änderung noch einmal.",
     "reminder": {
       "logNote": {
-        "title": "Mach dir eine Notiz nach deiner Sitzung",
+        "title": "Mach dir eine Notiz nach der Sitzung",
         "reason": "Zehn Minuten nach dem Ende deiner Sitzung, solange die Details noch frisch sind."
       },
       "review": {
@@ -374,7 +373,6 @@
         "eveningMessage": "Jede abendliche Erinnerung wechselt auf diese Zeit, nicht nur diese eine.",
         "save": "Speichern"
       },
-      "headlineOn": "{{headline}} am {{date}}",
       "whyThis": "Warum diese Erinnerung"
     },
     "nextSessionHelp": {

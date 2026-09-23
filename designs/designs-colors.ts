@@ -321,7 +321,10 @@ export const CALENDAR_MONTH_COLORS = {
   // is the small-mark orange used everywhere else in the app and reads fine
   // at its original weight there.
   sessionFill: '#CC4500',
-  sessionFillText: COLOR_VARIANTS.white.primary,
+  // The numeral as warm as it can go on that disc and still hold 4.5:1
+  // (4.55:1): any more orange in it and it drops under. designs-themes.test
+  // holds it there.
+  sessionFillText: '#FFF9F5',
   // Press feedback on a day that is neither a session nor a reminder.
   pressedBackground: 'hsla(240, 8%, 16%, 0.10)',
   pressedText: 'hsl(240, 8%, 16%)',
