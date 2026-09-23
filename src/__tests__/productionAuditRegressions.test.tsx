@@ -2,7 +2,7 @@ import { act, renderHook, waitFor } from '@testing-library/react-native';
 import * as SecureStore from 'expo-secure-store';
 import { AuthProvider, useAuth } from '../../src/context/auth/AuthContext';
 import { apiGet } from '../../src/api/client';
-import { convertSessionsToCalendarFormat } from '../../src/utils/calendar';
+import { editableSessionsFrom } from '../../src/features/calendar/calendarSelectors';
 import { noteReviewProgress } from '../../src/features/reviews/reviewProgress';
 import { Reason } from '../../src/features/reminders/types';
 
@@ -22,16 +22,14 @@ afterEach(() => jest.restoreAllMocks());
 it('preserves both appointments that fall on the same local day', () => {
     // Construct local dates so this test is independent of the host time zone.
     // These can originate on different calendar days before a traveller changes
-    // device time zone, or from the backend which permits multiple daily visits.
+    // device time zone, or from legacy data the backend still holds.
     const morning = new Date(2027, 0, 12, 9);
     const afternoon = new Date(2027, 0, 12, 16);
-    const result = convertSessionsToCalendarFormat([
+    const result = editableSessionsFrom([
         { _id: 'session-1', startsAtUtc: morning.toISOString(), durationMin: 50 },
         { _id: 'session-2', startsAtUtc: afternoon.toISOString(), durationMin: 50 },
-    ]);
-    expect(Object.values(result)).toHaveLength(2);
-    expect(result['session-1']).toEqual(morning);
-    expect(result['session-2']).toEqual(afternoon);
+    ], new Date(2027, 0, 12, 8));
+    expect(result.map((session) => session._id)).toEqual(['session-1', 'session-2']);
 });
 
 it('keeps a valid persisted session during a temporary refresh outage', async () => {

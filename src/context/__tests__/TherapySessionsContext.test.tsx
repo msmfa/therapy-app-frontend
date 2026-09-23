@@ -3,6 +3,7 @@ import { act, renderHook, waitFor } from '@testing-library/react-native';
 import { describe, beforeEach, expect, it, jest } from '@jest/globals';
 import { TherapySessionsProvider, useTherapySessions } from '../therapy-sessions/TherapySessionsContext';
 import * as therapyModule from '../../api/therapy';
+import { ApiError } from '../../api/client';
 import { getSessionsWindow } from '../../utils/sessionWindow';
 
 let mockIsAuthenticated = true;
@@ -15,25 +16,46 @@ jest.mock('../auth/AuthContext', () => ({
 }));
 
 jest.mock('../../api/therapy', () => ({
-  getTherapySessions: jest.fn(),
-  syncTherapySessions: jest.fn(),
+  getCalendar: jest.fn(),
+  createSession: jest.fn(),
+  updateSession: jest.fn(),
+  deleteSession: jest.fn(),
 }));
 
-const { getTherapySessions, syncTherapySessions } = jest.mocked(therapyModule);
+const { getCalendar, createSession, updateSession, deleteSession } = jest.mocked(therapyModule);
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <TherapySessionsProvider>{children}</TherapySessionsProvider>
 );
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+const calendar = (
+  sessions: therapyModule.TherapySession[] = [],
+  revision = 1,
+): therapyModule.CalendarSnapshot => ({
+  revision,
+  timeZone: 'UTC',
+  morningReminderMinutes: 420,
+  eveningReminderMinutes: 1200,
+  sessions,
+  series: [],
+  reminders: [],
+});
+
+const session = (id: string, at: Date, extra: Partial<therapyModule.TherapySession> = {}): therapyModule.TherapySession =>
+  ({ _id: id, startsAtUtc: at.toISOString(), durationMin: 50, ...extra });
+
+const written = (id = 'new'): therapyModule.SessionWriteResult => ({
+  revision: 2,
+  session: session(id, new Date(Date.now() + DAY_MS)),
+  created: 1,
+});
+
 function createDeferred<T>() {
   let resolve!: (value: T | PromiseLike<T>) => void;
   let reject!: (reason?: unknown) => void;
-
-  const promise = new Promise<T>((res, rej) => {
-    resolve = res;
-    reject = rej;
-  });
-
+  const promise = new Promise<T>((res, rej) => { resolve = res; reject = rej; });
   return { promise, resolve, reject };
 }
 
@@ -41,221 +63,184 @@ describe('TherapySessionsProvider', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockIsAuthenticated = true;
-    getTherapySessions.mockResolvedValue([]);
-    syncTherapySessions.mockResolvedValue({ created: 0, updated: 0, deleted: 0 });
+    getCalendar.mockResolvedValue(calendar());
+    createSession.mockResolvedValue(written());
+    updateSession.mockResolvedValue({ revision: 2, session: written().session });
+    deleteSession.mockResolvedValue({ revision: 2, deleted: 1 });
   });
 
   it('dedupes concurrent refreshes into a single network request', async () => {
     const { result } = renderHook(() => useTherapySessions(), { wrapper });
+    await waitFor(() => expect(getCalendar).toHaveBeenCalledTimes(1));
+    getCalendar.mockClear();
 
-    await waitFor(() => {
-      expect(getTherapySessions).toHaveBeenCalledTimes(1);
-    });
-
-    getTherapySessions.mockClear();
-
-    const deferred = createDeferred<therapyModule.TherapySession[]>();
-    getTherapySessions.mockImplementationOnce(() => deferred.promise);
+    const deferred = createDeferred<therapyModule.CalendarSnapshot>();
+    getCalendar.mockImplementationOnce(() => deferred.promise);
 
     let firstRefresh!: Promise<void>;
     let secondRefresh!: Promise<void>;
-
     await act(async () => {
       firstRefresh = result.current.refreshSessions();
       secondRefresh = result.current.refreshSessions();
       await Promise.resolve();
     });
+    expect(getCalendar).toHaveBeenCalledTimes(1);
 
-    expect(getTherapySessions).toHaveBeenCalledTimes(1);
-
-    deferred.resolve([]);
-
-    await act(async () => {
-      await Promise.all([firstRefresh, secondRefresh]);
-    });
-
-    expect(getTherapySessions).toHaveBeenCalledTimes(1);
+    deferred.resolve(calendar());
+    await act(async () => { await Promise.all([firstRefresh, secondRefresh]); });
+    expect(getCalendar).toHaveBeenCalledTimes(1);
   });
 
-  it.each(['before', 'after', 'invalid'] as const)('rejects an appointment %s the editable range without submitting a sync', async (position) => {
+  it.each(['before', 'after', 'invalid'] as const)('rejects an appointment %s the editable range without a request', async (position) => {
     const { result } = renderHook(() => useTherapySessions(), { wrapper });
     await waitFor(() => expect(result.current.loading).toBe(false));
     const window = getSessionsWindow();
-    const selected = position === 'invalid' ? new Date(NaN)
+    const startsAtUtc = position === 'invalid' ? new Date(NaN)
       : new Date(position === 'before' ? window.from.getTime() - 1 : window.to.getTime() + 1);
-    await act(async () => {
-      await expect(result.current.syncSessions({ selected }, 50)).rejects.toThrow('Appointments must be between today and one year ahead');
-    });
-    expect(syncTherapySessions).not.toHaveBeenCalled();
-  });
-
-  it('keeps appointment identity when moving it and adding another at its old time', async () => {
-    const oldTime = new Date(Date.now() + 2 * 86400000);
-    const newTime = new Date(Date.now() + 3 * 86400000);
-    const baseline = [{ _id: 'existing', startsAtUtc: oldTime.toISOString(), durationMin: 60 }];
-    getTherapySessions.mockResolvedValue(baseline);
-    const { result } = renderHook(() => useTherapySessions(), { wrapper });
-    await waitFor(() => expect(result.current.sessions).toEqual(baseline));
 
     await act(async () => {
-      await result.current.syncSessions({ existing: newTime, added: oldTime }, 50, baseline);
+      await expect(result.current.addSession({ startsAtUtc })).rejects.toThrow('Appointments must be between today and one year ahead');
+    });
+    expect(createSession).not.toHaveBeenCalled();
+  });
+
+  it('commits an appointment with the revision it last saw, then fetches the calendar the server now holds', async () => {
+    getCalendar.mockResolvedValueOnce(calendar([], 7));
+    const { result } = renderHook(() => useTherapySessions(), { wrapper });
+    await waitFor(() => expect(result.current.revision).toBe(7));
+    const added = session('added', new Date(Date.now() + 3 * DAY_MS), { seriesId: 'ser' });
+    getCalendar.mockResolvedValueOnce(calendar([added], 8));
+
+    const at = new Date(Date.now() + 3 * DAY_MS);
+    await act(async () => {
+      await result.current.addSession({ startsAtUtc: at, durationMin: 50, repeat: 'weekly' });
     });
 
-    expect(syncTherapySessions.mock.calls[0][0]).toEqual([
-      { id: 'existing', startsAtUtc: newTime.toISOString(), durationMin: 60 },
-      { id: undefined, startsAtUtc: oldTime.toISOString(), durationMin: 50 },
-    ]);
-    expect(syncTherapySessions.mock.calls[0][2]).toEqual(baseline);
+    expect(createSession).toHaveBeenCalledWith({ startsAtUtc: at, durationMin: 50, repeat: 'weekly' }, 7);
+    expect(getCalendar).toHaveBeenCalledTimes(2);
+    expect(result.current.sessions).toEqual([added]);
+    expect(result.current.revision).toBe(8);
   });
 
-  it('keeps an existing session when onboarding proposes a different time on that day', async () => {
-    const existingAt = new Date();
-    existingAt.setDate(existingAt.getDate() + 2);
-    existingAt.setHours(9, 0, 0, 0);
-    const proposedAt = new Date(existingAt);
-    proposedAt.setHours(16);
-    const baseline = [{ _id: 'existing', startsAtUtc: existingAt.toISOString(), durationMin: 60 }];
-    getTherapySessions.mockResolvedValue(baseline);
+  it('performs a fresh GET after a write instead of reusing a pre-write refresh', async () => {
     const { result } = renderHook(() => useTherapySessions(), { wrapper });
-    await waitFor(() => expect(result.current.sessions).toEqual(baseline));
+    await waitFor(() => expect(getCalendar).toHaveBeenCalledTimes(1));
 
-    await act(async () => { await result.current.addSessions([proposedAt], 50); });
+    const staleRefresh = createDeferred<therapyModule.CalendarSnapshot>();
+    const fresh = [session('fresh-1', new Date(Date.now() + DAY_MS)), session('fresh-2', new Date(Date.now() + 8 * DAY_MS))];
+    getCalendar
+      .mockImplementationOnce(() => staleRefresh.promise)
+      .mockResolvedValueOnce(calendar(fresh, 3));
 
-    expect(syncTherapySessions.mock.calls[0][0]).toEqual([
-      { id: 'existing', startsAtUtc: existingAt.toISOString(), durationMin: 60 },
-    ]);
+    let staleRefreshPromise!: Promise<void>;
+    let writePromise!: Promise<unknown>;
+    await act(async () => {
+      staleRefreshPromise = result.current.refreshSessions();
+      writePromise = result.current.addSession({ startsAtUtc: new Date(Date.now() + DAY_MS) });
+      await writePromise;
+    });
+    expect(result.current.sessions).toEqual(fresh);
+
+    // The pre-write answer lands last and must not undo what the write fetched.
+    staleRefresh.resolve(calendar([], 1));
+    await act(async () => { await staleRefreshPromise; });
+
+    expect(getCalendar).toHaveBeenCalledTimes(3);
+    expect(result.current.sessions).toEqual(fresh);
+    expect(result.current.revision).toBe(3);
   });
 
-  it('rejects a sync when the required post-save refresh fails', async () => {
+  it('rejects a write when the required post-write refresh fails', async () => {
     const { result } = renderHook(() => useTherapySessions(), { wrapper });
-
-    await waitFor(() => expect(getTherapySessions).toHaveBeenCalledTimes(1));
-
+    await waitFor(() => expect(getCalendar).toHaveBeenCalledTimes(1));
     const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
     const refreshError = new Error('refresh failed');
-    getTherapySessions.mockRejectedValueOnce(refreshError);
+    getCalendar.mockRejectedValueOnce(refreshError);
 
     let caught: unknown;
     await act(async () => {
       try {
-        await result.current.syncSessions(
-          { selected: new Date(Date.now() + 86400000) },
-          50,
-        );
+        await result.current.removeSession('gone', 'future');
       } catch (error) {
         caught = error;
       }
     });
 
     expect(caught).toBe(refreshError);
-    expect(syncTherapySessions).toHaveBeenCalledTimes(1);
+    expect(deleteSession).toHaveBeenCalledWith('gone', 'future', 1);
     expect(result.current.error).not.toBeNull();
     consoleError.mockRestore();
   });
 
-  it('performs a fresh GET after sync instead of reusing a pre-save refresh', async () => {
+  it('refreshes before rethrowing an edit the server refused as stale', async () => {
     const { result } = renderHook(() => useTherapySessions(), { wrapper });
+    await waitFor(() => expect(getCalendar).toHaveBeenCalledTimes(1));
+    const refused = new ApiError(412, { message: 'changed', code: 'calendar_changed' });
+    updateSession.mockRejectedValueOnce(refused);
+    const remote = session('remote', new Date(Date.now() + 2 * DAY_MS));
+    getCalendar.mockResolvedValueOnce(calendar([remote], 5));
 
-    await waitFor(() => expect(getTherapySessions).toHaveBeenCalledTimes(1));
-
-    const staleRefresh = createDeferred<therapyModule.TherapySession[]>();
-    getTherapySessions.mockImplementationOnce(() => staleRefresh.promise);
-
-    let staleRefreshPromise!: Promise<void>;
-    let syncPromise!: Promise<void>;
+    let caught: unknown;
     await act(async () => {
-      staleRefreshPromise = result.current.refreshSessions();
-      syncPromise = result.current.syncSessions(
-        { selected: new Date(Date.now() + 86400000) },
-        50,
-      );
-      await Promise.resolve();
+      try {
+        await result.current.updateSession('x', { startsAtUtc: new Date(Date.now() + DAY_MS), scope: 'this' });
+      } catch (error) {
+        caught = error;
+      }
     });
 
-    const firstSession = new Date(Date.now() + 24 * 60 * 60 * 1000);
-    const secondSession = new Date(Date.now() + 8 * 24 * 60 * 60 * 1000);
-    const freshSessions: therapyModule.TherapySession[] = [
-      { _id: 'fresh-1', startsAtUtc: firstSession.toISOString(), durationMin: 50 },
-      { _id: 'fresh-2', startsAtUtc: secondSession.toISOString(), durationMin: 50 },
-    ];
-    getTherapySessions.mockResolvedValueOnce(freshSessions);
-
-    staleRefresh.resolve([]);
-
-    await act(async () => {
-      await staleRefreshPromise;
-      await syncPromise;
-    });
-
-    expect(getTherapySessions).toHaveBeenCalledTimes(3);
-    expect(result.current.sessions).toEqual(freshSessions);
-    // The reminder plan is no longer derived here, so its contents are not this
-    // test's business any more; the fresh session list above is what the
-    // schedule request is keyed on. Reminder behaviour is covered in
-    // TherapySessionsContext.reminders.test.tsx.
+    expect(caught).toBe(refused);
+    // The user is looking at the calendar that beat them by the time the
+    // alert about it appears.
+    expect(result.current.sessions).toEqual([remote]);
+    expect(result.current.revision).toBe(5);
   });
 
-  it('waits for the initial calendar and adds onboarding sessions without deleting existing ones', async () => {
-    const existingAt = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
-    const addedAt = new Date(Date.now() + 9 * 24 * 60 * 60 * 1000);
-    const existing: therapyModule.TherapySession = {
-      _id: 'existing-session',
-      startsAtUtc: existingAt.toISOString(),
-      durationMin: 60,
-    };
-    const initial = createDeferred<therapyModule.TherapySession[]>();
-    getTherapySessions.mockImplementationOnce(() => initial.promise);
-    getTherapySessions.mockResolvedValueOnce([
-      existing,
-      { _id: 'added-session', startsAtUtc: addedAt.toISOString(), durationMin: 50 },
-    ]);
+  it('waits for the initial calendar before onboarding adds a series, and keeps an existing session on that day', async () => {
+    const existingAt = new Date(Date.now() + 2 * DAY_MS);
+    existingAt.setHours(9, 0, 0, 0);
+    const proposedAt = new Date(existingAt);
+    proposedAt.setHours(16);
+    const existing = session('existing', existingAt, { durationMin: 60 });
+    const initial = createDeferred<therapyModule.CalendarSnapshot>();
+    getCalendar.mockImplementationOnce(() => initial.promise);
 
     const { result } = renderHook(() => useTherapySessions(), { wrapper });
-    await waitFor(() => expect(getTherapySessions).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(getCalendar).toHaveBeenCalledTimes(1));
 
     let addPromise!: Promise<void>;
     await act(async () => {
-      addPromise = result.current.addSessions([addedAt], 50);
+      addPromise = result.current.addSeries({ firstSessionAt: proposedAt, cadence: 'weekly', durationMin: 50 });
       await Promise.resolve();
     });
+    // Deciding against an empty list the first GET is about to replace was
+    // the destructive race. Nothing may be written until it resolves.
+    expect(createSession).not.toHaveBeenCalled();
 
-    // Building a replacement payload from the initial empty state was the
-    // destructive race. No sync may start until the canonical GET resolves.
-    expect(syncTherapySessions).not.toHaveBeenCalled();
+    initial.resolve(calendar([existing], 1));
+    getCalendar.mockResolvedValueOnce(calendar([existing, session('added', new Date(proposedAt.getTime() + 7 * DAY_MS))], 2));
+    await act(async () => { await addPromise; });
 
-    initial.resolve([existing]);
+    // The series starts a week later: the day the user named already has its
+    // appointment, and that one is kept rather than replaced.
+    expect(createSession).toHaveBeenCalledTimes(1);
+    const [input, revision] = createSession.mock.calls[0];
+    expect(input.repeat).toBe('weekly');
+    expect(input.startsAtUtc.getTime()).toBe(proposedAt.getTime() + 7 * DAY_MS);
+    expect(revision).toBe(1);
+    expect(result.current.nextSession?._id).toBe('existing');
+  });
+
+  it('adds nothing when a one-off onboarding session lands on an occupied day', async () => {
+    const existingAt = new Date(Date.now() + 2 * DAY_MS);
+    getCalendar.mockResolvedValue(calendar([session('existing', existingAt)]));
+    const { result } = renderHook(() => useTherapySessions(), { wrapper });
+    await waitFor(() => expect(result.current.sessions).toHaveLength(1));
+
     await act(async () => {
-      await addPromise;
+      await result.current.addSeries({ firstSessionAt: existingAt, cadence: 'varies', durationMin: 50 });
     });
 
-    expect(syncTherapySessions).toHaveBeenCalledTimes(1);
-    expect(syncTherapySessions.mock.calls[0][0]).toEqual(expect.arrayContaining([
-      {
-        id: 'existing-session',
-        startsAtUtc: existingAt.toISOString(),
-        durationMin: 60,
-      },
-      {
-        id: undefined,
-        startsAtUtc: addedAt.toISOString(),
-        durationMin: 50,
-      },
-    ]));
-
-    const syncWindow = syncTherapySessions.mock.calls[0][1];
-    expect(syncWindow).toBeDefined();
-    expect(syncWindow?.from.getHours()).toBe(0);
-    expect(syncWindow?.from.getMinutes()).toBe(0);
-    expect(syncWindow?.to.getHours()).toBe(23);
-    expect(syncWindow?.to.getMinutes()).toBe(59);
-
-    // The post-save fetch is committed into the same provider the calendar,
-    // next-session card and reminder hook consume. This is the downstream
-    // handoff onboarding depends on, not just a successful API response.
-    expect(result.current.sessions).toEqual([
-      existing,
-      { _id: 'added-session', startsAtUtc: addedAt.toISOString(), durationMin: 50 },
-    ]);
-    expect(result.current.nextSession?._id).toBe('existing-session');
+    expect(createSession).not.toHaveBeenCalled();
   });
 });

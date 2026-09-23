@@ -3,7 +3,7 @@ import { fireEvent, render, waitFor } from '@testing-library/react-native';
 
 const mockReplace = jest.fn();
 const mockFinishOnboarding = jest.fn();
-const mockAddSessions = jest.fn();
+const mockAddSeries = jest.fn();
 const mockDiscardDraft = jest.fn();
 const mockUpdateCurrentUser = jest.fn();
 const mockRefreshReminderSchedule = jest.fn();
@@ -47,7 +47,7 @@ jest.mock('../../src/context/onboarding/OnboardingContext', () => {
 
 jest.mock('../../src/context/therapy-sessions/TherapySessionsContext', () => ({
 	useTherapySessions: () => ({
-		addSessions: mockAddSessions,
+		addSeries: mockAddSeries,
 		refreshReminderSchedule: mockRefreshReminderSchedule,
 	}),
 }));
@@ -112,7 +112,7 @@ describe('onboarding completion', () => {
 		mockSamplePlan = false;
 		mockSessionAt = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
 		mockSessionAt.setHours(17, 0, 0, 0);
-		mockAddSessions.mockResolvedValue(undefined);
+		mockAddSeries.mockResolvedValue(undefined);
 		mockUpdateCurrentUser.mockResolvedValue(undefined);
 		mockRefreshReminderSchedule.mockResolvedValue(undefined);
 		mockFinishOnboarding.mockResolvedValue(undefined);
@@ -128,7 +128,7 @@ describe('onboarding completion', () => {
 
 		await waitFor(() => expect(mockDiscardDraft).toHaveBeenCalledTimes(1));
 		expect(mockReplace).not.toHaveBeenCalled();
-		expect(mockAddSessions).not.toHaveBeenCalled();
+		expect(mockAddSeries).not.toHaveBeenCalled();
 		expect(mockUpdateCurrentUser).toHaveBeenCalledWith({
 			morningReminderMinutes: 405,
 			eveningReminderMinutes: 1305,
@@ -160,10 +160,13 @@ describe('onboarding completion', () => {
 		await waitFor(() => expect(mockDiscardDraft).toHaveBeenCalledTimes(1));
 		expect(mockReplace).not.toHaveBeenCalled();
 
-		const projected = mockAddSessions.mock.calls[0][0] as Date[];
-		expect(projected[0]).toEqual(mockSessionAt);
-		expect(projected.length).toBeGreaterThan(1);
-		expect(mockAddSessions).toHaveBeenCalledWith(projected, 50);
+		// The rule goes to the server, not a list of dates: it keeps the series
+		// going long after the two months a projected list would have covered.
+		expect(mockAddSeries).toHaveBeenCalledWith({
+			firstSessionAt: mockSessionAt,
+			cadence: 'weekly',
+			durationMin: 50,
+		});
 		expect(mockUpdateCurrentUser).toHaveBeenCalledWith({
 			morningReminderMinutes: 405,
 			eveningReminderMinutes: 1305,
@@ -171,7 +174,7 @@ describe('onboarding completion', () => {
 		});
 		expect(mockRefreshReminderSchedule).toHaveBeenCalledTimes(1);
 
-		expect(mockAddSessions.mock.invocationCallOrder[0]).toBeLessThan(
+		expect(mockAddSeries.mock.invocationCallOrder[0]).toBeLessThan(
 			mockUpdateCurrentUser.mock.invocationCallOrder[0],
 		);
 		expect(mockUpdateCurrentUser.mock.invocationCallOrder[0]).toBeLessThan(
@@ -188,7 +191,7 @@ describe('onboarding completion', () => {
 	});
 
 	it('keeps the draft and onboarding state when the schedule cannot be saved', async () => {
-		mockAddSessions.mockRejectedValue(new Error('offline'));
+		mockAddSeries.mockRejectedValue(new Error('offline'));
 
 		const { getByText } = render(<SuccessScreen />);
 		fireEvent.press(getByText('Save and view my notes'));
@@ -224,7 +227,7 @@ describe('onboarding completion', () => {
 			),
 		);
 
-		expect(mockAddSessions).toHaveBeenCalledTimes(1);
+		expect(mockAddSeries).toHaveBeenCalledTimes(1);
 		expect(mockRefreshReminderSchedule).not.toHaveBeenCalled();
 		expect(mockFinishOnboarding).not.toHaveBeenCalled();
 		expect(mockDiscardDraft).not.toHaveBeenCalled();
@@ -235,7 +238,7 @@ describe('onboarding completion', () => {
 		fireEvent.press(getByText('Save and view my notes'));
 		await waitFor(() => expect(mockDiscardDraft).toHaveBeenCalledTimes(1));
 		expect(mockReplace).not.toHaveBeenCalled();
-		expect(mockAddSessions).toHaveBeenCalledTimes(2);
+		expect(mockAddSeries).toHaveBeenCalledTimes(2);
 		expect(mockUpdateCurrentUser).toHaveBeenCalledTimes(2);
 		expect(mockFinishOnboarding).toHaveBeenCalledTimes(1);
 		expect(mockDiscardDraft).toHaveBeenCalledTimes(1);
@@ -254,7 +257,7 @@ describe('onboarding completion', () => {
 			),
 		);
 
-		expect(mockAddSessions).toHaveBeenCalledTimes(1);
+		expect(mockAddSeries).toHaveBeenCalledTimes(1);
 		expect(mockUpdateCurrentUser).toHaveBeenCalledTimes(1);
 		expect(mockRefreshReminderSchedule).toHaveBeenCalledTimes(1);
 		expect(mockDiscardDraft).not.toHaveBeenCalled();
@@ -276,7 +279,7 @@ describe('onboarding completion', () => {
 		const clock = jest.spyOn(Date, 'now').mockReturnValue(mockSessionAt.getTime());
 		try {
 			fireEvent.press(getByText('Save and view my notes'));
-			expect(mockAddSessions).not.toHaveBeenCalled();
+			expect(mockAddSeries).not.toHaveBeenCalled();
 			expect(mockUpdateCurrentUser).not.toHaveBeenCalled();
 			expect(mockFinishOnboarding).not.toHaveBeenCalled();
 			expect(mockDiscardDraft).not.toHaveBeenCalled();

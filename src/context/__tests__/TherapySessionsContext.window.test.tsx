@@ -14,11 +14,10 @@ jest.mock('../auth/AuthContext', () => ({
 }));
 
 jest.mock('../../api/therapy', () => ({
-    getTherapySessions: jest.fn(),
-    syncTherapySessions: jest.fn(),
+    getCalendar: jest.fn(), createSession: jest.fn(), updateSession: jest.fn(), deleteSession: jest.fn(),
 }));
 
-const { getTherapySessions } = jest.mocked(therapyModule);
+const { getCalendar } = jest.mocked(therapyModule);
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
     <TherapySessionsProvider>{children}</TherapySessionsProvider>
@@ -32,11 +31,16 @@ const session = (id: string, startsAtMs: number): therapyModule.TherapySession =
     durationMin: 50,
 });
 
+const calendar = (sessions: therapyModule.TherapySession[]): therapyModule.CalendarSnapshot => ({
+    revision: 1, timeZone: 'UTC', morningReminderMinutes: 420, eveningReminderMinutes: 1200,
+    sessions, series: [], reminders: [],
+});
+
 describe('TherapySessionsProvider session windows', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         mockIsAuthenticated = true;
-        getTherapySessions.mockResolvedValue([]);
+        getCalendar.mockResolvedValue(calendar([]));
     });
 
     // The review feature attributes a note to the gap between two sessions,
@@ -47,16 +51,12 @@ describe('TherapySessionsProvider session windows', () => {
         const now = Date.now();
         const past = session('past', now - 3 * DAY_MS);
         const future = session('future', now + 4 * DAY_MS);
-        getTherapySessions.mockResolvedValue([past, future]);
+        getCalendar.mockResolvedValue(calendar([past, future]));
 
         const { result } = renderHook(() => useTherapySessions(), { wrapper });
 
-        await waitFor(() => {
-            expect(result.current.scheduleSessions).toHaveLength(2);
-        });
-        await waitFor(() => {
-            expect(result.current.reminderScheduleSettings?.timeZone).toBe('UTC');
-        });
+        await waitFor(() => expect(result.current.scheduleSessions).toHaveLength(2));
+        expect(result.current.reminderScheduleSettings?.timeZone).toBe('UTC');
 
         // The replay list holds both ends of the gap.
         expect(result.current.scheduleSessions.map((s) => s._id)).toEqual(['past', 'future']);
@@ -67,14 +67,9 @@ describe('TherapySessionsProvider session windows', () => {
     it('fetches from well before today so the gap-opening session is included', async () => {
         const { result } = renderHook(() => useTherapySessions(), { wrapper });
 
-        await waitFor(() => {
-            expect(getTherapySessions).toHaveBeenCalled();
-        });
-        await waitFor(() => {
-            expect(result.current.reminderScheduleSettings?.timeZone).toBe('UTC');
-        });
+        await waitFor(() => expect(result.current.reminderScheduleSettings?.timeZone).toBe('UTC'));
 
-        const [from, to] = getTherapySessions.mock.calls[0];
+        const [from, to] = getCalendar.mock.calls[0];
         // Far enough back to cover any gap between sessions, and still
         // reaching a year ahead.
         expect(Date.now() - from.getTime()).toBeGreaterThanOrEqual(89 * DAY_MS);

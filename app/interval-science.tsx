@@ -101,9 +101,8 @@ export default function IntervalScienceScreen() {
                     iconColor={ theme.ink.primary }
                     size={ HEADER_BUTTON_SIZE }
                     onPress={ () => router.back() }
-                    style={ styles.back }
                 />
-                <AppText variant="h3" align="center" style={ styles.title }>{ tScience('intervals.title') }</AppText>
+                <AppText variant="h3" style={ styles.title }>{ tScience('intervals.title') }</AppText>
             </View>
 
             <View style={ styles.deck }>
@@ -153,22 +152,21 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    // The title is centred on the page, so the back arrow sits over the row
-    // rather than in it and cannot pull the title off centre.
+    // The arrow sits in the row with the title beside it, at the gap the
+    // other pages use, rather than floating over a centred title.
     pageHeader: {
         alignItems: 'center',
-        justifyContent: 'center',
+        flexDirection: 'row',
+        gap: 14,
         minHeight: HEADER_BUTTON_SIZE,
         paddingHorizontal: 24,
         paddingTop: 8,
         paddingBottom: 8,
     },
-    back: {
-        position: 'absolute',
-        left: 24,
-    },
     // The type treatment the settings pages use for their headers.
     title: {
+        flexShrink: 1,
+        letterSpacing: 0.5,
         textTransform: 'uppercase',
     },
     deck: {

@@ -9,6 +9,7 @@ import ErrorMessage from '../../src/components/ui/ErrorMessage';
 import { GlassMorphismWithCircle } from '../../src/components/ui/GlassMorphismWithCircle';
 import { GlassCircleButton } from '../../src/components/ui/GlassCircleButton';
 import { GlassButtonOutline } from '../../src/components/ui/GlassButtonOutline';
+import { GlassPillButton } from '../../src/components/ui/GlassPillButton';
 import { TemplateHelpModal } from '../../src/components/notes/TemplateHelpModal';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { BRAND_FONTS } from 'designs/designs-typography';
@@ -106,11 +107,16 @@ export default function NewNoteScreen() {
 
                         <View style={ styles.footer }>
                             <GlassButtonOutline buttonSize={ saveButtonSize } />
-                            <GlassCircleButton
+                            { /* Said in words rather than as a bare "?", which
+                                 read as a mystery button beside the plus. */ }
+                            <GlassPillButton
+                                label={ t('editor.needGuidance') }
                                 accessibilityLabel={ t('editor.howTo') }
-                                icon="question"
-                                iconColor={ theme.ink.tertiary }
-                                size={ saveButtonSize }
+                                labelColor={ theme.ink.secondary }
+                                // As tall as the plus beside it, so both fill
+                                // the tray outline drawn around the row.
+                                height={ saveButtonSize }
+                                labelSize={ 16 }
                                 onPress={ () => setHelpVisible(true) }
                             />
                             <GlassCircleButton

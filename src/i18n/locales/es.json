@@ -44,7 +44,6 @@
   "title": "Ajustes",
   "hub": {
    "language": "Idioma",
-   "appearance": "Aspecto",
    "references": "Referencias",
    "settings": "Ajustes",
    "rateApp": "Valorar esta app",
@@ -52,7 +51,9 @@
    "logOutFailed": "No se pudo cerrar la sesión, inténtelo de nuevo",
    "rateUnavailableTitle": "No disponible",
    "rateUnavailableMessage": "Las valoraciones aún no están disponibles en esta plataforma.",
-   "storeOpenFailed": "No se puede abrir la tienda en este momento."
+   "storeOpenFailed": "No se puede abrir la tienda en este momento.",
+   "darkMode": "Modo oscuro",
+   "lightMode": "Modo claro"
   },
   "rows": {
    "reminderSettings": "Ajustes de recordatorios",
@@ -136,6 +137,7 @@
    "cancelEdit": "Cancelar edición",
    "saveUnavailable": "No se puede guardar la nota en este momento.",
    "howTo": "Cómo tomar notas",
+   "needGuidance": "¿Necesita orientación?",
    "saveNote": "Guardar nota",
    "edit": "editar",
    "delete": "eliminar nota",
@@ -277,26 +279,27 @@
  "calendar": {
   "nextSession": "Próxima sesión",
   "nextReminder": "Próximo recordatorio",
-  "clear": "Borrar",
-  "save": "Guardar",
-  "clearA11y": "Borrar sesiones de terapia",
-  "saveA11y": "Guardar sesiones de terapia",
-  "saved": "Actualizamos sus sesiones de terapia",
   "changedTitle": "El calendario cambió",
-  "refresh": "Actualizar calendario",
   "saveFailed": "No se pueden guardar las sesiones en este momento.",
   "outOfRange": "Las citas deben estar entre hoy y un año en el futuro. Actualice su selección.",
   "sessionChanged": "La sesión cambió. Inténtelo de nuevo.",
   "schedule": {
    "thisDayOnly": "Solo este día",
    "everyWeek": "Cada semana",
-   "nextTwoMonths": "Durante los próximos dos meses",
-   "repeatCount_one": "{{count}} sesión",
-   "repeatCount_other": "{{count}} sesiones",
    "delete": "Eliminar",
    "update": "Actualizar",
    "add": "Añadir sesión",
-   "appointmentAt": "Cita a las {{time}}"
+   "untilYouEndIt": "Hasta que la termines",
+   "thisSessionOnly": "Solo esta sesión",
+   "allFutureSessions": "Todas las sesiones futuras",
+   "allSessionsOnThisDay": "Eliminar todas las sesiones del {{weekday}}",
+   "endSeries": "Terminar serie",
+   "saving": "Guardando",
+   "endSeriesTitle": "¿Terminar esta serie?",
+   "endSeriesMessage": "Se eliminará esta sesión y todas las posteriores de la serie. Las anteriores se quedan en el calendario.",
+   "dayTakenTitle": "Ese día está ocupado",
+   "dayTaken": "Ya hay una sesión ese día. Edita esa en su lugar.",
+   "keepSeries": "Mantener"
   },
   "error": {
    "timeout": {
@@ -342,8 +345,42 @@
    "therapySession": "Sesión de terapia",
    "reminder": "Recordatorio",
    "dismissScheduling": "Cerrar la programación",
-   "opensTimePicker": "Abre un selector de hora"
-  }
+   "opensTimePicker": "Abre un selector de hora",
+   "dismissReminder": "Cerrar recordatorio",
+   "dismissHint": "Cerrar la sugerencia"
+  },
+  "changedMessage": "Tu calendario cambió en otro dispositivo. Se ha actualizado, así que vuelve a intentar el cambio.",
+  "reminder": {
+   "logNote": {
+    "title": "Toma una nota post-sesión",
+    "reason": "Diez minutos después de que termine tu sesión, mientras los detalles siguen frescos."
+   },
+   "review": {
+    "title": "Repasa tus notas"
+   },
+   "status": {
+    "pending": "Programado",
+    "sent": "Enviado",
+    "missed": "Perdido"
+   },
+   "close": "Cerrar",
+   "update": "Actualizar",
+   "fixedTime": "Hora fija",
+   "time": {
+    "morningTitle": "Recordatorios de la mañana",
+    "eveningTitle": "Recordatorios de la tarde",
+    "morningMessage": "Todos los recordatorios de la mañana pasan a esta hora, no solo este.",
+    "eveningMessage": "Todos los recordatorios de la tarde pasan a esta hora, no solo este.",
+    "save": "Guardar"
+   },
+   "whyThis": "Por qué este recordatorio"
+  },
+  "nextSessionHelp": {
+   "title": "Actualiza tu sesión",
+   "message": "Para actualizar o eliminar una sesión, toca en el calendario la fecha que quieras cambiar.",
+   "confirm": "Entendido"
+  },
+  "nextReminderHelp": "Toca aquí para actualizar tus recordatorios."
  },
  "serverError": {
   "invalid_credentials": "Ese correo y esa contraseña no coinciden con ninguna cuenta.",
@@ -399,7 +436,8 @@
   "unsupported_transaction_environment": "Esta compra no se puede usar con esta versión de la app.",
   "test_purchase_not_allowed": "Esta compra de prueba no se puede usar con esta versión de la app.",
   "network": "No pudimos conectar. Revise su conexión a internet e inténtelo de nuevo.",
-  "session_changed": "Su sesión de inicio cambió. Inténtelo de nuevo."
+  "session_changed": "Su sesión de inicio cambió. Inténtelo de nuevo.",
+  "calendar_changed": "Tu calendario cambió en otro dispositivo. Actualiza y vuelve a intentarlo."
  },
  "onboarding": {
   "welcome": {
@@ -884,11 +922,8 @@
   "referencesNote": "Su nota de terapia de cinco minutos",
   "template": {
    "title": "Plantilla",
-   "recommendBefore": "Le recomendamos usar nuestra",
-   "cheatsheetLink": "guía rápida",
-   "researchBefore": "Para saber por qué hemos elegido estas 5 preguntas y conocer la investigación,",
-   "researchLink": "pulse aquí",
-   "cheatsheetImage": "Las cinco preguntas, tal como aparecen en la guía rápida"
+   "cheatsheetImage": "Las cinco preguntas, tal como aparecen en la guía rápida",
+   "research": "¿Por qué estas cinco preguntas? Descubre la investigación que hay detrás."
   },
   "reminder": {
    "postSession": {
@@ -990,16 +1025,14 @@
    }
   },
   "intervals": {
-   "title": "Por qué estos momentos de revisión",
+   "title": "Por qué estas horas",
    "loading": "Cargando sus horarios de revisión",
    "failedTitle": "No pudimos cargar sus horarios de revisión",
    "failedBody": "Revise su conexión e inténtelo de nuevo.",
    "emptyTitle": "Aún no hay horarios de revisión",
    "emptyNoSessions": "No hay revisiones próximas en su calendario actual.",
    "emptyAddFollowing": "Añada su sesión siguiente para situar horarios de revisión exactos en el intervalo.",
-   "emptyAddSessions": "Añada sus próximas sesiones de terapia en Calendario para crear un calendario de revisiones.",
-   "nextOf_one": "siguiente de {{count}}",
-   "nextOf_other": "siguiente de {{count}}"
+   "emptyAddSessions": "Añada sus próximas sesiones de terapia en Calendario para crear un calendario de revisiones."
   },
   "reminders": {
    "learnMoreAbout": "Más información sobre {{date}}",

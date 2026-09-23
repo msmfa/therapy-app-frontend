@@ -77,8 +77,8 @@ export const isWithinFirstSessionWindow = (
  * calendar every evening for anyone west of UTC (and every morning east of
  * it), and anything that falls out of this window is also excluded from the
  * sync's deletion scope, so it silently became undeletable dead weight.
- * The same window is passed to syncSessions so the backend only deletes
- * within what the user could actually see.
+ * Every edit the calendar commits is checked against the same window before
+ * it is sent, so nothing outside what the user could see is ever written.
  */
 export const getSessionsWindow = (now: Date = new Date()) => {
     const to = new Date(now);

@@ -105,10 +105,14 @@ export const lightTheme: Theme = {
     radio: {
         ring: ACTION_BLUE_DARK,
         ringUnselected: 'hsla(222, 30%, 40%, 0.35)',
-        selectedFill: COLOR_VARIANTS.white.primary,
-        selectedBorder: COLOR_VARIANTS.white.primary,
-        unselectedFill: 'hsla(0, 0%, 100%, 0.55)',
-        unselectedBorder: 'hsla(0, 0%, 100%, 0.70)',
+        // Frosted rather than solid, so the sheet's blue comes through.
+        selectedFill: 'hsla(0, 0%, 100%, 0.38)',
+        selectedBorder: 'hsla(0, 0%, 100%, 0.95)',
+        // A thin blue wash, most of the sheet showing through it.
+        unselectedFill: 'hsla(220, 70%, 78%, 0.08)',
+        unselectedBorder: 'hsla(220, 70%, 92%, 0.55)',
+        well: 'hsla(0, 0%, 100%, 0.7)',
+        sheen: ['hsla(0, 0%, 100%, 0.35)', 'hsla(0, 0%, 100%, 0)'],
     },
     shadow: PALETTE.neutral.black,
     solid: {
@@ -242,6 +246,27 @@ export const lightTheme: Theme = {
             surface: CALENDAR_COLORS.modalSurface,
             border: CALENDAR_COLORS.modalBorder,
             overlay: CALENDAR_COLORS.modalOverlayTransparent,
+            // The calendar screen's own blue, so a sheet opens in the same light.
+            glow: CALENDAR_BACKDROP_GLOW,
+        },
+        // A boarding-pass card: pale white-blue running into the ground's
+        // blue, with a whiter band cut along the foot.
+        eventCard: {
+            ground: [SURFACE_BLUE, 'hsl(218, 30%, 88%)'],
+            groundFade: 'hsla(218, 30%, 88%, 0)',
+            fill: ['hsla(210, 30%, 98%, 0.92)', 'hsla(216, 45%, 92%, 0.88)'],
+            fillTranslucent: ['hsla(210, 30%, 98%, 0.3)', 'hsla(216, 45%, 92%, 0.22)'],
+            border: 'hsla(0, 0%, 100%, 0.85)',
+            // Only a shade off the card, as on the pass: the break does the
+            // separating, not the band.
+            footer: 'hsla(0, 0%, 100%, 0.28)',
+            footerRule: 'hsla(216, 30%, 55%, 0.12)',
+            action: {
+                fill: ['hsl(214, 92%, 64%)', 'hsl(222, 84%, 54%)'],
+                label: 'hsl(0, 0%, 100%)',
+                rim: 'hsla(0, 0%, 100%, 0.35)',
+                shadow: 'hsl(220, 90%, 55%)',
+            },
         },
     },
     chart: {

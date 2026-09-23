@@ -1,355 +1,341 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import { AppState } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import { ApiError } from '../../api/client';
 import { useAuth } from '../auth/AuthContext';
 import {
-    getTherapySessions,
-    TherapySession,
-    syncTherapySessions as syncTherapySessionsApi,
+    createSession as createSessionApi,
+    deleteSession as deleteSessionApi,
+    getCalendar,
+    updateSession as updateSessionApi,
+    type CalendarReminder,
+    type CalendarSnapshot,
+    type CreateSessionInput,
+    type SessionEditScope,
+    type SessionWriteResult,
+    type TherapySeries,
+    type TherapySession,
+    type UpdateSessionInput,
 } from '../../api/therapy';
 import type { Reminder } from '../../features/reminders/types';
+import type { CadenceId } from '../../features/onboarding/onboardingCopy';
+import { projectSessions } from '../../features/onboarding/sessionSeries';
 import {
-    useNeuroReminders,
-    type ReminderScheduleSettings,
-    type ReminderScheduleStatus,
-} from '../../features/reminders/useNeuroReminders';
-import { clearRemindersCache } from '../../features/reminders/remindersCache';
-import { useDeviceTimeZone } from '../../hooks/useDeviceTimeZone';
+    clearCalendarSnapshot,
+    readCalendarSnapshot,
+    writeCalendarSnapshot,
+} from '../../features/calendar/calendarSnapshotCache';
+import {
+    editableSessionsFrom,
+    getCalendarFetchWindow,
+    legacyReviewRemindersFrom,
+    nextReminderOf,
+    nextSessionOf,
+    settingsOf,
+} from '../../features/calendar/calendarSelectors';
 import { mapSessionError, SessionErrorCopy } from '../../features/therapy-sessions/session-error-map';
 import { toError } from '../../utils/errors';
-import { getSessionsWindow as sharedSessionsWindow, isWithinSessionsWindow } from '../../utils/sessionWindow';
+import { isWithinSessionsWindow } from '../../utils/sessionWindow';
 import { t } from '../../i18n/translate';
 
+export interface ReminderScheduleSettings {
+    timeZone: string;
+    morningReminderMinutes: number;
+    eveningReminderMinutes: number;
+}
+
+export type ReminderScheduleStatus = 'idle' | 'loading' | 'ready' | 'error';
+
+export interface AddSeriesInput {
+    firstSessionAt: Date;
+    cadence: CadenceId | null;
+    durationMin: number;
+}
+
 interface TherapySessionsContextType {
+    /** Appointments from local midnight today onward: what the calendar edits. */
     sessions: TherapySession[];
-    /**
-     * The same sessions plus the recent past, for replaying the reminder
-     * schedule. Reviews attribute a note to the gap between two sessions, and
-     * the session that opened the gap is usually already behind `sessions`'
-     * midnight floor by the time a reminder is answered.
-     */
+    /** The same plus the recent past, for replaying the reminder schedule. */
     scheduleSessions: TherapySession[];
+    series: TherapySeries[];
+    /** The plan the cron sends from, past rows included with their outcome. */
+    reminders: CalendarReminder[];
+    /** Future review reminders in the shape the science screen was written against. */
+    neuroReminders: Reminder[];
+    reminderScheduleSettings: ReminderScheduleSettings | null;
+    reminderScheduleStatus: ReminderScheduleStatus;
+    /** The server's revision of this calendar, sent back with every edit. */
+    revision: number | null;
+    /** False until a calendar (cached or fetched) is on hand to draw. */
+    hydrated: boolean;
     loading: boolean;
     error: SessionErrorCopy | null;
     nextSession: TherapySession | null;
-    neuroReminders: Reminder[];
-    /** The exact zone and minute-level choices used for the fetched schedule. */
-    reminderScheduleSettings: ReminderScheduleSettings | null;
-    reminderScheduleStatus: ReminderScheduleStatus;
+    nextReminder: CalendarReminder | null;
     refreshSessions: () => Promise<void>;
-    syncSessions: (selected: Record<string, Date>, duration: number, baseSessions?: TherapySession[]) => Promise<void>;
-    /** Adds appointments without deleting sessions already on the calendar. */
-    addSessions: (dates: Date[], duration: number) => Promise<void>;
-    /** Invalidates cached times and fetches the schedule with new preferences. */
+    /** Kept for the callers that invalidate after a preference write. Same fetch. */
     refreshReminderSchedule: () => Promise<void>;
+    addSession: (input: CreateSessionInput) => Promise<SessionWriteResult>;
+    updateSession: (id: string, input: UpdateSessionInput) => Promise<void>;
+    removeSession: (id: string, scope?: SessionEditScope) => Promise<void>;
+    /** Onboarding: one series (or one appointment) without disturbing what exists. */
+    addSeries: (input: AddSeriesInput) => Promise<void>;
 }
 
 const TherapySessionsContext = createContext<TherapySessionsContextType | undefined>(undefined);
 
-/**
- * The window of sessions the app fetches and edits. Defined in the shared
- * window module alongside the onboarding limit, so a first session the user is
- * allowed to choose can never project a series this query would not return.
- */
-const getSessionsWindow = () => sharedSessionsWindow();
-
-/**
- * How far behind the editable window the fetch reaches, so the reviews
- * feature can still see the session that opened a note's gap. 90 days is
- * far longer than any gap between sessions the schedule can span.
- */
-const SCHEDULE_HISTORY_DAYS = 90;
-
-/**
- * The window the app *fetches*: the editable window plus the recent past.
- * Only the fetch is widened. The sync's deletion scope stays
- * `getSessionsWindow`, so the backend still only deletes sessions the user
- * can actually see and edit, and past sessions stay untouchable.
- */
-const getFetchWindow = () => {
-    const { from, to } = getSessionsWindow();
-    const fetchFrom = new Date(from);
-    fetchFrom.setDate(fetchFrom.getDate() - SCHEDULE_HISTORY_DAYS);
-
-    return { from: fetchFrom, to };
-};
-
-const editableSessionsFrom = (allSessions: TherapySession[]): TherapySession[] => {
-    const floor = new Date();
-    floor.setHours(0, 0, 0, 0);
-    const floorMs = floor.getTime();
-
-    return allSessions.filter(
-        (session) => new Date(session.startsAtUtc).getTime() >= floorMs,
-    );
-};
-
-interface TherapySessionsProviderProps {
-    children: React.ReactNode;
-}
-
-type AccountSessions = {
+/** Everything held per signed-in account, replaced wholesale on a switch. */
+type Account = {
     userId: string | null;
-    sessions: TherapySession[];
-    ready: boolean;
+    snapshot: CalendarSnapshot | null;
     inFlight: Promise<void> | null;
+    /** Bumped per request so a superseded answer can be told from the current one. */
+    sequence: number;
 };
 
-type SessionsSnapshot = {
-    owner: AccountSessions;
-    scheduleSessions: TherapySession[];
+type CalendarState = {
+    owner: Account;
+    snapshot: CalendarSnapshot | null;
     loading: boolean;
     error: SessionErrorCopy | null;
-    sessionsReady: boolean;
-    reminderScheduleSettings: ReminderScheduleSettings | null;
-    reminderScheduleStatus: ReminderScheduleStatus;
+    status: ReminderScheduleStatus;
 };
 
-const emptySnapshot = (owner: AccountSessions): SessionsSnapshot => ({
-    owner,
-    scheduleSessions: owner.sessions,
-    loading: false,
-    error: null,
-    sessionsReady: false,
-    reminderScheduleSettings: null,
-    reminderScheduleStatus: 'idle',
+const emptyState = (owner: Account): CalendarState => ({
+    owner, snapshot: null, loading: false, error: null, status: 'idle',
 });
 
-export function TherapySessionsProvider({ children }: TherapySessionsProviderProps) {
+const CADENCE_REPEAT: Record<CadenceId, 'weekly' | 'fortnightly' | 'monthly' | null> = {
+    weekly: 'weekly', fortnightly: 'fortnightly', monthly: 'monthly', varies: null,
+};
+
+export function TherapySessionsProvider({ children }: { children: React.ReactNode }) {
     const { isAuthenticated, user } = useAuth();
     const userId = isAuthenticated ? user?.id ?? null : null;
-    const accountRef = useRef<AccountSessions>({ userId, sessions: [], ready: false, inFlight: null });
+    const accountRef = useRef<Account>({ userId, snapshot: null, inFlight: null, sequence: 0 });
     // Switch identity during render: an effect would allow one frame of the
     // previous user's appointments and would reuse their pending GET.
     if (accountRef.current.userId !== userId) {
-        accountRef.current = { userId, sessions: [], ready: false, inFlight: null };
+        accountRef.current = { userId, snapshot: null, inFlight: null, sequence: 0 };
     }
     const account = accountRef.current;
-    const [snapshot, setSnapshot] = useState(() => emptySnapshot(account));
-    const {
-        scheduleSessions, loading, error, sessionsReady,
-        reminderScheduleSettings, reminderScheduleStatus,
-    } = snapshot.owner === account ? snapshot : emptySnapshot(account);
-    const updateSnapshot = useCallback((patch: Partial<Omit<SessionsSnapshot, 'owner'>>) => {
+    const [state, setState] = useState(() => emptyState(account));
+    const { snapshot, loading, error, status } = state.owner === account ? state : emptyState(account);
+
+    const patchState = useCallback((patch: Partial<Omit<CalendarState, 'owner'>>) => {
         if (accountRef.current !== account) return;
-        setSnapshot((current) => ({
-            ...(current.owner === account ? current : emptySnapshot(account)),
-            ...patch,
-        }));
+        setState((current) => ({ ...(current.owner === account ? current : emptyState(account)), ...patch }));
     }, [account]);
+
     const assertCurrentAccount = useCallback(() => {
         if (!account.userId || accountRef.current !== account) {
             throw new Error(t('calendar:sessionChanged'));
         }
     }, [account]);
-    const [reminderRefreshSignal, setReminderRefreshSignal] = useState(0);
-    const deviceTimeZone = useDeviceTimeZone();
 
-    // What the narrow fetch used to return: local midnight today onward. Every
-    // existing consumer (calendar, nextSession, sync payload, reminder cache
-    // signature) keeps seeing exactly this; only the reviews feature reads the
-    // wider scheduleSessions.
-    const sessions = useMemo(
-        () => editableSessionsFrom(scheduleSessions),
-        [scheduleSessions],
-    );
+    /**
+     * Fetches the calendar. Concurrent callers share one request, except when
+     * `supersede` is set: then a new request starts and whatever was already
+     * in flight is ignored when it lands. That is what a zone or preference
+     * change needs, since the server rebuilt the plan after the old request
+     * was answered, and its answer must not be allowed to overwrite the new one.
+     */
+    const fetchCalendar = useCallback(async (supersede: boolean) => {
+        if (!account.userId || accountRef.current !== account) return;
+        if (account.inFlight && !supersede) return account.inFlight;
 
-    const refreshSessions = useCallback(async () => {
-        if (!account.userId || accountRef.current !== account) {
-            return;
-        }
-
-        if (account.inFlight) {
-            return account.inFlight;
-        }
-
-        const request = (async () => {
-            updateSnapshot({ loading: true, error: null });
+        const sequence = ++account.sequence;
+        const isCurrent = () => accountRef.current === account && account.sequence === sequence;
+        const request: Promise<void> = (async () => {
+            patchState({ loading: true, error: null, status: 'loading' });
             try {
-                const { from, to } = getFetchWindow();
-
-                const data = await getTherapySessions(from, to);
-                if (accountRef.current !== account) return;
+                const { from, to } = getCalendarFetchWindow();
+                const data = await getCalendar(from, to);
+                if (!isCurrent()) return;
                 // Keep an imperative copy too. A caller awaiting this request
                 // resumes before React has committed setState, and must still
-                // see the canonical sessions that just arrived.
-                account.sessions = data;
-                account.ready = true;
-                updateSnapshot({ scheduleSessions: data });
+                // see the canonical calendar that just arrived.
+                account.snapshot = data;
+                patchState({ snapshot: data, status: 'ready' });
+                void writeCalendarSnapshot(account.userId!, data);
             } catch (err) {
-                if (accountRef.current !== account) return;
-                const mapped = mapSessionError(err);
-                updateSnapshot({ error: { ...mapped } });
-                const shouldReport = !(err instanceof ApiError) || err.status >= 500;
-                if (shouldReport) {
+                if (!isCurrent()) return;
+                patchState({ error: { ...mapSessionError(err) }, status: 'error' });
+                if (!(err instanceof ApiError) || err.status >= 500) {
                     Sentry.withScope((scope) => {
                         scope.setTag('feature', 'therapy-sessions.refreshSessions');
-                        scope.setContext('request', {
-                            cachedSessions: account.sessions.length,
-                        });
+                        scope.setContext('request', { cachedSessions: account.snapshot?.sessions.length ?? 0 });
                         Sentry.captureException(toError(err));
                     });
                 }
                 console.error('Error loading sessions:', err);
                 throw err;
             } finally {
-                account.inFlight = null;
-                updateSnapshot({ loading: false, sessionsReady: true });
+                // A superseded request must not clear the flag the newer one set.
+                if (isCurrent()) {
+                    account.inFlight = null;
+                    patchState({ loading: false });
+                }
             }
         })();
 
         account.inFlight = request;
         return request;
-    }, [account, updateSnapshot]);
+    }, [account, patchState]);
 
-    const syncSessions = useCallback(
-        async (selected: Record<string, Date>, duration: number, baseSessions?: TherapySession[]) => {
-            assertCurrentAccount();
+    const refreshSessions = useCallback(() => fetchCalendar(false), [fetchCalendar]);
+    const refreshReminderSchedule = useCallback(() => fetchCalendar(true), [fetchCalendar]);
 
-            // Do not build an all-or-nothing sync against the initial empty
-            // state while the first GET is still in flight. That race dropped
-            // every pre-existing appointment not present in `selected`.
-            const initialRefresh = account.inFlight;
-            if (initialRefresh) {
-                await initialRefresh;
-            } else if (!account.ready) {
-                await refreshSessions();
-            }
-
-            assertCurrentAccount();
-            const currentSessions = baseSessions ?? editableSessionsFrom(account.sessions);
-            const window = getSessionsWindow();
-            if (Object.values(selected).some(date => !isWithinSessionsWindow(date, window))) {
-                throw new Error(t('calendar:outOfRange'));
-            }
-
-            const payload = Object.entries(selected).map(([key, date]) => {
-                const existing = currentSessions.find(session => session._id === key)
-                    ?? currentSessions.find(session => !(session._id in selected)
-                        && new Date(session.startsAtUtc).getTime() === date.getTime());
-
-                return {
-                    id: existing?._id,
-                    startsAtUtc: date.toISOString(),
-                    durationMin: existing?.durationMin ?? duration,
-                };
-            });
-
-            await syncTherapySessionsApi(payload, window, currentSessions);
-            assertCurrentAccount();
-
-            // A refresh that began before the write can resolve afterward with
-            // the old session list. Wait for it to finish, then start a fresh
-            // post-write GET so reminders can only be derived from canonical
-            // data that was fetched after the sync completed.
-            const staleRefresh = account.inFlight;
-            if (staleRefresh) {
-                await staleRefresh.catch(() => {});
-            }
-
-            assertCurrentAccount();
-            await refreshSessions();
-        },
-        [account, assertCurrentAccount, refreshSessions],
-    );
-
-    const addSessions = useCallback(
-        async (dates: Date[], duration: number) => {
-            assertCurrentAccount();
-
-            const initialRefresh = account.inFlight;
-            if (initialRefresh) {
-                await initialRefresh;
-            } else if (!account.ready) {
-                await refreshSessions();
-            }
-
-            assertCurrentAccount();
-            // Onboarding adds its projected schedule to an account. It must
-            // not behave like the calendar's replace operation and silently
-            // delete appointments a returning user already has.
-            const selected: Record<string, Date> = {};
-            const occupiedDays = new Set<string>();
-            for (const session of editableSessionsFrom(account.sessions)) {
-                const date = new Date(session.startsAtUtc);
-                selected[session._id] = date;
-                occupiedDays.add(date.toDateString());
-            }
-            for (const date of dates) {
-                if (occupiedDays.has(date.toDateString())) continue;
-                selected[date.toISOString()] = date;
-                occupiedDays.add(date.toDateString());
-            }
-
-            await syncSessions(selected, duration);
-        },
-        [account, assertCurrentAccount, refreshSessions, syncSessions],
-    );
-
-    const nextSession = useMemo(() => {
-        const now = Date.now();
-        let earliest: TherapySession | null = null;
-        let earliestStart = Number.POSITIVE_INFINITY;
-
-        sessions.forEach((session) => {
-            const start = new Date(session.startsAtUtc).getTime();
-            if (start > now && start < earliestStart) {
-                earliest = session;
-                earliestStart = start;
-            }
-        });
-
-        return earliest;
-    }, [sessions]);
-
-    // Fetched from the server rather than computed here, so the plan shown to
-    // the user is the plan the cron will send. deviceTimeZone is passed in
-    // because travelling has to invalidate the cached schedule: the sessions
-    // are unchanged, but the wall-clock times they resolve to are not.
-    const setReminderScheduleSettings = useCallback((settings: ReminderScheduleSettings | null) => {
-        updateSnapshot({ reminderScheduleSettings: settings });
-    }, [updateSnapshot]);
-    const setReminderScheduleStatus = useCallback((status: ReminderScheduleStatus) => {
-        updateSnapshot({ reminderScheduleStatus: status });
-    }, [updateSnapshot]);
-    const neuroReminders = useNeuroReminders(
-        sessions,
-        deviceTimeZone,
-        userId !== null,
-        sessionsReady,
-        reminderRefreshSignal,
-        setReminderScheduleSettings,
-        setReminderScheduleStatus,
-        userId ?? 'signed-out',
-    );
-
-    const refreshReminderSchedule = useCallback(async () => {
+    /**
+     * Runs a write, then fetches the calendar the server now holds.
+     *
+     * A refresh that began before the write can resolve afterward with the old
+     * list, so the post-write fetch supersedes it and only the newer answer can
+     * reach the screen. A refused edit (someone changed the calendar on another
+     * device) refreshes too, so the user is looking at the current calendar
+     * when the alert about it appears.
+     */
+    const commit = useCallback(async <T,>(write: () => Promise<T>): Promise<T> => {
         assertCurrentAccount();
-        await clearRemindersCache(account.userId!);
+        let result: T;
+        try {
+            result = await write();
+        } catch (err) {
+            if (err instanceof ApiError && err.status === 412 && accountRef.current === account) {
+                await fetchCalendar(true).catch(() => {});
+            }
+            throw err;
+        }
         assertCurrentAccount();
-        updateSnapshot({ reminderScheduleSettings: null, reminderScheduleStatus: 'loading' });
-        setReminderRefreshSignal((current) => current + 1);
-    }, [account, assertCurrentAccount, updateSnapshot]);
+        await fetchCalendar(true);
+        return result;
+    }, [account, assertCurrentAccount, fetchCalendar]);
+
+    const revision = snapshot?.revision ?? null;
+    const currentRevision = () => account.snapshot?.revision;
+
+    const addSession = useCallback(async (input: CreateSessionInput) => {
+        if (!isWithinSessionsWindow(input.startsAtUtc)) throw new Error(t('calendar:outOfRange'));
+        return commit(() => createSessionApi(input, currentRevision()));
+    }, [commit]);
+
+    const updateSession = useCallback(async (id: string, input: UpdateSessionInput) => {
+        if (input.startsAtUtc && !isWithinSessionsWindow(input.startsAtUtc)) {
+            throw new Error(t('calendar:outOfRange'));
+        }
+        await commit(() => updateSessionApi(id, input, currentRevision()));
+    }, [commit]);
+
+    const removeSession = useCallback(async (id: string, scope: SessionEditScope = 'this') => {
+        await commit(() => deleteSessionApi(id, scope, currentRevision()));
+    }, [commit]);
+
+    const addSeries = useCallback(async ({ firstSessionAt, cadence, durationMin }: AddSeriesInput) => {
+        assertCurrentAccount();
+        // Onboarding adds a schedule to an account that may already have one.
+        // Wait for the canonical calendar rather than deciding against an
+        // empty list that the first GET is about to replace.
+        if (account.inFlight) await account.inFlight;
+        else if (!account.snapshot) await refreshSessions();
+        assertCurrentAccount();
+
+        const occupied = new Set(
+            (account.snapshot?.sessions ?? []).map((session) => new Date(session.startsAtUtc).toDateString()),
+        );
+        const repeat = cadence === null ? null : CADENCE_REPEAT[cadence];
+        // A returning user who already has an appointment that day keeps it. A
+        // repeating plan then starts from its next occurrence instead.
+        const candidates = repeat === null
+            ? [firstSessionAt]
+            : projectSessions({ firstSessionAt, cadence });
+        const start = candidates.find((date) => !occupied.has(date.toDateString()));
+        if (!start) return;
+
+        await commit(() => createSessionApi(
+            { startsAtUtc: start, durationMin, ...(repeat === null ? {} : { repeat }) },
+            currentRevision(),
+        ));
+    }, [account, assertCurrentAccount, commit, refreshSessions]);
+
+    // Paint the last known calendar straight away, before the request has
+    // answered. It is at worst a day stale, and it is the difference between a
+    // month that opens with its dots and one that flashes empty.
+    useEffect(() => {
+        if (!account.userId) return undefined;
+        let cancelled = false;
+        void (async () => {
+            const cached = await readCalendarSnapshot(account.userId!);
+            if (cancelled || !cached || accountRef.current !== account || account.snapshot) return;
+            patchState({ snapshot: cached });
+        })();
+        return () => { cancelled = true; };
+    }, [account, patchState]);
 
     useEffect(() => {
-        if (userId !== null) {
-            refreshSessions().catch(() => {});
-        }
+        if (userId === null) return;
+        refreshSessions().catch(() => {});
     }, [userId, refreshSessions]);
+
+    // Reminders pass and the next one moves on without anything in the app
+    // changing, so returning to the foreground and the local midnight both
+    // refetch. Both also retry a failed load.
+    useEffect(() => {
+        if (userId === null) return undefined;
+        const subscription = AppState.addEventListener('change', (next) => {
+            if (next === 'active') refreshSessions().catch(() => {});
+        });
+        let midnightTimer: ReturnType<typeof setTimeout>;
+        const armMidnightTimer = () => {
+            const now = new Date();
+            const justPastMidnight = new Date(now);
+            justPastMidnight.setHours(24, 0, 5, 0);
+            midnightTimer = setTimeout(() => {
+                refreshSessions().catch(() => {});
+                armMidnightTimer();
+            }, justPastMidnight.getTime() - now.getTime());
+        };
+        armMidnightTimer();
+        return () => {
+            subscription.remove();
+            clearTimeout(midnightTimer);
+        };
+    }, [userId, refreshSessions]);
+
+    const previousUserRef = useRef(userId);
+    useEffect(() => {
+        const previous = previousUserRef.current;
+        previousUserRef.current = userId;
+        if (previous !== null && userId === null) void clearCalendarSnapshot(previous);
+    }, [userId]);
+
+    const scheduleSessions = useMemo(() => snapshot?.sessions ?? [], [snapshot]);
+    const sessions = useMemo(() => editableSessionsFrom(scheduleSessions), [scheduleSessions]);
+    const reminders = useMemo(() => snapshot?.reminders ?? [], [snapshot]);
+    const neuroReminders = useMemo(() => legacyReviewRemindersFrom(reminders), [reminders]);
+    const nextSession = useMemo(() => nextSessionOf(sessions), [sessions]);
+    const nextReminder = useMemo(() => nextReminderOf(reminders), [reminders]);
+    const reminderScheduleSettings = useMemo(() => (snapshot ? settingsOf(snapshot) : null), [snapshot]);
 
     const value: TherapySessionsContextType = {
         sessions,
         scheduleSessions,
+        series: snapshot?.series ?? [],
+        reminders,
+        neuroReminders,
+        reminderScheduleSettings,
+        reminderScheduleStatus: userId === null ? 'idle' : status,
+        revision,
+        hydrated: snapshot !== null,
         loading,
         error,
         nextSession,
-        neuroReminders,
-        reminderScheduleSettings,
-        reminderScheduleStatus,
+        nextReminder,
         refreshSessions,
-        syncSessions,
-        addSessions,
         refreshReminderSchedule,
+        addSession,
+        updateSession,
+        removeSession,
+        addSeries,
     };
 
     return (

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Modal, View, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { PresentedModal } from './PresentedModal';
 import AppText from './AppText';
 import { Button } from './Button';
 import Spacer, { SpacerVariant } from './Spacer';
@@ -29,7 +30,7 @@ export default function ErrorModal({
     const styles = useThemedStyles(makeStyles);
 
     return (
-        <Modal
+        <PresentedModal
             visible={ visible }
             animationType='slide'
             onRequestClose={ onClose }
@@ -60,7 +61,7 @@ export default function ErrorModal({
                     </View>
                 </View>
             </SafeAreaView>
-        </Modal>
+        </PresentedModal>
     );
 }
 

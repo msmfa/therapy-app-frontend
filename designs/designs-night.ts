@@ -158,17 +158,20 @@ export const NIGHT_GLASS = {
 export const NIGHT_MARK = 'hsl(214, 8%, 72%)';
 
 /**
- * The radio. By day it is a white box lifted off the sheet with a deep blue
- * ring; at night the box is the panel charcoal and the ring is a light grey,
- * so the chosen option is marked the same way a chosen card is.
+ * The radio. By day it is a frosted pill with a deep blue ring; at night the
+ * chosen pill takes the chosen plan's orange, see-through like the rest, and
+ * its dot the orange the night sets sentences in, so the choice reads the
+ * way a chosen plan does.
  */
 export const NIGHT_RADIO = {
-    ring: NIGHT_MARK,
+    ring: 'hsl(22, 90%, 68%)',
     ringUnselected: 'hsla(0, 0%, 100%, 0.16)',
-    selectedFill: 'hsl(214, 8%, 21%)',
-    selectedBorder: 'hsla(0, 0%, 100%, 0.16)',
-    unselectedFill: 'hsl(213, 9%, 15%)',
-    unselectedBorder: 'hsla(0, 0%, 100%, 0.08)',
+    selectedFill: 'hsla(19, 64%, 42%, 0.32)',
+    selectedBorder: 'hsla(26, 100%, 78%, 0.4)',
+    unselectedFill: 'hsla(220, 70%, 62%, 0.04)',
+    unselectedBorder: 'hsla(220, 70%, 72%, 0.14)',
+    well: 'hsla(0, 0%, 100%, 0.07)',
+    sheen: ['hsla(0, 0%, 100%, 0.06)', 'hsla(0, 0%, 100%, 0)'] as const,
 } as const;
 
 /**
@@ -322,7 +325,8 @@ export const NIGHT_CALENDAR_MONTH = {
     todayText: NIGHT_INK.primary,
     reminderDotOnToday: 'hsl(232, 70%, 78%)',
     sessionFill: '#CC4500',
-    sessionFillText: 'hsl(0, 0%, 100%)',
+    // The day's warm white: the warmest that holds 4.5:1 on this disc.
+    sessionFillText: '#FFF9F5',
     pressedBackground: 'hsla(210, 19%, 94%, 0.10)',
     pressedText: NIGHT_INK.primary,
     dayFontWeight: '400',
@@ -351,19 +355,46 @@ export const NIGHT_CALENDAR_SHEET = {
     surface: NIGHT_SURFACE.modal,
     border: 'hsla(0, 0%, 100%, 0.08)',
     overlay: 'rgba(0, 0, 0, 0.66)',
+    // The day's blue, kept faint so it tints the sheet rather than lighting it.
+    glow: ['hsla(222, 70%, 58%, 0.18)', 'hsla(222, 70%, 58%, 0.06)', 'hsla(222, 70%, 58%, 0)'] as const,
 } as const;
 
 /**
- * The ground the reminder card's aura is painted on. The sunrise stays; the
- * sky behind it goes to the panel charcoal.
+ * The next-event cards at night: the sheet card's grey lit from the top-left
+ * and settling a touch bluer, with the foot band a step lighter again.
+ */
+export const NIGHT_CALENDAR_EVENT_CARD = {
+    ground: [NIGHT_GROUND, 'hsl(216, 16%, 11%)'] as const,
+    groundFade: 'hsla(216, 16%, 11%, 0)',
+    fill: ['hsl(213, 10%, 17%)', 'hsl(215, 14%, 12%)'] as const,
+    fillTranslucent: ['hsla(213, 10%, 17%, 0.35)', 'hsla(215, 14%, 12%, 0.28)'] as const,
+    border: 'hsla(0, 0%, 100%, 0.08)',
+    footer: 'hsla(0, 0%, 100%, 0.02)',
+    footerRule: 'hsla(0, 0%, 100%, 0.06)',
+    // The same lit blue as the day's, a step deeper so it does not glare.
+    action: {
+        fill: ['hsl(214, 80%, 58%)', 'hsl(222, 74%, 46%)'] as const,
+        label: 'hsl(0, 0%, 100%)',
+        rim: 'hsla(0, 0%, 100%, 0.22)',
+        shadow: 'hsl(220, 90%, 50%)',
+    },
+} as const;
+
+/**
+ * The ground the reminder card's aura is painted on.
+ *
+ * At night it is flat: one charcoal, and no sunrise behind the dots. The
+ * banked glow read as a smudge on a dark panel rather than as light, and the
+ * dots are white on their own. The three stops stay the same value rather
+ * than collapsing to one so the panel keeps its shape in the theme.
  */
 export const NIGHT_AURA = {
-    top: 'hsl(212, 12%, 14%)',
-    mid: 'hsl(212, 12%, 11%)',
+    top: 'hsl(212, 12%, 13%)',
+    mid: 'hsl(212, 12%, 13%)',
     bottom: 'hsl(212, 12%, 13%)',
-    /** The sunrise, banked: the same orange taken most of the way down. */
+    /** Unused while the glow is off, kept so the token stays whole. */
     core: 'hsl(20, 70%, 34%)',
-    glowOpacity: 0.55,
+    glowOpacity: 0,
 } as const;
 
 /**

@@ -221,7 +221,12 @@ export default function ReminderSettingsScreen() {
                     />
                 </View>
 
-                <Button label={ t('save') } loading={ saving } onPress={ () => void save() } />
+                <Button
+                    label={ t('save') }
+                    loading={ saving }
+                    onPress={ () => void save() }
+                    addedStyles={ styles.save }
+                />
             </FrostedCard>
 
             { androidSlot !== null && (
@@ -284,5 +289,12 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     },
     notificationSection: {
         marginBottom: 18,
+    },
+    // The settings rows stacked above it stand 64pt tall. The button's own
+    // 44pt minimum left it noticeably shallower than everything it sits
+    // under, which read as a smaller, lesser control rather than the one that
+    // commits the page.
+    save: {
+        minHeight: 64,
     },
 });

@@ -6,6 +6,5 @@ export enum ReminderType {
     SpacedReactivation = 'spaced-reactivation',
     StateReinstatement = 'state-reinstatement',
 }
-export type SelectedSessions = Record<string, Date>;
 
 export type GradientColors = readonly [ColorValue, ColorValue, ...ColorValue[]];

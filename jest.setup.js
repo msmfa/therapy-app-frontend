@@ -7,19 +7,26 @@ require('@testing-library/jest-native/extend-expect');
 jest.mock('@react-native-async-storage/async-storage', () =>
   require('@react-native-async-storage/async-storage/jest/async-storage-mock'));
 
-// Same reasoning: the reminder schedule is fetched behind the therapy-sessions
+// Same reasoning: the calendar is fetched behind the therapy-sessions
 // context, so any suite that renders the provider issues a request without
 // naming it. Unmocked, that is a real fetch to the placeholder API URL whose
 // rejection lands after the suite has finished, which fails the run under --ci
 // with "Cannot log after tests are done" even though every test passed.
-// Suites that care about the schedule mock this module themselves.
-jest.mock('./src/api/reminders', () => ({
-  getReminders: jest.fn(async () => ({
+// Suites that care about the calendar mock this module themselves.
+jest.mock('./src/api/therapy', () => ({
+  ...jest.requireActual('./src/api/therapy'),
+  getCalendar: jest.fn(async () => ({
+    revision: 0,
     timeZone: 'UTC',
     morningReminderMinutes: 420,
     eveningReminderMinutes: 1200,
+    sessions: [],
+    series: [],
     reminders: [],
   })),
+  createSession: jest.fn(),
+  updateSession: jest.fn(),
+  deleteSession: jest.fn(),
 }));
 
 process.env.EXPO_PUBLIC_API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://example.com/api';

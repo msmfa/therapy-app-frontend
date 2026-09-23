@@ -1,105 +1,72 @@
-import React, { useMemo, useCallback, useState } from 'react';
-import { StyleSheet, TextStyle, View, ViewStyle } from 'react-native';
+import React, { useMemo } from 'react';
+import { StyleSheet } from 'react-native';
 import { Calendar } from 'react-native-calendars';
-import ScheduleModal from './ScheduleModal';
-import { GradientCard } from '../ui/GradientCard';
-import { CALENDAR_COLORS, COLOR_VARIANTS } from 'designs/designs-colors';
+import { COLOR_VARIANTS } from 'designs/designs-colors';
 import type { Theme } from 'designs/designs-themes';
 import { useTheme } from '../../context/theme';
-import { CalendarDay, CalendarDayKind } from './CalendarDay';
-import { getSessionsWindow, isWithinSessionsWindow } from '../../utils/sessionWindow';
-import { calendarSessionDates, WEEKLY_REPEAT_COUNT } from '../../features/therapy-sessions/calendarSchedule';
+import { CalendarDay } from './CalendarDay';
+import { getSessionsWindow } from '../../utils/sessionWindow';
+import { getCalendarFetchWindow } from '../../features/calendar/calendarSelectors';
 import { applyCalendarLocale } from './calendarLocale';
 import { formattingLocale } from '../../i18n';
+import type { CalendarReminder, TherapySession } from '../../api/therapy';
 
-export const COLORS = {
-    todayBackground: CALENDAR_COLORS.todayBackground,
-    todayText: CALENDAR_COLORS.todayText,
-    calendarSelectedBackground: CALENDAR_COLORS.calendarSelectedBackground,
-    activeSessionBackground: CALENDAR_COLORS.activeSessionBackground,
-    activeSessionText: CALENDAR_COLORS.activeSessionText,
-    activeSessionBorder: CALENDAR_COLORS.activeSessionBorder,
-    scheduledBackground: CALENDAR_COLORS.scheduledBackground,
-    scheduledText: CALENDAR_COLORS.scheduledText,
-    pressedText: CALENDAR_COLORS.pressedText,
-    unscheduledBackground: CALENDAR_COLORS.unscheduledBackground,
-    calendarDayDefault: CALENDAR_COLORS.calendarDayDefault,
-    calendarDayDisabled: CALENDAR_COLORS.calendarDayDisabled,
-    calendarMonthText: CALENDAR_COLORS.calendarMonthText,
-    calendarWeekdayHeader: CALENDAR_COLORS.calendarWeekdayHeader,
-    arrows: CALENDAR_COLORS.arrows,
-    reminderBackground: CALENDAR_COLORS.reminderBackground,
-    reminderBorder: CALENDAR_COLORS.reminderBorder,
-    reminderText: CALENDAR_COLORS.reminderText,
-    dotIndicator: CALENDAR_COLORS.dotIndicator,
+/**
+ * The month grid, and nothing else.
+ *
+ * It draws what it is given (sessions as discs, reminders as dots, the past
+ * faded) and reports which day was pressed. What opens for that day, and what
+ * an edit does, is the screen's business: the grid used to own the schedule
+ * sheet and a draft of the edits, which is what made saving a separate step.
+ */
+
+// The shape react-native-calendars reads back off `markedDates` when a custom
+// day component is in use. CalendarDay owns the drawing; this only says which
+// marks each day wears.
+type DayMarking = {
+    /** Never set; carried so the map stays assignable to the library's MarkingProps. */
+    marked?: boolean;
+    kind?: 'session' | 'reminder';
+    reminder?: boolean;
+    muted?: boolean;
+    pressed?: boolean;
 };
 
 /**
- * `card` is the original month on a gradient card; `backdrop` drops the card
- * and puts the month straight onto the calendar backdrop, with its own day
- * cell. (Formerly `light` and `dark`, which named the ink, not a theme.)
+ * A request to bring one day into view, as YYYY-MM-DD.
+ *
+ * `seq` is what makes the same day askable twice. The grid jumps by
+ * remounting on this, and a remount only happens when something in the key
+ * changes: without the counter, asking for October, paging away by hand and
+ * asking for October again would do nothing at all.
  */
-export type TherapyCalendarVariant = 'card' | 'backdrop';
+export type CalendarFocus = { dateKey: string; seq: number };
 
-// The shape react-native-calendars reads back off `markedDates` when
-// markingType is "custom".
-type DayMarking = {
-    marked?: boolean;
-    dotColor?: string;
-    /** Backdrop variant only: which of the two discs this day wears. */
-    kind?: CalendarDayKind;
-    /** Backdrop variant only: the day whose schedule sheet is open. */
-    pressed?: boolean;
-    customStyles?: {
-        container?: ViewStyle;
-        text?: TextStyle;
-    };
+export type TherapyCalendarProps = {
+    sessions: TherapySession[];
+    reminders: CalendarReminder[];
+    /** The day whose sheet is open, as YYYY-MM-DD, so the cell can show it. */
+    activeDateKey?: string | null;
+    /** The month to jump to, when something off-screen is being pointed at. */
+    focus?: CalendarFocus | null;
+    onDayPress: (dateKey: string) => void;
+    hideExtraDays?: boolean;
 };
 
-type SelectedSessions = Record<string, Date>;
-type ScheduleMode = 'single' | 'weekly_pattern';
-
-interface TherapyCalendarProps {
-    selectedSessions: SelectedSessions;
-    children?: React.ReactNode;
-    dotDates?: Array<string | Date>;
-    fillAvailableSpace?: boolean;
-    hideExtraDays?: boolean;
-    /** `backdrop` drops the card and puts the month straight onto the backdrop. */
-    variant?: TherapyCalendarVariant;
-    onSelectedSessionsChange: (sessions: SelectedSessions) => void;
-}
-
-const DEFAULT_TIME = new Date(2024, 0, 1, 9, 0, 0);
-
-const formatDateKey = (date: Date) =>
+export const formatDateKey = (date: Date) =>
     `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
-const createDateFromKey = (dateKey: string) => {
+/**
+ * "YYYY-MM-DD" read back as local midnight. Built with the Date constructor
+ * directly it parses as UTC midnight, which lands on the wrong day near either
+ * end of a negative or positive zone.
+ */
+export const createDateFromKey = (dateKey: string) => {
     const [year, month, day] = dateKey.split('-').map(Number);
     return new Date(year, month - 1, day);
 };
 
-const CARD_THEME = {
-    arrowColor: COLORS.arrows,
-    backgroundColor: COLOR_VARIANTS.transparent,
-    calendarBackground: COLOR_VARIANTS.transparent,
-    dayTextColor: COLORS.calendarDayDefault,
-    monthTextColor: COLORS.calendarMonthText,
-    selectedDayBackgroundColor: COLORS.calendarSelectedBackground,
-    selectedDayTextColor: COLORS.activeSessionBorder,
-    textDisabledColor: COLORS.calendarDayDisabled,
-    textSectionTitleColor: COLORS.calendarWeekdayHeader,
-    todayTextColor: COLORS.scheduledText,
-    textDayFontFamily: 'System',
-    textDayFontSize: 16,
-    textDayHeaderFontFamily: 'System',
-    textDayHeaderFontSize: 14,
-    textMonthFontFamily: 'System',
-    textMonthFontSize: 20,
-};
-
-const makeBackdropTheme = (theme: Theme) => ({
+const makeTheme = (theme: Theme) => ({
     arrowColor: theme.calendar.month.arrows,
     backgroundColor: COLOR_VARIANTS.transparent,
     calendarBackground: COLOR_VARIANTS.transparent,
@@ -141,309 +108,80 @@ const makeBackdropTheme = (theme: Theme) => ({
 });
 
 export default function TherapyCalendar({
-    onSelectedSessionsChange,
-    selectedSessions,
-    dotDates = [],
-    children,
-    fillAvailableSpace = true,
-    hideExtraDays = true,
-    variant = 'card',
+    sessions,
+    reminders,
+    activeDateKey = null,
+    focus = null,
+    onDayPress,
+    hideExtraDays = false,
 }: TherapyCalendarProps) {
     // Before the calendar renders, so its header is in the app's language
     // rather than the library's built-in English.
     applyCalendarLocale(formattingLocale());
     const { theme } = useTheme();
-    const backdropTheme = useMemo(() => makeBackdropTheme(theme), [theme]);
-    const [activeDateKey, setActiveDateKey] = useState<string | null>(null);
-    const [isModalVisible, setIsModalVisible] = useState(false);
-    const [activeSessionKey, setActiveSessionKey] = useState<string | null>(null);
-    const sessionDateKeys = useMemo(() => Array.from(new Set(Object.values(selectedSessions).map(formatDateKey))), [selectedSessions]);
-    const sessionsOnDay = useMemo(() => Object.entries(selectedSessions)
-        .filter(([, time]) => formatDateKey(time) === activeDateKey)
-        .sort((a, b) => a[1].getTime() - b[1].getTime())
-        .map(([id, time]) => ({ id, time, date: formatDateKey(time) })), [activeDateKey, selectedSessions]);
-    const activeSession = sessionsOnDay.find(session => session.id === activeSessionKey) ?? sessionsOnDay[0] ?? null;
-    const onBackdrop = variant === 'backdrop';
+    const calendarTheme = useMemo(() => makeTheme(theme), [theme]);
 
-    const dotDateKeys = useMemo(() => {
-        if (!dotDates?.length) {
-            return [] as string[];
-        }
-
-        const keys = new Set<string>();
-        dotDates.forEach((value) => {
-            if (value instanceof Date) {
-                if (!Number.isNaN(value.getTime())) {
-                    keys.add(formatDateKey(value));
-                }
-                return;
-            }
-
-            if (typeof value === 'string') {
-                const trimmed = value.trim();
-                if (!trimmed) return;
-
-                const parsed = new Date(trimmed);
-                if (!Number.isNaN(parsed.getTime())) {
-                    keys.add(formatDateKey(parsed));
-                    return;
-                }
-
-                // Allow direct date-key strings (YYYY-MM-DD)
-                if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
-                    keys.add(trimmed);
-                }
-            }
-        });
-
-        return Array.from(keys);
-    }, [dotDates]);
-
-    // The backdrop variant renders its own day cell, so the marking map only
-    // has to say which disc each day wears; CalendarDay owns the drawing.
-    const buildBackdropMarkings = useCallback(() => {
+    const markedDates = useMemo(() => {
         const entries: Record<string, DayMarking> = {};
-
-        // Reminders first, so a day that is both falls through to the session
-        // disc below.
-        dotDateKeys.forEach((dateKey) => {
-            entries[dateKey] = { kind: 'reminder' };
-        });
-
-        sessionDateKeys.forEach((dateKey) => {
-            entries[dateKey] = { kind: 'session' };
-        });
-
-        if (activeDateKey) {
-            entries[activeDateKey] = { ...(entries[activeDateKey] ?? {}), pressed: true };
-        }
-
-        return entries;
-    }, [sessionDateKeys, activeDateKey, dotDateKeys]);
-
-    const buildCardMarkings = useCallback(() => {
-        // ODO:: change dots to text color on the day so key will be text is red and circle will be therapy day
-        const circleBaseStyle: ViewStyle = {
-            alignItems: 'center',
-            borderRadius: 20,
-            justifyContent: 'center',
-        };
-
-        // Lifts session days off the card. Only they carry it, so a glance at
-        // the month picks out the therapy dates before you read any numbers.
-        const sessionShadow: ViewStyle = {
-            shadowColor: COLORS.activeSessionBorder,
-            shadowOffset: { width: 0, height: 5 },
-            shadowOpacity: 0.68,
-            shadowRadius: 9,
-            elevation: 10,
-        };
-
-        const sessionBorder: ViewStyle = {
-            borderColor: COLORS.activeSessionBorder,
-            borderWidth: 1,
-        };
-
-        const entries = sessionDateKeys.reduce<Record<string, DayMarking>>((acc, dateKey) => {
-            const isActive = activeDateKey === dateKey;
-            acc[dateKey] = {
-                customStyles: {
-                    container: {
-                        ...circleBaseStyle,
-                        ...sessionShadow,
-                        ...sessionBorder,
-                        backgroundColor: isActive ? COLORS.activeSessionBackground : COLORS.scheduledBackground,
-                    },
-                    text: {
-                        color: isActive ? COLORS.activeSessionText : COLORS.scheduledText,
-                        fontWeight: '600',
-                    },
-                },
-            };
-            return acc;
-        }, {});
-
-        if (activeDateKey && !entries[activeDateKey]) {
-            entries[activeDateKey] = {
-                customStyles: {
-                    container: {
-                        ...circleBaseStyle,
-                        ...sessionBorder,
-                        backgroundColor: COLORS.unscheduledBackground,
-                    },
-                    text: {
-                        color: COLORS.pressedText,
-                        fontWeight: '600',
-                    },
-                },
-            };
-        }
-
         const todayKey = formatDateKey(new Date());
-        if (!entries[todayKey]) {
-            entries[todayKey] = {
-                customStyles: {
-                    container: {
-                        ...circleBaseStyle,
-                        backgroundColor: COLORS.todayBackground,
-                        borderWidth: 1,
-                    },
-                    text: {
-                        color: COLORS.todayText,
-                        fontWeight: '600',
-                    },
-                },
-            };
+        const mark = (key: string, patch: DayMarking) => {
+            entries[key] = { ...(entries[key] ?? {}), ...patch };
+        };
+
+        for (const reminder of reminders) {
+            // The reminder's own local day: 20:00 in Los Angeles is 04:00 UTC
+            // the next morning, and deriving the day from the instant put the
+            // dots a day out for anyone whose evening crosses UTC midnight.
+            mark(reminder.localDate, { reminder: true });
         }
-
-        dotDateKeys.forEach((dateKey) => {
-            const entryWithoutDots = { ...(entries[dateKey] ?? {}) };
-            const isTherapySession = sessionDateKeys.includes(dateKey);
-            delete entryWithoutDots.marked;
-            delete entryWithoutDots.dotColor;
-
-            const {
-                text: existingTextStyles = {},
-                ...otherCustomStyles
-            } = entryWithoutDots.customStyles ?? {};
-
-            entries[dateKey] = {
-                ...entryWithoutDots,
-                customStyles: {
-                    ...otherCustomStyles,
-                    text: {
-                        ...existingTextStyles,
-                        color: isTherapySession ? COLORS.scheduledText : COLORS.dotIndicator,
-                        fontWeight: '600',
-                    },
-                },
-            };
-        });
+        for (const session of sessions) {
+            const date = new Date(session.startsAtUtc);
+            if (Number.isNaN(date.getTime())) continue;
+            mark(formatDateKey(date), { kind: 'session' });
+        }
+        for (const key of Object.keys(entries)) {
+            if (entries[key].reminder && entries[key].kind !== 'session') entries[key].kind = 'reminder';
+            if (key < todayKey) entries[key].muted = true;
+        }
+        if (activeDateKey) mark(activeDateKey, { pressed: true });
 
         return entries;
-    }, [sessionDateKeys, activeDateKey, dotDateKeys]);
+    }, [sessions, reminders, activeDateKey]);
 
-    const markedDates = useMemo(
-        () => (onBackdrop ? buildBackdropMarkings() : buildCardMarkings()),
-        [onBackdrop, buildBackdropMarkings, buildCardMarkings],
-    );
-
-    const openModalForDate = useCallback((dateKey: string) => {
-        if (!isWithinSessionsWindow(createDateFromKey(dateKey))) return;
-        setActiveDateKey(dateKey);
-        setActiveSessionKey(Object.entries(selectedSessions).find(([, date]) => formatDateKey(date) === dateKey)?.[0] ?? null);
-        setIsModalVisible(true);
-    }, [selectedSessions]);
-
-    const closeModal = useCallback(() => {
-        setIsModalVisible(false);
-        setActiveDateKey(null);
-    }, []);
-
-    const handleDayPress = useCallback(
-        (day: { dateString: string }) => {
-            openModalForDate(day.dateString);
-        },
-        [openModalForDate],
-    );
-
-    const applySession = useCallback(
-        (mode: ScheduleMode, time: Date) => {
-            if (!activeDateKey) return;
-
-            const next: SelectedSessions = { ...selectedSessions };
-            const startDate = createDateFromKey(activeDateKey);
-            startDate.setHours(time.getHours(), time.getMinutes(), 0, 0);
-            const dates = calendarSessionDates(startDate, mode === 'single' ? 1 : WEEKLY_REPEAT_COUNT);
-            if (!dates.length) {
-                closeModal();
-                return;
-            }
-            for (const [index, date] of dates.entries()) {
-                const dayKey = formatDateKey(date);
-                const existingKey = (index === 0 ? activeSession?.id : null)
-                    ?? Object.entries(next).find(([, value]) => formatDateKey(value) === dayKey)?.[0];
-                const key = existingKey ?? (next[dayKey] ? `${dayKey}:${date.getTime()}` : dayKey);
-                next[key] = date;
-            }
-
-            onSelectedSessionsChange(next);
-            closeModal();
-        },
-        [activeDateKey, activeSession, closeModal, onSelectedSessionsChange, selectedSessions],
-    );
-
-    const handleDelete = useCallback(() => {
-        if (!activeDateKey) return;
-        const next = { ...selectedSessions };
-        if (activeSession) delete next[activeSession.id];
-        onSelectedSessionsChange(next);
-        closeModal();
-    }, [activeDateKey, activeSession, closeModal, onSelectedSessionsChange, selectedSessions]);
-
-    const calendarTheme = onBackdrop ? backdropTheme : CARD_THEME;
-    const calendarWindow = getSessionsWindow();
-
-    const calendar = (
-        <Calendar
-            dayComponent={ onBackdrop ? CalendarDay : undefined }
-            hideExtraDays={ hideExtraDays }
-            markedDates={ markedDates }
-            markingType="custom"
-            minDate={ formatDateKey(calendarWindow.from) }
-            maxDate={ formatDateKey(calendarWindow.to) }
-            disableAllTouchEventsForDisabledDays
-            onDayPress={ handleDayPress }
-            theme={ calendarTheme as never }
-            style={ onBackdrop ? styles.calendarBackdrop : styles.calendar }
-            testID="therapy-calendar"
-        />
-    );
+    // The whole fetched range is navigable: the past so a fired reminder and
+    // the session it followed can be looked at, the future as far as an
+    // appointment can be booked.
+    const { from } = getCalendarFetchWindow();
+    const { to } = getSessionsWindow();
 
     return (
-        <>
-            <View style={ [styles.content, fillAvailableSpace && styles.contentFill] }>
-                { onBackdrop ? calendar : (
-                    <GradientCard addedStyles={ styles.calendarWrapper }>
-                        { calendar }
-                    </GradientCard>
-                ) }
-                { children }
-            </View>
-            { isModalVisible && activeDateKey && (
-                <ScheduleModal
-                    defaultTime={ DEFAULT_TIME }
-                    existingSession={ activeSession }
-                    sessionsOnDay={ sessionsOnDay }
-                    onSelectSession={ setActiveSessionKey }
-                    onCancel={ closeModal }
-                    onConfirm={ applySession }
-                    onDelete={ handleDelete }
-                    selectedDate={ activeDateKey }
-                    weeklyRepeatCount={ calendarSessionDates(createDateFromKey(activeDateKey), WEEKLY_REPEAT_COUNT).length }
-                    visible={ isModalVisible }
-                />
-            ) }
-        </>
+        <Calendar
+            // The library builds the header's and arrows' styles once, when
+            // it mounts, and never reads `theme` again: switching appearance
+            // left the month title, the arrows and the weekday labels in the
+            // old scheme's ink. Remounting on a scheme change is the only way
+            // to make it look at the new theme, and it is also how the grid
+            // lands on `focus`, which `initialDate` only reads at mount.
+            key={ `${theme.scheme}:${focus?.seq ?? 0}` }
+            dayComponent={ CalendarDay }
+            hideExtraDays={ hideExtraDays }
+            initialDate={ focus?.dateKey }
+            markedDates={ markedDates }
+            markingType="custom"
+            minDate={ formatDateKey(from) }
+            maxDate={ formatDateKey(to) }
+            disableAllTouchEventsForDisabledDays
+            onDayPress={ (day) => onDayPress(day.dateString) }
+            theme={ calendarTheme as never }
+            style={ styles.calendar }
+            testID="therapy-calendar"
+        />
     );
 }
 
 const styles = StyleSheet.create({
-    content: {
-        paddingHorizontal: 4,
-        position: 'relative',
-    },
-    contentFill: {
-        flex: 1,
-    },
-    calendarWrapper: {
-        paddingHorizontal: 4,
-    },
     calendar: {
-        paddingVertical: 14,
-    },
-    calendarBackdrop: {
-        paddingHorizontal: 10,
+        paddingHorizontal: 14,
         paddingTop: 4,
         paddingBottom: 22,
     },

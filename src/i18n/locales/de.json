@@ -44,7 +44,6 @@
     "title": "Einstellungen",
     "hub": {
       "language": "Sprache",
-      "appearance": "Erscheinungsbild",
       "references": "Quellenverzeichnis",
       "settings": "Einstellungen",
       "rateApp": "Diese App bewerten",
@@ -52,7 +51,9 @@
       "logOutFailed": "Abmeldung fehlgeschlagen, bitte versuchen Sie es erneut",
       "rateUnavailableTitle": "Nicht verfügbar",
       "rateUnavailableMessage": "Bewertungen werden auf dieser Plattform noch nicht unterstützt.",
-      "storeOpenFailed": "Der Store lässt sich im Moment nicht öffnen."
+      "storeOpenFailed": "Der Store lässt sich im Moment nicht öffnen.",
+      "darkMode": "Dunkelmodus",
+      "lightMode": "Hellmodus"
     },
     "rows": {
       "reminderSettings": "Erinnerungseinstellungen",
@@ -136,6 +137,7 @@
       "cancelEdit": "Bearbeitung abbrechen",
       "saveUnavailable": "Die Notiz lässt sich im Moment nicht speichern.",
       "howTo": "Wie man Notizen macht",
+      "needGuidance": "Brauchen Sie Hilfe?",
       "saveNote": "Notiz speichern",
       "edit": "bearbeiten",
       "delete": "notiz löschen",
@@ -277,26 +279,27 @@
   "calendar": {
     "nextSession": "Nächste Sitzung",
     "nextReminder": "Nächste Erinnerung",
-    "clear": "Zurücksetzen",
-    "save": "Speichern",
-    "clearA11y": "Therapiesitzungen zurücksetzen",
-    "saveA11y": "Therapiesitzungen speichern",
-    "saved": "Ihre Therapiesitzungen wurden aktualisiert",
     "changedTitle": "Kalender geändert",
-    "refresh": "Kalender aktualisieren",
     "saveFailed": "Die Sitzungen lassen sich im Moment nicht speichern.",
     "outOfRange": "Termine müssen zwischen heute und einem Jahr in der Zukunft liegen. Bitte passen Sie Ihre Auswahl an.",
     "sessionChanged": "Die Sitzung hat sich geändert. Bitte versuchen Sie es erneut.",
     "schedule": {
       "thisDayOnly": "Nur an diesem Tag",
       "everyWeek": "Jede Woche",
-      "nextTwoMonths": "Für die nächsten zwei Monate",
-      "repeatCount_one": "{{count}} Sitzung",
-      "repeatCount_other": "{{count}} Sitzungen",
       "delete": "Löschen",
       "update": "Aktualisieren",
       "add": "Sitzung hinzufügen",
-      "appointmentAt": "Termin um {{time}}"
+      "untilYouEndIt": "Bis du sie beendest",
+      "thisSessionOnly": "Nur diese Sitzung",
+      "allFutureSessions": "Alle künftigen Sitzungen",
+      "allSessionsOnThisDay": "Alle Sitzungen am {{weekday}} löschen",
+      "endSeries": "Serie beenden",
+      "saving": "Wird gespeichert",
+      "endSeriesTitle": "Diese Serie beenden?",
+      "endSeriesMessage": "Diese Sitzung und alle späteren Sitzungen der Serie werden entfernt. Frühere Sitzungen bleiben im Kalender.",
+      "dayTakenTitle": "Dieser Tag ist belegt",
+      "dayTaken": "An diesem Tag gibt es bereits eine Sitzung. Bearbeite stattdessen diese.",
+      "keepSeries": "Behalten"
     },
     "error": {
       "timeout": {
@@ -342,8 +345,42 @@
       "therapySession": "Sitzung",
       "reminder": "Erinnerung",
       "dismissScheduling": "Terminplanung schließen",
-      "opensTimePicker": "Öffnet die Zeitauswahl"
-    }
+      "opensTimePicker": "Öffnet die Zeitauswahl",
+      "dismissReminder": "Erinnerung schließen",
+      "dismissHint": "Hinweis schließen"
+    },
+    "changedMessage": "Dein Kalender wurde auf einem anderen Gerät geändert. Er wurde aktualisiert, versuche die Änderung noch einmal.",
+    "reminder": {
+      "logNote": {
+        "title": "Mach dir eine Notiz nach der Sitzung",
+        "reason": "Zehn Minuten nach dem Ende deiner Sitzung, solange die Details noch frisch sind."
+      },
+      "review": {
+        "title": "Notizen durchsehen"
+      },
+      "status": {
+        "pending": "Geplant",
+        "sent": "Gesendet",
+        "missed": "Verpasst"
+      },
+      "close": "Schließen",
+      "update": "Ändern",
+      "fixedTime": "Feste Zeit",
+      "time": {
+        "morningTitle": "Morgendliche Erinnerungen",
+        "eveningTitle": "Abendliche Erinnerungen",
+        "morningMessage": "Jede morgendliche Erinnerung wechselt auf diese Zeit, nicht nur diese eine.",
+        "eveningMessage": "Jede abendliche Erinnerung wechselt auf diese Zeit, nicht nur diese eine.",
+        "save": "Speichern"
+      },
+      "whyThis": "Warum diese Erinnerung"
+    },
+    "nextSessionHelp": {
+      "title": "Sitzung ändern",
+      "message": "Um eine Sitzung zu ändern oder zu löschen, tippe im Kalender auf das Datum, das du ändern möchtest.",
+      "confirm": "Alles klar"
+    },
+    "nextReminderHelp": "Tippe hier, um deine Erinnerungen zu ändern."
   },
   "onboarding": {
     "welcome": {
@@ -649,11 +686,8 @@
     "referencesNote": "Ihre Therapienotiz in fünf Minuten",
     "template": {
       "title": "Vorlage",
-      "recommendBefore": "Wir empfehlen Ihnen unseren",
-      "cheatsheetLink": "Spickzettel",
-      "researchBefore": "Warum wir diese 5 Fragen gewählt haben und welche Forschung dahintersteht,",
-      "researchLink": "hier klicken",
-      "cheatsheetImage": "Die fünf Fragen, wie sie auf dem Spickzettel stehen"
+      "cheatsheetImage": "Die fünf Fragen, wie sie auf dem Spickzettel stehen",
+      "research": "Warum diese fünf Fragen? Entdecke die Forschung dahinter."
     },
     "reminder": {
       "postSession": {
@@ -755,16 +789,14 @@
       }
     },
     "intervals": {
-      "title": "Warum diese Wiederholungszeitpunkte",
+      "title": "Warum diese Zeiten",
       "loading": "Ihre Wiederholungszeiten werden geladen",
       "failedTitle": "Ihre Wiederholungszeiten konnten nicht geladen werden",
       "failedBody": "Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
       "emptyTitle": "Noch keine Wiederholungszeiten",
       "emptyNoSessions": "In Ihrem aktuellen Zeitplan stehen keine Wiederholungen an.",
       "emptyAddFollowing": "Tragen Sie Ihre darauffolgende Sitzung ein, um genaue Wiederholungszeiten in den Zwischenraum zu legen.",
-      "emptyAddSessions": "Tragen Sie Ihre nächsten Therapiesitzungen im Kalender ein, um einen Wiederholungsplan aufzubauen.",
-      "nextOf_one": "nächste von {{count}}",
-      "nextOf_other": "nächste von {{count}}"
+      "emptyAddSessions": "Tragen Sie Ihre nächsten Therapiesitzungen im Kalender ein, um einen Wiederholungsplan aufzubauen."
     },
     "reminders": {
       "learnMoreAbout": "Mehr über {{date}} erfahren",
@@ -1008,6 +1040,7 @@
     "unsupported_transaction_environment": "Dieser Kauf kann mit dieser Version der App nicht verwendet werden.",
     "test_purchase_not_allowed": "Dieser Testkauf kann mit dieser Version der App nicht verwendet werden.",
     "network": "Die Verbindung konnte nicht hergestellt werden. Prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.",
-    "session_changed": "Ihre Anmeldesitzung hat sich geändert. Bitte versuchen Sie es erneut."
+    "session_changed": "Ihre Anmeldesitzung hat sich geändert. Bitte versuchen Sie es erneut.",
+    "calendar_changed": "Dein Kalender wurde auf einem anderen Gerät geändert. Aktualisiere und versuche es erneut."
   }
 }

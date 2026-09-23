@@ -2,7 +2,6 @@ import type { PlanTimelineEntry } from '../onboarding/planTimeline';
 import type { Reminder } from './types';
 import { Reason } from './types';
 import { formattingLocale } from '../../i18n';
-import { t } from '../../i18n/translate';
 
 export type IntervalCard = {
     reason: Reason;
@@ -55,24 +54,21 @@ const dateAt = (date: Date, timeZone?: string, locale?: string): string =>
     );
 
 /**
- * The zone still decides what the clock reads; it is no longer written out.
+ * The date the next one falls on, and nothing else.
  *
- * The caption used to carry the zone's short name, so a card read "Wed, 16 Sep
- * · GMT · next of 3". The times are already shown in the user's own zone, which
- * is the only zone they are in, so naming it added a word that could only ever
- * say what the reader already assumed. `timeZone` stays a parameter because
- * `dateAt` and `timeAt` still resolve the instant in it.
+ * The caption used to carry the zone's short name and a running total, so a
+ * card read "Wed, 16 Sep · GMT · next of 47". The times are already shown in
+ * the user's own zone, which is the only zone they are in, and the total
+ * counted every occurrence the horizon happened to hold: a number that moved
+ * when the schedule was extended rather than when anything about the reminder
+ * changed. `timeZone` stays a parameter because `dateAt` and `timeAt` still
+ * resolve the instant in it.
  */
 const captionAt = (
     date: Date,
-    count: number,
     timeZone?: string,
     locale?: string,
-): string => {
-    const parts = [dateAt(date, timeZone, locale)];
-    if (count > 1) parts.push(t('science:intervals.nextOf', { count }));
-    return parts.join(' · ');
-};
+): string => dateAt(date, timeZone, locale);
 
 /**
  * Exact review moments from the unsaved plan currently being previewed.
@@ -95,7 +91,7 @@ export const intervalCardsFromPlan = (
         return [{
             reason,
             time: timeAt(entry.at, undefined, locale),
-            caption: captionAt(entry.at, entry.occurrences.length, undefined, locale),
+            caption: captionAt(entry.at, undefined, locale),
         }];
     });
 
@@ -126,6 +122,6 @@ export const intervalCardsFromSchedule = (
     return [...grouped.entries()].map(([reason, dates]) => ({
         reason,
         time: timeAt(dates[0], timeZone, locale),
-        caption: captionAt(dates[0], dates.length, timeZone, locale),
+        caption: captionAt(dates[0], timeZone, locale),
     }));
 };
