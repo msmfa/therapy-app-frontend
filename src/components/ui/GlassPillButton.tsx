@@ -39,6 +39,7 @@ type Props = {
      */
     rim?: GradientStops | null;
     style?: StyleProp<ViewStyle>;
+    testID?: string;
 };
 
 /**
@@ -69,6 +70,7 @@ export function GlassPillButton({
     fillColor,
     rim: rimOverride,
     style,
+    testID,
 }: Props) {
     const { t } = useTranslation('common');
     const { theme } = useTheme();
@@ -102,6 +104,7 @@ export function GlassPillButton({
             accessibilityState={ { disabled: disabled || loading, busy: loading } }
             accessibilityValue={ loading ? { text: t('a11y.loading') } : undefined }
             onLayout={ (event) => setLayout(event.nativeEvent.layout) }
+            testID={ testID }
             style={ [
                 styles.shadowWrapper,
                 { ...(contentSized ? { minHeight: height } : { height }), borderRadius: radius },

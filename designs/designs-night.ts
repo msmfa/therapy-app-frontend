@@ -354,16 +354,20 @@ export const NIGHT_CALENDAR_SHEET = {
 } as const;
 
 /**
- * The ground the reminder card's aura is painted on. The sunrise stays; the
- * sky behind it goes to the panel charcoal.
+ * The ground the reminder card's aura is painted on.
+ *
+ * At night it is flat: one charcoal, and no sunrise behind the dots. The
+ * banked glow read as a smudge on a dark panel rather than as light, and the
+ * dots are white on their own. The three stops stay the same value rather
+ * than collapsing to one so the panel keeps its shape in the theme.
  */
 export const NIGHT_AURA = {
-    top: 'hsl(212, 12%, 14%)',
-    mid: 'hsl(212, 12%, 11%)',
+    top: 'hsl(212, 12%, 13%)',
+    mid: 'hsl(212, 12%, 13%)',
     bottom: 'hsl(212, 12%, 13%)',
-    /** The sunrise, banked: the same orange taken most of the way down. */
+    /** Unused while the glow is off, kept so the token stays whole. */
     core: 'hsl(20, 70%, 34%)',
-    glowOpacity: 0.55,
+    glowOpacity: 0,
 } as const;
 
 /**

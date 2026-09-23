@@ -15,7 +15,7 @@ type Props = {
     state?: string;
     marking?: {
         kind?: CalendarDayKind;
-        /** A session day that also has a reminder due: dots under the disc. */
+        /** A reminder is due on the day; drawn as dots unless a session owns it. */
         reminder?: boolean;
         /** Before today: drawn faded, still pressable so its history can be read. */
         muted?: boolean;
@@ -42,6 +42,12 @@ const DOT_COUNT = 3;
 function dateFromDateString(dateString: string): Date {
     const [year, month, day] = dateString.split('-').map(Number);
     return new Date(year, month - 1, day);
+}
+
+function startOfToday(): Date {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
 }
 
 // A reminder is marked by three dots under the numeral rather than a disc
@@ -92,6 +98,12 @@ export function CalendarDay({ date, state, marking, onPress, accessibilityLabel,
     // "this is a session" the way today's carries "this is today"; the
     // accessibility label carries both regardless of which disc is drawn.
     const isTodayCell = !isPressed && isToday;
+    // The month used to start at today, so react-native-calendars greyed
+    // everything behind it out of the box. The past is navigable now, which
+    // handed every gone day the same ink as a day still to come. It is still
+    // pressable; it just no longer looks like something to act on.
+    const isPast = date !== undefined
+        && dateFromDateString(date.dateString).getTime() < startOfToday().getTime();
     // The disc drops while the day is pressed, same as today's, so the sheet
     // opened on it owns the cell rather than competing with it.
     const showsSessionFill = kind === 'session' && !isPressed;
@@ -110,15 +122,16 @@ export function CalendarDay({ date, state, marking, onPress, accessibilityLabel,
             hasReminder ? t('a11y.reminder') : null,
         ].filter((part): part is string => part !== null).join(', ');
 
-    // A reminder is dots; on a session disc they take the disc's ink so they
-    // still read on the orange. The post-session review lands on the evening
-    // of the session itself, so a session day with dots is the common case,
-    // not the exception.
-    const dotColor = !hasReminder
+    // A reminder is dots, but only on a day that carries no session of its
+    // own. The post-session review lands on the evening of the session itself,
+    // so nearly every session day also has a reminder: the dots were on the
+    // disc more often than not, and said nothing the disc had not already
+    // said. The sheet still lists the day's reminders when the day is opened,
+    // and the accessibility label still names them.
+    const showsDots = hasReminder && kind !== 'session';
+    const dotColor = !showsDots
         ? undefined
-        : showsSessionFill
-            ? month.sessionFillText
-            : isTodayCell ? month.reminderDotOnToday : month.reminderDot;
+        : isTodayCell ? month.reminderDotOnToday : month.reminderDot;
 
     const cellStyle = [
         styles.cell,
@@ -134,7 +147,7 @@ export function CalendarDay({ date, state, marking, onPress, accessibilityLabel,
         ? month.sessionFillText
         : isTodayCell
             ? month.todayText
-            : isDisabled && !kind
+            : (isDisabled || isPast) && !kind
                 ? month.dayDisabled
                 : month.dayDefault;
 

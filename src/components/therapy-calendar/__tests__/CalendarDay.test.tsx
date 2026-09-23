@@ -46,6 +46,25 @@ describe('CalendarDay', () => {
         expect(dotColours()).toEqual(Array(3).fill('transparent'));
     });
 
+    it('keeps the dots off a session day that also has a reminder due, since the disc already speaks for the day', () => {
+        renderDay({ state: undefined, marking: { kind: 'session', reminder: true } });
+
+        expect(cellStyle().backgroundColor).toBe(CALENDAR_MONTH_COLORS.sessionFill);
+        expect(dotColours()).toEqual(Array(3).fill('transparent'));
+    });
+
+    it('still names the reminder on a session day for VoiceOver, which has no disc to read', () => {
+        renderDay({
+            state: undefined,
+            date: { dateString: '2026-03-04', day: 4, month: 3, year: 2026, timestamp: 0 },
+            marking: { kind: 'session', reminder: true },
+        });
+
+        const label = screen.getByTestId('day').props.accessibilityLabel as string;
+        expect(label).toContain('Therapy session');
+        expect(label).toContain('Reminder');
+    });
+
     it('lightens a reminder dot on today, which is nearly black behind it', () => {
         renderDay({ marking: { kind: 'reminder' } });
 

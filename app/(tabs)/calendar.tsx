@@ -1,18 +1,20 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import dayjs from 'dayjs';
-import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
-import TherapyCalendar, { createDateFromKey, formatDateKey } from '../../src/components/therapy-calendar/TherapyCalendar';
+import TherapyCalendar, { createDateFromKey, formatDateKey, type CalendarFocus } from '../../src/components/therapy-calendar/TherapyCalendar';
 import ScheduleModal, { type ScheduleMode, type SheetSession } from '../../src/components/therapy-calendar/ScheduleModal';
-import ReminderSheet, { reminderHeadline } from '../../src/components/therapy-calendar/ReminderSheet';
+import ReminderSheet from '../../src/components/therapy-calendar/ReminderSheet';
 import { useTherapySessions } from '../../src/context/therapy-sessions/TherapySessionsContext';
 import type { CalendarReminder, SessionEditScope, TherapySession } from '../../src/api/therapy';
 import { ApiError } from '../../src/api/client';
+import { updateCurrentUser } from '../../src/api/users';
+import type { ReminderSlot } from '../../src/components/therapy-calendar/ReminderTimeSheet';
+import { PresentedModal } from '../../src/components/ui/PresentedModal';
 import ErrorModal from '../../src/components/ui/ErrorModal';
 import { CalendarBackdrop } from '../../src/components/ui/CalendarBackdrop';
 import { useAppAlert } from '../../src/context/alert';
@@ -33,49 +35,65 @@ type NextEventCardProps = {
     detail?: string | null;
     /** Matches the dots the month uses for this kind of day. */
     accent: string;
+    /** Given only when there is an event to open; the empty card is inert. */
+    onPress?: () => void;
+    /** The line along the foot of the card, saying what pressing it does. */
+    footnote?: string | null;
+    testID?: string;
 };
 
 // Reads like a weather tile: a quiet label with a coloured dot on the shoulder,
 // and the day number carrying the card the way a temperature does, with the
 // month sitting up against it as the unit.
-const NextEventCard = React.memo(function NextEventCard({ label, date, detail, accent }: NextEventCardProps) {
+const NextEventCard = React.memo(function NextEventCard({ label, date, detail, accent, onPress, footnote, testID }: NextEventCardProps) {
     const { t } = useTranslation('calendar');
     const { theme } = useTheme();
     const styles = useThemedStyles(makeStyles);
     const when = date ? dayjs(date) : null;
 
     return (
-        <GradientCard
-            addedStyles={ styles.eventCard }
-            borderRadius={ 20 }
-            surfaceBackgroundColor={ theme.surface.sheetCard }
-            surfaceBorderColor={ theme.surface.sheetCardBorder }
+        <TouchableOpacity
+            accessibilityRole={ onPress ? 'button' : undefined }
+            activeOpacity={ 0.85 }
+            disabled={ !onPress }
+            onPress={ onPress }
+            testID={ testID }
         >
-            <View style={ styles.eventCardBody }>
-                <View style={ styles.eventValueRow }>
-                    { when ? (
-                        <View style={ styles.eventReading }>
-                            <AppText variant="h1" style={ styles.eventDay }>{ when.format('D') }</AppText>
-                            <AppText variant="h1" style={ styles.eventMonth }>{ when.format('MMM').toUpperCase() }</AppText>
-                        </View>
-                    ) : (
-                        <AppText variant="body" style={ styles.eventEmpty }>{ t('nothingScheduled') }</AppText>
-                    ) }
-                    <View style={ styles.eventAside }>
-                        <View style={ styles.eventLabelRow }>
-                            <AppText variant="caption" style={ styles.eventLabel }>{ label }</AppText>
-                            <View style={ [styles.eventDot, { backgroundColor: accent }] } />
-                        </View>
-                        { when && detail ? (
-                            <AppText variant="caption" numberOfLines={ 1 } style={ styles.eventDetail }>{ detail }</AppText>
-                        ) : null }
+            <GradientCard
+                addedStyles={ styles.eventCard }
+                borderRadius={ 20 }
+                surfaceBackgroundColor={ theme.surface.sheetCard }
+                surfaceBorderColor={ theme.surface.sheetCardBorder }
+            >
+                <View style={ styles.eventCardBody }>
+                    <View style={ styles.eventValueRow }>
                         { when ? (
-                            <AppText variant="caption" style={ styles.eventMeta }>{ when.format('ddd, LT') }</AppText>
-                        ) : null }
+                            <View style={ styles.eventReading }>
+                                <AppText variant="h1" style={ styles.eventDay }>{ when.format('D') }</AppText>
+                                <AppText variant="h1" style={ styles.eventMonth }>{ when.format('MMM').toUpperCase() }</AppText>
+                            </View>
+                        ) : (
+                            <AppText variant="body" style={ styles.eventEmpty }>{ t('nothingScheduled') }</AppText>
+                        ) }
+                        <View style={ styles.eventAside }>
+                            <View style={ styles.eventLabelRow }>
+                                <AppText variant="caption" style={ styles.eventLabel }>{ label }</AppText>
+                                <View style={ [styles.eventDot, { backgroundColor: accent }] } />
+                            </View>
+                            { when && detail ? (
+                                <AppText variant="caption" numberOfLines={ 1 } style={ styles.eventDetail }>{ detail }</AppText>
+                            ) : null }
+                            { when ? (
+                                <AppText variant="caption" style={ styles.eventMeta }>{ when.format('ddd, LT') }</AppText>
+                            ) : null }
+                        </View>
                     </View>
+                    { when && footnote ? (
+                        <AppText variant="caption" style={ styles.eventFootnote }>{ footnote }</AppText>
+                    ) : null }
                 </View>
-            </View>
-        </GradientCard>
+            </GradientCard>
+        </TouchableOpacity>
     );
 });
 
@@ -90,11 +108,19 @@ export default function CalendarScreen() {
         sessions, scheduleSessions, reminders, nextSession, nextReminder,
         hydrated, loading, error: sessionsError, refreshSessions,
         addSession, updateSession, removeSession,
+        reminderScheduleSettings, refreshReminderSchedule,
     } = useTherapySessions();
     const insets = useSafeAreaInsets();
     const { showAlert } = useAppAlert();
     const [sheet, setSheet] = useState<OpenSheet>(null);
+    const [focus, setFocus] = useState<CalendarFocus | null>(null);
+    const [contentHeight, setContentHeight] = useState(0);
+    const [viewportHeight, setViewportHeight] = useState(0);
+    const [scrollOffset, setScrollOffset] = useState(0);
+
+    const canScrollDown = contentHeight - viewportHeight - scrollOffset > 2;
     const [busy, setBusy] = useState(false);
+    const writing = useRef(false);
     const [errorModalVisible, setErrorModalVisible] = useState(false);
     const [errorDismissed, setErrorDismissed] = useState(false);
 
@@ -136,10 +162,36 @@ export default function CalendarScreen() {
         setSheet({ kind: dayReminders.length > 0 ? 'reminder' : 'schedule', dateKey });
     }, [sessionsByDay, remindersByDay, editableIds]);
 
+    const focusDay = useCallback((dateKey: string) => {
+        setFocus((previous) => ({ dateKey, seq: (previous?.seq ?? 0) + 1 }));
+    }, []);
+
+    // Every edit belongs to the day it is on, so the card does not grow a
+    // second, quieter way to move a session. It takes the month to the day
+    // and says where to tap, which leaves the editing where the rest of the
+    // screen keeps it.
+    const handleNextSessionPress = useCallback(() => {
+        if (!nextSession) return;
+        const startsAt = new Date(nextSession.startsAtUtc);
+        if (Number.isNaN(startsAt.getTime())) return;
+        focusDay(formatDateKey(startsAt));
+    }, [nextSession, focusDay]);
+
+    // The card used to print the reminder's headline. The sheet says the same
+    // thing and then some, so the card opens it instead of paraphrasing it,
+    // over the month the reminder actually falls in.
+    const handleNextReminderPress = useCallback(() => {
+        if (!nextReminder) return;
+        focusDay(nextReminder.localDate);
+        setSheet({ kind: 'reminder', dateKey: nextReminder.localDate });
+    }, [nextReminder, focusDay]);
+
     const closeSheet = useCallback(() => setSheet(null), []);
 
     // Leaving the tab closes whatever was open; the sheet belongs to the visit.
-    useFocusEffect(useCallback(() => () => setSheet(null), []));
+    useFocusEffect(useCallback(() => () => {
+        setSheet(null);
+    }, []));
 
     const reportFailure = useCallback((err: unknown) => {
         if (err instanceof ApiError && err.status === 412) {
@@ -151,18 +203,55 @@ export default function CalendarScreen() {
         }
     }, [showAlert, t, tCommon]);
 
-    const run = useCallback(async (write: () => Promise<unknown>) => {
+    // `keepSheetOpen` is for a write that changes what the open sheet is
+    // showing rather than finishing with it: the new reminder time should
+    // appear on the card that was just edited, not vanish with it.
+    //
+    // A failed write always closes the sheet, whatever it asked for. What
+    // went wrong is said through the app alert, the alert is a modal, and a
+    // modal cannot be presented over the sheet: the message would be thrown
+    // away and the sheet would sit there having visibly done nothing. The
+    // alert waits for the sheet to go (see `modalPresence`), so the sheet
+    // has to go.
+    const run = useCallback(async (write: () => Promise<unknown>, keepSheetOpen = false) => {
+        if (writing.current) return;
+        writing.current = true;
         setBusy(true);
         try {
             await write();
-            setSheet(null);
+            if (!keepSheetOpen) setSheet(null);
         } catch (err) {
             console.error('calendar write failed', err);
+            setErrorDismissed(true);
+            setErrorModalVisible(false);
+            setSheet(null);
             reportFailure(err);
         } finally {
+            writing.current = false;
             setBusy(false);
         }
     }, [reportFailure]);
+
+    // The two wall-clock times behind every review reminder. They belong to
+    // the account rather than to a day, which is why the picker that edits
+    // them says so out loud.
+    const slotMinutes = useMemo(() => (reminderScheduleSettings
+        ? {
+            morning: reminderScheduleSettings.morningReminderMinutes,
+            evening: reminderScheduleSettings.eveningReminderMinutes,
+        }
+        : null), [reminderScheduleSettings]);
+
+    const handleSaveSlotTime = useCallback((slot: ReminderSlot, minutes: number) => {
+        return run(async () => {
+            await updateCurrentUser(slot === 'morning'
+                ? { morningReminderMinutes: minutes }
+                : { eveningReminderMinutes: minutes });
+            // The times moved without the sessions moving, so the cached
+            // schedule is stale in a way a session write would not make it.
+            await refreshReminderSchedule();
+        }, true);
+    }, [run, refreshReminderSchedule]);
 
     const activeDateKey = sheet?.dateKey ?? null;
     const activeSession = activeDateKey ? sessionsByDay.get(activeDateKey) ?? null : null;
@@ -190,31 +279,23 @@ export default function CalendarScreen() {
         void run(() => updateSession(sheetSession.id, { startsAtUtc: withTime(activeDateKey, time), scope }));
     }, [activeDateKey, sheetSession, updateSession, run]);
 
+    // Ending a series removes every later appointment in one go, which is the
+    // one edit on this screen that cannot be undone by tapping again. The
+    // sheet asks before it calls this: the question used to go through the
+    // app-wide alert, which is a modal of its own, and iOS silently refuses
+    // to present one modal over another, so the button did nothing at all.
     const handleDelete = useCallback((scope: SessionEditScope) => {
         if (!sheetSession) return;
-        if (scope === 'this') {
-            void run(() => removeSession(sheetSession.id, 'this'));
-            return;
-        }
-        // Ending a series removes every later appointment in one go, which is
-        // the one edit on this screen that cannot be undone by tapping again.
-        showAlert(t('schedule.endSeriesTitle'), t('schedule.endSeriesMessage'), {
-            primaryAction: {
-                label: t('schedule.endSeries'),
-                tone: 'danger',
-                onPress: () => run(() => removeSession(sheetSession.id, 'future')),
-            },
-            secondaryAction: { label: t('schedule.keepSeries'), onPress: () => {} },
-        });
-    }, [sheetSession, removeSession, run, showAlert, t, tCommon]);
+        void run(() => removeSession(sheetSession.id, scope));
+    }, [sheetSession, removeSession, run]);
 
     useEffect(() => {
-        if (sessionsError && !errorDismissed) setErrorModalVisible(true);
+        if (sessionsError && !errorDismissed && !busy && !sheet) setErrorModalVisible(true);
         if (!sessionsError) {
             setErrorModalVisible(false);
             setErrorDismissed(false);
         }
-    }, [sessionsError, errorDismissed]);
+    }, [sessionsError, errorDismissed, busy, sheet]);
 
     const handleErrorModalClose = useCallback(() => {
         setErrorModalVisible(false);
@@ -233,29 +314,27 @@ export default function CalendarScreen() {
     }, [sessionsError, refreshSessions, handleErrorModalClose]);
 
     if (loading && !hydrated) {
-        // Keep this loader inside the tab screen. Loading's default Modal
-        // covers the navigator, including the tab bar, and made a normal data
-        // refresh look like the whole app had disappeared.
-        return (
-            <View style={ styles.container }>
-                <CalendarBackdrop />
-                <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'top'] }>
-                    <View style={ styles.loadingBody }>
-                        <Loading fullScreen={ false } />
-                    </View>
-                </SafeAreaView>
-            </View>
-        );
+        return <Loading fullScreen />;
     }
 
     return (
         <View style={ styles.container }>
             <CalendarBackdrop />
             <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'top'] }>
+                <ScrollView
+                    testID="calendar.scroll"
+                    contentContainerStyle={ { flexGrow: 1 } }
+                    showsVerticalScrollIndicator={ false }
+                    onLayout={ (event) => setViewportHeight(event.nativeEvent.layout.height) }
+                    onContentSizeChange={ (_width, height) => setContentHeight(height) }
+                    onScroll={ (event) => setScrollOffset(event.nativeEvent.contentOffset.y) }
+                    scrollEventThrottle={ 16 }
+                >
                 <TherapyCalendar
                     sessions={ scheduleSessions }
                     reminders={ reminders }
                     activeDateKey={ activeDateKey }
+                    focus={ focus }
                     onDayPress={ handleDayPress }
                 />
 
@@ -270,39 +349,40 @@ export default function CalendarScreen() {
                         pointerEvents="none"
                         style={ styles.sheetHighlight }
                     />
-                    <MaskedView
-                        style={ styles.eventScroll }
-                        maskElement={
-                            <LinearGradient
-                                colors={ ['#000000', '#000000', 'transparent'] }
-                                locations={ [0, 0.9, 1] }
-                                style={ StyleSheet.absoluteFillObject }
-                            />
-                        }
-                    >
-                        <ScrollView
-                            contentContainerStyle={ [styles.eventCards, { paddingBottom: insets.bottom + 24 }] }
-                            showsVerticalScrollIndicator={ false }
-                            style={ styles.eventScroll }
-                        >
+                    <View style={ [styles.eventCards, { paddingBottom: insets.bottom + 32 }] }>
                             <NextEventCard
                                 label={ t('nextSession') }
                                 date={ nextSession ? new Date(nextSession.startsAtUtc) : null }
                                 detail={ nextSession?.seriesId ? t('schedule.everyWeek') : null }
                                 accent={ theme.calendar.month.sessionDot }
+                                onPress={ nextSession ? handleNextSessionPress : undefined }
+                                footnote={ t('nextSessionHelp.message') }
+                                testID="calendar.nextSession"
                             />
                             <NextEventCard
                                 label={ t('nextReminder') }
                                 date={ nextReminder ? new Date(nextReminder.dueAtUtc) : null }
-                                detail={ nextReminder ? reminderHeadline(nextReminder, t) : null }
                                 accent={ theme.calendar.month.reminderDot }
+                                onPress={ nextReminder ? handleNextReminderPress : undefined }
+                                footnote={ t('nextReminderHelp') }
+                                testID="calendar.nextReminder"
                             />
-                        </ScrollView>
-                    </MaskedView>
+                    </View>
                 </View>
+                </ScrollView>
+                { canScrollDown && (
+                    <LinearGradient
+                        testID="calendar.bottomFade"
+                        pointerEvents="none"
+                        colors={ [theme.ground.fade, theme.ground.base] }
+                        style={ { position: 'absolute', bottom: 0, left: 0, right: 0, height: 36 } }
+                    />
+                ) }
             </SafeAreaView>
+            <PresentedModal visible={ Boolean(sheet) } transparent animationType="slide" onRequestClose={ () => { if (!busy) closeSheet(); } }>
             { sheet?.kind === 'schedule' && (
                 <ScheduleModal
+                    embedded
                     visible
                     selectedDate={ sheet.dateKey }
                     existingSession={ sheetSession }
@@ -316,19 +396,24 @@ export default function CalendarScreen() {
             ) }
             { sheet?.kind === 'reminder' && (
                 <ReminderSheet
+                    embedded
                     visible
                     selectedDate={ sheet.dateKey }
                     reminders={ remindersByDay.get(sheet.dateKey) ?? [] }
                     sessions={ scheduleSessions }
+                    slotMinutes={ slotMinutes }
+                    onSaveSlotTime={ handleSaveSlotTime }
+                    busy={ busy }
                     onAddSession={ sheet.dateKey >= formatDateKey(new Date()) && !activeSession
                         ? () => setSheet({ kind: 'schedule', dateKey: sheet.dateKey })
                         : undefined }
                     onClose={ closeSheet }
                 />
             ) }
+            </PresentedModal>
             { sessionsError && (
                 <ErrorModal
-                    visible={ errorModalVisible }
+                    visible={ errorModalVisible && !sheet && !busy }
                     title={ sessionsError.title }
                     message={ sessionsError.message }
                     buttonLabel={ sessionsError.retryable ? sessionsError.actionLabel : undefined }
@@ -347,10 +432,6 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     root: {
         flex: 1,
     },
-    loadingBody: {
-        flex: 1,
-        justifyContent: 'center',
-    },
     // Runs to the bottom of the screen and under the tab bar, so only the top
     // corners are rounded.
     sheet: {
@@ -367,9 +448,6 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         right: 0,
         top: 0,
         zIndex: 1,
-    },
-    eventScroll: {
-        flex: 1,
     },
     eventCards: {
         gap: 12,
@@ -444,6 +522,13 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         color: theme.ink.tertiary,
         fontSize: 13,
         textAlign: 'right',
+    },
+    // Under the reading, in the card's quietest ink: the card is a readout
+    // first, and this says what happens if you press it.
+    eventFootnote: {
+        color: theme.ink.tertiary,
+        fontSize: 13,
+        marginTop: 10,
     },
     eventEmpty: {
         alignSelf: 'center',

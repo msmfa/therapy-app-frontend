@@ -114,6 +114,15 @@ describeIfBackend('calendar API against the real backend', () => {
         expect(new Set(reviewDays).size).toBe(reviewDays.length);
     });
 
+    it('rebuilds the calendar after reminder time preferences change', async () => {
+        await apiPatch('/api/users/me', { eveningReminderMinutes: 1276 }, { parseJson: false });
+        snapshot = await getCalendar(window.from, window.to);
+        expect(snapshot.eveningReminderMinutes).toBe(1276);
+        const evening = snapshot.reminders.find((r) => r.reason === 'pre_session');
+        expect(hourIn(evening!.dueAtUtc, ZONE)).toBe(21);
+        expect(new Date(evening!.dueAtUtc).getUTCMinutes()).toBe(16);
+    });
+
     it('moves every later session when the edit applies to all future sessions', async () => {
         const [first] = snapshot.sessions;
         const moved = new Date(new Date(first.startsAtUtc).getTime() + 60 * 60_000);

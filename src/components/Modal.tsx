@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react'
-import { Animated, LayoutChangeEvent, Modal, View, StyleSheet } from "react-native";
+import { Animated, LayoutChangeEvent, View, StyleSheet } from "react-native";
+import { PresentedModal } from "./ui/PresentedModal";
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTheme as useNavigationTheme } from '@react-navigation/native';
@@ -11,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 interface ModalProps {
     children: React.ReactNode;
     isVisible: boolean;
+    embedded?: boolean;
     onClose: () => void;
     /** Sits in the header beside the cross. Omitted, the header is just the cross. */
     title?: string;
@@ -33,7 +35,7 @@ const FADE_RAMP = 24;
 /** Below this there is nothing to scroll, so the bottom fade stays off. */
 const SCROLLABLE_EPSILON = 1;
 
-export function AppModal({ children, isVisible, onClose, title }: ModalProps) {
+export function AppModal({ children, isVisible, onClose, title, embedded = false }: ModalProps) {
     const { t } = useTranslation('common');
     const { colors } = useNavigationTheme();
     const { theme } = useTheme();
@@ -73,12 +75,7 @@ export function AppModal({ children, isVisible, onClose, title }: ModalProps) {
 
     if (!isVisible) return null;
 
-    return (
-        <Modal
-            visible={ isVisible }
-            animationType="slide"
-            onRequestClose={ onClose }
-        >
+    const content = (
             <View style={ [styles.modalWrapper, { backgroundColor: colors.background }] }>
                 <View
                     testID="app-modal-root"
@@ -138,7 +135,11 @@ export function AppModal({ children, isVisible, onClose, title }: ModalProps) {
                     </View>
                 </View>
             </View>
-        </Modal>
+    );
+    return embedded ? content : (
+        <PresentedModal visible={ isVisible } animationType="slide" onRequestClose={ onClose }>
+            { content }
+        </PresentedModal>
     );
 }
 

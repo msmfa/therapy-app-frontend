@@ -3,9 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Linking, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import AppText from '../src/components/ui/AppText';
-import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import { GlassCircleButton } from '../src/components/ui/GlassCircleButton';
-import { TemplateHelpModal } from '../src/components/notes/TemplateHelpModal';
 import { NoteSheetBackdrop } from '../src/components/notes/NoteSheetBackdrop';
 import { DottedGrid } from '../src/components/ui/DottedGrid';
 import { useTranslation } from 'react-i18next';
@@ -19,7 +17,6 @@ export default function HowToTakeNotesScreen() {
     const router = useRouter();
     const { theme } = useTheme();
     const styles = useThemedStyles(makeStyles);
-    const [helpVisible, setHelpVisible] = React.useState(false);
 
     const handleBack = () => router.back();
     // Linking rather than expo-web-browser, matching how settings.tsx opens
@@ -49,33 +46,17 @@ export default function HowToTakeNotesScreen() {
                 </AppText>
             </View>
 
-            { /* The sheet below already carries the questions and the guidance
-                 about how much to write, so this page does not repeat them. */ }
+            { /* The sheet below carries the questions and the guidance about
+                 how much to write, so this page says one thing only, and that
+                 one thing is a way through to the research. */ }
             <View style={ styles.intro }>
-                <AppText variant="body" style={ styles.introText }>
-                    { tScience('template.recommendBefore') }{ ' ' }
-                    <AppText
-                        variant="body"
-                        onPress={ () => setHelpVisible(true) }
-                        accessibilityRole="link"
-                        style={ [styles.link, styles.introText] }
-                    >
-                        { tScience('template.cheatsheetLink') }
-                    </AppText>
-                    .
-                </AppText>
-                <Spacer variant={ SpacerVariant.medium } />
-                <AppText variant="body" style={ styles.introText }>
-                    { tScience('template.researchBefore') }{ ' ' }
-                    <AppText
-                        variant="body"
-                        onPress={ handleOpenResearch }
-                        accessibilityRole="link"
-                        style={ [styles.link, styles.introText] }
-                    >
-                        { tScience('template.researchLink') }
-                    </AppText>
-                    .
+                <AppText
+                    variant="body"
+                    onPress={ handleOpenResearch }
+                    accessibilityRole="link"
+                    style={ [styles.link, styles.introText] }
+                >
+                    { tScience('template.research') }
                 </AppText>
             </View>
 
@@ -89,11 +70,6 @@ export default function HowToTakeNotesScreen() {
                     />
                 </View>
             </View>
-
-            <TemplateHelpModal
-                visible={ helpVisible }
-                onClose={ () => setHelpVisible(false) }
-            />
         </SafeAreaView>
     );
 }
@@ -119,13 +95,15 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         fontSize: 18,
         lineHeight: 26,
     },
+    // The app's own link ink, the one citations and external links use,
+    // rather than the danger red this page had reached for.
     link: {
-        color: theme.status.dangerText,
+        color: theme.link.bright,
         fontWeight: '600',
     },
     sheetArea: {
         flex: 1,
-        marginTop: 20,
+        marginTop: 12,
     },
     cheatsheetLayer: {
         ...StyleSheet.absoluteFillObject,
@@ -133,17 +111,17 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         zIndex: -1,
     },
     cheatsheet: {
-        // Narrow enough that the tilt's wider bounding box still fits the
-        // screen: at 4 degrees a tall sheet gains about 30pt of width, which
-        // was clipping its left edge at 90%. The height is the drawn sheet's
-        // own, so the paper ends where the last question does.
-        width: '80%',
+        // The page is one line of prose now, so the sheet takes the room that
+        // freed up. The tilt still has to fit: at 4 degrees a tall sheet gains
+        // about 30pt of width, so it stops short of the full width and the
+        // nudge left below keeps that growth off the screen edge.
+        width: '92%',
         alignSelf: 'center',
         borderRadius: 18,
         // Nudged left before the tilt is applied, so the offset is in plain
         // page space rather than the rotated one.
         // Tilted a few degrees left, so it reads as a picture of the sheet
         // rather than part of this page's layout.
-        transform: [{ translateX: -18 }, { rotate: '-4deg' }],
+        transform: [{ translateX: -8 }, { rotate: '-4deg' }],
     },
 });

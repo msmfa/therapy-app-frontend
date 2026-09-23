@@ -44,7 +44,6 @@
     "title": "Einstellungen",
     "hub": {
       "language": "Sprache",
-      "appearance": "Erscheinungsbild",
       "references": "Quellenverzeichnis",
       "settings": "Einstellungen",
       "rateApp": "Diese App bewerten",
@@ -52,7 +51,9 @@
       "logOutFailed": "Abmeldung fehlgeschlagen, bitte versuchen Sie es erneut",
       "rateUnavailableTitle": "Nicht verfügbar",
       "rateUnavailableMessage": "Bewertungen werden auf dieser Plattform noch nicht unterstützt.",
-      "storeOpenFailed": "Der Store lässt sich im Moment nicht öffnen."
+      "storeOpenFailed": "Der Store lässt sich im Moment nicht öffnen.",
+      "darkMode": "Dunkelmodus",
+      "lightMode": "Hellmodus"
     },
     "rows": {
       "reminderSettings": "Erinnerungseinstellungen",
@@ -292,8 +293,8 @@
       "thisSessionOnly": "Nur diese Sitzung",
       "allFutureSessions": "Alle künftigen Sitzungen",
       "allFutureNote": "Ab dieser Sitzung",
+      "allSessionsOnThisDay": "Alle Sitzungen am {{weekday}} löschen",
       "endSeries": "Serie beenden",
-      "partOfWeeklySeries": "Teil einer wöchentlichen Serie",
       "saving": "Wird gespeichert",
       "endSeriesTitle": "Diese Serie beenden?",
       "endSeriesMessage": "Diese Sitzung und alle späteren Sitzungen der Serie werden entfernt. Frühere Sitzungen bleiben im Kalender.",
@@ -346,12 +347,13 @@
       "reminder": "Erinnerung",
       "dismissScheduling": "Terminplanung schließen",
       "opensTimePicker": "Öffnet die Zeitauswahl",
-      "dismissReminder": "Erinnerung schließen"
+      "dismissReminder": "Erinnerung schließen",
+      "dismissHint": "Hinweis schließen"
     },
     "changedMessage": "Dein Kalender wurde auf einem anderen Gerät geändert. Er wurde aktualisiert, versuche die Änderung noch einmal.",
     "reminder": {
       "logNote": {
-        "title": "Sitzung festhalten",
+        "title": "Mach dir eine Notiz nach deiner Sitzung",
         "reason": "Zehn Minuten nach dem Ende deiner Sitzung, solange die Details noch frisch sind."
       },
       "review": {
@@ -362,10 +364,25 @@
         "sent": "Gesendet",
         "missed": "Verpasst"
       },
-      "afterSession": "Nach deiner Sitzung am {{date}}",
-      "beforeSession": "Vor deiner Sitzung am {{date}}",
-      "close": "Schließen"
-    }
+      "close": "Schließen",
+      "update": "Ändern",
+      "fixedTime": "Feste Zeit",
+      "time": {
+        "morningTitle": "Morgendliche Erinnerungen",
+        "eveningTitle": "Abendliche Erinnerungen",
+        "morningMessage": "Jede morgendliche Erinnerung wechselt auf diese Zeit, nicht nur diese eine.",
+        "eveningMessage": "Jede abendliche Erinnerung wechselt auf diese Zeit, nicht nur diese eine.",
+        "save": "Speichern"
+      },
+      "headlineOn": "{{headline}} am {{date}}",
+      "whyThis": "Warum diese Erinnerung"
+    },
+    "nextSessionHelp": {
+      "title": "Sitzung ändern",
+      "message": "Um eine Sitzung zu ändern oder zu löschen, tippe im Kalender auf das Datum, das du ändern möchtest.",
+      "confirm": "Alles klar"
+    },
+    "nextReminderHelp": "Tippe hier, um deine Erinnerungen zu ändern."
   },
   "onboarding": {
     "welcome": {
@@ -671,11 +688,8 @@
     "referencesNote": "Ihre Therapienotiz in fünf Minuten",
     "template": {
       "title": "Vorlage",
-      "recommendBefore": "Wir empfehlen Ihnen unseren",
-      "cheatsheetLink": "Spickzettel",
-      "researchBefore": "Warum wir diese 5 Fragen gewählt haben und welche Forschung dahintersteht,",
-      "researchLink": "hier klicken",
-      "cheatsheetImage": "Die fünf Fragen, wie sie auf dem Spickzettel stehen"
+      "cheatsheetImage": "Die fünf Fragen, wie sie auf dem Spickzettel stehen",
+      "research": "Warum diese fünf Fragen? Entdecke die Forschung dahinter."
     },
     "reminder": {
       "postSession": {
@@ -777,16 +791,14 @@
       }
     },
     "intervals": {
-      "title": "Warum diese Wiederholungszeitpunkte",
+      "title": "Warum diese Zeiten",
       "loading": "Ihre Wiederholungszeiten werden geladen",
       "failedTitle": "Ihre Wiederholungszeiten konnten nicht geladen werden",
       "failedBody": "Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
       "emptyTitle": "Noch keine Wiederholungszeiten",
       "emptyNoSessions": "In Ihrem aktuellen Zeitplan stehen keine Wiederholungen an.",
       "emptyAddFollowing": "Tragen Sie Ihre darauffolgende Sitzung ein, um genaue Wiederholungszeiten in den Zwischenraum zu legen.",
-      "emptyAddSessions": "Tragen Sie Ihre nächsten Therapiesitzungen im Kalender ein, um einen Wiederholungsplan aufzubauen.",
-      "nextOf_one": "nächste von {{count}}",
-      "nextOf_other": "nächste von {{count}}"
+      "emptyAddSessions": "Tragen Sie Ihre nächsten Therapiesitzungen im Kalender ein, um einen Wiederholungsplan aufzubauen."
     },
     "reminders": {
       "learnMoreAbout": "Mehr über {{date}} erfahren",

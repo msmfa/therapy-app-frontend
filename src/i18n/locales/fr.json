@@ -44,7 +44,6 @@
     "title": "Réglages",
     "hub": {
       "language": "Langue",
-      "appearance": "Apparence",
       "references": "Références",
       "settings": "Réglages",
       "rateApp": "Noter cette application",
@@ -52,7 +51,9 @@
       "logOutFailed": "Impossible de vous déconnecter, veuillez réessayer",
       "rateUnavailableTitle": "Indisponible",
       "rateUnavailableMessage": "La notation n’est pas encore prise en charge sur cette plateforme.",
-      "storeOpenFailed": "Impossible d’ouvrir la boutique pour le moment."
+      "storeOpenFailed": "Impossible d’ouvrir la boutique pour le moment.",
+      "darkMode": "Mode sombre",
+      "lightMode": "Mode clair"
     },
     "rows": {
       "reminderSettings": "Réglages des rappels",
@@ -292,8 +293,8 @@
       "thisSessionOnly": "Cette séance seulement",
       "allFutureSessions": "Toutes les séances à venir",
       "allFutureNote": "À partir de celle-ci",
+      "allSessionsOnThisDay": "Supprimer toutes les séances du {{weekday}}",
       "endSeries": "Arrêter la série",
-      "partOfWeeklySeries": "Fait partie d'une série hebdomadaire",
       "saving": "Enregistrement",
       "endSeriesTitle": "Arrêter cette série ?",
       "endSeriesMessage": "Cette séance et toutes les suivantes de la série seront supprimées. Les séances passées restent dans le calendrier.",
@@ -346,12 +347,13 @@
       "reminder": "Rappel",
       "dismissScheduling": "Fermer la planification",
       "opensTimePicker": "Ouvre le sélecteur d'heure",
-      "dismissReminder": "Fermer le rappel"
+      "dismissReminder": "Fermer le rappel",
+      "dismissHint": "Fermer l’astuce"
     },
     "changedMessage": "Votre calendrier a changé sur un autre appareil. Il a été actualisé, réessayez la modification.",
     "reminder": {
       "logNote": {
-        "title": "Notez votre séance",
+        "title": "Prenez une note après votre séance",
         "reason": "Dix minutes après la fin de votre séance, tant que les détails sont encore frais."
       },
       "review": {
@@ -362,10 +364,25 @@
         "sent": "Envoyé",
         "missed": "Manqué"
       },
-      "afterSession": "Après votre séance du {{date}}",
-      "beforeSession": "Avant votre séance du {{date}}",
-      "close": "Fermer"
-    }
+      "close": "Fermer",
+      "update": "Modifier",
+      "fixedTime": "Heure fixe",
+      "time": {
+        "morningTitle": "Rappels du matin",
+        "eveningTitle": "Rappels du soir",
+        "morningMessage": "Tous les rappels du matin passent à cette heure, pas seulement celui-ci.",
+        "eveningMessage": "Tous les rappels du soir passent à cette heure, pas seulement celui-ci.",
+        "save": "Enregistrer"
+      },
+      "headlineOn": "{{headline}} le {{date}}",
+      "whyThis": "Pourquoi ce rappel"
+    },
+    "nextSessionHelp": {
+      "title": "Modifier votre séance",
+      "message": "Pour modifier ou supprimer une séance, appuyez sur la date à changer dans le calendrier.",
+      "confirm": "Compris"
+    },
+    "nextReminderHelp": "Appuyez ici pour modifier vos rappels."
   },
   "onboarding": {
     "welcome": {
@@ -671,11 +688,8 @@
     "referencesNote": "Votre note de thérapie en cinq minutes",
     "template": {
       "title": "Modèle",
-      "recommendBefore": "Nous vous recommandons d’utiliser notre",
-      "cheatsheetLink": "aide-mémoire",
-      "researchBefore": "Pour savoir pourquoi nous avons retenu ces 5 questions, et la recherche correspondante,",
-      "researchLink": "cliquez ici",
-      "cheatsheetImage": "Les cinq questions, telles qu’elles apparaissent sur l’aide-mémoire"
+      "cheatsheetImage": "Les cinq questions, telles qu’elles apparaissent sur l’aide-mémoire",
+      "research": "Pourquoi ces cinq questions ? Découvrez la recherche qui les sous-tend."
     },
     "reminder": {
       "postSession": {
@@ -777,16 +791,14 @@
       }
     },
     "intervals": {
-      "title": "Pourquoi ces moments de révision",
+      "title": "Pourquoi ces horaires",
       "loading": "Chargement de vos horaires de révision",
       "failedTitle": "Impossible de charger vos horaires de révision",
       "failedBody": "Vérifiez votre connexion et réessayez.",
       "emptyTitle": "Aucun horaire de révision pour l’instant",
       "emptyNoSessions": "Aucune révision à venir dans votre calendrier actuel.",
       "emptyAddFollowing": "Ajoutez votre séance suivante pour placer des moments de révision précis dans l’intervalle.",
-      "emptyAddSessions": "Ajoutez vos prochaines séances de thérapie dans le Calendrier pour établir un programme de révision.",
-      "nextOf_one": "prochain sur {{count}}",
-      "nextOf_other": "prochain sur {{count}}"
+      "emptyAddSessions": "Ajoutez vos prochaines séances de thérapie dans le Calendrier pour établir un programme de révision."
     },
     "reminders": {
       "learnMoreAbout": "En savoir plus sur le {{date}}",

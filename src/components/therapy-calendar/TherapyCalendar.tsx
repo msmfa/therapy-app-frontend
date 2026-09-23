@@ -32,11 +32,23 @@ type DayMarking = {
     pressed?: boolean;
 };
 
+/**
+ * A request to bring one day into view, as YYYY-MM-DD.
+ *
+ * `seq` is what makes the same day askable twice. The grid jumps by
+ * remounting on this, and a remount only happens when something in the key
+ * changes: without the counter, asking for October, paging away by hand and
+ * asking for October again would do nothing at all.
+ */
+export type CalendarFocus = { dateKey: string; seq: number };
+
 export type TherapyCalendarProps = {
     sessions: TherapySession[];
     reminders: CalendarReminder[];
     /** The day whose sheet is open, as YYYY-MM-DD, so the cell can show it. */
     activeDateKey?: string | null;
+    /** The month to jump to, when something off-screen is being pointed at. */
+    focus?: CalendarFocus | null;
     onDayPress: (dateKey: string) => void;
     hideExtraDays?: boolean;
 };
@@ -99,6 +111,7 @@ export default function TherapyCalendar({
     sessions,
     reminders,
     activeDateKey = null,
+    focus = null,
     onDayPress,
     hideExtraDays = false,
 }: TherapyCalendarProps) {
@@ -147,10 +160,12 @@ export default function TherapyCalendar({
             // it mounts, and never reads `theme` again: switching appearance
             // left the month title, the arrows and the weekday labels in the
             // old scheme's ink. Remounting on a scheme change is the only way
-            // to make it look at the new theme.
-            key={ theme.scheme }
+            // to make it look at the new theme, and it is also how the grid
+            // lands on `focus`, which `initialDate` only reads at mount.
+            key={ `${theme.scheme}:${focus?.seq ?? 0}` }
             dayComponent={ CalendarDay }
             hideExtraDays={ hideExtraDays }
+            initialDate={ focus?.dateKey }
             markedDates={ markedDates }
             markingType="custom"
             minDate={ formatDateKey(from) }

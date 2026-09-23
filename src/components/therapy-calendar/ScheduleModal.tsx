@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, TouchableOpacity, Modal, Platform, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, TouchableOpacity, Platform, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker, {
     type DateTimePickerEvent,
@@ -9,9 +9,11 @@ import advancedFormat from 'dayjs/plugin/advancedFormat';
 
 dayjs.extend(advancedFormat);
 
+import Loading from '../ui/Loading';
 import RadioButton from '../ui/RadioButton';
 import { GlassPillButton } from '../ui/GlassPillButton';
 import { GlassPickerPanel } from '../ui/GlassPickerPanel';
+import { PresentedModal } from '../ui/PresentedModal';
 import AppText from '../ui/AppText';
 import { TIME_PICKER_BOUNDS } from '../../utils/timePickerBounds';
 import type { Theme } from 'designs/designs-themes';
@@ -32,6 +34,7 @@ export type ScheduleMode = 'single' | SessionCadence;
 
 interface ScheduleModalProps {
     visible: boolean;
+    embedded?: boolean;
     selectedDate: string | null;
     existingSession: SheetSession | null;
     defaultTime: Date;
@@ -44,12 +47,22 @@ interface ScheduleModalProps {
 }
 
 /**
+ * The room a RadioButton's shadow needs outside the box it is drawn on.
+ *
+ * `shadowOffset` 8 plus `shadowRadius` 14, rounded up. A ScrollView clips to
+ * its own bounds, so without this the cards' shadows were cut off in a hard
+ * line along the bottom of the scroller and down both of its sides.
+ */
+const SHADOW_ROOM = 28;
+
+/**
  * The sheet a day opens into. Every button commits straight away: there is no
  * draft to save afterwards, so what this sheet confirms is what the server
  * holds by the time it closes.
  */
 export default function ScheduleModal({
     visible,
+    embedded = false,
     selectedDate,
     existingSession,
     defaultTime,
@@ -66,6 +79,7 @@ export default function ScheduleModal({
     const [mode, setMode] = useState<ScheduleMode>('weekly');
     const [scope, setScope] = useState<SessionEditScope>('this');
     const [showPicker, setShowPicker] = useState(false);
+    const [confirmingEndSeries, setConfirmingEndSeries] = useState(false);
     const existingSessionId = existingSession?.id;
     const initialTimeMs = (existingSession?.time ?? defaultTime).getTime();
 
@@ -75,6 +89,7 @@ export default function ScheduleModal({
             setMode('weekly');
             setScope('this');
             setShowPicker(false);
+            setConfirmingEndSeries(false);
         }
         // Parent refreshes can recreate the same Date/session objects while
         // this sheet is open. Reset only when the actual selected session or
@@ -92,11 +107,26 @@ export default function ScheduleModal({
         }
     };
 
+    // Ending a series removes every later appointment in one go, which is the
+    // one edit on this screen that cannot be undone by tapping again, so it
+    // asks first. The question is raised from inside this sheet rather than
+    // through the app-wide alert: the alert is a modal of its own, and iOS
+    // refuses to present one modal over another, which is how this button
+    // came to do nothing at all.
+    const handleDeletePress = () => {
+        if (scope === 'future') {
+            setConfirmingEndSeries(true);
+            return;
+        }
+        onDelete('this');
+    };
+
     const isUpdateDisabled = busy || (!!existingSession && existingSession.time.getTime() === time.getTime());
     const selectedDay = selectedDate ? dayjs(selectedDate) : null;
+    const selectedWeekday = selectedDay?.format('dddd') ?? '';
 
     const modeOptions: Array<{ value: ScheduleMode; title: string; note?: string }> = [
-        { value: 'weekly', title: t('schedule.everyWeek'), note: t('schedule.untilYouEndIt') },
+        { value: 'weekly', title: t('schedule.everyWeek') },
         { value: 'single', title: t('schedule.thisDayOnly') },
     ];
     const scopeOptions: Array<{ value: SessionEditScope; title: string; note?: string }> = [
@@ -133,8 +163,7 @@ export default function ScheduleModal({
 
     if (!visible) return null;
 
-    return (
-        <Modal visible={ visible } transparent animationType="slide" onRequestClose={ onCancel }>
+    const content = (
             <View style={ styles.modalOverlay }>
                 <TouchableOpacity
                     style={ styles.modalBackdrop }
@@ -156,13 +185,12 @@ export default function ScheduleModal({
                             </View>
                         </View>
                     ) }
-                    { existingSession?.inSeries ? (
-                        <AppText variant="caption" style={ styles.seriesBadge }>
-                            { t('schedule.partOfWeeklySeries').toUpperCase() }
-                        </AppText>
-                    ) : null }
 
-                    <ScrollView style={ styles.scrollContent } bounces={ false }>
+                    <ScrollView
+                        style={ styles.scrollContent }
+                        contentContainerStyle={ styles.scrollInner }
+                        bounces={ false }
+                    >
                         <View style={ styles.datePicker }>
                             { Platform.OS === 'ios' ? (
                                 <GlassPickerPanel style={ styles.iosPickerWrapper }>
@@ -214,20 +242,33 @@ export default function ScheduleModal({
 
                     <View style={ styles.buttonRow }>
                         { existingSession ? (
-                            <View style={ styles.actionButtonsRow }>
-                                <View style={ styles.actionButtonWrapper }>
+                            // Side by side while the destructive action is
+                            // just "Delete". Naming the scope makes that
+                            // label far too long for half a row, and a pill
+                            // is a single-line control that answers a long
+                            // label by shrinking the type, so it takes a row
+                            // of its own instead. `column-reverse` keeps
+                            // Update on top without reordering the source.
+                            <View style={ [
+                                styles.actionButtonsRow,
+                                scope === 'future' && styles.actionButtonsStacked,
+                            ] }>
+                                <View style={ scope === 'future' ? styles.actionButtonFull : styles.actionButtonWrapper }>
                                     <GlassPillButton
-                                        label={ scope === 'future' ? t('schedule.endSeries') : t('schedule.delete') }
+                                        label={ scope === 'future'
+                                            ? t('schedule.allSessionsOnThisDay', { weekday: selectedWeekday })
+                                            : t('schedule.delete') }
                                         height={ 60 }
                                         labelSize={ 16 }
                                         labelColor={ theme.accent.mark }
                                         disabledLabelColor={ theme.glass.disabledLabel }
                                         disabled={ busy }
-                                        onPress={ () => onDelete(scope) }
+                                        onPress={ handleDeletePress }
                                         style={ styles.actionPill }
+                                        testID="schedule-modal.delete"
                                     />
                                 </View>
-                                <View style={ styles.actionButtonWrapper }>
+                                <View style={ scope === 'future' ? styles.actionButtonFull : styles.actionButtonWrapper }>
                                     <GlassPillButton
                                         label={ t('schedule.update') }
                                         height={ 60 }
@@ -237,6 +278,7 @@ export default function ScheduleModal({
                                         onPress={ () => onUpdate(time, scope) }
                                         disabled={ isUpdateDisabled }
                                         style={ styles.actionPill }
+                                        testID="schedule-modal.update"
                                     />
                                 </View>
                             </View>
@@ -252,19 +294,75 @@ export default function ScheduleModal({
                                         disabled={ busy }
                                         onPress={ () => onAdd(mode, time) }
                                         style={ styles.actionPill }
+                                        testID="schedule-modal.add"
                                     />
                                 </View>
                             </View>
                         ) }
                     </View>
-                    { busy ? (
-                        <View pointerEvents="none" style={ styles.busy } accessibilityLabel={ t('schedule.saving') }>
-                            <ActivityIndicator color={ theme.accent.mark } />
-                        </View>
-                    ) : null }
+
                 </View>
+
+                { /* Confirm inside the existing modal to avoid native presentation races. */ }
+                { confirmingEndSeries ? (
+                        <View style={ styles.confirmOverlay }>
+                            <TouchableOpacity
+                                style={ styles.modalBackdrop }
+                                activeOpacity={ 1 }
+                                onPress={ () => setConfirmingEndSeries(false) }
+                                accessibilityRole="button"
+                                accessibilityLabel={ t('schedule.keepSeries') }
+                            />
+                            <View style={ styles.confirmSheet } testID="schedule-modal.end-series-confirm">
+                                <AppText variant="h2" style={ styles.confirmTitle }>
+                                    { t('schedule.endSeriesTitle') }
+                                </AppText>
+                                <AppText variant="body" style={ styles.confirmMessage }>
+                                    { t('schedule.endSeriesMessage') }
+                                </AppText>
+                                { /*
+                                    The label keeps GlassPillButton's default
+                                    white: in the light theme `dangerText` is
+                                    the same red as `danger`, so taking it
+                                    here would paint the word onto its own
+                                    background.
+                                */ }
+                                <GlassPillButton
+                                    label={ t('schedule.endSeries') }
+                                    height={ 60 }
+                                    labelSize={ 16 }
+                                    fillColor={ theme.status.danger }
+                                    disabled={ busy }
+                                    disabledLabelColor={ theme.glass.disabledLabel }
+                                    onPress={ () => {
+                                        setConfirmingEndSeries(false);
+                                        onDelete('future');
+                                    } }
+                                    testID="schedule-modal.end-series-confirm.confirm"
+                                />
+                                <GlassPillButton
+                                    label={ t('schedule.keepSeries') }
+                                    height={ 60 }
+                                    labelSize={ 16 }
+                                    labelColor={ theme.accent.mark }
+                                    onPress={ () => setConfirmingEndSeries(false) }
+                                    testID="schedule-modal.end-series-confirm.keep"
+                                />
+                            </View>
+                        </View>
+
+                ) : null }
+                { busy && (
+                    <View style={ [StyleSheet.absoluteFillObject, { backgroundColor: theme.ground.base }] } accessibilityLabel={ t('schedule.saving') }>
+                        <Loading fullScreen />
+                    </View>
+                ) }
             </View>
-        </Modal>
+    );
+    return embedded ? content : (
+        <PresentedModal visible={ visible } transparent animationType="slide" onRequestClose={ () => { if (!busy) { if (confirmingEndSeries) setConfirmingEndSeries(false); else onCancel(); } } }>
+            { content }
+        </PresentedModal>
     );
 }
 
@@ -296,14 +394,6 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         height: 3,
         width: 3,
     },
-    seriesBadge: {
-        color: theme.ink.quaternary,
-        fontSize: 10,
-        letterSpacing: 0.8,
-        position: 'absolute',
-        right: 20,
-        top: 30,
-    },
     buttonRow: {
         alignItems: 'center',
         flexDirection: 'row',
@@ -319,6 +409,13 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     actionButtonWrapper: {
         flex: 1,
         minWidth: 0,
+    },
+    actionButtonsStacked: {
+        flexDirection: 'column-reverse',
+        gap: 10,
+    },
+    actionButtonFull: {
+        alignSelf: 'stretch',
     },
     actionPill: {
         width: '100%',
@@ -345,7 +442,6 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     },
     sectionApplyTo: {
         gap: 10,
-        marginBottom: 20,
     },
     modalBackdrop: {
         bottom: 0,
@@ -368,9 +464,17 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         flex: 1,
         justifyContent: 'flex-end',
     },
+    // Widened past the sheet's own padding, with the padding put back on the
+    // content inside it, so the option cards have room to cast their shadow
+    // before the scroller's bounds clip it.
     scrollContent: {
         flexGrow: 0,
         flexShrink: 1,
+        marginHorizontal: -SHADOW_ROOM,
+    },
+    scrollInner: {
+        paddingBottom: SHADOW_ROOM + 4,
+        paddingHorizontal: SHADOW_ROOM,
     },
     datePicker: {
         marginBottom: 20,
@@ -400,5 +504,27 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         position: 'absolute',
         right: 0,
         top: 0,
+    },
+    confirmOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: theme.calendar.sheet.overlay,
+        flex: 1,
+        justifyContent: 'flex-end',
+    },
+    confirmSheet: {
+        backgroundColor: theme.calendar.sheet.surface,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        gap: 14,
+        padding: 20,
+        paddingBottom: 40,
+    },
+    confirmTitle: {
+        color: theme.ink.primary,
+        fontSize: 20,
+        fontWeight: '500',
+    },
+    confirmMessage: {
+        color: theme.ink.secondary,
     },
 });

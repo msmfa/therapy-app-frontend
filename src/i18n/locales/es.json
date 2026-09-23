@@ -44,7 +44,6 @@
   "title": "Ajustes",
   "hub": {
    "language": "Idioma",
-   "appearance": "Aspecto",
    "references": "Referencias",
    "settings": "Ajustes",
    "rateApp": "Valorar esta app",
@@ -52,7 +51,9 @@
    "logOutFailed": "No se pudo cerrar la sesión, inténtelo de nuevo",
    "rateUnavailableTitle": "No disponible",
    "rateUnavailableMessage": "Las valoraciones aún no están disponibles en esta plataforma.",
-   "storeOpenFailed": "No se puede abrir la tienda en este momento."
+   "storeOpenFailed": "No se puede abrir la tienda en este momento.",
+   "darkMode": "Modo oscuro",
+   "lightMode": "Modo claro"
   },
   "rows": {
    "reminderSettings": "Ajustes de recordatorios",
@@ -292,8 +293,8 @@
    "thisSessionOnly": "Solo esta sesión",
    "allFutureSessions": "Todas las sesiones futuras",
    "allFutureNote": "Desde esta en adelante",
+   "allSessionsOnThisDay": "Eliminar todas las sesiones del {{weekday}}",
    "endSeries": "Terminar serie",
-   "partOfWeeklySeries": "Parte de una serie semanal",
    "saving": "Guardando",
    "endSeriesTitle": "¿Terminar esta serie?",
    "endSeriesMessage": "Se eliminará esta sesión y todas las posteriores de la serie. Las anteriores se quedan en el calendario.",
@@ -346,12 +347,13 @@
    "reminder": "Recordatorio",
    "dismissScheduling": "Cerrar la programación",
    "opensTimePicker": "Abre un selector de hora",
-   "dismissReminder": "Cerrar recordatorio"
+   "dismissReminder": "Cerrar recordatorio",
+   "dismissHint": "Cerrar la sugerencia"
   },
   "changedMessage": "Tu calendario cambió en otro dispositivo. Se ha actualizado, así que vuelve a intentar el cambio.",
   "reminder": {
    "logNote": {
-    "title": "Anota tu sesión",
+    "title": "Toma una nota después de tu sesión",
     "reason": "Diez minutos después de que termine tu sesión, mientras los detalles siguen frescos."
    },
    "review": {
@@ -362,10 +364,25 @@
     "sent": "Enviado",
     "missed": "Perdido"
    },
-   "afterSession": "Después de tu sesión del {{date}}",
-   "beforeSession": "Antes de tu sesión del {{date}}",
-   "close": "Cerrar"
-  }
+   "close": "Cerrar",
+   "update": "Actualizar",
+   "fixedTime": "Hora fija",
+   "time": {
+    "morningTitle": "Recordatorios de la mañana",
+    "eveningTitle": "Recordatorios de la tarde",
+    "morningMessage": "Todos los recordatorios de la mañana pasan a esta hora, no solo este.",
+    "eveningMessage": "Todos los recordatorios de la tarde pasan a esta hora, no solo este.",
+    "save": "Guardar"
+   },
+   "headlineOn": "{{headline}} el {{date}}",
+   "whyThis": "Por qué este recordatorio"
+  },
+  "nextSessionHelp": {
+   "title": "Actualiza tu sesión",
+   "message": "Para actualizar o eliminar una sesión, toca en el calendario la fecha que quieras cambiar.",
+   "confirm": "Entendido"
+  },
+  "nextReminderHelp": "Toca aquí para actualizar tus recordatorios."
  },
  "serverError": {
   "invalid_credentials": "Ese correo y esa contraseña no coinciden con ninguna cuenta.",
@@ -907,11 +924,8 @@
   "referencesNote": "Su nota de terapia de cinco minutos",
   "template": {
    "title": "Plantilla",
-   "recommendBefore": "Le recomendamos usar nuestra",
-   "cheatsheetLink": "guía rápida",
-   "researchBefore": "Para saber por qué hemos elegido estas 5 preguntas y conocer la investigación,",
-   "researchLink": "pulse aquí",
-   "cheatsheetImage": "Las cinco preguntas, tal como aparecen en la guía rápida"
+   "cheatsheetImage": "Las cinco preguntas, tal como aparecen en la guía rápida",
+   "research": "¿Por qué estas cinco preguntas? Descubre la investigación que hay detrás."
   },
   "reminder": {
    "postSession": {
@@ -1013,16 +1027,14 @@
    }
   },
   "intervals": {
-   "title": "Por qué estos momentos de revisión",
+   "title": "Por qué estas horas",
    "loading": "Cargando sus horarios de revisión",
    "failedTitle": "No pudimos cargar sus horarios de revisión",
    "failedBody": "Revise su conexión e inténtelo de nuevo.",
    "emptyTitle": "Aún no hay horarios de revisión",
    "emptyNoSessions": "No hay revisiones próximas en su calendario actual.",
    "emptyAddFollowing": "Añada su sesión siguiente para situar horarios de revisión exactos en el intervalo.",
-   "emptyAddSessions": "Añada sus próximas sesiones de terapia en Calendario para crear un calendario de revisiones.",
-   "nextOf_one": "siguiente de {{count}}",
-   "nextOf_other": "siguiente de {{count}}"
+   "emptyAddSessions": "Añada sus próximas sesiones de terapia en Calendario para crear un calendario de revisiones."
   },
   "reminders": {
    "learnMoreAbout": "Más información sobre {{date}}",

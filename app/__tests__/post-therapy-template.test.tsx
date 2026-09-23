@@ -69,17 +69,14 @@ describe('Template screen', () => {
 		expect(queryByText(/not a record you need to make perfect/)).toBeNull();
 	});
 
-	it('opens the cheatsheet popup from the link', () => {
-		const { getByText, getAllByText } = render(<HowToTakeNotesScreen />);
+	it('leaves the page to the sheet itself, with no second copy over it', () => {
+		const { getAllByText, queryByText } = render(<HowToTakeNotesScreen />);
 
-		// The sheet behind the page already carries one copy of each line.
+		// The page is the drawn sheet and one line of prose. The cheatsheet
+		// popup it used to raise is still reachable from the home tab and from
+		// onboarding, which is where someone goes looking for it.
 		expect(getAllByText(/An idea, phrase, realisation/)).toHaveLength(1);
-
-		fireEvent.press(getByText('cheatsheet'));
-
-		// The popup adds the readable copy over it.
-		expect(getAllByText(/What stayed with you from today’s session\?/)).toHaveLength(2);
-		expect(getAllByText('One subject is enough.')).toHaveLength(2);
+		expect(queryByText('cheatsheet')).toBeNull();
 	});
 
 	it('opens the research article from the link', () => {
@@ -89,7 +86,7 @@ describe('Template screen', () => {
 
 		const { getByText } = render(<HowToTakeNotesScreen />);
 
-		fireEvent.press(getByText('click here'));
+		fireEvent.press(getByText('Why these five prompts? Explore the research behind them.'));
 
 		expect(openURL).toHaveBeenCalledWith(
 			'https://www.plastic-brains.com/after-therapy-note-template/',

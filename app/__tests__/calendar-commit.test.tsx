@@ -10,6 +10,8 @@ const mockAddSession = jest.fn();
 const mockUpdateSession = jest.fn();
 const mockRemoveSession = jest.fn();
 const mockShowAlert = jest.fn();
+const mockUpdateCurrentUser = jest.fn();
+const mockRefreshReminderSchedule = jest.fn();
 let mockSessions: TherapySession[] = [];
 let mockReminders: CalendarReminder[] = [];
 let mockLoading = false;
@@ -40,8 +42,8 @@ jest.mock('expo-linear-gradient', () => {
     const ReactForMock = require('react');
     const { View: MockView } = require('react-native');
     return {
-        LinearGradient: ({ children }: { children?: React.ReactNode }) =>
-            ReactForMock.createElement(MockView, null, children),
+        LinearGradient: ({ children, ...props }: { children?: React.ReactNode }) =>
+            ReactForMock.createElement(MockView, props, children),
     };
 });
 
@@ -59,6 +61,12 @@ jest.mock('../../src/context/therapy-sessions/TherapySessionsContext', () => ({
             loading: mockLoading,
             error: null,
             refreshSessions: jest.fn(),
+            refreshReminderSchedule: mockRefreshReminderSchedule,
+            reminderScheduleSettings: {
+                timeZone: 'Europe/London',
+                morningReminderMinutes: 7 * 60,
+                eveningReminderMinutes: 20 * 60,
+            },
             addSession: mockAddSession,
             updateSession: mockUpdateSession,
             removeSession: mockRemoveSession,
@@ -121,6 +129,32 @@ jest.mock('../../src/components/ui/Loading', () => {
         ReactForMock.createElement(MockText, null, `loading:${String(fullScreen)}`);
 });
 jest.mock('../../src/context/alert', () => ({ useAppAlert: () => ({ showAlert: mockShowAlert }) }));
+jest.mock('../../src/api/users', () => ({ updateCurrentUser: (...args: unknown[]) => mockUpdateCurrentUser(...args) }));
+
+// The real one pulls in the native date picker; this stand-in reports which
+// slot it was opened on and commits a fixed 21:15.
+jest.mock('../../src/components/therapy-calendar/ReminderTimeSheet', () => {
+    const ReactModule = require('react');
+    const { Text, TouchableOpacity, View } = require('react-native');
+    return {
+        __esModule: true,
+        default: ({ visible, slot, minutes, onSave, onCancel }: {
+            visible: boolean;
+            slot: string;
+            minutes: number;
+            onSave: (minutes: number) => void;
+            onCancel: () => void;
+        }) => (visible
+            ? ReactModule.createElement(View, null,
+                ReactModule.createElement(Text, null, `time-sheet:${slot}:${minutes}`),
+                ReactModule.createElement(TouchableOpacity, { onPress: () => onSave(21 * 60 + 15) },
+                    ReactModule.createElement(Text, null, 'save-time')),
+                ReactModule.createElement(TouchableOpacity, { onPress: onCancel },
+                    ReactModule.createElement(Text, null, 'cancel-time')),
+            )
+            : null),
+    };
+});
 
 import CalendarScreen from '../(tabs)/calendar';
 
@@ -149,6 +183,8 @@ describe('calendar edits commit as they are made', () => {
         jest.useFakeTimers();
         jest.setSystemTime(TODAY);
         mockAddSession.mockResolvedValue(undefined);
+        mockUpdateCurrentUser.mockResolvedValue(undefined);
+        mockRefreshReminderSchedule.mockResolvedValue(undefined);
         mockUpdateSession.mockResolvedValue(undefined);
         mockRemoveSession.mockResolvedValue(undefined);
     });
@@ -182,8 +218,9 @@ describe('calendar edits commit as they are made', () => {
 
         expect(dayBackground(DAY_KEY)).toBe(CALENDAR_MONTH_COLORS.sessionFill);
         expect(screen.getByText(/^Tue, /)).toBeTruthy();
-        // The next-reminder card says which review moment it is, not just when.
-        expect(screen.getByText('Evening before your next session')).toBeTruthy();
+        // The card is a readout of when, not a paraphrase of the sheet: the
+        // headline it used to print lives in the sheet the card now opens.
+        expect(screen.queryByText('Evening before your next session')).toBeNull();
     });
 
     it('opens an existing series session for editing and passes the scope through', async () => {
@@ -201,7 +238,11 @@ describe('calendar edits commit as they are made', () => {
         expect(input.startsAtUtc.getHours()).toBe(14);
     });
 
-    it('deletes one appointment straight away but asks before ending a series', async () => {
+    // The sheet is what asks before ending a series now, inside its own
+    // modal. Raising the app-wide alert from here put a second modal beside
+    // the sheet's, which iOS refuses to present and never retries: the
+    // question was never seen and the button did nothing.
+    it('passes a delete straight through, at whichever scope the sheet confirmed', async () => {
         mockSessions = [session('s1', '2026-09-15T09:00:00.000Z', { seriesId: 'ser' })];
         render(<CalendarScreen />);
 
@@ -211,27 +252,29 @@ describe('calendar edits commit as they are made', () => {
 
         fireEvent.press(screen.getByTestId(`therapy-calendar.day_${DAY_KEY}`));
         fireEvent.press(screen.getByText('delete-future'));
-        expect(mockRemoveSession).toHaveBeenCalledTimes(1);
-        expect(mockShowAlert).toHaveBeenCalledWith('End this series?', expect.any(String), expect.objectContaining({
-            primaryAction: expect.objectContaining({ label: 'End series', tone: 'danger' }),
-        }));
-
-        const options = mockShowAlert.mock.calls[0][2] as { primaryAction: { onPress: () => Promise<void> } };
-        await options.primaryAction.onPress();
-        expect(mockRemoveSession).toHaveBeenLastCalledWith('s1', 'future');
+        await waitFor(() => expect(mockRemoveSession).toHaveBeenLastCalledWith('s1', 'future'));
+        expect(mockShowAlert).not.toHaveBeenCalled();
     });
 
     it('explains a reminder day instead of offering to book over it', () => {
-        mockSessions = [session('s1', '2026-09-08T09:00:00.000Z')];
+        mockSessions = [
+            session('s1', '2026-09-08T09:00:00.000Z'),
+            session('s2', '2026-09-15T09:00:00.000Z'),
+        ];
         mockReminders = [reminder('r1', '2026-09-14', { nextSessionId: 's2', sessionId: 's1' })];
         render(<CalendarScreen />);
 
         fireEvent.press(screen.getByTestId('therapy-calendar.day_2026-09-14'));
 
         expect(screen.getByTestId('reminder-sheet.r1')).toBeTruthy();
-        expect(screen.getByText('EVENING BEFORE YOUR NEXT SESSION')).toBeTruthy();
-        expect(screen.getByText('Scheduled')).toBeTruthy();
-        expect(screen.getByText('After your session on Tue 8 Sep')).toBeTruthy();
+        // The session the reminder is about is named in the headline now,
+        // rather than on a line of its own at the foot of the card.
+        expect(screen.getByText('EVENING BEFORE YOUR NEXT SESSION ON TUE 15 SEP')).toBeTruthy();
+        expect(screen.queryByText(/^After your session on/)).toBeNull();
+        // A reminder still to come offers the edit rather than restating that
+        // it is scheduled, which the time underneath already says.
+        expect(screen.getByTestId('reminder-sheet.r1.update')).toBeTruthy();
+        expect(screen.queryByText('Scheduled')).toBeNull();
         expect(screen.queryByText(/^sheet-for-/)).toBeNull();
 
         // The dot is not a dead end: the day can still be booked from here.
@@ -246,9 +289,88 @@ describe('calendar edits commit as they are made', () => {
         fireEvent.press(screen.getByTestId('therapy-calendar.header.leftArrow', { includeHiddenElements: true }));
         fireEvent.press(screen.getByTestId('therapy-calendar.day_2026-08-25'));
 
-        expect(screen.getByText('WRITE UP YOUR SESSION')).toBeTruthy();
+        expect(screen.getByText('TAKE A NOTE AFTER YOUR SESSION')).toBeTruthy();
         expect(screen.getByText('Missed')).toBeTruthy();
         expect(screen.queryByText('Add Session')).toBeNull();
+    });
+
+    it('sends the user to the day when they press the next session, since every edit belongs to its date', () => {
+        mockSessions = [session('s1', '2026-10-06T09:00:00.000Z')];
+        render(<CalendarScreen />);
+        expect(screen.getByText(/September/, { includeHiddenElements: true })).toBeTruthy();
+
+        fireEvent.press(screen.getByTestId('calendar.nextSession'));
+
+        // The month moves to the session, and the sheet says what to do there.
+        expect(screen.getByText(/October/, { includeHiddenElements: true })).toBeTruthy();
+        expect(screen.queryByText(/September/, { includeHiddenElements: true })).toBeNull();
+        expect(screen.queryByTestId('calendar-hint')).toBeNull();
+        expect(mockShowAlert).not.toHaveBeenCalled();
+        expect(screen.queryByText(/^sheet-for-/)).toBeNull();
+
+    });
+
+    it('opens the reminder day from the next-reminder card, the same sheet the day itself opens', () => {
+        mockReminders = [reminder('r1', '2026-09-14')];
+        render(<CalendarScreen />);
+
+        fireEvent.press(screen.getByTestId('calendar.nextReminder'));
+
+        expect(screen.getByTestId('reminder-sheet.r1')).toBeTruthy();
+        expect(screen.getByText('EVENING BEFORE YOUR NEXT SESSION')).toBeTruthy();
+        expect(mockShowAlert).not.toHaveBeenCalled();
+    });
+
+    it('leaves both cards inert while there is nothing scheduled to open', () => {
+        render(<CalendarScreen />);
+
+        fireEvent.press(screen.getByTestId('calendar.nextSession'));
+        fireEvent.press(screen.getByTestId('calendar.nextReminder'));
+
+        expect(mockShowAlert).not.toHaveBeenCalled();
+    });
+
+    it('moves every evening reminder when one evening reminder is retimed, and says so before it does', async () => {
+        mockReminders = [reminder('r1', '2026-09-14')];
+        render(<CalendarScreen />);
+
+        fireEvent.press(screen.getByTestId('therapy-calendar.day_2026-09-14'));
+        fireEvent.press(screen.getByTestId('reminder-sheet.r1.update'));
+
+        // The evening slot, opened on the time it currently holds.
+        expect(screen.getByText(`time-sheet:evening:${20 * 60}`)).toBeTruthy();
+
+        fireEvent.press(screen.getByText('save-time'));
+
+        await waitFor(() => expect(mockUpdateCurrentUser).toHaveBeenCalledWith({ eveningReminderMinutes: 21 * 60 + 15 }));
+        // The sessions did not move, so nothing else would invalidate the
+        // cached schedule.
+        await waitFor(() => expect(mockRefreshReminderSchedule).toHaveBeenCalledTimes(1));
+        // The card that was edited stays up, showing the time it now has.
+        expect(screen.getByTestId('reminder-sheet.r1')).toBeTruthy();
+    });
+
+    it('takes the morning slot from the morning reminder, not the evening one', () => {
+        mockReminders = [reminder('r1', '2026-09-14', { reason: Reason.PostSleep })];
+        render(<CalendarScreen />);
+
+        fireEvent.press(screen.getByTestId('therapy-calendar.day_2026-09-14'));
+        fireEvent.press(screen.getByTestId('reminder-sheet.r1.update'));
+
+        expect(screen.getByText(`time-sheet:morning:${7 * 60}`)).toBeTruthy();
+    });
+
+    it('calls the post-session note a fixed time, since it moves only when the session does', () => {
+        mockSessions = [session('s1', '2026-09-14T09:00:00.000Z')];
+        mockReminders = [reminder('r1', '2026-09-14', { kind: 'log_note', reason: undefined })];
+        render(<CalendarScreen />);
+
+        // Through the card: the day itself belongs to the session that is on
+        // it, so pressing the date opens the scheduler rather than the sheet.
+        fireEvent.press(screen.getByTestId('calendar.nextReminder'));
+
+        expect(screen.getByText('Fixed Time')).toBeTruthy();
+        expect(screen.queryByTestId('reminder-sheet.r1.update')).toBeNull();
     });
 
     it('tells the user when another device changed the calendar first', async () => {
@@ -260,7 +382,23 @@ describe('calendar edits commit as they are made', () => {
         fireEvent.press(screen.getByText('add-weekly'));
 
         await waitFor(() => expect(mockShowAlert).toHaveBeenCalledWith('Calendar changed', expect.stringMatching(/another device/)));
+        // The sheet goes first. The alert is a modal, and iOS will not
+        // present one over the sheet's: left open, the message would be
+        // dropped and the sheet would sit there having done nothing.
+        await waitFor(() => expect(screen.queryByText(/^sheet-for-/)).toBeNull());
         consoleError.mockRestore();
+    });
+
+    it('fades overflowing content and removes the fade at the bottom', () => {
+        render(<CalendarScreen />);
+        const scroll = screen.getByTestId('calendar.scroll');
+        fireEvent(scroll, 'layout', { nativeEvent: { layout: { height: 600 } } });
+        fireEvent(scroll, 'contentSizeChange', 390, 800);
+        expect(screen.getByTestId('calendar.bottomFade')).toBeTruthy();
+        fireEvent.scroll(scroll, { nativeEvent: { contentOffset: { y: 200 } } });
+        expect(screen.queryByTestId('calendar.bottomFade')).toBeNull();
+        fireEvent(scroll, 'contentSizeChange', 390, 500);
+        expect(screen.queryByTestId('calendar.bottomFade')).toBeNull();
     });
 
     it('keeps initial loading inside the tab screen instead of opening a modal', () => {
@@ -268,6 +406,6 @@ describe('calendar edits commit as they are made', () => {
         mockHydrated = false;
         render(<CalendarScreen />);
 
-        expect(screen.getByText('loading:false')).toBeTruthy();
+        expect(screen.getByText('loading:true')).toBeTruthy();
     });
 });

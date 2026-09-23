@@ -44,7 +44,6 @@
     "title": "Settings",
     "hub": {
       "language": "Language",
-      "appearance": "Appearance",
       "references": "References",
       "settings": "Settings",
       "rateApp": "Rate this App",
@@ -52,7 +51,9 @@
       "logOutFailed": "Could not log out please try again",
       "rateUnavailableTitle": "Unavailable",
       "rateUnavailableMessage": "Rating is not supported on this platform yet.",
-      "storeOpenFailed": "Unable to open the store right now."
+      "storeOpenFailed": "Unable to open the store right now.",
+      "darkMode": "Dark Mode",
+      "lightMode": "Light Mode"
     },
     "rows": {
       "reminderSettings": "Reminder settings",
@@ -292,8 +293,8 @@
       "thisSessionOnly": "This session only",
       "allFutureSessions": "All future sessions",
       "allFutureNote": "From this one onward",
+      "allSessionsOnThisDay": "Delete all {{weekday}} sessions",
       "endSeries": "End series",
-      "partOfWeeklySeries": "Part of a weekly series",
       "saving": "Saving",
       "endSeriesTitle": "End this series?",
       "endSeriesMessage": "This removes this session and every later one in the series. Earlier sessions stay on the calendar.",
@@ -346,12 +347,13 @@
       "reminder": "Reminder",
       "dismissScheduling": "Dismiss scheduling",
       "opensTimePicker": "Opens a time picker",
-      "dismissReminder": "Dismiss reminder"
+      "dismissReminder": "Dismiss reminder",
+      "dismissHint": "Dismiss hint"
     },
     "changedMessage": "Your calendar changed on another device. It has been refreshed, so try the edit again.",
     "reminder": {
       "logNote": {
-        "title": "Write up your session",
+        "title": "Take a note after your session",
         "reason": "Ten minutes after your session ends, while the detail is still fresh."
       },
       "review": {
@@ -362,10 +364,25 @@
         "sent": "Sent",
         "missed": "Missed"
       },
-      "afterSession": "After your session on {{date}}",
-      "beforeSession": "Before your session on {{date}}",
-      "close": "Close"
-    }
+      "close": "Close",
+      "update": "Update",
+      "fixedTime": "Fixed Time",
+      "time": {
+        "morningTitle": "Morning reminders",
+        "eveningTitle": "Evening reminders",
+        "morningMessage": "Every morning reminder moves to this time, not just this one.",
+        "eveningMessage": "Every evening reminder moves to this time, not just this one.",
+        "save": "Save"
+      },
+      "headlineOn": "{{headline}} on {{date}}",
+      "whyThis": "Why this reminder"
+    },
+    "nextSessionHelp": {
+      "title": "Update your session",
+      "message": "To update or delete a session, tap the date you want to change in the calendar.",
+      "confirm": "Got it"
+    },
+    "nextReminderHelp": "To update your reminders, tap here."
   },
   "onboarding": {
     "welcome": {
@@ -671,11 +688,8 @@
     "referencesNote": "Your five-minute therapy note",
     "template": {
       "title": "Template",
-      "recommendBefore": "We recommend you use our",
-      "cheatsheetLink": "cheatsheet",
-      "researchBefore": "To find out why we’ve picked these 5 questions and the research,",
-      "researchLink": "click here",
-      "cheatsheetImage": "The five questions, as they appear on the cheatsheet"
+      "cheatsheetImage": "The five questions, as they appear on the cheatsheet",
+      "research": "Why these five prompts? Explore the research behind them."
     },
     "reminder": {
       "postSession": {
@@ -777,16 +791,14 @@
       }
     },
     "intervals": {
-      "title": "Why these review moments",
+      "title": "Why these times",
       "loading": "Loading your review times",
       "failedTitle": "We couldn’t load your review times",
       "failedBody": "Check your connection and try again.",
       "emptyTitle": "No review times yet",
       "emptyNoSessions": "There are no upcoming reviews in your current schedule.",
       "emptyAddFollowing": "Add your following session to place exact review times in the gap.",
-      "emptyAddSessions": "Add your next therapy sessions in Calendar to build a review schedule.",
-      "nextOf_one": "next of {{count}}",
-      "nextOf_other": "next of {{count}}"
+      "emptyAddSessions": "Add your next therapy sessions in Calendar to build a review schedule."
     },
     "reminders": {
       "learnMoreAbout": "Learn more about {{date}}",

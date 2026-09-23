@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, ViewStyle } from 'react-native';
+import { StyleSheet, Text, TextStyle, View, ViewStyle } from 'react-native';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 
 import TherapyCalendar from '../TherapyCalendar';
@@ -67,6 +67,23 @@ describe('TherapyCalendar month grid', () => {
             .map((style) => style.backgroundColor);
     };
 
+    const dayInk = (dateKey: string) => {
+        const [numeral] = screen
+            .getByTestId(`therapy-calendar.day_${dateKey}`)
+            .findAllByType(Text);
+        return StyleSheet.flatten(numeral.props.style as TextStyle).color;
+    };
+
+    it('greys out a day that has gone, so only the days still to come read as live', () => {
+        renderCalendar();
+
+        // Yesterday and today sit either side of the line; the month is
+        // navigable into the past now, which is what stopped the library
+        // greying it out on its own.
+        expect(dayInk('2026-08-30')).toBe(CALENDAR_MONTH_COLORS.dayDisabled);
+        expect(dayInk('2026-09-02')).toBe(CALENDAR_MONTH_COLORS.dayDefault);
+    });
+
     it('marks a session with its own orange disc, and a reminder with blue dots', () => {
         renderCalendar();
 
@@ -75,12 +92,14 @@ describe('TherapyCalendar month grid', () => {
         expect(dayStyle(REMINDER_KEY).backgroundColor).toBeUndefined();
     });
 
-    it('shows the dots on a session day too, in the ink of the disc', () => {
+    it('leaves a session day bare of dots even when a reminder is due on it', () => {
         renderCalendar();
 
         // The post-session review lands on the evening of the session itself,
-        // so the disc has to be able to carry the dots without losing them.
-        expect(dotColours(SESSION_KEY)).toEqual(Array(3).fill(CALENDAR_MONTH_COLORS.sessionFillText));
+        // so almost every session day would wear dots as well: they repeated
+        // what the disc already says. The day's sheet still lists them.
+        expect(dotColours(SESSION_KEY)).toEqual(Array(3).fill('transparent'));
+        expect(dayStyle(SESSION_KEY).backgroundColor).toBe(CALENDAR_MONTH_COLORS.sessionFill);
     });
 
     it('reserves the dot row on every day so the numerals share a baseline', () => {

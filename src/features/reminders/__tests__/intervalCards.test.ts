@@ -63,7 +63,8 @@ describe('interval science cards', () => {
             reason: Reason.MidSession,
             time: '15:15',
         });
-        expect(cards[0].caption).toContain('next of 2');
+        // The caption is the date and nothing else now.
+        expect(cards[0].caption).not.toContain('next of');
         // The zone still decides the clock -- 20:15 UTC is 15:15 in New York,
         // asserted above -- but it is no longer named in the caption.
         expect(cards[0].caption).not.toMatch(/EST|GMT/);
@@ -126,12 +127,15 @@ describe('interval science cards', () => {
             expect(card.caption).not.toContain('Sep ');
         });
 
-        it('translates the occurrence count', async () => {
+        it('never counts the occurrences, however many the horizon holds', async () => {
+            // The count moved when the schedule was extended rather than when
+            // anything about the reminder changed, so a card could read "next
+            // of 47" for a weekly review.
             await i18next.changeLanguage('fr');
-            expect(intervalCardsFromPlan(entries(3))[0].caption).toContain('prochain sur 3');
+            expect(intervalCardsFromPlan(entries(3))[0].caption).not.toContain('3');
 
             await i18next.changeLanguage('en');
-            expect(intervalCardsFromPlan(entries(3))[0].caption).toContain('next of 3');
+            expect(intervalCardsFromPlan(entries(3))[0].caption).not.toContain('3');
         });
 
         it('omits the count when there is only one occurrence', () => {

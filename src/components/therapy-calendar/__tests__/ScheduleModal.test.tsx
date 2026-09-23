@@ -72,7 +72,9 @@ describe('ScheduleModal actions', () => {
 
     it('lets an edit to a series appointment reach every later one', () => {
         const view = render(<ScheduleModal { ...props } existingSession={ inSeries } />);
-        expect(screen.getByText('PART OF A WEEKLY SERIES')).toBeTruthy();
+        // The badge is gone; the scope options are what say the session is in
+        // a series, and they are the part you can act on.
+        expect(screen.queryByText('PART OF A WEEKLY SERIES')).toBeNull();
         const newTime = new Date(2026, 8, 15, 11);
         pickTime(view, newTime);
 
@@ -82,15 +84,44 @@ describe('ScheduleModal actions', () => {
         expect(props.onUpdate).toHaveBeenCalledWith(newTime, 'future');
     });
 
-    it('turns Delete into End series when the whole tail is selected', () => {
+    it('names the scope on the delete button, and deletes one session without asking', () => {
         render(<ScheduleModal { ...props } existingSession={ inSeries } />);
 
         fireEvent.press(screen.getByText('Delete'));
         expect(props.onDelete).toHaveBeenCalledWith('this');
 
         fireEvent.press(screen.getByText('ALL FUTURE SESSIONS'));
-        fireEvent.press(screen.getByText('End series'));
+        expect(screen.getByText('Delete all Tuesday sessions')).toBeTruthy();
+        expect(screen.queryByText('Delete')).toBeNull();
+    });
+
+    // The question used to go through the app-wide alert, which is a modal of
+    // its own: iOS refuses to present one modal over another and does it
+    // silently, so the button did nothing at all. It is asked from inside
+    // this sheet now, which is the one place it is certain to be seen.
+    it('asks inside the sheet before ending a series, and ends it only on yes', () => {
+        render(<ScheduleModal { ...props } existingSession={ inSeries } />);
+
+        fireEvent.press(screen.getByText('ALL FUTURE SESSIONS'));
+        fireEvent.press(screen.getByText('Delete all Tuesday sessions'));
+
+        expect(screen.getByTestId('schedule-modal.end-series-confirm')).toBeTruthy();
+        expect(props.onDelete).not.toHaveBeenCalled();
+
+        fireEvent.press(screen.getByTestId('schedule-modal.end-series-confirm.confirm'));
         expect(props.onDelete).toHaveBeenCalledWith('future');
+        expect(screen.queryByTestId('schedule-modal.end-series-confirm')).toBeNull();
+    });
+
+    it('leaves the series alone when the question is declined', () => {
+        render(<ScheduleModal { ...props } existingSession={ inSeries } />);
+
+        fireEvent.press(screen.getByText('ALL FUTURE SESSIONS'));
+        fireEvent.press(screen.getByText('Delete all Tuesday sessions'));
+        fireEvent.press(screen.getByTestId('schedule-modal.end-series-confirm.keep'));
+
+        expect(props.onDelete).not.toHaveBeenCalled();
+        expect(screen.queryByTestId('schedule-modal.end-series-confirm')).toBeNull();
     });
 
     it('keeps the edited time when a parent refresh supplies equivalent session objects', () => {
