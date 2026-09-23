@@ -117,19 +117,19 @@ export function ReminderCard({ reminder, headline, sessionDate, reason, onEditTi
                 <View style={ styles.reasonRow }>
                     <AppText variant="body" style={ styles.reason }>{ reason }</AppText>
                     { onOpenScience ? (
-                        <TouchableOpacity
-                            accessibilityRole="button"
-                            accessibilityLabel={ t('reminder.whyThis') }
-                            hitSlop={ 8 }
-                            onPress={ onOpenScience }
-                            style={ styles.whyButton }
-                            testID={ `reminder-sheet.${reminder.id}.why` }
-                        >
-                            <Ionicons name="arrow-forward-outline" size={ 20 } color={ theme.ink.primary } />
-                        </TouchableOpacity>
+                        <Ionicons name="arrow-forward-outline" size={ 20 } color={ theme.ink.primary } style={ styles.whyArrow } />
                     ) : null }
                 </View>
             }
+            // The whole band opens the write-up, not just the arrow: the
+            // reason is what a reader is looking at when they want to know
+            // more. It is read out as the reason, then where it leads.
+            footerAction={ onOpenScience ? {
+                onPress: onOpenScience,
+                accessibilityLabel: reason,
+                accessibilityHint: t('reminder.whyThis'),
+                testID: `reminder-sheet.${reminder.id}.why`,
+            } : undefined }
         >
             <View style={ styles.cardHeader }>
                 <AppText variant="caption" style={ styles.headline }>
@@ -241,10 +241,9 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         fontSize: 14,
         lineHeight: 19,
     },
-    // The settings rows' arrow, bare: the band is already the surface.
-    whyButton: {
-        alignItems: 'center',
-        justifyContent: 'center',
+    // The settings rows' arrow, bare: the band is already the surface, and
+    // the button.
+    whyArrow: {
         marginLeft: 'auto',
     },
 });

@@ -1,5 +1,5 @@
 import React, { type ReactNode } from 'react';
-import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, type StyleProp, type ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import type { Theme } from 'designs/designs-themes';
@@ -10,6 +10,16 @@ type PassCardProps = {
     children: ReactNode;
     /** The band along the foot, below the hard break; omitted, the card is one piece. */
     footer?: ReactNode;
+    /**
+     * Makes the whole foot band one button, padding and all, so it is not
+     * only the glyph in it that answers a tap.
+     */
+    footerAction?: {
+        onPress: () => void;
+        accessibilityLabel: string;
+        accessibilityHint?: string;
+        testID?: string;
+    };
     /** Thins the wash so the sheet under the card shows through it. */
     translucent?: boolean;
     style?: StyleProp<ViewStyle>;
@@ -26,7 +36,7 @@ export const PASS_CARD_RADIUS = 24;
  * The shadow sits on the outer view and the clipping on the inner one, since
  * a view that clips its children on iOS also clips its own shadow.
  */
-export function PassCard({ children, footer, translucent = false, style, testID }: PassCardProps) {
+export function PassCard({ children, footer, footerAction, translucent = false, style, testID }: PassCardProps) {
     const { theme } = useTheme();
     const styles = useThemedStyles(makeStyles);
 
@@ -41,7 +51,21 @@ export function PassCard({ children, footer, translucent = false, style, testID 
                     style={ StyleSheet.absoluteFill }
                 />
                 <View style={ styles.body }>{ children }</View>
-                { footer ? <View style={ styles.footer }>{ footer }</View> : null }
+                { footer && footerAction ? (
+                    <TouchableOpacity
+                        accessibilityRole="button"
+                        accessibilityLabel={ footerAction.accessibilityLabel }
+                        accessibilityHint={ footerAction.accessibilityHint }
+                        activeOpacity={ 0.6 }
+                        onPress={ footerAction.onPress }
+                        style={ styles.footer }
+                        testID={ footerAction.testID }
+                    >
+                        { footer }
+                    </TouchableOpacity>
+                ) : footer ? (
+                    <View style={ styles.footer }>{ footer }</View>
+                ) : null }
             </View>
         </View>
     );
