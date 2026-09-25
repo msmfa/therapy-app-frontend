@@ -670,6 +670,7 @@
       "preBody": "One last look at your note the evening before your next session.",
       "research": "Research",
       "researchLabel": "Research:",
+      "scienceHint": "Click on the card to see the science behind your custom reminders.",
       "opensResearch": "Opens the research for this reminder",
       "opensFiveQuestions": "Opens why these five questions"
     },

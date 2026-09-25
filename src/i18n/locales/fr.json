@@ -670,6 +670,7 @@
       "preBody": "Un dernier coup d’œil à votre note la veille au soir de votre prochaine séance.",
       "research": "Recherche",
       "researchLabel": "Recherche :",
+      "scienceHint": "Touchez une carte pour découvrir les principes scientifiques derrière vos rappels personnalisés.",
       "opensResearch": "Ouvre la recherche sur ce rappel",
       "opensFiveQuestions": "Ouvre « Pourquoi ces cinq questions ? »"
     },

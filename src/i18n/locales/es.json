@@ -727,6 +727,7 @@
    "preBody": "Una última mirada a su nota la tarde antes de su próxima sesión.",
    "research": "Investigación",
    "researchLabel": "Investigación:",
+   "scienceHint": "Pulse una tarjeta para ver la ciencia que hay detrás de sus recordatorios personalizados.",
    "opensResearch": "Abre la investigación de este recordatorio",
    "opensFiveQuestions": "Abre por qué estas cinco preguntas"
   },

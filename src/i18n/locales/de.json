@@ -670,6 +670,7 @@
       "preBody": "Ein letzter Blick auf Ihre Notiz am Abend vor Ihrer nächsten Sitzung.",
       "research": "Forschung",
       "researchLabel": "Forschung:",
+      "scienceHint": "Tippen Sie auf eine Karte, um die Forschung hinter Ihren persönlichen Erinnerungen zu sehen.",
       "opensResearch": "Öffnet die Forschung zu dieser Erinnerung",
       "opensFiveQuestions": "Öffnet die Erklärung zu diesen fünf Fragen"
     },
