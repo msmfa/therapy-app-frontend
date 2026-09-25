@@ -23,6 +23,8 @@ type Props = {
 export function SettingsToggleRow({ text, value, onValueChange, accessibilityHint, testID }: Props) {
     const { theme } = useTheme();
     const styles = useThemedStyles(makeStyles);
+    const inactiveTrack = theme.scheme === 'light' ? theme.radio.ringUnselected : theme.surface.rowBorder;
+    const thumb = theme.scheme === 'light' ? theme.surface.sheet : theme.solid.text;
 
     return (
         <View style={ styles.wrapper }>
@@ -32,11 +34,11 @@ export function SettingsToggleRow({ text, value, onValueChange, accessibilityHin
             <Switch
                 accessibilityHint={ accessibilityHint }
                 accessibilityLabel={ text }
-                ios_backgroundColor={ theme.surface.rowBorder }
+                ios_backgroundColor={ inactiveTrack }
                 onValueChange={ onValueChange }
                 testID={ testID }
-                thumbColor={ theme.solid.text }
-                trackColor={ { false: theme.surface.rowBorder, true: theme.accent.mark } }
+                thumbColor={ thumb }
+                trackColor={ { false: inactiveTrack, true: theme.accent.mark } }
                 value={ value }
             />
         </View>
