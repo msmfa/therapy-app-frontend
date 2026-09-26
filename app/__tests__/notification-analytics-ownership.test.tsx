@@ -1,3 +1,4 @@
+jest.mock('../../src/features/widgets/ProgressWidgetSync', () => ({ ProgressWidgetSync: () => null }));
 import React from 'react';
 import { act, render } from '@testing-library/react-native';
 import type { NotificationResponse } from 'expo-notifications';

@@ -41,6 +41,25 @@
     }
   },
   "settings": {
+    "widget": {
+      "title": "Home Screen widget",
+      "headline": "See your progress on your Home Screen",
+      "intro": "Your scheduled check-ins and streak, at a glance. Tap the widget to open your check-ins.",
+      "offer": "Keep your progress close with a Home Screen widget.",
+      "how": "How to add the widget",
+      "step1": "Touch and hold an empty area of your iPhone’s Home Screen.",
+      "step2": "Tap Edit, then Add Widget. On older iOS versions, tap the + button.",
+      "step3": "Search for Plastic Brains and select it.",
+      "step4": "Swipe to choose Small or Medium, tap Add Widget, then Done.",
+      "tip": "Your widget uses your own schedule. Updates may take a moment. You can return to this guide in Settings.",
+      "example": "Example progress — your widget will show your own check-ins.",
+      "small": "Small",
+      "medium": "Medium",
+      "streak": "day streak",
+      "smallDescription": "Small widget example: Monday and Wednesday complete; Saturday check-in pending. 12-day streak.",
+      "mediumDescription": "Medium widget example: Monday and Wednesday complete; Saturday check-in pending. 12-day streak.",
+      "dismiss": "Dismiss widget suggestion"
+    },
     "title": "Settings",
     "hub": {
       "language": "Language",

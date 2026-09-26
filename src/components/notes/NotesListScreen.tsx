@@ -25,6 +25,7 @@ const HEADER_GAP = 20; // gap between the pinned header and the first note
 const TOP_FADE = 44;
 
 interface NotesListScreenProps {
+    discoveryCard?: React.ReactNode;
     notes: Note[];
     loading: boolean;
     refresh: () => void;
@@ -66,6 +67,7 @@ function PinnedHeader({ expanded, onToggle }: PinnedHeaderProps) {
 
 export default function NotesListScreen({
     notes,
+    discoveryCard,
     loading,
     refresh,
     onUpdateNote,
@@ -191,6 +193,7 @@ export default function NotesListScreen({
                             // not respect that, so without hiding it explicitly
                             // it would add a second "Notes" heading to every
                             // pass through this screen.
+                            <>
                             <View
                                 style={ styles.headerSpacer }
                                 pointerEvents='none'
@@ -200,6 +203,8 @@ export default function NotesListScreen({
                             >
                                 <PinnedHeader expanded={ galleryExpanded } onToggle={ toggleGallery } />
                             </View>
+                            {discoveryCard}
+                            </>
                         }
                     />
                 </MaskedView>

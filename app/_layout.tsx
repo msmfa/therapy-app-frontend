@@ -1,3 +1,4 @@
+import { ProgressWidgetSync } from '../src/features/widgets/ProgressWidgetSync';
 import { ErrorBoundaryProps, Stack, useRouter } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -242,6 +243,7 @@ function ThemedShell() {
                 <AppAlertProvider>
                     <AuthProvider>
                         <TherapySessionsProvider>
+                            <ProgressWidgetSync />
                             <OnboardingProvider>
                                 { /* Above the Gate on purpose: the Gate unmounts the
                                      navigator while onboarding state re-hydrates after

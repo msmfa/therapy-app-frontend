@@ -1,3 +1,4 @@
+import { setProgressOwner } from '../../features/widgets/nativeProgress';
 import React, {
     createContext,
     useCallback,
@@ -148,6 +149,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 // it and start clean instead.
                 if (!normalized || !hydratedUser) {
                     analytics.setIdentity(null);
+                    setProgressOwner(null);
                     if (storedToken || storedRefreshToken || storedUser) {
                         console.warn(
                             '[AuthProvider] Discarding incomplete persisted session',
@@ -197,6 +199,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 refreshTokenRef.current = null;
                 userRef.current = null;
                 analytics.setIdentity(null);
+                setProgressOwner(null);
                 setToken(null);
                 setRefreshToken(null);
                 setUser(null);
@@ -222,6 +225,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // refresh keeps the same identity; sign-out cleanup cannot revive it.
         if (!signingOutRef.current && userRef.current?.id !== u?.id) {
             analytics.setIdentity(normalizedToken && u ? u.id : null);
+            setProgressOwner(null);
         }
 
         tokenRef.current = normalizedToken;
@@ -324,6 +328,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Invalidate analytics callbacks immediately, before bounded auth
         // cleanup runs. Historical events still belong to the canonical ID.
         analytics.setIdentity(null);
+        setProgressOwner(null);
         // Cleanup runs FIRST, while the token is still live. Clearing
         // credentials up front meant the push de-registration went out
         // unauthenticated, failed with a 401, and left the device row on the

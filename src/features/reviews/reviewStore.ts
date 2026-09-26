@@ -1,3 +1,4 @@
+import { notifyProgressChanged } from '../widgets/progressEvents';
 // Persistence for review ticks.
 //
 // Rows live in the same `notes.db` as the notes themselves, and go through
@@ -114,6 +115,7 @@ export async function recordReview(
         attribution.occurrenceId ?? null,
     );
 
+    if (result.changes > 0) notifyProgressChanged();
     return result.changes > 0;
 }
 
@@ -168,6 +170,7 @@ export async function removeReview(
             noteId,
             localDate,
         );
+        if (result.changes > 0) notifyProgressChanged();
         return result.changes > 0;
     }
 
@@ -183,6 +186,7 @@ export async function removeReview(
         noteId,
     );
 
+    if (result.changes > 0) notifyProgressChanged();
     return result.changes > 0;
 }
 
@@ -191,4 +195,5 @@ export async function clearReviewsForUser(userId: string): Promise<void> {
 
     const db = await getNotesDb();
     await db.runAsync(`DELETE FROM note_reviews WHERE userId = ?`, userId);
+    notifyProgressChanged();
 }

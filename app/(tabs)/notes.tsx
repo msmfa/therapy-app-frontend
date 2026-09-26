@@ -1,6 +1,8 @@
+import { WidgetDiscoveryCard } from '../../src/components/widgets/WidgetGuide';
+import { useWidgetDiscovery } from '../../src/features/widgets/useWidgetDiscovery';
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useAuth } from '../../src/context/auth/AuthContext';
 import { useNotes, type Note } from '../../src/features/notes/useNotes';
 import NotesListScreen from '../../src/components/notes/NotesListScreen';
@@ -16,8 +18,10 @@ export default function NotesScreen() {
     const { t: tCommon } = useTranslation('common');
     const { user } = useAuth();
     const { notes, loading, error, refresh, updateNote, deleteNote } = useNotes(user?.id);
-    const { progressFor, reviewState, markReviewed } = useNoteReviews(user?.id);
+    const { progressFor, reviewState, markReviewed, reviews } = useNoteReviews(user?.id);
     const { showAlert } = useAppAlert();
+    const discovery = useWidgetDiscovery(user?.id);
+    const router = useRouter();
 
     const canReview = React.useCallback(
         (note: Note) => reviewState(note).canReview,
@@ -26,9 +30,10 @@ export default function NotesScreen() {
 
     const handleReviewed = React.useCallback(
         async (note: Note) => {
-            await markReviewed(note);
+            const result = await markReviewed(note);
+            if (result.recorded && result.attribution.reason !== null && reviews.length === 0) discovery.afterFirstCheckIn();
         },
-        [markReviewed],
+        [markReviewed, reviews.length, discovery.afterFirstCheckIn],
     );
 
     const handleUpdateNote = React.useCallback(
@@ -68,6 +73,7 @@ export default function NotesScreen() {
             <View style={ styles.content }>
                 { isLoading ? <Loading /> : (
                     <NotesListScreen
+                        discoveryCard={discovery.visible ? <WidgetDiscoveryCard onDismiss={discovery.dismiss} onOpen={() => { discovery.dismiss(); router.push('/widget-guide'); }} /> : undefined}
                         notes={ notes }
                         loading={ loading }
                         refresh={ refresh }

@@ -41,6 +41,25 @@
   }
  },
  "settings": {
+  "widget": {
+   "title": "Widget de pantalla de inicio",
+   "headline": "Tu progreso en la pantalla de inicio",
+   "intro": "Tus registros programados y tu racha de un vistazo. Toca el widget para abrir tus registros.",
+   "offer": "Ten tu progreso a mano con un widget.",
+   "how": "Cómo añadir el widget",
+   "step1": "Mantén pulsada una zona vacía de la pantalla de inicio del iPhone.",
+   "step2": "Toca Editar y luego Añadir widget. En versiones anteriores de iOS, toca el botón +.",
+   "step3": "Busca Plastic Brains y selecciona la app.",
+   "step4": "Desliza para elegir Pequeño o Mediano, toca Añadir widget y luego OK.",
+   "tip": "El widget usa tu propio calendario. Las actualizaciones pueden tardar un momento. Puedes volver a esta guía en Ajustes.",
+   "example": "Progreso de ejemplo: tu widget mostrará tus propios registros.",
+   "small": "Pequeño",
+   "medium": "Mediano",
+   "streak": "días seguidos",
+   "smallDescription": "Ejemplo de widget pequeño: lunes y miércoles completados; registro del sábado pendiente. 12 días seguidos.",
+   "mediumDescription": "Ejemplo de widget mediano: lunes y miércoles completados; registro del sábado pendiente. 12 días seguidos.",
+   "dismiss": "Descartar sugerencia del widget"
+  },
   "title": "Ajustes",
   "hub": {
    "language": "Idioma",
