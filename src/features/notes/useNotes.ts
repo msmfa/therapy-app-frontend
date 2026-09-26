@@ -1,3 +1,4 @@
+import { notifyProgressChanged } from '../widgets/progressEvents';
 import * as React from 'react';
 import { openDatabaseAsync, type SQLiteDatabase } from 'expo-sqlite';
 import { cancelNotificationById } from '../../services/notifications';
@@ -168,6 +169,7 @@ async function deleteNotesForUser(db: SQLiteDatabase, userId: string) {
 
     await db.runAsync(`DELETE FROM note_reviews WHERE userId = ?`, userId);
     await db.runAsync(`DELETE FROM notes WHERE userId = ?`, userId);
+    notifyProgressChanged();
 }
 
 export const clearNotesForUser = async (userId: string): Promise<void> => {
@@ -353,6 +355,7 @@ export function useNotes(userId: string | undefined) {
                 const db = await getDb();
                 await db.runAsync(`DELETE FROM note_reviews WHERE noteId = ? AND userId = ?`, id, userId);
                 await db.runAsync(`DELETE FROM notes WHERE id = ? AND userId = ?`, id, userId);
+                notifyProgressChanged();
                 setNotes((prev) => prev.filter((n) => n.id !== id));
                 setError(null);
             } catch (err) {

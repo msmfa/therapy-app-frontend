@@ -41,6 +41,25 @@
     }
   },
   "settings": {
+    "widget": {
+      "title": "Widget d’écran d’accueil",
+      "headline": "Tes progrès sur ton écran d’accueil",
+      "intro": "Tes bilans programmés et ta série en un coup d’œil. Touche le widget pour ouvrir tes bilans.",
+      "offer": "Garde tes progrès à portée de main avec un widget.",
+      "how": "Comment ajouter le widget",
+      "step1": "Appuie longuement sur une zone vide de l’écran d’accueil de ton iPhone.",
+      "step2": "Touche Modifier, puis Ajouter un widget. Sur les anciennes versions d’iOS, touche le bouton +.",
+      "step3": "Recherche Plastic Brains et sélectionne l’app.",
+      "step4": "Balaie pour choisir Petit ou Moyen, puis touche Ajouter le widget et OK.",
+      "tip": "Le widget suit ton programme. Les mises à jour peuvent prendre un instant. Retrouve ce guide dans les réglages.",
+      "example": "Exemple de progrès : ton widget affichera tes propres bilans.",
+      "small": "Petit",
+      "medium": "Moyen",
+      "streak": "jours de suite",
+      "smallDescription": "Exemple de petit widget : lundi et mercredi terminés ; bilan du samedi en attente. 12 jours de suite.",
+      "mediumDescription": "Exemple de widget moyen : lundi et mercredi terminés ; bilan du samedi en attente. 12 jours de suite.",
+      "dismiss": "Masquer la suggestion de widget"
+    },
     "title": "Réglages",
     "hub": {
       "language": "Langue",

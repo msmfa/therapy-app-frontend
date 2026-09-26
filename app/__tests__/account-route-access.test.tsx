@@ -1,3 +1,4 @@
+jest.mock('../../src/features/widgets/ProgressWidgetSync', () => ({ ProgressWidgetSync: () => null }));
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import type { EntitlementState } from '../../src/features/subscription/types';

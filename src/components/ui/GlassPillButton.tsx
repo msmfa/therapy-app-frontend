@@ -22,6 +22,7 @@ type Props = {
     // default fade, so it can be dialled to a specific grey.
     disabledLabelColor?: string;
     disabled?: boolean;
+    selected?: boolean;
     loading?: boolean;
     /** Let longer labels and accessibility text grow beyond the minimum height. */
     contentSized?: boolean;
@@ -65,6 +66,7 @@ export function GlassPillButton({
     labelColor = '#ffffff',
     disabledLabelColor,
     disabled = false,
+    selected,
     loading = false,
     contentSized = false,
     fillColor,
@@ -101,7 +103,7 @@ export function GlassPillButton({
             activeOpacity={ isSolid ? 0.6 : 0.7 }
             accessibilityRole="button"
             accessibilityLabel={ accessibilityLabel ?? label }
-            accessibilityState={ { disabled: disabled || loading, busy: loading } }
+            accessibilityState={ { disabled: disabled || loading, busy: loading, ...(selected !== undefined ? { selected } : {}) } }
             accessibilityValue={ loading ? { text: t('a11y.loading') } : undefined }
             onLayout={ (event) => setLayout(event.nativeEvent.layout) }
             testID={ testID }

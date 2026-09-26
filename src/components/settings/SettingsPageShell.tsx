@@ -8,23 +8,25 @@ import { GlassMorphismWithCircle } from '../ui/GlassMorphismWithCircle';
 import { CirclePosition } from '../ui/LinearGradientCircle';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/theme';
+import { DottedGrid } from '../ui/DottedGrid';
 
 type Props = {
     children: React.ReactNode;
     /** Shown beside the back arrow. Omitted on the index, which has no arrow. */
     title?: string;
     onBack?: () => void;
+    background?: 'glow' | 'grid';
 };
 
 // The frame every settings page shares, so a category page is visibly the same
 // surface as the one that opened it rather than a screen of its own.
-export function SettingsPageShell({ children, title, onBack }: Props) {
+export function SettingsPageShell({ children, title, onBack, background = 'glow' }: Props) {
     const { t } = useTranslation('common');
     const { theme } = useTheme();
     return (
         <View style={ styles.container }>
-            <View pointerEvents="none" style={ styles.background }>
-                <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_LEFT } />
+            <View pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={ styles.background }>
+                {background === 'grid' ? <DottedGrid /> : <GlassMorphismWithCircle circlePosition={ CirclePosition.BOTTOM_LEFT } />}
             </View>
             <SafeAreaView style={ styles.root }>
                 { onBack ? (
@@ -68,6 +70,7 @@ const styles = StyleSheet.create({
         paddingTop: 4,
     },
     headerTitle: {
+        flex: 1,
         textTransform: 'uppercase',
     },
 });

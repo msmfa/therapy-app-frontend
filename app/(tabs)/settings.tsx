@@ -1,3 +1,4 @@
+import { canOfferProgressWidget } from '../../src/features/widgets/useWidgetDiscovery';
 import React, { useCallback } from 'react';
 import { Linking, Platform, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -80,7 +81,7 @@ export default function SettingsScreen() {
 
     return (
         <SettingsPageShell>
-            <GradientCard>
+            {user && <GradientCard>
                 <View style={ styles.user }>
                     <AppText variant="h1">
                         { user?.name }
@@ -89,7 +90,7 @@ export default function SettingsScreen() {
                         { user?.email }
                     </AppText>
                 </View>
-            </GradientCard>
+            </GradientCard>}
             <Spacer variant={ SpacerVariant.small } />
             <FrostedCard contentStyle={ styles.card }>
                 <View style={ styles.rows }>
@@ -100,6 +101,7 @@ export default function SettingsScreen() {
                             onPress={ () => router.push(category.route) }
                         />
                     )) }
+                    { canOfferProgressWidget() && <SettingsRow text={t('widget.title')} onPress={() => router.push('/widget-guide')} /> }
                     <SettingsToggleRow
                         text={ isDark ? t('hub.lightMode') : t('hub.darkMode') }
                         value={ isDark }

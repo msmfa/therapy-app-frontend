@@ -41,6 +41,25 @@
     }
   },
   "settings": {
+    "widget": {
+      "title": "Home-Bildschirm-Widget",
+      "headline": "Dein Fortschritt auf dem Home-Bildschirm",
+      "intro": "Deine geplanten Check-ins und deine Serie auf einen Blick. Tippe auf das Widget, um deine Check-ins zu öffnen.",
+      "offer": "Mit einem Widget hast du deinen Fortschritt immer im Blick.",
+      "how": "So fügst du das Widget hinzu",
+      "step1": "Halte einen leeren Bereich auf dem Home-Bildschirm deines iPhones gedrückt.",
+      "step2": "Tippe auf Bearbeiten und dann auf Widget hinzufügen. Bei älteren iOS-Versionen tippe auf +.",
+      "step3": "Suche nach Plastic Brains und wähle die App aus.",
+      "step4": "Wische zur kleinen oder mittleren Größe, tippe auf Widget hinzufügen und dann auf Fertig.",
+      "tip": "Das Widget nutzt deinen eigenen Zeitplan. Aktualisierungen können einen Moment dauern. Diese Anleitung findest du auch in den Einstellungen.",
+      "example": "Beispiel-Fortschritt – dein Widget zeigt deine eigenen Check-ins.",
+      "small": "Klein",
+      "medium": "Mittel",
+      "streak": "Tage in Folge",
+      "smallDescription": "Beispiel eines kleinen Widgets: Montag und Mittwoch abgeschlossen; Check-in am Samstag ausstehend. 12 Tage in Folge.",
+      "mediumDescription": "Beispiel eines mittleren Widgets: Montag und Mittwoch abgeschlossen; Check-in am Samstag ausstehend. 12 Tage in Folge.",
+      "dismiss": "Widget-Vorschlag schließen"
+    },
     "title": "Einstellungen",
     "hub": {
       "language": "Sprache",
