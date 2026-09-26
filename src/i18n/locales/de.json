@@ -670,6 +670,7 @@
       "preBody": "Ein letzter Blick auf Ihre Notiz am Abend vor Ihrer nächsten Sitzung.",
       "research": "Forschung",
       "researchLabel": "Forschung:",
+      "scienceHint": "Tippen Sie auf eine Karte, um die Forschung hinter Ihren persönlichen Erinnerungen zu sehen.",
       "opensResearch": "Öffnet die Forschung zu dieser Erinnerung",
       "opensFiveQuestions": "Öffnet die Erklärung zu diesen fünf Fragen"
     },
@@ -749,13 +750,11 @@
       },
       "spacedReactivation": {
         "title": "Verteilte Reaktivierung",
-        "tldr": "Wiederholungen nützen mehr, wenn Zeit zwischen ihnen liegt, statt sie zu bündeln: Menschen behalten nach verteilten Wiederholungen mehr als nach unmittelbaren. Deshalb verteilen sich die Erinnerungen über den Zeitraum zwischen Ihren Sitzungen.",
+        "tldr": "Wiederholungen wirken besser, wenn sie zeitlich verteilt statt sofort wiederholt werden. Deshalb verteilen sich die Erinnerungen über den Zeitraum zwischen Ihren Sitzungen.",
         "body": [
-          "Wenn Sie eine Erinnerung nach einer Pause reaktivieren, öffnet sie sich kurz für Veränderungen, bevor sie sich wieder setzt.[2] Dieses Rekonsolidierungsfenster ist der Grund, warum verteilte Wiederholungen wirksamer sind, als alles auf einmal zu pauken.[1]",
-          "Jahrzehnte der Forschung zum Verteilungseffekt zeigen, dass über die Zeit verteilte Wiederholungen weit stärkere Erinnerungen aufbauen als geballtes Üben.[1, 2, 3] Gezielte Reaktivierung setzt andere Mechanismen in Gang als unmittelbare Wiederholung und löst eine Rekonsolidierung aus, die die Gedächtnisspur festigt.[2]",
-          "Stellen Sie sich die neuronale Bahn wie einen Gartenweg vor, der begangen werden muss. Jedes Mal, wenn Sie Ihre Notizen wieder aufgreifen, aktivieren Sie viele derselben Neuronen, die in der Sitzung gefeuert haben, und die Reaktivierung festigt die Bahn in einer widerstandsfähigeren Form.[1]",
-          "Der Abstand zwischen den Sitzungen ist wichtig, weil eine Erinnerung Zeit zum Konsolidieren braucht, bevor die nächste Reaktivierung darauf aufbauen kann.[2] Daraus ergibt sich ein Fenster zu beiden Seiten des richtigen Moments. Zu früh, und der Schaltkreis hat sich noch nicht zurückgesetzt, sodass ein zweiter Durchgang dem ersten wenig hinzufügt. Zu spät, und die Erinnerung ist so weit verblasst, dass ihr Zurückholen Arbeit ist statt einer Auffrischung.[4] Wo dieses Fenster liegt, hängt davon ab, wie lange Sie das Material behalten müssen: Für etwas, das Sie in einigen Wochen brauchen, liegt der beste Abstand bei etwa einem Fünftel dieser Spanne, und der Anteil sinkt, je länger die Spanne wird.[5] Der Zeitplan hier folgt dieser Form. Statt die Erinnerungen gleichmäßig zu verteilen, verändert er die Abstände, je näher Ihre nächste Sitzung rückt: am Abend Ihrer Sitzung, am nächsten Morgen, dann einige Tage später, dann am Abend, bevor Sie wieder hingehen.",
-          "Was in Ihrem Gehirn geschieht: Eine Erinnerung nach einer Pause zurückzuholen, schaltet Gene in den Zellen an, die sie tragen, und die Proteine, die sie bilden, verstärken die Verbindung. Die Pause ist es, die diesen Umbau auslöst, und deshalb bringt es mehr, Wiederholungen zu verteilen, als sie dicht aufeinanderfolgen zu lassen.[2]"
+          "Verteiltes Nachfassen ist wirksamer, als alles auf einmal zu tun, weil es das Rekonsolidierungsfenster nutzt.[2] Jede gut getimte Wiederholung festigt das Gelernte stärker als dicht aufeinanderfolgende Wiederholungen.[1, 2, 3] Statt in gleichmäßigen Abständen zu erscheinen, liegen die Erinnerungen zwischen den Sitzungen zunehmend weiter auseinander.",
+          "Stellen Sie sich die Bahn wie eine Straße durch eine Stadt oder einen Weg durch einen Garten vor. Jedes Mal, wenn Sie Ihre Notizen auffrischen, aktivieren Sie viele derselben Neuronen wie während der Sitzung. Wenn Sie diesen Weg erneut gehen, wird er stärker und bleibt leichter erhalten.[1]",
+          "Die Pause gibt einer Erinnerung Zeit, sich vor dem nächsten Abruf zu festigen.[2] Kommt der nächste Durchgang zu früh, hat sich der Schaltkreis noch nicht zurückgesetzt und er fügt dem ersten wenig hinzu. Wird die Erinnerung nach einer sinnvollen Pause reaktiviert, werden Gene in den Gedächtniszellen eingeschaltet und die von ihnen gebildeten Proteine verstärken die Verbindung. Diese Abstände lösen den Wiederaufbau aus.[2]"
         ]
       },
       "stateReinstatement": {

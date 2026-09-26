@@ -38,6 +38,8 @@ import {
     reviewScheduleCopy,
     reviewsPreviewCopy,
 } from '../../src/features/onboarding/onboardingCopy';
+import { reminderScienceCopy } from '../../src/constants/neuroReminders';
+import { ReminderType } from '../../src/utils/types';
 
 /** The rows' labels, built from the session date the fixtures use. */
 const SESSION_ROW_LABEL = `After your ${dayjs(baseAnswers.sessionAt).format('dddd')} session`;
@@ -155,6 +157,17 @@ describe('the plan is split across four screens', () => {
         expect(getByText(PRE_SESSION_LABEL)).toBeTruthy();
         // The note point stays behind on the plan screen.
         expect(queryByText(SESSION_ROW_LABEL)).toBeNull();
+    });
+
+    it('previews the science in each reminder card and prompts once above the first', () => {
+        const { getAllByText, getByTestId } = render(<ReviewScheduleScreen />);
+
+        expect(getAllByText('Click on the card to see the science behind your custom reminders.')).toHaveLength(1);
+        expect(getByTestId('timeline-science-tldr-post_session').props.children[1])
+            .toBe(reminderScienceCopy()[ReminderType.EarlyConsolidation].tldr);
+        expect(getByTestId('timeline-science-preview-post_session')).toBeTruthy();
+        expect(getByTestId('timeline-science-image-post_session')).toBeTruthy();
+        expect(getByTestId('timeline-science-fade-post_session')).toBeTruthy();
     });
 
     it('carries on to the note preview from the schedule screen', () => {

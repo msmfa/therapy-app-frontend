@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
+import MaskedView from '@react-native-masked-view/masked-view';
 import AppText from '../ui/AppText';
 import type { Theme } from 'designs/designs-themes';
 import { useTheme, useThemedStyles } from '../../context/theme';
@@ -7,6 +10,7 @@ import type { PlanTimelineEntry } from '../../features/onboarding/planTimeline';
 import { occurrencesLabel } from '../../features/onboarding/formatting';
 import { ReminderType } from '../../utils/types';
 import { reminderScienceCopy } from '../../constants/neuroReminders';
+import { SCIENCE_ILLUSTRATIONS } from '../../constants/scienceIllustrations';
 import { GlassCircleButton } from '../ui/GlassCircleButton';
 import { DottedDivider } from '../ui/DottedDivider';
 import { AppModal } from '../Modal';
@@ -127,7 +131,9 @@ export function PlanTimeline({ entries, onOpenTemplate }: Props) {
     const { onboardingStyles, linkColor } = useOnboardingStyles();
     const sheets: Sheets = { styles, onboardingStyles };
     const { t } = useTranslation('onboarding');
+    const { t: tScience } = useTranslation('science');
     const [openResearch, setOpenResearch] = useState<ReminderType | null>(null);
+    const firstResearchIndex = entries.findIndex((entry) => entry.researchTarget !== null);
 
     return (
         <>
@@ -141,9 +147,13 @@ export function PlanTimeline({ entries, onOpenTemplate }: Props) {
                     // The name of the research on its own. { t('timeline.researchLabel') } in front
                     // of it labelled a link that already sits under a paragraph
                     // of research, and cost a third of the row's width.
-                    const researchLabel = entry.researchTarget === null
+                    const science = entry.researchTarget === null
                         ? null
-                        : reminderScienceCopy()[entry.researchTarget].title;
+                        : reminderScienceCopy()[entry.researchTarget];
+                    const researchLabel = science?.title ?? null;
+                    const illustration = entry.researchTarget === null
+                        ? undefined
+                        : SCIENCE_ILLUSTRATIONS[entry.researchTarget]?.[0];
 
                     const rowContent = (
                         <>
@@ -237,6 +247,50 @@ export function PlanTimeline({ entries, onOpenTemplate }: Props) {
                                 { isSession && <DottedDivider style={ styles.bodyRule } /> }
 
                                 { renderBody(entry, sheets, isSession ? onOpenTemplate : undefined) }
+
+                                { science !== null && (
+                                    <View
+                                        style={ styles.sciencePreview }
+                                        testID={ `timeline-science-preview-${entry.id}` }
+                                    >
+                                        <View style={ styles.tldrPanel }>
+                                            <AppText
+                                                variant="body"
+                                                style={ styles.tldr }
+                                                testID={ `timeline-science-tldr-${entry.id}` }
+                                            >
+                                                <AppText variant="body" style={ styles.tldrLabel }>
+                                                    { tScience('tldrLabel') }
+                                                </AppText>
+                                                { science.tldr }
+                                            </AppText>
+                                        </View>
+                                        { illustration && (
+                                            <Image
+                                                source={ theme.scheme === 'dark' ? illustration.dark : illustration.light }
+                                                style={ styles.scienceImage }
+                                                contentFit="cover"
+                                                accessible={ false }
+                                                testID={ `timeline-science-image-${entry.id}` }
+                                            />
+                                        ) }
+                                        <MaskedView
+                                            style={ styles.scienceExcerpt }
+                                            maskElement={
+                                                <LinearGradient
+                                                    colors={ ['black', 'black', 'transparent'] }
+                                                    locations={ [0, 3 / 7, 1] }
+                                                    style={ StyleSheet.absoluteFill }
+                                                    testID={ `timeline-science-fade-${entry.id}` }
+                                                />
+                                            }
+                                        >
+                                            <AppText variant="body" style={ styles.scienceCopy }>
+                                                { science.body[0] }
+                                            </AppText>
+                                        </MaskedView>
+                                    </View>
+                                ) }
                             </View>
                         </>
                     );
@@ -254,17 +308,23 @@ export function PlanTimeline({ entries, onOpenTemplate }: Props) {
                     }
 
                     return (
-                        <TouchableOpacity
-                            key={ `${entry.id}-${entry.at.toISOString()}` }
-                            style={ styles.row }
-                            activeOpacity={ 0.75 }
-                            accessibilityRole="link"
-                            accessibilityLabel={ `${entry.label}. ${occurrencesLabel(entry.occurrences)}. ${entry.body} ${researchLabel}` }
-                            accessibilityHint={ t('timeline.opensResearch') }
-                            onPress={ () => setOpenResearch(entry.researchTarget) }
-                        >
-                            { rowContent }
-                        </TouchableOpacity>
+                        <React.Fragment key={ `${entry.id}-${entry.at.toISOString()}` }>
+                            { index === firstResearchIndex && (
+                                <AppText variant="caption" style={ styles.scienceHint }>
+                                    { t('timeline.scienceHint') }
+                                </AppText>
+                            ) }
+                            <TouchableOpacity
+                                style={ styles.row }
+                                activeOpacity={ 0.75 }
+                                accessibilityRole="link"
+                                accessibilityLabel={ `${entry.label}. ${occurrencesLabel(entry.occurrences)}. ${entry.body} ${researchLabel}` }
+                                accessibilityHint={ t('timeline.opensResearch') }
+                                onPress={ () => setOpenResearch(entry.researchTarget) }
+                            >
+                                { rowContent }
+                            </TouchableOpacity>
+                        </React.Fragment>
                     );
                 }) }
             </View>
@@ -341,6 +401,14 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     contentLit: {
         borderColor: 'transparent',
     },
+    scienceHint: {
+        color: theme.ink.secondary,
+        fontSize: 14,
+        lineHeight: 20,
+        marginBottom: 10,
+        marginLeft: 28,
+        marginRight: 8,
+    },
     // Pulled back into the card's corner: at the full inset the arrow sat a
     // long way in from two edges it is supposed to mark.
     researchArrow: {
@@ -409,5 +477,39 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
         color: theme.ink.primary,
         fontFamily: BRAND_FONTS.medium,
         fontWeight: undefined,
+    },
+    sciencePreview: {
+        backgroundColor: theme.surface.readingCard,
+        borderRadius: 16,
+        marginTop: 18,
+        overflow: 'hidden',
+    },
+    tldrPanel: {
+        backgroundColor: theme.scheme === 'dark' ? theme.plan.fill : theme.emphasis.panel,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+    },
+    tldr: {
+        color: theme.scheme === 'dark' ? theme.plan.inkBright : theme.emphasis.ink,
+        fontSize: 15,
+        lineHeight: 22,
+    },
+    tldrLabel: {
+        color: theme.scheme === 'dark' ? theme.plan.inkBright : theme.emphasis.ink,
+        fontWeight: '700',
+    },
+    scienceImage: {
+        aspectRatio: 1,
+        width: '100%',
+    },
+    scienceExcerpt: {
+        height: 112,
+        overflow: 'hidden',
+    },
+    scienceCopy: {
+        paddingHorizontal: 16,
+        paddingTop: 14,
+        fontSize: 15,
+        lineHeight: 23,
     },
 });

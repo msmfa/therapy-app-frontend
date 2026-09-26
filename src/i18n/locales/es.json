@@ -727,6 +727,7 @@
    "preBody": "Una última mirada a su nota la tarde antes de su próxima sesión.",
    "research": "Investigación",
    "researchLabel": "Investigación:",
+   "scienceHint": "Pulse una tarjeta para ver la ciencia que hay detrás de sus recordatorios personalizados.",
    "opensResearch": "Abre la investigación de este recordatorio",
    "opensFiveQuestions": "Abre por qué estas cinco preguntas"
   },
@@ -985,13 +986,11 @@
    },
    "spacedReactivation": {
     "title": "Reactivación espaciada",
-    "tldr": "Las revisiones son más útiles cuando están separadas en el tiempo que cuando se agrupan: las personas recuerdan más después de repeticiones espaciadas que después de repeticiones inmediatas. Por eso los recordatorios se reparten a lo largo del intervalo entre sus sesiones.",
+    "tldr": "Las revisiones funcionan mejor cuando están espaciadas en vez de repetirse inmediatamente. Por eso los recordatorios se reparten a lo largo del intervalo entre sus sesiones.",
     "body": [
-     "Cuando reactiva un recuerdo después de una pausa, este se abre brevemente a modificación antes de volver a asentarse.[2] Esa ventana de reconsolidación es la razón por la que los seguimientos espaciados son más potentes que concentrarlo todo de una vez.[1]",
-     "Décadas de investigación sobre el efecto de espaciamiento muestran que las repeticiones repartidas en el tiempo construyen recuerdos mucho más sólidos que la práctica masiva.[1, 2, 3] La reactivación estratégica activa mecanismos distintos de los de la repetición inmediata y desencadena una reconsolidación que refuerza la huella.[2]",
-     "Piense en la vía neuronal como un sendero de jardín que hay que recorrer. Cada vez que vuelve a sus notas recluta muchas de las mismas neuronas que se activaron en la sesión, y la reactivación estabiliza la vía en una forma más resistente.[1]",
-     "El intervalo entre sesiones importa porque un recuerdo necesita tiempo para consolidarse antes de que la siguiente reactivación pueda construir sobre él.[2] Eso deja una ventana a cada lado del momento adecuado. Demasiado pronto y el circuito no se ha reiniciado, así que un segundo paso añade poco al primero. Demasiado tarde y el recuerdo se ha desvanecido lo suficiente como para que recuperarlo sea trabajo y no un repaso.[4] Dónde queda esa ventana depende de cuánto tiempo necesite retener el material: para algo que necesita dentro de semanas, el mejor intervalo es de alrededor de una quinta parte de ese plazo, y la proporción se reduce a medida que el plazo crece.[5] El calendario de aquí sigue esa forma. En lugar de espaciar los recordatorios de manera uniforme, amplía los intervalos a medida que se acerca su próxima sesión: la tarde de su sesión, la mañana siguiente, luego unos días después y luego la noche antes de volver.",
-     "Qué ocurre en su cerebro: recuperar un recuerdo después de una pausa activa genes en las células que lo albergan, y las proteínas que construyen refuerzan la conexión. La pausa es lo que desencadena esa reconstrucción, y por eso espaciar las revisiones hace más que repetirlas seguidas.[2]"
+     "El seguimiento espaciado es más eficaz que hacerlo todo de una vez porque aprovecha la ventana de reconsolidación.[2] Cada revisión hecha en el momento adecuado fortalece lo aprendido más que las repeticiones muy seguidas.[1, 2, 3] En lugar de llegar a intervalos regulares, los recordatorios se separan cada vez más entre las sesiones.",
+     "Piense en la vía como una carretera por una ciudad o un sendero por un jardín. Cada vez que repasa sus notas, reactiva muchas de las mismas neuronas que se activaron durante la sesión. Recorrer de nuevo esa ruta fortalece la vía y hace que sea más fácil conservarla.[1]",
+     "La pausa da tiempo al recuerdo para consolidarse antes de la siguiente recuperación.[2] Si el siguiente repaso llega demasiado pronto, el circuito aún no se ha reiniciado y añade poco al primero. Cuando el recuerdo se reactiva después de una pausa útil, se encienden genes en las células de la memoria y las proteínas que producen refuerzan la conexión. Esos intervalos son los que desencadenan la reconstrucción.[2]"
     ]
    },
    "stateReinstatement": {
