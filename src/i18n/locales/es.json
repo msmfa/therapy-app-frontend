@@ -82,6 +82,7 @@
    "termsOfService": "Términos del servicio"
   },
   "account": {
+    "deleting": "Eliminando cuenta…",
    "logOutFailed": "No se pudo cerrar la sesión. Inténtelo de nuevo.",
    "mailOpenFailed": "No se puede abrir su aplicación de correo en este momento.",
    "subscriptionsTitle": "No se pueden abrir las suscripciones",

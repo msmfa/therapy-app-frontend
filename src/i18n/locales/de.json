@@ -82,6 +82,7 @@
       "termsOfService": "Nutzungsbedingungen"
     },
     "account": {
+      "deleting": "Konto wird gelöscht…",
       "logOutFailed": "Abmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.",
       "mailOpenFailed": "Ihre E-Mail-App lässt sich im Moment nicht öffnen.",
       "subscriptionsTitle": "Abonnements lassen sich nicht öffnen",

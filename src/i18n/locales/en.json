@@ -82,6 +82,7 @@
       "termsOfService": "Terms of Service"
     },
     "account": {
+      "deleting": "Deleting account…",
       "logOutFailed": "Could not log out. Please try again.",
       "mailOpenFailed": "Unable to open your mail app right now.",
       "subscriptionsTitle": "Unable to open subscriptions",

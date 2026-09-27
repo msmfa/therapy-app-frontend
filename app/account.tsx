@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { Linking, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -22,6 +22,7 @@ const APPLE_SUBSCRIPTIONS_URL = 'https://apps.apple.com/account/subscriptions';
 export default function AccountSettingsScreen() {
     const { user, signOut } = useAuth();
     const router = useRouter();
+    const accountActionInFlight = useRef(false);
     const [deleting, setDeleting] = useState(false);
     const [loggingOut, setLoggingOut] = useState(false);
     const { showAlert } = useAppAlert();
@@ -29,18 +30,22 @@ export default function AccountSettingsScreen() {
     const { t: tCommon } = useTranslation('common');
 
     const handleLogout = useCallback(async () => {
-        if (loggingOut || deleting) return;
+        if (accountActionInFlight.current) return;
+        accountActionInFlight.current = true;
         setLoggingOut(true);
         try {
             await signOut();
         } catch {
             showAlert(tCommon('error.title'), t('account.logOutFailed'));
         } finally {
+            accountActionInFlight.current = false;
             setLoggingOut(false);
         }
     }, [deleting, loggingOut, showAlert, signOut, t, tCommon]);
 
     const performDeleteAccount = useCallback(async () => {
+        if (accountActionInFlight.current) return;
+        accountActionInFlight.current = true;
         setDeleting(true);
         try {
             if (!user?.id) {
@@ -69,12 +74,14 @@ export default function AccountSettingsScreen() {
 
             await signOut();
         } catch (error) {
-            setDeleting(false);
             if ((error as { code?: string })?.code === 'ERR_REQUEST_CANCELED') return;
             showAlert(
                 tCommon('error.title'),
                 serverErrorMessage(error, t('account.deleteFailed')),
             );
+        } finally {
+            accountActionInFlight.current = false;
+            setDeleting(false);
         }
     }, [showAlert, signOut, t, tCommon, user?.id]);
 
@@ -143,11 +150,18 @@ export default function AccountSettingsScreen() {
                     />
                     <SettingsRow text={ t('rows.contactUs') } onPress={ handleContactUs } />
                     <SettingsRow text={ t('rows.privacyPolicy') } onPress={ handlePrivacyPolicy } />
-                    <SettingsRow text={ t('rows.deleteAccount') } onPress={ onDeleteAccount } />
+                    <SettingsRow
+                        text={ deleting ? t('account.deleting') : t('rows.deleteAccount') }
+                        onPress={ onDeleteAccount }
+                        loading={ deleting }
+                        disabled={ deleting || loggingOut }
+                    />
                     <SettingsRow text={ t('rows.termsOfService') } onPress={ handleTermsOfService } />
                     <SettingsRow
                         text={ loggingOut ? tCommon('action.loggingOut') : tCommon('action.logOut') }
                         onPress={ () => void handleLogout() }
+                        loading={ loggingOut }
+                        disabled={ deleting || loggingOut }
                     />
                 </View>
             </FrostedCard>
