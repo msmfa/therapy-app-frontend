@@ -1,55 +1,45 @@
-/**
- * <Trans> keeps the styled span inside a translated sentence.
- *
- * These two strings are the only ones in the app where a styled element sits
- * mid-sentence. Concatenation would work in English and break in French, where
- * the date lands in a different place in the clause, so the mechanism is worth
- * a test of its own rather than trusting that it renders.
- */
-
+/** Verify translated sentences keep their embedded navigation links. */
 import React from 'react';
-import { act, render } from '@testing-library/react-native';
+import { act, fireEvent, render } from '@testing-library/react-native';
 
 import { EmptyNoteCard } from '../../components/notes/EmptyNoteCard';
 import { i18next } from '../index';
 
-jest.mock('expo-router', () => ({ useRouter: () => ({ push: jest.fn() }) }));
+const mockPush = jest.fn();
+jest.mock('expo-router', () => ({ useRouter: () => ({ push: mockPush }) }));
 
-const mockNextSession = { startsAtUtc: '2026-03-04T19:00:00.000Z' };
-let mockSession: typeof mockNextSession | null = mockNextSession;
-jest.mock('../../context/therapy-sessions/TherapySessionsContext', () => ({
-    useTherapySessions: () => ({ nextSession: mockSession }),
-}));
-
-describe('EmptyNoteCard', () => {
+describe('EmptyNoteCard translations', () => {
     afterEach(async () => {
-        mockSession = mockNextSession;
-        // changeLanguage re-renders every mounted translated component, so the
-        // reset is a state update like any other.
+        mockPush.mockClear();
         await act(async () => { await i18next.changeLanguage('en'); });
     });
 
-    it('renders the sentence around the date in English', () => {
+    it('renders the English sentences around their embedded links', () => {
         const view = render(<EmptyNoteCard />);
-        expect(view.getByText(/We’ll send you a notification/)).toBeTruthy();
-        expect(view.getByText(/what kind of note taking works best/)).toBeTruthy();
+        expect(view.getByText('Add sessions in the calendar so we can build your custom reminders.')).toBeTruthy();
+        expect(view.getByText('We recommend reading about how to take a therapy note.')).toBeTruthy();
+        expect(view.getByText('If you want to add a note now you can click here.')).toBeTruthy();
+        expect(view.getAllByRole('link')).toHaveLength(3);
     });
 
-    it('renders the French sentence with the date still inside it', async () => {
+    it('renders French sentences with the translated links inside them', async () => {
         await act(async () => { await i18next.changeLanguage('fr'); });
         const view = render(<EmptyNoteCard />);
-
-        expect(view.getByText(/Nous vous enverrons une notification/)).toBeTruthy();
-        // The interpolated date survived, rather than leaving "{{date}}".
-        expect(view.queryByText(/\{\{date\}\}/)).toBeNull();
-        expect(view.getByText(/quelle façon de prendre des notes/)).toBeTruthy();
+        expect(view.getByText('Ajoutez des séances dans le calendrier pour que nous puissions créer vos rappels personnalisés.')).toBeTruthy();
+        expect(view.getByText('Nous vous recommandons de lire comment prendre une note de thérapie.')).toBeTruthy();
+        expect(view.getByText('Si vous voulez ajouter une note maintenant, vous pouvez cliquer ici.')).toBeTruthy();
     });
 
-    it('uses the other sentence when nothing is scheduled', async () => {
-        mockSession = null;
+    it('preserves navigation from each translated link', async () => {
         await act(async () => { await i18next.changeLanguage('fr'); });
         const view = render(<EmptyNoteCard />);
-
-        expect(view.getByText(/Vous n’avez encore aucune séance/)).toBeTruthy();
+        for (const [name, route] of [
+            ['Ajoutez des séances dans le calendrier', '/(tabs)/calendar'],
+            ['comment prendre une note de thérapie', '/how-to-take-notes'],
+            ['cliquer ici', '/(tabs)'],
+        ]) {
+            fireEvent.press(view.getByRole('link', { name }));
+            expect(mockPush).toHaveBeenLastCalledWith(route);
+        }
     });
 });
