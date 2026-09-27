@@ -141,9 +141,10 @@
     "empty": {
       "title": "Your first note",
       "withSession": "We’ll send you a notification just after your next session on <date>{{date}}</date>, so you can take down your first note. You’ll then see it here.",
-      "noSession": "You have no sessions scheduled yet. Add one in the calendar and we’ll remind you just after it, so you can take down your first note.",
-      "getStarted": "If you want to get started now, tap the plus icon in the bottom left. It’s worth reading a little bit about <link>what kind of note taking works best for therapy</link> first.",
-      "example": "Example"
+      "example": "Example",
+      "readGuide": "We recommend reading about <guide>how to take a therapy note</guide>.",
+      "addNow": "If you want to add a note now you can <add>click here</add>.",
+      "scheduleSessions": "<calendar>Add sessions in the calendar</calendar> so we can build your custom reminders."
     },
     "list": {
       "loadFailed": "Failed to load notes"
@@ -400,7 +401,8 @@
       "message": "To update or delete a session, tap the date you want to change in the calendar.",
       "confirm": "Got it"
     },
-    "nextReminderHelp": "To update your reminders, tap here."
+    "nextReminderHelp": "To update your reminders, tap here.",
+    "emptyHint": "Click on the calendar to add your sessions."
   },
   "onboarding": {
     "welcome": {

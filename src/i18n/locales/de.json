@@ -141,9 +141,10 @@
     "empty": {
       "title": "Ihre erste Notiz",
       "withSession": "Direkt nach Ihrer nächsten Sitzung am <date>{{date}}</date> senden wir Ihnen eine Benachrichtigung, damit Sie Ihre erste Notiz festhalten können. Danach sehen Sie sie hier.",
-      "noSession": "Sie haben noch keine Sitzungen geplant. Tragen Sie eine im Kalender ein, und wir erinnern Sie direkt danach, damit Sie Ihre erste Notiz festhalten können.",
-      "getStarted": "Wenn Sie gleich beginnen möchten, tippen Sie unten links auf das Plus-Symbol. Es lohnt sich, vorher kurz zu lesen, <link>welche Art des Notierens in der Therapie am besten funktioniert</link>.",
-      "example": "Beispiel"
+      "example": "Beispiel",
+      "readGuide": "Wir empfehlen Ihnen zu lesen, <guide>wie Sie eine Therapienotiz verfassen</guide>.",
+      "addNow": "Wenn Sie jetzt eine Notiz hinzufügen möchten, können Sie <add>hier klicken</add>.",
+      "scheduleSessions": "<calendar>Tragen Sie Sitzungen im Kalender ein</calendar>, damit wir Ihre individuellen Erinnerungen erstellen können."
     },
     "list": {
       "loadFailed": "Die Notizen konnten nicht geladen werden"
@@ -400,7 +401,8 @@
       "message": "Um eine Sitzung zu ändern oder zu löschen, tippe im Kalender auf das Datum, das du ändern möchtest.",
       "confirm": "Alles klar"
     },
-    "nextReminderHelp": "Tippe hier, um deine Erinnerungen zu ändern."
+    "nextReminderHelp": "Tippe hier, um deine Erinnerungen zu ändern.",
+    "emptyHint": "Klicken Sie auf den Kalender, um Ihre Sitzungen hinzuzufügen."
   },
   "onboarding": {
     "welcome": {
