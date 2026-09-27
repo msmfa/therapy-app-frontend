@@ -572,7 +572,7 @@
    "headline": "Sus notas",
    "researchLink": "¿Por qué estas cinco preguntas?",
    "privacyTitle": "Su nota sigue siendo suya",
-   "privacyBody": "El contenido de sus notas de terapia está cifrado y se guarda solo en este iPhone. Nunca se sube a nuestros servidores.",
+   "privacyBody": "Cifradas con AES-256-GCM, el estándar que usan gobiernos y militares en todo el mundo. La clave nunca abandona este iPhone ni se sube a ningún lugar. A diferencia de muchas aplicaciones, nunca enviamos sus notas a servicios de IA: cuando los datos salen de su dispositivo, la privacidad no puede garantizarse.",
    "reminderTitle": "Plastic Brains",
    "reminderBody": "Repase sus notas antes de la sesión de mañana",
    "reminderTime": "ahora",
@@ -827,7 +827,9 @@
    "s10": {
     "heading": "Seguridad",
     "bodies": [
-     "Aplicamos salvaguardas administrativas, técnicas y físicas para proteger su información, incluidas conexiones de red cifradas, almacenamiento seguro de credenciales y controles de acceso. Ningún método de transmisión o almacenamiento es completamente seguro, por lo que le recomendamos usar contraseñas únicas y mantener su dispositivo protegido."
+     "Sus notas de terapia se cifran con AES-256-GCM, el mismo estándar que utilizan gobiernos y militares en todo el mundo para proteger información clasificada. Este cifrado es autenticado, lo que significa que cualquier intento de manipulación se detecta antes de que se lean sus notas. La clave de cifrado se genera en su dispositivo y se almacena exclusivamente en el llavero de iOS con acceso único al dispositivo: nunca abandona su iPhone, no se carga en nuestros servidores y queda excluida del llavero de iCloud y de las copias de seguridad. Una copia de seguridad robada no puede leerse sin la clave que permanece en su dispositivo.",
+     "A diferencia de muchas aplicaciones de salud, Plastic Brains no utiliza inteligencia artificial para procesar, leer ni analizar sus notas de terapia. Cuando los datos se envían a servicios de IA, la privacidad no puede garantizarse: sus palabras podrían usarse para entrenar modelos, almacenarse en servidores de terceros o ser accedidas por personal en quien usted no confió. Tomamos la decisión deliberada de mantener sus notas completamente en su dispositivo para que nadie, incluidos nosotros, pueda leerlas.",
+     "También protegemos su cuenta con conexiones de red cifradas, almacenamiento seguro de credenciales y controles de acceso. Ningún método de transmisión o almacenamiento es completamente seguro, por lo que le recomendamos usar una contraseña segura y mantener su dispositivo protegido."
     ]
    },
    "s11": {

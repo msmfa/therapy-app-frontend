@@ -515,7 +515,7 @@
       "headline": "Your notes",
       "researchLink": "Why these five questions?",
       "privacyTitle": "Your note stays yours",
-      "privacyBody": "The contents of your therapy notes are encrypted and stored only on this iPhone. They are never uploaded to our servers.",
+      "privacyBody": "Encrypted with AES-256-GCM, the standard used by governments and militaries worldwide. The key never leaves this iPhone and is never uploaded anywhere. Unlike many apps, we never send your notes to AI services: when data leaves your device, privacy cannot be guaranteed.",
       "reminderTitle": "Plastic Brains",
       "reminderBody": "Review your notes before tomorrow's session",
       "reminderTime": "now",
@@ -897,7 +897,9 @@
       "s10": {
         "heading": "Security",
         "bodies": [
-          "We implement administrative, technical, and physical safeguards to protect your information, including encrypted network connections, secure credential storage, and access controls. No method of transmission or storage is completely secure, so we encourage you to use unique passwords and keep your device protected."
+          "Your therapy notes are encrypted with AES-256-GCM, the same standard used by governments and militaries worldwide to protect classified information. This cipher is authenticated, meaning any attempt to tamper with your notes is detected before they are read. The encryption key is generated on your device and stored exclusively in the iOS Keychain with device-only access — it never leaves your iPhone, is never uploaded to our servers, and is excluded from iCloud Keychain and device backups. A stolen backup cannot be read without the key that remains on your device.",
+          "Unlike many health apps, Plastic Brains does not use AI to process, read, or analyze your therapy notes. When data is sent to AI services, privacy cannot be guaranteed — your words may be used for model training, stored on third-party servers, or accessed by personnel you did not consent to. We made a deliberate choice to keep your notes entirely on your device so that no one, including us, can read them.",
+          "We also protect your account with encrypted network connections, secure credential storage, and access controls. No method of transmission or storage is completely secure, so we encourage you to use a strong password and keep your device protected."
         ]
       },
       "s11": {

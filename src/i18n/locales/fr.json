@@ -515,7 +515,7 @@
       "headline": "Vos notes",
       "researchLink": "Pourquoi ces cinq questions ?",
       "privacyTitle": "Vos notes restent les vôtres",
-      "privacyBody": "Le contenu de vos notes est chiffré et conservé uniquement sur cet iPhone. Il n’est jamais transféré sur nos serveurs.",
+      "privacyBody": "Chiffrées avec AES-256-GCM, le standard utilisé par les gouvernements et les armées du monde entier. La clé ne quitte jamais cet iPhone et n'est téléversée nulle part. Contrairement à de nombreuses applications, nous n'envoyons jamais vos notes à des services d'IA : lorsque les données quittent votre appareil, la confidentialité ne peut pas être garantie.",
       "reminderTitle": "Plastic Brains",
       "reminderBody": "Relisez vos notes avant la séance de demain",
       "reminderTime": "maintenant",
@@ -897,7 +897,9 @@
       "s10": {
         "heading": "Sécurité",
         "bodies": [
-          "Nous mettons en œuvre des mesures administratives, techniques et physiques pour protéger vos informations : connexions réseau chiffrées, stockage sécurisé des identifiants et contrôles d’accès. Aucun mode de transmission ou de stockage n’est parfaitement sûr, c’est pourquoi nous vous encourageons à utiliser des mots de passe uniques et à protéger votre appareil."
+          "Vos notes de thérapie sont chiffrées avec AES-256-GCM, le même standard utilisé par les gouvernements et les armées du monde entier pour protéger les informations classifiées. Ce chiffrement est authentifié, ce qui signifie que toute tentative de falsification est détectée avant que vos notes ne soient lues. La clé de chiffrement est générée sur votre appareil et stockée exclusivement dans le trousseau iOS avec un accès limité à l'appareil uniquement — elle ne quitte jamais votre iPhone, n'est jamais téléversée sur nos serveurs et est exclue du trousseau iCloud et des sauvegardes de l'appareil. Une sauvegarde volée ne peut pas être lue sans la clé qui reste sur votre appareil.",
+          "Contrairement à de nombreuses applications de santé, Plastic Brains n'utilise pas l'IA pour traiter, lire ou analyser vos notes de thérapie. Lorsque des données sont envoyées à des services d'IA, la confidentialité ne peut pas être garantie — vos mots pourraient être utilisés pour entraîner des modèles, stockés sur des serveurs tiers ou consultés par du personnel auquel vous n'avez pas consenti. Nous avons délibérément choisi de garder vos notes entièrement sur votre appareil, de sorte que personne — y compris nous — ne puisse les lire.",
+          "Nous protégeons également votre compte avec des connexions réseau chiffrées, le stockage sécurisé des identifiants et des contrôles d'accès. Aucun mode de transmission ou de stockage n'est parfaitement sûr, c'est pourquoi nous vous encourageons à utiliser un mot de passe fort et à protéger votre appareil."
         ]
       },
       "s11": {
