@@ -45,18 +45,6 @@ jest.mock('react-native-safe-area-context', () => {
     };
 });
 
-jest.mock('../../src/components/SettingsRow', () => {
-    const React = require('react');
-    const { Pressable, Text } = require('react-native');
-    return {
-        SettingsRow: ({ text, onPress }: { text: string; onPress: () => void }) => (
-            <Pressable accessibilityRole="button" onPress={ onPress }>
-                <Text>{ text }</Text>
-            </Pressable>
-        ),
-    };
-});
-
 jest.mock('../../src/components/ui/GlassMorphismWithCircle', () => {
     const React = require('react');
     const { View } = require('react-native');
@@ -185,5 +173,51 @@ describe('SettingsScreen account deletion', () => {
             expect.any(Error),
         );
         warning.mockRestore();
+    });
+});
+
+
+describe('Account action loading states', () => {
+    beforeEach(() => { jest.clearAllMocks(); mockSignOut.mockReset().mockResolvedValue(undefined); mockedDeleteCurrentUser.mockReset(); });
+
+    it('stays busy through server deletion and logout, and ignores repeated confirmation', async () => {
+        let finishDelete!: () => void;
+        let finishLogout!: () => void;
+        mockedDeleteCurrentUser.mockImplementationOnce(() => new Promise<void>(resolve => { finishDelete = resolve; }));
+        mockSignOut.mockImplementationOnce(() => new Promise<void>(resolve => { finishLogout = resolve; }));
+        const view = render(<AccountSettingsScreen />);
+        fireEvent.press(view.getByText('Delete account'));
+        const options = mockShowAlert.mock.calls[0][2] as AppAlertOptions;
+        let deletion: void | Promise<void>;
+        await act(async () => { deletion = options.primaryAction!.onPress(); });
+        expect(view.getByRole('button', { name: 'Deleting account…' }).props.accessibilityState).toMatchObject({ busy: true, disabled: true });
+        expect(view.getByRole('button', { name: 'Log out' }).props.accessibilityState.disabled).toBe(true);
+        await act(async () => { await options.primaryAction!.onPress(); });
+        expect(mockedDeleteCurrentUser).toHaveBeenCalledTimes(1);
+        await act(async () => { finishDelete(); });
+        expect(mockSignOut).toHaveBeenCalledTimes(1);
+        expect(view.getByRole('button', { name: 'Deleting account…' }).props.accessibilityState).toMatchObject({ busy: true });
+        await act(async () => { finishLogout(); await deletion; });
+    });
+
+    it.each(['failure', 'cancellation'])('restores the buttons after deletion %s', async (kind) => {
+        const error = Object.assign(new Error('Cannot delete'), { code: kind === 'cancellation' ? 'ERR_REQUEST_CANCELED' : undefined });
+        mockedDeleteCurrentUser.mockRejectedValueOnce(error);
+        const view = render(<AccountSettingsScreen />);
+        await confirmAccountDeletion(view.getByText);
+        expect(view.getByRole('button', { name: 'Delete account' }).props.accessibilityState).toMatchObject({ busy: false, disabled: false });
+        expect(view.getByRole('button', { name: 'Log out' }).props.accessibilityState.disabled).toBe(false);
+        expect(mockSignOut).not.toHaveBeenCalled();
+    });
+
+    it('shows logout progress and prevents deletion until logout settles', async () => {
+        let finish!: () => void;
+        mockSignOut.mockImplementationOnce(() => new Promise<void>(resolve => { finish = resolve; }));
+        const view = render(<AccountSettingsScreen />);
+        await act(async () => { fireEvent.press(view.getByText('Log out')); });
+        expect(view.getByRole('button', { name: 'Logging out…' }).props.accessibilityState).toMatchObject({ busy: true, disabled: true });
+        fireEvent.press(view.getByText('Delete account'));
+        expect(mockShowAlert).not.toHaveBeenCalled();
+        await act(async () => { finish(); });
     });
 });

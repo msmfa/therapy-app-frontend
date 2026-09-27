@@ -82,6 +82,7 @@
       "termsOfService": "Conditions d’utilisation"
     },
     "account": {
+      "deleting": "Suppression du compte…",
       "logOutFailed": "Impossible de vous déconnecter. Veuillez réessayer.",
       "mailOpenFailed": "Impossible d’ouvrir votre application de messagerie pour le moment.",
       "subscriptionsTitle": "Impossible d’ouvrir les abonnements",
