@@ -140,8 +140,9 @@
         "empty": {
             "title": "Your first note",
             "withSession": "We’ll send you a notification just after your next session on <date>{{date}}</date>, so you can take down your first note. You’ll then see it here.",
-            "noSession": "You have no sessions scheduled yet. Add one in the calendar and we’ll remind you just after it, so you can take down your first note.",
-            "getStarted": "If you want to get started now, tap the plus icon in the bottom left. It’s worth reading a little bit about <link>what kind of note taking works best for therapy</link> first.",
+            "scheduleSessions": "<calendar>Add sessions in the calendar</calendar> so we can build your custom reminders.",
+            "readGuide": "We recommend reading about <guide>how to take a therapy note</guide>.",
+            "addNow": "If you want to add a note now you can <add>click here</add>.",
             "example": "Example"
         },
         "list": {
@@ -296,6 +297,7 @@
         "orContinueWith": "Or continue with"
     },
     "calendar": {
+        "emptyHint": "Click on the calendar to add your sessions.",
         "nextSession": "Next session",
         "nextReminder": "Next reminder",
         "changedTitle": "Calendar changed",

@@ -140,8 +140,9 @@
         "empty": {
             "title": "Su primera nota",
             "withSession": "Le enviaremos una notificación justo después de su próxima sesión el <date>{{date}}</date>, para que pueda escribir su primera nota. Luego la verá aquí.",
-            "noSession": "Todavía no tiene sesiones programadas. Añada una en el calendario y le recordaremos justo después, para que pueda escribir su primera nota.",
-            "getStarted": "Si quiere empezar ya, toque el icono de más en la parte inferior izquierda. Conviene leer antes un poco sobre <link>qué forma de tomar notas funciona mejor en terapia</link>.",
+            "scheduleSessions": "<calendar>Añada sesiones en el calendario</calendar> para que podamos crear sus recordatorios personalizados.",
+            "readGuide": "Le recomendamos leer <guide>cómo tomar una nota de terapia</guide>.",
+            "addNow": "Si quiere añadir una nota ahora, puede <add>hacer clic aquí</add>.",
             "example": "Ejemplo"
         },
         "list": {
@@ -296,6 +297,7 @@
         "orContinueWith": "O continúe con"
     },
     "calendar": {
+        "emptyHint": "Haga clic en el calendario para añadir sus sesiones.",
         "nextSession": "Próxima sesión",
         "nextReminder": "Próximo recordatorio",
         "changedTitle": "El calendario cambió",
