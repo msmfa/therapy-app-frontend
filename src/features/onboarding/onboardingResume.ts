@@ -12,6 +12,7 @@ const ROUTE_BY_SCREEN = {
     'reviews-preview': '/(onboarding)/reviews-preview',
     'review-schedule': '/(onboarding)/review-schedule',
     'note-preview': '/(onboarding)/note-preview',
+    'streaks-preview': '/(onboarding)/streaks-preview',
     'subscription-preview': '/(onboarding)/subscription-preview',
     'account-preview': '/(onboarding)/account-preview',
     'notifications-preview': '/(onboarding)/notifications-preview',

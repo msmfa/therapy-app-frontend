@@ -521,7 +521,7 @@
       "reminderTitle": "Plastic Brains",
       "reminderBody": "Gehen Sie Ihre Notizen vor der morgigen Sitzung noch einmal durch",
       "reminderTime": "jetzt",
-      "primaryCta": "Tarife ansehen"
+      "primaryCta": "Ihre Serie"
     },
     "remainingQuestions_one": "{{count}} weitere Frage enthalten",
     "remainingQuestions_other": "{{count}} weitere Fragen enthalten",
@@ -699,6 +699,17 @@
     "a11y": {
       "notificationPreview": "Eine iPhone-Benachrichtigung von {{title}}: {{body}}",
       "notesList": "Eine Liste früherer Therapienotizen, jeweils mit dem Datum der Sitzung"
+    },
+    "streaksPreview": {
+      "nextDayAt": "am nächsten Tag um {{time}}",
+      "windowTitle": "Ihr Zeitfenster zum Wiederholen",
+      "windowExample": "Nach Ihrer Sitzung am {{session}} können Sie Ihre Notizen von {{opens}} bis {{closes}} durchgehen, damit der Check-in zu Ihrer Serie zählt.",
+      "windowNeedsSession": "Geben Sie Ihr Sitzungsdatum und die Häufigkeit an, damit wir Ihre genauen Zeitfenster anzeigen können.",
+      "windowNeedsNextSession": "Ihr Sitzungsdatum ist gespeichert. Sobald wir wissen, wann die darauffolgende Sitzung stattfindet, können wir Ihre genauen Zeitfenster anzeigen.",
+      "headline": "Ihre Serie",
+      "body": "Schließen Sie Ihre geplanten Check-ins ab, um Ihre Serie aufzubauen.",
+      "widgetBody": "Unser optionales Home-Bildschirm-Widget hilft Ihnen, motiviert zu bleiben und Ihre Serie fortzusetzen.",
+      "primaryCta": "Angebote ansehen"
     }
   },
   "science": {

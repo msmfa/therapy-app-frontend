@@ -32,6 +32,15 @@ describe('onboarding route persistence', () => {
         }, now)).toBe('/(onboarding)/note-preview');
     });
 
+    it('records and resumes the streaks preview', () => {
+        expect(onboardingRouteForSegments(['(onboarding)', 'streaks-preview']))
+            .toBe('/(onboarding)/streaks-preview');
+        expect(safeOnboardingResumeRoute({
+            goal: 'remember', sessionAt: futureSession, sessionDateSkipped: false,
+            cadence: 'weekly', resumeRoute: '/(onboarding)/streaks-preview',
+        }, now)).toBe('/(onboarding)/streaks-preview');
+    });
+
     it('does not bounce a deliberate Back from the first question to that question again', () => {
         expect(safeOnboardingResumeRoute({
             goal: 'remember',

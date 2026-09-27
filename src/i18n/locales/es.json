@@ -578,7 +578,7 @@
       "reminderTitle": "Plastic Brains",
       "reminderBody": "Repase sus notas antes de la sesión de mañana",
       "reminderTime": "ahora",
-      "primaryCta": "Ver planes"
+      "primaryCta": "Su racha"
     },
     "remainingQuestions_one": "{{count}} pregunta más incluida",
     "remainingQuestions_other": "{{count}} preguntas más incluidas",
@@ -756,6 +756,17 @@
     "a11y": {
       "notificationPreview": "Una notificación del iPhone de {{title}}: {{body}}",
       "notesList": "Una lista de notas de terapia anteriores, cada una con la fecha de su sesión"
+    },
+    "streaksPreview": {
+      "nextDayAt": "el día siguiente a las {{time}}",
+      "windowTitle": "Su plazo de revisión",
+      "windowExample": "Después de su sesión del {{session}}, revise sus notas desde {{opens}} hasta {{closes}} para que el registro cuente para su racha.",
+      "windowNeedsSession": "Añada la fecha de su sesión y la frecuencia con la que asiste para ver sus plazos de revisión exactos.",
+      "windowNeedsNextSession": "La fecha de su sesión está guardada. Cuando sepamos cuándo es la siguiente, podremos mostrarle sus plazos de revisión exactos.",
+      "headline": "Su racha",
+      "body": "Complete sus registros programados para mantener su racha.",
+      "widgetBody": "Nuestro widget opcional para la pantalla de inicio le ayuda a mantener la motivación y continuar su racha.",
+      "primaryCta": "Ver planes"
     }
   },
   "legal": {

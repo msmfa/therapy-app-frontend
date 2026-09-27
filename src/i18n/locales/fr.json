@@ -521,7 +521,7 @@
       "reminderTitle": "Plastic Brains",
       "reminderBody": "Relisez vos notes avant la séance de demain",
       "reminderTime": "maintenant",
-      "primaryCta": "Voir les offres"
+      "primaryCta": "Votre série"
     },
     "remainingQuestions_one": "{{count}} question supplémentaire incluse",
     "remainingQuestions_other": "{{count}} questions supplémentaires incluses",
@@ -699,6 +699,17 @@
     "a11y": {
       "notificationPreview": "Une notification iPhone de {{title}} : {{body}}",
       "notesList": "Une liste de notes de thérapie passées, chacune avec la date de sa séance"
+    },
+    "streaksPreview": {
+      "nextDayAt": "le lendemain à {{time}}",
+      "windowTitle": "Votre plage de révision",
+      "windowExample": "Après votre séance du {{session}}, relisez vos notes entre {{opens}} et {{closes}} pour que ce bilan compte dans votre série.",
+      "windowNeedsSession": "Ajoutez la date de votre séance et sa fréquence pour voir vos plages de révision exactes.",
+      "windowNeedsNextSession": "La date de votre séance est enregistrée. Dès que nous connaîtrons la date de la séance suivante, nous pourrons afficher vos plages de révision exactes.",
+      "headline": "Votre série",
+      "body": "Effectuez vos bilans programmés pour prolonger votre série.",
+      "widgetBody": "Notre widget facultatif sur l’écran d’accueil vous aide à rester motivé et à poursuivre votre série.",
+      "primaryCta": "Voir les offres"
     }
   },
   "science": {

@@ -1,7 +1,7 @@
 import { useCallback, useSyncExternalStore } from 'react';
 import { useFocusEffect } from 'expo-router';
 import { analytics } from '../analytics/client';
-import type { OnboardingStep } from '../analytics/events';
+import { ONBOARDING_FLOW_VERSION, type OnboardingStep } from '../analytics/events';
 
 /** Mount only alongside a step's visible UI, never its loading or redirect branch. */
 export function OnboardingStepAnalytics({ step }: { step: OnboardingStep }) {
@@ -20,8 +20,8 @@ function FocusedStepAnalytics({ step, snapshot }: {
         // Welcome. Give that redirect a chance to unmount before recording a
         // view; blur, account changes and consent changes cancel this capture.
         const timer = setTimeout(() => {
-            scope.capture('onboarding_step_viewed', { onboarding_step: step, flow_version: '1' }, {
-                dedupeKey: `onboarding-step:${visit}:1:${step}`,
+            scope.capture('onboarding_step_viewed', { onboarding_step: step, flow_version: ONBOARDING_FLOW_VERSION }, {
+                dedupeKey: `onboarding-step:${visit}:${ONBOARDING_FLOW_VERSION}:${step}`,
             });
         }, 0);
         return () => clearTimeout(timer);

@@ -521,7 +521,7 @@
       "reminderTitle": "Plastic Brains",
       "reminderBody": "Review your notes before tomorrow's session",
       "reminderTime": "now",
-      "primaryCta": "See plans"
+      "primaryCta": "Your streaks"
     },
     "remainingQuestions_one": "{{count}} more question included",
     "remainingQuestions_other": "{{count}} more questions included",
@@ -699,6 +699,17 @@
     "a11y": {
       "notificationPreview": "An iPhone notification from {{title}}: {{body}}",
       "notesList": "A list of past therapy notes, each with the date of its session"
+    },
+    "streaksPreview": {
+      "nextDayAt": "the next day at {{time}}",
+      "windowTitle": "Your review window",
+      "windowExample": "After your session on {{session}}, revisit your notes from {{opens}} until {{closes}} to count towards your streak.",
+      "windowNeedsSession": "Add your session date and how often you go so we can show your exact review windows.",
+      "windowNeedsNextSession": "Your session date is saved. Once we know when your following session is, we can show your exact review windows.",
+      "headline": "Your streaks",
+      "body": "Complete your scheduled check-ins to build your streak.",
+      "widgetBody": "Our optional Home Screen widget helps you stay motivated and keep your streak going.",
+      "primaryCta": "See plans"
     }
   },
   "science": {
