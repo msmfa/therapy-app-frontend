@@ -139,7 +139,7 @@ export default function NotePreviewScreen() {
                     <OnboardingButton
                         appearance="solid"
                         label={ notePreviewCopy().primaryCta }
-                        onPress={ () => router.push('/(onboarding)/subscription-preview') }
+                        onPress={ () => router.push('/(onboarding)/streaks-preview') }
                     />
                 }
             >

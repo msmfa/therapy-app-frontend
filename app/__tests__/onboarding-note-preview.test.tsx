@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from '@testing-library/react-native';
+import { fireEvent, render } from '@testing-library/react-native';
 
 const mockPush = jest.fn();
 let mockGoal: string | null = 'prepare';
@@ -210,4 +210,11 @@ describe('onboarding note preview', () => {
         // there is no gradient left in the backdrop at all.
         expect(getByTestId('note-backdrop').findAllByType(LinearGradient)).toHaveLength(0);
     });
+});
+
+
+it('continues from Your notes to the streaks preview', () => {
+    const { getByRole } = render(<NotePreviewScreen />);
+    fireEvent.press(getByRole('button', { name: 'Your streaks' }));
+    expect(mockPush).toHaveBeenLastCalledWith('/(onboarding)/streaks-preview');
 });

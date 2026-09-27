@@ -33,7 +33,7 @@ All client events allow only the properties listed here, plus `app_version`, `pl
 
 | Event | When it is recorded | Properties |
 | --- | --- | --- |
-| `onboarding_step_viewed` | An actual focused onboarding screen is visible; once per step per local visit. Loading and redirect branches do not count. | `onboarding_step`, `flow_version=1` |
+| `onboarding_step_viewed` | An actual focused onboarding screen is visible; once per step per local visit. Loading and redirect branches do not count. | `onboarding_step`, `flow_version=2` |
 | `onboarding_completed` | Onboarding persistence and completion succeed. | `plan_mode=real/sample` |
 | `checkout_started` | The canonical purchase/restore operation begins. | `operation=purchase/restore`, `plan=monthly/annual/unknown`, `entry_point` |
 | `checkout_result` | That operation resolves. A client outcome describes checkout UX, not a subscription lifecycle transition. | Above plus `outcome=purchased/cancelled/pending/failed/restored/unlinked/no_entitlement` |
@@ -44,7 +44,7 @@ All client events allow only the properties listed here, plus `app_version`, `pl
 | `notification_opened` | A notification response can be handled after app readiness; deduplicated locally. | `reminder_kind=log_note/review_note/unknown`, `destination=notes/note_editor` |
 | `critical_action_failed` | A tracked important operation fails. | `operation=note_save/review_save/checkout/onboarding_save/notification_registration`, `error_code=network/storage/auth/store/unknown` |
 
-`onboarding_step` is one of: `welcome`, `goal`, `session_date`, `session_cadence`, `reminder_times`, `plan_preview`, `reviews_preview`, `note_preview`, `subscription_preview`, `account_preview`, `notifications_preview`, `success`. It identifies the page, never the person's answer.
+`onboarding_step` is one of: `welcome`, `goal`, `session_date`, `session_cadence`, `reminder_times`, `plan_preview`, `note_template`, `reviews_preview`, `review_schedule`, `note_preview`, `streaks_preview`, `subscription_preview`, `account_preview`, `notifications_preview`, `success`. It identifies the page, never the person's answer. Flow version `2` adds `streaks_preview` between `note_preview` and `subscription_preview`; version `1` remains accepted for queued events from older releases. Session dates, reminder times and the personalised review-window text are not analytics properties.
 
 Subscription starts, renewals, trial conversions, auto-renew changes, expiry and refunds come from verified backend billing transitions. Never infer these from paywall taps, a restored purchase, a frontend entitlement refresh or an unverified Apple payload. The backend guide defines its separate event properties and delivery guarantees.
 
@@ -55,6 +55,7 @@ Create a dashboard named **Plastic Brains — meaningful use**, use unique peopl
 | Insight | PostHog definition | Decision it supports |
 | --- | --- | --- |
 | Onboarding completion | Ordered funnel: `onboarding_step_viewed(onboarding_step=welcome)` → `onboarding_step_viewed(onboarding_step=subscription_preview)` → `onboarding_completed`; conversion window 14 days. Inspect completion `plan_mode` separately to preserve the full funnel denominator. Use separate step funnels for optional paths. | Where the onboarding journey loses people. Earlier steps missed before analytics initialization are not backfilled. |
+| Streaks introduction | Ordered `onboarding_step_viewed` funnel with `flow_version=2`: `note_preview` → `streaks_preview` → `subscription_preview`, within 14 days. | Whether people continue from notes through the widget introduction to plans. |
 | Checkout reliability | `checkout_started(operation=purchase)` → `checkout_result(operation=purchase,outcome=purchased)` within 1 hour. Adjacent outcome trend with cancelled/pending/failed separated; separate restore funnel. | Friction in checkout, distinct from verified recurring revenue. |
 | First meaningful return | `note_saved(operation=new)` → `review_completed(is_first_review_for_note=true,note_saved_on_previous_visit=true)` within 60 days, unique people. | Whether users return to review a note they previously saved. The second event establishes its own note's provenance locally; the funnel cannot join a specific first-step note without exporting note IDs. |
 | Repeat meaningful use | Weekly unique people performing `note_saved(operation=new)` OR `review_completed`, plus a rolling 60-day trend. | How many people keep doing the core actions. Avoid treating app opens or edits as the primary value measure. |
