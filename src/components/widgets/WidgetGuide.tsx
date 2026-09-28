@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { SettingsPageShell } from '../settings/SettingsPageShell';
 import AppText from '../ui/AppText';
 import { GlassPillButton } from '../ui/GlassPillButton';
 import { useTheme } from '../../context/theme';
+import { WidgetExample } from './WidgetExample';
 
 export function WidgetGuide({ onBack }: { onBack: () => void }) {
     const { t } = useTranslation('settings');
@@ -70,52 +71,6 @@ export function WidgetGuide({ onBack }: { onBack: () => void }) {
     );
 }
 
-const widgetImages = {
-    en: {
-        small_light: require('../../../assets/widgets/widget-en-small-light.png'),
-        small_dark: require('../../../assets/widgets/widget-en-small-dark.png'),
-        medium_light: require('../../../assets/widgets/widget-en-medium-light.png'),
-        medium_dark: require('../../../assets/widgets/widget-en-medium-dark.png'),
-    },
-    de: {
-        small_light: require('../../../assets/widgets/widget-de-small-light.png'),
-        small_dark: require('../../../assets/widgets/widget-de-small-dark.png'),
-        medium_light: require('../../../assets/widgets/widget-de-medium-light.png'),
-        medium_dark: require('../../../assets/widgets/widget-de-medium-dark.png'),
-    },
-    fr: {
-        small_light: require('../../../assets/widgets/widget-fr-small-light.png'),
-        small_dark: require('../../../assets/widgets/widget-fr-small-dark.png'),
-        medium_light: require('../../../assets/widgets/widget-fr-medium-light.png'),
-        medium_dark: require('../../../assets/widgets/widget-fr-medium-dark.png'),
-    },
-    es: {
-        small_light: require('../../../assets/widgets/widget-es-small-light.png'),
-        small_dark: require('../../../assets/widgets/widget-es-small-dark.png'),
-        medium_light: require('../../../assets/widgets/widget-es-medium-light.png'),
-        medium_dark: require('../../../assets/widgets/widget-es-medium-dark.png'),
-    },
-};
-
-function WidgetExample({ small = false }: { small?: boolean }) {
-    const { t, i18n } = useTranslation('settings');
-    const { scheme } = useTheme();
-    const language = (i18n.resolvedLanguage ?? 'en').split('-')[0];
-    const images = widgetImages[language as keyof typeof widgetImages] ?? widgetImages.en;
-    const imageKey = `${small ? 'small' : 'medium'}_${scheme === 'dark' ? 'dark' : 'light'}` as keyof typeof images;
-    return (
-        <View style={[styles.example, { width: small ? 170 : 340, shadowColor: scheme === 'dark' ? '#000000' : '#667788', shadowOpacity: scheme === 'dark' ? 0.45 : 0.24 }]}>
-            <Image
-                source={images[imageKey]}
-                accessibilityLabel={t(small ? 'widget.smallDescription' : 'widget.mediumDescription')}
-                accessible
-                accessibilityRole="image"
-                resizeMode="contain"
-                style={{ width: '100%', height: small ? 170 : 340 * 170 / 364 }}
-            />
-        </View>
-    );
-}
 
 export function WidgetDiscoveryCard({ onOpen, onDismiss }: { onOpen: () => void; onDismiss: () => void }) {
     const { t } = useTranslation('settings');
@@ -138,7 +93,7 @@ export function WidgetDiscoveryCard({ onOpen, onDismiss }: { onOpen: () => void;
 const styles = StyleSheet.create({
     root: { flex: 1 }, scroll: { flex: 1, minHeight: 0 }, content: { paddingHorizontal: 12, paddingBottom: 36, gap: 18 },
     sizePicker: { flexDirection: 'row', gap: 12 }, sizePickerStacked: { flexDirection: 'column' }, sizeOption: { flexGrow: 1, flexBasis: 0 },
-    previews: { minHeight: 192, alignItems: 'center', justifyContent: 'center', paddingVertical: 8 }, example: { gap: 10, maxWidth: '100%', borderRadius: 25, shadowOffset: { width: 0, height: 9 }, shadowRadius: 14, elevation: 8 },
+    previews: { minHeight: 192, alignItems: 'center', justifyContent: 'center', paddingVertical: 8 },
     instructions: { gap: 10 },
     instructionCard: { flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 15, borderWidth: 1, paddingHorizontal: 12, paddingVertical: 10, elevation: 24 },
     instructionNumberBadge: { flexShrink: 0, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center', shadowOffset: { width: 1, height: 3 }, shadowOpacity: 0.25, shadowRadius: 3, elevation: 4 },
