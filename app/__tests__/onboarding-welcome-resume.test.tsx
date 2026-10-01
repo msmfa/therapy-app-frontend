@@ -6,6 +6,8 @@ const mockPush = jest.fn();
 const mockPeekPending = jest.fn<string | null, []>(() => null);
 const mockConsumePending = jest.fn<string | null, []>(() => null);
 let mockIsAuthenticated = false;
+let mockHasOnboarded = false;
+let mockOnboardingHydrated = true;
 let mockUserId: string | null = null;
 let mockAnswersHydrated = true;
 let mockAnswers: OnboardingAnswers = {
@@ -37,6 +39,10 @@ jest.mock('../../src/context/auth/AuthContext', () => ({
         isAuthenticated: mockIsAuthenticated,
         user: mockUserId === null ? null : { id: mockUserId },
     }),
+}));
+
+jest.mock('../../src/context/onboarding/OnboardingContext', () => ({
+    useOnboarding: () => ({ hasOnboarded: mockHasOnboarded, hydrated: mockOnboardingHydrated }),
 }));
 
 jest.mock('../../src/features/onboarding/OnboardingAnswersContext', () => ({
@@ -78,6 +84,8 @@ describe('Welcome onboarding handoff', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         mockIsAuthenticated = false;
+        mockHasOnboarded = false;
+        mockOnboardingHydrated = true;
         mockUserId = null;
         mockAnswersHydrated = true;
         mockAnswers = {
@@ -98,6 +106,7 @@ describe('Welcome onboarding handoff', () => {
 
     it('redirects through Welcome without consuming the action the target must resume', () => {
         mockIsAuthenticated = true;
+        mockHasOnboarded = true;
         mockPeekPending.mockReturnValue('/(onboarding)/subscription-preview');
 
         const { getByText } = render(<WelcomeScreen />);
@@ -105,6 +114,27 @@ describe('Welcome onboarding handoff', () => {
         expect(getByText('redirect:/(onboarding)/subscription-preview')).toBeTruthy();
         expect(mockPeekPending).toHaveBeenCalledTimes(1);
         expect(mockConsumePending).not.toHaveBeenCalled();
+    });
+
+    it('sends a completed account through normal routing instead of restarting its draft', () => {
+        mockIsAuthenticated = true;
+        mockHasOnboarded = true;
+        mockAnswers.resumeRoute = '/(onboarding)/goal';
+        const { getByText } = render(<WelcomeScreen />);
+        expect(getByText('redirect:/(tabs)/notes')).toBeTruthy();
+    });
+
+    it('waits for the current account status before redirecting to protected tabs', () => {
+        mockIsAuthenticated = true;
+        mockHasOnboarded = true;
+        mockOnboardingHydrated = false;
+        const view = render(<WelcomeScreen />);
+        expect(view.getByText('loading')).toBeTruthy();
+        expect(view.queryByText('redirect:/(tabs)/notes')).toBeNull();
+
+        mockOnboardingHydrated = true;
+        view.rerender(<WelcomeScreen />);
+        expect(view.getByText('redirect:/(tabs)/notes')).toBeTruthy();
     });
 
     it('clears an abandoned handoff before showing Welcome signed out', () => {

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../auth/AuthContext';
 import { getCurrentUserSettings, updateCurrentUser } from '../../api/users';
@@ -6,6 +6,8 @@ import { getCurrentUserSettings, updateCurrentUser } from '../../api/users';
 type OnboardingContextValue = {
     hydrated: boolean;
     hasOnboarded: boolean;
+    hydrationError: boolean;
+    retryHydration: () => void;
     finishOnboarding: () => Promise<void>;
     resetOnboarding: () => Promise<void>;
 };
@@ -38,12 +40,20 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     // to prevent one frame of the previous account's state leaking through.
     const [hydratedUserId, setHydratedUserId] = useState<string | null>();
     const [hasOnboarded, setHasOnboarded] = useState(false);
+    const [failedUserId, setFailedUserId] = useState<string | null>(null);
+    const [hydrationAttempt, setHydrationAttempt] = useState(0);
     const { user, hydrated: authHydrated } = useAuth();
 
     const userId = user?.id ?? null;
     const hydrated = authHydrated && hydratedUserId === userId;
     const currentUserIdRef = useRef(userId);
     currentUserIdRef.current = userId;
+
+    const retryHydration = useCallback(() => {
+        setFailedUserId(null);
+        setHydratedUserId(undefined);
+        setHydrationAttempt((attempt) => attempt + 1);
+    }, []);
 
     // Hydrate onboarding state when user changes
     useEffect(() => {
@@ -53,6 +63,7 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
         }
 
         let cancelled = false;
+        setFailedUserId(null);
 
         // No user is always an incomplete, but fully-hydrated onboarding state.
         if (!userId) {
@@ -64,7 +75,8 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
         (async () => {
             try {
                 const key = `${ONBOARDING_PREFIX}${userId}`;
-                const value = await AsyncStorage.getItem(key);
+                // A cache read failure must still allow the account to answer.
+                const value = await AsyncStorage.getItem(key).catch(() => null);
                 if (cancelled) return;
 
                 if (value === '1') {
@@ -94,16 +106,17 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
                 // No local marker may mean a new device, not a new user. The
                 // account is authoritative so returning users do not repeat
                 // onboarding and append another session series.
-                let completedOnAccount = false;
-                try {
-                    const settings = await getCurrentUserSettings();
-                    completedOnAccount = settings.onboardingCompleted === true;
-                } catch (error) {
-                    console.warn('[OnboardingProvider] server hydration failed:', error);
+                const settings = await getCurrentUserSettings();
+                // Missing/malformed status is unknown, not permission to restart
+                // setup for an account that may already have completed it.
+                if (typeof settings.onboardingCompleted !== 'boolean') {
+                    throw new Error('Missing onboarding completion status');
                 }
+                const completedOnAccount = settings.onboardingCompleted;
                 if (cancelled) return;
 
                 setHasOnboarded(completedOnAccount);
+                setHydratedUserId(userId);
                 if (completedOnAccount) {
                     // Cache only. Failure cannot undo the server-owned result.
                     await AsyncStorage.setItem(key, '1').catch((error) => {
@@ -113,10 +126,9 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
             } catch (error) {
                 if (cancelled) return;
                 console.error('[OnboardingProvider] hydration error:', error);
-                // On error, default to not onboarded
-                setHasOnboarded(false);
-            } finally {
-                if (!cancelled) setHydratedUserId(userId);
+                // Keep routing unresolved until a retry succeeds. A failed
+                // request says nothing about whether this account is new.
+                setFailedUserId(userId);
             }
         })();
 
@@ -126,7 +138,7 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
         return () => {
             cancelled = true;
         };
-    }, [userId, authHydrated]);
+    }, [userId, authHydrated, hydrationAttempt]);
 
     const finishOnboarding = async () => {
         // Marking onboarding complete for "nobody" silently stranded the user:
@@ -176,6 +188,8 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     const value: OnboardingContextValue = {
         hydrated,
         hasOnboarded,
+        hydrationError: authHydrated && userId !== null && failedUserId === userId,
+        retryHydration,
         finishOnboarding,
         resetOnboarding,
     };

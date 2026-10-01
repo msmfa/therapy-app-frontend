@@ -141,9 +141,10 @@
     "empty": {
       "title": "Votre première note",
       "withSession": "Nous vous enverrons une notification juste après votre prochaine séance, le <date>{{date}}</date>, pour que vous puissiez écrire votre première note. Elle apparaîtra ensuite ici.",
-      "noSession": "Vous n’avez encore aucune séance programmée. Ajoutez-en une dans le calendrier et nous vous le rappellerons juste après, pour que vous puissiez écrire votre première note.",
-      "getStarted": "Si vous voulez commencer dès maintenant, touchez l’icône plus en bas à gauche. Cela vaut la peine de lire un peu <link>quelle façon de prendre des notes fonctionne le mieux en thérapie</link> avant de vous lancer.",
-      "example": "Exemple"
+      "example": "Exemple",
+      "readGuide": "Nous vous recommandons de lire <guide>comment prendre une note de thérapie</guide>.",
+      "addNow": "Si vous voulez ajouter une note maintenant, vous pouvez <add>cliquer ici</add>.",
+      "scheduleSessions": "<calendar>Ajoutez des séances dans le calendrier</calendar> pour que nous puissions créer vos rappels personnalisés."
     },
     "list": {
       "loadFailed": "Échec du chargement des notes"
@@ -400,13 +401,20 @@
       "message": "Pour modifier ou supprimer une séance, appuyez sur la date à changer dans le calendrier.",
       "confirm": "Compris"
     },
-    "nextReminderHelp": "Appuyez ici pour modifier vos rappels."
+    "nextReminderHelp": "Appuyez ici pour modifier vos rappels.",
+    "emptyHint": "Cliquez sur le calendrier pour ajouter vos séances."
   },
   "onboarding": {
+    "statusRecovery": {
+      "title": "Impossible de vérifier votre compte",
+      "message": "Vérifiez votre connexion et réessayez. Votre progression a été conservée."
+    },
     "welcome": {
       "headline": "Un journal de thérapie qui vous rappelle de relire vos notes",
       "primaryCta": "Créer mon programme",
-      "secondaryCta": "J’ai déjà un compte"
+      "secondaryCta": "J’ai déjà un compte",
+      "continueCta": "Continuer avec votre compte",
+      "accountCta": "Gérer votre compte"
     },
     "goalOption": {
       "practise": {
@@ -515,11 +523,11 @@
       "headline": "Vos notes",
       "researchLink": "Pourquoi ces cinq questions ?",
       "privacyTitle": "Vos notes restent les vôtres",
-      "privacyBody": "Le contenu de vos notes est chiffré et conservé uniquement sur cet iPhone. Il n’est jamais transféré sur nos serveurs.",
+      "privacyBody": "Chiffrées avec AES-256-GCM, le standard utilisé par les gouvernements et les armées du monde entier. La clé ne quitte jamais cet iPhone et n'est téléversée nulle part. Contrairement à de nombreuses applications, nous n'envoyons jamais vos notes à des services d'IA : lorsque les données quittent votre appareil, la confidentialité ne peut pas être garantie.",
       "reminderTitle": "Plastic Brains",
       "reminderBody": "Relisez vos notes avant la séance de demain",
       "reminderTime": "maintenant",
-      "primaryCta": "Voir les offres"
+      "primaryCta": "Votre série"
     },
     "remainingQuestions_one": "{{count}} question supplémentaire incluse",
     "remainingQuestions_other": "{{count}} questions supplémentaires incluses",
@@ -697,6 +705,17 @@
     "a11y": {
       "notificationPreview": "Une notification iPhone de {{title}} : {{body}}",
       "notesList": "Une liste de notes de thérapie passées, chacune avec la date de sa séance"
+    },
+    "streaksPreview": {
+      "nextDayAt": "le lendemain à {{time}}",
+      "windowTitle": "Votre plage de révision",
+      "windowExample": "Après votre séance du {{session}}, relisez vos notes entre {{opens}} et {{closes}} pour que ce bilan compte dans votre série.",
+      "windowNeedsSession": "Ajoutez la date de votre séance et sa fréquence pour voir vos plages de révision exactes.",
+      "windowNeedsNextSession": "La date de votre séance est enregistrée. Dès que nous connaîtrons la date de la séance suivante, nous pourrons afficher vos plages de révision exactes.",
+      "headline": "Votre série",
+      "body": "Effectuez vos bilans programmés pour prolonger votre série.",
+      "widgetBody": "Notre widget facultatif sur l’écran d’accueil vous aide à rester motivé et à poursuivre votre série.",
+      "primaryCta": "Voir les offres"
     }
   },
   "science": {
@@ -897,7 +916,9 @@
       "s10": {
         "heading": "Sécurité",
         "bodies": [
-          "Nous mettons en œuvre des mesures administratives, techniques et physiques pour protéger vos informations : connexions réseau chiffrées, stockage sécurisé des identifiants et contrôles d’accès. Aucun mode de transmission ou de stockage n’est parfaitement sûr, c’est pourquoi nous vous encourageons à utiliser des mots de passe uniques et à protéger votre appareil."
+          "Vos notes de thérapie sont chiffrées avec AES-256-GCM, le même standard utilisé par les gouvernements et les armées du monde entier pour protéger les informations classifiées. Ce chiffrement est authentifié, ce qui signifie que toute tentative de falsification est détectée avant que vos notes ne soient lues. La clé de chiffrement est générée sur votre appareil et stockée exclusivement dans le trousseau iOS avec un accès limité à l'appareil uniquement — elle ne quitte jamais votre iPhone, n'est jamais téléversée sur nos serveurs et est exclue du trousseau iCloud et des sauvegardes de l'appareil. Une sauvegarde volée ne peut pas être lue sans la clé qui reste sur votre appareil.",
+          "Contrairement à de nombreuses applications de santé, Plastic Brains n'utilise pas l'IA pour traiter, lire ou analyser vos notes de thérapie. Lorsque des données sont envoyées à des services d'IA, la confidentialité ne peut pas être garantie — vos mots pourraient être utilisés pour entraîner des modèles, stockés sur des serveurs tiers ou consultés par du personnel auquel vous n'avez pas consenti. Nous avons délibérément choisi de garder vos notes entièrement sur votre appareil, de sorte que personne — y compris nous — ne puisse les lire.",
+          "Nous protégeons également votre compte avec des connexions réseau chiffrées, le stockage sécurisé des identifiants et des contrôles d'accès. Aucun mode de transmission ou de stockage n'est parfaitement sûr, c'est pourquoi nous vous encourageons à utiliser un mot de passe fort et à protéger votre appareil."
         ]
       },
       "s11": {

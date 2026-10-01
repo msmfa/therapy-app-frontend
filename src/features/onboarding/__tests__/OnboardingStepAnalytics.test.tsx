@@ -51,9 +51,20 @@ describe('visible onboarding step analytics', () => {
         render(<OnboardingStepAnalytics step="goal" />);
         act(() => jest.runOnlyPendingTimers());
         expect(mockCapture.mock.calls).toEqual([0, 1].map(() => [
-            'onboarding_step_viewed', { onboarding_step: 'goal', flow_version: '1' },
-            { dedupeKey: 'onboarding-step:visit:1:goal' },
+            'onboarding_step_viewed', { onboarding_step: 'goal', flow_version: '2' },
+            { dedupeKey: 'onboarding-step:visit:2:goal' },
         ]));
+    });
+
+    it('tracks the streaks step in the updated flow without session data', () => {
+        render(<OnboardingStepAnalytics step="streaks_preview" />);
+        act(() => jest.runOnlyPendingTimers());
+        expect(mockCapture).toHaveBeenCalledTimes(1);
+        expect(mockCapture).toHaveBeenCalledWith(
+            'onboarding_step_viewed',
+            { onboarding_step: 'streaks_preview', flow_version: '2' },
+            { dedupeKey: 'onboarding-step:visit:2:streaks_preview' },
+        );
     });
 
     it('does not count a screen that immediately redirects from its focus effect', () => {

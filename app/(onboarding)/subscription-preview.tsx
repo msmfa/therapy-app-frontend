@@ -56,7 +56,7 @@ export default function SubscriptionPreviewScreen() {
     // draft. Only a first run has somewhere to go back to.
     const backNavigation = hasOnboarded
         ? { showBack: false as const }
-        : { backHref: '/(onboarding)/note-preview' as const };
+        : { backHref: '/(onboarding)/streaks-preview' as const };
 
     // Account controls must remain available even when no products can load
     // or this account has no subscription.

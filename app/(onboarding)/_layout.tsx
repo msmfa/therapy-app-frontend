@@ -46,6 +46,7 @@ export default function OnboardingLayout() {
                 name="note-preview"
                 options={ { contentStyle: { backgroundColor: theme.accentScreen.ground } } }
             />
+            <Stack.Screen name="streaks-preview" />
             <Stack.Screen name="subscription-preview" />
             <Stack.Screen name="account-preview" />
             <Stack.Screen

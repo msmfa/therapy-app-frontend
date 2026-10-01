@@ -1,4 +1,4 @@
-import { Pressable, View, StyleSheet } from "react-native";
+import { Pressable, View, StyleSheet, type StyleProp, type ViewStyle } from "react-native";
 import { Note } from "../../features/notes/useNotes";
 import AppText from "../ui/AppText";
 import Spacer from "../ui/Spacer";
@@ -21,11 +21,12 @@ type Props = {
     onPress: (item: Note) => void;
     /** From `useNoteReviews().progressFor(note)`. */
     progress?: NoteReviewProgress;
+    style?: StyleProp<ViewStyle>;
 }
 
 const PREVIEW_LABEL_LENGTH = 100;
 
-export function NoteCard({ item, index, onPress, progress }: Props) {
+export function NoteCard({ item, index, onPress, progress, style }: Props) {
     const { t } = useTranslation('notes');
     const { theme } = useTheme();
     const styles = useThemedStyles(makeStyles);
@@ -46,6 +47,7 @@ export function NoteCard({ item, index, onPress, progress }: Props) {
                 styles.cardWrapper,
                 pressed && styles.noteCardPressed,
                 index === 0 && styles.firstCard,
+                style,
             ] }
         >
             { /* Decoration, not a second target: the whole card is already

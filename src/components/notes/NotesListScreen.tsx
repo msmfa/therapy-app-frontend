@@ -11,14 +11,14 @@ import { NoteCard } from './NoteCard';
 import { ReviewProgressGallery } from './ReviewProgressGallery';
 import { EmptyNoteCard } from './EmptyNoteCard';
 import { SampleNoteCard } from './SampleNoteCard';
-import { GradientCard } from '../ui/GradientCard';
 import AppText from '../ui/AppText';
+import { DottedGrid } from '../ui/DottedGrid';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
-import { useTheme } from '../../context/theme';
+import { useTheme, useThemedStyles } from '../../context/theme';
+import type { Theme } from 'designs/designs-themes';
 import { captureNoteOpened } from '../../features/analytics/engagement';
 import { useTranslation } from 'react-i18next';
 
-const BOTTOM_FADE = 96; // fade height at bottom (mask)
 const HEADER_GAP = 20; // gap between the pinned header and the first note
 // The fade is longer than the gap: a note scrolling up under the header has to
 // be gone before it reaches the box, and at the gap's length it cut off hard.
@@ -77,6 +77,7 @@ export default function NotesListScreen({
     onReviewed,
 }: NotesListScreenProps) {
     const { theme } = useTheme();
+    const emptyStyles = useThemedStyles(makeEmptyStyles);
     const headerHeight = useHeaderHeight();
     const [listHeight, setListHeight] = React.useState(0);
     const [headerBlockHeight, setHeaderBlockHeight] = React.useState(0);
@@ -102,7 +103,6 @@ export default function NotesListScreen({
     const headerBottom = headerBlockHeight > 0 ? headerHeight + headerBlockHeight : 0;
     const topStart = Math.min(1, headerBottom / nominal);
     const topEnd = Math.min(1, (headerBottom + TOP_FADE) / nominal);
-    const bottomStart = Math.max(topEnd, 1 - BOTTOM_FADE / nominal);
 
     React.useEffect(() => {
         if (!previewNote) return;
@@ -127,6 +127,7 @@ export default function NotesListScreen({
 
     return (
         <SafeAreaView style={ styles.root } edges={ ['left', 'right', 'bottom', 'top'] }>
+            { notes.length === 0 && <DottedGrid /> }
             <View style={ { flex: 1 } } onLayout={ onContainerLayout }>
                 <MaskedView
                     style={ { flex: 1 } }
@@ -137,9 +138,8 @@ export default function NotesListScreen({
                                 COLOR_VARIANTS.transparent,
                                 COLOR_VARIANTS.black.primary,
                                 COLOR_VARIANTS.black.primary,
-                                COLOR_VARIANTS.transparent,
                             ] }
-                            locations={ [0, topStart, topEnd, bottomStart, 1] }
+                            locations={ [0, topStart, topEnd, 1] }
                             start={ { x: 0, y: 0 } }
                             end={ { x: 0, y: 1 } }
                             style={ StyleSheet.absoluteFill }
@@ -153,10 +153,10 @@ export default function NotesListScreen({
                             styles.listContent,
                             {
                                 paddingTop: headerHeight,
-                                paddingBottom: BOTTOM_FADE + 16,
+                                paddingBottom: 16,
                             },
                         ] }
-                        scrollIndicatorInsets={ { top: headerBottom, bottom: BOTTOM_FADE } }
+                        scrollIndicatorInsets={ { top: headerBottom } }
                         refreshControl={
                             <RefreshControl
                                 refreshing={ loading }
@@ -176,15 +176,22 @@ export default function NotesListScreen({
                             />
                         ) }
                         ListEmptyComponent={
-                            <GradientCard>
-                                { /* The card supplies 20 horizontally; this
-                                     matches it vertically. */ }
-                                <View style={ styles.emptyCard }>
-                                    <EmptyNoteCard>
-                                        <SampleNoteCard />
-                                    </EmptyNoteCard>
+                            <View style={ emptyStyles.highlight }>
+                                <View style={ emptyStyles.shadow }>
+                                    <LinearGradient
+                                        colors={ theme.scheme === 'dark'
+                                            ? [theme.surface.sheetTint, theme.ground.base]
+                                            : ['#EEF1F3', '#E3E8EC'] }
+                                        start={ { x: 0, y: 0 } }
+                                        end={ { x: 1, y: 1 } }
+                                        style={ emptyStyles.panel }
+                                    >
+                                        <EmptyNoteCard>
+                                            <SampleNoteCard />
+                                        </EmptyNoteCard>
+                                    </LinearGradient>
                                 </View>
-                            </GradientCard>
+                            </View>
                         }
                         ListHeaderComponent={
                             // Layout-only: reserves the scroll space the real,
@@ -234,9 +241,6 @@ const styles = StyleSheet.create({
     listContent: {
         paddingHorizontal: 16,
     },
-    emptyCard: {
-        paddingVertical: 20,
-    },
     header: {
         paddingTop: 20,
     },
@@ -261,5 +265,37 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         paddingHorizontal: 16,
+    },
+});
+
+
+const makeEmptyStyles = (theme: Theme) => StyleSheet.create({
+    highlight: {
+        borderRadius: 22,
+        backgroundColor: theme.scheme === 'dark' ? theme.surface.sheetTint : '#EEF1F3',
+        shadowColor: theme.scheme === 'dark' ? theme.shadow : '#FFFFFF',
+        shadowOffset: { width: -4, height: -4 },
+        shadowOpacity: theme.scheme === 'dark' ? 0 : 0.85,
+        shadowRadius: 8,
+        marginBottom: 16,
+    },
+    shadow: {
+        borderRadius: 22,
+        backgroundColor: theme.scheme === 'dark' ? theme.surface.sheetTint : '#E3E8EC',
+        shadowColor: theme.scheme === 'dark' ? theme.shadow : '#71879A',
+        shadowOffset: { width: 5, height: 9 },
+        shadowOpacity: theme.scheme === 'dark' ? 0.5 : 0.28,
+        shadowRadius: 12,
+        elevation: 8,
+    },
+    panel: {
+        borderRadius: 22,
+        borderWidth: 1,
+        borderColor: theme.scheme === 'dark' ? theme.surface.cardBorder : '#D8E0E6',
+        borderTopColor: theme.scheme === 'dark' ? theme.surface.cardEdge : '#FFFFFF',
+        borderLeftColor: theme.scheme === 'dark' ? theme.surface.cardEdge : '#F8FAFB',
+        paddingHorizontal: 20,
+        paddingTop: 16,
+        paddingBottom: 20,
     },
 });

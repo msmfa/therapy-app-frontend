@@ -7,6 +7,19 @@ import { CALENDAR_MONTH_COLORS } from 'designs/designs-colors';
 import type { CalendarReminder, TherapySession } from '../../../api/therapy';
 import { Reason } from '../../../features/reminders/types';
 
+// XDate captures Date when imported, before beforeEach installs fake timers.
+// Forward no-argument construction to the current test clock so the real
+// calendar grid uses the same month as the app's date calculations.
+jest.mock('xdate', () => {
+    const ActualXDate = jest.requireActual('xdate');
+    function ClockAwareXDate(...args: unknown[]) {
+        return new ActualXDate(...(args.length ? args : [new Date()]));
+    }
+    Object.assign(ClockAwareXDate, ActualXDate);
+    ClockAwareXDate.prototype = ActualXDate.prototype;
+    return ClockAwareXDate;
+});
+
 const TODAY = new Date('2026-09-01T09:00:00Z');
 const SESSION_KEY = '2026-09-08';
 const REMINDER_KEY = '2026-09-09';

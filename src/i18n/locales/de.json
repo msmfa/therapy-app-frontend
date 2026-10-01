@@ -141,9 +141,10 @@
     "empty": {
       "title": "Ihre erste Notiz",
       "withSession": "Direkt nach Ihrer nächsten Sitzung am <date>{{date}}</date> senden wir Ihnen eine Benachrichtigung, damit Sie Ihre erste Notiz festhalten können. Danach sehen Sie sie hier.",
-      "noSession": "Sie haben noch keine Sitzungen geplant. Tragen Sie eine im Kalender ein, und wir erinnern Sie direkt danach, damit Sie Ihre erste Notiz festhalten können.",
-      "getStarted": "Wenn Sie gleich beginnen möchten, tippen Sie unten links auf das Plus-Symbol. Es lohnt sich, vorher kurz zu lesen, <link>welche Art des Notierens in der Therapie am besten funktioniert</link>.",
-      "example": "Beispiel"
+      "example": "Beispiel",
+      "readGuide": "Wir empfehlen Ihnen zu lesen, <guide>wie Sie eine Therapienotiz verfassen</guide>.",
+      "addNow": "Wenn Sie jetzt eine Notiz hinzufügen möchten, können Sie <add>hier klicken</add>.",
+      "scheduleSessions": "<calendar>Tragen Sie Sitzungen im Kalender ein</calendar>, damit wir Ihre individuellen Erinnerungen erstellen können."
     },
     "list": {
       "loadFailed": "Die Notizen konnten nicht geladen werden"
@@ -400,13 +401,20 @@
       "message": "Um eine Sitzung zu ändern oder zu löschen, tippe im Kalender auf das Datum, das du ändern möchtest.",
       "confirm": "Alles klar"
     },
-    "nextReminderHelp": "Tippe hier, um deine Erinnerungen zu ändern."
+    "nextReminderHelp": "Tippe hier, um deine Erinnerungen zu ändern.",
+    "emptyHint": "Klicken Sie auf den Kalender, um Ihre Sitzungen hinzuzufügen."
   },
   "onboarding": {
+    "statusRecovery": {
+      "title": "Dein Konto konnte nicht geprüft werden",
+      "message": "Prüfe deine Verbindung und versuche es erneut. Dein Fortschritt wurde gespeichert."
+    },
     "welcome": {
       "headline": "Ein Therapietagebuch, das Sie daran erinnert, Ihre Therapienotizen zu wiederholen",
       "primaryCta": "Meinen Plan erstellen",
-      "secondaryCta": "Ich habe bereits ein Konto"
+      "secondaryCta": "Ich habe bereits ein Konto",
+      "continueCta": "Mit deinem Konto fortfahren",
+      "accountCta": "Konto verwalten"
     },
     "goalOption": {
       "practise": {
@@ -515,11 +523,11 @@
       "headline": "Ihre Notizen",
       "researchLink": "Warum diese fünf Fragen?",
       "privacyTitle": "Ihre Notiz bleibt bei Ihnen",
-      "privacyBody": "Die Inhalte Ihrer Therapienotizen werden verschlüsselt und ausschließlich auf diesem iPhone gespeichert. Sie werden niemals auf unsere Server übertragen.",
+      "privacyBody": "Verschlüsselt mit AES-256-GCM – dem Standard, den Regierungen und Streitkräfte weltweit verwenden. Der Schlüssel verlässt dieses iPhone nie und wird nirgends hochgeladen. Im Gegensatz zu vielen Apps senden wir Ihre Notizen nie an KI-Dienste: Wenn Daten Ihr Gerät verlassen, kann Datenschutz nicht garantiert werden.",
       "reminderTitle": "Plastic Brains",
       "reminderBody": "Gehen Sie Ihre Notizen vor der morgigen Sitzung noch einmal durch",
       "reminderTime": "jetzt",
-      "primaryCta": "Tarife ansehen"
+      "primaryCta": "Ihre Serie"
     },
     "remainingQuestions_one": "{{count}} weitere Frage enthalten",
     "remainingQuestions_other": "{{count}} weitere Fragen enthalten",
@@ -697,6 +705,17 @@
     "a11y": {
       "notificationPreview": "Eine iPhone-Benachrichtigung von {{title}}: {{body}}",
       "notesList": "Eine Liste früherer Therapienotizen, jeweils mit dem Datum der Sitzung"
+    },
+    "streaksPreview": {
+      "nextDayAt": "am nächsten Tag um {{time}}",
+      "windowTitle": "Ihr Zeitfenster zum Wiederholen",
+      "windowExample": "Nach Ihrer Sitzung am {{session}} können Sie Ihre Notizen von {{opens}} bis {{closes}} durchgehen, damit der Check-in zu Ihrer Serie zählt.",
+      "windowNeedsSession": "Geben Sie Ihr Sitzungsdatum und die Häufigkeit an, damit wir Ihre genauen Zeitfenster anzeigen können.",
+      "windowNeedsNextSession": "Ihr Sitzungsdatum ist gespeichert. Sobald wir wissen, wann die darauffolgende Sitzung stattfindet, können wir Ihre genauen Zeitfenster anzeigen.",
+      "headline": "Ihre Serie",
+      "body": "Schließen Sie Ihre geplanten Check-ins ab, um Ihre Serie aufzubauen.",
+      "widgetBody": "Unser optionales Home-Bildschirm-Widget hilft Ihnen, motiviert zu bleiben und Ihre Serie fortzusetzen.",
+      "primaryCta": "Angebote ansehen"
     }
   },
   "science": {
@@ -897,7 +916,9 @@
       "s10": {
         "heading": "Sicherheit",
         "bodies": [
-          "Wir setzen organisatorische, technische und physische Schutzmaßnahmen ein, um Ihre Daten zu schützen, darunter verschlüsselte Netzwerkverbindungen, die sichere Speicherung von Zugangsdaten und Zugriffskontrollen. Keine Übertragungs- oder Speichermethode ist vollständig sicher, daher empfehlen wir Ihnen, eindeutige Passwörter zu verwenden und Ihr Gerät geschützt zu halten."
+          "Ihre Therapienotizen werden mit AES-256-GCM verschlüsselt – demselben Standard, den Regierungen und Streitkräfte weltweit zum Schutz geheimer Informationen einsetzen. Diese Verschlüsselung ist authentifiziert, das heißt, jeder Manipulationsversuch wird erkannt, bevor Ihre Notizen gelesen werden. Der Verschlüsselungsschlüssel wird auf Ihrem Gerät erstellt und ausschließlich im iOS-Schlüsselbund mit gerätespezifischem Zugriff gespeichert – er verlässt Ihr iPhone nie, wird nicht auf unsere Server hochgeladen und ist von iCloud-Schlüsselbund und Gerätesicherungen ausgeschlossen. Ein gestohlenes Backup kann ohne den Schlüssel, der auf Ihrem Gerät verbleibt, nicht gelesen werden.",
+          "Im Gegensatz zu vielen Gesundheits-Apps verwendet Plastic Brains keine KI, um Ihre Therapienotizen zu verarbeiten, zu lesen oder zu analysieren. Wenn Daten an KI-Dienste gesendet werden, kann Datenschutz nicht garantiert werden – Ihre Worte könnten für das Training von Modellen verwendet, auf Servern Dritter gespeichert oder von Personal eingesehen werden, dem Sie nicht zugestimmt haben. Wir haben bewusst entschieden, Ihre Notizen vollständig auf Ihrem Gerät zu belassen, sodass niemand – auch wir nicht – sie lesen kann.",
+          "Wir schützen Ihr Konto außerdem mit verschlüsselten Netzwerkverbindungen, der sicheren Speicherung von Zugangsdaten und Zugriffskontrollen. Keine Übertragungs- oder Speichermethode ist vollständig sicher, daher empfehlen wir Ihnen, ein sicheres Passwort zu verwenden und Ihr Gerät geschützt zu halten."
         ]
       },
       "s11": {

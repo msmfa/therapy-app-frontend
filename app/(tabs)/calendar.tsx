@@ -351,6 +351,12 @@ export default function CalendarScreen() {
                         pointerEvents="none"
                         style={ styles.sheetHighlight }
                     />
+                    { hydrated && sessions.length === 0 && !sessionsError && (
+                        <AppText variant='bodySecondary' style={ styles.emptyHint }>
+                            { t('emptyHint') }
+                        </AppText>
+                    ) }
+
                     <View style={ [styles.eventCards, { paddingBottom: tabBarHeight + BOTTOM_FADE_HEIGHT }] }>
                             <NextEventCard
                                 label={ t('nextSession') }
@@ -437,6 +443,14 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     },
     root: {
         flex: 1,
+    },
+    emptyHint: {
+        textAlign: 'center',
+        color: theme.ink.primary,
+        fontWeight: '700',
+        lineHeight: 24,
+        paddingHorizontal: 24,
+        paddingTop: 20,
     },
     // Runs to the bottom of the screen and under the tab bar, so only the top
     // corners are rounded.
