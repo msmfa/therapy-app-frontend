@@ -21,7 +21,7 @@ export default function NotesScreen() {
     const { t: tCommon } = useTranslation('common');
     const { user } = useAuth();
     const { notes, loading, error, refresh, updateNote, deleteNote } = useNotes(user?.id);
-    const { progressFor, reviewState, markReviewed, reviews } = useNoteReviews(user?.id);
+    const { progressFor, reviewState, markReviewed, reviews, refresh: refreshReviews } = useNoteReviews(user?.id);
     const { showAlert } = useAppAlert();
     const discovery = useWidgetDiscovery(user?.id);
     const router = useRouter();
@@ -41,7 +41,7 @@ export default function NotesScreen() {
         try {
             const count = await recoverAccountNotes(owner, () => recoveryOwner.current === owner);
             if (recoveryOwner.current !== owner) return;
-            await refresh();
+            await Promise.all([refresh(), refreshReviews()]);
             if (recoveryOwner.current !== owner) return;
             showAlert(t('recovery.title'), t(count > 0 ? 'recovery.restored' : 'recovery.notFound', { count }));
         } catch {
@@ -50,7 +50,7 @@ export default function NotesScreen() {
             recoveryInFlight.current = false;
             setRecoveringNotes(false);
         }
-    }, [user?.id, refresh, showAlert, t]);
+    }, [user?.id, refresh, refreshReviews, showAlert, t]);
 
     const canReview = React.useCallback(
         (note: Note) => reviewState(note).canReview,

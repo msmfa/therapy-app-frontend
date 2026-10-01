@@ -6,12 +6,13 @@ let mockOwner: string | undefined = '222222222222222222222222';
 let mockError: string | null = null;
 let mockNotes: { id: string; text: string; createdAt: number }[] = [];
 const mockRefresh = jest.fn(async () => undefined);
+const mockRefreshReviews = jest.fn(async () => undefined);
 const mockAlert = jest.fn();
 jest.mock('expo-router', () => ({ useFocusEffect: jest.fn(), useRouter: () => ({ push: jest.fn() }) }));
 jest.mock('../../src/context/auth/AuthContext', () => ({ useAuth: () => ({ user: mockOwner ? { id: mockOwner } : null }) }));
 jest.mock('../../src/features/notes/useNotes', () => ({ useNotes: () => ({ notes: mockNotes, loading: false, error: mockError, refresh: mockRefresh, updateNote: jest.fn(), deleteNote: jest.fn() }) }));
 jest.mock('../../src/features/notes/recoverAccountNotes', () => ({ recoverAccountNotes: jest.fn() }));
-jest.mock('../../src/features/reviews', () => ({ useNoteReviews: () => ({ reviews: [], reviewState: jest.fn(), markReviewed: jest.fn(), progressFor: jest.fn() }) }));
+jest.mock('../../src/features/reviews', () => ({ useNoteReviews: () => ({ reviews: [], refresh: mockRefreshReviews, reviewState: jest.fn(), markReviewed: jest.fn(), progressFor: jest.fn() }) }));
 jest.mock('../../src/context/alert', () => ({ useAppAlert: () => ({ showAlert: mockAlert }) }));
 jest.mock('../../src/components/widgets/WidgetGuide', () => ({ WidgetDiscoveryCard: () => null }));
 jest.mock('../../src/features/widgets/useWidgetDiscovery', () => ({ useWidgetDiscovery: () => ({ visible: false }) }));
@@ -44,6 +45,7 @@ it('refreshes after a recovery and reports the number found', async () => {
     const view = render(<NotesScreen />);
     fireEvent.press(view.getByText('Find saved notes'));
     await waitFor(() => expect(mockRefresh).toHaveBeenCalled());
+    expect(mockRefreshReviews).toHaveBeenCalled();
     expect(mockAlert).toHaveBeenCalledWith('Saved notes', '3 saved notes are available again.');
 });
 
