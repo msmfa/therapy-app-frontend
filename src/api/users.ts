@@ -45,6 +45,9 @@ export type UpdateCurrentUserInput = {
 };
 
 export type CurrentUserSettings = {
+    id?: string;
+    /** Server-verified former account IDs; never supplied by a client update. */
+    localNoteRecoveryUserIds?: string[];
     analyticsConsent?: boolean;
     /**
      * The language the account has explicitly chosen, or absent for "follow

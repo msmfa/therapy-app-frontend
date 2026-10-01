@@ -146,6 +146,14 @@
       "addNow": "Si quiere añadir una nota ahora, puede <add>hacer clic aquí</add>.",
       "scheduleSessions": "<calendar>Añada sesiones en el calendario</calendar> para que podamos crear sus recordatorios personalizados."
     },
+    "recovery": {
+      "action": "Buscar notas guardadas",
+      "title": "Notas guardadas",
+      "restored_one": "{{count}} nota guardada vuelve a estar disponible.",
+      "restored_other": "{{count}} notas guardadas vuelven a estar disponibles.",
+      "notFound": "No se encontraron más notas para esta cuenta en este teléfono. Mantén la aplicación instalada si aún necesitas ayuda para encontrar tus notas.",
+      "failed": "No pudimos comprobar tus notas guardadas. Comprueba tu conexión e inténtalo de nuevo."
+    },
     "list": {
       "loadFailed": "No se pudieron cargar las notas"
     },

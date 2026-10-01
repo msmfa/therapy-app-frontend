@@ -146,6 +146,14 @@
       "addNow": "If you want to add a note now you can <add>click here</add>.",
       "scheduleSessions": "<calendar>Add sessions in the calendar</calendar> so we can build your custom reminders."
     },
+    "recovery": {
+      "action": "Find saved notes",
+      "title": "Saved notes",
+      "restored_one": "{{count}} saved note is available again.",
+      "restored_other": "{{count}} saved notes are available again.",
+      "notFound": "No additional notes were found for this account on this phone. Keep the app installed if you still need help finding your notes.",
+      "failed": "We could not check your saved notes. Check your connection and try again."
+    },
     "list": {
       "loadFailed": "Failed to load notes"
     },
