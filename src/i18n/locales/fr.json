@@ -405,10 +405,16 @@
     "emptyHint": "Cliquez sur le calendrier pour ajouter vos séances."
   },
   "onboarding": {
+    "statusRecovery": {
+      "title": "Impossible de vérifier votre compte",
+      "message": "Vérifiez votre connexion et réessayez. Votre progression a été conservée."
+    },
     "welcome": {
       "headline": "Un journal de thérapie qui vous rappelle de relire vos notes",
       "primaryCta": "Créer mon programme",
-      "secondaryCta": "J’ai déjà un compte"
+      "secondaryCta": "J’ai déjà un compte",
+      "continueCta": "Continuer avec votre compte",
+      "accountCta": "Gérer votre compte"
     },
     "goalOption": {
       "practise": {

@@ -27,6 +27,8 @@ export const welcomeCopy = () => ({
     headline: t('onboarding:welcome.headline'),
     primaryCta: t('onboarding:welcome.primaryCta'),
     secondaryCta: t('onboarding:welcome.secondaryCta'),
+    continueCta: t('onboarding:welcome.continueCta'),
+    accountCta: t('onboarding:welcome.accountCta'),
 });
 
 export type GoalId = 'remember' | 'practise' | 'prepare' | 'habit';

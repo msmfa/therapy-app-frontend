@@ -6,6 +6,19 @@ import type { CalendarReminder, TherapySession } from '../../src/api/therapy';
 import { ApiError } from '../../src/api/client';
 import { Reason } from '../../src/features/reminders/types';
 
+// XDate captures Date when imported, before beforeEach installs fake timers.
+// Forward no-argument construction to the current test clock so the real
+// calendar grid uses the same month as the app's date calculations.
+jest.mock('xdate', () => {
+    const ActualXDate = jest.requireActual('xdate');
+    function ClockAwareXDate(...args: unknown[]) {
+        return new ActualXDate(...(args.length ? args : [new Date()]));
+    }
+    Object.assign(ClockAwareXDate, ActualXDate);
+    ClockAwareXDate.prototype = ActualXDate.prototype;
+    return ClockAwareXDate;
+});
+
 const mockAddSession = jest.fn();
 const mockUpdateSession = jest.fn();
 const mockRemoveSession = jest.fn();

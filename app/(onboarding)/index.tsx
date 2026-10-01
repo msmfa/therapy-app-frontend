@@ -9,6 +9,7 @@ import { OnboardingButton } from '../../src/components/onboarding/OnboardingButt
 import { OnboardingLink } from '../../src/components/onboarding/OnboardingLink';
 import AppText from '../../src/components/ui/AppText';
 import { useAuth } from '../../src/context/auth/AuthContext';
+import { useOnboarding } from '../../src/context/onboarding/OnboardingContext';
 import {
     consumePendingOnboardingStep,
     peekPendingOnboardingStep,
@@ -33,6 +34,7 @@ export default function WelcomeScreen() {
     const useCombinedScroll = shouldUseCombinedOnboardingScroll(fontScale);
     const compact = height < 750;
     const { isAuthenticated, user } = useAuth();
+    const { hasOnboarded, hydrated: onboardingHydrated } = useOnboarding();
     const { answers, hydrated: answersHydrated } = useOnboardingAnswers();
     const draftOwner = isAuthenticated ? `user:${user?.id ?? 'unknown'}` : 'anonymous';
 
@@ -61,11 +63,17 @@ export default function WelcomeScreen() {
         setDraftResumeHref(safeOnboardingResumeRoute(answers));
     }, [answers, answersHydrated, draftOwner]));
 
-    if (!answersHydrated) return <Loading fullScreen />;
+    if (!answersHydrated || !onboardingHydrated) return <Loading fullScreen />;
 
     if (resumeHref) {
         return <Redirect href={ resumeHref } />;
     }
+
+    // The onboarding group also hosts subscription renewal. Without a pending
+    // purchase/restore handoff, completed accounts use the paid area's guard.
+    // '/' also matches this group's index and can resolve back to Welcome
+    // during sign-in. Use the explicit destination to avoid a redirect loop.
+    if (isAuthenticated && hasOnboarded) return <Redirect href="/(tabs)/notes" />;
 
     if (draftResumeHref) {
         return <Redirect href={ draftResumeHref } />;
@@ -75,13 +83,13 @@ export default function WelcomeScreen() {
         <View style={ styles.footer }>
             <OnboardingButton
                 appearance="start"
-                label={ welcomeCopy().primaryCta }
+                label={ isAuthenticated ? welcomeCopy().continueCta : welcomeCopy().primaryCta }
                 onPress={ () => router.push('/(onboarding)/goal') }
             />
 
             <OnboardingLink
-                label={ welcomeCopy().secondaryCta }
-                onPress={ () => router.push({
+                label={ isAuthenticated ? welcomeCopy().accountCta : welcomeCopy().secondaryCta }
+                onPress={ () => isAuthenticated ? router.push('/account') : router.push({
                     pathname: '/(auth)/login',
                     params: { source: WELCOME_AUTH_SOURCE },
                 }) }

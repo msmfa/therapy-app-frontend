@@ -405,10 +405,16 @@
     "emptyHint": "Klicken Sie auf den Kalender, um Ihre Sitzungen hinzuzufügen."
   },
   "onboarding": {
+    "statusRecovery": {
+      "title": "Dein Konto konnte nicht geprüft werden",
+      "message": "Prüfe deine Verbindung und versuche es erneut. Dein Fortschritt wurde gespeichert."
+    },
     "welcome": {
       "headline": "Ein Therapietagebuch, das Sie daran erinnert, Ihre Therapienotizen zu wiederholen",
       "primaryCta": "Meinen Plan erstellen",
-      "secondaryCta": "Ich habe bereits ein Konto"
+      "secondaryCta": "Ich habe bereits ein Konto",
+      "continueCta": "Mit deinem Konto fortfahren",
+      "accountCta": "Konto verwalten"
     },
     "goalOption": {
       "practise": {

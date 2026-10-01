@@ -98,6 +98,81 @@ describe('OnboardingProvider', () => {
         );
     });
 
+    it('keeps a failed completion read unresolved and retries without writing completion', async () => {
+        const errorLog = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+        mockUser = { id: 'returning-user' };
+        mockGetCurrentUserSettings.mockRejectedValueOnce(new Error('offline'));
+        const { result } = renderHook(() => useOnboarding(), { wrapper });
+        await waitFor(() => expect(result.current.hydrationError).toBe(true));
+        expect(result.current.hydrated).toBe(false);
+        expect(mockUpdateCurrentUser).not.toHaveBeenCalled();
+        expect(AsyncStorage.setItem).not.toHaveBeenCalled();
+
+        mockGetCurrentUserSettings.mockResolvedValueOnce({ onboardingCompleted: true });
+        act(() => result.current.retryHydration());
+        expect(result.current.hydrated).toBe(false);
+        await waitFor(() => expect(result.current.hydrated).toBe(true));
+        expect(result.current.hydrationError).toBe(false);
+        expect(result.current.hasOnboarded).toBe(true);
+        expect(mockUpdateCurrentUser).not.toHaveBeenCalled();
+        errorLog.mockRestore();
+    });
+
+    it('does not mistake a missing server status for an unfinished account', async () => {
+        const errorLog = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+        mockUser = { id: 'returning-user' };
+        mockGetCurrentUserSettings.mockResolvedValue({});
+        const { result } = renderHook(() => useOnboarding(), { wrapper });
+        await waitFor(() => expect(result.current.hydrationError).toBe(true));
+        expect(result.current.hydrated).toBe(false);
+        errorLog.mockRestore();
+    });
+
+    it('uses the server status if the local completion cache cannot be read', async () => {
+        mockUser = { id: 'returning-user' };
+        jest.mocked(AsyncStorage.getItem).mockRejectedValueOnce(new Error('storage unavailable'));
+        mockGetCurrentUserSettings.mockResolvedValue({ onboardingCompleted: true });
+        const { result } = renderHook(() => useOnboarding(), { wrapper });
+        await waitFor(() => expect(result.current.hydrated).toBe(true));
+        expect(result.current.hasOnboarded).toBe(true);
+        expect(result.current.hydrationError).toBe(false);
+    });
+
+    it('keeps a cached completed account available while offline', async () => {
+        const warning = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+        mockUser = { id: 'returning-user' };
+        jest.mocked(AsyncStorage.getItem).mockResolvedValueOnce('1');
+        mockGetCurrentUserSettings.mockRejectedValueOnce(new Error('offline'));
+        const { result } = renderHook(() => useOnboarding(), { wrapper });
+        await waitFor(() => expect(result.current.hydrated).toBe(true));
+        expect(result.current.hasOnboarded).toBe(true);
+        expect(result.current.hydrationError).toBe(false);
+        warning.mockRestore();
+    });
+
+    it('ignores a failed retry belonging to an account that has since signed out', async () => {
+        const errorLog = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+        mockUser = { id: 'returning-user' };
+        mockGetCurrentUserSettings.mockRejectedValueOnce(new Error('offline'));
+        const { result, rerender } = renderHook(() => useOnboarding(), { wrapper });
+        await waitFor(() => expect(result.current.hydrationError).toBe(true));
+        let rejectRetry!: (error: Error) => void;
+        mockGetCurrentUserSettings.mockImplementationOnce(() => new Promise((_, reject) => {
+            rejectRetry = reject;
+        }));
+        act(() => result.current.retryHydration());
+        await waitFor(() => expect(mockGetCurrentUserSettings).toHaveBeenCalledTimes(2));
+
+        mockUser = null;
+        rerender(undefined);
+        await waitFor(() => expect(result.current.hydrated).toBe(true));
+        await act(async () => rejectRetry(new Error('offline')));
+        expect(result.current.hydrated).toBe(true);
+        expect(result.current.hasOnboarded).toBe(false);
+        expect(result.current.hydrationError).toBe(false);
+        errorLog.mockRestore();
+    });
+
     it('backfills an existing device-only completion marker to the account', async () => {
         mockUser = { id: 'legacy-user' };
         jest.mocked(AsyncStorage.getItem).mockResolvedValue('1');

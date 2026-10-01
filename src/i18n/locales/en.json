@@ -405,10 +405,16 @@
     "emptyHint": "Click on the calendar to add your sessions."
   },
   "onboarding": {
+    "statusRecovery": {
+      "title": "We couldn’t check your account",
+      "message": "Please check your connection and try again. Your setup progress has been kept."
+    },
     "welcome": {
       "headline": "A therapy journal that reminds you to review your therapy notes",
       "primaryCta": "Build my plan",
-      "secondaryCta": "I already have an account"
+      "secondaryCta": "I already have an account",
+      "continueCta": "Continue with your account",
+      "accountCta": "Manage your account"
     },
     "goalOption": {
       "practise": {

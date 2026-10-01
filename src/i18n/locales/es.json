@@ -462,10 +462,16 @@
     "calendar_changed": "Tu calendario cambió en otro dispositivo. Actualiza y vuelve a intentarlo."
   },
   "onboarding": {
+    "statusRecovery": {
+      "title": "No pudimos comprobar tu cuenta",
+      "message": "Comprueba tu conexión y vuelve a intentarlo. Se ha conservado tu progreso."
+    },
     "welcome": {
       "headline": "Un diario de terapia que le recuerda revisar sus notas de terapia",
       "primaryCta": "Crear mi plan",
-      "secondaryCta": "Ya tengo una cuenta"
+      "secondaryCta": "Ya tengo una cuenta",
+      "continueCta": "Continuar con tu cuenta",
+      "accountCta": "Gestionar tu cuenta"
     },
     "goalOption": {
       "practise": {

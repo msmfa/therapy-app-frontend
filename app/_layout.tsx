@@ -25,6 +25,7 @@ import { useTimeZoneSync } from '../src/hooks/useTimeZoneSync';
 import { useLanguageSync } from '../src/i18n/useLanguageSync';
 import { Platform, StatusBar, StyleSheet, View } from 'react-native';
 import Loading from '../src/components/ui/Loading';
+import { OnboardingStatusRecovery } from '../src/components/onboarding/OnboardingStatusRecovery';
 import { ErrorBoundaryUI } from '../src/components/ErrorBoundary';
 import * as Sentry from '@sentry/react-native';
 import { sanitizeTelemetry } from '../src/utils/telemetry';
@@ -84,7 +85,7 @@ Sentry.init({
  */
 export function Gate() {
     const { isAuthenticated, hydrated: authHydrated } = useAuth();
-    const { hasOnboarded, hydrated: onboardingHydrated } = useOnboarding();
+    const { hasOnboarded, hydrated: onboardingHydrated, hydrationError, retryHydration } = useOnboarding();
     const { hydrated: answersHydrated } = useOnboardingAnswers();
     const { state: entitlement } = useEntitlementState();
     const { theme } = useTheme();
@@ -110,8 +111,8 @@ export function Gate() {
     // at that moment unmounted the whole stack and threw away the back history,
     // so a user who authenticated at the account step found Back took them to
     // the start of onboarding rather than the screen they came from. After the
-    // first hydration the routing values are good enough to keep rendering
-    // through a re-hydration, and the stack survives.
+    // first hydration we keep the stack mounted but cover it while the new
+    // account's status is unresolved, so its back history survives.
     const [hasHydratedOnce, setHasHydratedOnce] = useState(false);
     useEffect(() => {
         if (isFullyHydrated) setHasHydratedOnce(true);
@@ -125,12 +126,15 @@ export function Gate() {
     // token). Keying off `user` instead let the two disagree: a restored user
     // object with no token routed into the app, where every request 401s.
     const isMainAppReady = isAuthenticated && isFullyHydrated && hasOnboarded;
+    const pendingStatus = hydrationError
+        ? <OnboardingStatusRecovery onRetry={ retryHydration } />
+        : <Loading fullScreen />;
 
     if (!isFullyHydrated && !hasHydratedOnce) {
         return (
             <View style={ root }>
                 <NotificationNavigationHandler isReady={ false } />
-                <Loading fullScreen />
+                { pendingStatus }
             </View>
         );
     }
@@ -138,38 +142,52 @@ export function Gate() {
     return (
         <View style={ root }>
             <NotificationNavigationHandler isReady={ isMainAppReady } />
-            <Stack screenOptions={ { headerShown: false } }>
-                { /* The root owns the checkout-to-app transition. Put the paid
-                      group first so a removed checkout falls directly into its
-                      Notes tab, without an intermediate blank Index redirect. */ }
-                <Stack.Protected guard={ isMainAppReady }>
-                    <Stack.Screen name="(tabs)" options={ { headerShown: false } } />
-                </Stack.Protected>
-                { /* While account hydration is incomplete, Index waits before
-                      choosing a destination. Keep it ahead of account settings. */ }
-                <Stack.Screen name="index" />
-                { /* Route 1: Authentication screens - reachable whenever nobody is signed
-                      in, so a logged-out visitor can deliberately choose sign-in or
-                      signup from onboarding instead of being forced through it first. */ }
-                <Stack.Protected guard={ !isAuthenticated && authHydrated }>
-                    <Stack.Screen name="(auth)" />
-                </Stack.Protected>
+            { /* Preserve navigation history during an account recheck, but do
+                  not expose routes based on that account's unresolved status. */ }
+            <View
+                style={ [styles.root, !isFullyHydrated && { opacity: 0 }] }
+                pointerEvents={ isFullyHydrated ? 'auto' : 'none' }
+                accessibilityElementsHidden={ !isFullyHydrated }
+                importantForAccessibility={ isFullyHydrated ? 'auto' : 'no-hide-descendants' }
+            >
+                <Stack screenOptions={ { headerShown: false } }>
+                    { /* The root owns the checkout-to-app transition. Put the paid
+                          group first so a removed checkout falls directly into its
+                          Notes tab, without an intermediate blank Index redirect. */ }
+                    <Stack.Protected guard={ isMainAppReady }>
+                        <Stack.Screen name="(tabs)" options={ { headerShown: false } } />
+                    </Stack.Protected>
+                    { /* While account hydration is incomplete, Index waits before
+                          choosing a destination. Keep it ahead of account settings. */ }
+                    <Stack.Screen name="index" />
+                    { /* Route 1: Authentication screens - reachable whenever nobody is signed
+                          in, so a logged-out visitor can deliberately choose sign-in or
+                          signup from onboarding instead of being forced through it first. */ }
+                    <Stack.Protected guard={ !isAuthenticated && authHydrated }>
+                        <Stack.Screen name="(auth)" />
+                    </Stack.Protected>
 
-                { /* Route 2: Onboarding screens - show whenever onboarding is unfinished,
-                      whether or not the visitor has an account yet. */ }
-                <Stack.Protected guard={ routingReady && (!hasOnboarded || needsSubscriptionFlow) }>
-                    <Stack.Screen name="(onboarding)" />
-                </Stack.Protected>
+                    { /* Route 2: Onboarding screens - show whenever onboarding is unfinished,
+                          whether or not the visitor has an account yet. */ }
+                    <Stack.Protected guard={ routingReady && (!hasOnboarded || needsSubscriptionFlow) }>
+                        <Stack.Screen name="(onboarding)" />
+                    </Stack.Protected>
 
-                { /* Account deletion and logout are available without payment
-                      or onboarding completion. Logout also removes this route. */ }
-                <Stack.Protected guard={ isAuthenticated && authHydrated }>
-                    <Stack.Screen name="account" />
-                </Stack.Protected>
+                    { /* Account deletion and logout are available without payment
+                          or onboarding completion. Logout also removes this route. */ }
+                    <Stack.Protected guard={ isAuthenticated && authHydrated }>
+                        <Stack.Screen name="account" />
+                    </Stack.Protected>
 
-                { /* Catch-all for unmatched routes (e.g., from notification deep links) */ }
-                <Stack.Screen name="+not-found" />
-            </Stack>
+                    { /* Catch-all for unmatched routes (e.g., from notification deep links) */ }
+                    <Stack.Screen name="+not-found" />
+                </Stack>
+            </View>
+            { !isFullyHydrated && (
+                <View style={ [StyleSheet.absoluteFill, { backgroundColor: theme.ground.base }] }>
+                    { pendingStatus }
+                </View>
+            ) }
         </View>
     );
 }
