@@ -146,6 +146,14 @@
       "addNow": "Si vous voulez ajouter une note maintenant, vous pouvez <add>cliquer ici</add>.",
       "scheduleSessions": "<calendar>Ajoutez des séances dans le calendrier</calendar> pour que nous puissions créer vos rappels personnalisés."
     },
+    "recovery": {
+      "action": "Retrouver mes notes",
+      "title": "Notes enregistrées",
+      "restored_one": "{{count}} note enregistrée est à nouveau disponible.",
+      "restored_other": "{{count}} notes enregistrées sont à nouveau disponibles.",
+      "notFound": "Aucune note supplémentaire n’a été trouvée pour ce compte sur ce téléphone. Gardez l’application installée si vous avez encore besoin d’aide pour retrouver vos notes.",
+      "failed": "Impossible de vérifier vos notes enregistrées. Vérifiez votre connexion et réessayez."
+    },
     "list": {
       "loadFailed": "Échec du chargement des notes"
     },

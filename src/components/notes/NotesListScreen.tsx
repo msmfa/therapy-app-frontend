@@ -18,6 +18,7 @@ import { useTheme, useThemedStyles } from '../../context/theme';
 import type { Theme } from 'designs/designs-themes';
 import { captureNoteOpened } from '../../features/analytics/engagement';
 import { useTranslation } from 'react-i18next';
+import { GlassPillButton } from '../ui/GlassPillButton';
 
 const HEADER_GAP = 20; // gap between the pinned header and the first note
 // The fade is longer than the gap: a note scrolling up under the header has to
@@ -35,6 +36,8 @@ interface NotesListScreenProps {
     /** False when nothing is answerable right now, or the slot is already ticked. */
     canReview?: (note: Note) => boolean;
     onReviewed?: (note: Note) => Promise<void>;
+    onRecoverNotes?: () => void;
+    recoveringNotes?: boolean;
 }
 
 type PinnedHeaderProps = {
@@ -75,7 +78,10 @@ export default function NotesListScreen({
     progressFor,
     canReview,
     onReviewed,
+    onRecoverNotes,
+    recoveringNotes = false,
 }: NotesListScreenProps) {
+    const { t } = useTranslation('notes');
     const { theme } = useTheme();
     const emptyStyles = useThemedStyles(makeEmptyStyles);
     const headerHeight = useHeaderHeight();
@@ -189,6 +195,16 @@ export default function NotesListScreen({
                                         <EmptyNoteCard>
                                             <SampleNoteCard />
                                         </EmptyNoteCard>
+                                        {onRecoverNotes && (
+                                            <GlassPillButton
+                                                label={t('recovery.action')}
+                                                labelColor={theme.ink.primary}
+                                                contentSized
+                                                loading={recoveringNotes}
+                                                disabled={recoveringNotes}
+                                                onPress={onRecoverNotes}
+                                            />
+                                        )}
                                     </LinearGradient>
                                 </View>
                             </View>

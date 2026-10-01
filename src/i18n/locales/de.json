@@ -146,6 +146,14 @@
       "addNow": "Wenn Sie jetzt eine Notiz hinzufügen möchten, können Sie <add>hier klicken</add>.",
       "scheduleSessions": "<calendar>Tragen Sie Sitzungen im Kalender ein</calendar>, damit wir Ihre individuellen Erinnerungen erstellen können."
     },
+    "recovery": {
+      "action": "Gespeicherte Notizen suchen",
+      "title": "Gespeicherte Notizen",
+      "restored_one": "{{count}} gespeicherte Notiz ist wieder verfügbar.",
+      "restored_other": "{{count}} gespeicherte Notizen sind wieder verfügbar.",
+      "notFound": "Für dieses Konto wurden auf diesem Telefon keine weiteren Notizen gefunden. Lassen Sie die App installiert, wenn Sie noch Hilfe beim Finden Ihrer Notizen benötigen.",
+      "failed": "Ihre gespeicherten Notizen konnten nicht überprüft werden. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut."
+    },
     "list": {
       "loadFailed": "Die Notizen konnten nicht geladen werden"
     },
