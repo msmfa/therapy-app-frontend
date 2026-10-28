@@ -8,7 +8,15 @@
  * revision. It is the contract between the two repos, exercised end to end.
  */
 import { apiPatch, apiPost, ApiError, configureApiClient } from '../client';
-import { createSession, deleteSession, getCalendar, updateSession, type CalendarSnapshot } from '../therapy';
+import {
+    clearFutureSchedule,
+    createSession,
+    deleteSession,
+    getCalendar,
+    replaceSchedule,
+    updateSession,
+    type CalendarSnapshot,
+} from '../therapy';
 import { getCalendarFetchWindow } from '../../features/calendar/calendarSelectors';
 
 jest.unmock('../therapy');
@@ -169,5 +177,30 @@ describeIfBackend('calendar API against the real backend', () => {
             createSession({ startsAtUtc: new Date(Date.now() + 30 * 24 * 60 * 60_000) }, snapshot.revision - 1),
         ).rejects.toMatchObject({ status: 412, code: 'calendar_changed' });
         expect(ApiError).toBeDefined();
+    });
+
+    it('replaces the schedule from now on with a fortnightly one', async () => {
+        snapshot = await getCalendar(window.from, window.to);
+        const start = firstTuesdayAt17();
+        await replaceSchedule({ startsAtUtc: start, durationMin: 50, repeat: 'fortnightly' }, snapshot.revision);
+
+        snapshot = await getCalendar(window.from, window.to);
+        const ahead = snapshot.sessions.filter((s) => Date.parse(s.startsAtUtc) >= Date.now());
+        expect(ahead[0].startsAtUtc).toBe(start.toISOString());
+        const running = snapshot.series.filter((s) => !s.endsAtUtc);
+        expect(running).toEqual([expect.objectContaining({ cadence: 'fortnightly' })]);
+        expect(ahead.every((s) => s.seriesId === running[0].id)).toBe(true);
+        expect(ahead.every((s) => hourIn(s.startsAtUtc, ZONE) === 17)).toBe(true);
+        expect(snapshot.reminders.some((r) => r.sessionId === ahead[0]._id)).toBe(true);
+    });
+
+    it('clears every future session and the reminders that followed them', async () => {
+        const result = await clearFutureSchedule(snapshot.revision);
+        expect(result.deleted).toBeGreaterThan(10);
+
+        snapshot = await getCalendar(window.from, window.to);
+        expect(snapshot.sessions.filter((s) => Date.parse(s.startsAtUtc) >= Date.now())).toEqual([]);
+        expect(snapshot.series.every((s) => s.endsAtUtc)).toBe(true);
+        expect(snapshot.reminders.filter((r) => Date.parse(r.dueAtUtc) > Date.now())).toEqual([]);
     });
 });

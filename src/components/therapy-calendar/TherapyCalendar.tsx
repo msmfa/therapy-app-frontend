@@ -1,6 +1,9 @@
-import React, { useMemo } from 'react';
-import { StyleSheet } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { StyleSheet, TouchableOpacity, View, type LayoutChangeEvent } from 'react-native';
 import { Calendar } from 'react-native-calendars';
+import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
+import AppText from '../ui/AppText';
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 import type { Theme } from 'designs/designs-themes';
 import { useTheme } from '../../context/theme';
@@ -50,6 +53,8 @@ export type TherapyCalendarProps = {
     /** The month to jump to, when something off-screen is being pointed at. */
     focus?: CalendarFocus | null;
     onDayPress: (dateKey: string) => void;
+    /** Shows a gear to the right of the next-month arrow that opens the schedule settings. */
+    onOpenSettings?: () => void;
     hideExtraDays?: boolean;
 };
 
@@ -66,7 +71,19 @@ export const createDateFromKey = (dateKey: string) => {
     return new Date(year, month - 1, day);
 };
 
-const makeTheme = (theme: Theme) => ({
+// The library's own header geometry (calendar/header/style.js), which the gear
+// has to line up with from outside it.
+const HEADER_MARGIN_TOP = 6;
+const HEADER_PADDING = 10;
+const MONTH_MARGIN = 10;
+// The gear's 44pt touch target, and the room kept for it right of the arrow.
+const SETTINGS_SIZE = 44;
+const SETTINGS_SLOT = SETTINGS_SIZE + 4;
+// The calendar container's own inset: the library's paddingRight of 5 wins
+// over the paddingHorizontal set in styles.calendar.
+const CONTAINER_INSET = 5;
+
+const makeTheme = (theme: Theme, withSettings: boolean) => ({
     arrowColor: theme.calendar.month.arrows,
     backgroundColor: COLOR_VARIANTS.transparent,
     calendarBackground: COLOR_VARIANTS.transparent,
@@ -91,6 +108,16 @@ const makeTheme = (theme: Theme) => ({
     // them are flex, which leaves the two grids a couple of points out of step.
     // Flexing the labels lines the columns up exactly.
     'stylesheet.calendar.header': {
+        // Replaces the library's header style whole, so it repeats it, with
+        // the right padding widened to leave the gear its own slot.
+        header: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginTop: HEADER_MARGIN_TOP,
+            paddingLeft: HEADER_PADDING,
+            paddingRight: HEADER_PADDING + (withSettings ? SETTINGS_SLOT : 0),
+        },
         week: {
             marginTop: 16,
             marginBottom: 12,
@@ -113,13 +140,21 @@ export default function TherapyCalendar({
     activeDateKey = null,
     focus = null,
     onDayPress,
+    onOpenSettings,
     hideExtraDays = false,
 }: TherapyCalendarProps) {
     // Before the calendar renders, so its header is in the app's language
     // rather than the library's built-in English.
     applyCalendarLocale(formattingLocale());
     const { theme } = useTheme();
-    const calendarTheme = useMemo(() => makeTheme(theme), [theme]);
+    const withSettings = onOpenSettings !== undefined;
+    const calendarTheme = useMemo(() => makeTheme(theme, withSettings), [theme, withSettings]);
+    const { t } = useTranslation('calendar');
+    // The month row's height, measured off the title so the gear stays centred
+    // on it when Dynamic Type makes the title taller.
+    const [headerRowHeight, setHeaderRowHeight] = useState(32 + MONTH_MARGIN * 2);
+    const measureMonth = (event: LayoutChangeEvent) =>
+        setHeaderRowHeight(event.nativeEvent.layout.height + MONTH_MARGIN * 2);
 
     const markedDates = useMemo(() => {
         const entries: Record<string, DayMarking> = {};
@@ -154,7 +189,7 @@ export default function TherapyCalendar({
     const { from } = getCalendarFetchWindow();
     const { to } = getSessionsWindow();
 
-    return (
+    const calendar = (
         <Calendar
             // The library builds the header's and arrows' styles once, when
             // it mounts, and never reads `theme` again: switching appearance
@@ -172,14 +207,61 @@ export default function TherapyCalendar({
             maxDate={ formatDateKey(to) }
             disableAllTouchEventsForDisabledDays
             onDayPress={ (day) => onDayPress(day.dateString) }
+            // The library's title, set the same way, only so its height can be
+            // read for the gear.
+            renderHeader={ withSettings ? (date) => (
+                <AppText
+                    variant="body"
+                    style={ [styles.month, { color: theme.calendar.month.monthText }] }
+                    onLayout={ measureMonth }
+                >
+                    { date?.toString('MMMM yyyy') }
+                </AppText>
+            ) : undefined }
             theme={ calendarTheme as never }
             style={ styles.calendar }
             testID="therapy-calendar"
         />
     );
+
+    if (!withSettings) return calendar;
+
+    // Outside the header on purpose: the library makes its header a single
+    // accessible element, so a button inside it is unreachable with VoiceOver.
+    return (
+        <View>
+            { calendar }
+            <TouchableOpacity
+                onPress={ onOpenSettings }
+                accessibilityRole="button"
+                accessibilityLabel={ t('schedule.openSettings') }
+                style={ [
+                    styles.settings,
+                    { top: styles.calendar.paddingTop + HEADER_MARGIN_TOP + (headerRowHeight - SETTINGS_SIZE) / 2 },
+                ] }
+                testID="therapy-calendar.settings"
+            >
+                <Ionicons name="settings-outline" size={ 22 } color={ theme.calendar.month.arrows } />
+            </TouchableOpacity>
+        </View>
+    );
 }
 
 const styles = StyleSheet.create({
+    month: {
+        fontSize: 26,
+        fontWeight: '400',
+        lineHeight: 32,
+        margin: MONTH_MARGIN,
+    },
+    settings: {
+        position: 'absolute',
+        right: CONTAINER_INSET + HEADER_PADDING - (SETTINGS_SLOT - SETTINGS_SIZE),
+        width: SETTINGS_SIZE,
+        height: SETTINGS_SIZE,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
     calendar: {
         paddingHorizontal: 14,
         paddingTop: 4,

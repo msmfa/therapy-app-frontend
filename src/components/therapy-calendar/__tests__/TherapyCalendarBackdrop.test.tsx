@@ -160,4 +160,19 @@ describe('TherapyCalendar month grid', () => {
 
         expect(onDayPress).not.toHaveBeenCalled();
     });
+
+    it('keeps the schedule gear out of the header, where VoiceOver cannot reach it', () => {
+        const onOpenSettings = jest.fn();
+        render(<TherapyCalendar sessions={ [] } reminders={ [] } onDayPress={ jest.fn() } onOpenSettings={ onOpenSettings } />);
+
+        // The library makes the whole header one accessible element, which
+        // hides any button inside it from VoiceOver.
+        const gear = screen.getByTestId('therapy-calendar.settings');
+        for (let node = gear.parent; node; node = node.parent) {
+            expect(node.props.testID).not.toBe('therapy-calendar.header');
+        }
+
+        fireEvent.press(gear);
+        expect(onOpenSettings).toHaveBeenCalledTimes(1);
+    });
 });

@@ -67,12 +67,12 @@
       "settings": "Einstellungen",
       "rateApp": "Diese App bewerten",
       "version": "v{{version}}",
-      "logOutFailed": "Abmeldung fehlgeschlagen, bitte versuchen Sie es erneut",
       "rateUnavailableTitle": "Nicht verfügbar",
       "rateUnavailableMessage": "Bewertungen werden auf dieser Plattform noch nicht unterstützt.",
       "storeOpenFailed": "Der Store lässt sich im Moment nicht öffnen.",
       "darkMode": "Dunkelmodus",
-      "lightMode": "Hellmodus"
+      "lightMode": "Hellmodus",
+      "schedule": "Terminplan"
     },
     "rows": {
       "reminderSettings": "Erinnerungseinstellungen",
@@ -328,7 +328,14 @@
       "endSeriesMessage": "Diese Sitzung und alle späteren Sitzungen der Serie werden entfernt. Frühere Sitzungen bleiben im Kalender.",
       "dayTakenTitle": "Dieser Tag ist belegt",
       "dayTaken": "An diesem Tag gibt es bereits eine Sitzung. Bearbeite stattdessen diese.",
-      "keepSeries": "Behalten"
+      "keepSeries": "Behalten",
+      "settingsTitle": "Terminplan",
+      "openSettings": "Terminplan-Einstellungen",
+      "save": "Speichern",
+      "clearFuture": "Künftige Sitzungen löschen",
+      "clearFutureTitle": "Künftige Sitzungen löschen?",
+      "clearFutureMessage": "Alle Sitzungen ab heute werden entfernt. Frühere Sitzungen bleiben im Kalender.",
+      "clearFutureConfirm": "Löschen"
     },
     "error": {
       "timeout": {

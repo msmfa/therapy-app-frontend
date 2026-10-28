@@ -67,12 +67,12 @@
       "settings": "Ajustes",
       "rateApp": "Valorar esta app",
       "version": "v{{version}}",
-      "logOutFailed": "No se pudo cerrar la sesión, inténtelo de nuevo",
       "rateUnavailableTitle": "No disponible",
       "rateUnavailableMessage": "Las valoraciones aún no están disponibles en esta plataforma.",
       "storeOpenFailed": "No se puede abrir la tienda en este momento.",
       "darkMode": "Modo oscuro",
-      "lightMode": "Modo claro"
+      "lightMode": "Modo claro",
+      "schedule": "Horario"
     },
     "rows": {
       "reminderSettings": "Ajustes de recordatorios",
@@ -328,7 +328,14 @@
       "endSeriesMessage": "Se eliminará esta sesión y todas las posteriores de la serie. Las anteriores se quedan en el calendario.",
       "dayTakenTitle": "Ese día está ocupado",
       "dayTaken": "Ya hay una sesión ese día. Edita esa en su lugar.",
-      "keepSeries": "Mantener"
+      "keepSeries": "Mantener",
+      "settingsTitle": "Horario",
+      "openSettings": "Ajustes del horario",
+      "save": "Guardar",
+      "clearFuture": "Borrar sesiones futuras",
+      "clearFutureTitle": "¿Borrar sesiones futuras?",
+      "clearFutureMessage": "Se eliminarán todas las sesiones desde hoy. Las anteriores se quedan en el calendario.",
+      "clearFutureConfirm": "Borrar"
     },
     "error": {
       "timeout": {

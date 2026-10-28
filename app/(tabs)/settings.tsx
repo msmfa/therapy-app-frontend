@@ -1,5 +1,5 @@
 import { canOfferProgressWidget } from '../../src/features/widgets/useWidgetDiscovery';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { Linking, Platform, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -7,25 +7,23 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../src/context/auth/AuthContext';
 import { GradientCard } from '../../src/components/ui/GradientCard';
 import { SettingsRow } from '../../src/components/SettingsRow';
-import { SettingsToggleRow } from '../../src/components/SettingsToggleRow';
 import { SettingsPageShell } from '../../src/components/settings/SettingsPageShell';
 import AppText from '../../src/components/ui/AppText';
 import Spacer, { SpacerVariant } from 'src/components/ui/Spacer';
 import FrostedCard from 'src/components/ui/FrostedCard';
 import Loading from 'src/components/ui/Loading';
 import { useAppAlert, type AppAlertContextValue } from '../../src/context/alert';
-import { useTheme } from '../../src/context/theme';
 import { STORE_URLS } from '../../src/constants/env';
 import type { TFunction } from 'i18next';
 
-// A row per section, each opening a page with that section's own rows, plus the
-// two actions common enough to be worth reaching without a second tap.
+// A row per section, each opening a page with that section's own rows, plus
+// rating the app.
 //
 // The label is a translation key rather than a string: this is module-level, so
 // a resolved string here would be fixed at import time, before the stored
 // language preference has been applied, and would never change again.
 const CATEGORIES = [
-    { labelKey: 'hub.language', route: '/language' },
+    { labelKey: 'hub.schedule', route: '/session-schedule' },
     { labelKey: 'hub.references', route: '/references' },
     { labelKey: 'hub.settings', route: '/account' },
 ] as const;
@@ -33,31 +31,11 @@ const CATEGORIES = [
 const APP_VERSION = '1.0.0';
 
 export default function SettingsScreen() {
-    const { user, signOut } = useAuth();
+    const { user } = useAuth();
     const router = useRouter();
     const { showAlert } = useAppAlert();
     const { t } = useTranslation('settings');
     const { t: tCommon } = useTranslation('common');
-    const { scheme, setPreference } = useTheme();
-    const isDark = scheme === 'dark';
-
-    // The label names where the switch would take you, not where you are, so
-    // the row reads as the thing it does.
-    const toggleTheme = useCallback((next: boolean) => {
-        void setPreference(next ? 'dark' : 'light').catch(() => {
-            // The look has already changed; only remembering it failed.
-            showAlert(t('appearance.saveFailedTitle'), t('appearance.saveFailedMessage'));
-        });
-    }, [setPreference, showAlert, t]);
-
-    const onLogout = useCallback(async () => {
-        try {
-            await signOut();
-        } catch (_) {
-            showAlert(tCommon('error.title'), t('hub.logOutFailed'));
-        }
-    }, [showAlert, signOut, t, tCommon]);
-
     const handleRateApp = useCallback(
         createHandleRateApp({
             select: Platform.select,
@@ -102,14 +80,6 @@ export default function SettingsScreen() {
                         />
                     )) }
                     { canOfferProgressWidget() && <SettingsRow text={t('widget.title')} onPress={() => router.push('/widget-guide')} /> }
-                    <SettingsToggleRow
-                        text={ isDark ? t('hub.lightMode') : t('hub.darkMode') }
-                        value={ isDark }
-                        onValueChange={ toggleTheme }
-                        accessibilityHint={ t('appearance.a11yHint') }
-                        testID="settings.darkMode"
-                    />
-                    <SettingsRow text={ tCommon('action.logOut') } onPress={ () => void onLogout() } />
                     <SettingsRow text={ t('hub.rateApp') } onPress={ handleRateApp } />
                 </View>
                 <Spacer />

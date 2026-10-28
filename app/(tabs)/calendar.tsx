@@ -3,7 +3,7 @@ import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import dayjs from 'dayjs';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { BottomTabBarHeightContext } from '@react-navigation/bottom-tabs';
 import { useTranslation } from 'react-i18next';
 
@@ -96,6 +96,7 @@ type OpenSheet = { kind: 'schedule' | 'reminder'; dateKey: string } | null;
 
 export default function CalendarScreen() {
     const { theme } = useTheme();
+    const router = useRouter();
     const styles = useThemedStyles(makeStyles);
     const { t } = useTranslation('calendar');
     const { t: tCommon } = useTranslation('common');
@@ -333,6 +334,7 @@ export default function CalendarScreen() {
                     activeDateKey={ activeDateKey }
                     focus={ focus }
                     onDayPress={ handleDayPress }
+                    onOpenSettings={ () => router.push('/session-schedule') }
                 />
 
                 <View style={ styles.sheet }>

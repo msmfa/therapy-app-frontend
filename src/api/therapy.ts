@@ -160,3 +160,27 @@ export async function deleteSession(
         ifMatch(revision),
     );
 }
+
+export type ReplaceScheduleInput = {
+    startsAtUtc: Date;
+    durationMin?: number;
+    /** Omit for a schedule that varies: one session, no rule. */
+    repeat?: SessionCadence;
+};
+
+/** Clears everything from now on and starts the new schedule, in one write. */
+export async function replaceSchedule(
+    input: ReplaceScheduleInput,
+    revision?: number,
+): Promise<{ revision: number; deleted: number; created: number }> {
+    return apiPut<{ revision: number; deleted: number; created: number }>('/api/calendar/schedule', {
+        startsAtUtc: input.startsAtUtc.toISOString(),
+        ...(input.durationMin === undefined ? {} : { durationMin: input.durationMin }),
+        ...(input.repeat === undefined ? {} : { repeat: input.repeat }),
+    }, ifMatch(revision));
+}
+
+/** Ends every running rule now and removes every session from now on. */
+export async function clearFutureSchedule(revision?: number): Promise<{ revision: number; deleted: number }> {
+    return apiDelete<{ revision: number; deleted: number }>('/api/calendar/schedule', ifMatch(revision));
+}

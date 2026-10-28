@@ -1,17 +1,12 @@
-import { useCallback, useState } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import AppText from '../ui/AppText';
-import { DottedDivider } from '../ui/DottedDivider';
+import { ChoiceRow, Dropdown } from '../ui/Dropdown';
 import { useAppAlert } from '../../context/alert';
 import { LANGUAGES } from '../../i18n/languages';
 import { SYSTEM_PREFERENCE, type LanguagePreference } from '../../i18n/resolve';
 import { t as translate } from '../../i18n/translate';
 import { useLanguage } from '../../i18n/useLanguage';
-import type { Theme } from 'designs/designs-themes';
-import { useTheme, useThemedStyles } from '../../context/theme';
 
 /**
  * System, then a dropdown of the shipped languages.
@@ -31,15 +26,11 @@ import { useTheme, useThemedStyles } from '../../context/theme';
  */
 export function LanguagePicker() {
     const { t } = useTranslation('settings');
-    const { theme } = useTheme();
-    const styles = useThemedStyles(makeStyles);
     const { showAlert } = useAppAlert();
     const { preference, systemEndonym, setPreference } = useLanguage();
-    const [open, setOpen] = useState(false);
 
     const choose = useCallback(
         (next: LanguagePreference, endonym: string) => () => {
-            setOpen(false);
             void setPreference(next).catch(() => {
                 // The language has already changed; only the persistence
                 // failed. Say precisely that, rather than implying the switch
@@ -60,145 +51,34 @@ export function LanguagePicker() {
     );
 
     const onSystem = preference === SYSTEM_PREFERENCE;
+    const options = LANGUAGES.map((language) => ({ id: language.tag, label: language.endonym }));
+
     // On System there is no explicit choice to name, so the trigger invites one
     // rather than displaying a language the user did not pick.
-    const chosen = LANGUAGES.find((language) => language.tag === preference);
-    const triggerLabel = chosen?.endonym ?? t('language.choose');
-
     return (
-        <View>
-            <View style={ styles.rows }>
-                <TouchableOpacity
-                    style={ styles.row }
-                    onPress={ choose(SYSTEM_PREFERENCE, systemEndonym) }
-                    accessibilityRole="radio"
-                    accessibilityState={ { selected: onSystem, checked: onSystem } }
+        <Dropdown
+            options={ options }
+            value={ preference }
+            placeholder={ t('language.choose') }
+            onChange={ (tag) => choose(tag, LANGUAGES.find((language) => language.tag === tag)?.endonym ?? tag)() }
+            triggerHint={ t('language.a11yDropdownHint') }
+            optionHint={ t('language.a11yHint') }
+            leading={ (close) => (
+                <ChoiceRow
+                    label={ t('language.system') }
+                    detail={ t('language.systemDetail', { language: systemEndonym }) }
+                    selected={ onSystem }
+                    onPress={ () => {
+                        close();
+                        choose(SYSTEM_PREFERENCE, systemEndonym)();
+                    } }
                     accessibilityLabel={ t('language.a11yRow', {
                         label: t('language.system'),
                         detail: t('language.systemDetail', { language: systemEndonym }),
                     }) }
                     accessibilityHint={ t('language.a11yHint') }
-                >
-                    <View style={ styles.copy }>
-                        <AppText variant="body" style={ styles.label }>
-                            { t('language.system') }
-                        </AppText>
-                        <AppText variant="caption" style={ styles.detail }>
-                            { t('language.systemDetail', { language: systemEndonym }) }
-                        </AppText>
-                    </View>
-                    { onSystem && <SelectedMark /> }
-                </TouchableOpacity>
-
-                <DottedDivider style={ styles.divider } />
-
-                <TouchableOpacity
-                    style={ styles.row }
-                    onPress={ () => setOpen((wasOpen) => !wasOpen) }
-                    accessibilityRole="button"
-                    accessibilityState={ { expanded: open } }
-                    accessibilityLabel={ triggerLabel }
-                    accessibilityHint={ t('language.a11yDropdownHint') }
-                >
-                    <View style={ styles.copy }>
-                        <AppText
-                            variant="body"
-                            style={ [styles.label, chosen === undefined && styles.placeholder] }
-                        >
-                            { triggerLabel }
-                        </AppText>
-                    </View>
-                    <Ionicons
-                        name={ open ? 'chevron-up' : 'chevron-down' }
-                        size={ 20 }
-                        color={ theme.ink.primary }
-                        // The trigger already announces its expanded state, so
-                        // the glyph must not repeat it.
-                        accessibilityElementsHidden
-                        importantForAccessibility="no-hide-descendants"
-                    />
-                </TouchableOpacity>
-
-                { open && LANGUAGES.map((language) => {
-                    const selected = language.tag === preference;
-                    return (
-                        <View key={ language.tag }>
-                            <DottedDivider style={ styles.divider } />
-                            <TouchableOpacity
-                                style={ [styles.row, styles.option] }
-                                onPress={ choose(language.tag, language.endonym) }
-                                accessibilityRole="radio"
-                                accessibilityState={ { selected, checked: selected } }
-                                accessibilityLabel={ language.endonym }
-                                accessibilityHint={ t('language.a11yHint') }
-                            >
-                                <View style={ styles.copy }>
-                                    <AppText variant="body" style={ styles.label }>
-                                        { language.endonym }
-                                    </AppText>
-                                </View>
-                                { selected && <SelectedMark /> }
-                            </TouchableOpacity>
-                        </View>
-                    );
-                }) }
-            </View>
-        </View>
-    );
-}
-
-function SelectedMark() {
-    const { theme } = useTheme();
-    return (
-        <Ionicons
-            name="checkmark"
-            size={ 22 }
-            color={ theme.accent.mark }
-            // The row already announces its selected state, so the glyph must
-            // not repeat it.
-            accessibilityElementsHidden
-            importantForAccessibility="no-hide-descendants"
+                />
+            ) }
         />
     );
 }
-
-const ROWS_PADDING = 14;
-
-const makeStyles = (theme: Theme) => StyleSheet.create({
-    rows: {
-        paddingHorizontal: ROWS_PADDING,
-        borderRadius: 16,
-        borderWidth: 1,
-        borderColor: theme.surface.rowGroupBorder,
-        backgroundColor: theme.surface.rowGroup,
-    },
-    divider: {
-        marginHorizontal: -ROWS_PADDING,
-    },
-    row: {
-        minHeight: 56,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 12,
-        paddingVertical: 12,
-    },
-    // Indented so an expanded language reads as sitting under the dropdown
-    // rather than as a third peer of System.
-    option: {
-        paddingStart: 12,
-    },
-    copy: {
-        flex: 1,
-    },
-    label: {
-        color: theme.ink.primary,
-    },
-    placeholder: {
-        color: theme.ink.secondary,
-    },
-    detail: {
-        color: theme.ink.secondary,
-        marginTop: 2,
-    },
-});
