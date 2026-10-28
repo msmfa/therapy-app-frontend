@@ -187,8 +187,10 @@ function ScheduleForm({ onCalendarChanged }: { onCalendarChanged: () => void }) 
                     morningReminderMinutes: minutes.morning,
                     eveningReminderMinutes: minutes.evening,
                 });
-                setSaved((current) => ({ ...current, minutes }));
                 await refreshReminderSchedule();
+                // Only once the plan has been fetched again: a retry after a
+                // failed refresh repeats both (the PATCH is idempotent).
+                setSaved((current) => ({ ...current, minutes }));
             }
             router.back();
         } catch (err) {

@@ -251,6 +251,20 @@ describe('session schedule', () => {
 		expect(mockBack).toHaveBeenCalledTimes(1);
 	});
 
+	it('retries the reminder refresh when only that failed, even with no session', async () => {
+		mockSessions = { ...mockSessions, nextSession: null, series: [] };
+		mockSessions.refreshReminderSchedule.mockRejectedValueOnce(new Error('offline'));
+		const view = await renderScreen();
+		fireEvent(view.getByTestId('session-schedule.morning'), 'change', { type: 'set' }, new Date(2026, 9, 28, 8, 15));
+		await act(async () => { fireEvent.press(view.getByText('Save')); });
+		expect(mockBack).not.toHaveBeenCalled();
+
+		await act(async () => { fireEvent.press(view.getByText('Save')); });
+
+		expect(mockSessions.refreshReminderSchedule).toHaveBeenCalledTimes(2);
+		expect(mockBack).toHaveBeenCalledTimes(1);
+	});
+
 	it('saves reminder times alone when there is no session', async () => {
 		mockSessions = { ...mockSessions, nextSession: null, series: [] };
 		const view = await renderScreen();
