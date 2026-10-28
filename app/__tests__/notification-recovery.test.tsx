@@ -22,7 +22,11 @@ jest.mock('../../src/api/users', () => ({
 }));
 
 jest.mock('../../src/context/therapy-sessions/TherapySessionsContext', () => ({
-	useTherapySessions: () => ({ refreshReminderSchedule: mockRefreshSchedule }),
+	useTherapySessions: () => ({
+		reminderScheduleSettings: { timeZone: 'UTC', morningReminderMinutes: 450, eveningReminderMinutes: 1200 },
+		refreshSessions: async () => undefined,
+		refreshReminderSchedule: mockRefreshSchedule,
+	}),
 }));
 
 jest.mock('../../src/features/onboarding/onboardingNotifications', () => ({

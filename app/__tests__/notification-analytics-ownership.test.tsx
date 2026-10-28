@@ -10,6 +10,12 @@ let mockLastResponse: NotificationResponse | null = null;
 let mockReceive: ((response: NotificationResponse) => void) | undefined;
 const mockCapture = jest.fn();
 const mockRouter = { replace: jest.fn() };
+// A mounted root Stack showing the tabs, so a tap is free to navigate.
+const mockNavigationRef = {
+    isReady: () => true,
+    getRootState: () => ({ index: 0, routes: [{ name: '__root', state: { stale: false, index: 0, routeNames: ['(tabs)'], routes: [{ name: '(tabs)' }] } }] }),
+    addListener: () => () => undefined,
+};
 const mockClear = jest.fn();
 jest.mock('expo-router', () => {
     const ReactForMock = require('react');
@@ -17,10 +23,11 @@ jest.mock('expo-router', () => {
     const Stack = ({ children }: { children: React.ReactNode }) => ReactForMock.createElement(View, null, children);
     Stack.Protected = ({ guard, children }: { guard: boolean; children: React.ReactNode }) => guard ? children : null;
     Stack.Screen = () => null;
-    return { Stack, useRouter: () => mockRouter };
+    return { Stack, useRouter: () => mockRouter, useNavigationContainerRef: () => mockNavigationRef };
 });
 jest.mock('@sentry/react-native', () => ({ init: jest.fn(), wrap: (component: unknown) => component }));
 jest.mock('expo-notifications', () => ({
+    setNotificationHandler: jest.fn(),
     addNotificationResponseReceivedListener: (listener: (response: NotificationResponse) => void) => { mockReceive = listener; return { remove: jest.fn() }; },
     getLastNotificationResponse: () => mockLastResponse,
     clearLastNotificationResponse: () => mockClear(),

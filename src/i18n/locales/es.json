@@ -713,7 +713,8 @@
       "deniedPrimaryCta": "Abrir Ajustes",
       "registrationErrorTitle": "No pudimos activar las notificaciones",
       "registrationErrorBody": "Revise su conexión e inténtelo de nuevo, o elija Ahora no.",
-      "headline": "Reciba su primer recordatorio de nota el {{weekday}} a las {{time}}"
+      "headline": "Reciba su primer recordatorio de nota el {{weekday}} a las {{time}}",
+      "previewPlaceholder": "Tiene un recordatorio"
     },
     "success": {
       "headline": "Su plan entre sesiones está listo",

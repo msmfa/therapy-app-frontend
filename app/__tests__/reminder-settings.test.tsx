@@ -4,8 +4,8 @@ import { fireEvent, render, waitFor } from '@testing-library/react-native';
 
 const mockBack = jest.fn();
 const mockShowAlert = jest.fn();
-const mockGetSettings = jest.fn();
 const mockUpdateSettings = jest.fn();
+const mockRefreshSessions = jest.fn();
 const mockRefreshSchedule = jest.fn();
 const mockReadPermission = jest.fn();
 
@@ -14,12 +14,16 @@ jest.mock('expo-router', () => ({
 }));
 
 jest.mock('../../src/api/users', () => ({
-	getCurrentUserSettings: (...args: unknown[]) => mockGetSettings(...args),
 	updateCurrentUser: (...args: unknown[]) => mockUpdateSettings(...args),
 }));
 
+// The times as the calendar reports them, defaults already resolved.
 jest.mock('../../src/context/therapy-sessions/TherapySessionsContext', () => ({
-	useTherapySessions: () => ({ refreshReminderSchedule: mockRefreshSchedule }),
+	useTherapySessions: () => ({
+		reminderScheduleSettings: { timeZone: 'UTC', morningReminderMinutes: 390, eveningReminderMinutes: 1335 },
+		refreshSessions: mockRefreshSessions,
+		refreshReminderSchedule: mockRefreshSchedule,
+	}),
 }));
 
 jest.mock('../../src/features/onboarding/onboardingNotifications', () => ({
@@ -109,10 +113,7 @@ describe('reminder settings', () => {
 
 	beforeEach(() => {
 		jest.clearAllMocks();
-		mockGetSettings.mockResolvedValue({
-			morningReminderMinutes: 390,
-			eveningReminderMinutes: 1335,
-		});
+		mockRefreshSessions.mockResolvedValue(undefined);
 		mockReadPermission.mockResolvedValue({ granted: true, canAskAgain: true });
 		mockUpdateSettings.mockResolvedValue(undefined);
 		mockRefreshSchedule.mockResolvedValue(undefined);
@@ -130,10 +131,10 @@ describe('reminder settings', () => {
 		fireEvent.press(getByText('picker:6:30'));
 		fireEvent.press(getByText('Save reminder times'));
 
+		// Only the time that changed: the evening is left as the server has it.
 		await waitFor(() =>
 			expect(mockUpdateSettings).toHaveBeenCalledWith({
 				morningReminderMinutes: 555,
-				eveningReminderMinutes: 1335,
 			}),
 		);
 		expect(mockRefreshSchedule).toHaveBeenCalledTimes(1);
@@ -156,5 +157,15 @@ describe('reminder settings', () => {
 			"We couldn't load reminder settings",
 			expect.anything(),
 		);
+	});
+
+	it('sends nothing when no time was changed', async () => {
+		const { getByText } = render(<ReminderSettingsScreen />);
+		await waitFor(() => expect(getByText('picker:6:30')).not.toBeNull());
+
+		fireEvent.press(getByText('Save reminder times'));
+
+		await waitFor(() => expect(mockRefreshSessions).toHaveBeenCalled());
+		expect(mockUpdateSettings).not.toHaveBeenCalled();
 	});
 });

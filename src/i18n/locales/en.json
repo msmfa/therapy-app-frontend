@@ -656,7 +656,8 @@
       "deniedPrimaryCta": "Open Settings",
       "registrationErrorTitle": "We couldn't turn on notifications",
       "registrationErrorBody": "Check your connection and try again, or choose Not now.",
-      "headline": "Get your first note reminder {{weekday}} at {{time}}"
+      "headline": "Get your first note reminder {{weekday}} at {{time}}",
+      "previewPlaceholder": "You have a reminder"
     },
     "success": {
       "headline": "Your between-session plan is ready",

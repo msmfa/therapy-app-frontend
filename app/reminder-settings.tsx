@@ -6,19 +6,16 @@ import { Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
-import { getCurrentUserSettings, updateCurrentUser } from '../src/api/users';
+import { updateCurrentUser } from '../src/api/users';
 import { SettingsRow } from '../src/components/SettingsRow';
 import { SettingsPageShell } from '../src/components/settings/SettingsPageShell';
 import AppText from '../src/components/ui/AppText';
 import { Button } from '../src/components/ui/Button';
+import { ErrorMessage } from '../src/components/ui/ErrorMessage';
 import FrostedCard from '../src/components/ui/FrostedCard';
 import Loading from '../src/components/ui/Loading';
 import { useAppAlert } from '../src/context/alert';
 import { useTherapySessions } from '../src/context/therapy-sessions/TherapySessionsContext';
-import {
-    DEFAULT_EVENING_MINUTES,
-    DEFAULT_MORNING_MINUTES,
-} from '../src/features/onboarding/OnboardingAnswersContext';
 import { readNotificationPermission, requestNotificationPermission } from '../src/features/onboarding/onboardingNotifications';
 import { ensurePushRegistration } from '../src/services/notifications/pushRegistration';
 import { dateToMinutes, minutesToDate, timeLabel } from '../src/features/onboarding/formatting';
@@ -39,11 +36,14 @@ export default function ReminderSettingsScreen() {
     const { showAlert } = useAppAlert();
     const { t } = useTranslation('reminderSettings');
     const { t: tCommon } = useTranslation('common');
-    const { refreshReminderSchedule } = useTherapySessions();
-    const [loading, setLoading] = useState(true);
+    const { reminderScheduleSettings, refreshSessions, refreshReminderSchedule } = useTherapySessions();
+    const [loadFailed, setLoadFailed] = useState(false);
+    const [attempt, setAttempt] = useState(0);
     const [saving, setSaving] = useState(false);
-    const [morningMinutes, setMorningMinutes] = useState(DEFAULT_MORNING_MINUTES);
-    const [eveningMinutes, setEveningMinutes] = useState(DEFAULT_EVENING_MINUTES);
+    // Only the times picked here. The rest show what the server sends at,
+    // which the calendar reports with its defaults already filled in, and
+    // Save sends nothing for a time the user did not touch.
+    const [draft, setDraft] = useState<Partial<Record<Slot, number>>>({});
     const [androidSlot, setAndroidSlot] = useState<Slot | null>(null);
     const [notificationStatus, setNotificationStatus] = useState<NotificationStatus>('checking');
 
@@ -57,36 +57,28 @@ export default function ReminderSettingsScreen() {
     }, []);
 
     useEffect(() => {
-        let cancelled = false;
+        let live = true;
+        refreshSessions().catch(() => {
+            if (live) setLoadFailed(true);
+        });
+        return () => { live = false; };
+    }, [refreshSessions, attempt]);
 
-        void Promise.all([
-            getCurrentUserSettings(),
-            readNotificationPermission().catch(() => ({ granted: false, canAskAgain: false })),
-        ])
-            .then(([settings, permission]) => {
-                if (cancelled) return;
-                setMorningMinutes(settings.morningReminderMinutes ?? DEFAULT_MORNING_MINUTES);
-                setEveningMinutes(settings.eveningReminderMinutes ?? DEFAULT_EVENING_MINUTES);
-                setNotificationStatus(permission.granted ? 'on' : 'off');
-            })
-            .catch(() => {
-                if (cancelled) return;
-                setNotificationStatus('off');
-                showAlert(t('loadFailed'), tCommon('error.tryAgain'));
-            })
-            .finally(() => {
-                if (!cancelled) setLoading(false);
-            });
+    const retry = useCallback(() => {
+        setLoadFailed(false);
+        setAttempt((current) => current + 1);
+    }, []);
 
+    useEffect(() => {
+        void refreshPermission();
         const subscription = AppState.addEventListener('change', (state) => {
             if (state === 'active') void refreshPermission();
         });
+        return () => subscription.remove();
+    }, [refreshPermission]);
 
-        return () => {
-            cancelled = true;
-            subscription.remove();
-        };
-    }, [refreshPermission, showAlert, t, tCommon]);
+    const morningMinutes = draft.morning ?? reminderScheduleSettings?.morningReminderMinutes;
+    const eveningMinutes = draft.evening ?? reminderScheduleSettings?.eveningReminderMinutes;
 
     const enableNotifications = useCallback(async () => {
         try {
@@ -118,35 +110,43 @@ export default function ReminderSettingsScreen() {
             if (!picked || !Number.isFinite(picked.getTime())) return;
 
             const value = dateToMinutes(picked);
-            if (slot === 'morning') setMorningMinutes(value);
-            else setEveningMinutes(value);
+            setDraft((current) => ({ ...current, [slot]: value }));
         },
         [],
     );
 
     const save = useCallback(async () => {
-        if (saving) return;
+        if (saving || (draft.morning === undefined && draft.evening === undefined)) return;
 
         setSaving(true);
         try {
             await updateCurrentUser({
-                morningReminderMinutes: morningMinutes,
-                eveningReminderMinutes: eveningMinutes,
+                ...(draft.morning === undefined ? {} : { morningReminderMinutes: draft.morning }),
+                ...(draft.evening === undefined ? {} : { eveningReminderMinutes: draft.evening }),
             });
             // The calendar caches the server-computed reminder instants. Times
             // changed without sessions changing, so invalidate that cache
             // explicitly and let it fetch the updated schedule.
             await refreshReminderSchedule();
+            setDraft({});
             showAlert(t('saved'), t('savedMessage'));
         } catch {
             showAlert(t('saveFailed'), tCommon('error.tryAgain'));
         } finally {
             setSaving(false);
         }
-    }, [eveningMinutes, morningMinutes, refreshReminderSchedule, saving, showAlert, t, tCommon]);
+    }, [draft, refreshReminderSchedule, saving, showAlert, t, tCommon]);
 
-    if (loading) {
-        return <Loading fullScreen />;
+    if (morningMinutes === undefined || eveningMinutes === undefined) {
+        if (!loadFailed) return <Loading fullScreen />;
+        return (
+            <SettingsPageShell title={ t('title') } onBack={ () => router.back() }>
+                <FrostedCard contentStyle={ styles.card }>
+                    <ErrorMessage message={ t('loadFailed') } />
+                    <Button label={ tCommon('action.tryAgain') } onPress={ retry } addedStyles={ styles.save } />
+                </FrostedCard>
+            </SettingsPageShell>
+        );
     }
 
     const rows: { slot: Slot; label: string; minutes: number }[] = [
@@ -223,6 +223,7 @@ export default function ReminderSettingsScreen() {
 
                 <Button
                     label={ t('save') }
+                    disabled={ draft.morning === undefined && draft.evening === undefined }
                     loading={ saving }
                     onPress={ () => void save() }
                     addedStyles={ styles.save }

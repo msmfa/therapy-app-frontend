@@ -656,7 +656,8 @@
       "deniedPrimaryCta": "Ouvrir les Réglages",
       "registrationErrorTitle": "Impossible d’activer les notifications",
       "registrationErrorBody": "Vérifiez votre connexion et réessayez, ou choisissez Pas maintenant.",
-      "headline": "Recevez votre premier rappel de note {{weekday}} à {{time}}"
+      "headline": "Recevez votre premier rappel de note {{weekday}} à {{time}}",
+      "previewPlaceholder": "Vous avez un rappel"
     },
     "success": {
       "headline": "Votre programme entre les séances est prêt",

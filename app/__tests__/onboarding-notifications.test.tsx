@@ -6,6 +6,7 @@ const mockSetAnswer = jest.fn();
 const mockReadPermission = jest.fn();
 const mockRequestPermission = jest.fn();
 const mockCancelLegacyReminder = jest.fn();
+const mockSkipAskThisRun = jest.fn();
 const mockEnsurePushRegistration = jest.fn();
 const mockShowAlert = jest.fn();
 
@@ -44,6 +45,7 @@ jest.mock('../../src/features/onboarding/onboardingNotifications', () => ({
 	readNotificationPermission: (...args: unknown[]) => mockReadPermission(...args),
 	requestNotificationPermission: (...args: unknown[]) => mockRequestPermission(...args),
 	cancelOnboardingReminder: (...args: unknown[]) => mockCancelLegacyReminder(...args),
+	skipNotificationAskThisRun: () => mockSkipAskThisRun(),
 }));
 
 jest.mock('../../src/services/notifications/pushRegistration', () => ({
@@ -174,6 +176,17 @@ describe('onboarding notification handoff', () => {
 			expect(getByText('Turn on notifications')).toBeTruthy();
 		});
 		expect(mockPush).not.toHaveBeenCalled();
+	});
+
+	it('choosing Not now stops the app asking on its own for the rest of this run', async () => {
+		const { getByText } = render(<NotificationsPreviewScreen />);
+		await waitFor(() => expect(getByText('Not now')).toBeTruthy());
+
+		fireEvent.press(getByText('Not now'));
+
+		expect(mockSkipAskThisRun).toHaveBeenCalledTimes(1);
+		expect(mockRequestPermission).not.toHaveBeenCalled();
+		expect(mockPush).toHaveBeenCalledWith('/(onboarding)/success');
 	});
 
 	it('does not start notification setup twice on a double tap', async () => {

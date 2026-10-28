@@ -656,7 +656,8 @@
       "deniedPrimaryCta": "Einstellungen öffnen",
       "registrationErrorTitle": "Die Benachrichtigungen konnten nicht aktiviert werden",
       "registrationErrorBody": "Prüfen Sie Ihre Verbindung und versuchen Sie es erneut, oder wählen Sie „Jetzt nicht“.",
-      "headline": "Ihre erste Notiz-Erinnerung erreicht Sie {{weekday}} um {{time}}"
+      "headline": "Ihre erste Notiz-Erinnerung erreicht Sie {{weekday}} um {{time}}",
+      "previewPlaceholder": "Sie haben eine Erinnerung"
     },
     "success": {
       "headline": "Ihr Plan für die Zeit zwischen den Sitzungen ist fertig",

@@ -17,6 +17,7 @@ import {
     cancelOnboardingReminder,
     readNotificationPermission,
     requestNotificationPermission,
+    skipNotificationAskThisRun,
 } from '../../src/features/onboarding/onboardingNotifications';
 import { ensurePushRegistration } from '../../src/services/notifications/pushRegistration';
 import { useAppAlert } from '../../src/context/alert';
@@ -139,6 +140,9 @@ export default function NotificationsPreviewScreen() {
     }, [firstReminderAt, router, setAnswer, showAlert]);
 
     const handleSkip = useCallback(() => {
+        // Not now means not now: the series the next screen saves must not
+        // raise the system prompt straight after the user said no to it.
+        skipNotificationAskThisRun();
         setAnswer('reminderScheduled', false);
         void cancelOnboardingReminder();
         router.push('/(onboarding)/success');

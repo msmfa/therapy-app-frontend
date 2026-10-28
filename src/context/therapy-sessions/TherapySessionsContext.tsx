@@ -36,9 +36,11 @@ import {
     settingsOf,
 } from '../../features/calendar/calendarSelectors';
 import { mapSessionError, SessionErrorCopy } from '../../features/therapy-sessions/session-error-map';
+import { askForNotificationsAfterSessionAdded } from '../../services/notifications/permission';
 import { toError } from '../../utils/errors';
 import { isWithinSessionsWindow } from '../../utils/sessionWindow';
 import { t } from '../../i18n/translate';
+import { applyWrite, type CalendarWriteResult } from './applyWrite';
 
 export interface ReminderScheduleSettings {
     timeZone: string;
@@ -125,6 +127,9 @@ const emptyState = (owner: Account): CalendarState => ({
     owner, snapshot: null, loading: false, error: null, status: 'idle',
 });
 
+/** How long a failed refetch after a committed write waits before trying once more. */
+const POST_WRITE_RETRY_MS = 15_000;
+
 const CADENCE_REPEAT: Record<CadenceId, 'weekly' | 'fortnightly' | 'monthly' | null> = {
     weekly: 'weekly', fortnightly: 'fortnightly', monthly: 'monthly', varies: null,
 };
@@ -159,15 +164,17 @@ export function TherapySessionsProvider({ children }: { children: React.ReactNod
      * in flight is ignored when it lands. That is what a zone or preference
      * change needs, since the server rebuilt the plan after the old request
      * was answered, and its answer must not be allowed to overwrite the new one.
+     * A `quiet` fetch leaves the loading and error state alone: it follows a
+     * write that already succeeded, so its failure is not news for the screen.
      */
-    const fetchCalendar = useCallback(async (supersede: boolean) => {
+    const fetchCalendar = useCallback(async (supersede: boolean, quiet = false) => {
         if (!account.userId || accountRef.current !== account) return;
         if (account.inFlight && !supersede) return account.inFlight;
 
         const sequence = ++account.sequence;
         const isCurrent = () => accountRef.current === account && account.sequence === sequence;
         const request: Promise<void> = (async () => {
-            patchState({ loading: true, error: null, status: 'loading' });
+            if (!quiet) patchState({ loading: true, error: null, status: 'loading' });
             try {
                 const { from, to } = getCalendarFetchWindow();
                 const data = await getCalendar(from, to);
@@ -176,11 +183,11 @@ export function TherapySessionsProvider({ children }: { children: React.ReactNod
                 // resumes before React has committed setState, and must still
                 // see the canonical calendar that just arrived.
                 account.snapshot = data;
-                patchState({ snapshot: data, status: 'ready' });
+                patchState({ snapshot: data, status: 'ready', error: null });
                 void writeCalendarSnapshot(account.userId!, data);
             } catch (err) {
                 if (!isCurrent()) return;
-                patchState({ error: { ...mapSessionError(err) }, status: 'error' });
+                if (!quiet) patchState({ error: { ...mapSessionError(err) }, status: 'error' });
                 if (!(err instanceof ApiError) || err.status >= 500) {
                     Sentry.withScope((scope) => {
                         scope.setTag('feature', 'therapy-sessions.refreshSessions');
@@ -206,6 +213,20 @@ export function TherapySessionsProvider({ children }: { children: React.ReactNod
     const refreshSessions = useCallback(() => fetchCalendar(false), [fetchCalendar]);
     const refreshReminderSchedule = useCallback(() => fetchCalendar(true), [fetchCalendar]);
 
+    const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    useEffect(() => () => {
+        if (retryTimer.current !== null) clearTimeout(retryTimer.current);
+    }, []);
+
+    /** Puts a committed write on screen at once, in both copies of the calendar. */
+    const adopt = useCallback((written: CalendarWriteResult) => {
+        if (accountRef.current !== account) return;
+        if (account.snapshot) account.snapshot = applyWrite(account.snapshot, written);
+        setState((current) => (current.owner === account && current.snapshot
+            ? { ...current, snapshot: applyWrite(current.snapshot, written) }
+            : current));
+    }, [account]);
+
     /**
      * Runs a write, then fetches the calendar the server now holds.
      *
@@ -214,8 +235,12 @@ export function TherapySessionsProvider({ children }: { children: React.ReactNod
      * reach the screen. A refused edit (someone changed the calendar on another
      * device) refreshes too, so the user is looking at the current calendar
      * when the alert about it appears.
+     *
+     * Once the server has the write it is saved, whatever happens next. Its
+     * answer goes on screen first, so the next edit carries the new revision,
+     * and a failed refetch is retried later instead of reported as a failed save.
      */
-    const commit = useCallback(async <T,>(write: () => Promise<T>): Promise<T> => {
+    const commit = useCallback(async <T extends CalendarWriteResult>(write: () => Promise<T>): Promise<T> => {
         assertCurrentAccount();
         let result: T;
         try {
@@ -227,16 +252,25 @@ export function TherapySessionsProvider({ children }: { children: React.ReactNod
             throw err;
         }
         assertCurrentAccount();
-        await fetchCalendar(true);
+        adopt(result);
+        await fetchCalendar(true, true).catch(() => {
+            if (retryTimer.current !== null) return;
+            retryTimer.current = setTimeout(() => {
+                retryTimer.current = null;
+                fetchCalendar(false, true).catch(() => {});
+            }, POST_WRITE_RETRY_MS);
+        });
         return result;
-    }, [account, assertCurrentAccount, fetchCalendar]);
+    }, [account, adopt, assertCurrentAccount, fetchCalendar]);
 
     const revision = snapshot?.revision ?? null;
     const currentRevision = () => account.snapshot?.revision;
 
     const addSession = useCallback(async (input: CreateSessionInput) => {
         if (!isWithinSessionsWindow(input.startsAtUtc)) throw new Error(t('calendar:outOfRange'));
-        return commit(() => createSessionApi(input, currentRevision()));
+        const result = await commit(() => createSessionApi(input, currentRevision()));
+        void askForNotificationsAfterSessionAdded();
+        return result;
     }, [commit]);
 
     const updateSession = useCallback(async (id: string, input: UpdateSessionInput) => {
@@ -275,6 +309,7 @@ export function TherapySessionsProvider({ children }: { children: React.ReactNod
             { startsAtUtc: start, durationMin, ...(repeat === null ? {} : { repeat }) },
             currentRevision(),
         ));
+        void askForNotificationsAfterSessionAdded();
     }, [account, assertCurrentAccount, commit, refreshSessions]);
 
     const replaceSchedule = useCallback(async ({ firstSessionAt, cadence, durationMin, revision: readAt }: ReplaceScheduleInput) => {
@@ -288,6 +323,7 @@ export function TherapySessionsProvider({ children }: { children: React.ReactNod
             { startsAtUtc: firstSessionAt, durationMin, ...(repeat === null ? {} : { repeat }) },
             readAt ?? currentRevision(),
         ));
+        void askForNotificationsAfterSessionAdded();
         return result.revision;
     }, [commit]);
 
