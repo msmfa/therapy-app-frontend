@@ -128,7 +128,14 @@ export default function ReminderSettingsScreen() {
             // changed without sessions changing, so invalidate that cache
             // explicitly and let it fetch the updated schedule.
             await refreshReminderSchedule();
-            setDraft({});
+            // The pickers stay usable while this runs. Keep any time picked
+            // since Save was pressed so the user can still save it.
+            setDraft((current) => {
+                const next = { ...current };
+                if (next.morning === draft.morning) delete next.morning;
+                if (next.evening === draft.evening) delete next.evening;
+                return next;
+            });
             showAlert(t('saved'), t('savedMessage'));
         } catch {
             showAlert(t('saveFailed'), tCommon('error.tryAgain'));
