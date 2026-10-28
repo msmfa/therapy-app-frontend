@@ -32,6 +32,7 @@ let mockHydrated = true;
 
 jest.mock('expo-router', () => ({
     useFocusEffect: jest.fn(),
+    useRouter: () => ({ push: jest.fn() }),
 }));
 
 jest.mock('react-native-safe-area-context', () => {

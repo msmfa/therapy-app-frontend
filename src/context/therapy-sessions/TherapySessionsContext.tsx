@@ -4,9 +4,11 @@ import * as Sentry from '@sentry/react-native';
 import { ApiError } from '../../api/client';
 import { useAuth } from '../auth/AuthContext';
 import {
+    clearFutureSchedule as clearFutureScheduleApi,
     createSession as createSessionApi,
     deleteSession as deleteSessionApi,
     getCalendar,
+    replaceSchedule as replaceScheduleApi,
     updateSession as updateSessionApi,
     type CalendarReminder,
     type CalendarSnapshot,
@@ -35,7 +37,7 @@ import {
 } from '../../features/calendar/calendarSelectors';
 import { mapSessionError, SessionErrorCopy } from '../../features/therapy-sessions/session-error-map';
 import { toError } from '../../utils/errors';
-import { isWithinSessionsWindow } from '../../utils/sessionWindow';
+import { isWithinFirstSessionWindow, isWithinSessionsWindow } from '../../utils/sessionWindow';
 import { t } from '../../i18n/translate';
 
 export interface ReminderScheduleSettings {
@@ -49,6 +51,12 @@ export type ReminderScheduleStatus = 'idle' | 'loading' | 'ready' | 'error';
 export interface AddSeriesInput {
     firstSessionAt: Date;
     cadence: CadenceId | null;
+    durationMin: number;
+}
+
+export interface ReplaceScheduleInput {
+    firstSessionAt: Date;
+    cadence: CadenceId;
     durationMin: number;
 }
 
@@ -80,6 +88,10 @@ interface TherapySessionsContextType {
     removeSession: (id: string, scope?: SessionEditScope) => Promise<void>;
     /** Onboarding: one series (or one appointment) without disturbing what exists. */
     addSeries: (input: AddSeriesInput) => Promise<void>;
+    /** The schedule screen's Save: everything from now on becomes this schedule. */
+    replaceSchedule: (input: ReplaceScheduleInput) => Promise<void>;
+    /** Removes every session from now on and stops every series. */
+    clearFutureSessions: () => Promise<void>;
 }
 
 const TherapySessionsContext = createContext<TherapySessionsContextType | undefined>(undefined);
@@ -257,6 +269,19 @@ export function TherapySessionsProvider({ children }: { children: React.ReactNod
         ));
     }, [account, assertCurrentAccount, commit, refreshSessions]);
 
+    const replaceSchedule = useCallback(async ({ firstSessionAt, cadence, durationMin }: ReplaceScheduleInput) => {
+        if (!isWithinFirstSessionWindow(firstSessionAt)) throw new Error(t('calendar:outOfRange'));
+        const repeat = CADENCE_REPEAT[cadence];
+        await commit(() => replaceScheduleApi(
+            { startsAtUtc: firstSessionAt, durationMin, ...(repeat === null ? {} : { repeat }) },
+            currentRevision(),
+        ));
+    }, [commit]);
+
+    const clearFutureSessions = useCallback(async () => {
+        await commit(() => clearFutureScheduleApi(currentRevision()));
+    }, [commit]);
+
     // Paint the last known calendar straight away, before the request has
     // answered. It is at worst a day stale, and it is the difference between a
     // month that opens with its dots and one that flashes empty.
@@ -336,6 +361,8 @@ export function TherapySessionsProvider({ children }: { children: React.ReactNod
         updateSession,
         removeSession,
         addSeries,
+        replaceSchedule,
+        clearFutureSessions,
     };
 
     return (

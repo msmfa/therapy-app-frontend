@@ -5,12 +5,14 @@ import { useTranslation } from 'react-i18next';
 
 import { useAuth } from '../src/context/auth/AuthContext';
 import { SettingsRow } from '../src/components/SettingsRow';
+import { SettingsToggleRow } from '../src/components/SettingsToggleRow';
 import { SettingsPageShell } from '../src/components/settings/SettingsPageShell';
 import FrostedCard from '../src/components/ui/FrostedCard';
 import Loading from '../src/components/ui/Loading';
 import { deleteCurrentUser } from '../src/api/users';
 import { clearNotesForUser } from '../src/features/notes/useNotes';
 import { useAppAlert } from '../src/context/alert';
+import { useTheme } from '../src/context/theme';
 import { analytics } from '../src/features/analytics/client';
 import { analyticsConsentSync } from '../src/features/analytics/consentSync';
 import { serverErrorMessage } from '../src/features/errors/serverErrorMessage';
@@ -28,6 +30,17 @@ export default function AccountSettingsScreen() {
     const { showAlert } = useAppAlert();
     const { t } = useTranslation('settings');
     const { t: tCommon } = useTranslation('common');
+    const { scheme, setPreference } = useTheme();
+    const isDark = scheme === 'dark';
+
+    // The label names where the switch would take you, not where you are, so
+    // the row reads as the thing it does.
+    const toggleTheme = useCallback((next: boolean) => {
+        void setPreference(next ? 'dark' : 'light').catch(() => {
+            // The look has already changed; only remembering it failed.
+            showAlert(t('appearance.saveFailedTitle'), t('appearance.saveFailedMessage'));
+        });
+    }, [setPreference, showAlert, t]);
 
     const handleLogout = useCallback(async () => {
         if (accountActionInFlight.current) return;
@@ -147,6 +160,14 @@ export default function AccountSettingsScreen() {
                     <SettingsRow
                         text={ t('rows.reminderSettings') }
                         onPress={ () => router.push('/reminder-settings') }
+                    />
+                    <SettingsRow text={ t('hub.language') } onPress={ () => router.push('/language') } />
+                    <SettingsToggleRow
+                        text={ isDark ? t('hub.lightMode') : t('hub.darkMode') }
+                        value={ isDark }
+                        onValueChange={ toggleTheme }
+                        accessibilityHint={ t('appearance.a11yHint') }
+                        testID="settings.darkMode"
                     />
                     <SettingsRow text={ t('rows.contactUs') } onPress={ handleContactUs } />
                     <SettingsRow text={ t('rows.privacyPolicy') } onPress={ handlePrivacyPolicy } />

@@ -67,12 +67,12 @@
       "settings": "Settings",
       "rateApp": "Rate this App",
       "version": "v{{version}}",
-      "logOutFailed": "Could not log out please try again",
       "rateUnavailableTitle": "Unavailable",
       "rateUnavailableMessage": "Rating is not supported on this platform yet.",
       "storeOpenFailed": "Unable to open the store right now.",
       "darkMode": "Dark Mode",
-      "lightMode": "Light Mode"
+      "lightMode": "Light Mode",
+      "schedule": "Schedule"
     },
     "rows": {
       "reminderSettings": "Reminder settings",
@@ -328,7 +328,14 @@
       "endSeriesMessage": "This removes this session and every later one in the series. Earlier sessions stay on the calendar.",
       "dayTakenTitle": "That day is taken",
       "dayTaken": "There is already a session on that day. Edit that one instead.",
-      "keepSeries": "Keep"
+      "keepSeries": "Keep",
+      "settingsTitle": "Schedule",
+      "openSettings": "Schedule settings",
+      "save": "Save",
+      "clearFuture": "Clear future sessions",
+      "clearFutureTitle": "Clear future sessions?",
+      "clearFutureMessage": "This removes every session from today on. Past sessions stay on the calendar.",
+      "clearFutureConfirm": "Clear"
     },
     "error": {
       "timeout": {

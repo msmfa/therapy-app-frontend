@@ -15,12 +15,14 @@ type Props = {
     /** Shown beside the back arrow. Omitted on the index, which has no arrow. */
     title?: string;
     onBack?: () => void;
+    /** A cross instead of the back arrow, for a page that closes rather than goes back. */
+    closeIcon?: boolean;
     background?: 'glow' | 'grid';
 };
 
 // The frame every settings page shares, so a category page is visibly the same
 // surface as the one that opened it rather than a screen of its own.
-export function SettingsPageShell({ children, title, onBack, background = 'glow' }: Props) {
+export function SettingsPageShell({ children, title, onBack, closeIcon = false, background = 'glow' }: Props) {
     const { t } = useTranslation('common');
     const { theme } = useTheme();
     return (
@@ -32,8 +34,8 @@ export function SettingsPageShell({ children, title, onBack, background = 'glow'
                 { onBack ? (
                     <View style={ styles.header }>
                         <GlassCircleButton
-                            accessibilityLabel={ t('action.back') }
-                            icon="back"
+                            accessibilityLabel={ closeIcon ? t('action.close') : t('action.back') }
+                            icon={ closeIcon ? 'close' : 'back' }
                             iconColor={ theme.ink.primary }
                             size={ 48 }
                             onPress={ onBack }

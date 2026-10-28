@@ -67,12 +67,12 @@
       "settings": "Réglages",
       "rateApp": "Noter cette application",
       "version": "v{{version}}",
-      "logOutFailed": "Impossible de vous déconnecter, veuillez réessayer",
       "rateUnavailableTitle": "Indisponible",
       "rateUnavailableMessage": "La notation n’est pas encore prise en charge sur cette plateforme.",
       "storeOpenFailed": "Impossible d’ouvrir la boutique pour le moment.",
       "darkMode": "Mode sombre",
-      "lightMode": "Mode clair"
+      "lightMode": "Mode clair",
+      "schedule": "Planning"
     },
     "rows": {
       "reminderSettings": "Réglages des rappels",
@@ -328,7 +328,14 @@
       "endSeriesMessage": "Cette séance et toutes les suivantes de la série seront supprimées. Les séances passées restent dans le calendrier.",
       "dayTakenTitle": "Ce jour est pris",
       "dayTaken": "Il y a déjà une séance ce jour-là. Modifiez plutôt celle-ci.",
-      "keepSeries": "Garder"
+      "keepSeries": "Garder",
+      "settingsTitle": "Planning",
+      "openSettings": "Réglages du planning",
+      "save": "Enregistrer",
+      "clearFuture": "Effacer les séances à venir",
+      "clearFutureTitle": "Effacer les séances à venir ?",
+      "clearFutureMessage": "Toutes les séances à partir d'aujourd'hui seront supprimées. Les séances passées restent dans le calendrier.",
+      "clearFutureConfirm": "Effacer"
     },
     "error": {
       "timeout": {
