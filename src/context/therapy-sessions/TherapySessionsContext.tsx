@@ -37,7 +37,7 @@ import {
 } from '../../features/calendar/calendarSelectors';
 import { mapSessionError, SessionErrorCopy } from '../../features/therapy-sessions/session-error-map';
 import { toError } from '../../utils/errors';
-import { isWithinFirstSessionWindow, isWithinSessionsWindow } from '../../utils/sessionWindow';
+import { isWithinSessionsWindow } from '../../utils/sessionWindow';
 import { t } from '../../i18n/translate';
 
 export interface ReminderScheduleSettings {
@@ -58,6 +58,11 @@ export interface ReplaceScheduleInput {
     firstSessionAt: Date;
     cadence: CadenceId;
     durationMin: number;
+    /**
+     * The revision the schedule was read at. A newer calendar refuses the
+     * write rather than being replaced by values the user never saw.
+     */
+    revision?: number | null;
 }
 
 interface TherapySessionsContextType {
@@ -88,8 +93,11 @@ interface TherapySessionsContextType {
     removeSession: (id: string, scope?: SessionEditScope) => Promise<void>;
     /** Onboarding: one series (or one appointment) without disturbing what exists. */
     addSeries: (input: AddSeriesInput) => Promise<void>;
-    /** The schedule screen's Save: everything from now on becomes this schedule. */
-    replaceSchedule: (input: ReplaceScheduleInput) => Promise<void>;
+    /**
+     * The schedule screen's Save: everything from now on becomes this
+     * schedule. Resolves with the calendar's new revision.
+     */
+    replaceSchedule: (input: ReplaceScheduleInput) => Promise<number>;
     /** Removes every session from now on and stops every series. */
     clearFutureSessions: () => Promise<void>;
 }
@@ -269,13 +277,18 @@ export function TherapySessionsProvider({ children }: { children: React.ReactNod
         ));
     }, [account, assertCurrentAccount, commit, refreshSessions]);
 
-    const replaceSchedule = useCallback(async ({ firstSessionAt, cadence, durationMin }: ReplaceScheduleInput) => {
-        if (!isWithinFirstSessionWindow(firstSessionAt)) throw new Error(t('calendar:outOfRange'));
+    const replaceSchedule = useCallback(async ({ firstSessionAt, cadence, durationMin, revision: readAt }: ReplaceScheduleInput) => {
+        // The calendar's range, not onboarding's six months: a session already
+        // booked further out may keep its date while only how often changes.
+        if (firstSessionAt.getTime() <= Date.now() || !isWithinSessionsWindow(firstSessionAt)) {
+            throw new Error(t('calendar:outOfRange'));
+        }
         const repeat = CADENCE_REPEAT[cadence];
-        await commit(() => replaceScheduleApi(
+        const result = await commit(() => replaceScheduleApi(
             { startsAtUtc: firstSessionAt, durationMin, ...(repeat === null ? {} : { repeat }) },
-            currentRevision(),
+            readAt ?? currentRevision(),
         ));
+        return result.revision;
     }, [commit]);
 
     const clearFutureSessions = useCallback(async () => {

@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useCallback, useState, type ReactNode } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -19,8 +19,11 @@ type Props<Id extends string> = {
     /** Asks for a choice while nothing in `options` is chosen. */
     placeholder: string;
     onChange: (next: Id) => void;
-    /** Rows that stay in view above the trigger, in the same group. */
-    leading?: ReactNode;
+    /**
+     * Rows that stay in view above the trigger, in the same group. Given
+     * `close`, so a choice made there can shut the list as an option does.
+     */
+    leading?: (close: () => void) => ReactNode;
     triggerHint?: string;
     optionHint?: string;
     testID?: string;
@@ -44,6 +47,7 @@ export function Dropdown<Id extends string>({
     const styles = useThemedStyles(makeStyles);
     const [open, setOpen] = useState(false);
 
+    const close = useCallback(() => setOpen(false), []);
     const chosen = options.find((option) => option.id === value);
     const triggerLabel = chosen?.label ?? placeholder;
 
@@ -51,7 +55,7 @@ export function Dropdown<Id extends string>({
         <View style={ styles.rows }>
             { leading !== undefined && (
                 <>
-                    { leading }
+                    { leading(close) }
                     <DottedDivider style={ styles.divider } />
                 </>
             ) }

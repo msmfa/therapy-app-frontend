@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import type { DateTimePickerEvent } from '@react-native-community/datetimepicker';
@@ -63,19 +63,39 @@ const pickerSeed = (): Date => {
 export default function SessionScheduleScreen() {
     const router = useRouter();
     const { t } = useTranslation('calendar');
-    const { hydrated } = useTherapySessions();
+    const { hydrated, refreshSessions } = useTherapySessions();
+    const [fetched, setFetched] = useState(false);
+    const [seed, setSeed] = useState(0);
 
-    // The form seeds itself once from the calendar. Seeding it before the
-    // calendar has arrived would show, and could save, a schedule the user
-    // does not have.
+    // The form seeds itself once from the calendar, so it waits for the
+    // server's answer rather than the cached copy painted first. Latched: a
+    // later refresh must not unmount the form mid-edit.
+    useEffect(() => {
+        let live = true;
+        void (async () => {
+            try {
+                await refreshSessions();
+            } catch {
+                // The context has already reported it. The cached calendar
+                // still seeds the form, and Save sends the revision it came
+                // from, so a stale copy is refused rather than saved over.
+            }
+            if (live) setFetched(true);
+        })();
+        return () => { live = false; };
+    }, [refreshSessions]);
+
+    const reseed = useCallback(() => setSeed((current) => current + 1), []);
+
     return (
         <SettingsPageShell title={ t('schedule.settingsTitle') } onBack={ () => router.back() } closeIcon>
-            { hydrated ? <ScheduleForm /> : <Loading /> }
+            { fetched && hydrated ? <ScheduleForm key={ seed } onCalendarChanged={ reseed } /> : <Loading /> }
         </SettingsPageShell>
     );
 }
 
-function ScheduleForm() {
+/** Seeds from the calendar on mount; `onCalendarChanged` asks for a fresh seed. */
+function ScheduleForm({ onCalendarChanged }: { onCalendarChanged: () => void }) {
     const { theme } = useTheme();
     const styles = useThemedStyles(makeStyles);
     const router = useRouter();
@@ -83,6 +103,7 @@ function ScheduleForm() {
     const { t: tCommon } = useTranslation('common');
     const { showAlert } = useAppAlert();
     const {
+        revision,
         nextSession,
         series,
         reminderScheduleSettings,
@@ -107,50 +128,66 @@ function ScheduleForm() {
     const [confirmingClear, setConfirmingClear] = useState(false);
     const [saving, setSaving] = useState(false);
     const [clearing, setClearing] = useState(false);
-    const initial = useRef({ sessionAt, cadence, minutes }).current;
+    // What the server holds, as far as this page knows: the seed, then each
+    // write that succeeded. A retry after a half-failed Save compares against
+    // this, not against the values the page opened with.
+    const [saved, setSaved] = useState(() => ({ revision, sessionAt, cadence, minutes }));
 
-    const scheduleChanged = sessionAt.getTime() !== initial.sessionAt.getTime() || cadence !== initial.cadence;
-    const timesChanged = minutes.morning !== initial.minutes.morning || minutes.evening !== initial.minutes.evening;
+    const dateChanged = sessionAt.getTime() !== saved.sessionAt.getTime();
+    const scheduleChanged = dateChanged || cadence !== saved.cadence;
+    const timesChanged = minutes.morning !== saved.minutes.morning || minutes.evening !== saved.minutes.evening;
     const isFuture = sessionAt.getTime() > validationNow.getTime();
-    const inRange = isWithinFirstSessionWindow(sessionAt, validationNow);
-    const sessionValid = !scheduleChanged || inRange;
+    // A newly chosen date keeps onboarding's six months. A session already
+    // booked further out (the calendar allows a year) keeps its date while
+    // only how often changes.
+    const inRange = !dateChanged || isWithinFirstSessionWindow(sessionAt, validationNow);
+    const sessionValid = !scheduleChanged || (isFuture && inRange);
+    // Reminder times save on their own; only a schedule needs how often.
+    const canSave = cadence !== null || (timesChanged && !scheduleChanged);
+    const latestPickable = saved.sessionAt > latestAllowed ? saved.sessionAt : latestAllowed;
 
     // The calendar's own wording for a refused write, so this page and the
     // calendar say the same thing about the same failure.
     const reportFailure = useCallback((err: unknown) => {
         if (err instanceof ApiError && err.status === 412) {
             showAlert(t('changedTitle'), t('changedMessage'));
+            // The calendar has been refreshed; show what it now holds.
+            onCalendarChanged();
         } else if (err instanceof ApiError && err.code === 'appointment_day_conflict') {
             showAlert(t('schedule.dayTakenTitle'), t('schedule.dayTaken'));
         } else {
             showAlert(tCommon('error.title'), serverErrorMessage(err, t('saveFailed')));
         }
-    }, [showAlert, t, tCommon]);
+    }, [onCalendarChanged, showAlert, t, tCommon]);
 
     const save = useCallback(async () => {
-        if (saving || clearing || cadence === null) return;
+        if (saving || clearing || !canSave) return;
         // Re-checked against the clock now: the time chosen may have passed
         // while the page was open.
         const now = new Date();
         setValidationNow(now);
-        if (scheduleChanged && !isWithinFirstSessionWindow(sessionAt, now)) return;
+        if (scheduleChanged && (sessionAt.getTime() <= now.getTime()
+            || (dateChanged && !isWithinFirstSessionWindow(sessionAt, now)))) return;
 
         setSaving(true);
         try {
             // The schedule first: it is the write that can be refused, and a
             // refusal should leave the reminder times as they were too.
-            if (scheduleChanged) {
-                await replaceSchedule({
+            if (scheduleChanged && cadence !== null) {
+                const next = await replaceSchedule({
                     firstSessionAt: sessionAt,
                     cadence,
                     durationMin: nextSession?.durationMin ?? DEFAULT_SESSION_MINUTES,
+                    revision: saved.revision,
                 });
+                setSaved((current) => ({ ...current, revision: next, sessionAt, cadence }));
             }
             if (timesChanged) {
                 await updateCurrentUser({
                     morningReminderMinutes: minutes.morning,
                     eveningReminderMinutes: minutes.evening,
                 });
+                setSaved((current) => ({ ...current, minutes }));
                 await refreshReminderSchedule();
             }
             router.back();
@@ -160,8 +197,8 @@ function ScheduleForm() {
             setSaving(false);
         }
     }, [
-        cadence, clearing, minutes, nextSession, refreshReminderSchedule, replaceSchedule, reportFailure,
-        router, saving, scheduleChanged, sessionAt, timesChanged,
+        cadence, canSave, clearing, dateChanged, minutes, nextSession, refreshReminderSchedule, replaceSchedule,
+        reportFailure, router, saved.revision, saving, scheduleChanged, sessionAt, timesChanged,
     ]);
 
     const clear = useCallback(async () => {
@@ -199,7 +236,7 @@ function ScheduleForm() {
     };
 
     const sessionRows: SchedulePickerRow[] = [
-        { slot: 'date', label: sessionDateCopy().dateLabel, mode: 'date', value: sessionAt, minimumDate: validationNow, maximumDate: latestAllowed },
+        { slot: 'date', label: sessionDateCopy().dateLabel, mode: 'date', value: sessionAt, minimumDate: validationNow, maximumDate: latestPickable },
         { slot: 'time', label: sessionDateCopy().timeLabel, mode: 'time', value: sessionAt, ...TIME_PICKER_BOUNDS },
     ];
     const reminderCopy = reminderTimesCopy();
@@ -242,7 +279,7 @@ function ScheduleForm() {
 
                     <Button
                         label={ t('schedule.save') }
-                        disabled={ cadence === null || !sessionValid || clearing }
+                        disabled={ !canSave || !sessionValid || clearing }
                         loading={ saving }
                         onPress={ () => void save() }
                         addedStyles={ styles.save }

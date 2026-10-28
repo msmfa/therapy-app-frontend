@@ -91,4 +91,15 @@ describe('LanguagePicker', () => {
         await waitFor(() => view.getByText('System'));
         expect(view.getByText('Choose a language')).toBeTruthy();
     });
+
+    it('closes the languages when System is chosen, as a language choice does', async () => {
+        const view = render(<LanguagePicker />);
+        await waitFor(() => view.getByText('System'));
+        await openDropdown(view, 'Choose a language');
+        expect(view.getByText('Français')).toBeTruthy();
+
+        await act(async () => { fireEvent.press(view.getByText('System')); });
+
+        expect(view.queryByText('Français')).toBeNull();
+    });
 });

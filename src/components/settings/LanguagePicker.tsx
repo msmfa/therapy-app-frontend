@@ -63,19 +63,22 @@ export function LanguagePicker() {
             onChange={ (tag) => choose(tag, LANGUAGES.find((language) => language.tag === tag)?.endonym ?? tag)() }
             triggerHint={ t('language.a11yDropdownHint') }
             optionHint={ t('language.a11yHint') }
-            leading={
+            leading={ (close) => (
                 <ChoiceRow
                     label={ t('language.system') }
                     detail={ t('language.systemDetail', { language: systemEndonym }) }
                     selected={ onSystem }
-                    onPress={ choose(SYSTEM_PREFERENCE, systemEndonym) }
+                    onPress={ () => {
+                        close();
+                        choose(SYSTEM_PREFERENCE, systemEndonym)();
+                    } }
                     accessibilityLabel={ t('language.a11yRow', {
                         label: t('language.system'),
                         detail: t('language.systemDetail', { language: systemEndonym }),
                     }) }
                     accessibilityHint={ t('language.a11yHint') }
                 />
-            }
+            ) }
         />
     );
 }
