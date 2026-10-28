@@ -7,7 +7,7 @@ jest.mock('../../api/therapy', () => ({
     getCalendar: jest.fn(), createSession: jest.fn(), updateSession: jest.fn(), deleteSession: jest.fn(),
 }));
 
-import { createSession, getCalendar, type CalendarSnapshot, type TherapySession } from '../../api/therapy';
+import { createSession, deleteSession, getCalendar, type CalendarSnapshot, type TherapySession } from '../../api/therapy';
 import { TherapySessionsProvider, useTherapySessions } from '../therapy-sessions/TherapySessionsContext';
 
 const wrapper = ({ children }: { children: React.ReactNode }) => <TherapySessionsProvider>{children}</TherapySessionsProvider>;
@@ -83,4 +83,36 @@ it('does not submit an old account edit after its prerequisite load finishes in 
     await act(async () => { requestA.resolve(calendar([sessionA])); await rejected; });
 
     expect(createSession).not.toHaveBeenCalled();
+});
+
+it('retries the refetch of the account that wrote, after a switch from an account with its own retry pending', async () => {
+    jest.useFakeTimers();
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const sessionB = { ...sessionA, _id: 'account-b-session' };
+    const offline = new TypeError('Network request failed');
+    jest.mocked(deleteSession).mockResolvedValue({ revision: 2, deleted: 1 });
+    jest.mocked(getCalendar)
+        .mockResolvedValueOnce(calendar([sessionA]))
+        .mockRejectedValueOnce(offline)
+        .mockResolvedValueOnce(calendar([sessionB]))
+        .mockRejectedValueOnce(offline)
+        .mockResolvedValueOnce({ ...calendar([]), revision: 2 });
+    try {
+        const { result, rerender } = renderHook(() => useTherapySessions(), { wrapper });
+        await waitFor(() => expect(result.current.sessions).toEqual([sessionA]));
+        await act(async () => { await result.current.removeSession(sessionA._id); });
+
+        mockAuth = { isAuthenticated: true, user: { id: 'user-b' } };
+        rerender({});
+        await waitFor(() => expect(result.current.sessions).toEqual([sessionB]));
+        await act(async () => { await result.current.removeSession(sessionB._id); });
+        expect(getCalendar).toHaveBeenCalledTimes(4);
+
+        await act(async () => { jest.advanceTimersByTime(15_000); });
+        await waitFor(() => expect(result.current.revision).toBe(2));
+        expect(getCalendar).toHaveBeenCalledTimes(5);
+    } finally {
+        consoleError.mockRestore();
+        jest.useRealTimers();
+    }
 });

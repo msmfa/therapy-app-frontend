@@ -40,7 +40,7 @@ import { askForNotificationsAfterSessionAdded } from '../../services/notificatio
 import { toError } from '../../utils/errors';
 import { isWithinSessionsWindow } from '../../utils/sessionWindow';
 import { t } from '../../i18n/translate';
-import { applyWrite, type CalendarWriteResult } from './applyWrite';
+import { applyWrite, type CalendarChange, type CalendarWriteResult } from './applyWrite';
 
 export interface ReminderScheduleSettings {
     timeZone: string;
@@ -113,7 +113,13 @@ type Account = {
     inFlight: Promise<void> | null;
     /** Bumped per request so a superseded answer can be told from the current one. */
     sequence: number;
+    /** The next try at a refetch that failed after a committed write. */
+    retryTimer: ReturnType<typeof setTimeout> | null;
 };
+
+const newAccount = (userId: string | null): Account => ({
+    userId, snapshot: null, inFlight: null, sequence: 0, retryTimer: null,
+});
 
 type CalendarState = {
     owner: Account;
@@ -127,8 +133,12 @@ const emptyState = (owner: Account): CalendarState => ({
     owner, snapshot: null, loading: false, error: null, status: 'idle',
 });
 
-/** How long a failed refetch after a committed write waits before trying once more. */
+/**
+ * How long a failed refetch after a committed write waits before trying again.
+ * Each further failure doubles the wait, up to the cap.
+ */
 const POST_WRITE_RETRY_MS = 15_000;
+const POST_WRITE_RETRY_MAX_MS = 5 * 60_000;
 
 const CADENCE_REPEAT: Record<CadenceId, 'weekly' | 'fortnightly' | 'monthly' | null> = {
     weekly: 'weekly', fortnightly: 'fortnightly', monthly: 'monthly', varies: null,
@@ -137,11 +147,11 @@ const CADENCE_REPEAT: Record<CadenceId, 'weekly' | 'fortnightly' | 'monthly' | n
 export function TherapySessionsProvider({ children }: { children: React.ReactNode }) {
     const { isAuthenticated, user } = useAuth();
     const userId = isAuthenticated ? user?.id ?? null : null;
-    const accountRef = useRef<Account>({ userId, snapshot: null, inFlight: null, sequence: 0 });
+    const accountRef = useRef<Account>(newAccount(userId));
     // Switch identity during render: an effect would allow one frame of the
     // previous user's appointments and would reuse their pending GET.
     if (accountRef.current.userId !== userId) {
-        accountRef.current = { userId, snapshot: null, inFlight: null, sequence: 0 };
+        accountRef.current = newAccount(userId);
     }
     const account = accountRef.current;
     const [state, setState] = useState(() => emptyState(account));
@@ -184,6 +194,8 @@ export function TherapySessionsProvider({ children }: { children: React.ReactNod
                 // see the canonical calendar that just arrived.
                 account.snapshot = data;
                 patchState({ snapshot: data, status: 'ready', error: null });
+                if (account.retryTimer !== null) clearTimeout(account.retryTimer);
+                account.retryTimer = null;
                 void writeCalendarSnapshot(account.userId!, data);
             } catch (err) {
                 if (!isCurrent()) return;
@@ -213,17 +225,40 @@ export function TherapySessionsProvider({ children }: { children: React.ReactNod
     const refreshSessions = useCallback(() => fetchCalendar(false), [fetchCalendar]);
     const refreshReminderSchedule = useCallback(() => fetchCalendar(true), [fetchCalendar]);
 
-    const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    /**
+     * Fetches again later, and keeps at it until a fetch lands, so a write
+     * whose full result is not on screen yet does not stay that way. The
+     * foreground and midnight refreshes still run alongside.
+     */
+    const retryLater = useCallback((delay = POST_WRITE_RETRY_MS) => {
+        if (account.retryTimer !== null || accountRef.current !== account) return;
+        const timer = setTimeout(async () => {
+            await fetchCalendar(false, true).catch(() => {});
+            // A fetch that landed, a switch or an unmount has already let it go.
+            // Otherwise nothing has landed: this fetch failed, or a newer one
+            // superseded it and resolved without an answer. A write whose own
+            // refetch failed meanwhile found this timer still set and armed
+            // nothing, so keep going.
+            if (account.retryTimer !== timer) return;
+            account.retryTimer = null;
+            retryLater(Math.min(delay * 2, POST_WRITE_RETRY_MAX_MS));
+        }, delay);
+        account.retryTimer = timer;
+    }, [account, fetchCalendar]);
+
+    // A retry belongs to the account whose write it follows. Switching account
+    // or unmounting stops it, and the next account arms its own.
     useEffect(() => () => {
-        if (retryTimer.current !== null) clearTimeout(retryTimer.current);
-    }, []);
+        if (account.retryTimer !== null) clearTimeout(account.retryTimer);
+        account.retryTimer = null;
+    }, [account]);
 
     /** Puts a committed write on screen at once, in both copies of the calendar. */
-    const adopt = useCallback((written: CalendarWriteResult) => {
+    const adopt = useCallback((written: CalendarWriteResult, change: CalendarChange) => {
         if (accountRef.current !== account) return;
-        if (account.snapshot) account.snapshot = applyWrite(account.snapshot, written);
+        if (account.snapshot) account.snapshot = applyWrite(account.snapshot, written, change);
         setState((current) => (current.owner === account && current.snapshot
-            ? { ...current, snapshot: applyWrite(current.snapshot, written) }
+            ? { ...current, snapshot: applyWrite(current.snapshot, written, change) }
             : current));
     }, [account]);
 
@@ -236,11 +271,15 @@ export function TherapySessionsProvider({ children }: { children: React.ReactNod
      * device) refreshes too, so the user is looking at the current calendar
      * when the alert about it appears.
      *
-     * Once the server has the write it is saved, whatever happens next. Its
-     * answer goes on screen first, so the next edit carries the new revision,
-     * and a failed refetch is retried later instead of reported as a failed save.
+     * Once the server has the write it is saved, whatever happens next. What
+     * `change` says it did goes on screen first (see `applyWrite` for when the
+     * next edit carries the new revision), and a failed refetch is retried
+     * later instead of reported as a failed save.
      */
-    const commit = useCallback(async <T extends CalendarWriteResult>(write: () => Promise<T>): Promise<T> => {
+    const commit = useCallback(async <T extends CalendarWriteResult>(
+        write: () => Promise<T>,
+        change: CalendarChange,
+    ): Promise<T> => {
         assertCurrentAccount();
         let result: T;
         try {
@@ -252,23 +291,17 @@ export function TherapySessionsProvider({ children }: { children: React.ReactNod
             throw err;
         }
         assertCurrentAccount();
-        adopt(result);
-        await fetchCalendar(true, true).catch(() => {
-            if (retryTimer.current !== null) return;
-            retryTimer.current = setTimeout(() => {
-                retryTimer.current = null;
-                fetchCalendar(false, true).catch(() => {});
-            }, POST_WRITE_RETRY_MS);
-        });
+        adopt(result, change);
+        await fetchCalendar(true, true).catch(() => retryLater());
         return result;
-    }, [account, adopt, assertCurrentAccount, fetchCalendar]);
+    }, [account, adopt, assertCurrentAccount, fetchCalendar, retryLater]);
 
     const revision = snapshot?.revision ?? null;
     const currentRevision = () => account.snapshot?.revision;
 
     const addSession = useCallback(async (input: CreateSessionInput) => {
         if (!isWithinSessionsWindow(input.startsAtUtc)) throw new Error(t('calendar:outOfRange'));
-        const result = await commit(() => createSessionApi(input, currentRevision()));
+        const result = await commit(() => createSessionApi(input, currentRevision()), { kind: 'save' });
         void askForNotificationsAfterSessionAdded();
         return result;
     }, [commit]);
@@ -277,11 +310,14 @@ export function TherapySessionsProvider({ children }: { children: React.ReactNod
         if (input.startsAtUtc && !isWithinSessionsWindow(input.startsAtUtc)) {
             throw new Error(t('calendar:outOfRange'));
         }
-        await commit(() => updateSessionApi(id, input, currentRevision()));
+        await commit(
+            () => updateSessionApi(id, input, currentRevision()),
+            input.scope === 'future' ? { kind: 'moveFuture', id } : { kind: 'save' },
+        );
     }, [commit]);
 
     const removeSession = useCallback(async (id: string, scope: SessionEditScope = 'this') => {
-        await commit(() => deleteSessionApi(id, scope, currentRevision()));
+        await commit(() => deleteSessionApi(id, scope, currentRevision()), { kind: 'delete', id, scope });
     }, [commit]);
 
     const addSeries = useCallback(async ({ firstSessionAt, cadence, durationMin }: AddSeriesInput) => {
@@ -308,7 +344,7 @@ export function TherapySessionsProvider({ children }: { children: React.ReactNod
         await commit(() => createSessionApi(
             { startsAtUtc: start, durationMin, ...(repeat === null ? {} : { repeat }) },
             currentRevision(),
-        ));
+        ), { kind: 'save' });
         void askForNotificationsAfterSessionAdded();
     }, [account, assertCurrentAccount, commit, refreshSessions]);
 
@@ -322,13 +358,13 @@ export function TherapySessionsProvider({ children }: { children: React.ReactNod
         const result = await commit(() => replaceScheduleApi(
             { startsAtUtc: firstSessionAt, durationMin, ...(repeat === null ? {} : { repeat }) },
             readAt ?? currentRevision(),
-        ));
+        ), { kind: 'clearFuture', from: Date.now() });
         void askForNotificationsAfterSessionAdded();
         return result.revision;
     }, [commit]);
 
     const clearFutureSessions = useCallback(async () => {
-        await commit(() => clearFutureScheduleApi(currentRevision()));
+        await commit(() => clearFutureScheduleApi(currentRevision()), { kind: 'clearFuture', from: Date.now() });
     }, [commit]);
 
     // Paint the last known calendar straight away, before the request has

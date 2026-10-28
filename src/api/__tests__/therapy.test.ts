@@ -13,7 +13,7 @@ jest.mock('../client', () => ({
   apiDelete: jest.fn(),
 }));
 
-const { getCalendar, createSession, updateSession, deleteSession } = therapyModule;
+const { getCalendar, createSession, updateSession, deleteSession, replaceSchedule } = therapyModule;
 const { apiGet, apiPost, apiPut, apiDelete } = jest.mocked(clientModule);
 
 const wireCalendar = {
@@ -94,5 +94,18 @@ describe('calendar api helpers', () => {
 
     expect(apiDelete).toHaveBeenNthCalledWith(1, '/api/therapy-sessions/abc?scope=this', {});
     expect(apiDelete).toHaveBeenNthCalledWith(2, '/api/therapy-sessions/abc?scope=future', { headers: { 'If-Match': '"10"' } });
+  });
+
+  it('maps the first session of a replaced schedule to the shape the app uses', async () => {
+    apiPut.mockResolvedValueOnce({
+      revision: 8, deleted: 3, created: 52, session: wireCalendar.sessions[0], series: wireCalendar.series[0],
+    });
+
+    const result = await replaceSchedule({ startsAtUtc: new Date('2026-09-15T13:30:00.000Z'), repeat: 'weekly' }, 7);
+
+    expect(result.session).toEqual({
+      _id: 'abc', startsAtUtc: '2026-09-15T13:30:00.000Z', durationMin: 50, seriesId: 'ser', exception: false,
+    });
+    expect(result.series?.id).toBe('ser');
   });
 });
