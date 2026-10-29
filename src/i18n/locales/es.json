@@ -308,7 +308,7 @@
   "calendar": {
     "nextSession": "Próxima sesión",
     "nextReminder": "Próximo recordatorio",
-    "changedTitle": "El calendario cambió",
+    "changedTitle": "Calendario actualizado",
     "saveFailed": "No se pueden guardar las sesiones en este momento.",
     "outOfRange": "Las citas deben estar entre hoy y un año en el futuro. Actualice su selección.",
     "sessionChanged": "La sesión cambió. Inténtelo de nuevo.",
@@ -385,7 +385,7 @@
       "dismissReminder": "Cerrar recordatorio",
       "dismissHint": "Cerrar la sugerencia"
     },
-    "changedMessage": "Tu calendario cambió en otro dispositivo. Se ha actualizado, así que vuelve a intentar el cambio.",
+    "changedMessage": "Hemos actualizado tu calendario. Inténtalo de nuevo.",
     "reminder": {
       "logNote": {
         "title": "Toma una nota post-sesión",
@@ -474,7 +474,7 @@
     "test_purchase_not_allowed": "Esta compra de prueba no se puede usar con esta versión de la app.",
     "network": "No pudimos conectar. Revise su conexión a internet e inténtelo de nuevo.",
     "session_changed": "Su sesión de inicio cambió. Inténtelo de nuevo.",
-    "calendar_changed": "Tu calendario cambió en otro dispositivo. Actualiza y vuelve a intentarlo."
+    "calendar_changed": "Tu calendario no estaba al día. Actualízalo y vuelve a intentarlo."
   },
   "onboarding": {
     "statusRecovery": {
@@ -713,7 +713,8 @@
       "deniedPrimaryCta": "Abrir Ajustes",
       "registrationErrorTitle": "No pudimos activar las notificaciones",
       "registrationErrorBody": "Revise su conexión e inténtelo de nuevo, o elija Ahora no.",
-      "headline": "Reciba su primer recordatorio de nota el {{weekday}} a las {{time}}"
+      "headline": "Reciba su primer recordatorio de nota el {{weekday}} a las {{time}}",
+      "previewPlaceholder": "Tiene un recordatorio"
     },
     "success": {
       "headline": "Su plan entre sesiones está listo",

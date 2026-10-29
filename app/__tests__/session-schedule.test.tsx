@@ -179,7 +179,7 @@ describe('session schedule', () => {
 		fireEvent.press(getByTestId('session-schedule.cadence.monthly'));
 		await act(async () => { fireEvent.press(getByText('Save')); });
 
-		expect(mockShowAlert).toHaveBeenCalledWith('Calendar changed', expect.any(String));
+		expect(mockShowAlert).toHaveBeenCalledWith('Calendar updated', expect.any(String));
 		expect(mockBack).not.toHaveBeenCalled();
 	});
 

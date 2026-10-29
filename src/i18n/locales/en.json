@@ -308,7 +308,7 @@
   "calendar": {
     "nextSession": "Next session",
     "nextReminder": "Next reminder",
-    "changedTitle": "Calendar changed",
+    "changedTitle": "Calendar updated",
     "saveFailed": "Unable to save sessions right now.",
     "outOfRange": "Appointments must be between today and one year ahead. Please update your selection.",
     "sessionChanged": "Session changed. Please try again.",
@@ -385,7 +385,7 @@
       "dismissReminder": "Dismiss reminder",
       "dismissHint": "Dismiss hint"
     },
-    "changedMessage": "Your calendar changed on another device. It has been refreshed, so try the edit again.",
+    "changedMessage": "We refreshed your calendar. Please try again.",
     "reminder": {
       "logNote": {
         "title": "Take a post-session note",
@@ -656,7 +656,8 @@
       "deniedPrimaryCta": "Open Settings",
       "registrationErrorTitle": "We couldn't turn on notifications",
       "registrationErrorBody": "Check your connection and try again, or choose Not now.",
-      "headline": "Get your first note reminder {{weekday}} at {{time}}"
+      "headline": "Get your first note reminder {{weekday}} at {{time}}",
+      "previewPlaceholder": "You have a reminder"
     },
     "success": {
       "headline": "Your between-session plan is ready",
@@ -1096,6 +1097,6 @@
     "test_purchase_not_allowed": "This test purchase cannot be used with this version of the app.",
     "network": "We could not connect. Check your internet connection and try again.",
     "session_changed": "Your sign-in session changed. Please try again.",
-    "calendar_changed": "Your calendar changed on another device. Refresh and try again."
+    "calendar_changed": "Your calendar was out of date. Refresh and try again."
   }
 }

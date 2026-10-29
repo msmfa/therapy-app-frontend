@@ -7,6 +7,12 @@ import { EntitlementGate } from '../../src/features/subscription/EntitlementGate
 import { COLOR_VARIANTS } from 'designs/designs-colors';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../src/context/theme';
+import { useAskForNotificationsOnOpen } from '../../src/hooks/useAskForNotificationsOnOpen';
+
+function AskForNotificationsOnOpen() {
+    useAskForNotificationsOnOpen();
+    return null;
+}
 
 export default function TabsLayout() {
     const { t } = useTranslation('common');
@@ -23,6 +29,7 @@ export default function TabsLayout() {
         // rather than trusting either flag.
         <EntitlementGate>
             <View style={ [styles.root, { backgroundColor: theme.ground.base }] }>
+                <AskForNotificationsOnOpen />
                 <Tabs
                     initialRouteName="notes"
                     screenOptions={ {

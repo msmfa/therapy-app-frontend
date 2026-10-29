@@ -15,8 +15,9 @@ struct ProgressEntry: TimelineEntry {
 }
 struct ProgressProvider: TimelineProvider {
     private func empty() -> ProgressSample {
-        ProgressSample(days: [], streak: 0, hasSchedule: false,
-                       emptyMessage: "Open Plastic Brains to see your check-ins.", url: "therapyapp:///(tabs)/notes")
+        let copy = FallbackCopy.current
+        return ProgressSample(days: [], streak: 0, hasSchedule: false, emptyTitle: copy.emptyTitle,
+                              emptyMessage: copy.emptyMessage, url: "therapyapp:///(tabs)/notes")
     }
     func placeholder(in context: Context) -> ProgressEntry {
         ProgressEntry(date: Date(), progress: empty())
@@ -52,8 +53,8 @@ struct CheckInWidget: Widget {
             ProgressWidgetView(sample: entry.progress)
                 .containerBackground(for: .widget) { WidgetBackground() }
         }
-        .configurationDisplayName("Check-in streak")
-        .description("Your scheduled check-ins and day streak.")
+        .configurationDisplayName(FallbackCopy.current.name)
+        .description(FallbackCopy.current.description)
         .supportedFamilies([.systemSmall, .systemMedium])
     }
 }

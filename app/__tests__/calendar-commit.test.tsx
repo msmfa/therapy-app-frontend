@@ -388,7 +388,7 @@ describe('calendar edits commit as they are made', () => {
         expect(screen.queryByTestId('reminder-sheet.r1.update')).toBeNull();
     });
 
-    it('tells the user when another device changed the calendar first', async () => {
+    it('tells the user when the calendar was out of date', async () => {
         mockAddSession.mockRejectedValueOnce(new ApiError(412, { message: 'stale', code: 'calendar_changed' }));
         const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
         render(<CalendarScreen />);
@@ -396,7 +396,7 @@ describe('calendar edits commit as they are made', () => {
         fireEvent.press(screen.getByText('15'));
         fireEvent.press(screen.getByText('add-weekly'));
 
-        await waitFor(() => expect(mockShowAlert).toHaveBeenCalledWith('Calendar changed', expect.stringMatching(/another device/)));
+        await waitFor(() => expect(mockShowAlert).toHaveBeenCalledWith('Calendar updated', 'We refreshed your calendar. Please try again.'));
         // The sheet goes first. The alert is a modal, and iOS will not
         // present one over the sheet's: left open, the message would be
         // dropped and the sheet would sit there having done nothing.

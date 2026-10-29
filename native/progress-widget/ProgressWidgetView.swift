@@ -19,7 +19,58 @@ struct ProgressSample: Decodable {
     var emptyTitle = "Your next step"
     var emptyMessage = "Set your check-in schedule in Plastic Brains."
     var url = "plasticbrains-widget-preview://check-in"
+    // VoiceOver day states in the app's language. Older app versions do not
+    // send them, so the device-language fallback covers those payloads.
+    var completedLabel: String?
+    var pendingLabel: String?
+    var scheduledLabel: String?
 
+    func accessibilityLabel(for day: ProgressDay) -> String {
+        let state = day.complete ? completedLabel ?? FallbackCopy.current.completed
+            : day.today ? pendingLabel ?? FallbackCopy.current.pending
+            : scheduledLabel ?? FallbackCopy.current.scheduled
+        return "\(day.label), \(state)"
+    }
+}
+
+/// Text the widget shows on its own: in the widget gallery, and before the app
+/// has written a timeline (or after it runs out). It follows the device's
+/// language; everything the app writes follows the app's language instead.
+struct FallbackCopy {
+    let name: String
+    let description: String
+    let emptyTitle: String
+    let emptyMessage: String
+    let completed: String
+    let pending: String
+    let scheduled: String
+
+    private static let english = FallbackCopy(
+        name: "Check-in streak", description: "Your scheduled check-ins and day streak.",
+        emptyTitle: "Your next step", emptyMessage: "Open Plastic Brains to see your check-ins.",
+        completed: "completed", pending: "today, check-in pending", scheduled: "scheduled")
+    private static let byLanguage: [String: FallbackCopy] = [
+        "en": english,
+        "de": FallbackCopy(
+            name: "Check-in-Serie", description: "Deine geplanten Check-ins und deine Serie.",
+            emptyTitle: "Dein nächster Schritt", emptyMessage: "Öffne Plastic Brains für deine Check-ins.",
+            completed: "abgeschlossen", pending: "heute, Check-in ausstehend", scheduled: "geplant"),
+        "es": FallbackCopy(
+            name: "Racha de registros", description: "Tus registros programados y tu racha.",
+            emptyTitle: "Tu próximo paso", emptyMessage: "Abre Plastic Brains para ver tus registros.",
+            completed: "completado", pending: "hoy, registro pendiente", scheduled: "programado"),
+        "fr": FallbackCopy(
+            name: "Série de bilans", description: "Tes bilans programmés et ta série.",
+            emptyTitle: "Ton prochain petit pas", emptyMessage: "Ouvre Plastic Brains pour voir tes bilans.",
+            completed: "terminé", pending: "aujourd’hui, bilan en attente", scheduled: "prévu"),
+    ]
+
+    /// The first of the device's preferred languages the app supports, else English.
+    static var current: FallbackCopy {
+        Locale.preferredLanguages.lazy
+            .compactMap { tag in tag.split(separator: "-").first.flatMap { byLanguage[String($0)] } }
+            .first ?? english
+    }
 }
 
 struct ProgressWidgetView: View {
@@ -48,7 +99,7 @@ struct ProgressWidgetView: View {
                         }
                         .frame(maxWidth: .infinity)
                         .accessibilityElement(children: .ignore)
-                        .accessibilityLabel("\(day.label), \(day.complete ? "completed" : day.today ? "today, check-in pending" : "scheduled")")
+                        .accessibilityLabel(sample.accessibilityLabel(for: day))
                     }
                 }
                 Rectangle().fill(ink.opacity(0.07)).frame(height: 1)
@@ -110,7 +161,7 @@ struct ProgressWidgetView: View {
                             .frame(width: sample.days.count > 4 ? 20 : 27, height: sample.days.count > 4 ? 20 : 27)
                     }
                     .accessibilityElement(children: .ignore)
-                    .accessibilityLabel("\(day.label), \(day.complete ? "completed" : day.today ? "today, check-in pending" : "scheduled")")
+                    .accessibilityLabel(sample.accessibilityLabel(for: day))
                 }
             }
             Spacer(minLength: 0)

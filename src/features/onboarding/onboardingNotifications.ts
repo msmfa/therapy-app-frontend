@@ -1,7 +1,5 @@
-import * as Notifications from 'expo-notifications';
 import * as SecureStore from 'expo-secure-store';
 import { cancelNotificationById } from '../../services/notifications';
-import { analytics } from '../analytics/client';
 
 /**
  * The local reminder onboarding schedules, and the record of it.
@@ -48,44 +46,11 @@ export async function cancelOnboardingReminder(): Promise<void> {
     await writeStoredId(null);
 }
 
-export type PermissionSnapshot = {
-    granted: boolean;
-    /** False once iOS will no longer show the prompt; Settings is the only way. */
-    canAskAgain: boolean;
-};
-
-export async function readNotificationPermission(): Promise<PermissionSnapshot> {
-    const settings = await Notifications.getPermissionsAsync();
-
-    return {
-        granted: settings.status === 'granted',
-        canAskAgain: settings.canAskAgain,
-    };
-}
-
-export async function requestNotificationPermission(
-    options: { entryPoint?: 'onboarding' | 'settings' } = {},
-): Promise<PermissionSnapshot> {
-    const scope = analytics.beginOperation();
-    const entry_point = options.entryPoint ?? 'onboarding';
-    try {
-        const settings = await Notifications.requestPermissionsAsync();
-        const provisional = Notifications.IosAuthorizationStatus?.PROVISIONAL;
-        scope.capture('notification_setup_result', {
-            stage: 'permission',
-            entry_point,
-            outcome: provisional !== undefined && settings.ios?.status === provisional
-                ? 'provisional'
-                : settings.status === 'granted'
-                    ? 'granted'
-                    : settings.status === 'denied' ? 'denied' : 'not_determined',
-        });
-        return {
-            granted: settings.status === 'granted',
-            canAskAgain: settings.canAskAgain,
-        };
-    } catch (error) {
-        scope.capture('notification_setup_result', { stage: 'permission', entry_point, outcome: 'failed' });
-        throw error;
-    }
-}
+// The permission helpers live with the rest of the notification services, so
+// the calendar can ask after a session is added without importing this file.
+export {
+    readNotificationPermission,
+    requestNotificationPermission,
+    skipNotificationAskThisRun,
+    type PermissionSnapshot,
+} from '../../services/notifications/permission';

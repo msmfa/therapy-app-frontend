@@ -1,5 +1,5 @@
 import { ProgressWidgetSync } from '../src/features/widgets/ProgressWidgetSync';
-import { ErrorBoundaryProps, Stack, useRouter } from 'expo-router';
+import { ErrorBoundaryProps, Stack } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -32,6 +32,8 @@ import { sanitizeTelemetry } from '../src/utils/telemetry';
 import { toError } from '../src/utils/errors';
 import * as Notifications from 'expo-notifications';
 import { resolveNotificationRoute } from '../src/services/notifications/routing';
+import { useNotificationNavigator } from '../src/services/notifications/useNotificationNavigator';
+import { useReminderCategory } from '../src/services/notifications/reminderCategory';
 import { AppAlertProvider } from '../src/context/alert';
 import { useFonts } from 'expo-font';
 import { initializeStoreKit } from '../src/features/subscription/storeKit';
@@ -307,6 +309,9 @@ function Initializer() {
     // and the push notifications are never in two different languages.
     useLanguageSync();
 
+    // What iOS shows instead of "Notification" when previews are hidden.
+    useReminderCategory();
+
     useEffect(() => {
         // Observe StoreKit for the whole app lifetime so an Ask to Buy or other
         // pending transaction can be verified and finished when Apple approves
@@ -335,8 +340,10 @@ interface NotificationNavigationHandlerProps {
 /**
  * Notification ids already acted on, kept at module scope rather than in a ref.
  *
- * `router.replace()` here remounts the root layout, which would reset a ref and
- * make the handler forget what it had just handled. Because
+ * A navigation issued before the root Stack existed used to replace the root
+ * layout, which reset any ref and made the handler forget what it had just
+ * handled. Navigation now waits for the Stack, but should the root remount for
+ * any other reason the same applies: because
  * `getLastNotificationResponse()` keeps returning the same launch response for
  * the whole lifetime of the process, the handler would then treat it as new and
  * navigate again: an unbounded remount loop that re-runs auth hydration and
@@ -355,7 +362,9 @@ const receivedNotification = (response: Notifications.NotificationResponse): Pen
 });
 
 function NotificationNavigationHandler({ isReady }: NotificationNavigationHandlerProps) {
-    const router = useRouter();
+    const openRoute = useNotificationNavigator();
+    // Null until the app is ready and its root Stack can take the navigation.
+    const navigate = isReady ? openRoute : null;
     const pendingResponseRef = useRef<PendingNotificationResponse | null>(null);
 
     const handleNotificationResponse = useCallback((pending: PendingNotificationResponse | null) => {
@@ -372,7 +381,7 @@ function NotificationNavigationHandler({ isReady }: NotificationNavigationHandle
         // Marked only once we are actually going to act on it. Marking before
         // the readiness check burned the id on a response that was then
         // dropped, so the tap did nothing.
-        if (!isReady) {
+        if (!navigate) {
             console.warn('[NotificationNavigationHandler] Attempted to handle notification before ready');
             return;
         }
@@ -383,16 +392,16 @@ function NotificationNavigationHandler({ isReady }: NotificationNavigationHandle
             captureNotificationOpened(notificationId, response.notification.request.content.data, analyticsReceipt);
             // The composer and the notes list are different destinations, and
             // only the push payload says which one this notification wants.
-            router.replace(resolveNotificationRoute(response.notification.request.content.data));
+            navigate(resolveNotificationRoute(response.notification.request.content.data));
 
-            // Drop the response now that it has been acted on. This navigation
-            // remounts the root layout, and `getLastNotificationResponse()`
-            // otherwise keeps handing the same launch response back to the
-            // fresh mount forever. The id set above already stops the loop on
-            // its own; this removes the source rather than guarding against it,
-            // which is what expo documents the call for. It throws
-            // UnavailabilityError where the native method is missing, so a
-            // failure here must not take the navigation down with it.
+            // Drop the response now that it has been acted on.
+            // `getLastNotificationResponse()` otherwise keeps handing the same
+            // launch response back to any fresh mount of the root layout. The
+            // id set above already stops a loop on its own; this removes the
+            // source rather than guarding against it, which is what expo
+            // documents the call for. It throws UnavailabilityError where the
+            // native method is missing, so a failure here must not take the
+            // navigation down with it.
             try {
                 Notifications.clearLastNotificationResponse();
             } catch (clearError) {
@@ -406,12 +415,12 @@ function NotificationNavigationHandler({ isReady }: NotificationNavigationHandle
             });
             console.warn('[NotificationNavigationHandler] Navigation error:', error);
         }
-    }, [router, isReady]);
+    }, [navigate]);
 
     useEffect(() => {
         const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
             const pending = receivedNotification(response);
-            if (isReady) {
+            if (navigate) {
                 handleNotificationResponse(pending);
                 return;
             }
@@ -419,7 +428,7 @@ function NotificationNavigationHandler({ isReady }: NotificationNavigationHandle
         });
 
         return () => subscription.remove();
-    }, [handleNotificationResponse, isReady]);
+    }, [handleNotificationResponse, navigate]);
 
     useEffect(() => {
         try {
@@ -429,7 +438,7 @@ function NotificationNavigationHandler({ isReady }: NotificationNavigationHandle
             }
 
             const pending = receivedNotification(response);
-            if (isReady) {
+            if (navigate) {
                 handleNotificationResponse(pending);
             } else {
                 pendingResponseRef.current = pending;
@@ -441,16 +450,16 @@ function NotificationNavigationHandler({ isReady }: NotificationNavigationHandle
             });
             console.warn('[NotificationNavigationHandler] Error getting last notification response:', error);
         }
-    }, [handleNotificationResponse, isReady]);
+    }, [handleNotificationResponse, navigate]);
 
     useEffect(() => {
-        if (!isReady || !pendingResponseRef.current) {
+        if (!navigate || !pendingResponseRef.current) {
             return;
         }
 
         handleNotificationResponse(pendingResponseRef.current);
         pendingResponseRef.current = null;
-    }, [handleNotificationResponse, isReady]);
+    }, [handleNotificationResponse, navigate]);
 
     return null;
 }

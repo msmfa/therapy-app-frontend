@@ -1,6 +1,6 @@
 import React from 'react';
 import { act, renderHook, waitFor } from '@testing-library/react-native';
-import { describe, beforeEach, expect, it, jest } from '@jest/globals';
+import { afterEach, describe, beforeEach, expect, it, jest } from '@jest/globals';
 import { TherapySessionsProvider, useTherapySessions } from '../therapy-sessions/TherapySessionsContext';
 import * as therapyModule from '../../api/therapy';
 import { ApiError } from '../../api/client';
@@ -20,6 +20,10 @@ jest.mock('../../api/therapy', () => ({
   createSession: jest.fn(),
   updateSession: jest.fn(),
   deleteSession: jest.fn(),
+}));
+
+jest.mock('../../services/notifications/permission', () => ({
+  askForNotificationsAfterSessionAdded: jest.fn(async () => undefined),
 }));
 
 const { getCalendar, createSession, updateSession, deleteSession } = jest.mocked(therapyModule);
@@ -150,26 +154,69 @@ describe('TherapySessionsProvider', () => {
     expect(result.current.revision).toBe(3);
   });
 
-  it('rejects a write when the required post-write refresh fails', async () => {
-    const { result } = renderHook(() => useTherapySessions(), { wrapper });
-    await waitFor(() => expect(getCalendar).toHaveBeenCalledTimes(1));
-    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
-    const refreshError = new Error('refresh failed');
-    getCalendar.mockRejectedValueOnce(refreshError);
+  describe('when the write is saved but the refresh after it fails', () => {
+    const at = new Date(Date.now() + 3 * DAY_MS);
+    const moved = new Date(at.getTime() + 60 * 60 * 1000);
 
-    let caught: unknown;
-    await act(async () => {
-      try {
-        await result.current.removeSession('gone', 'future');
-      } catch (error) {
-        caught = error;
-      }
+    let restoreConsole = () => {};
+    beforeEach(() => {
+      const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+      restoreConsole = () => consoleError.mockRestore();
+      getCalendar.mockResolvedValueOnce(calendar([session('s1', at)], 7));
+    });
+    afterEach(() => {
+      restoreConsole();
+      jest.useRealTimers();
     });
 
-    expect(caught).toBe(refreshError);
-    expect(deleteSession).toHaveBeenCalledWith('gone', 'future', 1);
-    expect(result.current.error).not.toBeNull();
-    consoleError.mockRestore();
+    it('reports the edit as saved, shows it, and sends its revision with the next edit', async () => {
+      const { result } = renderHook(() => useTherapySessions(), { wrapper });
+      await waitFor(() => expect(result.current.revision).toBe(7));
+
+      updateSession.mockResolvedValueOnce({ revision: 8, session: session('s1', moved) });
+      getCalendar.mockRejectedValueOnce(new TypeError('Network request failed'));
+
+      let outcome = 'resolved';
+      await act(async () => {
+        await result.current.updateSession('s1', { startsAtUtc: moved, scope: 'this' })
+          .catch((error: Error) => { outcome = `rejected: ${error.message}`; });
+      });
+
+      expect(outcome).toBe('resolved');
+      expect(result.current.error).toBeNull();
+      expect(result.current.revision).toBe(8);
+      expect(result.current.sessions.map((s) => s.startsAtUtc)).toEqual([moved.toISOString()]);
+
+      // Editing again is not refused as stale: it carries the saved revision.
+      updateSession.mockClear();
+      updateSession.mockResolvedValueOnce({ revision: 9, session: session('s1', moved) });
+      getCalendar.mockResolvedValueOnce(calendar([session('s1', moved)], 9));
+      await act(async () => {
+        await result.current.updateSession('s1', { startsAtUtc: moved, scope: 'this' });
+      });
+      expect(updateSession.mock.calls[0]?.[2]).toBe(8);
+    });
+
+    it('fetches the calendar again a little later', async () => {
+      jest.useFakeTimers();
+      const { result } = renderHook(() => useTherapySessions(), { wrapper });
+      await waitFor(() => expect(result.current.revision).toBe(7));
+
+      deleteSession.mockResolvedValueOnce({ revision: 8, deleted: 1 });
+      getCalendar.mockRejectedValueOnce(new TypeError('Network request failed'));
+      await act(async () => {
+        await result.current.removeSession('s1', 'this');
+      });
+      expect(getCalendar).toHaveBeenCalledTimes(2);
+      expect(result.current.revision).toBe(8);
+
+      getCalendar.mockResolvedValueOnce(calendar([], 8));
+      await act(async () => {
+        jest.advanceTimersByTime(15_000);
+      });
+      await waitFor(() => expect(result.current.sessions).toEqual([]));
+      expect(getCalendar).toHaveBeenCalledTimes(3);
+    });
   });
 
   it('refreshes before rethrowing an edit the server refused as stale', async () => {

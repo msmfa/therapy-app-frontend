@@ -20,6 +20,12 @@ const mockSetAuth = jest.fn(async () => {
     redraw();
 });
 
+// The calendar provider is not mounted here; the permission ask it drives
+// has its own tests.
+jest.mock('../../src/hooks/useAskForNotificationsOnOpen', () => ({
+    useAskForNotificationsOnOpen: jest.fn(),
+}));
+
 jest.mock('../../src/context/auth/AuthContext', () => ({
     useAuth: () => {
         require('react').useContext(mockRenderContext);

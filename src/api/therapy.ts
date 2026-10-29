@@ -168,16 +168,28 @@ export type ReplaceScheduleInput = {
     repeat?: SessionCadence;
 };
 
+/** The new schedule's first session and, for a repeating one, its rule. */
+export type ScheduleWriteResult = {
+    revision: number;
+    deleted: number;
+    created: number;
+    session?: TherapySession;
+    series?: TherapySeries;
+};
+
+type WireScheduleWrite = Omit<ScheduleWriteResult, 'session'> & { session?: WireSession };
+
 /** Clears everything from now on and starts the new schedule, in one write. */
 export async function replaceSchedule(
     input: ReplaceScheduleInput,
     revision?: number,
-): Promise<{ revision: number; deleted: number; created: number }> {
-    return apiPut<{ revision: number; deleted: number; created: number }>('/api/calendar/schedule', {
+): Promise<ScheduleWriteResult> {
+    const { session, ...wire } = await apiPut<WireScheduleWrite>('/api/calendar/schedule', {
         startsAtUtc: input.startsAtUtc.toISOString(),
         ...(input.durationMin === undefined ? {} : { durationMin: input.durationMin }),
         ...(input.repeat === undefined ? {} : { repeat: input.repeat }),
     }, ifMatch(revision));
+    return session ? { ...wire, session: fromWire(session) } : wire;
 }
 
 /** Ends every running rule now and removes every session from now on. */

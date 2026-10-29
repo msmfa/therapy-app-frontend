@@ -7,6 +7,8 @@ let mockAuthenticated = true;
 let mockOnboarded = true;
 let mockEntitlement: EntitlementState = { status: 'inactive' };
 const mockRouter = { replace: jest.fn() };
+// No navigation container here, so notification taps never navigate.
+const mockNavigationRef = { isReady: () => false, getRootState: () => undefined, addListener: () => () => undefined };
 
 jest.mock('expo-router', () => {
     const ReactForMock = require('react');
@@ -14,7 +16,7 @@ jest.mock('expo-router', () => {
     const Stack = ({ children }: { children: React.ReactNode }) => ReactForMock.createElement(View, null, children);
     Stack.Protected = ({ guard, children }: { guard: boolean; children: React.ReactNode }) => guard ? children : null;
     Stack.Screen = ({ name }: { name: string }) => ReactForMock.createElement(Text, null, `route:${name}`);
-    return { Stack, useRouter: () => mockRouter };
+    return { Stack, useRouter: () => mockRouter, useNavigationContainerRef: () => mockNavigationRef };
 });
 jest.mock('@sentry/react-native', () => ({ init: jest.fn(), wrap: (component: unknown) => component }));
 jest.mock('expo-notifications', () => ({

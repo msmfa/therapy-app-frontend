@@ -12,6 +12,7 @@ import { SettingsPageShell } from '../src/components/settings/SettingsPageShell'
 import AppText from '../src/components/ui/AppText';
 import { Button } from '../src/components/ui/Button';
 import { Dropdown } from '../src/components/ui/Dropdown';
+import { ErrorMessage } from '../src/components/ui/ErrorMessage';
 import FrostedCard from '../src/components/ui/FrostedCard';
 import { GlassPickerPanel } from '../src/components/ui/GlassPickerPanel';
 import Loading from '../src/components/ui/Loading';
@@ -62,9 +63,12 @@ const pickerSeed = (): Date => {
  */
 export default function SessionScheduleScreen() {
     const router = useRouter();
+    const styles = useThemedStyles(makeStyles);
     const { t } = useTranslation('calendar');
-    const { hydrated, refreshSessions } = useTherapySessions();
+    const { t: tCommon } = useTranslation('common');
+    const { hydrated, error, refreshSessions } = useTherapySessions();
     const [fetched, setFetched] = useState(false);
+    const [attempt, setAttempt] = useState(0);
     const [seed, setSeed] = useState(0);
 
     // The form seeds itself once from the calendar, so it waits for the
@@ -83,13 +87,30 @@ export default function SessionScheduleScreen() {
             if (live) setFetched(true);
         })();
         return () => { live = false; };
-    }, [refreshSessions]);
+    }, [refreshSessions, attempt]);
 
     const reseed = useCallback(() => setSeed((current) => current + 1), []);
+    const retry = useCallback(() => {
+        setFetched(false);
+        setAttempt((current) => current + 1);
+    }, []);
+
+    // With no calendar at all, cached or fetched, there is nothing to seed
+    // the form from, so a failed request says so instead of spinning.
+    let body = <Loading />;
+    if (fetched && hydrated) body = <ScheduleForm key={ seed } onCalendarChanged={ reseed } />;
+    else if (fetched) {
+        body = (
+            <FrostedCard contentStyle={ styles.card }>
+                <ErrorMessage message={ error?.message ?? tCommon('error.tryAgain') } />
+                <Button label={ tCommon('action.tryAgain') } onPress={ retry } addedStyles={ styles.save } />
+            </FrostedCard>
+        );
+    }
 
     return (
         <SettingsPageShell title={ t('schedule.settingsTitle') } onBack={ () => router.back() } closeIcon>
-            { fetched && hydrated ? <ScheduleForm key={ seed } onCalendarChanged={ reseed } /> : <Loading /> }
+            { body }
         </SettingsPageShell>
     );
 }
