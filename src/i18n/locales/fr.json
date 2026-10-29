@@ -308,7 +308,7 @@
   "calendar": {
     "nextSession": "Prochaine séance",
     "nextReminder": "Prochain rappel",
-    "changedTitle": "Le calendrier a changé",
+    "changedTitle": "Calendrier mis à jour",
     "saveFailed": "Impossible d’enregistrer les séances pour le moment.",
     "outOfRange": "Les rendez-vous doivent se situer entre aujourd’hui et un an à l’avance. Veuillez modifier votre sélection.",
     "sessionChanged": "La séance a été modifiée. Veuillez réessayer.",
@@ -385,7 +385,7 @@
       "dismissReminder": "Fermer le rappel",
       "dismissHint": "Fermer l’astuce"
     },
-    "changedMessage": "Votre calendrier a changé sur un autre appareil. Il a été actualisé, réessayez la modification.",
+    "changedMessage": "Nous avons actualisé votre calendrier. Veuillez réessayer.",
     "reminder": {
       "logNote": {
         "title": "Prenez une note post-séance",
@@ -1097,6 +1097,6 @@
     "test_purchase_not_allowed": "Cet achat de test ne peut pas être utilisé avec cette version de l’application.",
     "network": "La connexion a échoué. Vérifiez votre connexion Internet et réessayez.",
     "session_changed": "Votre session de connexion a changé. Veuillez réessayer.",
-    "calendar_changed": "Votre calendrier a changé sur un autre appareil. Actualisez et réessayez."
+    "calendar_changed": "Votre calendrier n'était pas à jour. Actualisez et réessayez."
   }
 }

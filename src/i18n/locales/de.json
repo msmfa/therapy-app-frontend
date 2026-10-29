@@ -308,7 +308,7 @@
   "calendar": {
     "nextSession": "Nächste Sitzung",
     "nextReminder": "Nächste Erinnerung",
-    "changedTitle": "Kalender geändert",
+    "changedTitle": "Kalender aktualisiert",
     "saveFailed": "Die Sitzungen lassen sich im Moment nicht speichern.",
     "outOfRange": "Termine müssen zwischen heute und einem Jahr in der Zukunft liegen. Bitte passen Sie Ihre Auswahl an.",
     "sessionChanged": "Die Sitzung hat sich geändert. Bitte versuchen Sie es erneut.",
@@ -385,7 +385,7 @@
       "dismissReminder": "Erinnerung schließen",
       "dismissHint": "Hinweis schließen"
     },
-    "changedMessage": "Dein Kalender wurde auf einem anderen Gerät geändert. Er wurde aktualisiert, versuche die Änderung noch einmal.",
+    "changedMessage": "Wir haben deinen Kalender aktualisiert. Bitte versuche es erneut.",
     "reminder": {
       "logNote": {
         "title": "Mach dir eine Notiz nach der Sitzung",
@@ -1097,6 +1097,6 @@
     "test_purchase_not_allowed": "Dieser Testkauf kann mit dieser Version der App nicht verwendet werden.",
     "network": "Die Verbindung konnte nicht hergestellt werden. Prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.",
     "session_changed": "Ihre Anmeldesitzung hat sich geändert. Bitte versuchen Sie es erneut.",
-    "calendar_changed": "Dein Kalender wurde auf einem anderen Gerät geändert. Aktualisiere und versuche es erneut."
+    "calendar_changed": "Dein Kalender war nicht aktuell. Aktualisiere ihn und versuche es erneut."
   }
 }
