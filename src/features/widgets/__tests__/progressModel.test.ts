@@ -84,4 +84,11 @@ describe('real widget progress', () => {
         expect(payload.entries[0].progress.url).toBe('therapyapp:///(tabs)/notes');
         expect(widgetDisplay([], new Date(), 'UTC').hasSchedule).toBe(false);
     });
+    it('sends the VoiceOver day states in the app language', () => {
+        const at = new Date('2026-09-28T01:00:00Z');
+        expect(widgetDisplay([], at, 'UTC')).toMatchObject({ completedLabel: 'completed', pendingLabel: 'today, check-in pending', scheduledLabel: 'scheduled' });
+        expect(widgetDisplay([], at, 'UTC', 'fr-FR')).toMatchObject({ completedLabel: 'terminé', pendingLabel: 'aujourd’hui, bilan en attente', scheduledLabel: 'prévu' });
+        expect(widgetDisplay([], at, 'UTC', 'de')).toMatchObject({ completedLabel: 'abgeschlossen', scheduledLabel: 'geplant' });
+        expect(widgetDisplay([], at, 'UTC', 'es')).toMatchObject({ completedLabel: 'completado', scheduledLabel: 'programado' });
+    });
 });

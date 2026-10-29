@@ -19,6 +19,10 @@ export type WidgetDisplay = {
     streakLabel: string;
     emptyTitle: string;
     emptyMessage: string;
+    /** VoiceOver states for each day, in the app's language like the text beside them. */
+    completedLabel: string;
+    pendingLabel: string;
+    scheduledLabel: string;
     url: string;
 };
 export type ProgressTimeline = {
@@ -79,6 +83,14 @@ const copy: Record<string, [string, string, string]> = {
     fr: ['jours de suite', 'Ton prochain petit pas', 'Ouvre Plastic Brains pour voir tes bilans.'],
 };
 
+// A day's state as VoiceOver reads it after the weekday: completed, today and pending, scheduled.
+const dayStates: Record<string, [string, string, string]> = {
+    en: ['completed', 'today, check-in pending', 'scheduled'],
+    de: ['abgeschlossen', 'heute, Check-in ausstehend', 'geplant'],
+    es: ['completado', 'hoy, registro pendiente', 'programado'],
+    fr: ['terminé', 'aujourd’hui, bilan en attente', 'prévu'],
+};
+
 export function widgetDisplay(slots: ProgressSlot[], at: Date, zone: string, language = 'en'): WidgetDisplay {
     const now = at.getTime();
     const today = localDateKeyInZone(at, zone);
@@ -93,6 +105,7 @@ export function widgetDisplay(slots: ProgressSlot[], at: Date, zone: string, lan
     const to = sunday.toISOString().slice(0, 10);
     const visible = [...new Set(slots.filter((slot) => slot.date >= from && slot.date <= to).map((slot) => slot.date))].sort();
     const [streakLabel, defaultTitle, emptyMessage] = copy[language.split('-')[0]] ?? copy.en;
+    const [completedLabel, pendingLabel, scheduledLabel] = dayStates[language.split('-')[0]] ?? dayStates.en;
     const weekEmpty: Record<string, string> = { en: 'No check-ins this week', de: 'Diese Woche keine Check-ins', es: 'Sin registros esta semana', fr: 'Aucun bilan cette semaine' };
     const emptyTitle = slots.length > 0 && visible.length === 0 ? (weekEmpty[language.split('-')[0]] ?? weekEmpty.en) : defaultTitle;
     const days = visible.map((key, id) => ({
@@ -102,7 +115,7 @@ export function widgetDisplay(slots: ProgressSlot[], at: Date, zone: string, lan
         today: key === today || key === open?.date,
     }));
     return { days, streak: scheduledDayStreak(slots, now), hasSchedule: slots.length > 0,
-        streakLabel, emptyTitle, emptyMessage, url: 'therapyapp:///(tabs)/notes' };
+        streakLabel, emptyTitle, emptyMessage, completedLabel, pendingLabel, scheduledLabel, url: 'therapyapp:///(tabs)/notes' };
 }
 
 export function buildProgressTimeline(slots: ProgressSlot[], now: Date, zone: string, language = 'en'): ProgressTimeline {
