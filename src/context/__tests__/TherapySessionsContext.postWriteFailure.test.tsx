@@ -178,6 +178,24 @@ describe('when a write is saved but the calendar cannot be fetched after it', ()
     expect(await nextEditRevision(result)).toBe(7);
   });
 
+  it('reports a failed load to a screen whose own load the refetch replaced', async () => {
+    const result = await renderLoaded();
+    // A screen's load hangs on a poor connection and never answers.
+    getCalendar.mockImplementationOnce(() => new Promise(() => {}));
+    let screenLoad: Promise<void> = Promise.resolve();
+    act(() => { screenLoad = result.current.refreshSessions(); });
+    const settled = screenLoad.then(() => 'loaded', () => 'failed');
+    await waitFor(() => expect(result.current.reminderScheduleStatus).toBe('loading'));
+
+    // A delete is saved, and the refetch that replaces the screen's load fails.
+    deleteSession.mockResolvedValueOnce({ revision: 8, deleted: 1 });
+    await act(async () => { await result.current.removeSession('one-off', 'this'); });
+    expect(getCalendar).toHaveBeenCalledTimes(3);
+
+    expect(result.current.reminderScheduleStatus).toBe('error');
+    expect(await settled).toBe('failed');
+  });
+
   it('keeps trying to fetch the calendar until it succeeds', async () => {
     jest.useFakeTimers();
     const result = await renderLoaded();

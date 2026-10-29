@@ -1,9 +1,9 @@
 import React from 'react';
 import { Platform } from 'react-native';
-import { fireEvent, render, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 
 import * as therapyModule from '../../src/api/therapy';
-import { TherapySessionsProvider } from '../../src/context/therapy-sessions/TherapySessionsContext';
+import { TherapySessionsProvider, useTherapySessions } from '../../src/context/therapy-sessions/TherapySessionsContext';
 
 // Reminder settings against the real calendar context. A failed load used to
 // leave an editable form on the defaults, and Save sent both times, so a time
@@ -121,6 +121,35 @@ it('shows an error with a retry, not an editable form, when the times cannot be 
 
 	await waitFor(() => expect(mockUpdateSettings).toHaveBeenCalledTimes(1));
 	expect(mockUpdateSettings).toHaveBeenCalledWith({ morningReminderMinutes: 555 });
+});
+
+it('offers a retry when a newer load replaces its own and fails', async () => {
+	// The screen's load hangs; the plan is then refetched after a change made
+	// elsewhere (a zone or preference update), and that fails too.
+	let refreshPlan = () => Promise.resolve();
+	const Plan = () => {
+		refreshPlan = useTherapySessions().refreshReminderSchedule;
+		return null;
+	};
+	getCalendar.mockImplementationOnce(() => new Promise(() => {}));
+	const view = render(
+		<TherapySessionsProvider>
+			<ReminderSettingsScreen />
+			<Plan />
+		</TherapySessionsProvider>,
+	);
+	await waitFor(() => expect(getCalendar).toHaveBeenCalledTimes(1));
+	expect(view.getByText('Loading')).not.toBeNull();
+
+	getCalendar.mockRejectedValueOnce(new TypeError('Network request failed'));
+	await act(async () => { await refreshPlan().catch(() => {}); });
+	expect(getCalendar).toHaveBeenCalledTimes(2);
+
+	await waitFor(() => expect(view.getByText('We couldn’t load reminder settings')).not.toBeNull());
+	getCalendar.mockResolvedValueOnce(calendar(390, 1335));
+	fireEvent.press(view.getByText('Try again'));
+	await waitFor(() => expect(view.getByText('picker:6:30')).not.toBeNull());
+	expect(getCalendar).toHaveBeenCalledTimes(3);
 });
 
 it('shows the morning time the server sends at when none is stored', async () => {

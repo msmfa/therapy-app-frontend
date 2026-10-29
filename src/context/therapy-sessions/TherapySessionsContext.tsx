@@ -106,11 +106,25 @@ interface TherapySessionsContextType {
 
 const TherapySessionsContext = createContext<TherapySessionsContextType | undefined>(undefined);
 
+/** What everyone waiting on the calendar is told: that one landed, or why none did. */
+type Outcome = { done: Promise<void>; land: () => void; fail: (err: unknown) => void };
+
+const newOutcome = (): Outcome => {
+    let land: () => void = () => {};
+    let fail: (err: unknown) => void = () => {};
+    const done = new Promise<void>((resolve, reject) => {
+        land = resolve;
+        fail = reject;
+    });
+    return { done, land, fail };
+};
+
 /** Everything held per signed-in account, replaced wholesale on a switch. */
 type Account = {
     userId: string | null;
     snapshot: CalendarSnapshot | null;
-    inFlight: Promise<void> | null;
+    /** Shared by every request since the last answer. Only the newest settles it. */
+    inFlight: Outcome | null;
     /** Bumped per request so a superseded answer can be told from the current one. */
     sequence: number;
     /** The next try at a refetch that failed after a committed write. */
@@ -174,52 +188,66 @@ export function TherapySessionsProvider({ children }: { children: React.ReactNod
      * in flight is ignored when it lands. That is what a zone or preference
      * change needs, since the server rebuilt the plan after the old request
      * was answered, and its answer must not be allowed to overwrite the new one.
+     * Callers of a superseded request are told how the newer one went.
      * A `quiet` fetch leaves the loading and error state alone: it follows a
      * write that already succeeded, so its failure is not news for the screen.
      */
     const fetchCalendar = useCallback(async (supersede: boolean, quiet = false) => {
         if (!account.userId || accountRef.current !== account) return;
-        if (account.inFlight && !supersede) return account.inFlight;
+        const outcome = account.inFlight ?? newOutcome();
 
-        const sequence = ++account.sequence;
-        const isCurrent = () => accountRef.current === account && account.sequence === sequence;
-        const request: Promise<void> = (async () => {
-            if (!quiet) patchState({ loading: true, error: null, status: 'loading' });
-            try {
-                const { from, to } = getCalendarFetchWindow();
-                const data = await getCalendar(from, to);
-                if (!isCurrent()) return;
-                // Keep an imperative copy too. A caller awaiting this request
-                // resumes before React has committed setState, and must still
-                // see the canonical calendar that just arrived.
-                account.snapshot = data;
-                patchState({ snapshot: data, status: 'ready', error: null });
-                if (account.retryTimer !== null) clearTimeout(account.retryTimer);
-                account.retryTimer = null;
-                void writeCalendarSnapshot(account.userId!, data);
-            } catch (err) {
-                if (!isCurrent()) return;
-                if (!quiet) patchState({ error: { ...mapSessionError(err) }, status: 'error' });
-                if (!(err instanceof ApiError) || err.status >= 500) {
-                    Sentry.withScope((scope) => {
-                        scope.setTag('feature', 'therapy-sessions.refreshSessions');
-                        scope.setContext('request', { cachedSessions: account.snapshot?.sessions.length ?? 0 });
-                        Sentry.captureException(toError(err));
-                    });
+        if (account.inFlight === null || supersede) {
+            account.inFlight = outcome;
+            const sequence = ++account.sequence;
+            const isCurrent = () => accountRef.current === account && account.sequence === sequence;
+            void (async () => {
+                if (!quiet) patchState({ loading: true, error: null, status: 'loading' });
+                try {
+                    const { from, to } = getCalendarFetchWindow();
+                    const data = await getCalendar(from, to);
+                    if (!isCurrent()) return;
+                    // Keep an imperative copy too. A caller awaiting this request
+                    // resumes before React has committed setState, and must still
+                    // see the canonical calendar that just arrived.
+                    account.snapshot = data;
+                    patchState({ snapshot: data, status: 'ready', error: null });
+                    if (account.retryTimer !== null) clearTimeout(account.retryTimer);
+                    account.retryTimer = null;
+                    void writeCalendarSnapshot(account.userId!, data);
+                    outcome.land();
+                } catch (err) {
+                    if (!isCurrent()) return;
+                    // Settle first: if reporting below threw, every caller
+                    // sharing this request would wait forever.
+                    outcome.fail(err);
+                    if (!(err instanceof ApiError) || err.status >= 500) {
+                        Sentry.withScope((scope) => {
+                            scope.setTag('feature', 'therapy-sessions.refreshSessions');
+                            scope.setContext('request', { cachedSessions: account.snapshot?.sessions.length ?? 0 });
+                            Sentry.captureException(toError(err));
+                        });
+                    }
+                    console.error('Error loading sessions:', err);
+                } finally {
+                    // A superseded request must not clear what the newer one set.
+                    if (isCurrent()) {
+                        account.inFlight = null;
+                        patchState({ loading: false });
+                    } else if (accountRef.current !== account) {
+                        // After a switch nothing newer will answer for this account.
+                        outcome.land();
+                    }
                 }
-                console.error('Error loading sessions:', err);
-                throw err;
-            } finally {
-                // A superseded request must not clear the flag the newer one set.
-                if (isCurrent()) {
-                    account.inFlight = null;
-                    patchState({ loading: false });
-                }
-            }
-        })();
+            })();
+        }
 
-        account.inFlight = request;
-        return request;
+        try {
+            await outcome.done;
+        } catch (err) {
+            // Whichever request failed, a caller showing the load says so.
+            if (!quiet) patchState({ error: { ...mapSessionError(err) }, status: 'error' });
+            throw err;
+        }
     }, [account, patchState]);
 
     const refreshSessions = useCallback(() => fetchCalendar(false), [fetchCalendar]);
@@ -232,16 +260,15 @@ export function TherapySessionsProvider({ children }: { children: React.ReactNod
      */
     const retryLater = useCallback((delay = POST_WRITE_RETRY_MS) => {
         if (account.retryTimer !== null || accountRef.current !== account) return;
-        const timer = setTimeout(async () => {
-            await fetchCalendar(false, true).catch(() => {});
-            // A fetch that landed, a switch or an unmount has already let it go.
-            // Otherwise nothing has landed: this fetch failed, or a newer one
-            // superseded it and resolved without an answer. A write whose own
-            // refetch failed meanwhile found this timer still set and armed
-            // nothing, so keep going.
-            if (account.retryTimer !== timer) return;
-            account.retryTimer = null;
-            retryLater(Math.min(delay * 2, POST_WRITE_RETRY_MAX_MS));
+        const timer = setTimeout(() => {
+            fetchCalendar(false, true).catch(() => {
+                // Nothing landed. A write whose own refetch failed meanwhile
+                // found this timer still set and armed nothing, so keep going,
+                // unless a switch or an unmount has already let it go.
+                if (account.retryTimer !== timer) return;
+                account.retryTimer = null;
+                retryLater(Math.min(delay * 2, POST_WRITE_RETRY_MAX_MS));
+            });
         }, delay);
         account.retryTimer = timer;
     }, [account, fetchCalendar]);
@@ -325,7 +352,7 @@ export function TherapySessionsProvider({ children }: { children: React.ReactNod
         // Onboarding adds a schedule to an account that may already have one.
         // Wait for the canonical calendar rather than deciding against an
         // empty list that the first GET is about to replace.
-        if (account.inFlight) await account.inFlight;
+        if (account.inFlight) await account.inFlight.done;
         else if (!account.snapshot) await refreshSessions();
         assertCurrentAccount();
 
